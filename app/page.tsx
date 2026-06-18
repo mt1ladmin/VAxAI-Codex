@@ -16,13 +16,13 @@ const image = {
   hero:
     "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=85",
   collageOne:
-    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=85",
+    "/admin-systems-remote-circles.jpg",
   collageTwo:
-    "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=85",
+    "/admin-systems-network.jpg",
   collageThree:
-    "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=700&q=85",
+    "/admin-systems-team.jpg",
   expert:
-    "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=800&q=85",
+    "/vaxai-support-control.jpg",
   thesia: "/thesia-kouloungou.jpg",
   cta:
     "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=900&q=85",
