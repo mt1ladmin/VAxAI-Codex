@@ -51,9 +51,22 @@ const features = [
 ];
 
 const experts = [
-  ["Workflow Audit", "A clear review of the admin load, current tools, and pressure points."],
-  ["AI Admin System", "Automation plans that fit how you already work, not a generic tool stack."],
-  ["Managed Support", "Ongoing virtual assistance, exception handling, and admin updates."],
+  {
+    name: "Thesia Kouloungou",
+    role: "AI & Workflow Lead",
+    copy: "Hi, I am the founder and CEO of MT1L and VAxAI. I lead the AI consultations and workflow reviews, working with you to spot where automation, AI tools, or small process changes can reduce pressure and create more capacity without adding complexity you do not need.",
+    photo: image.expert,
+  },
+  {
+    name: "Workflow Audit",
+    role: "Assessment",
+    copy: "A clear review of the admin load, current tools, and pressure points.",
+  },
+  {
+    name: "Managed Support",
+    role: "VA Oversight",
+    copy: "Ongoing virtual assistance, exception handling, and admin updates.",
+  },
 ];
 
 const plans = [
@@ -291,14 +304,19 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle title="Meet The Experts Behind Our Success" narrow />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {experts.map(([title, copy], index) => (
-              <article key={title} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
-                <div className={`grid aspect-[0.82] place-items-end rounded-md p-5 ${index === 0 ? "bg-acid" : index === 1 ? "bg-[#fff1a6]" : "bg-[#ff8c22]"}`}>
-                  <span className="text-5xl font-black leading-none text-ink">+</span>
-                </div>
+            {experts.map((expert, index) => (
+              <article key={expert.name} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
+                {expert.photo ? (
+                  <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-md" />
+                ) : (
+                  <div className={`grid aspect-[0.82] place-items-end rounded-md p-5 ${index === 1 ? "bg-[#fff1a6]" : "bg-[#ff8c22]"}`}>
+                    <span className="text-5xl font-black leading-none text-ink">+</span>
+                  </div>
+                )}
                 <div className="p-4">
-                  <h3 className="font-black">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted">{copy}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{expert.role}</p>
+                  <h3 className="mt-2 font-black">{expert.name}</h3>
+                  <p className="mt-3 text-sm leading-6 text-muted">{expert.copy}</p>
                 </div>
               </article>
             ))}
