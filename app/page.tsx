@@ -26,7 +26,14 @@ const image = {
     "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=85",
 };
 
-const logos = ["Vogue", "Vertex", "Finch", "Upnorth", "BrightCo", "Monument"];
+const tools = [
+  "ChatGPT",
+  "Claude",
+  "Codex",
+  "Microsoft Copilot",
+  "Zapier",
+  "Make",
+];
 
 const features = [
   {
@@ -55,7 +62,7 @@ const experts = [
   {
     name: "Thesia Kouloungou",
     role: "AI & Workflow Lead",
-    copy: "Hi, I am the founder and CEO of MT1L and VAxAI. I lead the AI consultations and workflow reviews, working with you to spot where automation, AI tools, or small process changes can reduce pressure and create more capacity without adding complexity you do not need.",
+    copy: "Hi, I am the founder and CEO of MT1L and VAxAI. I lead our AI consultations and workflow reviews, helping you find where AI, automation, or small process changes can take pressure off your day without adding tools you do not need.",
     photo: image.thesia,
   },
   {
@@ -95,7 +102,7 @@ const plans = [
 const process = [
   ["01", "Assess the admin load", "We understand what is piling up, where time is going, and where the workflow breaks."],
   ["02", "Design the AI system", "We decide what can be automated, what needs human judgement, and what needs cleaner foundations."],
-  ["03", "Support and improve", "VA support monitors the system, manages exceptions, gives updates, and handles extra admin requests."],
+  ["03", "Support and improve", "VA support monitors the system, manages exceptions, and handles extra admin requests."],
 ];
 
 const faqs = [
@@ -131,8 +138,8 @@ function PhotoCard({
 
 function MiniLogo() {
   return (
-    <a href="#top" className="flex items-center gap-2 font-black text-paper">
-      <span className="grid h-6 w-6 place-items-center rounded-full bg-acid text-[11px] text-ink">
+    <a href="#top" className="flex items-center gap-2 font-semibold text-paper">
+      <span className="grid h-6 w-6 place-items-center rounded-full bg-acid text-[11px] font-bold text-ink">
         VA
       </span>
       <span className="text-sm tracking-tight">VAxAI</span>
@@ -156,11 +163,11 @@ function SectionTitle({
   return (
     <motion.div {...reveal} className={`mx-auto text-center ${narrow ? "max-w-xl" : "max-w-2xl"}`}>
       {eyebrow ? (
-        <p className={`mb-3 text-xs font-bold uppercase tracking-[0.18em] ${light ? "text-acid" : "text-muted"}`}>
+        <p className={`mb-3 text-xs font-semibold uppercase tracking-[0.18em] ${light ? "text-acid" : "text-muted"}`}>
           {eyebrow}
         </p>
       ) : null}
-      <h2 className={`text-3xl font-black leading-[1.02] md:text-5xl ${light ? "text-paper" : "text-ink"}`}>
+      <h2 className={`text-3xl font-semibold leading-[1.08] md:text-5xl ${light ? "text-paper" : "text-ink"}`}>
         {title}
       </h2>
       {copy ? (
@@ -169,6 +176,25 @@ function SectionTitle({
         </p>
       ) : null}
     </motion.div>
+  );
+}
+
+function ToolScroller() {
+  const repeatedTools = [...tools, ...tools];
+
+  return (
+    <div className="overflow-x-auto scrollbar-none">
+      <div className="flex min-w-max gap-3 pr-4 md:animate-tool-scroll">
+        {repeatedTools.map((tool, index) => (
+          <div
+            key={`${tool}-${index}`}
+            className="grid h-20 min-w-[170px] place-items-center rounded-md border border-ink/10 bg-white px-6 text-center text-sm font-semibold text-muted shadow-[0_10px_30px_rgba(17,17,17,0.04)]"
+          >
+            {tool}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -184,7 +210,7 @@ export default function Home() {
             <a href="#pricing">Pricing</a>
             <a href="#faq">FAQ</a>
           </div>
-          <a href="/contact" className="hidden rounded-md bg-acid px-4 py-2 text-xs font-black text-ink md:inline-flex">
+          <a href="/contact" className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
             Book a call
           </a>
           <button className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden" aria-label="Open menu">
@@ -194,15 +220,15 @@ export default function Home() {
 
         <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div {...reveal}>
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-acid">AI admin support</p>
-            <h1 className="max-w-2xl text-5xl font-black leading-[0.94] md:text-7xl">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-acid">AI admin support</p>
+            <h1 className="max-w-2xl text-5xl font-semibold leading-[1] md:text-7xl">
               AI-powered admin support for people with too much to hold
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
               VAxAI helps founders, consultants, charities and small teams bring inboxes, diaries, files and client follow-up under control with smart automation and human VA oversight.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <a href="/contact" className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-black text-ink">
+              <a href="/contact" className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
                 Book a workflow call
                 <ArrowRight className="h-4 w-4" />
               </a>
@@ -217,7 +243,7 @@ export default function Home() {
                   <span key={index} className="w-3 rounded-full bg-ink" style={{ height }} />
                 ))}
               </div>
-              <p className="text-xs font-black uppercase leading-4">Workflow calmer by Friday</p>
+              <p className="text-xs font-semibold uppercase leading-4">Workflow calmer by Friday</p>
             </div>
           </motion.div>
         </div>
@@ -228,23 +254,20 @@ export default function Home() {
           <motion.div {...reveal} className="flex items-center gap-3">
             <PhotoCard src={image.cta} className="h-12 w-12 rounded-md" />
             <div>
-              <p className="text-sm font-black">VAxAI</p>
-              <p className="text-xs text-muted">AI + VA support</p>
+              <p className="text-sm font-semibold">VAxAI</p>
+              <p className="text-xs text-muted">AI consultancy + virtual assistance</p>
             </div>
           </motion.div>
           <motion.p {...reveal} className="max-w-4xl text-sm leading-7 text-muted md:text-base">
-            We understand what is piling up, assess your current workflow, design the right AI-enabled system, then provide VA support to monitor automations, manage exceptions, and keep you confidently on top of the details.
+            We work with the tools you already know and trust, then add the right AI and automation where it genuinely reduces admin pressure.
           </motion.p>
         </div>
       </section>
 
       <section className="px-4 pb-16 md:px-8">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-6">
-          {logos.map((logo) => (
-            <div key={logo} className="rounded-md border border-ink/10 bg-white px-4 py-4 text-center text-xs font-black text-muted">
-              {logo}
-            </div>
-          ))}
+        <div className="mx-auto max-w-6xl">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted">AI systems and admin tools</p>
+          <ToolScroller />
         </div>
       </section>
 
@@ -275,8 +298,8 @@ export default function Home() {
             <div className="grid gap-5">
               {features.slice(0, 2).map((feature) => (
                 <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
-                  <h3 className="mt-8 text-lg font-black">{feature.title}</h3>
+                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-semibold text-ink">{feature.mark}</span>
+                  <h3 className="mt-8 text-lg font-semibold">{feature.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
                 </article>
               ))}
@@ -284,15 +307,15 @@ export default function Home() {
             <motion.div {...reveal} className="relative">
               <PhotoCard src={image.expert} className="aspect-[0.78] rounded-md" />
               <div className="absolute bottom-4 left-4 right-4 rounded-md bg-paper p-4 text-ink">
-                <p className="text-sm font-black">AI admin support that stays human</p>
+                <p className="text-sm font-semibold">AI admin support that stays human</p>
                 <p className="mt-1 text-xs text-muted">Automation watched by real VA oversight.</p>
               </div>
             </motion.div>
             <div className="grid gap-5">
               {features.slice(2).map((feature) => (
                 <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
-                  <h3 className="mt-8 text-lg font-black">{feature.title}</h3>
+                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-semibold text-ink">{feature.mark}</span>
+                  <h3 className="mt-8 text-lg font-semibold">{feature.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
                 </article>
               ))}
@@ -316,7 +339,7 @@ export default function Home() {
                 )}
                 <div className="p-4">
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{expert.role}</p>
-                  <h3 className="mt-2 font-black">{expert.name}</h3>
+                  <h3 className="mt-2 font-semibold">{expert.name}</h3>
                   <p className="mt-3 text-sm leading-6 text-muted">{expert.copy}</p>
                 </div>
               </article>
@@ -339,7 +362,7 @@ export default function Home() {
                 className={`rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#063b32] text-paper" : "border-ink/10 bg-white"}`}
               >
                 <p className={`text-xs font-bold uppercase tracking-[0.16em] ${plan.featured ? "text-acid" : "text-muted"}`}>{plan.title}</p>
-                <h3 className="mt-5 text-4xl font-black">{plan.label}</h3>
+                <h3 className="mt-5 text-4xl font-semibold">{plan.label}</h3>
                 <p className={`mt-4 min-h-20 text-sm leading-6 ${plan.featured ? "text-paper/72" : "text-muted"}`}>{plan.copy}</p>
                 <ul className="mt-8 space-y-3 text-sm">
                   {plan.items.map((item) => (
@@ -350,7 +373,7 @@ export default function Home() {
                   ))}
                 </ul>
                 {plan.featured ? (
-                  <a href="/contact" className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-acid px-4 py-3 text-sm font-black text-ink">
+                  <a href="/contact" className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-acid px-4 py-3 text-sm font-semibold text-ink">
                     Book a workflow call
                   </a>
                 ) : null}
@@ -371,8 +394,8 @@ export default function Home() {
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {process.map(([step, title, copy]) => (
               <article key={step} className="rounded-md border border-white/12 bg-white/[0.06] p-6">
-                <p className="text-sm font-black text-acid">{step}</p>
-                <h3 className="mt-10 text-xl font-black">{title}</h3>
+                <p className="text-sm font-semibold text-acid">{step}</p>
+                <h3 className="mt-10 text-xl font-semibold">{title}</h3>
                 <p className="mt-4 text-sm leading-6 text-paper/68">{copy}</p>
               </article>
             ))}
@@ -389,7 +412,7 @@ export default function Home() {
           />
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             <article className="rounded-md border border-ink/10 bg-white p-6">
-              <h3 className="font-black">Typical automation setup</h3>
+              <h3 className="font-semibold">Typical automation setup</h3>
               <ul className="mt-6 space-y-4 text-sm text-muted">
                 {["Tool setup without context", "Limited workflow understanding", "No one monitoring exceptions", "You still manage the admin fallout"].map((item) => (
                   <li key={item} className="flex gap-3">
@@ -400,7 +423,7 @@ export default function Home() {
               </ul>
             </article>
             <article className="rounded-md border border-ink/10 bg-white p-6">
-              <h3 className="font-black">VAxAI approach</h3>
+              <h3 className="font-semibold">VAxAI approach</h3>
               <ul className="mt-6 space-y-4 text-sm text-muted">
                 {["Workflow assessment first", "AI automation designed around real admin", "Human VA oversight", "Clear updates and extra support when needed"].map((item) => (
                   <li key={item} className="flex gap-3">
@@ -418,13 +441,13 @@ export default function Home() {
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
           <motion.div {...reveal}>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
-            <h2 className="mt-3 text-3xl font-black leading-[1.02] md:text-5xl">Questions about VAxAI?</h2>
+            <h2 className="mt-3 text-3xl font-semibold leading-[1.08] md:text-5xl">Questions about VAxAI?</h2>
             <p className="mt-5 text-sm leading-6 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
           </motion.div>
           <motion.div {...reveal} className="divide-y divide-ink/10 rounded-md border border-ink/10 bg-white">
             {faqs.map(([question, answer]) => (
               <details key={question} className="group p-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-black">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold">
                   {question}
                   <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
                 </summary>
@@ -438,10 +461,10 @@ export default function Home() {
       <section className="px-4 pb-16 md:px-8">
         <div className="mx-auto grid max-w-6xl overflow-hidden rounded-md bg-[#063b32] text-paper md:grid-cols-[1fr_0.85fr]">
           <div className="p-8 md:p-10">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-acid">VAxAI experts to book</p>
-            <h2 className="mt-4 max-w-md text-3xl font-black leading-[1.02] md:text-5xl">Your admin, calmer by next week</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">VAxAI experts to book</p>
+            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] md:text-5xl">Your admin, calmer by next week</h2>
             <p className="mt-5 max-w-lg text-sm leading-6 text-paper/70">Start with a workflow call and leave with a clearer sense of what should be automated, what should be delegated, and what needs proper oversight.</p>
-            <a href="/contact" className="mt-8 inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-black text-ink">
+            <a href="/contact" className="mt-8 inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
               Book a workflow call
               <MailCheck className="h-4 w-4" />
             </a>
@@ -453,7 +476,7 @@ export default function Home() {
       <footer className="border-t border-ink/10 px-4 py-10 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1fr_1.2fr]">
           <div>
-            <div className="flex items-center gap-2 font-black">
+            <div className="flex items-center gap-2 font-semibold">
               <span className="grid h-7 w-7 place-items-center rounded-full bg-[#063b32] text-[11px] text-acid">VA</span>
               VAxAI
             </div>
@@ -467,7 +490,7 @@ export default function Home() {
               ["Legal", "Privacy", "Terms", "Accessibility"],
             ].map(([heading, ...links]) => (
               <div key={heading}>
-                <p className="font-black">{heading}</p>
+                <p className="font-semibold">{heading}</p>
                 <div className="mt-4 grid gap-3 text-muted">
                   {links.map((link) => (
                     <a key={link} href="/contact">{link}</a>
