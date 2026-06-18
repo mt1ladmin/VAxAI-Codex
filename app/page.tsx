@@ -27,12 +27,28 @@ const image = {
 };
 
 const tools = [
-  "ChatGPT",
-  "Claude",
-  "Codex",
-  "Microsoft Copilot",
-  "Zapier",
-  "Make",
+  { name: "ChatGPT", mark: "AI", markClass: "bg-[#10A37F]/10 text-[#10A37F]" },
+  {
+    name: "Claude",
+    logo: "https://cdn.simpleicons.org/anthropic/D97757",
+    markClass: "bg-[#D97757]/10",
+  },
+  { name: "Codex", mark: "CX", markClass: "bg-ink/5 text-ink" },
+  {
+    name: "Copilot",
+    logo: "https://cdn.simpleicons.org/githubcopilot/2563EB",
+    markClass: "bg-[#2563EB]/10",
+  },
+  {
+    name: "Zapier",
+    logo: "https://cdn.simpleicons.org/zapier/FF4F00",
+    markClass: "bg-[#FF4F00]/10",
+  },
+  {
+    name: "Make",
+    logo: "https://cdn.simpleicons.org/make/6D28D9",
+    markClass: "bg-[#6D28D9]/10",
+  },
 ];
 
 const features = [
@@ -187,10 +203,18 @@ function ToolScroller() {
       <div className="flex min-w-max gap-3 pr-4 md:animate-tool-scroll">
         {repeatedTools.map((tool, index) => (
           <div
-            key={`${tool}-${index}`}
-            className="grid h-20 min-w-[170px] place-items-center rounded-md border border-ink/10 bg-white px-6 text-center text-sm font-semibold text-muted shadow-[0_10px_30px_rgba(17,17,17,0.04)]"
+            key={`${tool.name}-${index}`}
+            className="flex h-20 min-w-[190px] items-center justify-center gap-3 rounded-md border border-ink/10 bg-white px-6 text-sm font-semibold text-ink shadow-[0_10px_30px_rgba(17,17,17,0.04)]"
+            aria-label={tool.name}
           >
-            {tool}
+            <span className={`grid h-10 w-10 place-items-center rounded-full text-xs font-bold ${tool.markClass}`}>
+              {"logo" in tool ? (
+                <img src={tool.logo} alt="" className="h-5 w-5" loading="lazy" />
+              ) : (
+                tool.mark
+              )}
+            </span>
+            <span>{tool.name}</span>
           </div>
         ))}
       </div>
