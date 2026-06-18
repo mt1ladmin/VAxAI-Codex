@@ -19,6 +19,7 @@ const image = {
     "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=85",
   expert:
     "https://images.unsplash.com/photo-1551836022-8b2858c9c69b?auto=format&fit=crop&w=800&q=85",
+  thesia: "/thesia-kouloungou.jpg",
   cta:
     "https://images.unsplash.com/photo-1551836022-fc7af596fba0?auto=format&fit=crop&w=900&q=85",
   footer:
@@ -55,7 +56,7 @@ const experts = [
     name: "Thesia Kouloungou",
     role: "AI & Workflow Lead",
     copy: "Hi, I am the founder and CEO of MT1L and VAxAI. I lead the AI consultations and workflow reviews, working with you to spot where automation, AI tools, or small process changes can reduce pressure and create more capacity without adding complexity you do not need.",
-    photo: image.expert,
+    photo: image.thesia,
   },
   {
     name: "Workflow Audit",
@@ -274,7 +275,7 @@ export default function Home() {
             <div className="grid gap-5">
               {features.slice(0, 2).map((feature) => (
                 <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                  <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
                   <h3 className="mt-8 text-lg font-black">{feature.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
                 </article>
@@ -290,7 +291,7 @@ export default function Home() {
             <div className="grid gap-5">
               {features.slice(2).map((feature) => (
                 <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                  <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
+                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
                   <h3 className="mt-8 text-lg font-black">{feature.title}</h3>
                   <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
                 </article>
