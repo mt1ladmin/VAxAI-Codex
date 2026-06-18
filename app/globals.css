@@ -37,3 +37,21 @@ a {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes tool-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-tool-scroll {
+  animation: tool-scroll 28s linear infinite;
+}
+
+.animate-tool-scroll:hover {
+  animation-play-state: paused;
+}
