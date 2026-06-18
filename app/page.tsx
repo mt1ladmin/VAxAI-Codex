@@ -290,7 +290,7 @@ export default function Home() {
           />
           <div className="mt-14 grid gap-5 md:grid-cols-2">
             {features.map((feature) => (
-              <motion.article {...reveal} key={feature.title} className="rounded-[28px] border border-white/14 bg-white/[0.06] p-7">
+              <motion.article key={feature.title} {...reveal} className="rounded-[28px] border border-white/14 bg-white/[0.06] p-7">
                 <feature.icon className="h-8 w-8 text-acid" aria-hidden="true" />
                 <h3 className="mt-12 text-2xl font-black">{feature.title}</h3>
                 <p className="mt-4 leading-7 text-[#CFCBC2]">{feature.copy}</p>
@@ -309,8 +309,8 @@ export default function Home() {
           <div className="scrollbar-none mt-14 flex snap-x gap-5 overflow-x-auto pb-4">
             {roles.map(([title, label, copy], index) => (
               <motion.article
-                {...reveal}
                 key={title}
+                {...reveal}
                 className="min-w-[280px] snap-start rounded-[28px] border border-ink/12 bg-cream p-6 md:min-w-[350px]"
               >
                 <div className="grid h-16 w-16 place-items-center rounded-2xl bg-ink text-xl font-black text-acid">
@@ -334,8 +334,8 @@ export default function Home() {
           <div className="mt-14 grid gap-5 lg:grid-cols-3">
             {plans.map((plan) => (
               <motion.article
-                {...reveal}
                 key={plan.plan}
+                {...reveal}
                 className={`rounded-[28px] border p-7 ${plan.featured ? "border-acid bg-acid text-ink shadow-soft" : "border-ink/12 bg-cream"}`}
               >
                 <p className="text-sm font-bold uppercase tracking-[0.18em] text-muted">{plan.plan}</p>
@@ -368,7 +368,7 @@ export default function Home() {
               ["02", "Design the AI System", "We decide what should be automated, what needs human judgement, and what foundations must be in place."],
               ["03", "Support, Monitor & Improve", "Our VA support keeps the system moving, manages issues, shares updates, and handles extra admin requests."],
             ].map(([step, title, copy]) => (
-              <motion.article {...reveal} key={title} className="rounded-[28px] border border-white/14 bg-white/[0.06] p-7">
+              <motion.article key={title} {...reveal} className="rounded-[28px] border border-white/14 bg-white/[0.06] p-7">
                 <p className="text-5xl font-black text-acid">{step}</p>
                 <h3 className="mt-14 text-2xl font-black">{title}</h3>
                 <p className="mt-4 leading-7 text-[#CFCBC2]">{copy}</p>
