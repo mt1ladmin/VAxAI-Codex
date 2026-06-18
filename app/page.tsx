@@ -3,433 +3,462 @@
 import { motion } from "framer-motion";
 import {
   ArrowRight,
-  Bot,
-  CalendarCheck,
-  Check,
   ChevronDown,
-  CircleX,
-  ClipboardList,
-  FileStack,
-  Inbox,
-  Layers3,
-  Sparkles,
-  UserRoundCheck,
+  MailCheck,
+  Menu,
 } from "lucide-react";
 
-const trustLabels = [
-  "Founders",
-  "Consultants",
-  "Charities",
-  "Small Teams",
-  "Client Services",
-  "Operations",
-];
+const image = {
+  hero:
+    "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=85",
+  collageOne:
+    "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=700&q=85",
+  collageTwo:
+    "https://images.unsplash.com/photo-1551836022-4c4c79ecde51?auto=format&fit=crop&w=700&q=85",
+  collageThree:
+    "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=85",
+  expert:
+    "https://images.unsplash.com/photo-1551836022-8b2858c9c69b?auto=format&fit=crop&w=800&q=85",
+  cta:
+    "https://images.unsplash.com/photo-1551836022-fc7af596fba0?auto=format&fit=crop&w=900&q=85",
+  footer:
+    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=85",
+};
+
+const logos = ["Vogue", "Vertex", "Finch", "Upnorth", "BrightCo", "Monument"];
 
 const features = [
   {
-    icon: ClipboardList,
+    mark: "01",
     title: "Workflow Assessment",
     copy: "We map what is slowing you down across inboxes, diaries, files, tools, and client admin.",
   },
   {
-    icon: Bot,
-    title: "AI Automation Design",
-    copy: "We design practical AI workflows that reduce repeat admin without removing human judgement.",
+    mark: "02",
+    title: "Automation Design",
+    copy: "Practical AI-enabled workflows reduce repeat admin while keeping judgement in the right places.",
   },
   {
-    icon: Inbox,
-    title: "Inbox, Diary & File Control",
-    copy: "We help keep messages, schedules, documents, and follow-ups organised and moving.",
+    mark: "03",
+    title: "Inbox + Diary Control",
+    copy: "Messages, calendars, documents, and follow-ups stay organised and moving.",
   },
   {
-    icon: UserRoundCheck,
+    mark: "04",
     title: "Human VA Oversight",
-    copy: "Our virtual assistance support monitors automations, handles exceptions, and gives you clear updates.",
+    copy: "Real support monitors automations, manages exceptions, and keeps updates clear.",
   },
 ];
 
-const roles = [
-  ["Admin Workflow Consultant", "Workflow Assessment", "Maps your admin load, tools, and process gaps into a clear action plan."],
-  ["AI Systems Designer", "Automation Design", "Builds practical AI-enabled workflows for repeatable admin tasks."],
-  ["Virtual Assistance Lead", "Human Oversight", "Keeps automations monitored, exceptions handled, and updates clear."],
-  ["Inbox & Diary Specialist", "Inbox + Diary", "Helps manage messages, calendars, follow-ups, and priority admin."],
-  ["File & Process Organiser", "File Management", "Creates cleaner structures for documents, records, and repeat workflows."],
-  ["Client Admin Support", "Client Correspondence", "Supports client follow-up, admin requests, and day-to-day communication flow."],
+const experts = [
+  ["Workflow Audit", "A clear review of the admin load, current tools, and pressure points."],
+  ["AI Admin System", "Automation plans that fit how you already work, not a generic tool stack."],
+  ["Managed Support", "Ongoing virtual assistance, exception handling, and admin updates."],
 ];
 
 const plans = [
   {
-    plan: "Workflow Audit",
+    title: "Workflow Audit",
     label: "Assess",
-    description:
-      "A focused review of your admin load, current tools, and quick-win automation opportunities.",
-    bullets: [
-      "Admin pain-point map",
-      "Workflow and system review",
-      "Automation opportunities",
-      "Priority action plan",
-      "Handover call",
-    ],
+    copy: "For understanding what is slipping and where automation can help first.",
+    items: ["Admin pain-point map", "Workflow review", "Automation opportunities", "Priority action plan"],
   },
   {
-    plan: "Automation Setup",
+    title: "Automation Setup",
     label: "Build",
-    description:
-      "For founders and teams ready to design practical AI workflows and admin systems.",
     featured: true,
-    bullets: [
-      "Inbox and diary workflows",
-      "File and client admin setup",
-      "AI automation design",
-      "VA oversight plan",
-      "Launch support",
-    ],
+    copy: "For founders and teams ready to create a workable AI-enabled admin system.",
+    items: ["Inbox and diary workflows", "File and client admin setup", "AI automation design", "Launch support"],
   },
   {
-    plan: "Managed Support",
+    title: "Managed Support",
     label: "Support",
-    description:
-      "Ongoing virtual assistance, automation monitoring, and human judgement for busy teams.",
-    bullets: [
-      "Human VA oversight",
-      "Automation issue handling",
-      "Inbox and client correspondence",
-      "Regular admin overview",
-      "Extra admin requests",
-    ],
+    copy: "For busy teams that need ongoing VA support and automation oversight.",
+    items: ["Human VA oversight", "Issue handling", "Client correspondence", "Regular admin overview"],
   },
+];
+
+const process = [
+  ["01", "Assess the admin load", "We understand what is piling up, where time is going, and where the workflow breaks."],
+  ["02", "Design the AI system", "We decide what can be automated, what needs human judgement, and what needs cleaner foundations."],
+  ["03", "Support and improve", "VA support monitors the system, manages exceptions, gives updates, and handles extra admin requests."],
 ];
 
 const faqs = [
-  [
-    "Who is VAxAI for?",
-    "Founders, consultants, charities, small businesses, and busy individuals who need help getting everyday admin under control.",
-  ],
-  [
-    "Do you only set up AI tools?",
-    "No. We assess your workflow, design practical automation, and provide virtual assistance support so the system is monitored and managed.",
-  ],
-  [
-    "What admin can you help with?",
-    "Inbox management, diary management, file organisation, client correspondence, follow-ups, workflow tracking, and other recurring admin tasks.",
-  ],
-  [
-    "What does human oversight mean?",
-    "A real person monitors the automation, handles exceptions, applies judgement, and keeps you informed about what is happening.",
-  ],
-  [
-    "Can I request extra admin support?",
-    "Yes. Alongside automation oversight, you can request additional virtual assistance or practical admin support when needed.",
-  ],
+  ["Who is VAxAI for?", "Founders, consultants, charities, small businesses, and busy individuals who need help getting everyday admin under control."],
+  ["Do you only set up AI tools?", "No. We assess your workflow, design practical automation, and provide virtual assistance support so the system is monitored and managed."],
+  ["What admin can you help with?", "Inbox management, diary management, file organisation, client correspondence, follow-ups, workflow tracking, and other recurring admin tasks."],
+  ["What does human oversight mean?", "A real person monitors the automation, handles exceptions, applies judgement, and keeps you informed about what is happening."],
+  ["Can I request extra admin support?", "Yes. Alongside automation oversight, you can request additional virtual assistance or practical admin support when needed."],
 ];
 
 const reveal = {
-  initial: { opacity: 0, y: 24 },
+  initial: { opacity: 0, y: 18 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-80px" },
-  transition: { duration: 0.65, ease: "easeOut" },
+  viewport: { once: true, margin: "-70px" },
+  transition: { duration: 0.5, ease: "easeOut" },
 };
 
-function SectionIntro({
+function PhotoCard({
+  src,
+  className = "",
+}: {
+  src: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`overflow-hidden bg-cover bg-center ${className}`}
+      style={{ backgroundImage: `url(${src})` }}
+      aria-hidden="true"
+    />
+  );
+}
+
+function MiniLogo() {
+  return (
+    <a href="#top" className="flex items-center gap-2 font-black text-paper">
+      <span className="grid h-6 w-6 place-items-center rounded-full bg-acid text-[11px] text-ink">
+        VA
+      </span>
+      <span className="text-sm tracking-tight">VAxAI</span>
+    </a>
+  );
+}
+
+function SectionTitle({
   eyebrow,
   title,
   copy,
   light = false,
+  narrow = false,
 }: {
   eyebrow?: string;
   title: string;
-  copy: string;
+  copy?: string;
   light?: boolean;
+  narrow?: boolean;
 }) {
   return (
-    <motion.div {...reveal} className="mx-auto max-w-4xl text-center">
+    <motion.div {...reveal} className={`mx-auto text-center ${narrow ? "max-w-xl" : "max-w-2xl"}`}>
       {eyebrow ? (
-        <p className={`mb-5 text-sm font-semibold uppercase tracking-[0.18em] ${light ? "text-acid" : "text-muted"}`}>
+        <p className={`mb-3 text-xs font-bold uppercase tracking-[0.18em] ${light ? "text-acid" : "text-muted"}`}>
           {eyebrow}
         </p>
       ) : null}
-      <h2 className={`text-4xl font-black leading-[0.98] md:text-6xl ${light ? "text-paper" : "text-ink"}`}>
+      <h2 className={`text-3xl font-black leading-[1.02] md:text-5xl ${light ? "text-paper" : "text-ink"}`}>
         {title}
       </h2>
-      <p className={`mx-auto mt-6 max-w-3xl text-lg leading-8 md:text-xl ${light ? "text-[#CFCBC2]" : "text-muted"}`}>
-        {copy}
-      </p>
+      {copy ? (
+        <p className={`mx-auto mt-5 text-sm leading-6 md:text-base ${light ? "text-paper/70" : "text-muted"}`}>
+          {copy}
+        </p>
+      ) : null}
     </motion.div>
-  );
-}
-
-function WorkflowVisual() {
-  return (
-    <div className="relative min-h-[420px] overflow-hidden rounded-[32px] bg-ink p-5 text-paper shadow-soft md:min-h-[560px] md:p-8">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(245,242,116,0.22),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.10),transparent_38%)]" />
-      <div className="relative grid h-full gap-5 md:grid-cols-[1.1fr_0.9fr]">
-        <div className="flex min-h-[340px] flex-col justify-between rounded-[24px] border border-white/15 bg-white/[0.07] p-5 backdrop-blur md:p-7">
-          <div className="flex items-center justify-between">
-            <span className="rounded-full bg-acid px-4 py-2 text-sm font-bold text-ink">
-              Live admin flow
-            </span>
-            <Sparkles className="h-6 w-6 text-acid" aria-hidden="true" />
-          </div>
-          <div className="space-y-4">
-            {[
-              ["Inbox triage", "Priority follow-up ready"],
-              ["Diary changes", "Conflicts reviewed"],
-              ["Client files", "Clean handover created"],
-            ].map(([title, status]) => (
-              <div key={title} className="rounded-2xl border border-white/12 bg-paper p-4 text-ink">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-bold">{title}</p>
-                    <p className="mt-1 text-sm text-muted">{status}</p>
-                  </div>
-                  <Check className="h-5 w-5 rounded-full bg-acid p-1 text-ink" aria-hidden="true" />
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-3 gap-3 text-center text-xs font-semibold uppercase text-[#CFCBC2]">
-            <span className="rounded-xl border border-white/12 py-3">Assess</span>
-            <span className="rounded-xl border border-white/12 py-3">Build</span>
-            <span className="rounded-xl border border-white/12 py-3">Support</span>
-          </div>
-        </div>
-        <div className="grid gap-5">
-          <div className="rounded-[24px] bg-acid p-6 text-ink">
-            <CalendarCheck className="mb-10 h-8 w-8" aria-hidden="true" />
-            <p className="text-3xl font-black leading-none">AI admin support that stays human</p>
-          </div>
-          <div className="grid grid-cols-2 gap-5">
-            <div className="rounded-[24px] border border-white/15 bg-white/[0.07] p-5">
-              <FileStack className="mb-10 h-7 w-7 text-acid" aria-hidden="true" />
-              <p className="text-sm text-[#CFCBC2]">Files organised</p>
-            </div>
-            <div className="rounded-[24px] border border-white/15 bg-white/[0.07] p-5">
-              <Layers3 className="mb-10 h-7 w-7 text-acid" aria-hidden="true" />
-              <p className="text-sm text-[#CFCBC2]">Exceptions handled</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-paper text-ink">
-      <section className="bg-night px-5 py-20 text-paper md:px-8 md:py-28 lg:py-32">
-        <motion.div {...reveal} className="mx-auto flex min-h-[78vh] max-w-6xl flex-col items-center justify-center text-center">
-          <p className="mb-8 rounded-full border border-white/14 px-4 py-2 text-sm text-[#CFCBC2]">
-            VAxAI · AI Consultancy + Virtual Assistance
-          </p>
-          <h1 className="max-w-5xl text-5xl font-black leading-[0.96] md:text-7xl lg:text-[88px]">
-            AI-powered admin support for people with too much to hold
-          </h1>
-          <p className="mt-8 max-w-3xl text-lg leading-8 text-[#CFCBC2] md:text-xl">
-            VAxAI helps founders, consultants, charities and small teams bring inboxes, diaries, files and client follow-up under control with smart automation and human VA oversight.
-          </p>
-          <a href="/contact" className="mt-10 inline-flex items-center gap-3 rounded-lg bg-acid px-6 py-4 text-base font-bold text-ink transition hover:-translate-y-0.5 hover:bg-[#fff977]">
-            Book a workflow call
-            <ArrowRight className="h-5 w-5" aria-hidden="true" />
-          </a>
-          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
-            <div className="flex -space-x-3" aria-hidden="true">
-              {["A", "I", "V"].map((letter) => (
-                <span key={letter} className="grid h-10 w-10 place-items-center rounded-full border-2 border-night bg-paper text-sm font-black text-ink">
-                  {letter}
-                </span>
-              ))}
-            </div>
-            <p className="text-sm font-medium text-[#CFCBC2]">
-              Built for founders, consultants, charities and small teams
-            </p>
+    <main id="top" className="min-h-screen bg-paper text-ink">
+      <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between">
+          <MiniLogo />
+          <div className="hidden items-center gap-7 text-xs font-semibold text-paper/70 md:flex">
+            <a href="#services">Services</a>
+            <a href="#experts">Experts</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#faq">FAQ</a>
           </div>
-        </motion.div>
+          <a href="/contact" className="hidden rounded-md bg-acid px-4 py-2 text-xs font-black text-ink md:inline-flex">
+            Book a call
+          </a>
+          <button className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden" aria-label="Open menu">
+            <Menu className="h-4 w-4" />
+          </button>
+        </nav>
+
+        <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
+          <motion.div {...reveal}>
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-acid">AI admin support</p>
+            <h1 className="max-w-2xl text-5xl font-black leading-[0.94] md:text-7xl">
+              AI-powered admin support for people with too much to hold
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
+              VAxAI helps founders, consultants, charities and small teams bring inboxes, diaries, files and client follow-up under control with smart automation and human VA oversight.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <a href="/contact" className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-black text-ink">
+                Book a workflow call
+                <ArrowRight className="h-4 w-4" />
+              </a>
+              <span className="text-xs font-semibold text-paper/65">Built for founders, consultants, charities and small teams</span>
+            </div>
+          </motion.div>
+          <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
+            <PhotoCard src={image.hero} className="aspect-[0.86] rounded-[28px]" />
+            <div className="absolute -bottom-7 -left-6 w-44 rounded-2xl bg-acid p-4 text-ink shadow-soft">
+              <div className="mb-5 flex items-center gap-1">
+                {[24, 34, 20, 42, 28].map((height, index) => (
+                  <span key={index} className="w-3 rounded-full bg-ink" style={{ height }} />
+                ))}
+              </div>
+              <p className="text-xs font-black uppercase leading-4">Workflow calmer by Friday</p>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
-      <section className="px-5 py-20 md:px-8 md:py-28 lg:py-32">
-        <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[0.8fr_1.6fr]">
-          <motion.div {...reveal} className="h-fit rounded-[28px] border border-ink/12 bg-cream p-8">
-            <p className="text-3xl font-black">VAxAI</p>
-            <p className="mt-3 text-muted">AI Consultancy + Virtual Assistance</p>
+      <section className="px-4 py-14 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[120px_1fr] md:items-start">
+          <motion.div {...reveal} className="flex items-center gap-3">
+            <PhotoCard src={image.cta} className="h-12 w-12 rounded-md" />
+            <div>
+              <p className="text-sm font-black">VAxAI</p>
+              <p className="text-xs text-muted">AI + VA support</p>
+            </div>
           </motion.div>
-          <motion.p {...reveal} className="text-3xl font-black leading-tight md:text-5xl">
+          <motion.p {...reveal} className="max-w-4xl text-sm leading-7 text-muted md:text-base">
             We understand what is piling up, assess your current workflow, design the right AI-enabled system, then provide VA support to monitor automations, manage exceptions, and keep you confidently on top of the details.
           </motion.p>
         </div>
       </section>
 
-      <section className="border-y border-ink/10 px-5 py-8 md:px-8">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-4">
-          {trustLabels.map((label) => (
-            <span key={label} className="text-sm font-bold uppercase tracking-[0.18em] text-muted">
-              {label}
-            </span>
+      <section className="px-4 pb-16 md:px-8">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-3 md:grid-cols-6">
+          {logos.map((logo) => (
+            <div key={logo} className="rounded-md border border-ink/10 bg-white px-4 py-4 text-center text-xs font-black text-muted">
+              {logo}
+            </div>
           ))}
         </div>
       </section>
 
-      <section className="px-5 py-20 md:px-8 md:py-28 lg:py-32">
+      <section id="services" className="px-4 pb-20 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <SectionIntro
+          <SectionTitle
             title="Admin systems, automation and human support in one place"
             copy="We combine workflow assessment, practical AI automation, and real VA support so important admin stops falling between the cracks."
+            narrow
           />
-          <motion.div {...reveal} className="mt-14">
-            <WorkflowVisual />
+          <motion.div {...reveal} className="mt-10 grid gap-4 md:grid-cols-3">
+            <PhotoCard src={image.collageOne} className="aspect-[0.78] rounded-md md:translate-y-8" />
+            <PhotoCard src={image.collageTwo} className="aspect-[0.78] rounded-md" />
+            <PhotoCard src={image.collageThree} className="aspect-[0.78] rounded-md md:translate-y-8" />
           </motion.div>
         </div>
       </section>
 
-      <section className="bg-night px-5 py-20 text-paper md:px-8 md:py-28 lg:py-32">
+      <section className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <SectionIntro
+          <SectionTitle
             light
             title="What VAxAI helps you get under control"
             copy="From inboxes and diary management to file systems and client correspondence, we create calm, workable admin systems with automation and human judgement built in."
+            narrow
           />
-          <div className="mt-14 grid gap-5 md:grid-cols-2">
-            {features.map((feature) => (
-              <motion.article key={feature.title} {...reveal} className="rounded-[28px] border border-white/14 bg-white/[0.06] p-7">
-                <feature.icon className="h-8 w-8 text-acid" aria-hidden="true" />
-                <h3 className="mt-12 text-2xl font-black">{feature.title}</h3>
-                <p className="mt-4 leading-7 text-[#CFCBC2]">{feature.copy}</p>
-              </motion.article>
-            ))}
+          <div className="mt-12 grid gap-5 lg:grid-cols-[1fr_1.1fr_1fr] lg:items-center">
+            <div className="grid gap-5">
+              {features.slice(0, 2).map((feature) => (
+                <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
+                  <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
+                  <h3 className="mt-8 text-lg font-black">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
+                </article>
+              ))}
+            </div>
+            <motion.div {...reveal} className="relative">
+              <PhotoCard src={image.expert} className="aspect-[0.78] rounded-md" />
+              <div className="absolute bottom-4 left-4 right-4 rounded-md bg-paper p-4 text-ink">
+                <p className="text-sm font-black">AI admin support that stays human</p>
+                <p className="mt-1 text-xs text-muted">Automation watched by real VA oversight.</p>
+              </div>
+            </motion.div>
+            <div className="grid gap-5">
+              {features.slice(2).map((feature) => (
+                <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
+                  <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-black text-ink">{feature.mark}</span>
+                  <h3 className="mt-8 text-lg font-black">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
+                </article>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="px-5 py-20 md:px-8 md:py-28 lg:py-32">
+      <section id="experts" className="px-4 py-20 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <SectionIntro
-            title="A support bench built for everyday admin"
-            copy="Specialist service roles give you the right blend of workflow thinking, automation design, and practical virtual assistance."
-          />
-          <div className="scrollbar-none mt-14 flex snap-x gap-5 overflow-x-auto pb-4">
-            {roles.map(([title, label, copy], index) => (
-              <motion.article
-                key={title}
-                {...reveal}
-                className="min-w-[280px] snap-start rounded-[28px] border border-ink/12 bg-cream p-6 md:min-w-[350px]"
-              >
-                <div className="grid h-16 w-16 place-items-center rounded-2xl bg-ink text-xl font-black text-acid">
-                  {String(index + 1).padStart(2, "0")}
+          <SectionTitle title="Meet The Experts Behind Our Success" narrow />
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {experts.map(([title, copy], index) => (
+              <article key={title} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
+                <div className={`grid aspect-[0.82] place-items-end rounded-md p-5 ${index === 0 ? "bg-acid" : index === 1 ? "bg-[#fff1a6]" : "bg-[#ff8c22]"}`}>
+                  <span className="text-5xl font-black leading-none text-ink">+</span>
                 </div>
-                <p className="mt-10 text-sm font-bold uppercase tracking-[0.16em] text-muted">{label}</p>
-                <h3 className="mt-4 text-2xl font-black">{title}</h3>
-                <p className="mt-4 leading-7 text-muted">{copy}</p>
-              </motion.article>
+                <div className="p-4">
+                  <h3 className="font-black">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted">{copy}</p>
+                </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-5 pb-20 md:px-8 md:pb-28 lg:pb-32">
+      <section id="pricing" className="px-4 pb-20 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <SectionIntro
+          <SectionTitle
             title="Support built around your admin reality"
             copy="Choose the level of support you need, from a focused workflow audit to ongoing virtual assistance and automation oversight."
+            narrow
           />
-          <div className="mt-14 grid gap-5 lg:grid-cols-3">
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
             {plans.map((plan) => (
-              <motion.article
-                key={plan.plan}
-                {...reveal}
-                className={`rounded-[28px] border p-7 ${plan.featured ? "border-acid bg-acid text-ink shadow-soft" : "border-ink/12 bg-cream"}`}
+              <article
+                key={plan.title}
+                className={`rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#063b32] text-paper" : "border-ink/10 bg-white"}`}
               >
-                <p className="text-sm font-bold uppercase tracking-[0.18em] text-muted">{plan.plan}</p>
-                <h3 className="mt-6 text-5xl font-black">{plan.label}</h3>
-                <p className="mt-5 min-h-24 leading-7 text-muted">{plan.description}</p>
-                <ul className="mt-8 space-y-4">
-                  {plan.bullets.map((bullet) => (
-                    <li key={bullet} className="flex gap-3">
-                      <Check className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
-                      <span>{bullet}</span>
+                <p className={`text-xs font-bold uppercase tracking-[0.16em] ${plan.featured ? "text-acid" : "text-muted"}`}>{plan.title}</p>
+                <h3 className="mt-5 text-4xl font-black">{plan.label}</h3>
+                <p className={`mt-4 min-h-20 text-sm leading-6 ${plan.featured ? "text-paper/72" : "text-muted"}`}>{plan.copy}</p>
+                <ul className="mt-8 space-y-3 text-sm">
+                  {plan.items.map((item) => (
+                    <li key={item} className="flex gap-3">
+                      <span className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full text-[10px] font-black ${plan.featured ? "bg-acid text-ink" : "bg-[#063b32] text-paper"}`}>✓</span>
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-              </motion.article>
+                {plan.featured ? (
+                  <a href="/contact" className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-acid px-4 py-3 text-sm font-black text-ink">
+                    Book a workflow call
+                  </a>
+                ) : null}
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-night px-5 py-20 text-paper md:px-8 md:py-28 lg:py-32">
+      <section className="bg-[#063b32] px-4 py-20 text-paper md:px-8">
         <div className="mx-auto max-w-6xl">
-          <SectionIntro
+          <SectionTitle
             light
             title="A practical process for turning admin chaos into calm"
             copy="We assess the pressure points, design the right AI-enabled workflow, then stay close enough to manage issues, provide oversight, and keep you informed."
+            narrow
           />
-          <div className="mt-14 grid gap-5 lg:grid-cols-3">
-            {[
-              ["01", "Assess the Admin Load", "We understand what is slipping, where time is going, and how your current workflow actually operates."],
-              ["02", "Design the AI System", "We decide what should be automated, what needs human judgement, and what foundations must be in place."],
-              ["03", "Support, Monitor & Improve", "Our VA support keeps the system moving, manages issues, shares updates, and handles extra admin requests."],
-            ].map(([step, title, copy]) => (
-              <motion.article key={title} {...reveal} className="rounded-[28px] border border-white/14 bg-white/[0.06] p-7">
-                <p className="text-5xl font-black text-acid">{step}</p>
-                <h3 className="mt-14 text-2xl font-black">{title}</h3>
-                <p className="mt-4 leading-7 text-[#CFCBC2]">{copy}</p>
-              </motion.article>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {process.map(([step, title, copy]) => (
+              <article key={step} className="rounded-md border border-white/12 bg-white/[0.06] p-6">
+                <p className="text-sm font-black text-acid">{step}</p>
+                <h3 className="mt-10 text-xl font-black">{title}</h3>
+                <p className="mt-4 text-sm leading-6 text-paper/68">{copy}</p>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-5 py-20 md:px-8 md:py-28 lg:py-32">
+      <section className="px-4 py-20 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <SectionIntro
+          <SectionTitle
             title="Why VAxAI is different"
-            copy="We do not just set up tools and disappear. We pair automation with virtual assistance, human oversight, and clear updates so you know what is happening without managing every detail yourself."
+            copy="We do not just set up tools and disappear. We pair automation with virtual assistance, human oversight, and clear updates."
+            narrow
           />
-          <div className="mt-14 grid gap-5 lg:grid-cols-2">
-            <motion.article {...reveal} className="rounded-[28px] border border-ink/12 bg-cream p-7">
-              <h3 className="text-3xl font-black">Typical automation setup</h3>
-              <ul className="mt-8 space-y-5">
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <article className="rounded-md border border-ink/10 bg-white p-6">
+              <h3 className="font-black">Typical automation setup</h3>
+              <ul className="mt-6 space-y-4 text-sm text-muted">
                 {["Tool setup without context", "Limited workflow understanding", "No one monitoring exceptions", "You still manage the admin fallout"].map((item) => (
-                  <li key={item} className="flex gap-3 text-muted">
-                    <CircleX className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-red-100 text-[10px] font-black text-red-600">×</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
-            </motion.article>
-            <motion.article {...reveal} className="rounded-[28px] border border-ink bg-ink p-7 text-paper">
-              <h3 className="text-3xl font-black">VAxAI approach</h3>
-              <ul className="mt-8 space-y-5">
+            </article>
+            <article className="rounded-md border border-ink/10 bg-white p-6">
+              <h3 className="font-black">VAxAI approach</h3>
+              <ul className="mt-6 space-y-4 text-sm text-muted">
                 {["Workflow assessment first", "AI automation designed around real admin", "Human VA oversight", "Clear updates and extra support when needed"].map((item) => (
-                  <li key={item} className="flex gap-3 text-[#CFCBC2]">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 rounded-full bg-acid p-0.5 text-ink" aria-hidden="true" />
+                  <li key={item} className="flex gap-3">
+                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#063b32] text-[10px] font-black text-acid">✓</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
-            </motion.article>
+            </article>
           </div>
         </div>
       </section>
 
-      <section className="px-5 pb-20 md:px-8 md:pb-28 lg:pb-32">
-        <div className="mx-auto max-w-4xl">
-          <SectionIntro
-            title="Frequently asked questions about VAxAI"
-            copy="Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin."
-          />
-          <div className="mt-12 divide-y divide-ink/12 rounded-[28px] border border-ink/12 bg-cream">
+      <section id="faq" className="px-4 pb-20 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
+          <motion.div {...reveal}>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
+            <h2 className="mt-3 text-3xl font-black leading-[1.02] md:text-5xl">Questions about VAxAI?</h2>
+            <p className="mt-5 text-sm leading-6 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
+          </motion.div>
+          <motion.div {...reveal} className="divide-y divide-ink/10 rounded-md border border-ink/10 bg-white">
             {faqs.map(([question, answer]) => (
-              <details key={question} className="group p-6">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-left text-xl font-black">
+              <details key={question} className="group p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-black">
                   {question}
-                  <ChevronDown className="h-5 w-5 shrink-0 transition group-open:rotate-180" aria-hidden="true" />
+                  <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
                 </summary>
-                <p className="mt-4 max-w-3xl leading-7 text-muted">{answer}</p>
+                <p className="mt-4 text-sm leading-6 text-muted">{answer}</p>
               </details>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
+
+      <section className="px-4 pb-16 md:px-8">
+        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-md bg-[#063b32] text-paper md:grid-cols-[1fr_0.85fr]">
+          <div className="p-8 md:p-10">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-acid">VAxAI experts to book</p>
+            <h2 className="mt-4 max-w-md text-3xl font-black leading-[1.02] md:text-5xl">Your admin, calmer by next week</h2>
+            <p className="mt-5 max-w-lg text-sm leading-6 text-paper/70">Start with a workflow call and leave with a clearer sense of what should be automated, what should be delegated, and what needs proper oversight.</p>
+            <a href="/contact" className="mt-8 inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-black text-ink">
+              Book a workflow call
+              <MailCheck className="h-4 w-4" />
+            </a>
+          </div>
+          <PhotoCard src={image.cta} className="min-h-[320px]" />
+        </div>
+      </section>
+
+      <footer className="border-t border-ink/10 px-4 py-10 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1fr_1.2fr]">
+          <div>
+            <div className="flex items-center gap-2 font-black">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#063b32] text-[11px] text-acid">VA</span>
+              VAxAI
+            </div>
+            <PhotoCard src={image.footer} className="mt-6 aspect-[2.5] max-w-sm rounded-md" />
+          </div>
+          <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-4">
+            {[
+              ["Services", "Workflow audit", "Automation setup", "Managed support"],
+              ["Company", "About", "Experts", "Contact"],
+              ["Support", "FAQ", "Client admin", "Workflow call"],
+              ["Legal", "Privacy", "Terms", "Accessibility"],
+            ].map(([heading, ...links]) => (
+              <div key={heading}>
+                <p className="font-black">{heading}</p>
+                <div className="mt-4 grid gap-3 text-muted">
+                  {links.map((link) => (
+                    <a key={link} href="/contact">{link}</a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
