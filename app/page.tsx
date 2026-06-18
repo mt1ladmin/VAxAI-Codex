@@ -1,33 +1,41 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
   ChevronDown,
+  ExternalLink,
   MailCheck,
   Menu,
+  ShieldCheck,
+  X,
 } from "lucide-react";
 
 const image = {
   hero:
-    "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=85",
   collageOne:
-    "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=700&q=85",
+    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=85",
   collageTwo:
-    "https://images.unsplash.com/photo-1551836022-4c4c79ecde51?auto=format&fit=crop&w=700&q=85",
-  collageThree:
     "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=700&q=85",
+  collageThree:
+    "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=700&q=85",
   expert:
-    "https://images.unsplash.com/photo-1551836022-8b2858c9c69b?auto=format&fit=crop&w=800&q=85",
+    "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=800&q=85",
   thesia: "/thesia-kouloungou.jpg",
   cta:
-    "https://images.unsplash.com/photo-1551836022-fc7af596fba0?auto=format&fit=crop&w=900&q=85",
+    "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=900&q=85",
   footer:
-    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=700&q=85",
+    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=85",
 };
 
 const tools = [
-  { name: "ChatGPT", mark: "AI", markClass: "bg-[#10A37F]/10 text-[#10A37F]" },
+  {
+    name: "ChatGPT",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+    markClass: "bg-[#10A37F]/10",
+  },
   {
     name: "Claude",
     logo: "https://cdn.simpleicons.org/anthropic/D97757",
@@ -223,6 +231,8 @@ function ToolScroller() {
 }
 
 export default function Home() {
+  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
+
   return (
     <main id="top" className="min-h-screen bg-paper text-ink">
       <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
@@ -345,6 +355,27 @@ export default function Home() {
               ))}
             </div>
           </div>
+
+          <motion.div
+            {...reveal}
+            className="mt-12 flex flex-col gap-5 rounded-md border border-white/12 bg-white/[0.07] p-6 md:flex-row md:items-center md:justify-between"
+          >
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
+              <h3 className="mt-3 max-w-xl text-2xl font-semibold leading-tight text-paper">
+                Your VAxAI support could cost you nothing.
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-paper/68">Want to find out more?</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsAccessModalOpen(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink"
+            >
+              Learn about Access to Work
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </motion.div>
         </div>
       </section>
 
@@ -525,6 +556,97 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {isAccessModalOpen ? (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="access-work-title"
+        >
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
+                <h2 id="access-work-title" className="mt-3 max-w-2xl text-3xl font-semibold leading-tight md:text-4xl">
+                  Your support might cost you nothing
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAccessModalOpen(false)}
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper"
+                aria-label="Close Access to Work information"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="grid gap-6 p-6 md:grid-cols-[1fr_0.9fr] md:p-10">
+              <div>
+                <p className="text-base leading-7 text-muted">
+                  If you are eligible, Access to Work may cover some or all of your VAxAI support. We can help you
+                  understand what evidence and admin may be needed, while Access to Work makes the final decision.
+                </p>
+
+                <div className="mt-6 rounded-md border border-ink/10 bg-cream p-5">
+                  <p className="text-sm font-semibold text-ink">What we do not do</p>
+                  <ul className="mt-3 space-y-3 text-sm leading-6 text-muted">
+                    <li>We do not decide whether you are eligible or guarantee funding.</li>
+                    <li>We do not make decisions on behalf of Access to Work.</li>
+                    <li>Access to Work assesses each application and confirms approved support.</li>
+                  </ul>
+                </div>
+
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <a
+                    href="/contact"
+                    className="inline-flex items-center justify-center rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
+                  >
+                    Talk to us about Access to Work
+                  </a>
+                  <a
+                    href="https://www.gov.uk/access-to-work"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-md border border-ink/10 px-5 py-3 text-sm font-semibold text-ink"
+                  >
+                    Official GOV.UK guidance
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="rounded-md border border-[#063b32]/15 bg-white p-5">
+                <div className="flex gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-acid text-ink">
+                    <ShieldCheck className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-semibold">Government-backed support</h3>
+                    <p className="mt-1 text-sm text-muted">A grant, not a loan or benefit.</p>
+                  </div>
+                </div>
+                <p className="mt-5 text-sm leading-6 text-muted">
+                  Access to Work can help people with a disability or health condition get or stay in work.
+                </p>
+                <div className="mt-5 grid gap-3 border-t border-ink/10 pt-5">
+                  {[
+                    ["Who can apply?", "People with a disability or health condition that affects their work."],
+                    ["How much?", "The support depends on your needs and what Access to Work approves."],
+                    ["How does it work?", "We can help you understand the process and prepare practical support details."],
+                  ].map(([title, copy]) => (
+                    <div key={title} className="rounded-md bg-paper p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">{title}</p>
+                      <p className="mt-1 text-sm leading-6 text-ink">{copy}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
