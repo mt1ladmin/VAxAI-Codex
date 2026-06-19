@@ -20,7 +20,6 @@ const image = {
   thesia: "/thesia-profile.jpg",
   rebecca: "/rebecca-bradshaw.jpg",
   cta: "/footer-team-smiling.jpg",
-  footer: "/footer-team-smiling.jpg",
 };
 
 const tools = [
@@ -225,29 +224,29 @@ function ToolScroller() {
 
 function GeometricDivider() {
   const nodes = [
-    ["left-[7%] top-8 h-24 w-24 rounded-full bg-acid"],
-    ["left-[24%] bottom-7 h-16 w-16 rounded-full bg-[#f28a4b]"],
-    ["left-[43%] top-12 h-20 w-20 rounded-full bg-[#8fd0b0]"],
-    ["right-[23%] bottom-10 h-14 w-14 rotate-12 rounded-md bg-[#f6c84f]"],
-    ["right-[8%] top-8 h-28 w-28 rounded-full bg-[#4479a8]"],
+    ["left-[7%] top-8 h-24 w-24 rounded-full bg-acid/70"],
+    ["left-[24%] bottom-7 h-16 w-16 rounded-full bg-[#f28a4b]/40"],
+    ["left-[43%] top-12 h-20 w-20 rounded-full bg-[#8fd0b0]/45"],
+    ["right-[23%] bottom-10 h-14 w-14 rotate-12 rounded-md bg-[#f6c84f]/50"],
+    ["right-[8%] top-8 h-28 w-28 rounded-full bg-[#4479a8]/25"],
   ];
 
   return (
     <motion.div
       {...reveal}
-      className="relative mt-10 overflow-hidden rounded-md border border-ink/10 bg-[#063b32] px-6 py-14 text-paper"
+      className="relative mt-10 overflow-hidden rounded-md border border-ink/10 bg-cream px-6 py-14 text-ink"
       aria-hidden="true"
     >
-      <div className="absolute inset-0 opacity-90">
+      <div className="absolute inset-0 opacity-80">
         {nodes.map(([classes], index) => (
           <span key={index} className={`absolute block ${classes}`} />
         ))}
-        <span className="absolute left-[15%] top-1/2 h-px w-[70%] -translate-y-1/2 bg-paper/30" />
-        <span className="absolute left-[30%] top-[28%] h-[46%] w-px rotate-[-18deg] bg-paper/20" />
-        <span className="absolute right-[32%] top-[23%] h-[52%] w-px rotate-[22deg] bg-paper/20" />
+        <span className="absolute left-[15%] top-1/2 h-px w-[70%] -translate-y-1/2 bg-ink/12" />
+        <span className="absolute left-[30%] top-[28%] h-[46%] w-px rotate-[-18deg] bg-ink/10" />
+        <span className="absolute right-[32%] top-[23%] h-[52%] w-px rotate-[22deg] bg-ink/10" />
       </div>
       <div className="relative mx-auto grid max-w-3xl gap-3 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Assessment • Automation • VA support</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Assessment • Automation • VA support</p>
         <p className="text-2xl font-semibold leading-tight md:text-4xl">Systems that connect tools, people and judgement</p>
       </div>
     </motion.div>
@@ -300,18 +299,10 @@ export default function Home() {
       </section>
 
       <section className="px-4 py-14 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[120px_1fr] md:items-start">
-          <motion.div {...reveal} className="flex items-center gap-3">
-            <div className="grid h-12 w-16 place-items-center rounded-md bg-[#dcefd3] px-2 text-center text-[10px] font-bold uppercase leading-tight text-[#063b32]">
-              Calmer by Monday
-            </div>
-            <div>
-              <p className="text-sm font-semibold">VAxAI</p>
-              <p className="text-xs text-muted">AI consultancy + virtual assistance</p>
-            </div>
-          </motion.div>
-          <motion.p {...reveal} className="max-w-4xl text-sm leading-7 text-muted md:text-base">
-            We work with the tools you already know and trust, then add the right AI and automation where it genuinely reduces admin pressure.
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:gap-6">
+          <motion.p {...reveal} className="text-sm font-semibold">VAxAI</motion.p>
+          <motion.p {...reveal} className="text-sm leading-7 text-muted lg:whitespace-nowrap lg:text-[15px]">
+            We work with tools you know and trust, then add AI and automation where it genuinely reduces admin pressure.
           </motion.p>
         </div>
       </section>
@@ -546,11 +537,10 @@ export default function Home() {
       <footer className="border-t border-ink/10 px-4 py-10 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1fr_1.2fr]">
           <div>
-            <div className="flex items-center gap-2 font-semibold">
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#063b32] text-[11px] text-acid">VA</span>
-              VAxAI
+            <div className="flex items-center gap-3 text-2xl font-semibold">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm text-acid">VA</span>
+              <span>VAxAI</span>
             </div>
-            <PhotoCard src={image.footer} className="mt-6 aspect-[2.5] max-w-sm rounded-md" />
           </div>
           <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-4">
             {[
