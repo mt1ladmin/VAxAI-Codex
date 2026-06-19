@@ -24,10 +24,7 @@ const image = {
 };
 
 const tools = [
-  {
-    name: "ChatGPT",
-    logo: "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
-  },
+
   {
     name: "Claude",
     logo: "https://cdn.simpleicons.org/claude/D97757",
@@ -36,10 +33,7 @@ const tools = [
     name: "Microsoft Copilot",
     logo: "https://copilot.microsoft.com/favicon.ico",
   },
-  {
-    name: "Gemini",
-    logo: "https://cdn.simpleicons.org/googlegemini/111111",
-  },
+ 
   {
     name: "Zapier",
     logo: "https://cdn.simpleicons.org/zapier/FF4F00",
@@ -48,22 +42,13 @@ const tools = [
     name: "Make",
     logo: "https://cdn.simpleicons.org/make/6D28D9",
   },
-  {
-    name: "Power Automate",
-    logo: "https://cdn.simpleicons.org/powerautomate/0066FF",
-  },
+
   {
     name: "n8n",
     logo: "https://cdn.simpleicons.org/n8n/EA4B71",
   },
-  {
-    name: "Fireflies",
-    logo: "https://fireflies.ai/favicon.ico",
-  },
-  {
-    name: "Copilot Studio",
-    logo: "https://copilotstudio.microsoft.com/favicon.ico",
-  },
+
+  
 ];
 
 const features = [
