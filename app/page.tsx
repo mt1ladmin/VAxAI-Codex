@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Accessibility,
   ArrowRight,
   ChevronDown,
   ExternalLink,
   MailCheck,
   Menu,
   ShieldCheck,
+  SlidersHorizontal,
   X,
 } from "lucide-react";
 
@@ -96,26 +96,29 @@ const experts = [
 
 const plans = [
   {
-    title: "Workflow Audit",
+    step: "01",
+    title: "Assessment",
     label: "Assess",
-    price: "Starting at £1,500 + VAT",
-    copy: "A tailored consultation and assessment of your real admin load, data, tools, and support needs.",
+    price: "Standalone from £1,500 + VAT",
+    copy: "A tailored consultation to understand your admin load, tools, data, people and support needs before anything is built.",
     items: ["MT1L VAT framework review", "AI value and risk map", "Setup plan you can use yourself", "Build recommendation"],
   },
   {
-    title: "Automation Setup",
+    step: "02",
+    title: "Full Build",
     label: "Build",
-    featured: true,
-    price: "Starting at £5,000 + VAT",
-    copy: "For small businesses and charities ready for us to build the workflows, automations, and oversight model.",
-    items: ["Workflow automation and chatbots", "Data and reporting setup", "Team handover and training", "Complexity priced after assessment"],
+    price: "Standalone from £5,000 + VAT",
+    copy: "Everything in Assess, then we design and build the workflows, automations and handover your team needs.",
+    items: ["Everything in Assess", "Workflow automation and chatbots", "Data and reporting setup", "Team handover and training"],
   },
   {
-    title: "Managed Support",
-    label: "Support",
-    price: "From £30ph + VAT",
-    copy: "Flexible VA support once you are a VAxAI client, without being locked into a long contract.",
-    items: ["Ad hoc, weekly, monthly or annual hours", "VA trained on your automation", "Virtual or in-person support", "Less VA time needed as admin is automated"],
+    step: "03",
+    title: "Full Package",
+    label: "Build + Support",
+    featured: true,
+    price: "From £10,000 + VAT",
+    copy: "Everything in Assess and Full Build, plus 10 support hours per month to use whenever you need them.",
+    items: ["Everything in Assess", "Everything in Full Build", "10 support hours per month", "Top up extra support at £30ph + VAT"],
   },
 ];
 
@@ -156,7 +159,7 @@ function PhotoCard({
 }) {
   return (
     <div
-      className={`accessibility-photo overflow-hidden bg-cover bg-center ${className}`}
+      className={`simplified-photo overflow-hidden bg-cover bg-center ${className}`}
       style={{ backgroundImage: `url(${src})` }}
       aria-hidden="true"
     />
@@ -244,7 +247,7 @@ function GeometricDivider() {
       className="relative mt-10 overflow-hidden rounded-md border border-ink/10 bg-cream px-6 py-14 text-ink"
       aria-hidden="true"
     >
-      <div className="accessibility-hide absolute inset-0 opacity-80">
+      <div className="simplified-hide absolute inset-0 opacity-80">
         {nodes.map(([classes], index) => (
           <span key={index} className={`absolute block ${classes}`} />
         ))}
@@ -262,21 +265,21 @@ function GeometricDivider() {
 
 export default function Home() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
-  const [isReadableMode, setIsReadableMode] = useState(false);
+  const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
 
   return (
-    <main id="top" className={`min-h-screen bg-paper text-ink ${isReadableMode ? "accessibility-mode" : ""}`}>
+    <main id="top" className={`min-h-screen bg-paper text-ink ${isSimplifiedMode ? "simplified-mode" : ""}`}>
       <button
         type="button"
-        onClick={() => setIsReadableMode((current) => !current)}
-        className={`accessibility-toggle fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
-          isReadableMode ? "border-ink bg-ink text-paper" : "border-ink/10 bg-white text-ink"
+        onClick={() => setIsSimplifiedMode((current) => !current)}
+        className={`simplified-toggle fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
+          isSimplifiedMode ? "border-ink bg-ink text-paper" : "border-ink/10 bg-white text-ink"
         }`}
-        aria-pressed={isReadableMode}
-        aria-label={isReadableMode ? "Turn colour mode back on" : "Turn readable black and white mode on"}
+        aria-pressed={isSimplifiedMode}
+        aria-label={isSimplifiedMode ? "Turn full colour mode back on" : "Turn simplified black and white mode on"}
       >
-        <Accessibility className="h-4 w-4" />
-        <span className="hidden sm:inline">{isReadableMode ? "Show colour" : "Readable mode"}</span>
+        <SlidersHorizontal className="h-4 w-4" />
+        <span className="hidden sm:inline">{isSimplifiedMode ? "Show colour" : "Simplified mode"}</span>
       </button>
 
       <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
@@ -433,7 +436,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Support built around your admin reality"
-            copy="Pricing starts with your real workflow. Complexity, integrations, data quality, dashboards, team size and support level all shape the final quote."
+            copy="You can choose a single stage, but the strongest value comes from the full package: one team understanding your process from assessment to build to human support."
             narrow
           />
           <div className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
@@ -441,16 +444,19 @@ export default function Home() {
               {plans.map((plan) => (
                 <article
                   key={plan.title}
-                  className={`relative rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-cream" : "border-ink/10 bg-white"}`}
+                  className={`relative rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#f7ff6a]/20" : "border-ink/10 bg-white"}`}
                 >
                   <div className="flex min-h-6 items-center justify-between gap-4">
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
+                    <span className="grid h-9 w-9 place-items-center rounded-full border border-[#063b32]/25 bg-white text-xs font-bold text-[#063b32]">
+                      {plan.step}
+                    </span>
                     {plan.featured ? (
                       <span className="rounded-full bg-acid px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
-                        Most common
+                        Recommended
                       </span>
                     ) : null}
                   </div>
+                  <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
                   <h3 className="mt-5 text-4xl font-semibold">{plan.label}</h3>
                   <p className="mt-3 text-sm font-semibold text-[#063b32]">{plan.price}</p>
                   <p className="mt-4 min-h-20 text-sm leading-6 text-muted">{plan.copy}</p>
@@ -469,6 +475,14 @@ export default function Home() {
                 ) : null}
               </article>
               ))}
+            </div>
+            <div className="mt-3 grid gap-3 rounded-md border border-ink/10 bg-[#f3f9f5] p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
+              <p>
+                Final pricing depends on complexity, data quality, integrations, dashboards and how much ongoing support you need.
+              </p>
+              <p>
+                Admin support only is available at £30ph + VAT, but we encourage the full package when you want support from people who understand your whole process end to end.
+              </p>
             </div>
           </div>
         </div>
@@ -503,9 +517,9 @@ export default function Home() {
           />
           <div className="mt-10 overflow-hidden rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
             <div className="grid gap-3 lg:grid-cols-[0.9fr_1.35fr]">
-              <div className="relative overflow-hidden rounded-md border border-ink/10 bg-cream p-7 md:p-8">
-                <div className="accessibility-hide absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/70" />
-                <div className="accessibility-hide absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#8fd0b0]/20" />
+              <div className="relative overflow-hidden rounded-md border border-[#063b32]/20 bg-[#f3f9f5] p-7 md:p-8">
+                <div className="simplified-hide absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/70" />
+                <div className="simplified-hide absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#4479a8]/18" />
                 <div className="relative">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">MT1L VAT framework</p>
                   <h3 className="mt-5 max-w-sm text-3xl font-semibold leading-[1.08] text-ink">
@@ -516,7 +530,7 @@ export default function Home() {
                   </p>
                   <div className="mt-8 grid grid-cols-3 gap-2 text-center text-xs font-semibold">
                     {["Value", "Reality", "Trust"].map((item) => (
-                      <span key={item} className="rounded-md border border-ink/10 bg-white px-2 py-3 text-[#063b32]">
+                      <span key={item} className="rounded-md border border-[#063b32]/15 bg-white px-2 py-3 text-[#063b32] shadow-[0_8px_22px_rgba(17,17,17,0.04)]">
                         {item}
                       </span>
                     ))}
@@ -537,7 +551,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div className="mt-3 rounded-md border border-ink/10 bg-cream px-6 py-4 text-sm font-semibold text-[#063b32] md:px-8">
+            <div className="mt-3 rounded-md border border-[#063b32]/15 bg-[#f7ff6a]/35 px-6 py-4 text-sm font-semibold text-[#063b32] md:px-8">
               Tailored assessment · practical build · trained VA oversight · partner network as you grow
             </div>
           </div>
@@ -701,14 +715,14 @@ export default function Home() {
         </div>
       ) : null}
       <style jsx global>{`
-        .accessibility-mode {
+        .simplified-mode {
           background: #fff !important;
           color: #000 !important;
         }
 
-        .accessibility-mode *,
-        .accessibility-mode *::before,
-        .accessibility-mode *::after {
+        .simplified-mode *,
+        .simplified-mode *::before,
+        .simplified-mode *::after {
           background-color: #fff !important;
           border-color: #000 !important;
           box-shadow: none !important;
@@ -716,33 +730,32 @@ export default function Home() {
           text-shadow: none !important;
         }
 
-        .accessibility-mode a,
-        .accessibility-mode button {
+        .simplified-mode a,
+        .simplified-mode button {
           text-decoration: underline;
         }
 
-        .accessibility-mode .accessibility-hide {
+        .simplified-mode .simplified-hide {
           display: none !important;
         }
 
-        .accessibility-mode .accessibility-photo {
-          background-image: none !important;
+        .simplified-mode .simplified-photo {
           border: 1px solid #000 !important;
-          min-height: 0 !important;
+          filter: grayscale(1) contrast(1.12) !important;
         }
 
-        .accessibility-mode img {
+        .simplified-mode img {
           filter: grayscale(1) contrast(1.25) !important;
         }
 
-        .accessibility-mode .accessibility-toggle {
+        .simplified-mode .simplified-toggle {
           background: #000 !important;
           border-color: #000 !important;
           color: #fff !important;
           text-decoration: none;
         }
 
-        .accessibility-mode .accessibility-toggle * {
+        .simplified-mode .simplified-toggle * {
           background: transparent !important;
           border-color: #fff !important;
           color: #fff !important;
