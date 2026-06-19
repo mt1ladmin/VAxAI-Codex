@@ -133,6 +133,12 @@ const faqs = [
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
 
+const whyPrinciples = [
+  ["01", "Starts with the work, not the tool", "We map pressure points, decisions, handoffs and the people affected before choosing any automation."],
+  ["02", "Tests whether AI earns its place", "The MT1L VAT framework checks Value, fit with real work, and trust before anything is built."],
+  ["03", "Keeps human support close", "Your VA support is trained on the system, watches exceptions, and can grow through our vetted partner network."],
+];
+
 const reveal = {
   initial: { opacity: 0, y: 18 },
   whileInView: { opacity: 1, y: 0 },
@@ -471,29 +477,45 @@ export default function Home() {
             copy="We are not here to force a technical solution onto human work. We become an extension of your team and choose work where we can support your organisation long term."
             narrow
           />
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
-            <article className="rounded-md border border-ink/10 bg-white p-6">
-              <h3 className="font-semibold">A purely technical approach</h3>
-              <ul className="mt-6 space-y-4 text-sm text-muted">
-                {["Starts with tools, not people", "Generic outputs for complex work", "Little support after launch", "Your team still carries the stress"].map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-red-100 text-[10px] font-black text-red-600">×</span>
-                    <span>{item}</span>
-                  </li>
+          <div className="mt-10 overflow-hidden rounded-md border border-ink/10 bg-white shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
+            <div className="grid lg:grid-cols-[0.9fr_1.35fr]">
+              <div className="relative overflow-hidden bg-[#063b32] p-7 text-paper md:p-8">
+                <div className="absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/70" />
+                <div className="absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#8fd0b0]/20" />
+                <div className="relative">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">MT1L VAT framework</p>
+                  <h3 className="mt-5 max-w-sm text-3xl font-semibold leading-[1.08]">
+                    Automation has to pass a human test first.
+                  </h3>
+                  <p className="mt-5 max-w-sm text-sm leading-6 text-paper/70">
+                    We only recommend AI where it makes the work easier, safer and more trusted.
+                  </p>
+                  <div className="mt-8 grid grid-cols-3 gap-2 text-center text-xs font-semibold">
+                    {["Value", "Reality", "Trust"].map((item) => (
+                      <span key={item} className="rounded-md border border-white/14 bg-white/[0.07] px-2 py-3">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="divide-y divide-ink/10">
+                {whyPrinciples.map(([number, title, copy]) => (
+                  <article key={number} className="grid gap-4 p-6 sm:grid-cols-[64px_1fr] md:p-7">
+                    <span className="grid h-12 w-12 place-items-center rounded-full bg-cream text-sm font-semibold text-[#063b32]">
+                      {number}
+                    </span>
+                    <div>
+                      <h3 className="text-lg font-semibold">{title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-muted">{copy}</p>
+                    </div>
+                  </article>
                 ))}
-              </ul>
-            </article>
-            <article className="rounded-md border border-ink/10 bg-white p-6">
-              <h3 className="font-semibold">VAxAI wrap-around support</h3>
-              <ul className="mt-6 space-y-4 text-sm text-muted">
-                {["Tailored assessment for your case", "MT1L VAT framework guiding each decision", "Human VA oversight trained on your system", "Partners available as needs grow"].map((item) => (
-                  <li key={item} className="flex gap-3">
-                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#063b32] text-[10px] font-black text-acid">✓</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
+              </div>
+            </div>
+            <div className="border-t border-ink/10 bg-cream px-6 py-4 text-sm font-semibold text-[#063b32] md:px-8">
+              Tailored assessment · practical build · trained VA oversight · partner network as you grow
+            </div>
           </div>
         </div>
       </section>
