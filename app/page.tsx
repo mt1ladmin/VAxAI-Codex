@@ -15,19 +15,12 @@ import {
 const image = {
   hero:
     "/hero-remote-work-circles.jpg",
-  collageOne:
-    "/admin-systems-remote-circles.jpg",
-  collageTwo:
-    "/admin-systems-network.jpg",
-  collageThree:
-    "/admin-systems-team.jpg",
   expert:
     "/vaxai-support-control.jpg",
   thesia: "/thesia-profile.jpg",
-  cta:
-    "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=900&q=85",
-  footer:
-    "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=700&q=85",
+  rebecca: "/rebecca-bradshaw.jpg",
+  cta: "/footer-team-smiling.jpg",
+  footer: "/footer-team-smiling.jpg",
 };
 
 const tools = [
@@ -38,14 +31,18 @@ const tools = [
   },
   {
     name: "Claude",
-    logo: "https://cdn.simpleicons.org/anthropic/D97757",
+    logo: "https://cdn.simpleicons.org/claude/D97757",
     markClass: "bg-[#D97757]/10",
   },
-  { name: "Codex", mark: "CX", markClass: "bg-ink/5 text-ink" },
+  {
+    name: "Codex",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg",
+    markClass: "bg-ink/5",
+  },
   {
     name: "Copilot",
-    logo: "https://cdn.simpleicons.org/githubcopilot/2563EB",
-    markClass: "bg-[#2563EB]/10",
+    logo: "https://cdn.simpleicons.org/githubcopilot/111111",
+    markClass: "bg-ink/5",
   },
   {
     name: "Zapier",
@@ -63,22 +60,22 @@ const features = [
   {
     mark: "01",
     title: "Workflow Assessment",
-    copy: "We map what is slowing you down across inboxes, diaries, files, tools, and client admin.",
+    copy: "We map admin pressure across inboxes, data, tools, teams, and client or service-user follow-up.",
   },
   {
     mark: "02",
     title: "Automation Design",
-    copy: "Practical AI-enabled workflows reduce repeat admin while keeping judgement in the right places.",
+    copy: "We identify where chatbots, workflow automation, reports, social scheduling, or AI support will actually add value.",
   },
   {
     mark: "03",
     title: "Inbox + Diary Control",
-    copy: "Messages, calendars, documents, and follow-ups stay organised and moving.",
+    copy: "Messages, calendars, documents, data entry, and follow-ups stay organised and moving.",
   },
   {
     mark: "04",
     title: "Human VA Oversight",
-    copy: "Real support monitors automations, manages exceptions, and keeps updates clear.",
+    copy: "Trained VA support monitors automations, manages exceptions, and keeps people in the loop.",
   },
 ];
 
@@ -86,18 +83,14 @@ const experts = [
   {
     name: "Thesia Kouloungou",
     role: "AI & Workflow Lead",
-    copy: "Hi, I am the founder and CEO of MT1L and VAxAI. I lead our AI consultations and workflow reviews, helping you find where AI, automation, or small process changes can take pressure off your day without adding tools you do not need.",
+    copy: "Hi, I am the founder and CEO of MT1L and VAxAI. I lead our AI consultations and workflow reviews, helping you decide where automation creates meaningful value, where it does not, and what needs human judgement.",
     photo: image.thesia,
   },
   {
-    name: "Workflow Audit",
-    role: "Assessment",
-    copy: "A clear review of the admin load, current tools, and pressure points.",
-  },
-  {
-    name: "Managed Support",
-    role: "VA Oversight",
-    copy: "Ongoing virtual assistance, exception handling, and admin updates.",
+    name: "Rebecca Bradshaw",
+    role: "Virtual Assistance Lead",
+    copy: "Hi, I am Rebecca. I lead the virtual assistance side of VAxAI, taking care of the tasks that should not be left to AI and helping monitor your automations so everything works as it should. When extra capacity is needed, I help coordinate trained and vetted VA partners who understand your setup.",
+    photo: image.rebecca,
   },
 ];
 
@@ -105,36 +98,40 @@ const plans = [
   {
     title: "Workflow Audit",
     label: "Assess",
-    copy: "For understanding what is slipping and where automation can help first.",
-    items: ["Admin pain-point map", "Workflow review", "Automation opportunities", "Priority action plan"],
+    price: "Starting at £1,500 + VAT",
+    copy: "A tailored consultation and assessment of your real admin load, data, tools, and support needs.",
+    items: ["MT1L VAT framework review", "AI value and risk map", "Setup plan you can use yourself", "Build recommendation"],
   },
   {
     title: "Automation Setup",
     label: "Build",
     featured: true,
-    copy: "For founders and teams ready to create a workable AI-enabled admin system.",
-    items: ["Inbox and diary workflows", "File and client admin setup", "AI automation design", "Launch support"],
+    price: "Starting at £5,000 + VAT",
+    copy: "For small businesses and charities ready for us to build the workflows, automations, and oversight model.",
+    items: ["Workflow automation and chatbots", "Data and reporting setup", "Team handover and training", "Complexity priced after assessment"],
   },
   {
     title: "Managed Support",
     label: "Support",
-    copy: "For busy teams that need ongoing VA support and automation oversight.",
-    items: ["Human VA oversight", "Issue handling", "Client correspondence", "Regular admin overview"],
+    price: "From £30ph + VAT",
+    copy: "Flexible VA support once you are a VAxAI client, without being locked into a long contract.",
+    items: ["Ad hoc, weekly, monthly or annual hours", "VA trained on your automation", "Virtual or in-person support", "Less VA time needed as admin is automated"],
   },
 ];
 
 const process = [
-  ["01", "Assess the admin load", "We understand what is piling up, where time is going, and where the workflow breaks."],
-  ["02", "Design the AI system", "We decide what can be automated, what needs human judgement, and what needs cleaner foundations."],
-  ["03", "Support and improve", "VA support monitors the system, manages exceptions, and handles extra admin requests."],
+  ["01", "Understand the reality", "We consult with you to understand what work looks like in practice, not just what the process says on paper."],
+  ["02", "Apply the MT1L VAT framework", "We ask whether AI creates meaningful Value, fits how work gets done, and will be trusted by the people affected."],
+  ["03", "Build and support", "We design the system, train the VA support around it, and keep human oversight close enough to prevent drift."],
 ];
 
 const faqs = [
-  ["Who is VAxAI for?", "Founders, consultants, charities, small businesses, and busy individuals who need help getting everyday admin under control."],
-  ["Do you only set up AI tools?", "No. We assess your workflow, design practical automation, and provide virtual assistance support so the system is monitored and managed."],
-  ["What admin can you help with?", "Inbox management, diary management, file organisation, client correspondence, follow-ups, workflow tracking, and other recurring admin tasks."],
-  ["What does human oversight mean?", "A real person monitors the automation, handles exceptions, applies judgement, and keeps you informed about what is happening."],
-  ["Can I request extra admin support?", "Yes. Alongside automation oversight, you can request additional virtual assistance or practical admin support when needed."],
+  ["Who is VAxAI for?", "Small businesses, charities, consultants, and teams that want admin, workflow automation, and AI support without losing the human judgement their work needs."],
+  ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
+  ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
+  ["Why does pricing vary?", "Complexity, data quality, business size, integrations, dashboards, and ongoing support all affect the final cost. We explain this after assessment before any build starts."],
+  ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
+  ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
 
 const reveal = {
@@ -216,17 +213,44 @@ function ToolScroller() {
             aria-label={tool.name}
           >
             <span className={`grid h-10 w-10 place-items-center rounded-full text-xs font-bold ${tool.markClass}`}>
-              {"logo" in tool ? (
-                <img src={tool.logo} alt="" className="h-5 w-5" loading="lazy" />
-              ) : (
-                tool.mark
-              )}
+              <img src={tool.logo} alt="" className="h-5 w-5 object-contain" loading="lazy" />
             </span>
             <span>{tool.name}</span>
           </div>
         ))}
       </div>
     </div>
+  );
+}
+
+function GeometricDivider() {
+  const nodes = [
+    ["left-[7%] top-8 h-24 w-24 rounded-full bg-acid"],
+    ["left-[24%] bottom-7 h-16 w-16 rounded-full bg-[#f28a4b]"],
+    ["left-[43%] top-12 h-20 w-20 rounded-full bg-[#8fd0b0]"],
+    ["right-[23%] bottom-10 h-14 w-14 rotate-12 rounded-md bg-[#f6c84f]"],
+    ["right-[8%] top-8 h-28 w-28 rounded-full bg-[#4479a8]"],
+  ];
+
+  return (
+    <motion.div
+      {...reveal}
+      className="relative mt-10 overflow-hidden rounded-md border border-ink/10 bg-[#063b32] px-6 py-14 text-paper"
+      aria-hidden="true"
+    >
+      <div className="absolute inset-0 opacity-90">
+        {nodes.map(([classes], index) => (
+          <span key={index} className={`absolute block ${classes}`} />
+        ))}
+        <span className="absolute left-[15%] top-1/2 h-px w-[70%] -translate-y-1/2 bg-paper/30" />
+        <span className="absolute left-[30%] top-[28%] h-[46%] w-px rotate-[-18deg] bg-paper/20" />
+        <span className="absolute right-[32%] top-[23%] h-[52%] w-px rotate-[22deg] bg-paper/20" />
+      </div>
+      <div className="relative mx-auto grid max-w-3xl gap-3 text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Assessment • Automation • VA support</p>
+        <p className="text-2xl font-semibold leading-tight md:text-4xl">Systems that connect tools, people and judgement</p>
+      </div>
+    </motion.div>
   );
 }
 
@@ -259,26 +283,18 @@ export default function Home() {
               AI-powered admin support for people with too much to hold
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
-              VAxAI helps founders, consultants, charities and small teams bring inboxes, diaries, files and client follow-up under control with smart automation and human VA oversight.
+              VAxAI helps small businesses, charities and busy teams bring inboxes, diaries, files, data and follow-up under control with practical automation and human VA oversight.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <a href="/contact" className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
                 Book a workflow call
                 <ArrowRight className="h-4 w-4" />
               </a>
-              <span className="text-xs font-semibold text-paper/65">Built for founders, consultants, charities and small teams</span>
+              <span className="text-xs font-semibold text-paper/65">Built for small businesses, charities and hands-on teams</span>
             </div>
           </motion.div>
           <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
             <PhotoCard src={image.hero} className="aspect-[0.86] rounded-[28px]" />
-            <div className="absolute -bottom-7 -left-6 w-44 rounded-2xl bg-acid p-4 text-ink shadow-soft">
-              <div className="mb-5 flex items-center gap-1">
-                {[24, 34, 20, 42, 28].map((height, index) => (
-                  <span key={index} className="w-3 rounded-full bg-ink" style={{ height }} />
-                ))}
-              </div>
-              <p className="text-xs font-semibold uppercase leading-4">Workflow calmer by Friday</p>
-            </div>
           </motion.div>
         </div>
       </section>
@@ -286,7 +302,9 @@ export default function Home() {
       <section className="px-4 py-14 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[120px_1fr] md:items-start">
           <motion.div {...reveal} className="flex items-center gap-3">
-            <PhotoCard src={image.cta} className="h-12 w-12 rounded-md" />
+            <div className="grid h-12 w-16 place-items-center rounded-md bg-[#dcefd3] px-2 text-center text-[10px] font-bold uppercase leading-tight text-[#063b32]">
+              Calmer by Monday
+            </div>
             <div>
               <p className="text-sm font-semibold">VAxAI</p>
               <p className="text-xs text-muted">AI consultancy + virtual assistance</p>
@@ -312,11 +330,7 @@ export default function Home() {
             copy="We combine workflow assessment, practical AI automation, and real VA support so important admin stops falling between the cracks."
             narrow
           />
-          <motion.div {...reveal} className="mt-10 grid gap-4 md:grid-cols-3">
-            <PhotoCard src={image.collageOne} className="aspect-[0.78] rounded-md md:translate-y-8" />
-            <PhotoCard src={image.collageTwo} className="aspect-[0.78] rounded-md" />
-            <PhotoCard src={image.collageThree} className="aspect-[0.78] rounded-md md:translate-y-8" />
-          </motion.div>
+          <GeometricDivider />
         </div>
       </section>
 
@@ -325,7 +339,7 @@ export default function Home() {
           <SectionTitle
             light
             title="What VAxAI helps you get under control"
-            copy="From inboxes and diary management to file systems and client correspondence, we create calm, workable admin systems with automation and human judgement built in."
+            copy="From inboxes and diary management to files, data, reports, chatbot support and client or service-user follow-up, we create workable systems with automation and human judgement built in."
             narrow
           />
           <div className="mt-12 grid gap-5 lg:grid-cols-[1fr_1.1fr_1fr] lg:items-center">
@@ -381,8 +395,8 @@ export default function Home() {
 
       <section id="experts" className="px-4 py-20 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <SectionTitle title="Meet The Experts Behind Our Success" narrow />
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <SectionTitle title="Meet the people behind VAxAI" narrow />
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
             {experts.map((expert, index) => (
               <article key={expert.name} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
                 {expert.photo ? (
@@ -407,7 +421,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Support built around your admin reality"
-            copy="Choose the level of support you need, from a focused workflow audit to ongoing virtual assistance and automation oversight."
+            copy="Pricing starts with your real workflow. Complexity, integrations, data quality, dashboards, team size and support level all shape the final quote."
             narrow
           />
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
@@ -418,6 +432,7 @@ export default function Home() {
               >
                 <p className={`text-xs font-bold uppercase tracking-[0.16em] ${plan.featured ? "text-acid" : "text-muted"}`}>{plan.title}</p>
                 <h3 className="mt-5 text-4xl font-semibold">{plan.label}</h3>
+                <p className={`mt-3 text-sm font-semibold ${plan.featured ? "text-acid" : "text-[#063b32]"}`}>{plan.price}</p>
                 <p className={`mt-4 min-h-20 text-sm leading-6 ${plan.featured ? "text-paper/72" : "text-muted"}`}>{plan.copy}</p>
                 <ul className="mt-8 space-y-3 text-sm">
                   {plan.items.map((item) => (
@@ -443,7 +458,7 @@ export default function Home() {
           <SectionTitle
             light
             title="A practical process for turning admin chaos into calm"
-            copy="We assess the pressure points, design the right AI-enabled workflow, then stay close enough to manage issues, provide oversight, and keep you informed."
+            copy="We assess the pressure points, apply our value framework, then build only what makes the work easier, safer and more trusted."
             narrow
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -462,14 +477,14 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Why VAxAI is different"
-            copy="We do not just set up tools and disappear. We pair automation with virtual assistance, human oversight, and clear updates."
+            copy="We are not here to force a technical solution onto human work. We become an extension of your team and choose work where we can support your organisation long term."
             narrow
           />
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             <article className="rounded-md border border-ink/10 bg-white p-6">
-              <h3 className="font-semibold">Typical automation setup</h3>
+              <h3 className="font-semibold">A purely technical approach</h3>
               <ul className="mt-6 space-y-4 text-sm text-muted">
-                {["Tool setup without context", "Limited workflow understanding", "No one monitoring exceptions", "You still manage the admin fallout"].map((item) => (
+                {["Starts with tools, not people", "Generic outputs for complex work", "Little support after launch", "Your team still carries the stress"].map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-red-100 text-[10px] font-black text-red-600">×</span>
                     <span>{item}</span>
@@ -478,9 +493,9 @@ export default function Home() {
               </ul>
             </article>
             <article className="rounded-md border border-ink/10 bg-white p-6">
-              <h3 className="font-semibold">VAxAI approach</h3>
+              <h3 className="font-semibold">VAxAI wrap-around support</h3>
               <ul className="mt-6 space-y-4 text-sm text-muted">
-                {["Workflow assessment first", "AI automation designed around real admin", "Human VA oversight", "Clear updates and extra support when needed"].map((item) => (
+                {["Tailored assessment for your case", "MT1L VAT framework guiding each decision", "Human VA oversight trained on your system", "Partners available as needs grow"].map((item) => (
                   <li key={item} className="flex gap-3">
                     <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-[#063b32] text-[10px] font-black text-acid">✓</span>
                     <span>{item}</span>
@@ -516,9 +531,9 @@ export default function Home() {
       <section className="px-4 pb-16 md:px-8">
         <div className="mx-auto grid max-w-6xl overflow-hidden rounded-md bg-[#063b32] text-paper md:grid-cols-[1fr_0.85fr]">
           <div className="p-8 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">VAxAI experts to book</p>
-            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] md:text-5xl">Your admin, calmer by next week</h2>
-            <p className="mt-5 max-w-lg text-sm leading-6 text-paper/70">Start with a workflow call and leave with a clearer sense of what should be automated, what should be delegated, and what needs proper oversight.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">VAxAI support to book</p>
+            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] md:text-5xl">Admin support that can grow with you</h2>
+            <p className="mt-5 max-w-lg text-sm leading-6 text-paper/70">Start with a workflow call and leave with a clearer sense of what should be automated, what should stay human, and what support your small business or charity actually needs.</p>
             <a href="/contact" className="mt-8 inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
               Book a workflow call
               <MailCheck className="h-4 w-4" />
