@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VAxAI | AI-powered admin support",
+  title: "VAxAI | Admin support with AI, automation and human VA oversight",
   description:
-    "AI consultancy and virtual assistance for founders, consultants, charities and small teams.",
+    "VAxAI helps small businesses, charities and busy teams manage repetitive admin with virtual assistance, AI and automation.",
 };
 
 export default function RootLayout({
