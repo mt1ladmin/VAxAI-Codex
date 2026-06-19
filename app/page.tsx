@@ -23,7 +23,7 @@ const image = {
     "/admin-systems-team.jpg",
   expert:
     "/vaxai-support-control.jpg",
-  thesia: "/thesia-kouloungou.jpg",
+  thesia: "/thesia-profile.jpg",
   cta:
     "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&w=900&q=85",
   footer:
