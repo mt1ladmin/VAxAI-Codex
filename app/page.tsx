@@ -27,52 +27,42 @@ const tools = [
   {
     name: "ChatGPT",
     logo: "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
-    markClass: "bg-[#10A37F]/10",
   },
   {
     name: "Claude",
     logo: "https://cdn.simpleicons.org/claude/D97757",
-    markClass: "bg-[#D97757]/10",
   },
   {
     name: "Microsoft Copilot",
-    logo: "https://cdn.simpleicons.org/microsoftcopilot/111111",
-    markClass: "",
+    logo: "https://copilot.microsoft.com/favicon.ico",
   },
   {
     name: "Gemini",
     logo: "https://cdn.simpleicons.org/googlegemini/111111",
-    markClass: "",
   },
   {
     name: "Zapier",
     logo: "https://cdn.simpleicons.org/zapier/FF4F00",
-    markClass: "bg-[#FF4F00]/10",
   },
   {
     name: "Make",
     logo: "https://cdn.simpleicons.org/make/6D28D9",
-    markClass: "bg-[#6D28D9]/10",
   },
   {
     name: "Power Automate",
     logo: "https://cdn.simpleicons.org/powerautomate/0066FF",
-    markClass: "",
   },
   {
     name: "n8n",
     logo: "https://cdn.simpleicons.org/n8n/EA4B71",
-    markClass: "",
   },
   {
     name: "Fireflies",
-    logo: "https://cdn.simpleicons.org/fireflyiii/7C5CFC",
-    markClass: "",
+    logo: "https://fireflies.ai/favicon.ico",
   },
   {
     name: "Copilot Studio",
-    logo: "https://cdn.simpleicons.org/microsoft/5E5CE6",
-    markClass: "",
+    logo: "https://copilotstudio.microsoft.com/favicon.ico",
   },
 ];
 
@@ -230,25 +220,48 @@ function SectionTitle({
   );
 }
 
-function ToolScroller() {
-  const repeatedTools = [...tools, ...tools];
+function ToolLogo({ tool }: { tool: (typeof tools)[number] }) {
+  const [hasFailed, setHasFailed] = useState(false);
+
+  if (hasFailed) {
+    return (
+      <span className="grid h-8 w-8 place-items-center text-xs font-bold text-[#063b32]" aria-hidden="true">
+        {tool.name
+          .split(" ")
+          .map((word) => word[0])
+          .join("")
+          .slice(0, 2)}
+      </span>
+    );
+  }
 
   return (
-    <div className="overflow-x-auto scrollbar-none">
-      <div className="flex min-w-max gap-3 pr-4 md:animate-tool-scroll">
-        {repeatedTools.map((tool, index) => (
+    <img
+      src={tool.logo}
+      alt=""
+      className="h-8 w-8 object-contain"
+      loading="lazy"
+      onError={() => setHasFailed(true)}
+    />
+  );
+}
+
+function ToolScroller() {
+
+  return (
+    <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
+        {tools.map((tool) => (
           <div
-            key={`${tool.name}-${index}`}
-            className="flex h-20 min-w-[190px] items-center justify-center gap-3 px-6 text-sm font-semibold text-ink"
+            key={tool.name}
+            className="flex min-w-0 items-center justify-center gap-3 text-sm font-semibold text-ink"
             aria-label={tool.name}
           >
-            <span className="grid h-11 w-11 place-items-center">
-              <img src={tool.logo} alt="" className="h-8 w-8 object-contain" loading="lazy" />
+            <span className="grid h-9 w-9 shrink-0 place-items-center">
+              <ToolLogo tool={tool} />
             </span>
-            <span>{tool.name}</span>
+            <span className="min-w-0 leading-tight">{tool.name}</span>
           </div>
         ))}
-      </div>
     </div>
   );
 }
@@ -278,7 +291,6 @@ function GeometricDivider() {
       </div>
       <div className="relative mx-auto grid max-w-3xl gap-3 text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Assessment • AI and Automation • VA support</p>
-        <p className="text-2xl font-semibold leading-tight md:text-4xl">Systems that connect tools, people and judgement</p>
       </div>
     </motion.div>
   );
@@ -354,7 +366,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="tools" className="bg-cream px-4 py-14 md:px-8">
+      <section id="tools" className="bg-paper px-4 py-14 md:px-8">
         <div className="mx-auto max-w-6xl">
           <ToolScroller />
         </div>
