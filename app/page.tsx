@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
+  Accessibility,
   ArrowRight,
   ChevronDown,
   ExternalLink,
@@ -155,7 +156,7 @@ function PhotoCard({
 }) {
   return (
     <div
-      className={`overflow-hidden bg-cover bg-center ${className}`}
+      className={`accessibility-photo overflow-hidden bg-cover bg-center ${className}`}
       style={{ backgroundImage: `url(${src})` }}
       aria-hidden="true"
     />
@@ -243,7 +244,7 @@ function GeometricDivider() {
       className="relative mt-10 overflow-hidden rounded-md border border-ink/10 bg-cream px-6 py-14 text-ink"
       aria-hidden="true"
     >
-      <div className="absolute inset-0 opacity-80">
+      <div className="accessibility-hide absolute inset-0 opacity-80">
         {nodes.map(([classes], index) => (
           <span key={index} className={`absolute block ${classes}`} />
         ))}
@@ -261,9 +262,23 @@ function GeometricDivider() {
 
 export default function Home() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
+  const [isReadableMode, setIsReadableMode] = useState(false);
 
   return (
-    <main id="top" className="min-h-screen bg-paper text-ink">
+    <main id="top" className={`min-h-screen bg-paper text-ink ${isReadableMode ? "accessibility-mode" : ""}`}>
+      <button
+        type="button"
+        onClick={() => setIsReadableMode((current) => !current)}
+        className={`accessibility-toggle fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
+          isReadableMode ? "border-ink bg-ink text-paper" : "border-ink/10 bg-white text-ink"
+        }`}
+        aria-pressed={isReadableMode}
+        aria-label={isReadableMode ? "Turn colour mode back on" : "Turn readable black and white mode on"}
+      >
+        <Accessibility className="h-4 w-4" />
+        <span className="hidden sm:inline">{isReadableMode ? "Show colour" : "Readable mode"}</span>
+      </button>
+
       <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
         <nav className="mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
@@ -421,31 +436,40 @@ export default function Home() {
             copy="Pricing starts with your real workflow. Complexity, integrations, data quality, dashboards, team size and support level all shape the final quote."
             narrow
           />
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {plans.map((plan) => (
-              <article
-                key={plan.title}
-                className={`rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#063b32] text-paper" : "border-ink/10 bg-white"}`}
-              >
-                <p className={`text-xs font-bold uppercase tracking-[0.16em] ${plan.featured ? "text-acid" : "text-muted"}`}>{plan.title}</p>
-                <h3 className="mt-5 text-4xl font-semibold">{plan.label}</h3>
-                <p className={`mt-3 text-sm font-semibold ${plan.featured ? "text-acid" : "text-[#063b32]"}`}>{plan.price}</p>
-                <p className={`mt-4 min-h-20 text-sm leading-6 ${plan.featured ? "text-paper/72" : "text-muted"}`}>{plan.copy}</p>
-                <ul className="mt-8 space-y-3 text-sm">
+          <div className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
+            <div className="grid gap-3 lg:grid-cols-3">
+              {plans.map((plan) => (
+                <article
+                  key={plan.title}
+                  className={`relative rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-cream" : "border-ink/10 bg-white"}`}
+                >
+                  <div className="flex min-h-6 items-center justify-between gap-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
+                    {plan.featured ? (
+                      <span className="rounded-full bg-acid px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+                        Most common
+                      </span>
+                    ) : null}
+                  </div>
+                  <h3 className="mt-5 text-4xl font-semibold">{plan.label}</h3>
+                  <p className="mt-3 text-sm font-semibold text-[#063b32]">{plan.price}</p>
+                  <p className="mt-4 min-h-20 text-sm leading-6 text-muted">{plan.copy}</p>
+                  <ul className="mt-8 space-y-3 border-t border-ink/10 pt-6 text-sm">
                   {plan.items.map((item) => (
                     <li key={item} className="flex gap-3">
-                      <span className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full text-[10px] font-black ${plan.featured ? "bg-acid text-ink" : "bg-[#063b32] text-paper"}`}>✓</span>
+                      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
                       <span>{item}</span>
                     </li>
                   ))}
                 </ul>
                 {plan.featured ? (
-                  <a href="/contact" className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-acid px-4 py-3 text-sm font-semibold text-ink">
+                  <a href="/contact" className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper">
                     Book a workflow call
                   </a>
                 ) : null}
               </article>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -477,31 +501,31 @@ export default function Home() {
             copy="We are not here to force a technical solution onto human work. We become an extension of your team and choose work where we can support your organisation long term."
             narrow
           />
-          <div className="mt-10 overflow-hidden rounded-md border border-ink/10 bg-white shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
-            <div className="grid lg:grid-cols-[0.9fr_1.35fr]">
-              <div className="relative overflow-hidden bg-[#063b32] p-7 text-paper md:p-8">
-                <div className="absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/70" />
-                <div className="absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#8fd0b0]/20" />
+          <div className="mt-10 overflow-hidden rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
+            <div className="grid gap-3 lg:grid-cols-[0.9fr_1.35fr]">
+              <div className="relative overflow-hidden rounded-md border border-ink/10 bg-cream p-7 md:p-8">
+                <div className="accessibility-hide absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/70" />
+                <div className="accessibility-hide absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#8fd0b0]/20" />
                 <div className="relative">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">MT1L VAT framework</p>
-                  <h3 className="mt-5 max-w-sm text-3xl font-semibold leading-[1.08]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">MT1L VAT framework</p>
+                  <h3 className="mt-5 max-w-sm text-3xl font-semibold leading-[1.08] text-ink">
                     Automation has to pass a human test first.
                   </h3>
-                  <p className="mt-5 max-w-sm text-sm leading-6 text-paper/70">
+                  <p className="mt-5 max-w-sm text-sm leading-6 text-muted">
                     We only recommend AI where it makes the work easier, safer and more trusted.
                   </p>
                   <div className="mt-8 grid grid-cols-3 gap-2 text-center text-xs font-semibold">
                     {["Value", "Reality", "Trust"].map((item) => (
-                      <span key={item} className="rounded-md border border-white/14 bg-white/[0.07] px-2 py-3">
+                      <span key={item} className="rounded-md border border-ink/10 bg-white px-2 py-3 text-[#063b32]">
                         {item}
                       </span>
                     ))}
                   </div>
                 </div>
               </div>
-              <div className="divide-y divide-ink/10">
+              <div className="grid gap-3">
                 {whyPrinciples.map(([number, title, copy]) => (
-                  <article key={number} className="grid gap-4 p-6 sm:grid-cols-[64px_1fr] md:p-7">
+                  <article key={number} className="grid gap-4 rounded-md border border-ink/10 bg-white p-6 sm:grid-cols-[64px_1fr] md:p-7">
                     <span className="grid h-12 w-12 place-items-center rounded-full bg-cream text-sm font-semibold text-[#063b32]">
                       {number}
                     </span>
@@ -513,7 +537,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-            <div className="border-t border-ink/10 bg-cream px-6 py-4 text-sm font-semibold text-[#063b32] md:px-8">
+            <div className="mt-3 rounded-md border border-ink/10 bg-cream px-6 py-4 text-sm font-semibold text-[#063b32] md:px-8">
               Tailored assessment · practical build · trained VA oversight · partner network as you grow
             </div>
           </div>
@@ -542,17 +566,19 @@ export default function Home() {
       </section>
 
       <section className="px-4 pb-16 md:px-8">
-        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-md bg-[#063b32] text-paper md:grid-cols-[1fr_0.85fr]">
+        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-md border border-ink/10 bg-white shadow-[0_14px_45px_rgba(17,17,17,0.05)] md:grid-cols-[1fr_0.85fr]">
           <div className="p-8 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">VAxAI support to book</p>
-            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] md:text-5xl">Admin support that can grow with you</h2>
-            <p className="mt-5 max-w-lg text-sm leading-6 text-paper/70">Start with a workflow call and leave with a clearer sense of what should be automated, what should stay human, and what support your small business or charity actually needs.</p>
-            <a href="/contact" className="mt-8 inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI support to book</p>
+            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] text-ink md:text-5xl">Admin support that can grow with you</h2>
+            <p className="mt-5 max-w-lg text-sm leading-6 text-muted">Start with a workflow call and leave with a clearer sense of what should be automated, what should stay human, and what support your small business or charity actually needs.</p>
+            <a href="/contact" className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
               Book a workflow call
               <MailCheck className="h-4 w-4" />
             </a>
           </div>
-          <PhotoCard src={image.cta} className="min-h-[320px]" />
+          <div className="bg-cream p-3 md:p-4">
+            <PhotoCard src={image.cta} className="min-h-[320px] rounded-md" />
+          </div>
         </div>
       </section>
 
@@ -674,6 +700,54 @@ export default function Home() {
           </div>
         </div>
       ) : null}
+      <style jsx global>{`
+        .accessibility-mode {
+          background: #fff !important;
+          color: #000 !important;
+        }
+
+        .accessibility-mode *,
+        .accessibility-mode *::before,
+        .accessibility-mode *::after {
+          background-color: #fff !important;
+          border-color: #000 !important;
+          box-shadow: none !important;
+          color: #000 !important;
+          text-shadow: none !important;
+        }
+
+        .accessibility-mode a,
+        .accessibility-mode button {
+          text-decoration: underline;
+        }
+
+        .accessibility-mode .accessibility-hide {
+          display: none !important;
+        }
+
+        .accessibility-mode .accessibility-photo {
+          background-image: none !important;
+          border: 1px solid #000 !important;
+          min-height: 0 !important;
+        }
+
+        .accessibility-mode img {
+          filter: grayscale(1) contrast(1.25) !important;
+        }
+
+        .accessibility-mode .accessibility-toggle {
+          background: #000 !important;
+          border-color: #000 !important;
+          color: #fff !important;
+          text-decoration: none;
+        }
+
+        .accessibility-mode .accessibility-toggle * {
+          background: transparent !important;
+          border-color: #fff !important;
+          color: #fff !important;
+        }
+      `}</style>
     </main>
   );
 }
