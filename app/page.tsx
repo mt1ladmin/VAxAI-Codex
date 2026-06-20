@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -98,8 +98,7 @@ const plans = [
     title: "Assessment",
     label: "Assess",
     copy: [
-      "A tailored review of your administrative workload, systems, processes, people and priorities.",
-      "Together we identify where pressure is building, what is creating friction and whether the answer is improved processes, training, technology, human support or a combination of all four.",
+      "A focused review of your admin workload, tools, processes and team to identify where pressure is building and what the right response looks like.",
     ],
     items: ["VAT Framework review", "AI value and risk map", "Workflow and capacity review", "Practical recommendations and next steps"],
   },
@@ -108,8 +107,7 @@ const plans = [
     title: "Strategy, Implementation & Capability Building",
     label: "Assess + Implement",
     copy: [
-      "Using the findings from your assessment, we help you put the right solution in place.",
-      "This may involve improving existing processes, making better use of tools you already have, introducing new systems, training your team, implementing automation, or developing a more tailored solution where required.",
+      "We put the right solution in place based on your assessment — improving processes, making better use of existing tools, introducing new systems or training your team where needed.",
     ],
     items: ["Everything included in Assess", "System and process improvements", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
   },
@@ -119,8 +117,7 @@ const plans = [
     label: "Assess + Implement + Support",
     featured: true,
     copy: [
-      "For organisations that want ongoing support after implementation.",
-      "We continue helping your team use and improve the systems in place, provide virtual assistance where needed, monitor what is working and help adapt as priorities change.",
+      "Continued support after implementation — VA assistance, system monitoring and adjustments as your workload and priorities change.",
     ],
     items: ["Everything included in Assess and Implement", "Ongoing VA support", "Process and system optimisation", "Team support and guidance", "Additional capacity when needed", "Dedicated support hours included within your package"],
   },
@@ -283,9 +280,6 @@ function GeometricDivider() {
         <span className="absolute left-[30%] top-[28%] h-[46%] w-px rotate-[-18deg] bg-ink/10" />
         <span className="absolute right-[32%] top-[23%] h-[52%] w-px rotate-[22deg] bg-ink/10" />
       </div>
-      <div className="relative mx-auto grid max-w-3xl gap-3 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Assessment • Strategy • Implementation • VA support</p>
-      </div>
     </motion.div>
   );
 }
@@ -293,8 +287,30 @@ function GeometricDivider() {
 export default function Home() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
   const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
+
+  useEffect(() => {
+    if (contactStep !== "calendly") return;
+    if (!document.querySelector('link[href*="calendly.com/assets"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://assets.calendly.com/assets/external/widget.css";
+      document.head.appendChild(link);
+    }
+    if (!document.querySelector('script[src*="calendly.com/assets"]')) {
+      const script = document.createElement("script");
+      script.src = "https://assets.calendly.com/assets/external/widget.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  }, [contactStep]);
+
+  function closeContactModal() {
+    setIsContactModalOpen(false);
+    setContactStep("form");
+  }
 
   return (
     <main id="top" className={`min-h-screen bg-paper text-ink ${isSimplifiedMode ? "simplified-mode" : ""}`}>
@@ -356,6 +372,12 @@ export default function Home() {
           </motion.p>
         </div>
       </section>
+
+      <div className="px-4 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <GeometricDivider />
+        </div>
+      </div>
 
       <section className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
@@ -669,71 +691,127 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="contact-title"
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Contact VAxAI</p>
-                <h2 id="contact-title" className="mt-3 text-3xl font-semibold leading-tight">Tell us what support you need</h2>
-              </div>
-              <button type="button" onClick={() => setIsContactModalOpen(false)} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10" aria-label="Close contact form">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <form
-              className="grid gap-5 p-6 md:grid-cols-2 md:p-10"
-              onSubmit={(event) => {
-                event.preventDefault();
-                const form = new FormData(event.currentTarget);
-                const subject = encodeURIComponent(`VAxAI enquiry: ${String(form.get("queryType"))}`);
-                const body = encodeURIComponent(
-                  `Name: ${String(form.get("name"))}\nEmail: ${String(form.get("email"))}\nPreferred contact: ${String(form.get("preferredContact"))}\nTelephone: ${String(form.get("telephone") || "Not provided")}\n\n${String(form.get("details"))}`,
-                );
-                window.location.href = `mailto:hello@vaxai.co.uk?subject=${subject}&body=${body}`;
-              }}
-            >
-              <label className="grid gap-2 text-sm font-semibold">
-                Name
-                <input required name="name" autoComplete="name" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold">
-                Email address
-                <input required type="email" name="email" autoComplete="email" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold">
-                Query type
-                <select required name="queryType" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]">
-                  <option>Assessment</option>
-                  <option>Build</option>
-                  <option>Build and support</option>
-                  <option>VAT Framework</option>
-                  <option>General enquiry</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-semibold">
-                Preferred method of contact
-                <select name="preferredContact" value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]">
-                  <option>Email</option>
-                  <option>Telephone</option>
-                </select>
-              </label>
-              {preferredContact === "Telephone" ? (
-                <label className="grid gap-2 text-sm font-semibold md:col-span-2">
-                  Telephone number
-                  <input required type="tel" name="telephone" autoComplete="tel" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
-                </label>
-              ) : null}
-              <label className="grid gap-2 text-sm font-semibold md:col-span-2">
-                Tell us more
-                <textarea required name="details" rows={5} className="resize-y rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
-              </label>
-              <div className="md:col-span-2">
-                <button type="submit" className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
-                  Send enquiry
-                  <ArrowRight className="h-4 w-4" />
+          {contactStep === "calendly" ? (
+            <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+              <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-paper md:px-10">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Discovery call</p>
+                  <h2 className="mt-1 text-xl font-semibold leading-tight">Book a time with us</h2>
+                </div>
+                <button type="button" onClick={closeContactModal} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10" aria-label="Close">
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-            </form>
-          </div>
+              <div className="min-h-0 flex-1">
+                <div
+                  className="calendly-inline-widget h-full w-full"
+                  data-url="https://calendly.com/thesia-mt1l"
+                  style={{ minHeight: "660px" }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+              <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Contact VAxAI</p>
+                  <h2 id="contact-title" className="mt-3 text-3xl font-semibold leading-tight">
+                    {contactStep === "submitted" ? "Enquiry sent" : "Tell us what support you need"}
+                  </h2>
+                </div>
+                <button type="button" onClick={closeContactModal} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10" aria-label="Close contact form">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {contactStep === "submitted" ? (
+                <div className="p-6 md:p-10">
+                  <p className="text-sm leading-7 text-muted">
+                    Thank you — we have received your message and will be in touch shortly.
+                  </p>
+                  <div className="mt-8 rounded-md border border-ink/10 bg-[#f3f9f5] p-6">
+                    <p className="font-semibold text-ink">Would you like to book a discovery call?</p>
+                    <p className="mt-2 text-sm leading-6 text-muted">
+                      A short call to talk through your needs, no commitment required.
+                    </p>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setContactStep("calendly")}
+                        className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
+                      >
+                        Yes, book a call
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={closeContactModal}
+                        className="inline-flex items-center rounded-md border border-ink/15 px-5 py-3 text-sm font-semibold text-ink"
+                      >
+                        No thanks
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <form
+                  className="grid gap-5 p-6 md:grid-cols-2 md:p-10"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const data = new FormData(event.currentTarget);
+                    const subject = encodeURIComponent(`VAxAI enquiry: ${String(data.get("supportType"))}`);
+                    const body = encodeURIComponent(
+                      `Name: ${String(data.get("name"))}\nEmail: ${String(data.get("email"))}\nSupport type: ${String(data.get("supportType"))}\nPreferred contact: ${String(data.get("preferredContact"))}\nTelephone: ${String(data.get("telephone") || "Not provided")}\n\n${String(data.get("details"))}`,
+                    );
+                    window.location.href = `mailto:hello@vaxai.co.uk?subject=${subject}&body=${body}`;
+                    setContactStep("submitted");
+                  }}
+                >
+                  <label className="grid gap-2 text-sm font-semibold">
+                    Name
+                    <input required name="name" autoComplete="name" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold">
+                    Email address
+                    <input required type="email" name="email" autoComplete="email" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold">
+                    Support type
+                    <select required name="supportType" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]">
+                      <option>Assessment</option>
+                      <option>Assessment + Strategy &amp; Implementation</option>
+                      <option>Assessment + Ongoing Support</option>
+                      <option>Access to Work</option>
+                      <option>General enquiry</option>
+                    </select>
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold">
+                    Preferred method of contact
+                    <select name="preferredContact" value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]">
+                      <option>Email</option>
+                      <option>Telephone</option>
+                    </select>
+                  </label>
+                  {preferredContact === "Telephone" ? (
+                    <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+                      Telephone number
+                      <input required type="tel" name="telephone" autoComplete="tel" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                    </label>
+                  ) : null}
+                  <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+                    Tell us more
+                    <textarea required name="details" rows={5} className="resize-y rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                  </label>
+                  <div className="md:col-span-2">
+                    <button type="submit" className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
+                      Send enquiry
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
         </div>
       ) : null}
 
