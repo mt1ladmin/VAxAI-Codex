@@ -109,26 +109,32 @@ const plans = [
     step: "01",
     title: "Assessment",
     label: "Assess",
-    price: "Standalone from £1,500 + VAT",
-    copy: "A tailored consultation to understand your admin workload, existing tools, data, people and support needs before anything is designed or built.",
-    items: ["VAT Framework review", "AI value and risk map", "Practical setup plan", "Build and support recommendations"],
+    copy: [
+      "A tailored review of your administrative workload, systems, processes, people and priorities.",
+      "Together we identify where pressure is building, what is creating friction and whether the answer is improved processes, training, technology, human support or a combination of all four.",
+    ],
+    items: ["VAT Framework review", "AI value and risk map", "Workflow and capacity review", "Practical recommendations and next steps"],
   },
   {
     step: "02",
-    title: "Full Build",
-    label: "Assess + Build",
-    price: "From £5,000 + VAT",
-    copy: "Using the findings from your assessment, we design and implement the systems and processes needed to reduce administrative pressure and keep work moving.",
-    items: ["Everything included in Assess", "Tailored system and process design", "Tool setup and system connections", "Testing, team handover and training"],
+    title: "Strategy, Implementation & Capability Building",
+    label: "Assess + Implement",
+    copy: [
+      "Using the findings from your assessment, we help you put the right solution in place.",
+      "This may involve improving existing processes, making better use of tools you already have, introducing new systems, training your team, implementing automation, or developing a more tailored solution where required.",
+    ],
+    items: ["Everything included in Assess", "System and process improvements", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
   },
   {
     step: "03",
-    title: "Recommended: Full Package",
-    label: "Assess + Build + Support",
+    title: "Recommended: Ongoing Support",
+    label: "Assess + Implement + Support",
     featured: true,
-    price: "From £10,000 + VAT",
-    copy: "Our most complete option takes you from understanding the problem to putting the right systems and ongoing support in place.",
-    items: ["Full assessment and tailored build", "Ongoing management and oversight", "10 hours of tailored VA support per month for 1 year", "Additional support available at £30 per hour + VAT"],
+    copy: [
+      "For organisations that want ongoing support after implementation.",
+      "We continue helping your team use and improve the systems in place, provide virtual assistance where needed, monitor what is working and help adapt as priorities change.",
+    ],
+    items: ["Everything included in Assess and Implement", "Ongoing VA support", "Process and system optimisation", "Team support and guidance", "Additional capacity when needed", "Dedicated support hours included within your package"],
   },
 ];
 
@@ -471,7 +477,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Support built around your admin reality"
-            copy="You can start with an assessment or continue through the full process. The greatest value comes from combining all three stages: the assessment informs what we build, and the build shows where ongoing human support will add the most value."
+            copy="Every organisation is different. Some need help making better use of tools they already have. Others need support choosing and implementing new systems. Some need ongoing human assistance alongside technology. We start by understanding how work happens today and then recommend the most appropriate approach."
             narrow
           />
           <div className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
@@ -493,8 +499,11 @@ export default function Home() {
                   </div>
                   <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
                   <h3 className="mt-5 text-4xl font-semibold">{plan.label}</h3>
-                  <p className="mt-3 text-sm font-semibold text-[#063b32]">{plan.price}</p>
-                  <p className="mt-4 min-h-20 text-sm leading-6 text-muted">{plan.copy}</p>
+                  <div className="mt-4 min-h-20 space-y-3 text-sm leading-6 text-muted">
+                    {plan.copy.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
                   <ul className="mt-8 space-y-3 border-t border-ink/10 pt-6 text-sm">
                   {plan.items.map((item) => (
                     <li key={item} className="flex gap-3">
@@ -513,10 +522,10 @@ export default function Home() {
             </div>
             <div className="mt-3 grid gap-3 rounded-md border border-ink/10 bg-[#f3f9f5] p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
               <p>
-                Final pricing depends on the complexity of your processes, data quality, system connections, reporting requirements and the level of ongoing support required.
+                Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
               </p>
               <p>
-                Need VA support without a build? Standalone virtual assistance is available from £30 per hour + VAT. The full package is recommended when you want joined-up support from a team that understands your processes, systems and administrative needs from end to end.
+                Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
               </p>
             </div>
           </div>
