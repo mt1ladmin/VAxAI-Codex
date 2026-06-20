@@ -39,8 +39,8 @@ const tools = [
     logo: "https://cdn.simpleicons.org/zapier/FF4F00",
   },
   {
-    name: "Make",
-    logo: "https://cdn.simpleicons.org/make/6D28D9",
+    name: "Gemini",
+    logo: "https://cdn.simpleicons.org/googlegemini/8E75B2",
   },
 
   {
@@ -59,8 +59,8 @@ const features = [
   },
   {
     mark: "02",
-    title: "Simplify repetitive work",
-    copy: "We identify which repeated tasks can be simplified, connected or automated—and which still need human judgement.",
+    title: "Make better use of what you have",
+    copy: "We identify where existing tools, clearer processes, training, automation or AI support could reduce repetitive work.",
   },
   {
     mark: "03",
@@ -69,8 +69,8 @@ const features = [
   },
   {
     mark: "04",
-    title: "Handle the work automation cannot",
-    copy: "Trained VA support monitors processes, deals with exceptions and makes sure important work reaches the right person.",
+    title: "Add human support where needed",
+    copy: "Trained VA support manages follow-through, handles exceptions and makes sure important work reaches the right person.",
   },
 ];
 
@@ -281,7 +281,7 @@ function GeometricDivider() {
         <span className="absolute right-[32%] top-[23%] h-[52%] w-px rotate-[22deg] bg-ink/10" />
       </div>
       <div className="relative mx-auto grid max-w-3xl gap-3 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Assessment • AI and Automation • VA support</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Assessment • Strategy • Implementation • VA support</p>
       </div>
     </motion.div>
   );
@@ -332,14 +332,14 @@ export default function Home() {
               When admin takes over, VAxAI steps in
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
-              We help small businesses, charities and busy teams manage the repetitive work that consumes time and capacity by combining virtual assistance (VA) with AI and automation where they add value.
+              We help small businesses, charities and busy teams reduce repetitive admin by improving the way work moves through their existing tools, people and processes.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
                 Book a workflow call
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <span className="text-xs font-semibold text-paper/65">Built for small businesses, charities and hands-on teams</span>
+              <span className="text-xs font-semibold text-paper/65">Virtual assistance, AI and automation are introduced only where they add value, and no solution is used without your understanding and approval.</span>
             </div>
           </motion.div>
           <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
@@ -367,7 +367,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Support built around how you already work"
-            copy="We start with your existing tools, processes and workload to identify what can be simplified, what should remain human and where technology can help."
+            copy="We start with your current tools, processes and workload to identify what can be simplified, where your team may need support, and whether technology would genuinely help."
             narrow
           />
           <GeometricDivider />
@@ -379,7 +379,7 @@ export default function Home() {
           <SectionTitle
             light
             title="How VAxAI helps you get admin under control"
-            copy="From enquiries and diary management to files, records, reports and follow-ups, we create workable systems with automation and human judgement built in."
+            copy="From enquiries and diary management to files, records, reports and follow-ups, we help you create workable systems your team can understand, use and maintain."
             narrow
           />
           <div className="mt-12 grid gap-5 lg:grid-cols-[1fr_1.1fr_1fr] lg:items-center">
@@ -522,7 +522,7 @@ export default function Home() {
           <SectionTitle
             light
             title="Built around Value, Alignment and Trust"
-            copy="VAxAI uses the MT1L VAT Framework to decide what should be simplified, what technology can support and where human assistance is still needed."
+            copy="VAxAI uses the MT1L VAT Framework to decide whether existing tools, new systems, AI, automation or human support are the right fit."
             narrow
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -550,7 +550,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Why choose VAxAI?"
-            copy="We are not here to force a technical solution where it does not fit. Our priority is your organisation and helping you put the right support, systems and tools in place to achieve the best possible outcomes."
+            copy="We are not here to force a technical solution where it does not fit. Our priority is helping you choose, use and sustain the right mix of support, systems and tools for your organisation."
             narrow
           />
           <div className="mt-10 overflow-hidden rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
