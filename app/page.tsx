@@ -109,7 +109,7 @@ const plans = [
     copy: [
       "We put the right solution in place based on your assessment — improving processes, making better use of existing tools, introducing new systems or training your team.",
     ],
-    items: ["Everything included in Assess", "System and process improvements", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
+    items: ["Everything included in Assess", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
   },
   {
     step: "03",
@@ -119,7 +119,7 @@ const plans = [
     copy: [
       "Continued support after implementation — VA assistance, system monitoring and ongoing adjustments as your workload and priorities change.",
     ],
-    items: ["Everything included in Assess and Implement", "Ongoing VA support", "Process and system optimisation", "Team support and guidance", "Additional capacity when needed", "Dedicated support hours included within your package"],
+    items: ["Everything included in Assess and Implement", "Process and system optimisation", "Team support and guidance", "Dedicated support hours within your package"],
   },
 ];
 
@@ -379,6 +379,26 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="border-t border-ink/8 px-4 py-16 md:px-8">
+        <div className="mx-auto max-w-6xl grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-start">
+          <motion.h2 {...reveal} className="text-2xl font-semibold leading-snug md:text-3xl">
+            If admin is getting in the way, you are in the right place
+          </motion.h2>
+          <motion.div {...reveal} className="grid gap-3">
+            {[
+              "Your team is spending time on tasks that should run themselves — chasing updates, re-entering data, or managing things that have never had a clear owner.",
+              "Something important keeps falling through the gaps because no process or person is consistently responsible for it.",
+              "You want to use AI or better tools but are not sure where to start, whether it is right for your organisation, or how to make it stick.",
+            ].map((item) => (
+              <div key={item} className="flex gap-4 rounded-md border border-ink/10 bg-white p-4">
+                <span className="mt-1 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[9px] font-black text-ink">→</span>
+                <p className="text-sm leading-6 text-muted">{item}</p>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       <div className="px-4 md:px-8">
         <div className="mx-auto max-w-6xl">
           <GeometricDivider />
@@ -472,7 +492,7 @@ export default function Home() {
       <section id="pricing" className="px-4 pb-20 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
-            title="Support that fits your situation"
+            title="Three ways to work with us"
             copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix — whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
@@ -494,7 +514,7 @@ export default function Home() {
                     ) : null}
                   </div>
                   <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
-                  <h3 className="mt-5 text-4xl font-semibold">{plan.label}</h3>
+                  <h3 className="mt-3 text-2xl font-semibold leading-tight">{plan.label}</h3>
                   <div className="mt-4 min-h-20 space-y-3 text-sm leading-6 text-muted">
                     {plan.copy.map((paragraph) => (
                       <p key={paragraph}>{paragraph}</p>
