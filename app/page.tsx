@@ -98,7 +98,7 @@ const plans = [
     title: "Assessment",
     label: "Assess",
     copy: [
-      "A focused review of your admin workload, tools, processes and team to identify where pressure is building and what the right response looks like.",
+      "A focused review of your admin workload, tools, processes and team — identifying where pressure is building and what the right response looks like.",
     ],
     items: ["VAT Framework review", "AI value and risk map", "Workflow and capacity review", "Practical recommendations and next steps"],
   },
@@ -107,7 +107,7 @@ const plans = [
     title: "Strategy, Implementation & Capability Building",
     label: "Assess + Implement",
     copy: [
-      "We put the right solution in place based on your assessment — improving processes, making better use of existing tools, introducing new systems or training your team where needed.",
+      "We put the right solution in place based on your assessment — improving processes, making better use of existing tools, introducing new systems or training your team.",
     ],
     items: ["Everything included in Assess", "System and process improvements", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
   },
@@ -117,7 +117,7 @@ const plans = [
     label: "Assess + Implement + Support",
     featured: true,
     copy: [
-      "Continued support after implementation — VA assistance, system monitoring and adjustments as your workload and priorities change.",
+      "Continued support after implementation — VA assistance, system monitoring and ongoing adjustments as your workload and priorities change.",
     ],
     items: ["Everything included in Assess and Implement", "Ongoing VA support", "Process and system optimisation", "Team support and guidance", "Additional capacity when needed", "Dedicated support hours included within your package"],
   },
@@ -259,17 +259,17 @@ function ToolScroller() {
 
 function GeometricDivider() {
   const nodes = [
-    ["left-[7%] top-8 h-24 w-24 rounded-full bg-acid/70"],
-    ["left-[24%] bottom-7 h-16 w-16 rounded-full bg-[#f28a4b]/40"],
-    ["left-[43%] top-12 h-20 w-20 rounded-full bg-[#8fd0b0]/45"],
-    ["right-[23%] bottom-10 h-14 w-14 rotate-12 rounded-md bg-[#f6c84f]/50"],
-    ["right-[8%] top-8 h-28 w-28 rounded-full bg-[#4479a8]/25"],
+    ["left-[7%] top-10 h-32 w-32 rounded-full bg-acid/70"],
+    ["left-[24%] bottom-10 h-20 w-20 rounded-full bg-[#f28a4b]/40"],
+    ["left-[43%] top-16 h-24 w-24 rounded-full bg-[#8fd0b0]/45"],
+    ["right-[23%] bottom-12 h-16 w-16 rotate-12 rounded-md bg-[#f6c84f]/50"],
+    ["right-[8%] top-10 h-36 w-36 rounded-full bg-[#4479a8]/25"],
   ];
 
   return (
     <motion.div
       {...reveal}
-      className="relative mt-10 overflow-hidden px-6 py-14 text-ink"
+      className="relative mt-10 px-6 py-28 text-ink"
       aria-hidden="true"
     >
       <div className="simplified-hide absolute inset-0 opacity-80">
@@ -292,19 +292,36 @@ export default function Home() {
   const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
 
   useEffect(() => {
-    if (contactStep !== "calendly") return;
     if (!document.querySelector('link[href*="calendly.com/assets"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = "https://assets.calendly.com/assets/external/widget.css";
       document.head.appendChild(link);
     }
-    if (!document.querySelector('script[src*="calendly.com/assets"]')) {
+    const initBadge = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).Calendly?.initBadgeWidget({
+        url: "https://calendly.com/thesia-mt1l",
+        text: "Schedule time with me",
+        color: "#0069ff",
+        textColor: "#ffffff",
+        branding: true,
+      });
+    };
+    if (document.querySelector('script[src*="calendly.com/assets"]')) {
+      initBadge();
+    } else {
       const script = document.createElement("script");
       script.src = "https://assets.calendly.com/assets/external/widget.js";
       script.async = true;
+      script.onload = initBadge;
       document.head.appendChild(script);
     }
+  }, []);
+
+  useEffect(() => {
+    if (contactStep !== "calendly") return;
+    // Calendly assets already loaded by badge widget effect above
   }, [contactStep]);
 
   function closeContactModal() {
@@ -337,7 +354,7 @@ export default function Home() {
             <a href="#faq">FAQ</a>
           </div>
           <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
-            Book a call
+            Get in touch
           </button>
           <button className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden" aria-label="Open menu">
             <Menu className="h-4 w-4" />
@@ -354,7 +371,7 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
-                Book a workflow call
+                Start your workflow review
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
@@ -504,7 +521,7 @@ export default function Home() {
                 </ul>
                 {plan.featured ? (
                   <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper">
-                    Book a workflow consultation
+                    Book a discovery call
                   </button>
                 ) : null}
               </article>
@@ -629,7 +646,7 @@ export default function Home() {
             <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] text-ink md:text-5xl">Admin support that can grow with you</h2>
             <p className="mt-5 max-w-lg text-sm leading-6 text-muted">Start with a workflow call and leave with a clearer sense of what should be automated, what should stay human, and what support your small business or charity actually needs.</p>
             <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
-              Book a workflow call
+              Book a discovery call
               <MailCheck className="h-4 w-4" />
             </button>
           </div>
@@ -740,7 +757,7 @@ export default function Home() {
                         onClick={() => setContactStep("calendly")}
                         className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
                       >
-                        Yes, book a call
+                        Yes, book a discovery call
                         <ArrowRight className="h-4 w-4" />
                       </button>
                       <button
