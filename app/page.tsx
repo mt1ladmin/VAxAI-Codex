@@ -42,7 +42,10 @@ const tools = [
     name: "Gemini",
     logo: "https://cdn.simpleicons.org/googlegemini/8E75B2",
   },
-
+  {
+    name: "ChatGPT",
+    logo: "https://cdn.simpleicons.org/chatgpt/74AA9C",
+  },
   {
     name: "n8n",
     logo: "https://cdn.simpleicons.org/n8n/EA4B71",
@@ -141,7 +144,7 @@ const faqs = [
 const whyPrinciples = [
   ["01", "One team throughout", "The people supporting your day-to-day work understand the decisions and setup behind it, reducing repeated explanations and disconnected handovers."],
   ["02", "You stay in control", "We explain recommendations clearly, document what is introduced and make sure you approve the tools and changes affecting your organisation."],
-  ["03", "Built to remain useful", "Your setup is designed around your organisation rather than a fixed package, so it can be adjusted as your workload, team or priorities change."],
+  ["03", "Designed to stay useful", "Your setup is shaped around your organisation rather than a fixed package, so it can be adjusted as your workload, team or priorities change."],
   ["04", "Capacity when you need it", "You can increase or reduce your VA support as your needs change. When additional capacity is required, we bring in trusted partners and train them on your setup at no additional cost."],
 ];
 
@@ -327,7 +330,6 @@ export default function Home() {
 
         <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div {...reveal}>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-acid">AI admin support</p>
             <h1 className="max-w-2xl text-5xl font-semibold leading-[1] md:text-7xl">
               When admin takes over, VAxAI steps in
             </h1>
@@ -339,7 +341,6 @@ export default function Home() {
                 Book a workflow call
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <span className="text-xs font-semibold text-paper/65">Virtual assistance, AI and automation are introduced only where they add value, and no solution is used without your understanding and approval.</span>
             </div>
           </motion.div>
           <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
@@ -349,28 +350,10 @@ export default function Home() {
       </section>
 
       <section className="px-4 py-14 md:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 md:flex-row md:items-center md:gap-6">
-          <motion.p {...reveal} className="text-sm font-semibold">VAxAI</motion.p>
-          <motion.p {...reveal} className="text-sm leading-7 text-muted lg:whitespace-nowrap lg:text-[15px]">
-            Protecting your business is our top priority. No solution is introduced without your understanding and approval.
+        <div className="mx-auto max-w-6xl">
+          <motion.p {...reveal} className="max-w-2xl text-sm leading-7 text-muted lg:text-[15px]">
+            Virtual assistance, AI and automation are introduced only where they add value, and no solution is used without your understanding and approval.
           </motion.p>
-        </div>
-      </section>
-
-      <section id="tools" className="bg-paper px-4 py-14 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <ToolScroller />
-        </div>
-      </section>
-
-      <section id="services" className="px-4 pb-20 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <SectionTitle
-            title="Support built around how you already work"
-            copy="We start with your current tools, processes and workload to identify what can be simplified, where your team may need support, and whether technology would genuinely help."
-            narrow
-          />
-          <GeometricDivider />
         </div>
       </section>
 
@@ -461,8 +444,8 @@ export default function Home() {
       <section id="pricing" className="px-4 pb-20 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
-            title="Support built around your admin reality"
-            copy="Every organisation is different. Some need help making better use of tools they already have. Others need support choosing and implementing new systems. Some need ongoing human assistance alongside technology. We start by understanding how work happens today and then recommend the most appropriate approach."
+            title="Support that fits your situation"
+            copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix — whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
           <div className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
@@ -521,7 +504,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
-            title="Built around Value, Alignment and Trust"
+            title="Value, Alignment and Trust"
             copy="VAxAI uses the MT1L VAT Framework to decide whether existing tools, new systems, AI, automation or human support are the right fit."
             narrow
           />
