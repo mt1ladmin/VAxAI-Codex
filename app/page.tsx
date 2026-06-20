@@ -350,7 +350,7 @@ export default function Home() {
               When admin takes over, VAxAI steps in
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
-              We help small businesses, charities and busy teams reduce repetitive admin by improving the way work moves through their existing tools, people and processes.
+              We help small businesses, charities and busy teams reduce repetitive admin by making everyday tasks, follow-ups and information easier to manage, track and complete.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
@@ -365,36 +365,24 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-14 md:px-8">
+      <section className="px-4 py-16 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <motion.p {...reveal} className="max-w-2xl text-sm leading-7 text-muted lg:text-[15px]">
-            Virtual assistance, AI and automation are introduced only where they add value, and no solution is used without your understanding and approval.
-          </motion.p>
-        </div>
-      </section>
-
-      <section id="tools" className="bg-paper px-4 pb-10 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <ToolScroller />
-        </div>
-      </section>
-
-      <section className="border-t border-ink/8 px-4 py-16 md:px-8">
-        <div className="mx-auto max-w-6xl grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-start">
-          <motion.h2 {...reveal} className="text-2xl font-semibold leading-snug md:text-3xl">
-            If admin is getting in the way, you are in the right place
-          </motion.h2>
-          <motion.div {...reveal} className="grid gap-3">
-            {[
-              "Your team is spending time on tasks that should run themselves — chasing updates, re-entering data, or managing things that have never had a clear owner.",
-              "Something important keeps falling through the gaps because no process or person is consistently responsible for it.",
-              "You want to use AI or better tools but are not sure where to start, whether it is right for your organisation, or how to make it stick.",
-            ].map((item) => (
-              <div key={item} className="flex gap-4 rounded-md border border-ink/10 bg-white p-4">
-                <span className="mt-1 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[9px] font-black text-ink">→</span>
-                <p className="text-sm leading-6 text-muted">{item}</p>
-              </div>
-            ))}
+          <motion.div {...reveal} className="grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-start">
+            <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
+              Does any of this sound familiar?
+            </h2>
+            <div className="grid gap-3">
+              {[
+                "Too much time is being spent on emails, follow-ups, scheduling, reporting and other essential admin that leaves less capacity for strategic, client-facing or service-delivery work.",
+                "Work keeps falling between the cracks because information, responsibilities or processes are spread across too many places.",
+                "You know there must be a better way of working but are unsure whether the answer is new technology, better processes, additional support or a combination of all three.",
+              ].map((item) => (
+                <div key={item} className="flex gap-4 rounded-md border border-ink/10 bg-white p-4">
+                  <span className="mt-1 shrink-0 text-sm font-semibold text-ink">→</span>
+                  <p className="text-sm leading-6 text-muted">{item}</p>
+                </div>
+              ))}
+            </div>
           </motion.div>
         </div>
       </section>
