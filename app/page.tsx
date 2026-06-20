@@ -292,36 +292,19 @@ export default function Home() {
   const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
 
   useEffect(() => {
+    if (contactStep !== "calendly") return;
     if (!document.querySelector('link[href*="calendly.com/assets"]')) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.href = "https://assets.calendly.com/assets/external/widget.css";
       document.head.appendChild(link);
     }
-    const initBadge = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (window as any).Calendly?.initBadgeWidget({
-        url: "https://calendly.com/thesia-mt1l",
-        text: "Schedule time with me",
-        color: "#0069ff",
-        textColor: "#ffffff",
-        branding: true,
-      });
-    };
-    if (document.querySelector('script[src*="calendly.com/assets"]')) {
-      initBadge();
-    } else {
+    if (!document.querySelector('script[src*="calendly.com/assets"]')) {
       const script = document.createElement("script");
       script.src = "https://assets.calendly.com/assets/external/widget.js";
       script.async = true;
-      script.onload = initBadge;
       document.head.appendChild(script);
     }
-  }, []);
-
-  useEffect(() => {
-    if (contactStep !== "calendly") return;
-    // Calendly assets already loaded by badge widget effect above
   }, [contactStep]);
 
   function closeContactModal() {
@@ -387,6 +370,12 @@ export default function Home() {
           <motion.p {...reveal} className="max-w-2xl text-sm leading-7 text-muted lg:text-[15px]">
             Virtual assistance, AI and automation are introduced only where they add value, and no solution is used without your understanding and approval.
           </motion.p>
+        </div>
+      </section>
+
+      <section id="tools" className="bg-paper px-4 pb-10 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <ToolScroller />
         </div>
       </section>
 
