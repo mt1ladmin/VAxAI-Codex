@@ -365,7 +365,7 @@ export default function Home() {
               When admin takes over, VAxAI steps in
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
-              We help small businesses, charities, founders, sole traders and busy teams reduce repetitive admin by making everyday tasks, follow-ups and information easier to manage, track and complete.
+              We help small businesses, charities, solo founders and busy teams reduce repetitive admin by making everyday tasks, follow-ups and information easier to manage, track and complete.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
