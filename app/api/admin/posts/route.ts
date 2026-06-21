@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const db = createServiceClient();
     let query = db
       .from("posts")
-      .select("id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,author_id")
+      .select("id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id")
       .order("updated_at", { ascending: false });
     if (status && status !== "all") query = query.eq("status", status);
     const { data, error } = await query;
@@ -67,6 +67,7 @@ export async function POST(req: NextRequest) {
       cover_image_url: body.cover_image_url ?? null,
       status: body.status ?? "draft",
       published_at: body.status === "published" ? now : null,
+      scheduled_at: (body as { scheduled_at?: string }).scheduled_at ?? null,
       updated_at: now,
     }).select().single();
     if (error) throw error;

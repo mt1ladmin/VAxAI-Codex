@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { Linkedin, Share2 } from "lucide-react";
+import { Linkedin } from "lucide-react";
 import ReadingProgress from "@/components/posts/ReadingProgress";
 import PostContactForm from "@/components/posts/PostContactForm";
 import ShareButton from "@/components/posts/ShareButton";
+import SiteNav from "@/components/SiteNav";
 
 type Post = {
   id: string;
@@ -53,7 +54,7 @@ async function getRelatedPosts(currentId: string, tags: string[]): Promise<Post[
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
   const { data } = await db
     .from("posts")
-    .select("id,title,slug,cover_image_url,content_type,published_at")
+    .select("id,title,slug,cover_image_url,content_type,published_at,description")
     .eq("status", "published")
     .neq("id", currentId)
     .overlaps("tags", tags)
@@ -89,86 +90,99 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const postUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/posts/${post.slug}`;
 
   return (
-    <>
-      <ReadingProgress />
+    <div className="min-h-screen bg-white">
+      {/* Sticky site nav */}
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 px-4 py-3 backdrop-blur-sm md:px-8">
+        <SiteNav variant="light" />
+      </header>
 
-      <article className="min-h-screen bg-white">
-        {/* Cover image */}
+      {/* Reading progress — keyed to article body */}
+      <ReadingProgress contentId="post-body" />
+
+      <article>
+        {/* Cover image — full width up to max */}
         {post.cover_image_url && (
-          <div className="mx-auto max-w-5xl px-4 pt-10">
+          <div className="mx-auto max-w-5xl px-4 pt-10 sm:px-8">
             <img
               src={post.cover_image_url}
               alt={post.title}
-              className="w-full rounded-xl object-cover"
-              style={{ maxHeight: "480px" }}
+              className="h-64 w-full rounded-2xl object-cover sm:h-80 md:h-[420px]"
             />
           </div>
         )}
 
-        <div className="mx-auto max-w-5xl px-4 pb-24 pt-10">
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_280px]">
-            {/* Main content */}
-            <div>
-              {/* Meta */}
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                {post.content_type && (
-                  <span className="rounded-full bg-[#063b32]/10 px-3 py-1 text-xs font-semibold text-[#063b32]">
-                    {post.content_type}
-                  </span>
-                )}
-                {publishedDate && (
-                  <span className="text-sm text-gray-400">{publishedDate}</span>
-                )}
-              </div>
+        <div className="mx-auto max-w-5xl px-4 pb-24 pt-10 sm:px-8">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_260px]">
+
+            {/* ── Main column ── */}
+            <div className="min-w-0">
+
+              {/* Author — above the title */}
+              {author && (
+                <div className="mb-6 flex items-center gap-3">
+                  {author.avatar_url ? (
+                    <img src={author.avatar_url} alt={author.name} className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-gray-100" />
+                  ) : (
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274]">
+                      {author.name[0].toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-gray-900">{author.name}</p>
+                      {author.linkedin_url && (
+                        <a href={author.linkedin_url} target="_blank" rel="noopener noreferrer"
+                          className="text-gray-300 hover:text-[#0077b5]" aria-label="LinkedIn">
+                          <Linkedin className="h-3.5 w-3.5" />
+                        </a>
+                      )}
+                    </div>
+                    {author.bio && (
+                      <p className="truncate text-xs text-gray-400">{author.bio}</p>
+                    )}
+                  </div>
+                  {publishedDate && (
+                    <span className="ml-auto shrink-0 text-xs text-gray-400">{publishedDate}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Content type badge */}
+              {post.content_type && (
+                <span className="mb-3 inline-block rounded-full bg-[#063b32]/8 px-3 py-1 text-xs font-semibold text-[#063b32]">
+                  {post.content_type}
+                </span>
+              )}
 
               {/* Title */}
-              <h1 className="text-4xl font-bold leading-tight text-gray-900">{post.title}</h1>
+              <h1 className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl">
+                {post.title}
+              </h1>
 
-              {/* Description / standfirst */}
+              {/* Standfirst */}
               {post.description && (
                 <p className="mt-4 text-lg leading-8 text-gray-500">{post.description}</p>
               )}
 
-              {/* Author + share row */}
-              <div className="mt-6 flex flex-wrap items-center gap-4 border-b border-t border-gray-100 py-4">
-                {author && (
-                  <div className="flex items-center gap-3">
-                    {author.avatar_url ? (
-                      <img src={author.avatar_url} alt={author.name} className="h-10 w-10 rounded-full object-cover" />
-                    ) : (
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274]">
-                        {author.name[0].toUpperCase()}
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">{author.name}</p>
-                      {author.bio && <p className="text-xs text-gray-400 line-clamp-1">{author.bio}</p>}
-                    </div>
-                    {author.linkedin_url && (
-                      <a
-                        href={author.linkedin_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="ml-1 text-gray-400 hover:text-[#0077b5]"
-                        aria-label="LinkedIn"
-                      >
-                        <Linkedin className="h-4 w-4" />
-                      </a>
-                    )}
-                  </div>
-                )}
-                <div className="ml-auto">
-                  <ShareButton url={postUrl} title={post.title} />
-                </div>
+              {/* Share row */}
+              <div className="mt-6 flex items-center justify-between border-b border-t border-gray-100 py-3">
+                <span className="text-xs text-gray-400">
+                  {!author && publishedDate ? publishedDate : ""}
+                </span>
+                <ShareButton url={postUrl} title={post.title} />
               </div>
 
-              {/* Body HTML */}
-              {post.body_html && (
-                <div
-                  className="prose-vaxai mt-8"
-                  dangerouslySetInnerHTML={{ __html: post.body_html }}
-                />
-              )}
+              {/* ── Article body — this element is tracked for reading progress ── */}
+              <div id="post-body" className="mt-8">
+                {post.body_html ? (
+                  <div
+                    className="prose-vaxai"
+                    dangerouslySetInnerHTML={{ __html: post.body_html }}
+                  />
+                ) : (
+                  <p className="text-gray-400 italic">No content yet.</p>
+                )}
+              </div>
 
               {/* Tags */}
               {post.tags && post.tags.length > 0 && (
@@ -182,50 +196,63 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               )}
 
               {/* Contact form */}
-              <div className="mt-16 rounded-2xl border border-gray-100 bg-gray-50 p-8">
+              <div className="mt-16 rounded-2xl border border-gray-100 bg-gray-50 p-6 sm:p-8">
                 <h2 className="mb-1 text-xl font-bold text-gray-900">Get in touch</h2>
                 <p className="mb-6 text-sm text-gray-500">
-                  Have a question about this post or want to explore working together? Send us a message — your enquiry will be linked to this content.
+                  Have a question about this post or want to explore working together? Your enquiry will be linked to this content.
                 </p>
                 <PostContactForm postId={post.id} postTitle={post.title} />
               </div>
             </div>
 
-            {/* Sidebar */}
-            <aside className="space-y-6 lg:pt-2">
-              {related.length > 0 && (
-                <div>
-                  <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">You might also like</p>
-                  <div className="space-y-4">
-                    {related.map((r) => (
-                      <a key={r.id} href={`/posts/${r.slug}`} className="group flex gap-3">
-                        {r.cover_image_url ? (
-                          <img
-                            src={r.cover_image_url}
-                            alt={r.title}
-                            className="h-16 w-20 shrink-0 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="h-16 w-20 shrink-0 rounded-lg bg-gray-100" />
-                        )}
-                        <div className="min-w-0">
-                          {r.content_type && (
-                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#063b32]">{r.content_type}</p>
+            {/* ── Sidebar ── */}
+            <aside className="hidden lg:block">
+              <div className="sticky top-[76px] space-y-8">
+                {/* You might also like */}
+                {related.length > 0 && (
+                  <div>
+                    <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">
+                      You might also like
+                    </p>
+                    <div className="space-y-5">
+                      {related.map((r) => (
+                        <a key={r.id} href={`/posts/${r.slug}`} className="group block">
+                          {r.cover_image_url && (
+                            <img
+                              src={r.cover_image_url}
+                              alt={r.title}
+                              className="mb-2 h-32 w-full rounded-xl object-cover"
+                            />
                           )}
-                          <p className="text-sm font-semibold leading-5 text-gray-800 group-hover:text-[#063b32] line-clamp-3">
+                          {r.content_type && (
+                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#063b32]">
+                              {r.content_type}
+                            </p>
+                          )}
+                          <p className="text-sm font-semibold leading-5 text-gray-800 group-hover:text-[#063b32]">
                             {r.title}
                           </p>
-                        </div>
-                      </a>
-                    ))}
+                          {r.description && (
+                            <p className="mt-1 line-clamp-2 text-xs text-gray-400">{r.description}</p>
+                          )}
+                        </a>
+                      ))}
+                    </div>
                   </div>
+                )}
+
+                {/* Back to content library */}
+                <div>
+                  <a href="/content"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#063b32] hover:underline">
+                    ← All content
+                  </a>
                 </div>
-              )}
+              </div>
             </aside>
           </div>
         </div>
       </article>
-
-    </>
+    </div>
   );
 }
