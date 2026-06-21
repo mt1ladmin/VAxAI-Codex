@@ -71,3 +71,34 @@ a {
 .prose-vaxai p:first-child { margin-top: 0; }
 .prose-vaxai strong { font-weight: 700; }
 .prose-vaxai em { font-style: italic; }
+
+/* Simplified mode — applied to <html> via SimplifiedModeToggle */
+html.simplified-mode,
+html.simplified-mode body {
+  background: #fff !important;
+  color: #000 !important;
+}
+html.simplified-mode *,
+html.simplified-mode *::before,
+html.simplified-mode *::after {
+  background-color: #fff !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+  color: #000 !important;
+  text-shadow: none !important;
+}
+html.simplified-mode a,
+html.simplified-mode button { text-decoration: underline; }
+html.simplified-mode .simplified-hide { display: none !important; }
+html.simplified-mode .simplified-photo {
+  border: 1px solid #000 !important;
+  filter: grayscale(1) contrast(1.12) !important;
+}
+html.simplified-mode img { filter: grayscale(1) contrast(1.25) !important; }
+html.simplified-mode .simplified-toggle {
+  background: #000 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+  text-decoration: none;
+}
+html.simplified-mode .simplified-toggle * { color: #fff !important; }

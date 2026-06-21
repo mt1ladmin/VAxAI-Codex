@@ -39,8 +39,8 @@ export default function SiteNav({ variant = "dark" }: Props) {
         <a href="/#experts" className={linkClass}>About</a>
         <a href="/#pricing" className={linkClass}>Pricing</a>
         <a href="/#faq" className={linkClass}>FAQ</a>
-        <a href="/content" className={`${linkClass} ${isDark ? "text-[#f5f274]/80 hover:text-[#f5f274]" : "text-[#063b32] hover:text-[#063b32]/80"} font-semibold`}>
-          Content
+        <a href="/insights" className={`${linkClass} ${isDark ? "text-[#f5f274]/80 hover:text-[#f5f274]" : "text-[#063b32] hover:text-[#063b32]/80"} font-semibold`}>
+          Insights
         </a>
       </div>
 
@@ -69,7 +69,7 @@ export default function SiteNav({ variant = "dark" }: Props) {
             { label: "About", href: "/#experts" },
             { label: "Pricing", href: "/#pricing" },
             { label: "FAQ", href: "/#faq" },
-            { label: "Content", href: "/content" },
+            { label: "Insights", href: "/insights" },
           ].map(({ label, href }) => (
             <a key={label} href={href} onClick={() => setMobileOpen(false)}
               className={`rounded-md px-4 py-2.5 text-sm font-semibold ${mobileLinkClass}`}>
