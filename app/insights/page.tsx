@@ -1,9 +1,11 @@
 import { Metadata } from "next";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
+import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import ContentGrid from "@/components/posts/ContentGrid";
 
 export const metadata: Metadata = {
-  title: "Content | VAxAI",
+  title: "Insights | VAxAI",
   description: "Insights, guides and resources from the VAxAI team on admin, automation and working smarter.",
 };
 
@@ -41,39 +43,29 @@ async function getAuthors(): Promise<Author[]> {
   return data ?? [];
 }
 
-export default async function ContentPage() {
+export default async function InsightsPage() {
   const [posts, authors] = await Promise.all([getPosts(), getAuthors()]);
-
   const authorMap = Object.fromEntries(authors.map((a) => [a.id, a]));
-
   const allTags = Array.from(new Set(posts.flatMap((p) => p.tags ?? []))).sort();
   const allTypes = Array.from(new Set(posts.map((p) => p.content_type).filter(Boolean))) as string[];
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 px-4 py-3 backdrop-blur-sm md:px-8">
         <SiteNav variant="light" />
       </header>
-
-      {/* Hero strip */}
-      <div className="border-b border-gray-100 bg-[#063b32] px-4 py-14 text-center md:px-8">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#f5f274]/80">Content library</p>
+      <div className="bg-[#063b32] px-4 py-14 text-center md:px-8">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#f5f274]/80">Insights</p>
         <h1 className="text-3xl font-bold text-white sm:text-4xl">Insights &amp; resources</h1>
         <p className="mx-auto mt-3 max-w-xl text-base text-white/60">
           Practical thinking on admin, automation, AI tools and working smarter — from the VAxAI team.
         </p>
       </div>
-
-      {/* Filterable grid — client component */}
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">
         <ContentGrid posts={posts} authorMap={authorMap} allTags={allTags} allTypes={allTypes} />
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-100 px-4 py-10 text-center text-xs text-gray-400 sm:px-8">
-        <a href="/" className="hover:text-gray-600">← Back to VAxAI</a>
-      </footer>
+      <SiteFooter />
+      <SimplifiedModeToggle />
     </div>
   );
 }

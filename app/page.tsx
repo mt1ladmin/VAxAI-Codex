@@ -293,6 +293,18 @@ export default function Home() {
   const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
 
   useEffect(() => {
+    const saved = localStorage.getItem("vaxai-simplified") === "true";
+    if (saved) { setIsSimplifiedMode(true); document.documentElement.classList.add("simplified-mode"); }
+  }, []);
+
+  const toggleSimplified = () => {
+    const next = !isSimplifiedMode;
+    setIsSimplifiedMode(next);
+    localStorage.setItem("vaxai-simplified", String(next));
+    document.documentElement.classList.toggle("simplified-mode", next);
+  };
+
+  useEffect(() => {
     if (contactStep !== "calendly") return;
     if (!document.querySelector('link[href*="calendly.com/assets"]')) {
       const link = document.createElement("link");
@@ -318,7 +330,7 @@ export default function Home() {
     <main id="top" className={`min-h-screen bg-paper text-ink ${isSimplifiedMode ? "simplified-mode" : ""}`}>
       <button
         type="button"
-        onClick={() => setIsSimplifiedMode((current) => !current)}
+        onClick={toggleSimplified}
         className={`simplified-toggle fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
           isSimplifiedMode ? "border-ink bg-ink text-paper" : "border-ink/10 bg-white text-ink"
         }`}
@@ -337,7 +349,7 @@ export default function Home() {
             <a href="#experts">About</a>
             <a href="#pricing">Pricing</a>
             <a href="#faq">FAQ</a>
-            <a href="/content" className="text-[#f5f274]/80 hover:text-[#f5f274]">Content</a>
+            <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights</a>
           </div>
           <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
             Get in touch

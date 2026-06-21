@@ -43,67 +43,86 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
     return true;
   });
 
+  const hasActiveFilter = !!(search || activeType || activeTag);
+
   return (
     <div>
-      {/* Filters */}
-      <div className="mb-8 flex flex-wrap items-center gap-3">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search content…"
-            className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
-          />
+      {/* Filter bar */}
+      <div className="mb-6 space-y-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
+        {/* Search + count */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search insights…"
+              className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
+            />
+          </div>
+          <span className="text-xs text-gray-400">
+            {filtered.length} {filtered.length === 1 ? "insight" : "insights"}
+          </span>
+          {hasActiveFilter && (
+            <button
+              onClick={() => { setSearch(""); setActiveType(""); setActiveTag(""); }}
+              className="text-xs font-semibold text-[#063b32] hover:underline"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
 
         {/* Type filter */}
         {allTypes.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              onClick={() => setActiveType("")}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                !activeType ? "bg-[#063b32] text-white" : "border border-gray-200 text-gray-500 hover:border-[#063b32]/40"
-              }`}
-            >
-              All
-            </button>
-            {allTypes.map((t) => (
+          <div>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">Type</p>
+            <div className="flex flex-wrap gap-1.5">
               <button
-                key={t}
-                onClick={() => setActiveType(activeType === t ? "" : t)}
+                onClick={() => setActiveType("")}
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  activeType === t ? "bg-[#063b32] text-white" : "border border-gray-200 text-gray-500 hover:border-[#063b32]/40"
+                  !activeType ? "bg-[#063b32] text-white" : "border border-gray-200 bg-white text-gray-500 hover:border-[#063b32]/50"
                 }`}
               >
-                {t}
+                All
               </button>
-            ))}
+              {allTypes.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setActiveType(activeType === t ? "" : t)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    activeType === t ? "bg-[#063b32] text-white" : "border border-gray-200 bg-white text-gray-500 hover:border-[#063b32]/50"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        <span className="ml-auto text-xs text-gray-400">{filtered.length} {filtered.length === 1 ? "post" : "posts"}</span>
+        {/* Tag filter */}
+        {allTags.length > 0 && (
+          <div>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">Tags</p>
+            <div className="flex flex-wrap gap-1.5">
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(activeTag === tag ? "" : tag)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                    activeTag === tag
+                      ? "bg-gray-900 text-white"
+                      : "border border-gray-200 bg-white text-gray-500 hover:border-gray-400"
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Tag filter row */}
-      {allTags.length > 0 && (
-        <div className="mb-8 flex flex-wrap gap-1.5">
-          {allTags.map((tag) => (
-            <button
-              key={tag}
-              onClick={() => setActiveTag(activeTag === tag ? "" : tag)}
-              className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                activeTag === tag
-                  ? "bg-gray-900 text-white"
-                  : "border border-gray-200 text-gray-500 hover:border-gray-400"
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-      )}
 
       {filtered.length === 0 ? (
         <div className="py-24 text-center text-gray-400">No posts match your filters.</div>

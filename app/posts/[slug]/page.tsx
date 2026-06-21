@@ -4,7 +4,10 @@ import { Linkedin } from "lucide-react";
 import ReadingProgress from "@/components/posts/ReadingProgress";
 import PostContactForm from "@/components/posts/PostContactForm";
 import ShareButton from "@/components/posts/ShareButton";
+import BackButton from "@/components/posts/BackButton";
 import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
+import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 
 type Post = {
   id: string;
@@ -96,10 +99,15 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <SiteNav variant="light" />
       </header>
 
-      {/* Reading progress — keyed to article body */}
+      {/* Reading progress — measured against article body only */}
       <ReadingProgress contentId="post-body" />
 
       <article>
+        {/* Back button */}
+        <div className="mx-auto max-w-5xl px-4 pt-6 sm:px-8">
+          <BackButton fallbackHref="/insights" label="Back to Insights" />
+        </div>
+
         {/* Cover image — full width up to max */}
         {post.cover_image_url && (
           <div className="mx-auto max-w-5xl px-4 pt-10 sm:px-8">
@@ -241,11 +249,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   </div>
                 )}
 
-                {/* Back to content library */}
+                {/* Back to insights */}
                 <div>
-                  <a href="/content"
+                  <a href="/insights"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#063b32] hover:underline">
-                    ← All content
+                    ← All insights
                   </a>
                 </div>
               </div>
@@ -253,6 +261,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </div>
         </div>
       </article>
+
+      <SiteFooter />
+      <SimplifiedModeToggle />
     </div>
   );
 }
