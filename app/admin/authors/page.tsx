@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Plus, Trash2, X } from "lucide-react";
+import ImageUpload from "@/components/admin/ImageUpload";
 
-type Author = { id: string; name: string; bio: string; avatar_url: string | null; created_at: string };
+type Author = { id: string; name: string; bio: string; avatar_url: string | null; linkedin_url: string | null; created_at: string };
 
 function AuthorForm({
   initial,
@@ -11,19 +12,20 @@ function AuthorForm({
   onCancel,
 }: {
   initial?: Partial<Author>;
-  onSave: (data: { name: string; bio: string; avatar_url: string }) => Promise<void>;
+  onSave: (data: { name: string; bio: string; avatar_url: string; linkedin_url: string }) => Promise<void>;
   onCancel: () => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
   const [bio, setBio] = useState(initial?.bio ?? "");
   const [avatar, setAvatar] = useState(initial?.avatar_url ?? "");
+  const [linkedin, setLinkedin] = useState(initial?.linkedin_url ?? "");
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
     setSaving(true);
-    await onSave({ name: name.trim(), bio: bio.trim(), avatar_url: avatar.trim() });
+    await onSave({ name: name.trim(), bio: bio.trim(), avatar_url: avatar, linkedin_url: linkedin.trim() });
     setSaving(false);
   }
 
@@ -31,47 +33,47 @@ function AuthorForm({
     <form onSubmit={handleSubmit} className="rounded-md border border-[#111111]/10 bg-white p-6 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-[#111111]">{initial?.id ? "Edit author" : "New author"}</h3>
-        <button type="button" onClick={onCancel} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+        <button type="button" onClick={onCancel} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-gray-100">
           <X className="h-4 w-4" />
         </button>
       </div>
       <div className="space-y-4">
-        <div className="flex gap-4">
-          {/* Avatar preview */}
+        <div className="flex items-start gap-6">
           <div className="shrink-0">
-            {avatar ? (
-              <img src={avatar} alt="" className="h-16 w-16 rounded-full object-cover border border-[#111111]/10" />
-            ) : (
-              <div className="grid h-16 w-16 place-items-center rounded-full bg-[#f7f4ea] text-xl font-semibold text-[#6f6b62]">
-                {name ? name[0].toUpperCase() : "?"}
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#111111]">
-              Photo URL
-            </label>
-            <input
-              type="url"
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#111111]">Photo</p>
+            <ImageUpload
               value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-              placeholder="https://example.com/photo.jpg"
-              className="w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+              onChange={setAvatar}
+              circular
+              aspectClass="h-20 w-20"
             />
-            <p className="mt-1 text-[10px] text-[#6f6b62]">Paste an image URL or upload to any image host first.</p>
           </div>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#111111]">
-            Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Full name"
-            className="w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-          />
+          <div className="flex-1 space-y-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#111111]">
+                Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Full name"
+                className="w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#111111]">
+                LinkedIn URL
+              </label>
+              <input
+                type="url"
+                value={linkedin}
+                onChange={(e) => setLinkedin(e.target.value)}
+                placeholder="https://linkedin.com/in/username"
+                className="w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+              />
+            </div>
+          </div>
         </div>
         <div>
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#111111]">
@@ -82,7 +84,7 @@ function AuthorForm({
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="A short bio shown with posts…"
-            className="w-full resize-y rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+            className="w-full resize-y rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
           />
         </div>
         <div className="flex gap-2">
@@ -118,7 +120,7 @@ export default function AuthorsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const createAuthor = async (data: { name: string; bio: string; avatar_url: string }) => {
+  const createAuthor = async (data: { name: string; bio: string; avatar_url: string; linkedin_url: string }) => {
     await fetch("/api/admin/authors", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -128,7 +130,7 @@ export default function AuthorsPage() {
     load();
   };
 
-  const updateAuthor = async (id: string, data: { name: string; bio: string; avatar_url: string }) => {
+  const updateAuthor = async (id: string, data: { name: string; bio: string; avatar_url: string; linkedin_url: string }) => {
     await fetch(`/api/admin/authors/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -145,7 +147,7 @@ export default function AuthorsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f4ea]">
+    <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Author profiles</h1>

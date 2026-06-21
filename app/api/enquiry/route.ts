@@ -6,7 +6,17 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, email, supportType, preferredContact, telephone, details, wantsDiscoveryCall } = body;
+  const {
+    name,
+    email,
+    supportType,
+    preferredContact,
+    telephone,
+    details,
+    wantsDiscoveryCall,
+    connected_post_id,
+    connected_post_title,
+  } = body;
 
   if (!name || !email || !supportType || !details) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -23,6 +33,8 @@ export async function POST(req: NextRequest) {
     telephone: telephone || null,
     details,
     wants_discovery_call: wantsDiscoveryCall === true,
+    connected_post_id: connected_post_id ?? null,
+    connected_post_title: connected_post_title ?? null,
   });
 
   if (error) {

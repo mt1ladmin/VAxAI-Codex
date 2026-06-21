@@ -14,6 +14,8 @@ type Enquiry = {
   details: string;
   wants_discovery_call: boolean;
   status: string;
+  connected_post_id: string | null;
+  connected_post_title: string | null;
 };
 
 const STATUSES = [
@@ -110,7 +112,7 @@ export default function EnquiriesPage() {
   }, {});
 
   return (
-    <div className="min-h-screen bg-[#f7f4ea]">
+    <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Enquiries</h1>
@@ -229,6 +231,14 @@ export default function EnquiriesPage() {
                       {e.email}
                     </a>
                     {e.telephone && <p className="text-sm text-[#6f6b62]">{e.telephone}</p>}
+                    {e.connected_post_title && (
+                      <a
+                        href={e.connected_post_id ? `/admin/posts/${e.connected_post_id}` : "#"}
+                        className="mt-1 flex items-center gap-1 text-xs text-[#063b32] underline"
+                      >
+                        Re: {e.connected_post_title}
+                      </a>
+                    )}
 
                     <button
                       onClick={() => setExpandedId(expandedId === e.id ? null : e.id)}
@@ -275,7 +285,7 @@ export default function EnquiriesPage() {
 
                 {/* Expanded details */}
                 {expandedId === e.id && (
-                  <div className="border-t border-[#111111]/8 bg-[#f7f4ea] px-12 py-4">
+                  <div className="border-t border-[#111111]/8 bg-gray-50 px-12 py-4">
                     <div className="mb-3 grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Contact via</p>
