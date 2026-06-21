@@ -770,12 +770,27 @@ export default function Home() {
               ) : (
                 <form
                   className="grid gap-5 p-6 md:grid-cols-2 md:p-10"
-                  onSubmit={(event) => {
+                  onSubmit={async (event) => {
                     event.preventDefault();
                     const data = new FormData(event.currentTarget);
-                    const subject = encodeURIComponent(`VAxAI enquiry: ${String(data.get("supportType"))}`);
+                    const payload = {
+                      name: String(data.get("name")),
+                      email: String(data.get("email")),
+                      supportType: String(data.get("supportType")),
+                      preferredContact: String(data.get("preferredContact")),
+                      telephone: String(data.get("telephone") || ""),
+                      details: String(data.get("details")),
+                    };
+                    // Save to Supabase via API route
+                    fetch("/api/enquiry", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    }).catch(() => {}); // fail silently — mailto is the fallback
+                    // Open email client as backup
+                    const subject = encodeURIComponent(`VAxAI enquiry: ${payload.supportType}`);
                     const body = encodeURIComponent(
-                      `Name: ${String(data.get("name"))}\nEmail: ${String(data.get("email"))}\nSupport type: ${String(data.get("supportType"))}\nPreferred contact: ${String(data.get("preferredContact"))}\nTelephone: ${String(data.get("telephone") || "Not provided")}\n\n${String(data.get("details"))}`,
+                      `Name: ${payload.name}\nEmail: ${payload.email}\nSupport type: ${payload.supportType}\nPreferred contact: ${payload.preferredContact}\nTelephone: ${payload.telephone || "Not provided"}\n\n${payload.details}`,
                     );
                     window.location.href = `mailto:hello@vaxai.co.uk?subject=${subject}&body=${body}`;
                     setContactStep("submitted");
