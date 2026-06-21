@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 const PostEditor = dynamic(() => import("@/components/admin/PostEditor"), { ssr: false });
+import ImageUpload from "@/components/admin/ImageUpload";
 
 type Author = { id: string; name: string; avatar_url: string | null };
 type Post = {
@@ -253,18 +254,7 @@ export default function EditPostPage() {
 
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Cover image</label>
-                {coverImageUrl ? (
-                  <div className="relative overflow-hidden rounded-md border border-[#111111]/10">
-                    <img src={coverImageUrl} alt="" className="aspect-video w-full object-cover" />
-                    <button onClick={() => setCoverImageUrl("")} className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-white/90 shadow">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                ) : (
-                  <input type="url" placeholder="Paste image URL…"
-                    onBlur={(e) => { if (e.target.value) setCoverImageUrl(e.target.value); }}
-                    className="w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
-                )}
+                <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} aspectClass="aspect-video w-full" />
               </div>
 
               <div>

@@ -12,7 +12,10 @@ export async function GET(req: NextRequest) {
     await assertAuth();
     const status = req.nextUrl.searchParams.get("status");
     const db = createServiceClient();
-    let query = db.from("enquiries").select("*").order("created_at", { ascending: false });
+    let query = db
+      .from("enquiries")
+      .select("*, posts(id, title, slug)")
+      .order("created_at", { ascending: false });
     if (status && status !== "all") query = query.eq("status", status);
     const { data, error } = await query;
     if (error) throw error;

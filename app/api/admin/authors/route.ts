@@ -23,10 +23,10 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     await assertAuth();
-    const body = await req.json() as { name: string; bio?: string; avatar_url?: string };
+    const body = await req.json() as { name: string; bio?: string; avatar_url?: string; linkedin_url?: string };
     if (!body.name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
     const db = createServiceClient();
-    const { data, error } = await db.from("authors").insert({ name: body.name, bio: body.bio ?? "", avatar_url: body.avatar_url ?? null }).select().single();
+    const { data, error } = await db.from("authors").insert({ name: body.name, bio: body.bio ?? "", avatar_url: body.avatar_url ?? null, linkedin_url: body.linkedin_url ?? null }).select().single();
     if (error) throw error;
     return NextResponse.json({ data });
   } catch (e: unknown) {

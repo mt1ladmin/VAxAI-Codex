@@ -55,3 +55,19 @@ a {
 .animate-tool-scroll:hover {
   animation-play-state: paused;
 }
+
+/* Public post body styles */
+.prose-vaxai { font-size: 1.0625rem; line-height: 1.8; color: #1f2937; }
+.prose-vaxai h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 0.75rem; color: #111; }
+.prose-vaxai h4 { font-size: 0.875rem; font-weight: 700; margin: 1.5rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; }
+.prose-vaxai blockquote { border-left: 3px solid #063b32; padding-left: 1.25rem; color: #6b7280; font-style: italic; margin: 1.5rem 0; }
+.prose-vaxai img { max-width: 100%; border-radius: 0.5rem; margin: 1.5rem 0; }
+.prose-vaxai hr { border: none; border-top: 1px solid #e5e7eb; margin: 2.5rem 0; }
+.prose-vaxai ul { list-style: disc; padding-left: 1.5rem; margin: 1rem 0; }
+.prose-vaxai ol { list-style: decimal; padding-left: 1.5rem; margin: 1rem 0; }
+.prose-vaxai li { margin: 0.35rem 0; }
+.prose-vaxai a { color: #063b32; text-decoration: underline; }
+.prose-vaxai p { margin: 0.85rem 0; }
+.prose-vaxai p:first-child { margin-top: 0; }
+.prose-vaxai strong { font-weight: 700; }
+.prose-vaxai em { font-style: italic; }
