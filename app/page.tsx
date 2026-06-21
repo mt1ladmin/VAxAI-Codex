@@ -289,6 +289,7 @@ export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
+  const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
 
   useEffect(() => {
@@ -310,6 +311,7 @@ export default function Home() {
   function closeContactModal() {
     setIsContactModalOpen(false);
     setContactStep("form");
+    setWantsDiscoveryCall(null);
   }
 
   return (
@@ -743,42 +745,46 @@ export default function Home() {
                   <p className="text-sm leading-7 text-muted">
                     Thank you — we have received your message and will be in touch shortly.
                   </p>
-                  <div className="mt-8 rounded-md border border-ink/10 bg-[#f3f9f5] p-6">
-                    <p className="font-semibold text-ink">Would you like to book a discovery call?</p>
-                    <p className="mt-2 text-sm leading-6 text-muted">
-                      A short call to talk through your needs, no commitment required.
-                    </p>
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setContactStep("calendly")}
-                        className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
-                      >
-                        Yes, book a discovery call
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={closeContactModal}
-                        className="inline-flex items-center rounded-md border border-ink/15 px-5 py-3 text-sm font-semibold text-ink"
-                      >
-                        No thanks
-                      </button>
-                    </div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={closeContactModal}
+                    className="mt-6 inline-flex items-center rounded-md border border-ink/15 px-5 py-3 text-sm font-semibold text-ink"
+                  >
+                    Close
+                  </button>
                 </div>
               ) : (
                 <form
                   className="grid gap-5 p-6 md:grid-cols-2 md:p-10"
-                  onSubmit={(event) => {
+                  onSubmit={async (event) => {
                     event.preventDefault();
                     const data = new FormData(event.currentTarget);
-                    const subject = encodeURIComponent(`VAxAI enquiry: ${String(data.get("supportType"))}`);
+                    const payload = {
+                      name: String(data.get("name")),
+                      email: String(data.get("email")),
+                      supportType: String(data.get("supportType")),
+                      preferredContact: String(data.get("preferredContact")),
+                      telephone: String(data.get("telephone") || ""),
+                      details: String(data.get("details")),
+                      wantsDiscoveryCall: wantsDiscoveryCall === true,
+                    };
+                    // Save to Supabase via API route
+                    fetch("/api/enquiry", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    }).catch(() => {}); // fail silently — mailto is the fallback
+                    // Open email client as backup
+                    const subject = encodeURIComponent(`VAxAI enquiry: ${payload.supportType}`);
                     const body = encodeURIComponent(
-                      `Name: ${String(data.get("name"))}\nEmail: ${String(data.get("email"))}\nSupport type: ${String(data.get("supportType"))}\nPreferred contact: ${String(data.get("preferredContact"))}\nTelephone: ${String(data.get("telephone") || "Not provided")}\n\n${String(data.get("details"))}`,
+                      `Name: ${payload.name}\nEmail: ${payload.email}\nSupport type: ${payload.supportType}\nPreferred contact: ${payload.preferredContact}\nTelephone: ${payload.telephone || "Not provided"}\nDiscovery call: ${payload.wantsDiscoveryCall ? "Yes" : "No"}\n\n${payload.details}`,
                     );
                     window.location.href = `mailto:hello@vaxai.co.uk?subject=${subject}&body=${body}`;
-                    setContactStep("submitted");
+                    if (wantsDiscoveryCall === true) {
+                      setContactStep("calendly");
+                    } else {
+                      setContactStep("submitted");
+                    }
                   }}
                 >
                   <label className="grid gap-2 text-sm font-semibold">
@@ -816,9 +822,39 @@ export default function Home() {
                     Tell us more
                     <textarea required name="details" rows={5} className="resize-y rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
                   </label>
+                  <div className="rounded-md border border-[#063b32]/20 bg-[#f3f9f5] p-5 md:col-span-2">
+                    <p className="font-semibold text-ink">Would you like to book a discovery call?</p>
+                    <p className="mt-1 text-sm leading-6 text-muted">
+                      A 30-minute conversation to explore your challenge and whether we are the right fit.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setWantsDiscoveryCall(true)}
+                        className={`rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                          wantsDiscoveryCall === true
+                            ? "border-[#063b32] bg-[#063b32] text-[#f5f274]"
+                            : "border-ink/15 bg-white text-ink hover:border-[#063b32]/40"
+                        }`}
+                      >
+                        Yes, book a call
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setWantsDiscoveryCall(false)}
+                        className={`rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                          wantsDiscoveryCall === false
+                            ? "border-ink bg-ink text-paper"
+                            : "border-ink/15 bg-white text-ink hover:border-ink/30"
+                        }`}
+                      >
+                        No, just send my message
+                      </button>
+                    </div>
+                  </div>
                   <div className="md:col-span-2">
                     <button type="submit" className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
-                      Send enquiry
+                      {wantsDiscoveryCall === true ? "Continue to book a call" : "Send my message"}
                       <ArrowRight className="h-4 w-4" />
                     </button>
                   </div>
