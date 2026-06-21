@@ -694,6 +694,7 @@ export default function Home() {
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Privacy</button>
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Terms</button>
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">EDI policy</button>
+                <a href="/admin/login" className="mt-2 w-fit text-xs text-muted/50 hover:text-muted">VAxAI Studio</a>
               </div>
             </div>
           </div>
