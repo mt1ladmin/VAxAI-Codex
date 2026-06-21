@@ -57,7 +57,7 @@ a {
 }
 
 /* Public post body styles */
-.prose-vaxai { font-size: 1.0625rem; line-height: 1.8; color: #1f2937; }
+.prose-vaxai { font-size: 1.0625rem; line-height: 1.8; color: #1f2937; overflow-wrap: break-word; word-break: break-word; }
 .prose-vaxai h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 0.75rem; color: #111; }
 .prose-vaxai h4 { font-size: 0.875rem; font-weight: 700; margin: 1.5rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; }
 .prose-vaxai blockquote { border-left: 3px solid #063b32; padding-left: 1.25rem; color: #6b7280; font-style: italic; margin: 1.5rem 0; }

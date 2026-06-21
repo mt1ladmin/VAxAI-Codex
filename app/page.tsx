@@ -337,6 +337,7 @@ export default function Home() {
             <a href="#experts">About</a>
             <a href="#pricing">Pricing</a>
             <a href="#faq">FAQ</a>
+            <a href="/content" className="text-[#f5f274]/80 hover:text-[#f5f274]">Content</a>
           </div>
           <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
             Get in touch
