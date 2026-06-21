@@ -1,5 +1,7 @@
 export const dynamic = "force-dynamic";
 
+import { redirect } from "next/navigation";
+
 type Enquiry = {
   id: string;
   created_at: string;
@@ -9,6 +11,7 @@ type Enquiry = {
   preferred_contact: string;
   telephone: string | null;
   details: string;
+  wants_discovery_call: boolean;
 };
 
 async function getEnquiries(): Promise<{ data: Enquiry[]; error: string | null }> {
@@ -29,7 +32,24 @@ async function getEnquiries(): Promise<{ data: Enquiry[]; error: string | null }
   }
 }
 
+async function getUser() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return null;
+  }
+  try {
+    const { createSessionClient } = await import("@/lib/supabase");
+    const supabase = await createSessionClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 export default async function AdminPage() {
+  const user = await getUser();
+  if (!user) redirect("/admin/login");
+
   const { data: enquiries, error } = await getEnquiries();
 
   return (
@@ -40,9 +60,19 @@ export default async function AdminPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI</p>
             <h1 className="mt-1 text-3xl font-semibold text-[#111111]">Enquiries</h1>
           </div>
-          <span className="rounded-full bg-[#063b32] px-4 py-1.5 text-xs font-semibold text-[#f5f274]">
-            Admin
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="rounded-full bg-[#063b32] px-4 py-1.5 text-xs font-semibold text-[#f5f274]">
+              Admin
+            </span>
+            <form action="/admin/logout" method="POST">
+              <button
+                type="submit"
+                className="rounded-full border border-[#111111]/15 bg-white px-4 py-1.5 text-xs font-semibold text-[#6f6b62] transition-colors hover:border-[#111111]/30 hover:text-[#111111]"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </div>
 
         {error ? (
@@ -87,6 +117,11 @@ export default async function AdminPage() {
                     <span className="rounded-full border border-[#111111]/10 px-3 py-1 text-xs text-[#6f6b62]">
                       via {e.preferred_contact}
                     </span>
+                    {e.wants_discovery_call && (
+                      <span className="rounded-full bg-[#063b32] px-3 py-1 text-xs font-semibold text-[#f5f274]">
+                        Discovery call requested
+                      </span>
+                    )}
                   </div>
                 </div>
                 <p className="mt-4 whitespace-pre-wrap rounded-md bg-[#f7f4ea] p-4 text-sm leading-6 text-[#6f6b62]">
