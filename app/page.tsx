@@ -770,17 +770,11 @@ export default function Home() {
                       wantsDiscoveryCall: wantsDiscoveryCall === true,
                     };
                     // Save to Supabase via API route
-                    fetch("/api/enquiry", {
+                    await fetch("/api/enquiry", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify(payload),
-                    }).catch(() => {}); // fail silently — mailto is the fallback
-                    // Open email client as backup
-                    const subject = encodeURIComponent(`VAxAI enquiry: ${payload.supportType}`);
-                    const body = encodeURIComponent(
-                      `Name: ${payload.name}\nEmail: ${payload.email}\nSupport type: ${payload.supportType}\nPreferred contact: ${payload.preferredContact}\nTelephone: ${payload.telephone || "Not provided"}\nDiscovery call: ${payload.wantsDiscoveryCall ? "Yes" : "No"}\n\n${payload.details}`,
-                    );
-                    window.location.href = `mailto:hello@vaxai.co.uk?subject=${subject}&body=${body}`;
+                    }).catch(() => {});
                     if (wantsDiscoveryCall === true) {
                       setContactStep("calendly");
                     } else {

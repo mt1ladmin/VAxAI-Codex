@@ -23,7 +23,7 @@ type Author = { id: string; name: string; avatar_url: string | null };
 type Post = {
   id: string; title: string; description: string; body_html: string;
   cover_image_url: string | null; content_type: string; tags: string[];
-  author_id: string | null; slug: string; status: string;
+  author_id: string | null; slug: string; status: string; scheduled_at: string | null;
 };
 
 const PRESET_TYPES = ["Insight", "Research", "Article", "Guide", "Case Study", "Video", "Framework Comparison"];
@@ -52,6 +52,8 @@ export default function EditPostPage() {
   const [saving, setSaving] = useState(false);
   const [isPublished, setIsPublished] = useState(false);
   const [postUrl, setPostUrl] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
 
   useEffect(() => {
     Promise.all([
@@ -72,13 +74,19 @@ export default function EditPostPage() {
         setSlug(p.slug ?? "");
         setIsPublished(p.status === "published");
         if (p.status === "published") setPostUrl(`${window.location.origin}/posts/${p.slug}`);
+        if (p.status === "scheduled" && p.scheduled_at) {
+          const dt = new Date(p.scheduled_at);
+          const pad = (n: number) => String(n).padStart(2, "0");
+          setScheduledAt(`${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`);
+          setPublishMode("schedule");
+        }
       }
       setAuthors(authorsRes.data ?? []);
       setLoading(false);
     });
   }, [id]);
 
-  const save = useCallback(async (status: "draft" | "published") => {
+  const save = useCallback(async (status: "draft" | "published" | "scheduled") => {
     setSaving(true);
     await fetch(`/api/admin/posts/${id}`, {
       method: "PUT",
@@ -93,6 +101,7 @@ export default function EditPostPage() {
         author_id: authorId || null,
         slug: slug || slugify(title || "untitled"),
         status,
+        scheduled_at: status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null,
       }),
     });
     setSaving(false);
@@ -101,7 +110,7 @@ export default function EditPostPage() {
       setPostUrl(`${window.location.origin}/posts/${slug}`);
       setPanelOpen(true);
     }
-  }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug]);
+  }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt]);
 
   const deletePost = async () => {
     if (!confirm("Delete this post?")) return;
@@ -265,14 +274,42 @@ export default function EditPostPage() {
                 <p className="mt-1 text-[10px] text-[#6f6b62]">SEO fields coming soon.</p>
               </div>
 
+              {/* Publish timing */}
+              {!isPublished && (
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">When to publish</label>
+                  <div className="flex overflow-hidden rounded-md border border-[#111111]/15 text-xs font-semibold">
+                    <button type="button" onClick={() => setPublishMode("now")}
+                      className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}>
+                      Publish now
+                    </button>
+                    <button type="button" onClick={() => setPublishMode("schedule")}
+                      className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}>
+                      Schedule
+                    </button>
+                  </div>
+                  {publishMode === "schedule" && (
+                    <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)}
+                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+                  )}
+                </div>
+              )}
+
               <div className="border-t border-[#111111]/10 pt-4">
-                <button onClick={() => save(isPublished ? "published" : "published")} disabled={saving}
-                  className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
-                  {saving ? "Saving…" : isPublished ? "Update post" : "Publish post"}
-                </button>
+                {publishMode === "now" || isPublished ? (
+                  <button onClick={() => save("published")} disabled={saving}
+                    className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                    {saving ? "Saving…" : isPublished ? "Update post" : "Publish post"}
+                  </button>
+                ) : (
+                  <button onClick={() => save("scheduled")} disabled={saving || !scheduledAt}
+                    className="w-full rounded-md bg-amber-500 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                    {saving ? "Scheduling…" : "Schedule post"}
+                  </button>
+                )}
                 {isPublished && (
                   <button onClick={() => save("draft")} disabled={saving}
-                    className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea] disabled:opacity-50">
+                    className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-gray-100 disabled:opacity-50">
                     Move to draft
                   </button>
                 )}

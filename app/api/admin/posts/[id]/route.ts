@@ -29,6 +29,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       title?: string; description?: string; body_html?: string;
       content_type?: string; tags?: string[]; author_id?: string | null;
       cover_image_url?: string | null; status?: string; slug?: string;
+      scheduled_at?: string | null;
     };
     const now = new Date().toISOString();
     const update: Record<string, unknown> = { ...body, updated_at: now };

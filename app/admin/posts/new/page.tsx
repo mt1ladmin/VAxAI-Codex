@@ -45,6 +45,8 @@ export default function NewPostPage() {
   const [saving, setSaving] = useState(false);
   const [published, setPublished] = useState(false);
   const [postUrl, setPostUrl] = useState("");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
 
   useEffect(() => {
     fetch("/api/admin/authors").then((r) => r.json()).then((j: { data: Author[] }) => setAuthors(j.data ?? []));
@@ -57,7 +59,7 @@ export default function NewPostPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title]);
 
-  const save = useCallback(async (status: "draft" | "published") => {
+  const save = useCallback(async (status: "draft" | "published" | "scheduled") => {
     setSaving(true);
     const res = await fetch("/api/admin/posts", {
       method: "POST",
@@ -72,6 +74,7 @@ export default function NewPostPage() {
         author_id: authorId || null,
         slug: slug || slugify(title || "untitled"),
         status,
+        scheduled_at: status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null,
       }),
     });
     const json = await res.json() as { data: { id: string; slug: string } };
@@ -84,7 +87,7 @@ export default function NewPostPage() {
         router.push(`/admin/posts/${json.data.id}`);
       }
     }
-  }, [title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, router]);
+  }, [title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, router]);
 
   const addTag = () => {
     const t = tagInput.trim();
@@ -294,14 +297,53 @@ export default function NewPostPage() {
                   <p className="mt-1 text-[10px] text-[#6f6b62]">SEO fields coming soon.</p>
                 </div>
 
+                {/* Publish timing */}
+                <div>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">When to publish</label>
+                  <div className="flex overflow-hidden rounded-md border border-[#111111]/15 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={() => setPublishMode("now")}
+                      className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
+                    >
+                      Publish now
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPublishMode("schedule")}
+                      className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
+                    >
+                      Schedule
+                    </button>
+                  </div>
+                  {publishMode === "schedule" && (
+                    <input
+                      type="datetime-local"
+                      value={scheduledAt}
+                      onChange={(e) => setScheduledAt(e.target.value)}
+                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    />
+                  )}
+                </div>
+
                 <div className="border-t border-[#111111]/10 pt-4">
-                  <button
-                    onClick={() => save("published")}
-                    disabled={saving}
-                    className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
-                  >
-                    {saving ? "Publishing…" : "Publish post"}
-                  </button>
+                  {publishMode === "now" ? (
+                    <button
+                      onClick={() => save("published")}
+                      disabled={saving}
+                      className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                    >
+                      {saving ? "Publishing…" : "Publish post"}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => save("scheduled")}
+                      disabled={saving || !scheduledAt}
+                      className="w-full rounded-md bg-amber-500 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                    >
+                      {saving ? "Scheduling…" : "Schedule post"}
+                    </button>
+                  )}
                 </div>
               </div>
             )}
