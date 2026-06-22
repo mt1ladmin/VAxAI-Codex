@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, BookOpen, Search } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Search } from "lucide-react";
 import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
@@ -14,6 +14,67 @@ import { KnowledgeReviewContent } from "../knowledge-review/page";
 type Tab = "prospect_prep" | "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review" | "prospect_prep_history";
 
 const TAB_KEYS: Tab[] = ["prospect_prep", "sectors", "personas", "pain_points", "vat_prompts", "knowledge_review", "prospect_prep_history"];
+
+type DialogConfig = {
+  type: "alert" | "confirm" | "prompt";
+  message: string;
+};
+
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+  className = "",
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div ref={ref} className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-left text-sm text-[#111111] outline-none transition-colors hover:border-[#063b32]/40 focus:border-[#063b32]"
+      >
+        <span className={selected ? "text-[#111111]" : "text-[#6f6b62]"}>{selected?.label || placeholder}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute z-30 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg">
+          {options.map((opt) => (
+            <button
+              key={opt.value || "__empty"}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
+                value === opt.value ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function KnowledgePageInner() {
   const router = useRouter();
@@ -42,6 +103,42 @@ function KnowledgePageInner() {
   const [prepsLoading, setPrepsLoading] = useState(false);
   const [savingPrep, setSavingPrep] = useState(false);
   const [prepsError, setPrepsError] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<DialogConfig | null>(null);
+  const [dialogInput, setDialogInput] = useState("");
+  const [toast, setToast] = useState<string | null>(null);
+  const dialogResolve = useRef<((result?: boolean | string | null) => void) | null>(null);
+
+  const finishDialog = (result?: boolean | string | null) => {
+    const resolve = dialogResolve.current;
+    dialogResolve.current = null;
+    setDialog(null);
+    setDialogInput("");
+    resolve?.(result);
+  };
+
+  const showAlert = (message: string) => new Promise<void>((resolve) => {
+    dialogResolve.current = () => resolve();
+    setDialog({ type: "alert", message });
+  });
+
+  const showConfirm = (message: string) => new Promise<boolean>((resolve) => {
+    dialogResolve.current = (result) => resolve(!!result);
+    setDialog({ type: "confirm", message });
+  });
+
+  const showPrompt = (message: string, defaultValue = "") => new Promise<string | null>((resolve) => {
+    setDialogInput(defaultValue);
+    dialogResolve.current = (result) => {
+      if (result === false || result === null || result === undefined) resolve(null);
+      else resolve(String(result));
+    };
+    setDialog({ type: "prompt", message });
+  });
+
+  const showToast = (message: string) => {
+    setToast(message);
+    window.setTimeout(() => setToast(null), 3000);
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -244,7 +341,7 @@ function KnowledgePageInner() {
     const duplicate = findDuplicatePrep(prepResults);
     if (duplicate) {
       if (options?.navigatePrompt !== false) {
-        const viewHistory = window.confirm("This prep is already saved in Prospect Prep History. Would you like to view it there?");
+        const viewHistory = await showConfirm("This prep is already saved in Prospect Prep History. Would you like to view it there?");
         if (viewHistory) {
           resetPrepForm();
           setTab("prospect_prep_history");
@@ -276,7 +373,7 @@ function KnowledgePageInner() {
       if (res.status === 409 && json.data) {
         await loadSavedPreps();
         if (options?.navigatePrompt !== false) {
-          const viewHistory = window.confirm("This prep is already saved in Prospect Prep History. Would you like to view it there?");
+          const viewHistory = await showConfirm("This prep is already saved in Prospect Prep History. Would you like to view it there?");
           if (viewHistory) {
             resetPrepForm();
             setTab("prospect_prep_history");
@@ -293,7 +390,7 @@ function KnowledgePageInner() {
       resetPrepForm();
 
       if (options?.navigatePrompt !== false) {
-        const viewHistory = window.confirm("Saved to Prospect Prep History. Would you like to view it there now?");
+        const viewHistory = await showConfirm("Saved to Prospect Prep History. Would you like to view it there now?");
         if (viewHistory) {
           setTab("prospect_prep_history");
           setHistoryViewPrepId(newPrep.id);
@@ -304,7 +401,7 @@ function KnowledgePageInner() {
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to save prep";
       setPrepsError(message);
-      alert(message);
+      await showAlert(message);
       return null;
     } finally {
       setSavingPrep(false);
@@ -327,7 +424,7 @@ function KnowledgePageInner() {
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to update prep";
       setPrepsError(message);
-      alert(message);
+      await showAlert(message);
       return null;
     } finally {
       setSavingPrep(false);
@@ -343,7 +440,7 @@ function KnowledgePageInner() {
       if (historyViewPrepId === id) setHistoryViewPrepId(null);
       await loadSavedPreps();
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to delete prep");
+      await showAlert(e instanceof Error ? e.message : "Failed to delete prep");
     } finally {
       setSavingPrep(false);
     }
@@ -352,9 +449,9 @@ function KnowledgePageInner() {
   const attachPrep = async (prep: ProspectPrepClient | any, isUnsavedBuild = false) => {
     let toAttach: ProspectPrepClient | Record<string, unknown> = prep;
     if (isUnsavedBuild) {
-      const shouldSave = window.confirm("Save this prep to Prospect Prep History first (recommended for your records)?");
+      const shouldSave = await showConfirm("Save this prep to Prospect Prep History first (recommended for your records)?");
       if (shouldSave) {
-        const nameInput = window.prompt("Name for this saved prep:", prepName || clientType?.slice(0, 60) || "Quick Prospect Prep");
+        const nameInput = await showPrompt("Name for this saved prep:", prepName || clientType?.slice(0, 60) || "Quick Prospect Prep");
         const saved = await savePrep({ customName: nameInput || undefined, navigatePrompt: false });
         if (saved) toAttach = saved;
       } else {
@@ -370,6 +467,76 @@ function KnowledgePageInner() {
 
   return (
     <div className="min-h-screen bg-white">
+      {toast && (
+        <div className="fixed top-4 right-4 z-50 rounded-xl border border-[#063b32]/20 bg-[#063b32] px-4 py-3 text-sm font-semibold text-white shadow-lg">
+          {toast}
+        </div>
+      )}
+
+      {dialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+            <div className="px-6 py-5">
+              <p className="text-sm text-[#111111]">{dialog.message}</p>
+              {dialog.type === "prompt" && (
+                <input
+                  value={dialogInput}
+                  onChange={(e) => setDialogInput(e.target.value)}
+                  autoFocus
+                  className="mt-4 w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32]"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") finishDialog(dialogInput);
+                    if (e.key === "Escape") finishDialog(null);
+                  }}
+                />
+              )}
+            </div>
+            <div className="flex gap-3 border-t border-[#111111]/10 px-6 py-4">
+              {dialog.type === "alert" && (
+                <button
+                  onClick={() => finishDialog()}
+                  className="rounded-lg bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                >
+                  OK
+                </button>
+              )}
+              {dialog.type === "confirm" && (
+                <>
+                  <button
+                    onClick={() => finishDialog(true)}
+                    className="rounded-lg bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => finishDialog(false)}
+                    className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  >
+                    No
+                  </button>
+                </>
+              )}
+              {dialog.type === "prompt" && (
+                <>
+                  <button
+                    onClick={() => finishDialog(dialogInput)}
+                    className="rounded-lg bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => finishDialog(null)}
+                    className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tabs at top right, above the Client Engagement / Knowledge Hub section, exactly like content page */}
       <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
         <div className="flex items-center gap-2 text-sm">
@@ -423,10 +590,16 @@ function KnowledgePageInner() {
               </div>
             )}
             {tab === "pain_points" && (
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
-                <option value="">All categories</option>
-                {PAIN_POINT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <CustomSelect
+                value={category}
+                onChange={setCategory}
+                placeholder="All categories"
+                className="w-48"
+                options={[
+                  { value: "", label: "All categories" },
+                  ...PAIN_POINT_CATEGORIES.map((c) => ({ value: c, label: c })),
+                ]}
+              />
             )}
             {tab === "vat_prompts" && (
               <div className="flex gap-2">
@@ -629,21 +802,27 @@ function KnowledgePageInner() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Sector</label>
-                        <select value={selectedSectorId} onChange={(e) => setSelectedSectorId(e.target.value)} className="w-full rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#063b32]">
-                          <option value="">Select sector</option>
-                          {sectors.map((s) => (
-                            <option key={s.id} value={s.id}>{s.name}</option>
-                          ))}
-                        </select>
+                        <CustomSelect
+                          value={selectedSectorId}
+                          onChange={setSelectedSectorId}
+                          placeholder="Select sector"
+                          options={[
+                            { value: "", label: "Select sector" },
+                            ...sectors.map((s) => ({ value: s.id, label: s.name })),
+                          ]}
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Persona (optional)</label>
-                        <select value={selectedPersonaId} onChange={(e) => setSelectedPersonaId(e.target.value)} className="w-full rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#063b32]">
-                          <option value="">Select persona</option>
-                          {personas.map((p) => (
-                            <option key={p.id} value={p.id}>{p.persona_name}</option>
-                          ))}
-                        </select>
+                        <CustomSelect
+                          value={selectedPersonaId}
+                          onChange={setSelectedPersonaId}
+                          placeholder="Select persona"
+                          options={[
+                            { value: "", label: "Select persona" },
+                            ...personas.map((p) => ({ value: p.id, label: p.persona_name })),
+                          ]}
+                        />
                       </div>
                     </div>
 
@@ -833,7 +1012,7 @@ function KnowledgePageInner() {
                           });
                           if (saved) {
                             setCurrentProspectPrep(saved);
-                            alert("Changes saved.");
+                            showToast("Changes saved.");
                           }
                         }}
                         disabled={savingPrep}
@@ -882,8 +1061,9 @@ function KnowledgePageInner() {
                               Attach to Call
                             </button>
                             <button
-                              onClick={() => {
-                                if (!confirm("Delete this saved prep?")) return;
+                              onClick={async () => {
+                                const confirmed = await showConfirm("Delete this saved prep?");
+                                if (!confirmed) return;
                                 void deleteSavedPrep(p.id);
                               }}
                               disabled={savingPrep}
