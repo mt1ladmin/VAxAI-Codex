@@ -52,7 +52,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { label: "Pain Points", href: "/admin/engagement/pain-points", icon: Zap },
       { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen },
-      { label: "Knowledge Review", href: "/admin/engagement/knowledge-review", icon: FlaskConical },
     ],
   },
   {
