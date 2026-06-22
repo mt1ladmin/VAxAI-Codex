@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
@@ -40,7 +40,7 @@ type StructuredNotes = {
   questions_raised: string[];
 };
 
-export default function LiveCallAssist() {
+function LiveCallAssistInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [callState, setCallState] = useState<CallState>("pre");
@@ -999,5 +999,13 @@ export default function LiveCallAssist() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function LiveCallAssist() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <LiveCallAssistInner />
+    </Suspense>
   );
 }
