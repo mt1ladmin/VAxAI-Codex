@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  Briefcase,
   Building2,
   Calendar,
+  CheckCircle,
   ChevronDown,
   ExternalLink,
   History,
@@ -22,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { CallAssistChat } from "@/components/admin/CallAssistChat";
+import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { InteractionList } from "@/components/admin/InteractionList";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
@@ -124,6 +127,7 @@ export default function EnquiryDetailPage() {
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
+  const [showConvertModal, setShowConvertModal] = useState(false);
 
   const loadLinkedPreps = useCallback(async () => {
     const res = await fetch(`/api/admin/engagement/prospect-preps?enquiry_id=${id}&limit=20`);
@@ -489,6 +493,9 @@ export default function EnquiryDetailPage() {
   const statusColor = ENQUIRY_STATUS_COLORS[enquiry.status] || "bg-gray-100 text-gray-600";
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
   const callContext = buildCallContext();
+  const clientOpportunity = opportunities.find((o) =>
+    ["Won", "Onboarding", "Active client"].includes(o.stage)
+  ) ?? null;
 
   return (
     <div className="min-h-screen bg-white">
@@ -506,6 +513,20 @@ export default function EnquiryDetailPage() {
           sourceType: "enquiry",
           sourceLabel: `Website enquiry — ${enquiry.name}`,
         }}
+      />
+
+      <ConvertToClientModal
+        open={showConvertModal}
+        onClose={() => setShowConvertModal(false)}
+        onConverted={() => { setShowConvertModal(false); void load(); }}
+        enquiryId={enquiry.id}
+        enquiryName={enquiry.name}
+        enquiryEmail={enquiry.email}
+        enquiryPhone={enquiry.telephone}
+        enquirySupportType={enquiry.support_type}
+        enquiryDetails={enquiry.details}
+        existingContactId={enquiry.contact_id}
+        existingOrgId={enquiry.organisation_id}
       />
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
@@ -577,8 +598,8 @@ export default function EnquiryDetailPage() {
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">CRM record</p>
-            {linkedContact ? (
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client record</p>
+            {linkedContact && (
               <div className="space-y-2">
                 <Link href={`/admin/engagement/pipeline/contacts/${linkedContact.id}`} className="flex items-center gap-2 text-sm font-semibold text-[#063b32] hover:underline">
                   <User className="h-4 w-4" />
@@ -590,15 +611,29 @@ export default function EnquiryDetailPage() {
                   </Link>
                 )}
               </div>
+            )}
+            {clientOpportunity ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
+                  <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
+                  <span className="text-xs font-semibold text-[#063b32]">{clientOpportunity.stage}</span>
+                </div>
+                <Link
+                  href={`/admin/clients/${linkedContact?.id}`}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  View client record
+                </Link>
+              </div>
             ) : (
               <button
                 type="button"
-                onClick={() => void promoteToCrm()}
-                disabled={promoting}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:opacity-50"
+                onClick={() => setShowConvertModal(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10"
               >
-                {promoting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
-                Create CRM contact
+                <Briefcase className="h-4 w-4" />
+                Convert to client
               </button>
             )}
           </div>
