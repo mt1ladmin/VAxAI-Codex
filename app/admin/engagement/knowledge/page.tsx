@@ -9,7 +9,7 @@ import {
 } from "@/lib/engagement/types";
 import KnowledgeReviewPage from "../knowledge-review/page";
 
-type Tab = "pain_points" | "sectors" | "personas" | "vat_prompts" | "knowledge_review" | "prospect_prep";
+type Tab = "prospect_prep" | "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review";
 
 export default function KnowledgePage() {
   const [tab, setTab] = useState<Tab>("pain_points");
@@ -154,32 +154,42 @@ export default function KnowledgePage() {
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Knowledge Library</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">Browse pain points, sector profiles, personas and VAT prompts.</p>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Knowledge Hub</h1>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">Browse and prepare knowledge for prospects and calls.</p>
       </div>
 
       <div className="px-8 py-6">
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-[#111111]/10 mb-6">
+        {/* Tabs - styled like content toggle */}
+        <div className="flex overflow-hidden rounded-lg border border-[#111111]/15 mb-4">
           {([
-            ["pain_points", "Pain points"],
+            ["prospect_prep", "Prospect Prep"],
             ["sectors", "Sectors"],
             ["personas", "Personas"],
+            ["pain_points", "Pain points"],
             ["vat_prompts", "VAT prompts"],
             ["knowledge_review", "Knowledge Review"],
-            ["prospect_prep", "Prospect Prep"],
           ] as [Tab, string][]).map(([key, label]) => (
             <button
               key={key}
               onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); }}
-              className={`-mb-px px-5 py-2.5 text-sm font-semibold transition-colors ${
-                tab === key ? "border-b-2 border-[#063b32] text-[#063b32]" : "text-[#6f6b62] hover:text-[#111111]"
+              className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
+                tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
               }`}
             >
               {label}
             </button>
           ))}
         </div>
+
+        {/* Brief descriptions per tab */}
+        <p className="text-xs text-[#6f6b62] mt-1 mb-4">
+          {tab === "prospect_prep" && "Quick client prep: select sector/persona to pull relevant knowledge (no AI). Save for live calls."}
+          {tab === "sectors" && "Browse sector profiles for industry context and pressures."}
+          {tab === "personas" && "Explore typical client personas and their needs."}
+          {tab === "pain_points" && "Browse pain points by category with counts and details."}
+          {tab === "vat_prompts" && "View VAT prompts by dimension for relevant insights."}
+          {tab === "knowledge_review" && "Review and approve AI-generated draft pain points."}
+        </p>
 
         {/* Search + filters */}
         {tab !== "knowledge_review" && tab !== "prospect_prep" && (

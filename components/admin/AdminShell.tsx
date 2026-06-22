@@ -50,7 +50,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
   {
     section: "KNOWLEDGE",
     items: [
-      { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen },
+      { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen },
     ],
   },
   {
