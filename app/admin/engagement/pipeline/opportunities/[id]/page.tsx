@@ -5,15 +5,17 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  Briefcase,
   Check,
-  ExternalLink,
+  CheckCircle,
   Loader2,
-  MessageSquare,
   Phone,
   Plus,
   Save,
   X,
 } from "lucide-react";
+import { ConvertOpportunityToClientModal } from "@/components/admin/ConvertOpportunityToClientModal";
+import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
 import {
   OPPORTUNITY_STAGES,
   STAGE_COLORS,
@@ -55,6 +57,11 @@ export default function OpportunityDetailPage() {
   const [showAddNote, setShowAddNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [convertingClient, setConvertingClient] = useState(false);
+
+  const headerBtn =
+    "flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]";
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -187,6 +194,26 @@ export default function OpportunityDetailPage() {
     void load();
   };
 
+  const convertToClient = async () => {
+    if (!opp) return;
+    if (!opp.primary_contact_id) {
+      setShowConvertModal(true);
+      return;
+    }
+    setConvertingClient(true);
+    try {
+      const res = await fetch(`/api/admin/engagement/opportunities/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stage: "Active client" }),
+      });
+      const j = (await res.json()) as { data?: EngagementOpportunity };
+      if (j.data) setOpp(j.data);
+    } finally {
+      setConvertingClient(false);
+    }
+  };
+
   const goToLiveCall = () => {
     const params = new URLSearchParams();
     if (opp?.organisation_id) params.set("org", opp.organisation_id);
@@ -207,9 +234,20 @@ export default function OpportunityDetailPage() {
     opp.indicative_value_low || opp.indicative_value_high
       ? `£${(opp.indicative_value_low ?? 0).toLocaleString()} – £${(opp.indicative_value_high ?? 0).toLocaleString()}`
       : null;
+  const isClientStage = ["Won", "Onboarding", "Active client"].includes(opp.stage);
+  const isPipelineOnly = !opp.enquiry_id && !opp.queue_id;
 
   return (
     <div className="min-h-screen bg-white">
+      <ConvertOpportunityToClientModal
+        open={showConvertModal}
+        onClose={() => setShowConvertModal(false)}
+        onConverted={(updated) => {
+          setOpp(updated);
+          setShowConvertModal(false);
+        }}
+        opportunity={opp}
+      />
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
           <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
@@ -327,23 +365,52 @@ export default function OpportunityDetailPage() {
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${stageColor}`}>
                 {opp.stage}
               </span>
-              {opp.enquiry_id && (
-                <Link
-                  href={`/admin/enquiries/${opp.enquiry_id}`}
-                  className="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100"
-                >
-                  <MessageSquare className="h-3 w-3" /> Website enquiry
-                </Link>
-              )}
+              <OpportunitySourceBadge opportunity={opp} />
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
+            <button type="button" onClick={() => setEditing(true)} className={headerBtn}>
+              Edit
+            </button>
             <button
               type="button"
-              onClick={() => setEditing(true)}
-              className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+              onClick={() => {
+                setEditingNextAction((v) => !v);
+                setShowAddNote(false);
+                setShowAddTask(false);
+              }}
+              className={headerBtn}
             >
-              Edit
+              {editingNextAction ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {editingNextAction
+                ? "Cancel next action"
+                : opp.next_action
+                  ? "Edit next action"
+                  : "Set next action"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddNote((v) => !v);
+                setShowAddTask(false);
+                setEditingNextAction(false);
+              }}
+              className={headerBtn}
+            >
+              {showAddNote ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {showAddNote ? "Cancel note" : "Add note"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddTask((v) => !v);
+                setShowAddNote(false);
+                setEditingNextAction(false);
+              }}
+              className={headerBtn}
+            >
+              {showAddTask ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {showAddTask ? "Cancel task" : "Add task"}
             </button>
             <button
               type="button"
@@ -408,33 +475,59 @@ export default function OpportunityDetailPage() {
             </div>
           </div>
 
+          {(opp.enquiry_id || opp.queue_id) && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Created from</p>
+              <OpportunitySourceBadge opportunity={opp} />
+            </div>
+          )}
+
+          {isPipelineOnly && !isClientStage && (
+            <div className="rounded-xl border border-dashed border-[#063b32]/30 bg-[#063b32]/5 p-5 space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">Convert to client</p>
+              <p className="text-sm text-[#6f6b62]">
+                Link this opportunity as the client service record on their profile.
+              </p>
+              <button
+                type="button"
+                onClick={() => void convertToClient()}
+                disabled={convertingClient}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                {convertingClient ? <Loader2 className="h-4 w-4 animate-spin" /> : <Briefcase className="h-4 w-4" />}
+                Convert to client
+              </button>
+            </div>
+          )}
+
+          {isClientStage && opp.primary_contact_id && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+              <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
+                <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
+                <span className="text-xs font-semibold text-[#063b32]">{opp.stage}</span>
+              </div>
+              <Link
+                href={`/admin/clients/${opp.primary_contact_id}`}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+              >
+                <Briefcase className="h-4 w-4" />
+                View client record
+              </Link>
+            </div>
+          )}
+
           {(opp.organisation_id || opp.primary_contact_id) && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">CRM record</p>
-              {opp.organisation_id && (
-                <p className="text-sm text-[#111111]">Organisation linked</p>
-              )}
-              {opp.primary_contact_id && (
-                <p className="text-sm text-[#111111]">Contact linked</p>
-              )}
+              {opp.organisation && <p className="text-sm text-[#111111]">{opp.organisation.name}</p>}
+              {contactName && <p className="text-sm text-[#6f6b62]">{contactName}</p>}
             </div>
           )}
         </div>
 
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-6">
           <div className="rounded-xl border border-[#111111]/10 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
-              {!editingNextAction && (
-                <button
-                  type="button"
-                  onClick={() => setEditingNextAction(true)}
-                  className="text-xs text-[#063b32] hover:underline"
-                >
-                  {opp.next_action ? "Edit" : "Add"}
-                </button>
-              )}
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Next action</p>
             {editingNextAction ? (
               <div className="space-y-2">
                 <input
@@ -489,38 +582,6 @@ export default function OpportunityDetailPage() {
             ) : (
               <p className="text-sm text-[#6f6b62]/50">No next action set.</p>
             )}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={goToLiveCall}
-              className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-            >
-              <Phone className="h-4 w-4" /> Start call assist
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowAddTask((v) => !v);
-                setShowAddNote(false);
-              }}
-              className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-            >
-              {showAddTask ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              {showAddTask ? "Cancel" : "Add task"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowAddNote((v) => !v);
-                setShowAddTask(false);
-              }}
-              className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-            >
-              {showAddNote ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              {showAddNote ? "Cancel" : "Add note"}
-            </button>
           </div>
 
           {showAddTask && (
@@ -598,9 +659,9 @@ export default function OpportunityDetailPage() {
             </div>
           )}
 
-          <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#111111]/10">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+          <div className="rounded-xl border border-amber-200/80 bg-amber-50/20 overflow-hidden">
+            <div className="px-5 py-4 border-b border-amber-200/60 bg-amber-50/50">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-800">
                 Tasks ({tasks.filter((t) => t.status !== "done").length} open)
               </p>
             </div>
@@ -652,10 +713,10 @@ export default function OpportunityDetailPage() {
             )}
           </div>
 
-          <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#111111]/10">
+          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/20 overflow-hidden">
+            <div className="px-5 py-4 border-b border-[#111111]/10 bg-[#f7f4ea]/40">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Interactions ({interactions.length})
+                Activity ({interactions.length})
               </p>
             </div>
             {interactions.length === 0 ? (

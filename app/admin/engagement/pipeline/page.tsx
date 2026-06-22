@@ -13,6 +13,7 @@ import {
   Plus,
   SlidersHorizontal,
 } from "lucide-react";
+import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
 import { OPPORTUNITY_STAGES, STAGE_COLORS, type EngagementOpportunity, type EngagementTask } from "@/lib/engagement/types";
 import { InsightsContent } from "../insights-content";
 
@@ -57,12 +58,14 @@ function OppCard({
   draggedId,
   onDragStart,
   onDragEnd,
+  onOpen,
 }: {
   opp: EngagementOpportunity;
   taskCount: number;
   draggedId: string | null;
   onDragStart: () => void;
   onDragEnd: () => void;
+  onOpen: (id: string) => void;
 }) {
   const value = formatValue(opp);
   const isDragging = draggedId === opp.id;
@@ -72,24 +75,27 @@ function OppCard({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`transition-all ${isDragging ? "opacity-50" : ""}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => { if (!draggedId) onOpen(opp.id); }}
+      onKeyDown={(e) => { if (e.key === "Enter" && !draggedId) onOpen(opp.id); }}
+      className={`cursor-grab active:cursor-grabbing rounded-xl border border-[#111111]/10 bg-white p-3.5 hover:border-[#063b32]/30 hover:shadow-sm transition-all ${isDragging ? "opacity-50" : ""}`}
     >
-      <Link
-        href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
-        className="block cursor-grab active:cursor-grabbing rounded-xl border border-[#111111]/10 bg-white p-3.5 hover:border-[#063b32]/30 hover:shadow-sm transition-all active:cursor-grabbing"
-        onClick={(e) => { if (draggedId) e.preventDefault(); }}
-      >
-        <p className="text-sm font-semibold text-[#111111] leading-snug line-clamp-2">{opp.title}</p>
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#111111]/8 pt-2.5">
-          <span className="inline-flex items-center gap-1 text-xs text-[#6f6b62]">
-            <CheckSquare className="h-3.5 w-3.5 shrink-0" />
-            {taskCount} {taskCount === 1 ? "task" : "tasks"}
-          </span>
-          <span className="text-xs font-semibold text-[#063b32] tabular-nums">
-            {value ?? "—"}
-          </span>
+      <p className="text-sm font-semibold text-[#111111] leading-snug line-clamp-2">{opp.title}</p>
+      {(opp.enquiry_id || opp.queue_id) && (
+        <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+          <OpportunitySourceBadge opportunity={opp} compact />
         </div>
-      </Link>
+      )}
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#111111]/8 pt-2.5">
+        <span className="inline-flex items-center gap-1 text-xs text-[#6f6b62]">
+          <CheckSquare className="h-3.5 w-3.5 shrink-0" />
+          {taskCount} {taskCount === 1 ? "task" : "tasks"}
+        </span>
+        <span className="text-xs font-semibold text-[#063b32] tabular-nums">
+          {value ?? "—"}
+        </span>
+      </div>
     </div>
   );
 }
@@ -105,6 +111,7 @@ function KanbanColumn({
   onDragOver,
   onDragLeave,
   onDrop,
+  onOpen,
 }: {
   column: BoardColumn;
   items: EngagementOpportunity[];
@@ -116,6 +123,7 @@ function KanbanColumn({
   onDragOver: (e: DragEvent) => void;
   onDragLeave: (e: DragEvent) => void;
   onDrop: (e: DragEvent) => void;
+  onOpen: (id: string) => void;
 }) {
   const isOver = dragOverStage === column.dropStage;
   const total = stageValue(items);
@@ -165,6 +173,7 @@ function KanbanColumn({
             draggedId={draggedId}
             onDragStart={() => onDragStart(opp.id)}
             onDragEnd={onDragEnd}
+            onOpen={onOpen}
           />
         ))}
         {items.length === 0 && (
@@ -484,6 +493,7 @@ function PipelinePageInner() {
                         dragOverStage={dragOverStage}
                         onDragStart={setDraggedId}
                         onDragEnd={() => { setDraggedId(null); setDragOverStage(null); }}
+                        onOpen={(oppId) => router.push(`/admin/engagement/pipeline/opportunities/${oppId}`)}
                         {...columnHandlers(col.dropStage)}
                       />
                     ))}
@@ -513,18 +523,30 @@ function PipelinePageInner() {
                 ) : (
                   <div className="divide-y divide-[#111111]/5">
                     {opps.map((opp) => (
-                      <Link
+                      <div
                         key={opp.id}
-                        href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
-                        className="grid grid-cols-[minmax(200px,1.5fr)_minmax(120px,1fr)_100px_120px_minmax(140px,1fr)_32px] gap-3 items-center px-5 py-3.5 hover:bg-[#f7f4ea]/60 transition-colors group"
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => router.push(`/admin/engagement/pipeline/opportunities/${opp.id}`)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") router.push(`/admin/engagement/pipeline/opportunities/${opp.id}`);
+                        }}
+                        className="grid grid-cols-[minmax(200px,1.5fr)_minmax(120px,1fr)_100px_120px_minmax(140px,1fr)_32px] gap-3 items-center px-5 py-3.5 hover:bg-[#f7f4ea]/60 transition-colors group cursor-pointer"
                       >
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors truncate">
                             {opp.title}
                           </p>
-                          <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>
-                            {opp.stage}
-                          </span>
+                          <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                            <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>
+                              {opp.stage}
+                            </span>
+                            {(opp.enquiry_id || opp.queue_id) && (
+                              <span onClick={(e) => e.stopPropagation()}>
+                                <OpportunitySourceBadge opportunity={opp} compact />
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <span className="text-xs text-[#6f6b62] truncate">
                           {opp.organisation?.name ?? "—"}
@@ -537,7 +559,7 @@ function PipelinePageInner() {
                         </span>
                         <span className="text-xs text-[#6f6b62] line-clamp-1">{opp.next_action ?? "—"}</span>
                         <ArrowRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
-                      </Link>
+                      </div>
                     ))}
                   </div>
                 )}

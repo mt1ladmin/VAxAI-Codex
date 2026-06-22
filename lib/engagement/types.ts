@@ -105,6 +105,7 @@ export type EngagementOpportunity = {
   owner_email: string | null;
   notes: string | null;
   enquiry_id: string | null;
+  queue_id: string | null;
   // joined
   organisation?: Pick<EngagementOrganisation, 'id' | 'name'> | null;
   primary_contact?: Pick<EngagementContact, 'id' | 'first_name' | 'last_name'> | null;

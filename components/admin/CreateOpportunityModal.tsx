@@ -21,6 +21,7 @@ export type CreateOpportunityDefaults = {
   organisation_id?: string | null;
   primary_contact_id?: string | null;
   enquiry_id?: string | null;
+  queue_id?: string | null;
 };
 
 type FormState = {
@@ -100,6 +101,7 @@ export function CreateOpportunityModal({
         organisation_id: defaults?.organisation_id ?? null,
         primary_contact_id: defaults?.primary_contact_id ?? null,
         enquiry_id: defaults?.enquiry_id ?? null,
+        queue_id: defaults?.queue_id ?? null,
       };
       const res = await fetch("/api/admin/engagement/opportunities", {
         method: "POST",

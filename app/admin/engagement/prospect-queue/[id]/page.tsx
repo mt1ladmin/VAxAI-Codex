@@ -446,6 +446,7 @@ export default function ProspectDetailPage() {
           expected_decision_date: entry.next_action_date?.split("T")[0] ?? "",
           organisation_id: entry.organisation_id,
           primary_contact_id: entry.contact_id,
+          queue_id: entry.id,
         }}
       />
 
