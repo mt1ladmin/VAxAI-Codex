@@ -92,6 +92,35 @@ function LiveCallAssistInner() {
   const noteRef = useRef<HTMLTextAreaElement>(null);
   const generatingRef = useRef(false);
 
+  const generateQuickGuidance = useCallback(async (phrase: string) => {
+    if (generatingRef.current) return;
+    generatingRef.current = true;
+    setGeneratingGuidance(true);
+    setActiveLiveDraft(null);
+    try {
+      const res = await fetch("/api/admin/engagement/ai/quick-pain-point-guidance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phrase,
+          orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
+          callType,
+        }),
+      });
+      const j = await res.json() as { data?: QuickGuidance };
+      if (j.data) {
+        const draft: LiveDraft = { id: crypto.randomUUID(), phrase, guidance: j.data, kept: false };
+        setLiveDrafts(prev => prev.some(d => d.phrase === phrase) ? prev : [...prev, draft]);
+        setActiveLiveDraft(draft);
+      }
+    } catch (e) {
+      console.error("Quick guidance failed", e);
+    } finally {
+      generatingRef.current = false;
+      setGeneratingGuidance(false);
+    }
+  }, [selectedOrg, callType]);
+
   // Load pain point from URL if coming from navigator
   const initialPainPointId = searchParams.get("pain_point");
 
@@ -152,6 +181,19 @@ function LiveCallAssistInner() {
     return () => clearTimeout(t);
   }, [painPointSearch]);
 
+  // Auto-fire quick guidance as the user types (debounced). Only while call active + meaningful input.
+  // This powers the live guidance panel in parallel with keyword search.
+  useEffect(() => {
+    if (callState !== "active") return;
+    const trimmed = painPointSearch.trim();
+    if (trimmed.length < 8) return;
+    const t = setTimeout(() => {
+      void generateQuickGuidance(trimmed);
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [painPointSearch, callState, generateQuickGuidance]);
+
+
   const loadVatPrompts = useCallback(async (pp: PainPoint) => {
     const res = await fetch(`/api/admin/engagement/vat-prompts?tags=all`);
     const j = await res.json() as { data: VatPrompt[] };
@@ -183,46 +225,6 @@ function LiveCallAssistInner() {
       type: "pain_point",
     }]);
   };
-
-  const generateQuickGuidance = useCallback(async (phrase: string) => {
-    if (generatingRef.current) return;
-    generatingRef.current = true;
-    setGeneratingGuidance(true);
-    setActiveLiveDraft(null);
-    try {
-      const res = await fetch("/api/admin/engagement/ai/quick-pain-point-guidance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phrase,
-          orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
-          callType,
-        }),
-      });
-      const j = await res.json() as { data?: QuickGuidance };
-      if (j.data) {
-        const draft: LiveDraft = { id: crypto.randomUUID(), phrase, guidance: j.data, kept: false };
-        setLiveDrafts(prev => prev.some(d => d.phrase === phrase) ? prev : [...prev, draft]);
-        setActiveLiveDraft(draft);
-      }
-    } catch (e) {
-      console.error("Quick guidance failed", e);
-    } finally {
-      generatingRef.current = false;
-      setGeneratingGuidance(false);
-    }
-  }, [selectedOrg, callType]);
-
-  // Auto-fire quick guidance as the user types — placed after declaration to avoid hoisting issue
-  useEffect(() => {
-    if (callState !== "active") return;
-    const trimmed = painPointSearch.trim();
-    if (trimmed.length < 8) return;
-    const t = setTimeout(() => {
-      void generateQuickGuidance(trimmed);
-    }, 1200);
-    return () => clearTimeout(t);
-  }, [painPointSearch, callState, generateQuickGuidance]);
 
   const runAiSearch = async () => {
     if (!painPointSearch.trim()) return;
