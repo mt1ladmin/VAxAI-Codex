@@ -35,7 +35,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Insights", href: "/admin/engagement/insights", icon: BarChart3 },
       { label: "Pipeline & CRM", href: "/admin/engagement/pipeline", icon: Users },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
-      { label: "Prospect Imports", href: "/admin/engagement/prospect-imports", icon: Upload },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
     ],
   },
@@ -44,7 +43,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
       { label: "Call Records", href: "/admin/engagement/interactions", icon: FileText },
-      { label: "Profile Explorer", href: "/admin/engagement/profile-explorer", icon: Search },
     ],
   },
   {

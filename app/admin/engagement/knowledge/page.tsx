@@ -181,8 +181,8 @@ export default function KnowledgePage() {
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Knowledge Hub</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">Browse and prepare knowledge for prospects and calls.</p>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "prospect_prep" ? "Prospect Prep" : tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : "Knowledge Review"}</h1>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "prospect_prep" ? "Quickly prepare for a prospect by selecting sector and persona to pull relevant knowledge (no AI)." : tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : tab === "vat_prompts" ? "View VAT prompts by dimension for relevant insights." : "Review and approve AI-generated draft pain points before they enter the knowledge library."}</p>
       </div>
 
       <div className="px-8 py-6">

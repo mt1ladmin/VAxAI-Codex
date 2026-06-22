@@ -261,7 +261,7 @@ export default function EngagementOverview() {
         {/* Primary actions */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <Link
-            href="/admin/engagement/profile-explorer"
+            href="/admin/engagement/knowledge"
             className="group flex items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-6 hover:border-[#063b32]/30 hover:shadow-sm transition-all"
           >
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#063b32]/10 text-[#063b32] group-hover:bg-[#063b32] group-hover:text-white transition-colors">
@@ -271,7 +271,7 @@ export default function EngagementOverview() {
               <p className="font-semibold text-[#111111]">Prepare for a prospect</p>
               <p className="mt-1 text-sm text-[#6f6b62]">Sector, profile and communication guidance</p>
               <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#063b32]">
-                Open Profile Explorer <ArrowRight className="h-3 w-3" />
+                Open Knowledge Hub <ArrowRight className="h-3 w-3" />
               </span>
             </div>
           </Link>
