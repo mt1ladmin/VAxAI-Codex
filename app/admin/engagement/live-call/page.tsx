@@ -89,14 +89,13 @@ function LiveCallAssistInner() {
   const [liveDrafts, setLiveDrafts] = useState<LiveDraft[]>([]);
   const [activeLiveDraft, setActiveLiveDraft] = useState<LiveDraft | null>(null);
   const [generatingGuidance, setGeneratingGuidance] = useState(false);
+  const [guidanceError, setGuidanceError] = useState<string | null>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
-  const generatingRef = useRef(false);
 
   const generateQuickGuidance = useCallback(async (phrase: string) => {
-    if (generatingRef.current) return;
-    generatingRef.current = true;
     setGeneratingGuidance(true);
     setActiveLiveDraft(null);
+    setGuidanceError(null);
     try {
       const res = await fetch("/api/admin/engagement/ai/quick-pain-point-guidance", {
         method: "POST",
@@ -107,16 +106,23 @@ function LiveCallAssistInner() {
           callType,
         }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        setGuidanceError(err.error || `API error ${res.status} — check server logs`);
+        return;
+      }
       const j = await res.json() as { data?: QuickGuidance };
-      if (j.data) {
+      if (j.data && j.data.title) {
         const draft: LiveDraft = { id: crypto.randomUUID(), phrase, guidance: j.data, kept: false };
         setLiveDrafts(prev => prev.some(d => d.phrase === phrase) ? prev : [...prev, draft]);
         setActiveLiveDraft(draft);
+      } else {
+        setGuidanceError("No guidance returned — ANTHROPIC_API_KEY may not be set in the server environment");
       }
     } catch (e) {
       console.error("Quick guidance failed", e);
+      setGuidanceError("Network error connecting to guidance API");
     } finally {
-      generatingRef.current = false;
       setGeneratingGuidance(false);
     }
   }, [selectedOrg, callType]);
@@ -861,11 +867,22 @@ function LiveCallAssistInner() {
           {/* Right: guidance */}
           <div className="w-72 shrink-0 border-l border-[#111111]/10 overflow-y-auto p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Guidance</p>
-            {generatingGuidance && !activeLiveDraft ? (
+            {guidanceError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                <p className="text-xs font-semibold text-red-700 mb-1">Guidance error</p>
+                <p className="text-[10px] text-red-600">{guidanceError}</p>
+                <button
+                  onClick={() => painPointSearch.trim() && void generateQuickGuidance(painPointSearch.trim())}
+                  className="mt-2 text-[10px] text-red-700 underline hover:no-underline"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : generatingGuidance ? (
               <div className="rounded-lg border border-violet-200 bg-violet-50 p-4 text-center">
                 <Loader2 className="mx-auto h-5 w-5 animate-spin text-violet-500 mb-2" />
                 <p className="text-xs font-semibold text-violet-700">Generating live guidance…</p>
-                <p className="text-[10px] text-violet-500 mt-1">Not in knowledge base — AI is researching now</p>
+                <p className="text-[10px] text-violet-500 mt-1">AI is researching now</p>
               </div>
             ) : activeLiveDraft ? (
               <div className="space-y-3">
