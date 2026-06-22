@@ -50,6 +50,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "LIVE TOOLS",
     items: [
       { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
+      { label: "Call Records", href: "/admin/engagement/interactions", icon: FileText },
       { label: "Profile Explorer", href: "/admin/engagement/profile-explorer", icon: Search },
     ],
   },
