@@ -508,56 +508,13 @@ export default function EnquiryDetailPage() {
         }}
       />
 
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
+      <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
         <Link
           href="/admin/enquiries"
-          className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
+          className="inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Website Enquiries
         </Link>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62] mb-1">Contact hub</p>
-            <h1 className="text-2xl font-semibold text-[#111111]">{enquiry.name}</h1>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <span className="text-sm text-[#6f6b62]">{enquiry.email}</span>
-              <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${statusColor}`}>
-                {enquiryStatusLabel(enquiry.status)}
-              </span>
-              {enquiry.wants_discovery_call && (
-                <span className="rounded-full bg-[#063b32] px-2.5 py-0.5 text-[10px] font-semibold text-[#f5f274]">
-                  Discovery call requested
-                </span>
-              )}
-              {linkedContact && (
-                <Link
-                  href={`/admin/engagement/pipeline/contacts/${linkedContact.id}`}
-                  className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100"
-                >
-                  <Link2 className="h-3 w-3" /> CRM linked
-                </Link>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => void prepareForContact()}
-              disabled={loadingPrep}
-              className="flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-50"
-            >
-              {loadingPrep ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              AI prep
-            </button>
-            <button
-              type="button"
-              onClick={goToLiveCall}
-              className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-            >
-              <Phone className="h-4 w-4" /> Start call
-            </button>
-          </div>
-        </div>
       </div>
 
       <div className="border-b border-[#111111]/10 px-8">
