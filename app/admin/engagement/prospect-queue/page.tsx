@@ -18,7 +18,23 @@ import {
   X,
 } from "lucide-react";
 import type { ProspectQueueEntry } from "@/lib/engagement/types";
-import { PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
+import { INDUSTRIES, PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
+
+const UK_REGIONS = [
+  "London",
+  "South East",
+  "South West",
+  "East of England",
+  "East Midlands",
+  "West Midlands",
+  "North West",
+  "North East",
+  "Yorkshire and the Humber",
+  "Scotland",
+  "Wales",
+  "Northern Ireland",
+  "Remote / UK-wide",
+];
 
 type ProspectForm = {
   raw_org_name: string;
@@ -265,22 +281,15 @@ export default function ProspectQueuePage() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const industryOptions = useMemo(() => {
-    const values = new Set<string>();
-    entries.forEach((e) => {
-      const v = e.raw_industry || e.organisation?.industry;
-      if (v?.trim()) values.add(v.trim());
-    });
-    return [{ value: "all", label: "All industries" }, ...[...values].sort().map((v) => ({ value: v, label: v }))];
-  }, [entries]);
+  const industryOptions = useMemo(
+    () => [{ value: "all", label: "All industries" }, ...INDUSTRIES.map((i) => ({ value: i, label: i }))],
+    [],
+  );
 
-  const locationOptions = useMemo(() => {
-    const values = new Set<string>();
-    entries.forEach((e) => {
-      if (e.raw_location?.trim()) values.add(e.raw_location.trim());
-    });
-    return [{ value: "all", label: "All locations" }, ...[...values].sort().map((v) => ({ value: v, label: v }))];
-  }, [entries]);
+  const locationOptions = useMemo(
+    () => [{ value: "all", label: "All locations" }, ...UK_REGIONS.map((r) => ({ value: r, label: r }))],
+    [],
+  );
 
   const statusOptions = useMemo(
     () => [{ value: "all", label: "All statuses" }, ...PROSPECT_QUEUE_STATUSES.map((s) => ({ value: s, label: s }))],
@@ -288,11 +297,11 @@ export default function ProspectQueuePage() {
   );
 
   const filtered = useMemo(() => entries.filter((e) => {
-    const industry = e.raw_industry || e.organisation?.industry || "";
-    const location = e.raw_location || "";
+    const industry = (e.raw_industry || e.organisation?.industry || "").toLowerCase();
+    const location = (e.raw_location || "").toLowerCase();
 
-    if (industryFilter !== "all" && industry !== industryFilter) return false;
-    if (locationFilter !== "all" && location !== locationFilter) return false;
+    if (industryFilter !== "all" && !industry.includes(industryFilter.toLowerCase())) return false;
+    if (locationFilter !== "all" && !location.includes(locationFilter.toLowerCase())) return false;
 
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -461,7 +470,7 @@ export default function ProspectQueuePage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6">
+      <div className="mx-auto w-full max-w-[1400px] px-6 py-6 lg:px-10">
         {/* Toolbar */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[12rem] flex-1">

@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   Bot,
   CheckCircle2,
+  ChevronDown,
   Clock,
   Copy,
   FileEdit,
@@ -52,6 +53,133 @@ type StructuredNotes = {
   questions_raised: string[];
 };
 
+type QueuePrepCard = {
+  id: string;
+  what_we_know: string[];
+  to_confirm: string[];
+  previous_engagement_summary: string;
+  sector_considerations: string[];
+  pain_points_to_explore: Array<{ title: string; why: string; caution: string }>;
+  discovery_questions: string[];
+  suggested_opening: string;
+  key_cautions: string[];
+};
+
+type QueueCustomCard = { id: string; title: string; content: string };
+
+type ProspectCallContext = {
+  queueId: string;
+  orgName: string;
+  contactName: string | null;
+  email: string | null;
+  phone: string | null;
+  website: string | null;
+  industry: string | null;
+  location: string | null;
+  linkedin: string | null;
+  notes: string | null;
+  nextAction: string | null;
+  nextActionDate: string | null;
+  aiPrepCards: QueuePrepCard[];
+  prospectPreps: ProspectPrepClient[];
+  customCards: QueueCustomCard[];
+};
+
+function ProspectContextSections({
+  context,
+  loadedPreps,
+  expanded,
+  onToggle,
+  compact = false,
+}: {
+  context: ProspectCallContext | null;
+  loadedPreps: ProspectPrepClient[];
+  expanded: Record<string, boolean>;
+  onToggle: (key: string) => void;
+  compact?: boolean;
+}) {
+  if (!context && loadedPreps.length === 0) return null;
+
+  const textSize = compact ? "text-[10px]" : "text-xs";
+  const pad = compact ? "p-2" : "p-3";
+
+  const Section = ({ id, title, children }: { id: string; title: string; children: ReactNode }) => (
+    <div className="rounded-lg border border-[#111111]/10 bg-white overflow-hidden">
+      <button
+        type="button"
+        onClick={() => onToggle(id)}
+        className={`flex w-full items-center justify-between ${pad} text-left`}
+      >
+        <span className={`font-semibold text-[#111111] ${compact ? "text-[10px]" : "text-xs"}`}>{title}</span>
+        <ChevronDown className={`h-3.5 w-3.5 text-[#6f6b62] transition-transform ${expanded[id] ? "rotate-180" : ""}`} />
+      </button>
+      {expanded[id] && <div className={`border-t border-[#111111]/10 ${pad} ${textSize} text-[#6f6b62] space-y-1.5`}>{children}</div>}
+    </div>
+  );
+
+  return (
+    <div className="space-y-2">
+      {context && (
+        <Section id="prospect" title={context.orgName}>
+          {context.contactName && <p><span className="font-medium text-[#111111]">Contact:</span> {context.contactName}</p>}
+          {context.email && <p><span className="font-medium text-[#111111]">Email:</span> {context.email}</p>}
+          {context.phone && <p><span className="font-medium text-[#111111]">Phone:</span> {context.phone}</p>}
+          {context.industry && <p><span className="font-medium text-[#111111]">Industry:</span> {context.industry}</p>}
+          {context.location && <p><span className="font-medium text-[#111111]">Location:</span> {context.location}</p>}
+          {context.nextAction && (
+            <p>
+              <span className="font-medium text-[#111111]">Next action:</span> {context.nextAction}
+              {context.nextActionDate && ` · ${new Date(context.nextActionDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
+            </p>
+          )}
+          {context.notes && <p className="whitespace-pre-wrap italic">{context.notes}</p>}
+        </Section>
+      )}
+      {context?.aiPrepCards.map((card, idx) => (
+        <Section key={card.id} id={card.id} title={`AI preparation ${idx + 1}`}>
+          {card.suggested_opening && <p className="italic text-[#111111]">&ldquo;{card.suggested_opening}&rdquo;</p>}
+          {card.what_we_know?.length > 0 && (
+            <div>
+              <p className="font-medium text-emerald-700">Confirmed</p>
+              <ul className="list-disc pl-4">{card.what_we_know.map((item, i) => <li key={i}>{item}</li>)}</ul>
+            </div>
+          )}
+          {card.discovery_questions?.length > 0 && (
+            <div>
+              <p className="font-medium text-violet-700">Discovery questions</p>
+              <ul className="space-y-0.5">{card.discovery_questions.map((q, i) => <li key={i}>· {q}</li>)}</ul>
+            </div>
+          )}
+          {card.key_cautions?.length > 0 && (
+            <div>
+              <p className="font-medium text-red-600">Cautions</p>
+              <ul className="list-disc pl-4">{card.key_cautions.map((c, i) => <li key={i}>{c}</li>)}</ul>
+            </div>
+          )}
+        </Section>
+      ))}
+      {loadedPreps.map((prep) => (
+        <Section key={prep.id} id={`prep-${prep.id}`} title={prep.name || "Prospect prep"}>
+          {prep.clientType && <p>{prep.clientType}</p>}
+          {prep.sector && <p><span className="font-medium text-[#111111]">Sector:</span> {prep.sector.name}</p>}
+          {prep.persona && <p><span className="font-medium text-[#111111]">Persona:</span> {prep.persona.persona_name}</p>}
+          {prep.relevantPains?.length > 0 && (
+            <ul className="list-disc pl-4 space-y-0.5">
+              {prep.relevantPains.map((pp, i) => <li key={i} className="text-[#111111]">{pp.title}</li>)}
+            </ul>
+          )}
+          {prep.prepNotes && <p className="italic">{prep.prepNotes}</p>}
+        </Section>
+      ))}
+      {context?.customCards.map((card) => (
+        <Section key={card.id} id={card.id} title={card.title}>
+          <p className="whitespace-pre-wrap text-[#111111]">{card.content}</p>
+        </Section>
+      ))}
+    </div>
+  );
+}
+
 function LiveCallAssistInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -94,12 +222,18 @@ function LiveCallAssistInner() {
   const [activeLiveDraft, setActiveLiveDraft] = useState<LiveDraft | null>(null);
   const [generatingGuidance, setGeneratingGuidance] = useState(false);
   const [guidanceError, setGuidanceError] = useState<string | null>(null);
-  const [loadedPrep, setLoadedPrep] = useState<ProspectPrepClient | null>(null);
+  const [loadedPreps, setLoadedPreps] = useState<ProspectPrepClient[]>([]);
+  const [queueContext, setQueueContext] = useState<ProspectCallContext | null>(null);
+  const [expandedContext, setExpandedContext] = useState<Record<string, boolean>>({ prospect: true });
   const [showPrepPicker, setShowPrepPicker] = useState(false);
   const [prepPickerList, setPrepPickerList] = useState<ProspectPrepClient[]>([]);
   const [prepPickerLoading, setPrepPickerLoading] = useState(false);
   const [pageTab, setPageTab] = useState<PageTab>("live_call");
   const noteRef = useRef<HTMLTextAreaElement>(null);
+
+  const toggleContextSection = (key: string) => {
+    setExpandedContext((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const generateQuickGuidance = useCallback(async (phrase: string) => {
     setGeneratingGuidance(true);
@@ -137,6 +271,8 @@ function LiveCallAssistInner() {
   }, [selectedOrg, callType]);
 
   const initialPainPointId = searchParams.get("pain_point");
+  const initialOrgId = searchParams.get("org");
+  const initialContactId = searchParams.get("contact");
 
   useEffect(() => {
     const urlTab = searchParams.get("tab");
@@ -154,13 +290,55 @@ function LiveCallAssistInner() {
   }, [initialPainPointId]);
 
   useEffect(() => {
-    const saved = sessionStorage.getItem("currentProspectPrep") || localStorage.getItem("currentProspectPrep");
-    if (saved) {
-      setLoadedPrep(JSON.parse(saved));
-      sessionStorage.setItem("currentProspectPrep", saved);
-      localStorage.removeItem("currentProspectPrep");
+    const ctxRaw = sessionStorage.getItem("prospectCallContext");
+    if (ctxRaw) {
+      try {
+        const ctx = JSON.parse(ctxRaw) as ProspectCallContext;
+        setQueueContext(ctx);
+        const expanded: Record<string, boolean> = { prospect: true };
+        ctx.aiPrepCards?.forEach((c) => { expanded[c.id] = true; });
+        ctx.prospectPreps?.forEach((p) => { expanded[`prep-${p.id}`] = true; });
+        ctx.customCards?.forEach((c) => { expanded[c.id] = true; });
+        setExpandedContext(expanded);
+        if (ctx.prospectPreps?.length) setLoadedPreps(ctx.prospectPreps);
+      } catch { /* ignore */ }
+    }
+    const prepsRaw = sessionStorage.getItem("currentProspectPreps") || sessionStorage.getItem("currentProspectPrep") || localStorage.getItem("currentProspectPrep");
+    if (prepsRaw) {
+      try {
+        const parsed = JSON.parse(prepsRaw);
+        const preps = Array.isArray(parsed) ? parsed : [parsed];
+        setLoadedPreps((prev) => {
+          const merged = [...prev];
+          preps.forEach((p: ProspectPrepClient) => {
+            if (!merged.some((x) => x.id === p.id)) merged.push(p);
+          });
+          return merged;
+        });
+        localStorage.removeItem("currentProspectPrep");
+      } catch { /* ignore */ }
     }
   }, []);
+
+  useEffect(() => {
+    if (!initialOrgId) return;
+    fetch(`/api/admin/engagement/organisations/${initialOrgId}`)
+      .then((r) => r.json())
+      .then((j: { data?: EngagementOrganisation }) => {
+        if (j.data) setSelectedOrg(j.data);
+      })
+      .catch(() => undefined);
+  }, [initialOrgId]);
+
+  useEffect(() => {
+    if (!initialContactId) return;
+    fetch(`/api/admin/engagement/contacts/${initialContactId}`)
+      .then((r) => r.json())
+      .then((j: { data?: EngagementContact }) => {
+        if (j.data) setSelectedContact(j.data);
+      })
+      .catch(() => undefined);
+  }, [initialContactId]);
 
   const loadPrepPicker = async () => {
     setPrepPickerLoading(true);
@@ -177,8 +355,13 @@ function LiveCallAssistInner() {
   };
 
   const selectPrepFromPicker = (prep: ProspectPrepClient) => {
-    setLoadedPrep(prep);
-    sessionStorage.setItem("currentProspectPrep", JSON.stringify(prep));
+    setLoadedPreps((prev) => {
+      if (prev.some((p) => p.id === prep.id)) return prev;
+      const next = [...prev, prep];
+      sessionStorage.setItem("currentProspectPreps", JSON.stringify(next));
+      return next;
+    });
+    setExpandedContext((prev) => ({ ...prev, [`prep-${prep.id}`]: true }));
     setShowPrepPicker(false);
   };
 
@@ -547,7 +730,42 @@ function LiveCallAssistInner() {
 
       {pageTab === "live_call" && callState === "pre" && (
         <div className="px-8 py-6">
-          <div className="max-w-2xl mx-auto">
+          <div className={`mx-auto ${queueContext || loadedPreps.length > 0 ? "max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-6" : "max-w-2xl"}`}>
+            {(queueContext || loadedPreps.length > 0) && (
+              <div className="rounded-2xl border border-[#111111]/10 bg-[#f7f4ea]/40 p-5 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Prospect context</p>
+                <ProspectContextSections
+                  context={queueContext}
+                  loadedPreps={loadedPreps}
+                  expanded={expandedContext}
+                  onToggle={toggleContextSection}
+                />
+                <button
+                  type="button"
+                  onClick={() => void loadPrepPicker()}
+                  disabled={prepPickerLoading}
+                  className="mt-3 text-xs text-[#063b32] hover:underline disabled:opacity-50"
+                >
+                  {prepPickerLoading ? "Loading…" : "+ Add prospect prep from history"}
+                </button>
+                {showPrepPicker && (
+                  <div className="mt-2 rounded-lg border border-[#111111]/15 bg-white p-2 max-h-40 overflow-auto space-y-1">
+                    {prepPickerList.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => selectPrepFromPicker(p)}
+                        disabled={loadedPreps.some((x) => x.id === p.id)}
+                        className="w-full text-left rounded px-2 py-1.5 text-xs hover:bg-[#f7f4ea] disabled:opacity-40"
+                      >
+                        {p.name}
+                      </button>
+                    ))}
+                    <button type="button" onClick={() => setShowPrepPicker(false)} className="w-full text-center text-[10px] text-[#6f6b62] hover:underline pt-1">Close</button>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="rounded-2xl border border-[#111111]/10 bg-white p-8 shadow-sm">
               <div className="text-center mb-6">
                 <h3 className="font-semibold text-xl text-[#111111]">Set up this call</h3>
@@ -678,7 +896,7 @@ function LiveCallAssistInner() {
       {pageTab === "live_call" && callState === "active" && (
         <div className="flex h-[calc(100vh-57px)] overflow-hidden">
           {/* Left: context */}
-          <div className="w-64 shrink-0 border-r border-[#111111]/10 overflow-y-auto bg-[#f7f4ea] p-4">
+          <div className="w-72 shrink-0 border-r border-[#111111]/10 overflow-y-auto bg-[#f7f4ea] p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Call context</p>
             {selectedOrg && (
               <div className="mb-3 rounded-lg bg-white border border-[#111111]/10 p-3">
@@ -703,6 +921,17 @@ function LiveCallAssistInner() {
                 {callType}
               </span>
             </div>
+            {(queueContext || loadedPreps.length > 0) && (
+              <div className="mb-3">
+                <ProspectContextSections
+                  context={queueContext}
+                  loadedPreps={loadedPreps}
+                  expanded={expandedContext}
+                  onToggle={toggleContextSection}
+                  compact
+                />
+              </div>
+            )}
             {selectedPainPoints.length > 0 && (
               <div className="mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">
@@ -726,63 +955,13 @@ function LiveCallAssistInner() {
                 </div>
               </div>
             )}
-            {loadedPrep && (
-              <div className="mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2 flex items-center justify-between">
-                  <span>Prospect Prep</span>
-                  <button onClick={() => { setLoadedPrep(null); sessionStorage.removeItem("currentProspectPrep"); }} className="underline text-red-600 text-[9px]">Clear</button>
-                </p>
-                <div className="text-[10px] border border-[#111111]/10 rounded bg-white p-2 max-h-80 overflow-auto space-y-1.5">
-                  {loadedPrep.name && <p className="font-semibold text-[#111111]">{loadedPrep.name}</p>}
-                  {loadedPrep.clientType && <p className="text-[#6f6b62]">{loadedPrep.clientType}</p>}
-                  {loadedPrep.sector && (
-                    <div>
-                      <span className="font-medium text-[#111111]">Sector:</span> {loadedPrep.sector.name}
-                      {loadedPrep.sector.description && <p className="text-[#6f6b62] mt-0.5 leading-snug">{loadedPrep.sector.description}</p>}
-                      {loadedPrep.sector.common_admin_pressures?.length > 0 && (
-                        <p className="text-[#6f6b62] mt-0.5">Pressures: {loadedPrep.sector.common_admin_pressures.join(" · ")}</p>
-                      )}
-                    </div>
-                  )}
-                  {loadedPrep.persona && (
-                    <div>
-                      <span className="font-medium text-[#111111]">Persona:</span> {loadedPrep.persona.persona_name}
-                      {loadedPrep.persona.typical_role && <span className="text-[#6f6b62]"> — {loadedPrep.persona.typical_role}</span>}
-                    </div>
-                  )}
-                  {loadedPrep.relevantPains?.length > 0 && (
-                    <div>
-                      <span className="font-medium text-[#111111]">Relevant Pain Points:</span>
-                      <ul className="mt-0.5 list-disc pl-4 space-y-0.5 text-[#111111]">
-                        {loadedPrep.relevantPains.map((pp: any, i: number) => (
-                          <li key={i}>{pp.title}{pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 80)}` : ""}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {loadedPrep.relevantVats?.length > 0 && (
-                    <div>
-                      <span className="font-medium text-[#111111]">Relevant VAT Prompts:</span>
-                      <ul className="mt-0.5 list-disc pl-4 space-y-0.5 text-[#111111]">
-                        {loadedPrep.relevantVats.map((v: any, i: number) => (
-                          <li key={i}>{v.prompt}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {(loadedPrep.prepNotes || loadedPrep.notes) && (
-                    <p className="text-[#6f6b62] italic">Notes: {loadedPrep.prepNotes || loadedPrep.notes}</p>
-                  )}
-                </div>
-              </div>
-            )}
             <div className="mb-1">
               <button
                 onClick={() => void loadPrepPicker()}
                 disabled={prepPickerLoading}
                 className="text-[10px] text-[#063b32] hover:underline disabled:opacity-50"
               >
-                {prepPickerLoading ? "Loading preps…" : "Load from Prospect Prep History"}
+                {prepPickerLoading ? "Loading preps…" : "+ Add prospect prep"}
               </button>
               {showPrepPicker && (
                 <div className="mt-2 rounded-lg border border-[#111111]/15 bg-white p-2 max-h-48 overflow-auto space-y-1">
@@ -793,7 +972,8 @@ function LiveCallAssistInner() {
                       <button
                         key={p.id}
                         onClick={() => selectPrepFromPicker(p)}
-                        className="w-full text-left rounded px-2 py-1.5 text-[10px] hover:bg-[#f7f4ea] border border-transparent hover:border-[#111111]/10"
+                        disabled={loadedPreps.some((x) => x.id === p.id)}
+                        className="w-full text-left rounded px-2 py-1.5 text-[10px] hover:bg-[#f7f4ea] border border-transparent hover:border-[#111111]/10 disabled:opacity-40"
                       >
                         <span className="font-semibold text-[#111111]">{p.name}</span>
                         {p.clientType && <span className="block text-[#6f6b62] line-clamp-1">{p.clientType}</span>}
