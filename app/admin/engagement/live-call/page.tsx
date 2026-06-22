@@ -152,17 +152,6 @@ function LiveCallAssistInner() {
     return () => clearTimeout(t);
   }, [painPointSearch]);
 
-  // Auto-fire quick guidance as the user types — debounced so it waits for a pause
-  useEffect(() => {
-    if (callState !== "active") return;
-    const trimmed = painPointSearch.trim();
-    if (trimmed.length < 8) return;
-    const t = setTimeout(() => {
-      void generateQuickGuidance(trimmed);
-    }, 1200);
-    return () => clearTimeout(t);
-  }, [painPointSearch, callState, generateQuickGuidance]);
-
   const loadVatPrompts = useCallback(async (pp: PainPoint) => {
     const res = await fetch(`/api/admin/engagement/vat-prompts?tags=all`);
     const j = await res.json() as { data: VatPrompt[] };
@@ -223,6 +212,17 @@ function LiveCallAssistInner() {
       setGeneratingGuidance(false);
     }
   }, [selectedOrg, callType]);
+
+  // Auto-fire quick guidance as the user types — placed after declaration to avoid hoisting issue
+  useEffect(() => {
+    if (callState !== "active") return;
+    const trimmed = painPointSearch.trim();
+    if (trimmed.length < 8) return;
+    const t = setTimeout(() => {
+      void generateQuickGuidance(trimmed);
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [painPointSearch, callState, generateQuickGuidance]);
 
   const runAiSearch = async () => {
     if (!painPointSearch.trim()) return;
