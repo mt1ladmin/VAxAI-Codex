@@ -29,6 +29,10 @@ type NavItem = { label: string; href: string; icon: React.ComponentType<{ classN
 
 const navSections: Array<{ section: string; items: NavItem[] }> = [
   {
+    section: "OVERVIEW",
+    items: [{ label: "Overview", href: "/admin/engagement", icon: Handshake }],
+  },
+  {
     section: "ENQUIRIES",
     items: [{ label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare }],
   },
@@ -42,7 +46,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
   {
     section: "CLIENT ENGAGEMENT",
     items: [
-      { label: "Overview", href: "/admin/engagement", icon: Handshake },
       { label: "Profile Explorer", href: "/admin/engagement/profile-explorer", icon: Search },
       { label: "Pain Points", href: "/admin/engagement/pain-points", icon: Zap },
       { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
