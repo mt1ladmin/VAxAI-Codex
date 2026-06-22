@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Calendar, ChevronDown, ChevronRight, Clock, Target, Zap } from "lucide-react";
+import { ArrowLeft, Calendar, ChevronDown, ChevronRight, Clock, Target, Zap } from "lucide-react";
 import {
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
@@ -181,6 +181,16 @@ function ProspectPrepPageInner() {
     }
   };
 
+  const openHistoryPrep = (prepId: string) => {
+    setHistoryViewPrepId(prepId);
+    router.replace(`/admin/engagement/prospect-prep?tab=prospect_prep_history&prep=${prepId}`);
+  };
+
+  const closeHistoryPrep = () => {
+    setHistoryViewPrepId(null);
+    router.replace("/admin/engagement/prospect-prep?tab=prospect_prep_history");
+  };
+
   const loadSavedPreps = useCallback(async () => {
     setPrepsLoading(true);
     setPrepsError(null);
@@ -318,7 +328,7 @@ function ProspectPrepPageInner() {
         if (viewHistory) {
           resetPrepForm();
           switchTab("prospect_prep_history");
-          setHistoryViewPrepId(duplicate.id);
+          openHistoryPrep(duplicate.id);
         }
       }
       return duplicate;
@@ -350,7 +360,7 @@ function ProspectPrepPageInner() {
           if (viewHistory) {
             resetPrepForm();
             switchTab("prospect_prep_history");
-            setHistoryViewPrepId(json.data.id);
+            openHistoryPrep(json.data.id);
           }
         }
         return json.data;
@@ -366,7 +376,7 @@ function ProspectPrepPageInner() {
         const viewHistory = await showConfirm("Saved to Prospect Prep History. Would you like to view it there now?");
         if (viewHistory) {
           switchTab("prospect_prep_history");
-          setHistoryViewPrepId(newPrep.id);
+          openHistoryPrep(newPrep.id);
         }
       }
 
@@ -410,7 +420,7 @@ function ProspectPrepPageInner() {
       const res = await fetch(`/api/admin/engagement/prospect-preps/${id}`, { method: "DELETE" });
       const json = await res.json() as { error?: string };
       if (!res.ok) throw new Error(json.error || "Failed to delete prep");
-      if (historyViewPrepId === id) setHistoryViewPrepId(null);
+      if (historyViewPrepId === id) closeHistoryPrep();
       await loadSavedPreps();
     } catch (e) {
       await showAlert(e instanceof Error ? e.message : "Failed to delete prep");
@@ -536,7 +546,25 @@ function ProspectPrepPageInner() {
         <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
           <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Prospect Prep History</h1>
-          <p className="mt-0.5 text-sm text-[#6f6b62]">Your saved prospect preps. View, attach directly to a live call, or delete. Saved preps appear here for history and reuse.</p>
+          <p className="mt-0.5 text-sm text-[#6f6b62]">Saved prospect preps from completed builds. Review details, attach to a live call, or reuse for future outreach.</p>
+        </div>
+      )}
+
+      {tab === "prospect_prep_history" && historyViewPrepId && historyEditDraft && (
+        <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={closeHistoryPrep}
+              className="text-[#6f6b62] hover:text-[#111111]"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Prospect Prep History</p>
+              <h1 className="mt-0.5 text-xl font-semibold text-[#111111]">{historyEditDraft.name}</h1>
+            </div>
+          </div>
         </div>
       )}
 
@@ -681,7 +709,7 @@ function ProspectPrepPageInner() {
                             const duplicate = findDuplicatePrep(prepResults)!;
                             resetPrepForm();
                             switchTab("prospect_prep_history");
-                            setHistoryViewPrepId(duplicate.id);
+                            openHistoryPrep(duplicate.id);
                           }}
                           className="rounded-lg border border-[#063b32]/25 px-4 py-1.5 text-sm font-semibold text-[#063b32] hover:bg-[#f7f4ea]"
                         >
@@ -697,80 +725,121 @@ function ProspectPrepPageInner() {
               </div>
             )}
             {tab === "prospect_prep_history" && (
-              <div className="max-w-3xl mx-auto">
+              <>
                 {prepsError && (
                   <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                     {prepsError} — run the Supabase migration <code className="text-xs">20260624_prospect_preps.sql</code> if you have not already.
                   </div>
                 )}
+
                 {historyEditDraft ? (
-                  <div className="rounded-2xl border border-[#111111]/10 bg-white p-6">
-                    <button
-                      onClick={() => setHistoryViewPrepId(null)}
-                      className="mb-4 text-xs font-semibold text-[#063b32] hover:underline"
-                    >
-                      ← Back to history
-                    </button>
-                    <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-semibold text-[#111111]">Prepared Summary</h4>
-                      <span className="text-[10px] text-[#6f6b62]">{new Date(historyEditDraft.createdAt).toLocaleString()}</span>
+                  <div className="max-w-3xl">
+                    <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-[#6f6b62]">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4" />
+                        {new Date(historyEditDraft.createdAt).toLocaleDateString("en-GB", {
+                          weekday: "long",
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" />
+                        {new Date(historyEditDraft.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                      {historyEditDraft.sector && (
+                        <span className="rounded-full bg-[#063b32]/10 px-2 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                          {historyEditDraft.sector.name}
+                        </span>
+                      )}
+                      {historyEditDraft.persona && (
+                        <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
+                          {historyEditDraft.persona.persona_name}
+                        </span>
+                      )}
                     </div>
 
-                    <div className="mb-4">
-                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Name this prep</label>
-                      <input
-                        value={historyEditDraft.name || ""}
-                        onChange={(e) => setHistoryEditDraft({ ...historyEditDraft, name: e.target.value })}
-                        className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                      />
+                    <div className="space-y-5">
+                      <div className="rounded-xl border border-[#111111]/10 p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">Prep details</p>
+                        <div className="mb-4">
+                          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Name</label>
+                          <input
+                            value={historyEditDraft.name || ""}
+                            onChange={(e) => setHistoryEditDraft({ ...historyEditDraft, name: e.target.value })}
+                            className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Notes / context</label>
+                          <textarea
+                            value={historyEditDraft.prepNotes || historyEditDraft.clientType || ""}
+                            onChange={(e) => setHistoryEditDraft({ ...historyEditDraft, prepNotes: e.target.value })}
+                            className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+
+                      {historyEditDraft.sector && (
+                        <div className="rounded-xl border border-[#111111]/10 p-5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">Sector</p>
+                          <p className="font-medium text-[#111111]">{historyEditDraft.sector.name}</p>
+                          {historyEditDraft.sector.description && (
+                            <p className="text-sm mt-1 text-[#111111]">{historyEditDraft.sector.description}</p>
+                          )}
+                          {(historyEditDraft.sector.common_admin_pressures?.length ?? 0) > 0 && (
+                            <p className="mt-1 text-xs text-[#6f6b62]">
+                              Key pressures: {historyEditDraft.sector.common_admin_pressures!.join(" · ")}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {historyEditDraft.persona && (
+                        <div className="rounded-xl border border-[#111111]/10 p-5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">Persona</p>
+                          <p className="font-medium text-[#111111]">
+                            {historyEditDraft.persona.persona_name}
+                            {historyEditDraft.persona.typical_role ? ` — ${historyEditDraft.persona.typical_role}` : ""}
+                          </p>
+                        </div>
+                      )}
+
+                      {historyEditDraft.relevantPains?.length > 0 && (
+                        <div className="rounded-xl border border-[#111111]/10 p-5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
+                            Relevant pain points ({historyEditDraft.relevantPains.length})
+                          </p>
+                          <ul className="text-sm space-y-1 text-[#111111]">
+                            {historyEditDraft.relevantPains.map((pp, idx) => (
+                              <li key={idx}>
+                                · {pp.title}
+                                {pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 70)}` : ""}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {historyEditDraft.relevantVats?.length > 0 && (
+                        <div className="rounded-xl border border-[#111111]/10 p-5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
+                            Relevant VAT prompts ({historyEditDraft.relevantVats.length})
+                          </p>
+                          <ul className="text-sm space-y-1 text-[#111111]">
+                            {historyEditDraft.relevantVats.map((v, idx) => (
+                              <li key={idx}>· {v.prompt}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
 
-                    {historyEditDraft.sector && (
-                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">SECTOR</p>
-                        <p className="font-medium text-[#111111]">{historyEditDraft.sector.name}</p>
-                        {historyEditDraft.sector.description && <p className="text-sm mt-1 text-[#111111]">{historyEditDraft.sector.description}</p>}
-                        {(historyEditDraft.sector.common_admin_pressures?.length ?? 0) > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {historyEditDraft.sector.common_admin_pressures!.join(" · ")}</p>}
-                      </div>
-                    )}
-                    {historyEditDraft.persona && (
-                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">PERSONA</p>
-                        <p className="font-medium text-[#111111]">{historyEditDraft.persona.persona_name}{historyEditDraft.persona.typical_role ? ` — ${historyEditDraft.persona.typical_role}` : ""}</p>
-                      </div>
-                    )}
-                    {historyEditDraft.relevantPains?.length > 0 && (
-                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT PAIN POINTS ({historyEditDraft.relevantPains.length})</p>
-                        <ul className="text-sm space-y-1 text-[#111111]">
-                          {historyEditDraft.relevantPains.map((pp, idx) => (
-                            <li key={idx}>• {pp.title}{pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 70)}` : ""}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {historyEditDraft.relevantVats?.length > 0 && (
-                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT VAT PROMPTS ({historyEditDraft.relevantVats.length})</p>
-                        <ul className="text-sm space-y-1 text-[#111111]">
-                          {historyEditDraft.relevantVats.map((v, idx) => (
-                            <li key={idx}>• {v.prompt}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    <div className="mb-4">
-                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Notes / Context</label>
-                      <textarea
-                        value={historyEditDraft.prepNotes || historyEditDraft.clientType || ""}
-                        onChange={(e) => setHistoryEditDraft({ ...historyEditDraft, prepNotes: e.target.value })}
-                        className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-[#111111]/10">
+                    <div className="mt-6 flex flex-wrap gap-2">
                       <button
+                        type="button"
                         onClick={async () => {
                           const saved = await updateSavedPrep(historyEditDraft.id, {
                             name: historyEditDraft.name,
@@ -782,127 +851,140 @@ function ProspectPrepPageInner() {
                           }
                         }}
                         disabled={savingPrep}
-                        className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                        className="rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
                       >
-                        {savingPrep ? "Saving…" : "Save Changes"}
+                        {savingPrep ? "Saving…" : "Save changes"}
                       </button>
                       <button
+                        type="button"
                         onClick={() => void attachPrep(historyEditDraft, false)}
-                        className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                        className="rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
                       >
-                        Attach to Live Call
+                        Attach to live call
+                      </button>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const confirmed = await showConfirm("Delete this saved prep?");
+                          if (!confirmed) return;
+                          await deleteSavedPrep(historyEditDraft.id);
+                          closeHistoryPrep();
+                        }}
+                        disabled={savingPrep}
+                        className="rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+                      >
+                        Delete
                       </button>
                     </div>
-                  </div>
-                ) : prepsLoading ? (
-                  <div className="space-y-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="h-20 rounded-xl bg-[#f7f4ea] animate-pulse" />
-                    ))}
-                  </div>
-                ) : savedPreps.length === 0 ? (
-                  <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea] py-16 text-center">
-                    <Target className="mx-auto h-10 w-10 text-[#6f6b62]/30 mb-3" />
-                    <p className="text-sm font-semibold text-[#111111]">No saved preps yet</p>
-                    <p className="mt-1 text-xs text-[#6f6b62]">Build a prep in the Prospect Prep tab and save it to history.</p>
-                    <button
-                      type="button"
-                      onClick={() => switchTab("prospect_prep")}
-                      className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-                    >
-                      Build a prep
-                    </button>
                   </div>
                 ) : (
                   <>
-                    <p className="mb-4 text-sm text-[#6f6b62]">{savedPreps.length} saved prep{savedPreps.length !== 1 ? "s" : ""}</p>
-                    <div className="space-y-2">
-                      {savedPreps.map((p) => (
-                        <div
-                          key={p.id}
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => setHistoryViewPrepId(p.id)}
-                          onKeyDown={(e) => { if (e.key === "Enter") setHistoryViewPrepId(p.id); }}
-                          className="flex items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group cursor-pointer"
-                        >
-                          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32]/10">
-                            <Target className="h-4 w-4 text-[#063b32]" />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="text-sm font-semibold text-[#111111]">{p.name}</p>
-                                  {p.sector && (
-                                    <span className="rounded-full bg-[#063b32]/10 px-2 py-0.5 text-[10px] font-semibold text-[#063b32]">
-                                      {p.sector.name}
-                                    </span>
-                                  )}
-                                  {p.persona && (
-                                    <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
-                                      {p.persona.persona_name}
-                                    </span>
-                                  )}
-                                </div>
-
-                                <p className="mt-1 text-xs text-[#6f6b62] line-clamp-2">
-                                  {p.clientType || p.prepNotes || "No description"}
-                                </p>
-
-                                <div className="mt-2 flex flex-wrap items-center gap-4 text-[10px] text-[#6f6b62]">
-                                  <span className="flex items-center gap-1">
-                                    <Calendar className="h-3 w-3" />
-                                    {new Date(p.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                                  </span>
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {new Date(p.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                                  </span>
-                                  {p.relevantPains?.length > 0 && (
-                                    <span className="flex items-center gap-1">
-                                      <Zap className="h-3 w-3 text-amber-500" />
-                                      {p.relevantPains.length} pain point{p.relevantPains.length !== 1 ? "s" : ""}
-                                    </span>
-                                  )}
-                                  {(p.relevantVats?.length ?? 0) > 0 && (
-                                    <span>{p.relevantVats!.length} VAT prompt{p.relevantVats!.length !== 1 ? "s" : ""}</span>
-                                  )}
-                                </div>
-
-                                <div className="mt-2 flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
-                                  <button
-                                    type="button"
-                                    onClick={() => void attachPrep(p, false)}
-                                    className="rounded-md bg-[#063b32] px-3 py-1 text-[10px] font-semibold text-white hover:bg-[#1a5c42]"
-                                  >
-                                    Attach to call
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={async () => {
-                                      const confirmed = await showConfirm("Delete this saved prep?");
-                                      if (!confirmed) return;
-                                      void deleteSavedPrep(p.id);
-                                    }}
-                                    disabled={savingPrep}
-                                    className="rounded-md border border-red-200 px-3 py-1 text-[10px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
-                                  >
-                                    Delete
-                                  </button>
-                                </div>
-                              </div>
-
-                              <ChevronRight className="h-4 w-4 shrink-0 text-[#6f6b62]/40 group-hover:text-[#063b32] mt-1 transition-colors" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="mb-4 flex items-center justify-between">
+                      <p className="text-sm text-[#6f6b62]">
+                        {savedPreps.length} saved prep{savedPreps.length !== 1 ? "s" : ""}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => switchTab("prospect_prep")}
+                        className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                      >
+                        <Target className="h-4 w-4" /> Build a prep
+                      </button>
                     </div>
+
+                    {prepsLoading ? (
+                      <div className="space-y-3">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div key={i} className="h-20 rounded-xl bg-[#f7f4ea] animate-pulse" />
+                        ))}
+                      </div>
+                    ) : savedPreps.length === 0 ? (
+                      <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea] py-16 text-center">
+                        <Target className="mx-auto h-10 w-10 text-[#6f6b62]/30 mb-3" />
+                        <p className="text-sm font-semibold text-[#111111]">No saved preps yet</p>
+                        <p className="mt-1 text-xs text-[#6f6b62]">Build a prep in the Prospect Prep tab and save it to history.</p>
+                        <button
+                          type="button"
+                          onClick={() => switchTab("prospect_prep")}
+                          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                        >
+                          <Target className="h-4 w-4" /> Build your first prep
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {savedPreps.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => openHistoryPrep(p.id)}
+                            className="flex w-full items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 text-left hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
+                          >
+                            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32]/10">
+                              <Target className="h-4 w-4 text-[#063b32]" />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <p className="text-sm font-semibold text-[#111111]">{p.name}</p>
+                                    {p.sector && (
+                                      <span className="rounded-full bg-[#063b32]/10 px-2 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                                        {p.sector.name}
+                                      </span>
+                                    )}
+                                    {p.persona && (
+                                      <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
+                                        {p.persona.persona_name}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <p className="mt-1 text-xs text-[#6f6b62] line-clamp-2">
+                                    {p.clientType || p.prepNotes || "No description"}
+                                  </p>
+
+                                  <div className="mt-2 flex items-center gap-4 text-[10px] text-[#6f6b62]">
+                                    <span className="flex items-center gap-1">
+                                      <Calendar className="h-3 w-3" />
+                                      {new Date(p.createdAt).toLocaleDateString("en-GB", {
+                                        day: "numeric",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      {new Date(p.createdAt).toLocaleTimeString("en-GB", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </span>
+                                    {p.relevantPains?.length > 0 && (
+                                      <span className="flex items-center gap-1">
+                                        <Zap className="h-3 w-3 text-amber-500" />
+                                        {p.relevantPains.length} pain point{p.relevantPains.length !== 1 ? "s" : ""}
+                                      </span>
+                                    )}
+                                    {(p.relevantVats?.length ?? 0) > 0 && (
+                                      <span>
+                                        {p.relevantVats!.length} VAT prompt{p.relevantVats!.length !== 1 ? "s" : ""}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <ChevronRight className="h-4 w-4 shrink-0 text-[#6f6b62]/40 group-hover:text-[#063b32] mt-1 transition-colors" />
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </>
                 )}
-              </div>
+              </>
             )}
           </>
         )}
