@@ -17,15 +17,18 @@ export function buildProspectPrepMatch(input: {
   persona: Persona | null;
   painPoints: PainPoint[];
   vatPrompts: VatPrompt[];
+  knownPainPoints?: PainPoint[];
 }): BuiltProspectPrep {
-  const { clientType, prepNotes, sector, persona, painPoints, vatPrompts } = input;
+  const { clientType, prepNotes, sector, persona, painPoints, vatPrompts, knownPainPoints = [] } = input;
   const keywords = (clientType + " " + prepNotes)
     .toLowerCase()
     .split(/\s+/)
     .filter((w) => w.length > 2);
 
-  const relevantPains = painPoints
+  const knownIds = new Set(knownPainPoints.map((pp) => pp.id));
+  const autoPains = painPoints
     .filter((pp) => {
+      if (knownIds.has(pp.id)) return false;
       const text = [pp.title, pp.plain_english_definition, ...(pp.what_person_says || [])]
         .join(" ")
         .toLowerCase();
@@ -39,6 +42,7 @@ export function buildProspectPrepMatch(input: {
       return sectorMatch || keywordMatch;
     })
     .slice(0, 5);
+  const relevantPains = [...knownPainPoints, ...autoPains].slice(0, 8);
 
   const relevantVats = vatPrompts
     .filter((v) => {

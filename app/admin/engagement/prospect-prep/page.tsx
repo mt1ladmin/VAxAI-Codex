@@ -2,7 +2,8 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Calendar, ChevronDown, ChevronRight, Clock, Target, Zap } from "lucide-react";
+import { ArrowLeft, Calendar, ChevronDown, ChevronRight, Clock, Target, X, Zap } from "lucide-react";
+import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import {
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
@@ -88,6 +89,8 @@ function ProspectPrepPageInner() {
   const [selectedSectorId, setSelectedSectorId] = useState("");
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
   const [prepNotes, setPrepNotes] = useState("");
+  const [knownPainPoints, setKnownPainPoints] = useState<PainPoint[]>([]);
+  const [painPointSearch, setPainPointSearch] = useState("");
   const [prepName, setPrepName] = useState("");
   const [prepResults, setPrepResults] = useState<any>(null);
   const [savedPreps, setSavedPreps] = useState<ProspectPrepClient[]>([]);
@@ -279,22 +282,38 @@ function ProspectPrepPageInner() {
     setSelectedSectorId("");
     setSelectedPersonaId("");
     setPrepNotes("");
+    setKnownPainPoints([]);
+    setPainPointSearch("");
     setPrepName("");
     setPrepResults(null);
   };
+
+  const painPointResults = painPointSearch.trim()
+    ? painPoints.filter((pp) => {
+        const q = painPointSearch.trim().toLowerCase();
+        return (
+          pp.title.toLowerCase().includes(q) ||
+          pp.category.toLowerCase().includes(q) ||
+          pp.plain_english_definition?.toLowerCase().includes(q)
+        );
+      }).slice(0, 8)
+    : [];
 
   const buildPrep = () => {
     const sector = sectors.find((s) => s.id === selectedSectorId);
     const persona = personas.find((p) => p.id === selectedPersonaId);
     const keywords = (clientType + " " + prepNotes).toLowerCase().split(/\s+/).filter((w) => w.length > 2);
-    const relevantPains = painPoints
+    const knownIds = new Set(knownPainPoints.map((pp) => pp.id));
+    const autoPains = painPoints
       .filter((pp) => {
+        if (knownIds.has(pp.id)) return false;
         const text = [pp.title, pp.plain_english_definition, ...(pp.what_person_says || [])].join(" ").toLowerCase();
         const sectorMatch = sector && pp.relevant_sectors && pp.relevant_sectors.some((rs: string) => rs.toLowerCase().includes(sector.name.toLowerCase()));
         const keywordMatch = keywords.some((k) => text.includes(k));
         return sectorMatch || keywordMatch;
       })
       .slice(0, 5);
+    const relevantPains = [...knownPainPoints, ...autoPains].slice(0, 8);
     const relevantVats = vatPrompts
       .filter((v) => {
         const text = [v.prompt, ...(v.context_tags || [])].join(" ").toLowerCase();
@@ -621,6 +640,49 @@ function ProspectPrepPageInner() {
                     </div>
 
                     <div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Pain points (if known)</label>
+                      <input
+                        value={painPointSearch}
+                        onChange={(e) => setPainPointSearch(e.target.value)}
+                        placeholder="Search pain points…"
+                        className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 px-4 text-sm outline-none focus:border-[#063b32]"
+                      />
+                      {painPointResults.length > 0 && (
+                        <div className="mt-1 max-h-36 overflow-auto rounded-xl border border-[#111111]/10 bg-white shadow-sm">
+                          {painPointResults.map((pp) => (
+                            <button
+                              key={pp.id}
+                              type="button"
+                              onClick={() => {
+                                if (!knownPainPoints.some((p) => p.id === pp.id)) {
+                                  setKnownPainPoints((prev) => [...prev, pp]);
+                                }
+                                setPainPointSearch("");
+                              }}
+                              disabled={knownPainPoints.some((p) => p.id === pp.id)}
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40"
+                            >
+                              <span className="font-semibold text-[#111111]">{pp.title}</span>
+                              <span className="block text-[10px] text-[#6f6b62]">{pp.category}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {knownPainPoints.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {knownPainPoints.map((pp) => (
+                            <span key={pp.id} className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                              {pp.title}
+                              <button type="button" onClick={() => setKnownPainPoints((prev) => prev.filter((p) => p.id !== pp.id))} className="text-amber-600 hover:text-amber-900">
+                                <X className="h-3 w-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
                       <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Additional Notes</label>
                       <textarea value={prepNotes} onChange={(e) => setPrepNotes(e.target.value)} className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 px-4 text-sm outline-none focus:border-[#063b32] resize-y" rows={2} placeholder="Any other context or goals..." />
                     </div>
@@ -653,30 +715,12 @@ function ProspectPrepPageInner() {
                       />
                     </div>
 
-                    {prepResults.sector && (
-                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">SECTOR</p>
-                        <p className="font-medium text-[#111111]">{prepResults.sector.name}</p>
-                        {prepResults.sector.description && <p className="text-sm mt-1 text-[#111111]">{prepResults.sector.description}</p>}
-                        {prepResults.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {prepResults.sector.common_admin_pressures.join(" · ")}</p>}
-                      </div>
-                    )}
-                    {prepResults.persona && (
-                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">PERSONA</p>
-                        <p className="font-medium text-[#111111]">{prepResults.persona.persona_name}{prepResults.persona.typical_role ? ` — ${prepResults.persona.typical_role}` : ""}</p>
-                      </div>
-                    )}
-                    {prepResults.relevantPains?.length > 0 && (
-                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT PAIN POINTS ({prepResults.relevantPains.length})</p>
-                        <ul className="text-sm space-y-1 text-[#111111]">
-                          {prepResults.relevantPains.map((pp: any, idx: number) => (
-                            <li key={idx}>• {pp.title}{pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 70)}` : ""}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    <p className="mb-3 text-[10px] text-[#6f6b62]">Click sector, persona, or pain points to view knowledge hub details.</p>
+                    <PrepKnowledgeSummary
+                      sector={prepResults.sector}
+                      persona={prepResults.persona}
+                      relevantPains={prepResults.relevantPains}
+                    />
                     {prepResults.relevantVats?.length > 0 && (
                       <div className="mb-3 pb-3 border-b border-[#111111]/10">
                         <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT VAT PROMPTS ({prepResults.relevantVats.length})</p>
@@ -782,46 +826,15 @@ function ProspectPrepPageInner() {
                         </div>
                       </div>
 
-                      {historyEditDraft.sector && (
-                        <div className="rounded-xl border border-[#111111]/10 p-5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">Sector</p>
-                          <p className="font-medium text-[#111111]">{historyEditDraft.sector.name}</p>
-                          {historyEditDraft.sector.description && (
-                            <p className="text-sm mt-1 text-[#111111]">{historyEditDraft.sector.description}</p>
-                          )}
-                          {(historyEditDraft.sector.common_admin_pressures?.length ?? 0) > 0 && (
-                            <p className="mt-1 text-xs text-[#6f6b62]">
-                              Key pressures: {historyEditDraft.sector.common_admin_pressures!.join(" · ")}
-                            </p>
-                          )}
-                        </div>
-                      )}
-
-                      {historyEditDraft.persona && (
-                        <div className="rounded-xl border border-[#111111]/10 p-5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">Persona</p>
-                          <p className="font-medium text-[#111111]">
-                            {historyEditDraft.persona.persona_name}
-                            {historyEditDraft.persona.typical_role ? ` — ${historyEditDraft.persona.typical_role}` : ""}
-                          </p>
-                        </div>
-                      )}
-
-                      {historyEditDraft.relevantPains?.length > 0 && (
-                        <div className="rounded-xl border border-[#111111]/10 p-5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
-                            Relevant pain points ({historyEditDraft.relevantPains.length})
-                          </p>
-                          <ul className="text-sm space-y-1 text-[#111111]">
-                            {historyEditDraft.relevantPains.map((pp, idx) => (
-                              <li key={idx}>
-                                · {pp.title}
-                                {pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 70)}` : ""}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      <div className="rounded-xl border border-[#111111]/10 p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">Knowledge hub matches</p>
+                        <p className="mb-3 text-[10px] text-[#6f6b62]">Click sector, persona, or pain points to view knowledge hub details.</p>
+                        <PrepKnowledgeSummary
+                          sector={historyEditDraft.sector}
+                          persona={historyEditDraft.persona}
+                          relevantPains={historyEditDraft.relevantPains}
+                        />
+                      </div>
 
                       {historyEditDraft.relevantVats?.length > 0 && (
                         <div className="rounded-xl border border-[#111111]/10 p-5">

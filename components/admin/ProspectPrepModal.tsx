@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, Loader2, Sparkles, X } from "lucide-react";
+import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { buildProspectPrepMatch } from "@/lib/engagement/build-prospect-prep";
 import type { ProspectPrepSource } from "@/lib/engagement/prospect-prep";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
@@ -88,6 +89,8 @@ export function ProspectPrepModal({
   const [clientType, setClientType] = useState(defaultClientType);
   const [selectedSectorId, setSelectedSectorId] = useState("");
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
+  const [knownPainPoints, setKnownPainPoints] = useState<PainPoint[]>([]);
+  const [painPointSearch, setPainPointSearch] = useState("");
   const [prepNotes, setPrepNotes] = useState(defaultPrepNotes);
   const [prepName, setPrepName] = useState(defaultName);
   const [built, setBuilt] = useState<ReturnType<typeof buildProspectPrepMatch> | null>(null);
@@ -120,11 +123,36 @@ export function ProspectPrepModal({
       setClientType(defaultClientType);
       setPrepNotes(defaultPrepNotes);
       setPrepName(defaultName);
+      setSelectedSectorId("");
+      setSelectedPersonaId("");
+      setKnownPainPoints([]);
+      setPainPointSearch("");
       setBuilt(null);
       setError(null);
       void loadData();
     }
   }, [open, defaultClientType, defaultPrepNotes, defaultName, loadData]);
+
+  const painPointResults = painPointSearch.trim()
+    ? painPoints.filter((pp) => {
+        const q = painPointSearch.trim().toLowerCase();
+        return (
+          pp.title.toLowerCase().includes(q) ||
+          pp.category.toLowerCase().includes(q) ||
+          pp.plain_english_definition?.toLowerCase().includes(q)
+        );
+      }).slice(0, 8)
+    : [];
+
+  const addKnownPainPoint = (pp: PainPoint) => {
+    if (knownPainPoints.some((p) => p.id === pp.id)) return;
+    setKnownPainPoints((prev) => [...prev, pp]);
+    setPainPointSearch("");
+  };
+
+  const removeKnownPainPoint = (id: string) => {
+    setKnownPainPoints((prev) => prev.filter((p) => p.id !== id));
+  };
 
   const handleBuild = () => {
     const sector = sectors.find((s) => s.id === selectedSectorId) || null;
@@ -136,6 +164,7 @@ export function ProspectPrepModal({
       persona,
       painPoints,
       vatPrompts,
+      knownPainPoints,
     });
     setBuilt(result);
     if (!prepName) setPrepName((clientType || "Prospect Prep").slice(0, 70));
@@ -232,6 +261,43 @@ export function ProspectPrepModal({
                 />
               </div>
               <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Pain points (if known)</label>
+                <input
+                  value={painPointSearch}
+                  onChange={(e) => setPainPointSearch(e.target.value)}
+                  placeholder="Search pain points…"
+                  className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                />
+                {painPointResults.length > 0 && (
+                  <div className="mt-1 max-h-32 overflow-auto rounded-lg border border-[#111111]/10 bg-white shadow-sm">
+                    {painPointResults.map((pp) => (
+                      <button
+                        key={pp.id}
+                        type="button"
+                        onClick={() => addKnownPainPoint(pp)}
+                        disabled={knownPainPoints.some((p) => p.id === pp.id)}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40"
+                      >
+                        <span className="font-semibold text-[#111111]">{pp.title}</span>
+                        <span className="block text-[10px] text-[#6f6b62]">{pp.category}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {knownPainPoints.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {knownPainPoints.map((pp) => (
+                      <span key={pp.id} className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                        {pp.title}
+                        <button type="button" onClick={() => removeKnownPainPoint(pp.id)} className="text-amber-600 hover:text-amber-900">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
                 <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Notes</label>
                 <textarea
                   value={prepNotes}
@@ -254,13 +320,13 @@ export function ProspectPrepModal({
               ) : (
                 <div className="space-y-3 rounded-xl border border-violet-200 bg-violet-50 p-4">
                   <p className="text-xs font-semibold text-violet-800">Matched from knowledge hub</p>
-                  {built.sector && <p className="text-sm text-[#111111]"><span className="font-medium">Sector:</span> {built.sector.name}</p>}
-                  {built.persona && <p className="text-sm text-[#111111]"><span className="font-medium">Persona:</span> {built.persona.persona_name}</p>}
-                  {built.relevantPains.length > 0 && (
-                    <ul className="list-disc pl-4 text-xs text-[#111111]">
-                      {built.relevantPains.map((pp) => <li key={pp.id}>{pp.title}</li>)}
-                    </ul>
-                  )}
+                  <p className="text-[10px] text-violet-700">Click sector, persona, or pain points to view knowledge hub details.</p>
+                  <PrepKnowledgeSummary
+                    sector={built.sector}
+                    persona={built.persona}
+                    relevantPains={built.relevantPains}
+                    compact
+                  />
                   <div>
                     <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Save as</label>
                     <input

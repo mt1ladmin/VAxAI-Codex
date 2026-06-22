@@ -24,8 +24,8 @@ import {
   X,
 } from "lucide-react";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
-import { KnowledgeProfileModal, type KnowledgeProfileType } from "@/components/admin/KnowledgeProfileModal";
 import { InteractionList } from "@/components/admin/InteractionList";
+import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 
@@ -35,17 +35,15 @@ import type {
   EngagementContact,
   EngagementInteraction,
   EngagementOpportunity,
-  PainPoint,
   Persona,
   SectorProfile,
 } from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
-type HubTab = "overview" | "profile" | "preps" | "calls" | "opportunities" | "notes" | "activity";
+type HubTab = "overview" | "preps" | "calls" | "opportunities" | "notes" | "activity";
 
 const HUB_TABS: Array<{ id: HubTab; label: string }> = [
   { id: "overview", label: "Overview" },
-  { id: "profile", label: "Profile" },
   { id: "preps", label: "Preps" },
   { id: "calls", label: "Calls" },
   { id: "opportunities", label: "Opportunities" },
@@ -75,65 +73,11 @@ type Enquiry = {
   organisation_id: string | null;
   sector_snapshot: SectorProfile | null;
   persona_snapshot: Persona | null;
-  pain_points_snapshot: PainPoint[] | null;
   posts?: { id: string; title: string; slug: string } | null;
 };
 
 function gmailComposeUrl(email: string) {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
-}
-
-type SavedProfileItem =
-  | { type: "sector"; data: SectorProfile }
-  | { type: "persona"; data: Persona }
-  | { type: "pain_point"; data: PainPoint };
-
-function SavedProfileCards({
-  items,
-  onView,
-  emptyMessage = "No profile saved yet. Assign sector, persona, or pain points on the Profile tab.",
-}: {
-  items: SavedProfileItem[];
-  onView: (item: SavedProfileItem) => void;
-  emptyMessage?: string;
-}) {
-  if (items.length === 0) {
-    return <p className="text-sm text-[#6f6b62]/60">{emptyMessage}</p>;
-  }
-  return (
-    <div className="grid gap-2 sm:grid-cols-2">
-      {items.map((item) => {
-        const label =
-          item.type === "sector" ? item.data.name :
-          item.type === "persona" ? item.data.persona_name :
-          item.data.title;
-        const typeLabel =
-          item.type === "sector" ? "Sector" :
-          item.type === "persona" ? "Persona" :
-          "Pain point";
-        const accent =
-          item.type === "sector" ? "border-[#063b32]/20 bg-[#063b32]/5 hover:bg-[#063b32]/10" :
-          item.type === "persona" ? "border-blue-200 bg-blue-50/50 hover:bg-blue-50" :
-          "border-amber-200 bg-amber-50/50 hover:bg-amber-50";
-        const subtitle =
-          item.type === "sector" ? (item.data.description?.slice(0, 80) || "View sector knowledge") :
-          item.type === "persona" ? (item.data.typical_role || "View persona knowledge") :
-          (item.data.plain_english_definition?.slice(0, 80) || item.data.category);
-        return (
-          <button
-            key={`${item.type}-${item.data.id}`}
-            type="button"
-            onClick={() => onView(item)}
-            className={`rounded-xl border p-4 text-left transition-colors ${accent}`}
-          >
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{typeLabel}</p>
-            <p className="mt-1 text-sm font-semibold text-[#111111]">{label}</p>
-            <p className="mt-1 line-clamp-2 text-xs text-[#6f6b62]">{subtitle}</p>
-          </button>
-        );
-      })}
-    </div>
-  );
 }
 
 export default function EnquiryDetailPage() {
@@ -165,18 +109,6 @@ export default function EnquiryDetailPage() {
   const [customCardContent, setCustomCardContent] = useState("");
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [promoting, setPromoting] = useState(false);
-  const [sectors, setSectors] = useState<SectorProfile[]>([]);
-  const [personas, setPersonas] = useState<Persona[]>([]);
-  const [allPainPoints, setAllPainPoints] = useState<PainPoint[]>([]);
-  const [selectedSectorId, setSelectedSectorId] = useState("");
-  const [selectedPersonaId, setSelectedPersonaId] = useState("");
-  const [selectedPainPoints, setSelectedPainPoints] = useState<PainPoint[]>([]);
-  const [painPointSearch, setPainPointSearch] = useState("");
-  const [painPointResults, setPainPointResults] = useState<PainPoint[]>([]);
-  const [savingProfile, setSavingProfile] = useState(false);
-  const [profileError, setProfileError] = useState<string | null>(null);
-  const [profileSaved, setProfileSaved] = useState(false);
-  const [profileModal, setProfileModal] = useState<SavedProfileItem | null>(null);
   const [activeTab, setActiveTab] = useState<HubTab>("overview");
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
@@ -245,9 +177,6 @@ export default function EnquiryDetailPage() {
       setEnquiry(j.data);
       setNextAction(j.data.next_action || "");
       setNextActionDate(j.data.next_action_date?.split("T")[0] || "");
-      if (j.data.sector_snapshot?.id) setSelectedSectorId(j.data.sector_snapshot.id);
-      if (j.data.persona_snapshot?.id) setSelectedPersonaId(j.data.persona_snapshot.id);
-      setSelectedPainPoints(j.data.pain_points_snapshot || []);
       if (j.data.contact_id) {
         const cRes = await fetch(`/api/admin/engagement/contacts/${j.data.contact_id}`);
         const cJ = await cRes.json() as { data?: EngagementContact };
@@ -262,36 +191,6 @@ export default function EnquiryDetailPage() {
   }, [id, loadLinkedPreps, loadCrmData]);
 
   useEffect(() => { void load(); }, [load]);
-
-  useEffect(() => {
-    void Promise.all([
-      fetch("/api/admin/engagement/sectors?limit=50").then((r) => r.json()),
-      fetch("/api/admin/engagement/personas?limit=50").then((r) => r.json()),
-      fetch("/api/admin/engagement/pain-points?limit=100").then((r) => r.json()),
-    ]).then(([sJ, pJ, ppJ]) => {
-      setSectors((sJ as { data: SectorProfile[] }).data || []);
-      setPersonas((pJ as { data: Persona[] }).data || []);
-      setAllPainPoints((ppJ as { data: PainPoint[] }).data || []);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!painPointSearch.trim()) {
-      setPainPointResults([]);
-      return;
-    }
-    const q = painPointSearch.trim().toLowerCase();
-    const timer = setTimeout(() => {
-      const filtered = allPainPoints.filter(
-        (pp) =>
-          pp.title.toLowerCase().includes(q) ||
-          pp.category.toLowerCase().includes(q) ||
-          pp.plain_english_definition?.toLowerCase().includes(q),
-      ).slice(0, 8);
-      setPainPointResults(filtered);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [painPointSearch, allPainPoints]);
 
   const patchEnquiry = async (updates: Partial<Enquiry>) => {
     const res = await fetch(`/api/admin/enquiries/${id}`, {
@@ -344,41 +243,6 @@ export default function EnquiryDetailPage() {
       setPromoting(false);
     }
   };
-
-  const saveProfile = async () => {
-    setSavingProfile(true);
-    setProfileError(null);
-    setProfileSaved(false);
-    try {
-      const sector = sectors.find((s) => s.id === selectedSectorId) || null;
-      const persona = personas.find((p) => p.id === selectedPersonaId) || null;
-      await patchEnquiry({
-        sector_snapshot: sector,
-        persona_snapshot: persona,
-        pain_points_snapshot: selectedPainPoints,
-      } as Partial<Enquiry>);
-      setProfileSaved(true);
-    } catch (e) {
-      setProfileError(e instanceof Error ? e.message : "Failed to save profile");
-    } finally {
-      setSavingProfile(false);
-    }
-  };
-
-  const addPainPoint = (pp: PainPoint) => {
-    if (selectedPainPoints.some((p) => p.id === pp.id)) return;
-    setSelectedPainPoints((prev) => [...prev, pp]);
-    setPainPointSearch("");
-    setPainPointResults([]);
-    setProfileSaved(false);
-  };
-
-  const removePainPoint = (id: string) => {
-    setSelectedPainPoints((prev) => prev.filter((p) => p.id !== id));
-    setProfileSaved(false);
-  };
-
-  const openProfileModal = (item: SavedProfileItem) => setProfileModal(item);
 
   const prepareForContact = async () => {
     if (!enquiry) return;
@@ -595,11 +459,6 @@ export default function EnquiryDetailPage() {
   if (!enquiry) return <div className="p-8 text-sm text-[#6f6b62]">Enquiry not found.</div>;
 
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
-  const savedProfileItems: SavedProfileItem[] = [
-    ...(enquiry.sector_snapshot ? [{ type: "sector" as const, data: enquiry.sector_snapshot }] : []),
-    ...(enquiry.persona_snapshot ? [{ type: "persona" as const, data: enquiry.persona_snapshot }] : []),
-    ...(enquiry.pain_points_snapshot || []).map((pp) => ({ type: "pain_point" as const, data: pp })),
-  ];
   const clientOpportunity = opportunities.find((o) =>
     ["Won", "Onboarding", "Active client"].includes(o.stage)
   ) ?? null;
@@ -636,15 +495,6 @@ export default function EnquiryDetailPage() {
         existingOrgId={enquiry.organisation_id}
       />
 
-      <KnowledgeProfileModal
-        open={!!profileModal}
-        onClose={() => setProfileModal(null)}
-        type={(profileModal?.type || "sector") as KnowledgeProfileType}
-        sector={profileModal?.type === "sector" ? profileModal.data : null}
-        persona={profileModal?.type === "persona" ? profileModal.data : null}
-        painPoint={profileModal?.type === "pain_point" ? profileModal.data : null}
-      />
-
       <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
         <Link
           href="/admin/enquiries"
@@ -668,9 +518,6 @@ export default function EnquiryDetailPage() {
               }`}
             >
               {tab.label}
-              {tab.id === "profile" && savedProfileItems.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{savedProfileItems.length}</span>
-              )}
               {tab.id === "calls" && interactions.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{interactions.length}</span>
               )}
@@ -808,16 +655,6 @@ export default function EnquiryDetailPage() {
                 </button>
               </div>
 
-              {savedProfileItems.length > 0 && (
-                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Saved profile</p>
-                    <button type="button" onClick={() => setActiveTab("profile")} className="text-xs text-[#063b32] hover:underline">Edit</button>
-                  </div>
-                  <SavedProfileCards items={savedProfileItems} onView={openProfileModal} />
-                </div>
-              )}
-
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
                   <Phone className="h-4 w-4" /> Start call assist
@@ -882,109 +719,6 @@ export default function EnquiryDetailPage() {
                 )}
               </div>
             </>
-          )}
-
-          {activeTab === "profile" && (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="space-y-4">
-                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Assign profile</p>
-                  <p className="text-xs text-[#6f6b62]">Select sector, persona, and pain points from the knowledge hub. Save to attach them to this enquiry.</p>
-                  <div>
-                    <p className="text-[10px] text-[#6f6b62] mb-1">Sector</p>
-                    <select
-                      value={selectedSectorId}
-                      onChange={(e) => { setSelectedSectorId(e.target.value); setProfileSaved(false); }}
-                      className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    >
-                      <option value="">— Select sector —</option>
-                      {sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[#6f6b62] mb-1">Persona</p>
-                    <select
-                      value={selectedPersonaId}
-                      onChange={(e) => { setSelectedPersonaId(e.target.value); setProfileSaved(false); }}
-                      className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    >
-                      <option value="">— Select persona —</option>
-                      {personas.map((p) => <option key={p.id} value={p.id}>{p.persona_name}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[#6f6b62] mb-1">Pain points</p>
-                    <input
-                      value={painPointSearch}
-                      onChange={(e) => setPainPointSearch(e.target.value)}
-                      placeholder="Search pain points…"
-                      className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    />
-                    {painPointResults.length > 0 && (
-                      <div className="mt-1 max-h-36 overflow-auto rounded-lg border border-[#111111]/10 bg-white shadow-sm">
-                        {painPointResults.map((pp) => (
-                          <button
-                            key={pp.id}
-                            type="button"
-                            onClick={() => addPainPoint(pp)}
-                            disabled={selectedPainPoints.some((p) => p.id === pp.id)}
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40"
-                          >
-                            <span className="font-semibold text-[#111111]">{pp.title}</span>
-                            <span className="block text-[10px] text-[#6f6b62]">{pp.category}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    {selectedPainPoints.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {selectedPainPoints.map((pp) => (
-                          <span key={pp.id} className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-xs font-semibold text-amber-800">
-                            {pp.title}
-                            <button type="button" onClick={() => removePainPoint(pp.id)} className="text-amber-600 hover:text-amber-900">
-                              <X className="h-3 w-3" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => void saveProfile()}
-                    disabled={savingProfile || (!selectedSectorId && !selectedPersonaId && selectedPainPoints.length === 0)}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-                  >
-                    {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    {savingProfile ? "Saving…" : "Save to enquiry"}
-                  </button>
-                  {profileSaved && (
-                    <p className="text-xs font-semibold text-[#063b32]">Profile saved to this enquiry.</p>
-                  )}
-                  {profileError && (
-                    <p className="text-xs text-red-600 whitespace-pre-wrap">{profileError}</p>
-                  )}
-                </div>
-                <Link
-                  href="/admin/engagement/knowledge"
-                  className="flex items-center gap-1.5 text-xs text-[#063b32] hover:underline"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" /> Browse knowledge library
-                </Link>
-              </div>
-
-              <div className="lg:col-span-2 space-y-4">
-                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Saved to this enquiry</p>
-                  <p className="text-xs text-[#6f6b62]">Click any card to view full knowledge hub content in a popup.</p>
-                  <SavedProfileCards
-                    items={savedProfileItems}
-                    onView={openProfileModal}
-                    emptyMessage="Nothing saved yet. Use the form on the left to assign sector, persona, or pain points."
-                  />
-                </div>
-              </div>
-            </div>
           )}
 
           {activeTab === "activity" && (
@@ -1058,12 +792,6 @@ export default function EnquiryDetailPage() {
 
           {activeTab === "preps" && (
             <div className="space-y-4">
-              {savedProfileItems.length > 0 && (
-                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Saved profile for this enquiry</p>
-                  <SavedProfileCards items={savedProfileItems} onView={openProfileModal} />
-                </div>
-              )}
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
                   <Sparkles className="h-4 w-4" /> New prospect prep
@@ -1096,11 +824,16 @@ export default function EnquiryDetailPage() {
               {linkedPreps.length > 0 ? (
                 <div className="space-y-2">
                   {linkedPreps.map((prep) => (
-                    <div key={prep.id} className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3">
+                    <div key={prep.id} className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3 space-y-2">
                       <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
                       {prep.sourceLabel && <p className="text-[10px] text-emerald-600">{prep.sourceLabel}</p>}
-                      {prep.sector && <p className="text-xs text-[#6f6b62]">Sector: {prep.sector.name}</p>}
-                      {prep.prepNotes && <p className="mt-2 text-sm text-[#6f6b62] whitespace-pre-wrap line-clamp-4">{prep.prepNotes}</p>}
+                      <PrepKnowledgeSummary
+                        sector={prep.sector}
+                        persona={prep.persona}
+                        relevantPains={prep.relevantPains}
+                        compact
+                      />
+                      {prep.prepNotes && <p className="text-sm text-[#6f6b62] whitespace-pre-wrap line-clamp-4">{prep.prepNotes}</p>}
                     </div>
                   ))}
                 </div>
