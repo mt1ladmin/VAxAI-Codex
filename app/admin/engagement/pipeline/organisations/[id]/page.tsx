@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import {
-  ArrowLeft, Building2, ChevronDown, ChevronRight, Edit3,
-  Mail, MessageSquare, Phone, Plus, Save, User
+  ArrowLeft, Building2, Check, ChevronDown, ChevronRight, Edit3,
+  Mail, MessageSquare, Phone, Plus, Save, User, X
 } from "lucide-react";
 import {
   AUDIENCE_TYPES, INDUSTRIES, ORG_SIZES, DIGITAL_MATURITY_LEVELS,
@@ -62,6 +62,9 @@ export default function OrgDetailPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [activeTab, setActiveTab] = useState<"brief" | "contacts" | "opportunities" | "interactions" | "tasks">("brief");
+  const [addingTask, setAddingTask] = useState(false);
+  const [taskForm, setTaskForm] = useState({ title: "", priority: "medium", due_date: "" });
+  const [savingTask, setSavingTask] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -108,6 +111,27 @@ export default function OrgDetailPage() {
     setOrg(j.data);
     setEditing(false);
     setSaving(false);
+  };
+
+  const saveTask = async () => {
+    if (!taskForm.title.trim()) return;
+    setSavingTask(true);
+    await fetch("/api/admin/engagement/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: taskForm.title,
+        priority: taskForm.priority,
+        due_date: taskForm.due_date || null,
+        organisation_id: id,
+        status: "todo",
+        task_type: "follow_up",
+      }),
+    });
+    setTaskForm({ title: "", priority: "medium", due_date: "" });
+    setAddingTask(false);
+    setSavingTask(false);
+    load();
   };
 
   if (loading) return <div className="p-12 text-center text-sm text-[#6f6b62]">Loading…</div>;
@@ -486,7 +510,55 @@ export default function OrgDetailPage() {
         {/* TASKS TAB */}
         {activeTab === "tasks" && (
           <div>
-            {tasks.length === 0 ? (
+            <div className="mb-4 flex justify-end">
+              <button
+                onClick={() => setAddingTask((v) => !v)}
+                className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+              >
+                {addingTask ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                {addingTask ? "Cancel" : "Add task"}
+              </button>
+            </div>
+
+            {addingTask && (
+              <div className="mb-4 rounded-xl border border-[#063b32]/20 bg-[#f7f4ea] p-4">
+                <div className="flex gap-2 flex-wrap">
+                  <input
+                    type="text"
+                    value={taskForm.title}
+                    onChange={(e) => setTaskForm((f) => ({ ...f, title: e.target.value }))}
+                    onKeyDown={(e) => e.key === "Enter" && saveTask()}
+                    placeholder="Task title…"
+                    autoFocus
+                    className="flex-1 min-w-48 rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                  <select
+                    value={taskForm.priority}
+                    onChange={(e) => setTaskForm((f) => ({ ...f, priority: e.target.value }))}
+                    className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  >
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                  <input
+                    type="date"
+                    value={taskForm.due_date}
+                    onChange={(e) => setTaskForm((f) => ({ ...f, due_date: e.target.value }))}
+                    className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                  <button
+                    onClick={saveTask}
+                    disabled={savingTask || !taskForm.title.trim()}
+                    className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60"
+                  >
+                    <Check className="h-3.5 w-3.5" /> Save
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {tasks.length === 0 && !addingTask ? (
               <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No tasks.</div>
             ) : (
               <div className="space-y-2">
