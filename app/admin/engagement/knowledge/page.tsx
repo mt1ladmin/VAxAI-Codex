@@ -138,31 +138,44 @@ export default function KnowledgePage() {
                   <p className="text-sm text-[#6f6b62]">No pain points found.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                  {painPoints.map((pp) => (
-                    <Link
-                      key={pp.id}
-                      href={`/admin/engagement/pain-points/${pp.id}`}
-                      className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">{pp.category}</p>
-                          <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">{pp.title}</p>
-                          {pp.plain_english_definition && (
-                            <p className="mt-1 text-sm text-[#6f6b62] line-clamp-2">{pp.plain_english_definition}</p>
-                          )}
-                        </div>
-                        <ArrowRight className="h-4 w-4 shrink-0 mt-1 text-[#6f6b62] group-hover:text-[#063b32]" />
-                      </div>
-                      {pp.risk_sensitivity && pp.risk_sensitivity !== "Standard" && (
-                        <div className="mt-3">
-                          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${BADGE_COLORS[pp.risk_sensitivity] || "bg-gray-100 text-gray-600"}`}>
-                            {pp.risk_sensitivity}
+                <div className="space-y-3">
+                  {Object.entries(
+                    painPoints.reduce<Record<string, PainPoint[]>>((acc, pp) => {
+                      (acc[pp.category] ??= []).push(pp);
+                      return acc;
+                    }, {})
+                  ).map(([cat, items]) => (
+                    <div key={cat} className="rounded-xl border border-[#111111]/10 overflow-hidden">
+                      <div className="flex w-full items-center justify-between px-5 py-4 bg-[#f7f4ea]">
+                        <span className="font-semibold text-[#111111] text-sm">{cat}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-full bg-[#111111]/10 px-2 py-0.5 text-xs font-semibold text-[#6f6b62]">
+                            {items.length}
                           </span>
                         </div>
-                      )}
-                    </Link>
+                      </div>
+                      <div className="bg-white divide-y divide-[#111111]/5">
+                        {items.map((pp) => (
+                          <Link
+                            key={pp.id}
+                            href={`/admin/engagement/pain-points/${pp.id}`}
+                            className="flex items-start justify-between px-5 py-4 hover:bg-[#f7f4ea] transition-colors group"
+                          >
+                            <div className="min-w-0">
+                              <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">
+                                {pp.title}
+                              </p>
+                              {pp.plain_english_definition && (
+                                <p className="mt-0.5 text-sm text-[#6f6b62] line-clamp-1">
+                                  {pp.plain_english_definition}
+                                </p>
+                              )}
+                            </div>
+                            <ArrowRight className="h-4 w-4 shrink-0 mt-1 text-[#6f6b62] group-hover:text-[#063b32] transition-colors" />
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               )
@@ -170,30 +183,33 @@ export default function KnowledgePage() {
 
             {/* SECTORS */}
             {tab === "sectors" && (
-              sectors.length === 0 ? (
-                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No sectors found.</div>
-              ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {sectors.map((s) => (
-                    <Link
-                      key={s.id}
-                      href={`/admin/engagement/knowledge/sectors/${s.id}`}
-                      className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group"
-                    >
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">{s.name}</p>
-                        <ArrowRight className="h-4 w-4 shrink-0 text-[#6f6b62] group-hover:text-[#063b32]" />
-                      </div>
-                      {s.description && <p className="text-sm text-[#6f6b62] line-clamp-2">{s.description}</p>}
-                      {s.common_admin_pressures && s.common_admin_pressures.length > 0 && (
-                        <p className="mt-3 text-xs text-[#6f6b62]">
-                          {s.common_admin_pressures.slice(0, 2).join(" · ")}
-                        </p>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              )
+              (() => {
+                const uniqueSectors = sectors.filter((s, i, a) => a.findIndex((t) => t.id === s.id) === i);
+                return uniqueSectors.length === 0 ? (
+                  <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No sectors found.</div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {uniqueSectors.map((s) => (
+                      <Link
+                        key={s.id}
+                        href={`/admin/engagement/knowledge/sectors/${s.id}`}
+                        className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">{s.name}</p>
+                          <ArrowRight className="h-4 w-4 shrink-0 text-[#6f6b62] group-hover:text-[#063b32]" />
+                        </div>
+                        {s.description && <p className="text-sm text-[#6f6b62] line-clamp-2">{s.description}</p>}
+                        {s.common_admin_pressures && s.common_admin_pressures.length > 0 && (
+                          <p className="mt-3 text-xs text-[#6f6b62]">
+                            {s.common_admin_pressures.slice(0, 2).join(" · ")}
+                          </p>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                );
+              })()
             )}
 
             {/* PERSONAS */}
