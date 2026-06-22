@@ -68,6 +68,7 @@ export default function EnquiryDetailPage() {
   const [linkedContact, setLinkedContact] = useState<EngagementContact | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
   const [editingNextAction, setEditingNextAction] = useState(false);
   const [nextAction, setNextAction] = useState("");
   const [nextActionDate, setNextActionDate] = useState("");
@@ -142,16 +143,25 @@ export default function EnquiryDetailPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
-    const j = await res.json() as { data: Enquiry };
+    const j = await res.json() as { data?: Enquiry; error?: string; hint?: string };
+    if (!res.ok) {
+      throw new Error(j.hint ? `${j.error}\n\n${j.hint}` : (j.error || "Failed to save enquiry"));
+    }
     if (j.data) setEnquiry(j.data);
     return j.data;
   };
 
   const updateStatus = async (status: string) => {
-    if (!enquiry) return;
+    if (!enquiry || status === enquiry.status) return;
     setUpdatingStatus(true);
-    await patchEnquiry({ status, last_action_date: new Date().toISOString() } as Partial<Enquiry>);
-    setUpdatingStatus(false);
+    setStatusError(null);
+    try {
+      await patchEnquiry({ status });
+    } catch (e) {
+      setStatusError(e instanceof Error ? e.message : "Failed to update status");
+    } finally {
+      setUpdatingStatus(false);
+    }
   };
 
   const saveNextAction = async () => {
@@ -514,6 +524,9 @@ export default function EnquiryDetailPage() {
           <div className="rounded-xl border border-[#111111]/10 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Status</p>
             <StatusSelect value={enquiry.status} onChange={(status) => void updateStatus(status)} loading={updatingStatus} />
+            {statusError && (
+              <p className="mt-2 text-xs text-red-600 whitespace-pre-wrap">{statusError}</p>
+            )}
           </div>
         </div>
 

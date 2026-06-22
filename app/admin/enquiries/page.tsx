@@ -93,11 +93,16 @@ export default function EnquiriesPage() {
 
   const updateStatus = async (id: string, status: string) => {
     setStatusMenuId(null);
-    await fetch(`/api/admin/enquiries/${id}`, {
+    const res = await fetch(`/api/admin/enquiries/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+    if (!res.ok) {
+      const j = await res.json() as { error?: string; hint?: string };
+      window.alert(j.hint ? `${j.error}\n\n${j.hint}` : (j.error || "Failed to update status"));
+      return;
+    }
     void fetch_();
   };
 

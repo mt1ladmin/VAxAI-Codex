@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSessionClient, createServiceClient } from "@/lib/supabase";
+import { PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
+
+const VALID_STATUSES = new Set<string>(PROSPECT_QUEUE_STATUSES);
 
 async function assertAuth() {
   const supabase = await createSessionClient();
@@ -43,7 +46,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     };
 
     const updates: Record<string, unknown> = {};
-    if (body.status !== undefined) updates.status = body.status;
+    if (body.status !== undefined) {
+      if (!VALID_STATUSES.has(body.status)) {
+        return NextResponse.json({ error: `Invalid status: ${body.status}` }, { status: 400 });
+      }
+      updates.status = body.status;
+      updates.last_action = `Status changed to ${body.status}`;
+      updates.last_action_date = new Date().toISOString();
+    }
     if (body.next_action !== undefined) updates.next_action = body.next_action;
     if (body.next_action_date !== undefined) updates.next_action_date = body.next_action_date;
     if (body.admin_notes !== undefined) updates.admin_notes = body.admin_notes;
@@ -61,7 +71,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .eq("id", id)
       .select("*, posts(id, title, slug)")
       .single();
-    if (error) throw error;
+    if (error) {
+      const hint = error.message.includes("last_action") || error.message.includes("next_action")
+        ? "Run the Supabase migration supabase/migrations/20260622_enquiry_workflow_fields.sql"
+        : error.message.includes("check constraint") || error.message.includes("violates check")
+          ? "Run the Supabase migration supabase/migrations/20260626_enquiry_status_constraint_fix.sql"
+          : undefined;
+      return NextResponse.json({ error: error.message, hint }, { status: 500 });
+    }
     return NextResponse.json({ data });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error";
