@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
+  Briefcase,
   CalendarDays,
   ExternalLink,
   Handshake,
@@ -30,6 +31,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Pipeline & CRM", href: "/admin/engagement/pipeline", icon: Users },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
+      { label: "Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },
   {
