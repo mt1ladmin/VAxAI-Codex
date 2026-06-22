@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
   // Limit the number of items sent to Claude for better results and lower cost/token usage
   const limitedPpList = ppList.split('\n\n').slice(0, 30).join('\n\n');  // top 30 candidates
 
-  const modelToUse = forceSemantic ? "claude-3-5-sonnet-20241022" : "claude-3-haiku-20240307";
+  const modelToUse = forceSemantic ? "claude-sonnet-4-6" : "claude-haiku-4-5-20251001";
 
   try {
     const message = await client.messages.create({

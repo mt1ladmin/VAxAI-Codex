@@ -68,9 +68,11 @@ function LiveCallAssistInner() {
   const [aiMatches, setAiMatches] = useState<AiMatch[]>([]);
   const [aiMatchError, setAiMatchError] = useState<string | null>(null);
   const [structuring, setStructuring] = useState(false);
+  const [structureError, setStructureError] = useState<string | null>(null);
   const [structuredNotes, setStructuredNotes] = useState<StructuredNotes | null>(null);
   const [structuredApproved, setStructuredApproved] = useState<Set<string>>(new Set());
   const [draftingFollowUp, setDraftingFollowUp] = useState(false);
+  const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [followUpDraft, setFollowUpDraft] = useState<{ draft: string; suggested_subject: string } | null>(null);
   const [followUpCopied, setFollowUpCopied] = useState(false);
   const noteRef = useRef<HTMLTextAreaElement>(null);
@@ -218,49 +220,66 @@ function LiveCallAssistInner() {
   const structureNotes = async () => {
     if (!notes.length) return;
     setStructuring(true);
-    const rawNotes = notes.map(n => `[${noteTypeLabel[n.type]}] ${n.text}`).join("\n");
-    const res = await fetch("/api/admin/engagement/ai/structure-notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rawNotes,
-        callContext: {
-          contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : undefined,
-          orgName: selectedOrg?.name,
-          callType,
-          duration: elapsed,
-        },
-      }),
-    });
-    const j = await res.json() as { data: StructuredNotes };
-    if (j.data) {
-      setStructuredNotes(j.data);
-      // Pre-select all sections
-      setStructuredApproved(new Set(Object.keys(j.data)));
+    setStructureError(null);
+    try {
+      const rawNotes = notes.map(n => `[${noteTypeLabel[n.type]}] ${n.text}`).join("\n");
+      const res = await fetch("/api/admin/engagement/ai/structure-notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rawNotes,
+          callContext: {
+            contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : undefined,
+            orgName: selectedOrg?.name,
+            callType,
+            duration: elapsed,
+          },
+        }),
+      });
+      const j = await res.json() as { data?: StructuredNotes; error?: string };
+      if (j.data) {
+        setStructuredNotes(j.data);
+        setStructuredApproved(new Set(Object.keys(j.data)));
+      } else {
+        setStructureError(j.error || "AI structuring failed — please try again.");
+      }
+    } catch {
+      setStructureError("AI structuring failed — check your connection and try again.");
+    } finally {
+      setStructuring(false);
     }
-    setStructuring(false);
   };
 
   const generateFollowUp = async () => {
     setDraftingFollowUp(true);
-    const summary = structuredNotes?.call_summary ||
-      notes.map(n => n.text).join(". ");
-    const nextSteps = structuredNotes?.agreed_next_steps || [];
-    const res = await fetch("/api/admin/engagement/ai/follow-up-draft", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        interactionSummary: summary,
-        nextSteps,
-        contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : undefined,
-        orgName: selectedOrg?.name,
-        callType,
-        channel: "email",
-      }),
-    });
-    const j = await res.json() as { data: { draft: string; suggested_subject: string } };
-    if (j.data) setFollowUpDraft(j.data);
-    setDraftingFollowUp(false);
+    setFollowUpError(null);
+    try {
+      const summary = structuredNotes?.call_summary ||
+        notes.map(n => n.text).join(". ");
+      const nextSteps = structuredNotes?.agreed_next_steps || [];
+      const res = await fetch("/api/admin/engagement/ai/follow-up-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          interactionSummary: summary,
+          nextSteps,
+          contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : undefined,
+          orgName: selectedOrg?.name,
+          callType,
+          channel: "email",
+        }),
+      });
+      const j = await res.json() as { data?: { draft: string; suggested_subject: string }; error?: string };
+      if (j.data) {
+        setFollowUpDraft(j.data);
+      } else {
+        setFollowUpError(j.error || "Failed to generate follow-up — please try again.");
+      }
+    } catch {
+      setFollowUpError("Failed to generate follow-up — check your connection and try again.");
+    } finally {
+      setDraftingFollowUp(false);
+    }
   };
 
   const startCall = () => {
@@ -906,6 +925,13 @@ function LiveCallAssistInner() {
                 )}
               </div>
 
+              {structureError && (
+                <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
+                  {structureError}
+                  <button onClick={() => void structureNotes()} className="ml-2 underline hover:no-underline">Retry</button>
+                </div>
+              )}
+
               {structuredNotes && (
                 <div className="mt-4 space-y-3">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-600">
@@ -974,6 +1000,12 @@ function LiveCallAssistInner() {
                     </button>
                   )}
                 </div>
+                {followUpError && (
+                  <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
+                    {followUpError}
+                    <button onClick={() => void generateFollowUp()} className="ml-2 underline hover:no-underline">Retry</button>
+                  </div>
+                )}
                 {followUpDraft && (
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center justify-between">
