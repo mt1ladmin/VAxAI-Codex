@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     })
     .filter(m => m.score >= 50)
     .sort((a, b) => b.score - a.score)
-    .slice(0, 5) : [];
+    .slice(0, 5);
 
   if (keywordMatches.length > 0 && keywordMatches[0].score > 85) {
     // Strong DB match — no need for AI semantic call (cost + speed win)
