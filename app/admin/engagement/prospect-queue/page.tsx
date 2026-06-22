@@ -330,6 +330,18 @@ export default function ProspectQueuePage() {
     );
   }), [entries, industryFilter, locationFilter, search]);
 
+  const metrics = useMemo(() => {
+    const needsReview = filtered.filter((e) => e.status === "Needs review").length;
+    const withNextAction = filtered.filter((e) => e.next_action).length;
+    const withWarnings = filtered.filter((e) => e.duplicate_warning || e.previous_contact_warning).length;
+    return {
+      total: filtered.length,
+      needsReview,
+      withNextAction,
+      withWarnings,
+    };
+  }, [filtered]);
+
   const handleAdd = async (form: ProspectForm) => {
     setSaving(true);
     setFormError(null);
@@ -512,7 +524,33 @@ export default function ProspectQueuePage() {
         </div>
       )}
 
+      <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Prospect Queue</h1>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">Imported and manually added prospects — review, contact, and convert.</p>
+      </div>
+
       <div className="mx-auto w-full max-w-[1400px] px-6 py-6 lg:px-10">
+        {/* Metrics */}
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{loading ? "—" : metrics.total}</p>
+          </div>
+          <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">Needs review</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{loading ? "—" : metrics.needsReview}</p>
+          </div>
+          <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">With next action</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{loading ? "—" : metrics.withNextAction}</p>
+          </div>
+          <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-orange-700">With warnings</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-orange-800">{loading ? "—" : metrics.withWarnings}</p>
+          </div>
+        </div>
+
         {/* Toolbar */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[12rem] flex-1">

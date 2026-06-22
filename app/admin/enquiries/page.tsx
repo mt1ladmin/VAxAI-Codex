@@ -41,6 +41,8 @@ type Enquiry = {
   last_action_date: string | null;
 };
 
+type TriFilter = "all" | "yes" | "no";
+
 function SectionLabel({ children }: { children: ReactNode }) {
   return (
     <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
@@ -64,13 +66,26 @@ export default function EnquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [nextActionFilter, setNextActionFilter] = useState<TriFilter>("all");
+  const [discoveryCallFilter, setDiscoveryCallFilter] = useState<TriFilter>("all");
+  const [opportunityFilter, setOpportunityFilter] = useState<TriFilter>("all");
+  const [enquiryIdsWithOpportunity, setEnquiryIdsWithOpportunity] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
 
   const fetch_ = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/admin/enquiries?status=${statusFilter}`);
-    const json = await res.json() as { data: Enquiry[] };
+    const [enquiryRes, oppRes] = await Promise.all([
+      fetch(`/api/admin/enquiries?status=${statusFilter}`),
+      fetch("/api/admin/engagement/opportunities?limit=500"),
+    ]);
+    const json = await enquiryRes.json() as { data: Enquiry[] };
+    const oppJson = await oppRes.json() as { data?: Array<{ enquiry_id?: string | null }> };
+    const oppIds = new Set<string>();
+    for (const opp of oppJson.data || []) {
+      if (opp.enquiry_id) oppIds.add(opp.enquiry_id);
+    }
+    setEnquiryIdsWithOpportunity(oppIds);
     setEnquiries(json.data ?? []);
     setSelected(new Set());
     setLoading(false);
@@ -79,6 +94,14 @@ export default function EnquiriesPage() {
   useEffect(() => { void fetch_(); }, [fetch_]);
 
   const filtered = useMemo(() => enquiries.filter((e) => {
+    if (nextActionFilter === "yes" && !e.next_action) return false;
+    if (nextActionFilter === "no" && e.next_action) return false;
+    if (discoveryCallFilter === "yes" && !e.wants_discovery_call) return false;
+    if (discoveryCallFilter === "no" && e.wants_discovery_call) return false;
+    const hasOpportunity = enquiryIdsWithOpportunity.has(e.id);
+    if (opportunityFilter === "yes" && !hasOpportunity) return false;
+    if (opportunityFilter === "no" && hasOpportunity) return false;
+
     if (!search) return true;
     const q = search.toLowerCase();
     return (
@@ -89,7 +112,13 @@ export default function EnquiriesPage() {
       (e.next_action || "").toLowerCase().includes(q) ||
       (e.last_action || "").toLowerCase().includes(q)
     );
-  }), [enquiries, search]);
+  }), [enquiries, search, nextActionFilter, discoveryCallFilter, opportunityFilter, enquiryIdsWithOpportunity]);
+
+  const hasActiveFilters =
+    nextActionFilter !== "all" ||
+    discoveryCallFilter !== "all" ||
+    opportunityFilter !== "all" ||
+    search.trim().length > 0;
 
   const metrics = useMemo(() => {
     const needsReview = filtered.filter((e) =>
@@ -181,6 +210,24 @@ export default function EnquiriesPage() {
 
         {/* Toolbar */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="relative min-w-[12rem] flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search enquiries…"
+              className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-[#063b32]"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6f6b62] hover:text-[#111111]"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -191,15 +238,47 @@ export default function EnquiriesPage() {
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <div className="relative min-w-[200px] flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search enquiries…"
-              className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
-            />
-          </div>
+          <select
+            value={nextActionFilter}
+            onChange={(e) => setNextActionFilter(e.target.value as TriFilter)}
+            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
+          >
+            <option value="all">Next action: all</option>
+            <option value="yes">With next action</option>
+            <option value="no">No next action</option>
+          </select>
+          <select
+            value={discoveryCallFilter}
+            onChange={(e) => setDiscoveryCallFilter(e.target.value as TriFilter)}
+            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
+          >
+            <option value="all">Discovery call: all</option>
+            <option value="yes">Discovery call requested</option>
+            <option value="no">No discovery call</option>
+          </select>
+          <select
+            value={opportunityFilter}
+            onChange={(e) => setOpportunityFilter(e.target.value as TriFilter)}
+            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
+          >
+            <option value="all">Opportunity: all</option>
+            <option value="yes">Has opportunity</option>
+            <option value="no">No opportunity</option>
+          </select>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch("");
+                setNextActionFilter("all");
+                setDiscoveryCallFilter("all");
+                setOpportunityFilter("all");
+              }}
+              className="text-xs font-medium text-[#063b32] hover:underline"
+            >
+              Clear filters
+            </button>
+          )}
           {selected.size > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-[#6f6b62]">{selected.size} selected</span>

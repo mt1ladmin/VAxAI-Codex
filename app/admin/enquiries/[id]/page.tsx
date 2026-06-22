@@ -721,8 +721,8 @@ export default function EnquiryDetailPage() {
                     </Link>
                   ))}
                   {linkedPreps.map((prep) => (
-                    <div key={prep.id} className="flex gap-3 rounded-lg border border-emerald-200 bg-emerald-50/40 px-4 py-3">
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                    <div key={prep.id} className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
                       <div>
                         <p className="text-sm font-semibold text-[#111111]">Prospect prep linked</p>
                         <p className="text-sm text-[#111111]">{prep.name}</p>
@@ -800,20 +800,20 @@ export default function EnquiryDetailPage() {
                   {linkedPreps.map((prep) => {
                     const expanded = !!expandedPrepCards[prep.id];
                     return (
-                      <div key={prep.id} className="rounded-xl border border-emerald-200 bg-emerald-50/50 overflow-hidden">
+                      <div key={prep.id} className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
                         <button
                           type="button"
                           onClick={() => togglePrepCard(prep.id)}
-                          className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-emerald-50"
+                          className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-[#f7f4ea]/50"
                         >
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
-                            {prep.sourceLabel && <p className="text-[10px] text-emerald-600">{prep.sourceLabel}</p>}
+                            {prep.sourceLabel && <p className="text-[10px] text-[#6f6b62]">{prep.sourceLabel}</p>}
                           </div>
-                          <ChevronDown className={`h-4 w-4 shrink-0 text-emerald-700 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expanded ? "rotate-180" : ""}`} />
                         </button>
                         {expanded && (
-                          <div className="border-t border-emerald-200 px-4 py-3 space-y-2">
+                          <div className="border-t border-[#111111]/10 bg-[#f7f4ea]/30 px-4 py-3 space-y-2">
                             <PrepKnowledgeSummary
                               sector={prep.sector}
                               persona={prep.persona}
