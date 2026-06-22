@@ -22,6 +22,8 @@ import {
   X,
   Zap,
 } from "lucide-react";
+import { CallAssistChat } from "@/components/admin/CallAssistChat";
+import type { ProspectCallContext } from "@/lib/engagement/call-context";
 import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } from "@/lib/engagement/types";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import { CallRecordsContent } from "./call-records-content";
@@ -67,23 +69,7 @@ type QueuePrepCard = {
 
 type QueueCustomCard = { id: string; title: string; content: string };
 
-type ProspectCallContext = {
-  queueId: string;
-  orgName: string;
-  contactName: string | null;
-  email: string | null;
-  phone: string | null;
-  website: string | null;
-  industry: string | null;
-  location: string | null;
-  linkedin: string | null;
-  notes: string | null;
-  nextAction: string | null;
-  nextActionDate: string | null;
-  aiPrepCards: QueuePrepCard[];
-  prospectPreps: ProspectPrepClient[];
-  customCards: QueueCustomCard[];
-};
+// ProspectCallContext imported from lib/engagement/call-context
 
 function ProspectContextSections({
   context,
@@ -293,7 +279,15 @@ function LiveCallAssistInner() {
     const ctxRaw = sessionStorage.getItem("prospectCallContext");
     if (ctxRaw) {
       try {
-        const ctx = JSON.parse(ctxRaw) as ProspectCallContext;
+        const raw = JSON.parse(ctxRaw) as ProspectCallContext & { sourceType?: string; sourceId?: string };
+        const ctx: ProspectCallContext = {
+          ...raw,
+          sourceType: raw.sourceType || "queue",
+          sourceId: raw.sourceId || raw.queueId || "unknown",
+          aiPrepCards: raw.aiPrepCards || [],
+          prospectPreps: raw.prospectPreps || [],
+          customCards: raw.customCards || [],
+        };
         setQueueContext(ctx);
         const expanded: Record<string, boolean> = { prospect: true };
         ctx.aiPrepCards?.forEach((c) => { expanded[c.id] = true; });
@@ -627,6 +621,20 @@ function LiveCallAssistInner() {
         }),
       });
       const saved = await res.json() as { data?: { id: string } };
+
+      if (queueContext?.enquiryId) {
+        await fetch(`/api/admin/enquiries/${queueContext.enquiryId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "Contacted",
+            last_action: `Call completed (${elapsed})`,
+            last_action_date: new Date().toISOString(),
+            contact_id: selectedContact?.id || queueContext.contactId || null,
+            organisation_id: selectedOrg?.id || queueContext.organisationId || null,
+          }),
+        });
+      }
 
       // Submit any kept live drafts to knowledge library for review
       const keptDrafts = liveDrafts.filter(d => d.kept);
@@ -1215,146 +1223,25 @@ function LiveCallAssistInner() {
             </div>
           </div>
 
-          {/* Right: guidance */}
-          <div className="w-72 shrink-0 border-l border-[#111111]/10 overflow-y-auto p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Guidance</p>
-            {guidanceError ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                <p className="text-xs font-semibold text-red-700 mb-1">Guidance error</p>
-                <p className="text-[10px] text-red-600">{guidanceError}</p>
-                <button
-                  onClick={() => painPointSearch.trim() && void generateQuickGuidance(painPointSearch.trim())}
-                  className="mt-2 text-[10px] text-red-700 underline hover:no-underline"
-                >
-                  Retry
-                </button>
-              </div>
-            ) : generatingGuidance ? (
-              <div className="rounded-lg border border-violet-200 bg-violet-50 p-4 text-center">
-                <Loader2 className="mx-auto h-5 w-5 animate-spin text-violet-500 mb-2" />
-                <p className="text-xs font-semibold text-violet-700">Generating live guidance…</p>
-                <p className="text-[10px] text-violet-500 mt-1">AI is researching now</p>
-              </div>
-            ) : activeLiveDraft ? (
-              <div className="space-y-3">
-                <div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Sparkles className="h-3.5 w-3.5 text-violet-600" />
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-600">New — not in library</p>
-                  </div>
-                  <p className="text-xs font-semibold text-[#111111] mb-1">{activeLiveDraft.guidance.title}</p>
-                  <p className="text-[10px] text-violet-600 italic">Phrase: &ldquo;{activeLiveDraft.phrase}&rdquo;</p>
-                </div>
-
-                {activeLiveDraft.guidance.natural_questions?.length > 0 && (
-                  <div className="rounded-lg bg-[#f5f274]/20 border border-[#f5f274] p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">Ask now</p>
-                    {activeLiveDraft.guidance.natural_questions.slice(0, 3).map((q, i) => (
-                      <p key={i} className="text-sm text-[#111111] mb-1.5 last:mb-0">&ldquo;{q}&rdquo;</p>
-                    ))}
-                  </div>
-                )}
-
-                {activeLiveDraft.guidance.what_this_means?.length > 0 && (
-                  <div className="rounded-lg border border-[#111111]/10 bg-white p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">What this likely means</p>
-                    {activeLiveDraft.guidance.what_this_means.map((m, i) => (
-                      <p key={i} className="text-xs text-[#111111] mb-1 last:mb-0">· {m}</p>
-                    ))}
-                  </div>
-                )}
-
-                {activeLiveDraft.guidance.what_not_assume?.[0] && (
-                  <div className="flex items-start gap-2 rounded bg-amber-50 border border-amber-200 p-2">
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 mt-0.5" />
-                    <p className="text-xs text-amber-700">{activeLiveDraft.guidance.what_not_assume[0]}</p>
-                  </div>
-                )}
-
-                {activeLiveDraft.guidance.possible_support?.length > 0 && (
-                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-700 mb-1">Possible VAxAI support</p>
-                    {activeLiveDraft.guidance.possible_support.map((s, i) => (
-                      <p key={i} className="text-xs text-emerald-800 mb-1 last:mb-0">· {s}</p>
-                    ))}
-                  </div>
-                )}
-
-                <div className="pt-1 border-t border-violet-200">
-                  <p className="text-[10px] text-violet-500 mb-2">Add to knowledge library after this call?</p>
-                  <button
-                    onClick={() => {
-                      setLiveDrafts(prev => prev.map(d => d.id === activeLiveDraft.id ? { ...d, kept: !d.kept } : d));
-                      setActiveLiveDraft(prev => prev ? { ...prev, kept: !prev.kept } : null);
-                    }}
-                    className={`w-full rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
-                      activeLiveDraft.kept
-                        ? "border-violet-400 bg-violet-600 text-white"
-                        : "border-violet-200 text-violet-700 hover:bg-violet-100"
-                    }`}
-                  >
-                    {activeLiveDraft.kept ? "✓ Marked to save to library" : "Save to knowledge library after call"}
-                  </button>
-                </div>
-              </div>
-            ) : activePainPoint ? (
-              <div className="space-y-4">
-                <div className="rounded-lg bg-[#f5f274]/20 border border-[#f5f274] p-3">
-                  <p className="text-xs font-semibold text-[#111111] mb-1">{activePainPoint.title}</p>
-                  {activePainPoint.natural_questions?.[0] && (
-                    <div className="mb-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">
-                        Natural next question
-                      </p>
-                      <p className="text-sm text-[#111111]">&ldquo;{activePainPoint.natural_questions[0]}&rdquo;</p>
-                    </div>
-                  )}
-                  {activePainPoint.what_not_assume?.[0] && (
-                    <div className="mt-2 flex items-start gap-2 rounded bg-amber-50 border border-amber-200 p-2">
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 mt-0.5" />
-                      <p className="text-xs text-amber-700">{activePainPoint.what_not_assume[0]}</p>
-                    </div>
-                  )}
-                </div>
-
-                {vatPrompts.slice(0, 3).map((v) => (
-                  <div key={v.id} className={`rounded-lg border p-3 text-xs ${
-                    v.dimension === "value" ? "border-emerald-200 bg-emerald-50" :
-                    v.dimension === "alignment" ? "border-blue-200 bg-blue-50" :
-                    "border-amber-200 bg-amber-50"
-                  }`}>
-                    <p className={`mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] ${
-                      v.dimension === "value" ? "text-emerald-700" :
-                      v.dimension === "alignment" ? "text-blue-700" : "text-amber-700"
-                    }`}>
-                      VAT — {v.dimension}
-                    </p>
-                    <p className={
-                      v.dimension === "value" ? "text-emerald-800" :
-                      v.dimension === "alignment" ? "text-blue-800" : "text-amber-800"
-                    }>
-                      {v.prompt}
-                    </p>
-                  </div>
-                ))}
-
-                {activePainPoint.recommendation_pathways?.[0] && (
-                  <div className="rounded-lg border border-[#111111]/10 bg-white p-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">
-                      Possible next step
-                    </p>
-                    <p className="text-xs text-[#111111]">{activePainPoint.recommendation_pathways[0]}</p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Target className="mx-auto h-8 w-8 text-[#6f6b62]/30 mb-2" />
-                <p className="text-xs text-[#6f6b62]">
-                  Search and add a pain point to see guidance here
-                </p>
-              </div>
-            )}
+          {/* Right: AI call assistant */}
+          <div className="w-96 shrink-0 border-l border-[#111111]/10 bg-white flex flex-col min-h-0">
+            <CallAssistChat
+              callContext={queueContext}
+              callType={callType}
+              orgName={selectedOrg?.name || queueContext?.orgName}
+              contactName={
+                selectedContact
+                  ? `${selectedContact.first_name} ${selectedContact.last_name || ""}`
+                  : queueContext?.contactName || undefined
+              }
+              recentNotes={notes.slice(-5).map((n) => n.text)}
+              onAddNote={(text) => {
+                setNotes((prev) => [
+                  ...prev,
+                  { id: crypto.randomUUID(), text: `[AI assist] ${text}`, timestamp: new Date(), type: "note" },
+                ]);
+              }}
+            />
           </div>
         </div>
       )}

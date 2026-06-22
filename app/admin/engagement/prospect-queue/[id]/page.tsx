@@ -22,39 +22,8 @@ import {
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import type { ProspectQueueEntry } from "@/lib/engagement/types";
 import { PROSPECT_QUEUE_STATUS_COLORS } from "@/lib/engagement/types";
+import type { CustomCard, PrepCard, ProspectCallContext } from "@/lib/engagement/call-context";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
-
-type PrepCard = {
-  id: string;
-  what_we_know: string[];
-  to_confirm: string[];
-  previous_engagement_summary: string;
-  sector_considerations: string[];
-  pain_points_to_explore: Array<{ title: string; why: string; caution: string }>;
-  discovery_questions: string[];
-  suggested_opening: string;
-  key_cautions: string[];
-};
-
-type CustomCard = { id: string; title: string; content: string };
-
-type ProspectCallContext = {
-  queueId: string;
-  orgName: string;
-  contactName: string | null;
-  email: string | null;
-  phone: string | null;
-  website: string | null;
-  industry: string | null;
-  location: string | null;
-  linkedin: string | null;
-  notes: string | null;
-  nextAction: string | null;
-  nextActionDate: string | null;
-  aiPrepCards: PrepCard[];
-  prospectPreps: ProspectPrepClient[];
-  customCards: CustomCard[];
-};
 
 function gmailComposeUrl(email: string) {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
@@ -229,6 +198,10 @@ export default function ProspectDetailPage() {
       ? `${entry.contact.first_name} ${entry.contact.last_name || ""}`.trim()
       : entry.raw_contact_name || null;
     return {
+      sourceType: "queue",
+      sourceId: entry.id,
+      contactId: entry.contact_id,
+      organisationId: entry.organisation_id,
       queueId: entry.id,
       orgName,
       contactName,

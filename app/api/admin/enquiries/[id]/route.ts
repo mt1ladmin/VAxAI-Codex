@@ -36,15 +36,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       admin_notes?: string | null;
       last_action?: string | null;
       last_action_date?: string | null;
+      contact_id?: string | null;
+      organisation_id?: string | null;
+      sector_snapshot?: Record<string, unknown> | null;
+      persona_snapshot?: Record<string, unknown> | null;
     };
 
-    const updates: Record<string, string | null> = {};
+    const updates: Record<string, unknown> = {};
     if (body.status !== undefined) updates.status = body.status;
     if (body.next_action !== undefined) updates.next_action = body.next_action;
     if (body.next_action_date !== undefined) updates.next_action_date = body.next_action_date;
     if (body.admin_notes !== undefined) updates.admin_notes = body.admin_notes;
     if (body.last_action !== undefined) updates.last_action = body.last_action;
     if (body.last_action_date !== undefined) updates.last_action_date = body.last_action_date;
+    if (body.contact_id !== undefined) updates.contact_id = body.contact_id;
+    if (body.organisation_id !== undefined) updates.organisation_id = body.organisation_id;
+    if (body.sector_snapshot !== undefined) updates.sector_snapshot = body.sector_snapshot;
+    if (body.persona_snapshot !== undefined) updates.persona_snapshot = body.persona_snapshot;
 
     const db = createServiceClient();
     const { data, error } = await db

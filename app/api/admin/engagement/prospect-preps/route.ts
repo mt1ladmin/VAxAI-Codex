@@ -6,12 +6,19 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);
   const limit = parseInt(searchParams.get("limit") || "50", 10);
+  const enquiryId = searchParams.get("enquiry_id");
+  const contactId = searchParams.get("contact_id");
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("engagement_prospect_preps")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(limit);
+
+  if (enquiryId) query = query.eq("enquiry_id", enquiryId);
+  if (contactId) query = query.eq("contact_id", contactId);
+
+  const { data, error } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -35,6 +42,14 @@ export async function POST(req: NextRequest) {
       keywords: body.keywords || [],
     },
     body.name || "Prospect Prep",
+    {
+      enquiryId: body.enquiryId,
+      contactId: body.contactId,
+      organisationId: body.organisationId,
+      queueId: body.queueId,
+      sourceType: body.sourceType,
+      sourceLabel: body.sourceLabel,
+    },
   );
 
   const { data: duplicate, error: dupError } = await supabase

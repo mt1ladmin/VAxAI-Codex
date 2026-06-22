@@ -929,6 +929,11 @@ function ProspectPrepPageInner() {
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 flex-wrap">
                                     <p className="text-sm font-semibold text-[#111111]">{p.name}</p>
+                                    {p.sourceLabel && (
+                                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+                                        {p.sourceLabel}
+                                      </span>
+                                    )}
                                     {p.sector && (
                                       <span className="rounded-full bg-[#063b32]/10 px-2 py-0.5 text-[10px] font-semibold text-[#063b32]">
                                         {p.sector.name}
