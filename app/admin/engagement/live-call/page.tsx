@@ -36,6 +36,7 @@ export default function LiveCallAssist() {
   const [selectedContact, setSelectedContact] = useState<EngagementContact | null>(null);
   const [notes, setNotes] = useState<CallNote[]>([]);
   const [noteText, setNoteText] = useState("");
+  const [noteType, setNoteType] = useState<CallNote["type"]>("note");
   const [painPointSearch, setPainPointSearch] = useState("");
   const [painPoints, setPainPoints] = useState<PainPoint[]>([]);
   const [selectedPainPoints, setSelectedPainPoints] = useState<PainPoint[]>([]);
@@ -426,12 +427,24 @@ export default function LiveCallAssist() {
               )}
             </div>
 
-            {/* Note type chips */}
-            <div className="flex gap-2 mb-4 flex-wrap">
-              {(["note","pain_point","commitment","question"] as CallNote["type"][]).map((type) => (
-                <span key={type} className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${noteTypeColor[type]}`}>
+            {/* Note type selector */}
+            <div className="flex gap-2 mb-3 flex-wrap">
+              {(["note", "commitment", "question"] as CallNote["type"][]).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setNoteType(type)}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors ${
+                    noteType === type
+                      ? type === "commitment"
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : type === "question"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-[#063b32] text-white border-[#063b32]"
+                      : noteTypeColor[type]
+                  }`}
+                >
                   {noteTypeLabel[type]}
-                </span>
+                </button>
               ))}
             </div>
 
@@ -441,20 +454,24 @@ export default function LiveCallAssist() {
                 ref={noteRef}
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(); }}}
-                placeholder="Type a note, quote or commitment… (Enter to save)"
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(noteType); }}}
+                placeholder="Type a note… (Enter to save)"
                 rows={3}
-                className="w-full rounded-lg border border-[#111111]/15 bg-white p-3 text-sm outline-none focus:border-[#063b32] resize-none"
+                className={`w-full rounded-lg border p-3 text-sm outline-none resize-none transition-colors ${
+                  noteType === "commitment"
+                    ? "border-emerald-200 focus:border-emerald-400 bg-emerald-50/40"
+                    : noteType === "question"
+                    ? "border-blue-200 focus:border-blue-400 bg-blue-50/40"
+                    : "border-[#111111]/15 focus:border-[#063b32] bg-white"
+                }`}
               />
-              <div className="mt-2 flex gap-2">
-                <button onClick={() => addNote("note")} className="rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]">
-                  + Note
-                </button>
-                <button onClick={() => addNote("commitment")} className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100">
-                  + Commitment
-                </button>
-                <button onClick={() => addNote("question")} className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">
-                  + Question
+              <div className="mt-2 flex justify-end">
+                <button
+                  onClick={() => addNote(noteType)}
+                  disabled={!noteText.trim()}
+                  className="rounded-md bg-[#063b32] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
+                >
+                  Add {noteTypeLabel[noteType].toLowerCase()}
                 </button>
               </div>
             </div>

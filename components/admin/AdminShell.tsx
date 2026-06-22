@@ -187,7 +187,7 @@ export default function AdminShell({
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto bg-white">{children}</main>
     </div>
   );
 }
