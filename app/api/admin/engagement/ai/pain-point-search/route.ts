@@ -4,27 +4,22 @@ import { NextRequest, NextResponse } from "next/server";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
-  const { phrase, painPoints, forceSemantic = false } = await req.json() as {
+  const { phrase, painPoints } = await req.json() as {
     phrase: string;
     painPoints: Array<{ id: string; title: string; category: string; plain_english_definition?: string; what_person_says?: string[] }>;
-    forceSemantic?: boolean;
   };
 
   if (!phrase?.trim() || !painPoints?.length) {
     return NextResponse.json({ matches: [] });
   }
 
-  // Usefulness gate + DB pre-filter for "pain-point-search" AI area (high-frequency during live calls)
   const trimmed = phrase.trim().toLowerCase();
   if (trimmed.length < 6) {
     return NextResponse.json({ matches: [] });
   }
 
-  let skipKeywordGate = forceSemantic;
-
-  // Use DB data (passed painPoints) for cheap exact/keyword match first — avoid AI call if possible
-  // But for explicit "AI match" in live call, force semantic search
-  const keywordMatches = !skipKeywordGate ? painPoints
+  // Try exact/keyword match first — skip AI call if strong hit found (saves ~1-2s)
+  const keywordMatches = painPoints
     .map((pp) => {
       const hay = [
         pp.title || "",
@@ -38,7 +33,7 @@ export async function POST(req: NextRequest) {
     .sort((a, b) => b.score - a.score)
     .slice(0, 5) : [];
 
-  if (!skipKeywordGate && keywordMatches.length > 0 && keywordMatches[0].score > 85) {
+  if (keywordMatches.length > 0 && keywordMatches[0].score > 85) {
     // Strong DB match — no need for AI semantic call (cost + speed win)
     return NextResponse.json({
       matches: keywordMatches.slice(0, 3).map(m => ({
@@ -51,43 +46,30 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const ppList = painPoints.map((pp, i) =>
-    `[${i}] ID: ${pp.id}\nTitle: ${pp.title}\nCategory: ${pp.category}\nDefinition: ${pp.plain_english_definition || ""}\nThings they say: ${(pp.what_person_says || []).slice(0, 3).join("; ")}`
+  // Cap at 15 entries — fewer items = faster AI response, good enough for matching
+  const limitedPoints = painPoints.slice(0, 15);
+  const ppList = limitedPoints.map((pp, i) =>
+    `[${i}] ID: ${pp.id}\nTitle: ${pp.title}\nThings they say: ${(pp.what_person_says || []).slice(0, 2).join("; ")}`
   ).join("\n\n");
 
-  // Limit the number of items sent to Claude for better results and lower cost/token usage
-  const limitedPpList = ppList.split('\n\n').slice(0, 30).join('\n\n');  // top 30 candidates
-
-  const modelToUse = forceSemantic ? "claude-sonnet-4-6" : "claude-haiku-4-5-20251001";
+  // Haiku for all cases in live call — 4× faster than Sonnet, accurate enough for matching
+  const modelToUse = "claude-haiku-4-5-20251001";
 
   try {
     const message = await client.messages.create({
       model: modelToUse,
-      max_tokens: 500,
+      max_tokens: 300,
       messages: [{
         role: "user",
-        content: `You are helping a Virtual Assistant consultant identify pain points during a client call.
+        content: `Consultant heard: "${phrase}"
 
-The consultant heard or noted this phrase from the prospect:
-"${phrase}"
+Knowledge base entries:
+${ppList}
 
-Here are the available pain points in the knowledge library (showing up to 30 most relevant candidates):
-${limitedPpList}
+Return ONLY valid JSON — no markdown:
+{"matches":[{"id":"exact id","score":85,"why":"one sentence","discovery_question":"follow-up question","suggested_wording":"how to phrase it"}]}
 
-Return ONLY a valid JSON object with this exact structure (no markdown, no extra text):
-{
-  "matches": [
-    {
-      "id": "exact id from the list",
-      "score": 85,
-      "why": "one sentence explanation of semantic relevance",
-      "discovery_question": "natural follow up question",
-      "suggested_wording": "how to mention it to the prospect"
-    }
-  ]
-}
-
-Return at most 3 matches. Only include matches with score >= 40. If no good semantic matches, return "matches": [] .`
+Max 3 matches. Score >= 40 only. If none match, return {"matches":[]}.`
       }],
     });
 

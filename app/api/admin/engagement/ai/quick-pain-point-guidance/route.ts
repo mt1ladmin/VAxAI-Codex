@@ -10,46 +10,30 @@ export async function POST(req: NextRequest) {
     callType?: string;
   };
 
-  if (!phrase?.trim() || phrase.trim().length < 8) {
+  if (!phrase?.trim() || phrase.trim().length < 6) {
     return NextResponse.json({ error: "Phrase too short" }, { status: 400 });
   }
 
-  // Haiku for speed — consultant is on a live call and needs this NOW.
-  // Prompt is tight and output is capped so response should come in under 5 seconds.
-  const stream = client.messages.stream({
+  // Non-streaming + Haiku + tight token cap = fastest possible response (~1-2s).
+  // Consultant is on a live call and needs this NOW.
+  const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 600,
+    max_tokens: 300,
     messages: [{
       role: "user",
-      content: `A Virtual Assistant consultant is on a live call. The prospect just said or implied something that isn't in the knowledge base:
+      content: `Live call. Prospect said: "${phrase}"${orgContext ? ` [${orgContext}]` : ""}${callType ? ` [${callType} call]` : ""}
 
-"${phrase}"
-
-${orgContext ? `Organisation context: ${orgContext}` : ""}
-${callType ? `Call type: ${callType}` : ""}
-
-Generate INSTANT practical guidance the consultant can use RIGHT NOW — what questions to ask, what this likely means, what NOT to assume.
-
-Return ONLY valid JSON (no markdown):
-{
-  "title": "Short name for this issue (max 6 words)",
-  "what_this_means": ["what this likely means operationally", "second interpretation if relevant"],
-  "natural_questions": ["Follow-up question to ask now", "Second natural question", "Third question"],
-  "what_not_assume": ["Important caution — do not assume this"],
-  "possible_support": ["How VAxAI/VA support might help here"]
-}`
+Return ONLY valid JSON, no markdown:
+{"title":"short name (max 5 words)","what_this_means":["likely operational meaning"],"natural_questions":["ask now","ask next","third question"],"what_not_assume":["do not assume this"],"possible_support":["how VA/AI could help"]}`
     }],
   });
 
-  const finalMessage = await stream.finalMessage();
-  const text = finalMessage.content.find(b => b.type === "text") as { type: string; text: string } | undefined;
-
-  if (!text?.text) return NextResponse.json({ error: "No content generated" }, { status: 500 });
+  const text = (message.content[0] as { type: string; text: string }).text;
 
   try {
-    const data = JSON.parse(text.text.match(/\{[\s\S]*\}/)?.[0] || "{}");
+    const data = JSON.parse(text.match(/\{[\s\S]*\}/)?.[0] || "{}");
     return NextResponse.json({ data });
   } catch {
-    return NextResponse.json({ error: "Failed to parse response" }, { status: 500 });
+    return NextResponse.json({ error: "Parse error" }, { status: 500 });
   }
 }

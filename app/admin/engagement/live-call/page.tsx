@@ -213,9 +213,14 @@ function LiveCallAssistInner() {
     setAiSearching(true);
     setAiMatches([]);
     setAiMatchError(null);
+
+    // Fire quick guidance IMMEDIATELY in parallel — don't wait for pain-point-search.
+    // It manages its own state (generatingGuidance, activeLiveDraft) independently.
+    void generateQuickGuidance(painPointSearch);
+
     try {
-      // Fetch a broad set of pain points to search across
-      const res = await fetch(`/api/admin/engagement/pain-points?limit=100`);
+      // Fetch a limited set — 20 is plenty for AI matching and faster to process
+      const res = await fetch(`/api/admin/engagement/pain-points?limit=20`);
       const j = await res.json() as { data: PainPoint[] };
       const allPainPoints = j.data || [];
       const searchRes = await fetch("/api/admin/engagement/ai/pain-point-search", {
@@ -228,13 +233,12 @@ function LiveCallAssistInner() {
             plain_english_definition: pp.plain_english_definition,
             what_person_says: pp.what_person_says,
           })),
-          forceSemantic: true,  // Explicitly request AI semantic matching for the "AI match" button
         }),
       });
       if (!searchRes.ok) {
         const errText = await searchRes.text();
         console.error("AI match API error", errText);
-        setAiMatchError("AI search failed (see console for details)");
+        setAiMatchError("Knowledge base search failed");
         setAiMatches([]);
         return;
       }
@@ -245,12 +249,11 @@ function LiveCallAssistInner() {
       }));
       setAiMatches(matches);
       if (matches.length === 0) {
-        setAiMatchError("No match in knowledge base — generating live guidance…");
-        void generateQuickGuidance(painPointSearch);
+        setAiMatchError("No match in knowledge base — see guidance panel →");
       }
     } catch (e) {
       console.error("AI match failed", e);
-      setAiMatchError("AI match failed. Check Vercel logs or console.");
+      setAiMatchError("AI match failed.");
       setAiMatches([]);
     } finally {
       setAiSearching(false);
