@@ -6,14 +6,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   Building2,
-  Calendar,
-  GripVertical,
+  CheckSquare,
+  ChevronDown,
   LayoutGrid,
   List,
   Plus,
-  User,
+  SlidersHorizontal,
 } from "lucide-react";
-import { OPPORTUNITY_STAGES, STAGE_COLORS, type EngagementOpportunity } from "@/lib/engagement/types";
+import { OPPORTUNITY_STAGES, STAGE_COLORS, type EngagementOpportunity, type EngagementTask } from "@/lib/engagement/types";
 import { InsightsContent } from "../insights-content";
 
 type Tab = "insights" | "pipeline";
@@ -22,27 +22,22 @@ const ACTIVE_STAGES = OPPORTUNITY_STAGES.filter(
   (s) => !["Won", "Onboarding", "Active client", "Lost", "Not suitable"].includes(s),
 );
 const CLOSED_WON = ["Won", "Onboarding", "Active client"];
-const CLOSED_OTHER = ["Lost", "Not suitable", "Paused", "Nurture"];
+const CLOSED_OTHER = ["Lost", "Not suitable"];
 
-const STAGE_ACCENT: Record<string, string> = {
-  Identified: "bg-gray-400",
-  Researching: "bg-blue-500",
-  "Ready to contact": "bg-indigo-500",
-  Contacted: "bg-violet-500",
-  "Response received": "bg-purple-500",
-  "Discovery booked": "bg-amber-500",
-  "Discovery completed": "bg-yellow-500",
-  "Workflow review proposed": "bg-orange-500",
-  "Proposal sent": "bg-cyan-500",
-  "Decision pending": "bg-teal-500",
-  Won: "bg-[#063b32]",
-  Onboarding: "bg-emerald-500",
-  "Active client": "bg-green-500",
-  Nurture: "bg-sky-500",
-  Paused: "bg-slate-400",
-  Lost: "bg-red-400",
-  "Not suitable": "bg-gray-400",
+type BoardColumn = {
+  id: string;
+  label: string;
+  stages: string[];
+  dropStage: string;
 };
+
+const BOARD_COLUMNS: BoardColumn[] = [
+  ...ACTIVE_STAGES.map((s) => ({ id: s, label: s, stages: [s], dropStage: s })),
+  { id: "won", label: "Won / Clients", stages: CLOSED_WON, dropStage: "Won" },
+  { id: "closed", label: "Closed / Other", stages: CLOSED_OTHER, dropStage: "Lost" },
+];
+
+const FILTERABLE_STAGES = [...ACTIVE_STAGES, ...CLOSED_WON, ...CLOSED_OTHER];
 
 function formatValue(opp: EngagementOpportunity): string | null {
   if (!opp.indicative_value_low && !opp.indicative_value_high) return null;
@@ -56,26 +51,20 @@ function stageValue(items: EngagementOpportunity[]): number {
   return items.reduce((sum, o) => sum + (o.indicative_value_high ?? o.indicative_value_low ?? 0), 0);
 }
 
-function contactLabel(opp: EngagementOpportunity): string | null {
-  if (!opp.primary_contact) return null;
-  return `${opp.primary_contact.first_name} ${opp.primary_contact.last_name ?? ""}`.trim();
-}
-
 function OppCard({
   opp,
+  taskCount,
   draggedId,
   onDragStart,
   onDragEnd,
-  variant = "default",
 }: {
   opp: EngagementOpportunity;
+  taskCount: number;
   draggedId: string | null;
   onDragStart: () => void;
   onDragEnd: () => void;
-  variant?: "default" | "won";
 }) {
   const value = formatValue(opp);
-  const contact = contactLabel(opp);
   const isDragging = draggedId === opp.id;
 
   return (
@@ -83,63 +72,22 @@ function OppCard({
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className={`group/card transition-all ${isDragging ? "opacity-40 scale-[0.98]" : ""}`}
+      className={`transition-all ${isDragging ? "opacity-50" : ""}`}
     >
       <Link
         href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
-        className="block rounded-lg border border-[#111111]/8 bg-white p-3 shadow-sm hover:border-[#063b32]/25 hover:shadow-md transition-all"
+        className="block cursor-grab active:cursor-grabbing rounded-xl border border-[#111111]/10 bg-white p-3.5 hover:border-[#063b32]/30 hover:shadow-sm transition-all active:cursor-grabbing"
         onClick={(e) => { if (draggedId) e.preventDefault(); }}
       >
-        <div className="flex items-start gap-2">
-          <GripVertical className="h-4 w-4 shrink-0 mt-0.5 text-[#6f6b62]/25 group-hover/card:text-[#6f6b62]/50 cursor-grab active:cursor-grabbing" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-[#111111] leading-snug line-clamp-2">{opp.title}</p>
-
-            {opp.organisation && (
-              <p className="mt-1.5 flex items-center gap-1 text-xs text-[#6f6b62]">
-                <Building2 className="h-3 w-3 shrink-0" />
-                <span className="truncate">{opp.organisation.name}</span>
-              </p>
-            )}
-
-            {contact && (
-              <p className="mt-1 flex items-center gap-1 text-xs text-[#6f6b62]">
-                <User className="h-3 w-3 shrink-0" />
-                <span className="truncate">{contact}</span>
-              </p>
-            )}
-
-            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-              {value && (
-                <span className="rounded-md bg-[#063b32]/8 px-2 py-0.5 text-[10px] font-semibold text-[#063b32]">
-                  {value}
-                </span>
-              )}
-              {opp.probability != null && (
-                <span className="rounded-md bg-[#f7f4ea] px-2 py-0.5 text-[10px] font-semibold text-[#6f6b62]">
-                  {opp.probability}%
-                </span>
-              )}
-              {variant === "won" && (
-                <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage]}`}>
-                  {opp.stage}
-                </span>
-              )}
-            </div>
-
-            {opp.next_action && (
-              <div className="mt-2.5 rounded-md bg-[#f7f4ea]/80 px-2 py-1.5 border border-[#111111]/5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Next</p>
-                <p className="text-[11px] text-[#111111] line-clamp-2 leading-snug">{opp.next_action}</p>
-                {opp.expected_decision_date && (
-                  <p className="mt-0.5 flex items-center gap-1 text-[10px] text-[#6f6b62]">
-                    <Calendar className="h-2.5 w-2.5" />
-                    {new Date(opp.expected_decision_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+        <p className="text-sm font-semibold text-[#111111] leading-snug line-clamp-2">{opp.title}</p>
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#111111]/8 pt-2.5">
+          <span className="inline-flex items-center gap-1 text-xs text-[#6f6b62]">
+            <CheckSquare className="h-3.5 w-3.5 shrink-0" />
+            {taskCount} {taskCount === 1 ? "task" : "tasks"}
+          </span>
+          <span className="text-xs font-semibold text-[#063b32] tabular-nums">
+            {value ?? "—"}
+          </span>
         </div>
       </Link>
     </div>
@@ -147,9 +95,9 @@ function OppCard({
 }
 
 function KanbanColumn({
-  stage,
-  label,
+  column,
   items,
+  taskCounts,
   draggedId,
   dragOverStage,
   onDragStart,
@@ -157,11 +105,10 @@ function KanbanColumn({
   onDragOver,
   onDragLeave,
   onDrop,
-  accentClass,
 }: {
-  stage: string;
-  label?: string;
+  column: BoardColumn;
   items: EngagementOpportunity[];
+  taskCounts: Record<string, number>;
   draggedId: string | null;
   dragOverStage: string | null;
   onDragStart: (id: string) => void;
@@ -169,59 +116,132 @@ function KanbanColumn({
   onDragOver: (e: DragEvent) => void;
   onDragLeave: (e: DragEvent) => void;
   onDrop: (e: DragEvent) => void;
-  accentClass?: string;
 }) {
-  const isOver = dragOverStage === stage;
+  const isOver = dragOverStage === column.dropStage;
   const total = stageValue(items);
-  const displayLabel = label ?? stage;
+  const stageBadge = column.stages.length === 1 ? column.stages[0] : null;
 
   return (
     <div
-      className={`flex w-72 shrink-0 flex-col rounded-xl transition-all ${
-        isOver ? "ring-2 ring-[#063b32]/30 ring-offset-2" : ""
+      className={`flex w-[272px] shrink-0 flex-col rounded-xl border border-[#111111]/10 bg-white overflow-hidden transition-shadow ${
+        isOver ? "shadow-md ring-1 ring-[#063b32]/20" : ""
       }`}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      <div className="rounded-t-xl border border-b-0 border-[#111111]/10 bg-[#ebe8df] px-3 py-2.5">
-        <div className="flex items-center gap-2">
-          <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${accentClass ?? STAGE_ACCENT[stage] ?? "bg-gray-400"}`} />
-          <h3 className="flex-1 text-xs font-semibold text-[#111111] leading-tight">{displayLabel}</h3>
-          <span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-bold text-[#6f6b62] tabular-nums">
+      <div className="border-b border-[#111111]/10 bg-[#f7f4ea] px-3.5 py-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            {stageBadge ? (
+              <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[stageBadge] || "bg-gray-100 text-gray-600"}`}>
+                {column.label}
+              </span>
+            ) : (
+              <h3 className="text-xs font-semibold text-[#111111] leading-snug">{column.label}</h3>
+            )}
+            {total > 0 && (
+              <p className="mt-1 text-[10px] font-medium text-[#6f6b62]">
+                £{total.toLocaleString()}
+              </p>
+            )}
+          </div>
+          <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-[#6f6b62] tabular-nums shrink-0">
             {items.length}
           </span>
         </div>
-        {total > 0 && (
-          <p className="mt-1 pl-5 text-[10px] font-medium text-[#6f6b62]">
-            £{total.toLocaleString()} pipeline
-          </p>
-        )}
       </div>
 
       <div
-        className={`flex-1 min-h-[120px] max-h-[calc(100vh-240px)] overflow-y-auto rounded-b-xl border border-[#111111]/10 bg-[#f4f1e8]/70 px-2 py-2 space-y-2 transition-colors ${
-          isOver ? "bg-[#063b32]/5" : ""
+        className={`min-h-[96px] max-h-[calc(100vh-300px)] overflow-y-auto p-2 space-y-2 transition-colors ${
+          isOver ? "bg-[#063b32]/5" : "bg-white"
         }`}
       >
         {items.map((opp) => (
           <OppCard
             key={opp.id}
             opp={opp}
+            taskCount={taskCounts[opp.id] ?? 0}
             draggedId={draggedId}
             onDragStart={() => onDragStart(opp.id)}
             onDragEnd={onDragEnd}
-            variant={CLOSED_WON.includes(opp.stage) ? "won" : "default"}
           />
         ))}
         {items.length === 0 && (
           <div
-            className={`flex min-h-[80px] items-center justify-center rounded-lg border border-dashed px-3 py-6 text-center text-xs transition-colors ${
-              isOver ? "border-[#063b32]/40 bg-[#063b32]/5 text-[#063b32]" : "border-[#111111]/12 text-[#6f6b62]/60"
+            className={`flex min-h-[72px] items-center justify-center rounded-xl border border-dashed px-3 py-5 text-center text-[11px] transition-colors ${
+              isOver ? "border-[#063b32]/30 text-[#063b32]" : "border-[#111111]/10 text-[#6f6b62]/50"
             }`}
           >
-            {isOver ? "Drop here" : "No cards"}
+            {isOver ? "Drop here" : "Empty"}
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StageFilterBar({
+  selected,
+  onToggle,
+  onClear,
+}: {
+  selected: Set<string>;
+  onToggle: (stage: string) => void;
+  onClear: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const isFiltering = selected.size > 0;
+
+  return (
+    <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-[#6f6b62] shrink-0">
+          <SlidersHorizontal className="h-3.5 w-3.5" />
+          Stage
+        </div>
+        <button
+          type="button"
+          onClick={onClear}
+          className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+            !isFiltering
+              ? "bg-[#063b32] text-white"
+              : "border border-[#111111]/15 text-[#6f6b62] hover:bg-[#f7f4ea]"
+          }`}
+        >
+          All
+        </button>
+        {(expanded ? FILTERABLE_STAGES : FILTERABLE_STAGES.slice(0, 6)).map((stage) => {
+          const active = selected.has(stage);
+          return (
+            <button
+              key={stage}
+              type="button"
+              onClick={() => onToggle(stage)}
+              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+                active
+                  ? "bg-[#063b32] text-white"
+                  : "border border-[#111111]/12 bg-white text-[#6f6b62] hover:border-[#063b32]/25 hover:text-[#111111]"
+              }`}
+            >
+              {stage}
+            </button>
+          );
+        })}
+        {FILTERABLE_STAGES.length > 6 && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="inline-flex items-center gap-1 rounded-full border border-[#111111]/15 px-3 py-1 text-[11px] font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+          >
+            {expanded ? "Fewer" : "More"}
+            <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </button>
+        )}
+        {isFiltering && (
+          <span className="text-[11px] text-[#6f6b62]">
+            {selected.size} selected
+          </span>
         )}
       </div>
     </div>
@@ -233,8 +253,10 @@ function PipelinePageInner() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("insights");
   const [opps, setOpps] = useState<EngagementOpportunity[]>([]);
+  const [taskCounts, setTaskCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"kanban" | "list">("kanban");
+  const [stageFilter, setStageFilter] = useState<Set<string>>(new Set());
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverStage, setDragOverStage] = useState<string | null>(null);
 
@@ -255,15 +277,52 @@ function PipelinePageInner() {
       return;
     }
     setLoading(true);
-    const res = await fetch("/api/admin/engagement/opportunities?limit=200");
-    const json = await res.json() as { data: EngagementOpportunity[] };
-    setOpps(json.data || []);
+    const [oppsRes, tasksRes] = await Promise.all([
+      fetch("/api/admin/engagement/opportunities?limit=200"),
+      fetch("/api/admin/engagement/tasks?limit=500"),
+    ]);
+    const [oppsJson, tasksJson] = await Promise.all([
+      oppsRes.json() as Promise<{ data: EngagementOpportunity[] }>,
+      tasksRes.json() as Promise<{ data: EngagementTask[] }>,
+    ]);
+    setOpps(oppsJson.data || []);
+    const counts: Record<string, number> = {};
+    for (const task of tasksJson.data || []) {
+      if (task.opportunity_id) {
+        counts[task.opportunity_id] = (counts[task.opportunity_id] ?? 0) + 1;
+      }
+    }
+    setTaskCounts(counts);
     setLoading(false);
   }, [tab]);
 
   useEffect(() => { void load(); }, [load]);
 
-  const byStage = (stage: string) => opps.filter((o) => o.stage === stage);
+  const toggleStageFilter = (stage: string) => {
+    setStageFilter((prev) => {
+      const next = new Set(prev);
+      if (next.has(stage)) next.delete(stage);
+      else next.add(stage);
+      return next;
+    });
+  };
+
+  const visibleColumns = useMemo(() => {
+    const hasWon = opps.some((o) => CLOSED_WON.includes(o.stage));
+    const hasClosed = opps.some((o) => CLOSED_OTHER.includes(o.stage));
+    return BOARD_COLUMNS.filter((col) => {
+      if (col.id === "won" && !hasWon) return false;
+      if (col.id === "closed" && !hasClosed) return false;
+      if (stageFilter.size === 0) return true;
+      return col.stages.some((s) => stageFilter.has(s));
+    });
+  }, [opps, stageFilter]);
+
+  const itemsForColumn = (col: BoardColumn) => {
+    let items = opps.filter((o) => col.stages.includes(o.stage));
+    if (stageFilter.size > 0) items = items.filter((o) => stageFilter.has(o.stage));
+    return items;
+  };
 
   const stats = useMemo(() => {
     const open = opps.filter((o) => !["Lost", "Not suitable", "Won", "Onboarding", "Active client"].includes(o.stage));
@@ -381,58 +440,57 @@ function PipelinePageInner() {
           </div>
 
           {loading ? (
-            <div className="flex flex-1 gap-4 overflow-hidden px-8 py-6">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="w-72 shrink-0 space-y-2">
-                  <div className="h-14 rounded-xl bg-[#ebe8df] animate-pulse" />
-                  <div className="h-24 rounded-lg bg-white/60 animate-pulse" />
-                  <div className="h-24 rounded-lg bg-white/60 animate-pulse" />
-                </div>
-              ))}
-            </div>
-          ) : view === "kanban" ? (
-            <div className="flex-1 overflow-x-auto px-8 py-5">
-              <div className="flex gap-3 min-w-max pb-2 items-start">
-                {ACTIVE_STAGES.map((stage) => (
-                  <KanbanColumn
-                    key={stage}
-                    stage={stage}
-                    items={byStage(stage)}
-                    draggedId={draggedId}
-                    dragOverStage={dragOverStage}
-                    onDragStart={setDraggedId}
-                    onDragEnd={() => { setDraggedId(null); setDragOverStage(null); }}
-                    {...columnHandlers(stage)}
-                  />
+            view === "kanban" ? (
+              <div className="flex flex-1 gap-3 overflow-hidden bg-white px-8 py-5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="w-[272px] shrink-0 space-y-2">
+                    <div className="h-14 rounded-xl border border-[#111111]/10 bg-[#f7f4ea] animate-pulse" />
+                    <div className="h-[72px] rounded-xl border border-[#111111]/10 bg-white animate-pulse" />
+                    <div className="h-[72px] rounded-xl border border-[#111111]/10 bg-white animate-pulse" />
+                  </div>
                 ))}
-
-                <KanbanColumn
-                  stage="Won"
-                  label="Won / Clients"
-                  items={opps.filter((o) => CLOSED_WON.includes(o.stage))}
-                  draggedId={draggedId}
-                  dragOverStage={dragOverStage}
-                  onDragStart={setDraggedId}
-                  onDragEnd={() => { setDraggedId(null); setDragOverStage(null); }}
-                  accentClass="bg-[#063b32]"
-                  {...columnHandlers("Won")}
-                />
-
-                {CLOSED_OTHER.some((s) => byStage(s).length > 0) && (
-                  <KanbanColumn
-                    stage="Lost"
-                    label="Closed / Other"
-                    items={opps.filter((o) => CLOSED_OTHER.includes(o.stage))}
-                    draggedId={draggedId}
-                    dragOverStage={dragOverStage}
-                    onDragStart={setDraggedId}
-                    onDragEnd={() => { setDraggedId(null); setDragOverStage(null); }}
-                    accentClass="bg-gray-400"
-                    {...columnHandlers("Lost")}
-                  />
+              </div>
+            ) : (
+              <div className="py-20 text-center text-sm text-[#6f6b62]">Loading…</div>
+            )
+          ) : view === "kanban" ? (
+            <>
+              <StageFilterBar
+                selected={stageFilter}
+                onToggle={toggleStageFilter}
+                onClear={() => setStageFilter(new Set())}
+              />
+              <div className="flex-1 overflow-x-auto bg-white px-8 py-5">
+                {visibleColumns.length === 0 ? (
+                  <div className="rounded-xl border border-[#111111]/10 py-16 text-center">
+                    <p className="text-sm font-semibold text-[#111111]">No stages match your filter</p>
+                    <button
+                      type="button"
+                      onClick={() => setStageFilter(new Set())}
+                      className="mt-3 text-sm font-semibold text-[#063b32] hover:underline"
+                    >
+                      Clear filter
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-3 min-w-max pb-2 items-start">
+                    {visibleColumns.map((col) => (
+                      <KanbanColumn
+                        key={col.id}
+                        column={col}
+                        items={itemsForColumn(col)}
+                        taskCounts={taskCounts}
+                        draggedId={draggedId}
+                        dragOverStage={dragOverStage}
+                        onDragStart={setDraggedId}
+                        onDragEnd={() => { setDraggedId(null); setDragOverStage(null); }}
+                        {...columnHandlers(col.dropStage)}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
-            </div>
+            </>
           ) : (
             <div className="flex-1 px-8 py-5">
               <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden shadow-sm">
