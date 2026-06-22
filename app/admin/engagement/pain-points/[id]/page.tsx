@@ -21,7 +21,10 @@ import {
 } from "lucide-react";
 import type { PainPoint, VatPrompt } from "@/lib/engagement/types";
 
-type PainPointDetail = PainPoint & { vat_prompts?: VatPrompt[]; synonyms?: { id: string; phrase: string }[] };
+type PainPointDetail = Omit<PainPoint, "synonyms"> & {
+  vat_prompts?: VatPrompt[];
+  synonyms?: { id: string; phrase: string }[];
+};
 
 export default function PainPointDetailPage() {
   const { id } = useParams<{ id: string }>();
