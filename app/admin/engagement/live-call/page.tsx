@@ -26,6 +26,14 @@ import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } 
 type CallNote = { id: string; text: string; timestamp: Date; type: "note" | "pain_point" | "commitment" | "question" };
 type CallState = "pre" | "active" | "post";
 type AiMatch = { id: string; score: number; why: string; discovery_question: string; suggested_wording: string; pain_point?: PainPoint };
+type QuickGuidance = {
+  title: string;
+  what_this_means: string[];
+  natural_questions: string[];
+  what_not_assume: string[];
+  possible_support: string[];
+};
+type LiveDraft = { id: string; phrase: string; guidance: QuickGuidance; kept: boolean };
 type StructuredNotes = {
   call_summary: string;
   confirmed_pain_points: string[];
@@ -71,10 +79,16 @@ function LiveCallAssistInner() {
   const [structureError, setStructureError] = useState<string | null>(null);
   const [structuredNotes, setStructuredNotes] = useState<StructuredNotes | null>(null);
   const [structuredApproved, setStructuredApproved] = useState<Set<string>>(new Set());
+  const [rawNotesSnapshot, setRawNotesSnapshot] = useState<string | null>(null);
+  const [editingSummary, setEditingSummary] = useState(false);
+  const [editedSummary, setEditedSummary] = useState("");
   const [draftingFollowUp, setDraftingFollowUp] = useState(false);
   const [followUpError, setFollowUpError] = useState<string | null>(null);
   const [followUpDraft, setFollowUpDraft] = useState<{ draft: string; suggested_subject: string } | null>(null);
   const [followUpCopied, setFollowUpCopied] = useState(false);
+  const [liveDrafts, setLiveDrafts] = useState<LiveDraft[]>([]);
+  const [activeLiveDraft, setActiveLiveDraft] = useState<LiveDraft | null>(null);
+  const [generatingGuidance, setGeneratingGuidance] = useState(false);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
   // Load pain point from URL if coming from navigator
@@ -169,6 +183,31 @@ function LiveCallAssistInner() {
     }]);
   };
 
+  const generateQuickGuidance = async (phrase: string) => {
+    setGeneratingGuidance(true);
+    try {
+      const res = await fetch("/api/admin/engagement/ai/quick-pain-point-guidance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phrase,
+          orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
+          callType,
+        }),
+      });
+      const j = await res.json() as { data?: QuickGuidance };
+      if (j.data) {
+        const draft: LiveDraft = { id: crypto.randomUUID(), phrase, guidance: j.data, kept: false };
+        setLiveDrafts(prev => prev.some(d => d.phrase === phrase) ? prev : [...prev, draft]);
+        setActiveLiveDraft(draft);
+      }
+    } catch (e) {
+      console.error("Quick guidance failed", e);
+    } finally {
+      setGeneratingGuidance(false);
+    }
+  };
+
   const runAiSearch = async () => {
     if (!painPointSearch.trim()) return;
     setAiSearching(true);
@@ -206,7 +245,8 @@ function LiveCallAssistInner() {
       }));
       setAiMatches(matches);
       if (matches.length === 0) {
-        setAiMatchError("No good semantic matches found. Try a different description or use the keyword search.");
+        setAiMatchError("No match in knowledge base — generating live guidance…");
+        void generateQuickGuidance(painPointSearch);
       }
     } catch (e) {
       console.error("AI match failed", e);
@@ -223,6 +263,7 @@ function LiveCallAssistInner() {
     setStructureError(null);
     try {
       const rawNotes = notes.map(n => `[${noteTypeLabel[n.type]}] ${n.text}`).join("\n");
+      setRawNotesSnapshot(rawNotes);
       const res = await fetch("/api/admin/engagement/ai/structure-notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -296,27 +337,63 @@ function LiveCallAssistInner() {
   const saveCallRecord = async () => {
     if (!summaryApproved) return;
     setSaving(true);
-    const fullNotes = notes.map((n) => `[${n.timestamp.toLocaleTimeString()}] ${n.text}`).join("\n");
-    const summary = `Call with ${selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : "unknown contact"} (${callType}). Duration: ${elapsed}. Pain points: ${selectedPainPoints.map((p) => p.title).join(", ") || "none identified"}.`;
+    try {
+      const fullNotes = notes.map((n) => `[${n.timestamp.toLocaleTimeString()}] ${n.text}`).join("\n");
+      const finalSummary = editedSummary ||
+        structuredNotes?.call_summary ||
+        `Call with ${selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : "unknown contact"} (${callType}). Duration: ${elapsed}. Pain points: ${selectedPainPoints.map((p) => p.title).join(", ") || "none identified"}.`;
 
-    await fetch("/api/admin/engagement/interactions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        organisation_id: selectedOrg?.id || null,
-        contact_id: selectedContact?.id || null,
-        interaction_date: callStartTime?.toISOString() || new Date().toISOString(),
-        interaction_type: callType,
-        channel: "phone",
-        direction: "outbound",
-        summary,
-        full_notes: fullNotes,
-        pain_point_ids: selectedPainPoints.map((p) => p.id),
-        outcome: "completed",
-      }),
-    });
-    setSaving(false);
-    router.push("/admin/engagement/pipeline/interactions");
+      const aiData = structuredNotes ? {
+        call_summary: finalSummary,
+        confirmed_pain_points: structuredApproved.has("confirmed_pain_points") ? structuredNotes.confirmed_pain_points : [],
+        possible_pain_points: structuredApproved.has("possible_pain_points") ? structuredNotes.possible_pain_points : [],
+        agreed_next_steps: structuredApproved.has("agreed_next_steps") ? structuredNotes.agreed_next_steps : [],
+        desired_outcomes: structuredApproved.has("desired_outcomes") ? structuredNotes.desired_outcomes : [],
+        follow_up_tasks: structuredApproved.has("follow_up_tasks") ? structuredNotes.follow_up_tasks : [],
+        possible_vaxai_support: structuredApproved.has("possible_vaxai_support") ? structuredNotes.possible_vaxai_support : [],
+        trust_concerns: structuredApproved.has("trust_concerns") ? structuredNotes.trust_concerns : [],
+        follow_up_draft: followUpDraft?.draft || null,
+      } : null;
+
+      const res = await fetch("/api/admin/engagement/interactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          organisation_id: selectedOrg?.id || null,
+          contact_id: selectedContact?.id || null,
+          interaction_date: callStartTime?.toISOString() || new Date().toISOString(),
+          interaction_type: callType,
+          channel: "phone",
+          direction: "outbound",
+          summary: finalSummary,
+          full_notes: fullNotes,
+          pain_point_ids: selectedPainPoints.map((p) => p.id),
+          commitments: structuredNotes?.agreed_next_steps?.join("; ") || null,
+          outcome: "completed",
+          ...(aiData ? { ai_structured_data: aiData } : {}),
+        }),
+      });
+      const saved = await res.json() as { data?: { id: string } };
+
+      // Submit any kept live drafts to knowledge library for review
+      const keptDrafts = liveDrafts.filter(d => d.kept);
+      for (const draft of keptDrafts) {
+        await fetch("/api/admin/engagement/ai/draft-pain-point", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phrase: draft.phrase,
+            orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
+            sourceCallId: saved.data?.id,
+            sourceOrgId: selectedOrg?.id,
+          }),
+        });
+      }
+
+      router.push("/admin/engagement/interactions");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const noteTypeColor: Record<string, string> = {
@@ -512,7 +589,7 @@ function LiveCallAssistInner() {
               </span>
             </div>
             {selectedPainPoints.length > 0 && (
-              <div>
+              <div className="mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">
                   Pain points ({selectedPainPoints.length})
                 </p>
@@ -520,15 +597,38 @@ function LiveCallAssistInner() {
                   {selectedPainPoints.map((pp) => (
                     <button
                       key={pp.id}
-                      onClick={() => loadVatPrompts(pp)}
+                      onClick={() => { loadVatPrompts(pp); setActiveLiveDraft(null); }}
                       className={`w-full text-left rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
-                        activePainPoint?.id === pp.id
+                        activePainPoint?.id === pp.id && !activeLiveDraft
                           ? "border-[#063b32] bg-[#063b32]/10 text-[#063b32]"
                           : "border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300"
                       }`}
                     >
                       <Zap className="inline h-3 w-3 mr-1" />
                       {pp.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {liveDrafts.length > 0 && (
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-500 mb-2">
+                  New this call ({liveDrafts.length})
+                </p>
+                <div className="space-y-1">
+                  {liveDrafts.map((d) => (
+                    <button
+                      key={d.id}
+                      onClick={() => { setActiveLiveDraft(d); setActivePainPoint(null); }}
+                      className={`w-full text-left rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
+                        activeLiveDraft?.id === d.id
+                          ? "border-violet-400 bg-violet-100 text-violet-800"
+                          : "border-violet-200 bg-violet-50 text-violet-700 hover:border-violet-300"
+                      }`}
+                    >
+                      <Sparkles className="inline h-3 w-3 mr-1" />
+                      {d.guidance.title}
                     </button>
                   ))}
                 </div>
@@ -583,37 +683,9 @@ function LiveCallAssistInner() {
 
               {/* AI semantic match results */}
               {aiMatchError && (
-                <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                <div className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded flex items-center gap-2">
+                  {generatingGuidance && <Loader2 className="h-3 w-3 animate-spin shrink-0" />}
                   {aiMatchError}
-                </div>
-              )}
-              {aiMatchError && painPointSearch.trim() && !aiSearching && (
-                <div className="mt-2 px-3 py-2 rounded-lg border border-violet-200 bg-violet-50">
-                  <button
-                    onClick={async () => {
-                      const res = await fetch("/api/admin/engagement/ai/draft-pain-point", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          phrase: painPointSearch,
-                          orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
-                        }),
-                      });
-                      const j = await res.json() as { data?: unknown };
-                      if (j.data) {
-                        setNotes(prev => [...prev, {
-                          id: crypto.randomUUID(),
-                          text: `Draft pain point created for review: "${painPointSearch}"`,
-                          timestamp: new Date(),
-                          type: "note",
-                        }]);
-                        setAiMatches([]);
-                      }
-                    }}
-                    className="text-xs text-violet-700 hover:underline"
-                  >
-                    None match? Create a draft pain point for review →
-                  </button>
                 </div>
               )}
               {aiMatches.length > 0 && (
@@ -768,7 +840,75 @@ function LiveCallAssistInner() {
           {/* Right: guidance */}
           <div className="w-72 shrink-0 border-l border-[#111111]/10 overflow-y-auto p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Guidance</p>
-            {activePainPoint ? (
+            {generatingGuidance && !activeLiveDraft ? (
+              <div className="rounded-lg border border-violet-200 bg-violet-50 p-4 text-center">
+                <Loader2 className="mx-auto h-5 w-5 animate-spin text-violet-500 mb-2" />
+                <p className="text-xs font-semibold text-violet-700">Generating live guidance…</p>
+                <p className="text-[10px] text-violet-500 mt-1">Not in knowledge base — AI is researching now</p>
+              </div>
+            ) : activeLiveDraft ? (
+              <div className="space-y-3">
+                <div className="rounded-lg border border-violet-200 bg-violet-50 p-3">
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Sparkles className="h-3.5 w-3.5 text-violet-600" />
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-600">New — not in library</p>
+                  </div>
+                  <p className="text-xs font-semibold text-[#111111] mb-1">{activeLiveDraft.guidance.title}</p>
+                  <p className="text-[10px] text-violet-600 italic">Phrase: &ldquo;{activeLiveDraft.phrase}&rdquo;</p>
+                </div>
+
+                {activeLiveDraft.guidance.natural_questions?.length > 0 && (
+                  <div className="rounded-lg bg-[#f5f274]/20 border border-[#f5f274] p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">Ask now</p>
+                    {activeLiveDraft.guidance.natural_questions.slice(0, 3).map((q, i) => (
+                      <p key={i} className="text-sm text-[#111111] mb-1.5 last:mb-0">&ldquo;{q}&rdquo;</p>
+                    ))}
+                  </div>
+                )}
+
+                {activeLiveDraft.guidance.what_this_means?.length > 0 && (
+                  <div className="rounded-lg border border-[#111111]/10 bg-white p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">What this likely means</p>
+                    {activeLiveDraft.guidance.what_this_means.map((m, i) => (
+                      <p key={i} className="text-xs text-[#111111] mb-1 last:mb-0">· {m}</p>
+                    ))}
+                  </div>
+                )}
+
+                {activeLiveDraft.guidance.what_not_assume?.[0] && (
+                  <div className="flex items-start gap-2 rounded bg-amber-50 border border-amber-200 p-2">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 mt-0.5" />
+                    <p className="text-xs text-amber-700">{activeLiveDraft.guidance.what_not_assume[0]}</p>
+                  </div>
+                )}
+
+                {activeLiveDraft.guidance.possible_support?.length > 0 && (
+                  <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-700 mb-1">Possible VAxAI support</p>
+                    {activeLiveDraft.guidance.possible_support.map((s, i) => (
+                      <p key={i} className="text-xs text-emerald-800 mb-1 last:mb-0">· {s}</p>
+                    ))}
+                  </div>
+                )}
+
+                <div className="pt-1 border-t border-violet-200">
+                  <p className="text-[10px] text-violet-500 mb-2">Add to knowledge library after this call?</p>
+                  <button
+                    onClick={() => {
+                      setLiveDrafts(prev => prev.map(d => d.id === activeLiveDraft.id ? { ...d, kept: !d.kept } : d));
+                      setActiveLiveDraft(prev => prev ? { ...prev, kept: !prev.kept } : null);
+                    }}
+                    className={`w-full rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      activeLiveDraft.kept
+                        ? "border-violet-400 bg-violet-600 text-white"
+                        : "border-violet-200 text-violet-700 hover:bg-violet-100"
+                    }`}
+                  >
+                    {activeLiveDraft.kept ? "✓ Marked to save to library" : "Save to knowledge library after call"}
+                  </button>
+                </div>
+              </div>
+            ) : activePainPoint ? (
               <div className="space-y-4">
                 <div className="rounded-lg bg-[#f5f274]/20 border border-[#f5f274] p-3">
                   <p className="text-xs font-semibold text-[#111111] mb-1">{activePainPoint.title}</p>
@@ -901,6 +1041,46 @@ function LiveCallAssistInner() {
               </div>
             )}
 
+            {/* Live drafts from this call */}
+            {liveDrafts.length > 0 && (
+              <div className="rounded-xl border border-violet-200 bg-violet-50 p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-4 w-4 text-violet-600" />
+                  <p className="text-sm font-semibold text-violet-800">New pain point insights from this call</p>
+                </div>
+                <p className="text-xs text-violet-700 mb-3">
+                  These phrases came up during the call but weren&apos;t in the knowledge base. Mark which ones to submit for review.
+                </p>
+                <div className="space-y-2">
+                  {liveDrafts.map(draft => (
+                    <div key={draft.id} className="rounded-lg border border-violet-200 bg-white p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-[#111111]">{draft.guidance.title}</p>
+                          <p className="text-[10px] text-[#6f6b62] mt-0.5 italic">&ldquo;{draft.phrase}&rdquo;</p>
+                        </div>
+                        <button
+                          onClick={() => setLiveDrafts(prev => prev.map(d => d.id === draft.id ? { ...d, kept: !d.kept } : d))}
+                          className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold border transition-colors ${
+                            draft.kept
+                              ? "bg-violet-600 border-violet-600 text-white"
+                              : "border-violet-300 text-violet-700 hover:bg-violet-100"
+                          }`}
+                        >
+                          {draft.kept ? "✓ Save to library" : "Save to library"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {liveDrafts.some(d => d.kept) && (
+                  <p className="mt-2 text-[10px] text-violet-600">
+                    Marked drafts will be submitted for human review when you save this call record.
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* AI note structuring */}
             <div className="rounded-xl border border-violet-200 bg-violet-50 p-5">
               <div className="flex items-start justify-between gap-3">
@@ -909,7 +1089,7 @@ function LiveCallAssistInner() {
                   <div>
                     <p className="text-sm font-semibold text-violet-800">Help me structure these notes</p>
                     <p className="mt-0.5 text-xs text-violet-700">
-                      AI will suggest a structured summary for review. Your original notes are always kept.
+                      AI will suggest a structured summary. You can compare with your raw notes and edit the final version.
                     </p>
                   </div>
                 </div>
@@ -934,11 +1114,54 @@ function LiveCallAssistInner() {
 
               {structuredNotes && (
                 <div className="mt-4 space-y-3">
+                  {/* Before/after toggle */}
+                  {rawNotesSnapshot && (
+                    <details className="rounded-lg border border-violet-200 bg-white">
+                      <summary className="cursor-pointer px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] hover:text-[#111111]">
+                        View raw notes (before)
+                      </summary>
+                      <div className="px-3 pb-3 pt-1">
+                        <pre className="whitespace-pre-wrap text-xs text-[#6f6b62] font-sans">{rawNotesSnapshot}</pre>
+                      </div>
+                    </details>
+                  )}
+
                   <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-600">
-                    AI-suggested structure — review and deselect anything inaccurate
+                    AI-structured summary — review, edit, then approve to save
                   </p>
+
+                  {/* Editable call summary */}
+                  <div className="flex items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={structuredApproved.has("call_summary")}
+                      onChange={e => setStructuredApproved(prev => { const n = new Set(prev); if (e.target.checked) n.add("call_summary"); else n.delete("call_summary"); return n; })}
+                      className="mt-1 h-3.5 w-3.5 accent-violet-600 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-violet-700">Call summary</p>
+                        <button
+                          onClick={() => { setEditingSummary(!editingSummary); setEditedSummary(editedSummary || structuredNotes.call_summary); }}
+                          className="text-[10px] text-violet-600 hover:underline"
+                        >
+                          {editingSummary ? "Done editing" : "Edit"}
+                        </button>
+                      </div>
+                      {editingSummary ? (
+                        <textarea
+                          value={editedSummary}
+                          onChange={e => setEditedSummary(e.target.value)}
+                          rows={3}
+                          className="w-full rounded border border-violet-300 bg-white px-2 py-1.5 text-xs outline-none focus:border-violet-500 resize-none"
+                        />
+                      ) : (
+                        <p className="text-xs text-[#111111]">{editedSummary || structuredNotes.call_summary}</p>
+                      )}
+                    </div>
+                  </div>
+
                   {[
-                    { key: "call_summary", label: "Call summary", value: structuredNotes.call_summary },
                     { key: "confirmed_pain_points", label: "Confirmed pain points", value: structuredNotes.confirmed_pain_points },
                     { key: "possible_pain_points", label: "Possible pain points (unconfirmed)", value: structuredNotes.possible_pain_points?.map((p: { topic: string; note: string }) => `${p.topic}: ${p.note}`) },
                     { key: "agreed_next_steps", label: "Agreed next steps", value: structuredNotes.agreed_next_steps },
