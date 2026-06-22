@@ -34,7 +34,7 @@ export default function PipelinePage() {
     if (!draggedId) return;
     const opp = opps.find((o) => o.id === draggedId);
     if (!opp || opp.stage === targetStage) { setDraggedId(null); setDragOverStage(null); return; }
-    setOpps((prev) => prev.map((o) => o.id === draggedId ? { ...o, stage: targetStage } : o));
+    setOpps((prev) => prev.map((o) => o.id === draggedId ? { ...o, stage: targetStage as EngagementOpportunity["stage"] } : o));
     setDraggedId(null);
     setDragOverStage(null);
     await fetch(`/api/admin/engagement/opportunities/${draggedId}`, {
