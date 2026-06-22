@@ -19,6 +19,7 @@ export type ProspectCallContext = {
   sourceType: "enquiry" | "queue" | "contact";
   sourceId: string;
   enquiryId?: string | null;
+  opportunityId?: string | null;
   contactId?: string | null;
   organisationId?: string | null;
   queueId: string;

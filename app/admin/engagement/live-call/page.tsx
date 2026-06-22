@@ -23,7 +23,7 @@ import {
   Zap,
 } from "lucide-react";
 import { CallAssistChat } from "@/components/admin/CallAssistChat";
-import type { ProspectCallContext } from "@/lib/engagement/call-context";
+import type { CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
 import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } from "@/lib/engagement/types";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import { CallRecordsContent } from "./call-records-content";
@@ -259,6 +259,8 @@ function LiveCallAssistInner() {
   const initialPainPointId = searchParams.get("pain_point");
   const initialOrgId = searchParams.get("org");
   const initialContactId = searchParams.get("contact");
+  const initialEnquiryId = searchParams.get("enquiry");
+  const initialOpportunityId = searchParams.get("opportunity") || searchParams.get("opp");
 
   useEffect(() => {
     const urlTab = searchParams.get("tab");
@@ -333,6 +335,78 @@ function LiveCallAssistInner() {
       })
       .catch(() => undefined);
   }, [initialContactId]);
+
+  useEffect(() => {
+    if (!initialEnquiryId || queueContext) return;
+    fetch(`/api/admin/enquiries/${initialEnquiryId}`)
+      .then((r) => r.json())
+      .then((j: { data?: {
+        id: string;
+        name: string;
+        email: string;
+        telephone: string | null;
+        support_type: string;
+        preferred_contact: string;
+        details: string;
+        wants_discovery_call: boolean;
+        admin_notes: string | null;
+        next_action: string | null;
+        next_action_date: string | null;
+        contact_id: string | null;
+        organisation_id: string | null;
+        sector_snapshot: ProspectCallContext["sector"];
+        persona_snapshot: ProspectCallContext["persona"];
+      } }) => {
+        const e = j.data;
+        if (!e) return;
+        const submissionCard: CustomCard = {
+          id: "enquiry-submission",
+          title: "Website submission",
+          content: [
+            `Query type: ${e.support_type}`,
+            `Preferred contact: ${e.preferred_contact || "—"}`,
+            `Discovery call requested: ${e.wants_discovery_call ? "Yes" : "No"}`,
+            "",
+            e.details,
+          ].join("\n"),
+        };
+        const ctx: ProspectCallContext = {
+          sourceType: "enquiry",
+          sourceId: e.id,
+          enquiryId: e.id,
+          contactId: e.contact_id,
+          organisationId: e.organisation_id,
+          queueId: `enquiry-${e.id}`,
+          orgName: e.name,
+          contactName: e.name,
+          email: e.email,
+          phone: e.telephone,
+          website: null,
+          industry: e.sector_snapshot?.name || null,
+          location: null,
+          linkedin: null,
+          notes: e.admin_notes || e.details,
+          nextAction: e.next_action,
+          nextActionDate: e.next_action_date,
+          sector: e.sector_snapshot,
+          persona: e.persona_snapshot,
+          aiPrepCards: [],
+          prospectPreps: [],
+          customCards: [submissionCard],
+        };
+        setQueueContext({
+          ...ctx,
+          opportunityId: initialOpportunityId || ctx.opportunityId || null,
+        });
+        setExpandedContext({ prospect: true, "enquiry-submission": true });
+      })
+      .catch(() => undefined);
+  }, [initialEnquiryId, initialOpportunityId, queueContext]);
+
+  useEffect(() => {
+    if (!initialOpportunityId || queueContext?.opportunityId) return;
+    setQueueContext((prev) => prev ? { ...prev, opportunityId: initialOpportunityId } : prev);
+  }, [initialOpportunityId, queueContext?.opportunityId]);
 
   const loadPrepPicker = async () => {
     setPrepPickerLoading(true);
@@ -606,8 +680,10 @@ function LiveCallAssistInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          organisation_id: selectedOrg?.id || null,
-          contact_id: selectedContact?.id || null,
+          organisation_id: selectedOrg?.id || queueContext?.organisationId || null,
+          contact_id: selectedContact?.id || queueContext?.contactId || null,
+          opportunity_id: queueContext?.opportunityId || initialOpportunityId || null,
+          enquiry_id: queueContext?.enquiryId || initialEnquiryId || null,
           interaction_date: callStartTime?.toISOString() || new Date().toISOString(),
           interaction_type: callType,
           channel: "phone",
@@ -627,7 +703,7 @@ function LiveCallAssistInner() {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            status: "Contacted",
+            status: "Contact attempted",
             last_action: `Call completed (${elapsed})`,
             last_action_date: new Date().toISOString(),
             contact_id: selectedContact?.id || queueContext.contactId || null,

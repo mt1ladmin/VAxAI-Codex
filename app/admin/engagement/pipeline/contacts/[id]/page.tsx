@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Building2, Edit3, Mail, Phone, Save } from "lucide-react";
-import { type EngagementContact, type EngagementInteraction } from "@/lib/engagement/types";
+import { ArrowLeft, Building2, Edit3, Mail, MessageSquare, Phone, Save, Target } from "lucide-react";
+import { type EngagementContact, type EngagementInteraction, type EngagementOpportunity, STAGE_COLORS } from "@/lib/engagement/types";
 
 const inputClass = "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]";
 
@@ -12,6 +12,8 @@ export default function ContactDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [contact, setContact] = useState<EngagementContact | null>(null);
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
+  const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
+  const [linkedEnquiry, setLinkedEnquiry] = useState<{ id: string; name: string; support_type: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<EngagementContact>>({});
@@ -20,17 +22,23 @@ export default function ContactDetailPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [cRes, iRes] = await Promise.all([
+    const [cRes, iRes, oRes, eRes] = await Promise.all([
       fetch(`/api/admin/engagement/contacts/${id}`),
       fetch(`/api/admin/engagement/interactions?contact_id=${id}&limit=30`),
+      fetch(`/api/admin/engagement/opportunities?contact_id=${id}&limit=20`),
+      fetch(`/api/admin/enquiries?contact_id=${id}`),
     ]);
-    const [cData, iData] = await Promise.all([
+    const [cData, iData, oData, eData] = await Promise.all([
       cRes.json() as Promise<{ data: EngagementContact }>,
       iRes.json() as Promise<{ data: EngagementInteraction[] }>,
+      oRes.json() as Promise<{ data: EngagementOpportunity[] }>,
+      eRes.json() as Promise<{ data: Array<{ id: string; name: string; support_type: string }> }>,
     ]);
     setContact(cData.data);
     setForm(cData.data);
     setInteractions(iData.data || []);
+    setOpportunities(oData.data || []);
+    setLinkedEnquiry(eData.data?.[0] || null);
     setLoading(false);
   }, [id]);
 
@@ -167,11 +175,42 @@ export default function ContactDetailPage() {
           )}
         </div>
 
+        {(linkedEnquiry || opportunities.length > 0) && (
+          <div className="mb-6 rounded-xl border border-[#111111]/10 p-6 space-y-4">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected records</h2>
+            {linkedEnquiry && (
+              <Link href={`/admin/enquiries/${linkedEnquiry.id}`} className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 hover:bg-blue-100">
+                <MessageSquare className="h-4 w-4 text-blue-700" />
+                <div>
+                  <p className="text-sm font-semibold text-[#111111]">Website enquiry — {linkedEnquiry.name}</p>
+                  <p className="text-xs text-[#6f6b62]">{linkedEnquiry.support_type}</p>
+                </div>
+              </Link>
+            )}
+            {opportunities.length > 0 && (
+              <div className="space-y-2">
+                {opportunities.map((opp) => (
+                  <Link key={opp.id} href={`/admin/engagement/pipeline/opportunities/${opp.id}`} className="flex items-center justify-between gap-3 rounded-lg border border-[#111111]/10 px-4 py-3 hover:bg-[#f7f4ea]/50">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Target className="h-4 w-4 shrink-0 text-amber-600" />
+                      <span className="text-sm font-semibold text-[#111111] truncate">{opp.title}</span>
+                    </div>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Interactions */}
         <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 bg-[#f7f4ea]">
             <h2 className="text-sm font-semibold text-[#111111]">Interactions ({interactions.length})</h2>
-            <Link href={`/admin/engagement/live-call?contact=${id}`} className="flex items-center gap-1.5 text-xs font-semibold text-[#063b32] hover:underline">
+            <Link
+              href={`/admin/engagement/live-call?contact=${id}${linkedEnquiry ? `&enquiry=${linkedEnquiry.id}` : ""}`}
+              className="flex items-center gap-1.5 text-xs font-semibold text-[#063b32] hover:underline"
+            >
               <Phone className="h-3.5 w-3.5" /> Start call
             </Link>
           </div>
@@ -180,7 +219,7 @@ export default function ContactDetailPage() {
           ) : (
             <div className="divide-y divide-[#111111]/5">
               {interactions.map((i) => (
-                <div key={i.id} className="px-5 py-4">
+                <Link key={i.id} href={`/admin/engagement/interactions/${i.id}`} className="block px-5 py-4 hover:bg-[#f7f4ea]/40">
                   <div className="flex items-center gap-3 mb-1">
                     <span className="text-xs font-semibold text-[#111111] capitalize">{i.interaction_type}</span>
                     <span className="text-xs text-[#6f6b62]">{new Date(i.interaction_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
@@ -188,7 +227,7 @@ export default function ContactDetailPage() {
                   </div>
                   {i.summary && <p className="text-sm text-[#111111]">{i.summary}</p>}
                   {i.commitments && <p className="mt-1 text-xs text-[#6f6b62]">Commitments: {i.commitments}</p>}
-                </div>
+                </Link>
               ))}
             </div>
           )}

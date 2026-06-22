@@ -11,12 +11,14 @@ export async function GET(req: NextRequest) {
   try {
     await assertAuth();
     const status = req.nextUrl.searchParams.get("status");
+    const contactId = req.nextUrl.searchParams.get("contact_id");
     const db = createServiceClient();
     let query = db
       .from("enquiries")
       .select("*, posts(id, title, slug)")
       .order("created_at", { ascending: false });
     if (status && status !== "all") query = query.eq("status", status);
+    if (contactId) query = query.eq("contact_id", contactId);
     const { data, error } = await query;
     if (error) throw error;
     return NextResponse.json({ data });

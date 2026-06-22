@@ -23,6 +23,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const updates: Record<string, unknown> = {};
   if (body.name !== undefined) updates.name = String(body.name).slice(0, 80);
   if (body.prepNotes !== undefined) updates.prep_notes = body.prepNotes || null;
+  if (body.enquiryId !== undefined) updates.enquiry_id = body.enquiryId || null;
+  if (body.contactId !== undefined) updates.contact_id = body.contactId || null;
+  if (body.organisationId !== undefined) updates.organisation_id = body.organisationId || null;
+  if (body.sourceType !== undefined) updates.source_type = body.sourceType || null;
+  if (body.sourceLabel !== undefined) updates.source_label = body.sourceLabel || null;
 
   const { data, error } = await supabase
     .from("engagement_prospect_preps")

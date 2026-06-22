@@ -17,11 +17,12 @@ import {
   Plus,
   Save,
   Sparkles,
-  Trash2,
+  Target,
   User,
   X,
 } from "lucide-react";
 import { CallAssistChat } from "@/components/admin/CallAssistChat";
+import { InteractionList } from "@/components/admin/InteractionList";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import {
@@ -30,7 +31,25 @@ import {
 } from "@/lib/enquiries/constants";
 import type { CustomCard, PrepCard, ProspectCallContext } from "@/lib/engagement/call-context";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
-import type { EngagementContact, Persona, SectorProfile } from "@/lib/engagement/types";
+import type {
+  EngagementContact,
+  EngagementInteraction,
+  EngagementOpportunity,
+  Persona,
+  SectorProfile,
+} from "@/lib/engagement/types";
+import { STAGE_COLORS } from "@/lib/engagement/types";
+
+type HubTab = "overview" | "activity" | "calls" | "preps" | "opportunities" | "notes";
+
+const HUB_TABS: Array<{ id: HubTab; label: string }> = [
+  { id: "overview", label: "Overview" },
+  { id: "activity", label: "Activity" },
+  { id: "calls", label: "Calls" },
+  { id: "preps", label: "Preps" },
+  { id: "opportunities", label: "Opportunities" },
+  { id: "notes", label: "Notes" },
+];
 
 type Enquiry = {
   id: string;
@@ -96,11 +115,63 @@ export default function EnquiryDetailPage() {
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [showCallChat, setShowCallChat] = useState(false);
+  const [activeTab, setActiveTab] = useState<HubTab>("overview");
+  const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
+  const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
+  const [loadingCrm, setLoadingCrm] = useState(false);
+  const [creatingOpp, setCreatingOpp] = useState(false);
+  const [linkingOpp, setLinkingOpp] = useState(false);
+  const [oppPickerOpen, setOppPickerOpen] = useState(false);
+  const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
+  const [oppPickerLoading, setOppPickerLoading] = useState(false);
 
   const loadLinkedPreps = useCallback(async () => {
     const res = await fetch(`/api/admin/engagement/prospect-preps?enquiry_id=${id}&limit=20`);
     const json = await res.json() as { data?: ProspectPrepClient[] };
     setLinkedPreps(json.data || []);
+  }, [id]);
+
+  const loadCrmData = useCallback(async (contactId?: string | null) => {
+    setLoadingCrm(true);
+    const interactionQueries = [
+      fetch(`/api/admin/engagement/interactions?enquiry_id=${id}&limit=50`),
+    ];
+    if (contactId) {
+      interactionQueries.push(
+        fetch(`/api/admin/engagement/interactions?contact_id=${contactId}&limit=50`),
+      );
+    }
+    const oppQueries = [
+      fetch(`/api/admin/engagement/opportunities?enquiry_id=${id}&limit=20`),
+    ];
+    if (contactId) {
+      oppQueries.push(
+        fetch(`/api/admin/engagement/opportunities?contact_id=${contactId}&limit=20`),
+      );
+    }
+    const [interactionResults, oppResults] = await Promise.all([
+      Promise.all(interactionQueries.map((q) => q.then((r) => r.json()))),
+      Promise.all(oppQueries.map((q) => q.then((r) => r.json()))),
+    ]);
+    const allInteractions = new Map<string, EngagementInteraction>();
+    for (const j of interactionResults as Array<{ data?: EngagementInteraction[] }>) {
+      for (const row of j.data || []) allInteractions.set(row.id, row);
+    }
+    const allOpps = new Map<string, EngagementOpportunity>();
+    for (const j of oppResults as Array<{ data?: EngagementOpportunity[] }>) {
+      for (const row of j.data || []) allOpps.set(row.id, row);
+    }
+    setInteractions(
+      [...allInteractions.values()].sort(
+        (a, b) => new Date(b.interaction_date).getTime() - new Date(a.interaction_date).getTime(),
+      ),
+    );
+    setOpportunities(
+      [...allOpps.values()].sort(
+        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+      ),
+    );
+    setLoadingCrm(false);
   }, [id]);
 
   const load = useCallback(async () => {
@@ -122,8 +193,9 @@ export default function EnquiryDetailPage() {
       }
     }
     await loadLinkedPreps();
+    await loadCrmData(j.data?.contact_id);
     setLoading(false);
-  }, [id, loadLinkedPreps]);
+  }, [id, loadLinkedPreps, loadCrmData]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -182,6 +254,7 @@ export default function EnquiryDetailPage() {
       if (j.data) {
         setLinkedContact(j.data.contact);
         setEnquiry(j.data.enquiry);
+        void loadCrmData(j.data.enquiry.contact_id);
       }
     } finally {
       setPromoting(false);
@@ -235,6 +308,7 @@ export default function EnquiryDetailPage() {
     setNoteText("");
     setShowAddNote(false);
     setSavingNote(false);
+    void loadCrmData(enquiry.contact_id);
   };
 
   const loadPrepPicker = async () => {
@@ -249,10 +323,24 @@ export default function EnquiryDetailPage() {
     }
   };
 
-  const addProspectPrep = (prep: ProspectPrepClient) => {
+  const addProspectPrep = async (prep: ProspectPrepClient) => {
     if (prospectPreps.some((p) => p.id === prep.id)) return;
     setProspectPreps((prev) => [...prev, prep]);
     setExpandedCards((prev) => ({ ...prev, [`prep-${prep.id}`]: true }));
+    if (prep.id && !linkedPreps.some((lp) => lp.id === prep.id)) {
+      await fetch(`/api/admin/engagement/prospect-preps/${prep.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enquiryId: id,
+          contactId: enquiry?.contact_id || null,
+          organisationId: enquiry?.organisation_id || null,
+          sourceType: "enquiry",
+          sourceLabel: enquiry ? `Website enquiry — ${enquiry.name}` : "Website enquiry",
+        }),
+      });
+      void loadLinkedPreps();
+    }
   };
 
   const onPrepSaved = (prep: ProspectPrepClient) => {
@@ -292,6 +380,7 @@ export default function EnquiryDetailPage() {
       sourceType: "enquiry",
       sourceId: enquiry.id,
       enquiryId: enquiry.id,
+      opportunityId: opportunities[0]?.id || null,
       contactId: enquiry.contact_id,
       organisationId: enquiry.organisation_id,
       queueId: `enquiry-${enquiry.id}`,
@@ -325,9 +414,69 @@ export default function EnquiryDetailPage() {
       sessionStorage.removeItem("currentProspectPreps");
     }
     const params = new URLSearchParams();
+    params.set("enquiry", enquiry!.id);
     if (enquiry?.contact_id) params.set("contact", enquiry.contact_id);
     if (enquiry?.organisation_id) params.set("org", enquiry.organisation_id);
-    router.push(`/admin/engagement/live-call${params.toString() ? `?${params}` : ""}`);
+    if (opportunities[0]?.id) params.set("opportunity", opportunities[0].id);
+    router.push(`/admin/engagement/live-call?${params}`);
+  };
+
+  const createOpportunity = async () => {
+    if (!enquiry) return;
+    setCreatingOpp(true);
+    try {
+      const res = await fetch("/api/admin/engagement/opportunities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `${enquiry.name} — ${enquiry.support_type}`.slice(0, 120),
+          organisation_id: enquiry.organisation_id,
+          primary_contact_id: enquiry.contact_id,
+          enquiry_id: enquiry.id,
+          stage: "Identified",
+          notes: enquiry.details,
+          next_action: enquiry.next_action,
+        }),
+      });
+      const j = await res.json() as { data?: EngagementOpportunity };
+      if (j.data) {
+        setOpportunities((prev) => [j.data!, ...prev.filter((o) => o.id !== j.data!.id)]);
+        setActiveTab("opportunities");
+      }
+    } finally {
+      setCreatingOpp(false);
+    }
+  };
+
+  const loadOppPicker = async () => {
+    setOppPickerLoading(true);
+    try {
+      const res = await fetch("/api/admin/engagement/opportunities?limit=50");
+      const j = await res.json() as { data?: EngagementOpportunity[] };
+      setOppPickerList((j.data || []).filter((o) => o.enquiry_id !== id));
+      setOppPickerOpen(true);
+    } finally {
+      setOppPickerLoading(false);
+    }
+  };
+
+  const linkOpportunity = async (oppId: string) => {
+    setLinkingOpp(true);
+    try {
+      const res = await fetch(`/api/admin/engagement/opportunities/${oppId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enquiry_id: id }),
+      });
+      const j = await res.json() as { data?: EngagementOpportunity };
+      if (j.data) {
+        setOpportunities((prev) => [j.data!, ...prev.filter((o) => o.id !== j.data!.id)]);
+        setOppPickerOpen(false);
+        setActiveTab("opportunities");
+      }
+    } finally {
+      setLinkingOpp(false);
+    }
   };
 
   const toggleCard = (cardId: string) => {
@@ -408,6 +557,34 @@ export default function EnquiryDetailPage() {
               <Phone className="h-4 w-4" /> Start call
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="border-b border-[#111111]/10 px-8">
+        <div className="flex gap-1 overflow-x-auto">
+          {HUB_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
+                activeTab === tab.id
+                  ? "border-[#063b32] text-[#063b32]"
+                  : "border-transparent text-[#6f6b62] hover:text-[#111111]"
+              }`}
+            >
+              {tab.label}
+              {tab.id === "calls" && interactions.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{interactions.length}</span>
+              )}
+              {tab.id === "preps" && linkedPreps.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] text-violet-700">{linkedPreps.length}</span>
+              )}
+              {tab.id === "opportunities" && opportunities.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">{opportunities.length}</span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -531,147 +708,300 @@ export default function EnquiryDetailPage() {
         </div>
 
         <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-xl border border-[#111111]/10 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
-              {!editingNextAction && (
-                <button type="button" onClick={() => setEditingNextAction(true)} className="text-xs text-[#063b32] hover:underline">
-                  {enquiry.next_action ? "Edit" : "Add"}
-                </button>
-              )}
-            </div>
-            {editingNextAction ? (
-              <div className="space-y-2">
-                <input value={nextAction} onChange={(e) => setNextAction(e.target.value)} placeholder="What needs to happen next?" className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
-                <input type="date" value={nextActionDate} onChange={(e) => setNextActionDate(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
-                <div className="flex gap-2">
-                  <button type="button" onClick={() => void saveNextAction()} disabled={savingAction} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
-                    {savingAction ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
-                  </button>
-                  <button type="button" onClick={() => { setEditingNextAction(false); setNextAction(enquiry.next_action || ""); setNextActionDate(enquiry.next_action_date?.split("T")[0] || ""); }} className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
+          {activeTab === "overview" && (
+            <>
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
+                  {!editingNextAction && (
+                    <button type="button" onClick={() => setEditingNextAction(true)} className="text-xs text-[#063b32] hover:underline">
+                      {enquiry.next_action ? "Edit" : "Add"}
+                    </button>
+                  )}
                 </div>
-              </div>
-            ) : enquiry.next_action ? (
-              <div>
-                <p className="text-sm text-[#111111]">{enquiry.next_action}</p>
-                {enquiry.next_action_date && (
-                  <p className="mt-1 text-xs text-[#6f6b62]">By {new Date(enquiry.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+                {editingNextAction ? (
+                  <div className="space-y-2">
+                    <input value={nextAction} onChange={(e) => setNextAction(e.target.value)} placeholder="What needs to happen next?" className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+                    <input type="date" value={nextActionDate} onChange={(e) => setNextActionDate(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => void saveNextAction()} disabled={savingAction} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
+                        {savingAction ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
+                      </button>
+                      <button type="button" onClick={() => { setEditingNextAction(false); setNextAction(enquiry.next_action || ""); setNextActionDate(enquiry.next_action_date?.split("T")[0] || ""); }} className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
+                    </div>
+                  </div>
+                ) : enquiry.next_action ? (
+                  <div>
+                    <p className="text-sm text-[#111111]">{enquiry.next_action}</p>
+                    {enquiry.next_action_date && (
+                      <p className="mt-1 text-xs text-[#6f6b62]">By {new Date(enquiry.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#6f6b62]/50">No next action set.</p>
                 )}
               </div>
-            ) : (
-              <p className="text-sm text-[#6f6b62]/50">No next action set.</p>
-            )}
-          </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
-              <Phone className="h-4 w-4" /> Start call
-            </button>
-            <a href={gmailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
-              <Mail className="h-4 w-4" /> Send email
-            </a>
-            <button type="button" onClick={() => setShowAddNote(true)} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
-              <Plus className="h-4 w-4" /> Add note
-            </button>
-            <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
-              <Sparkles className="h-4 w-4" /> New prospect prep
-            </button>
-            <button type="button" onClick={() => void loadPrepPicker()} disabled={prepPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
-              <History className="h-4 w-4" /> Attach existing prep
-            </button>
-            <button type="button" onClick={() => setShowCallChat((v) => !v)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-50">
-              <Sparkles className="h-4 w-4" /> {showCallChat ? "Hide" : "Preview"} call assistant
-            </button>
-          </div>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
+                  <Phone className="h-4 w-4" /> Start call
+                </button>
+                <a href={gmailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
+                  <Mail className="h-4 w-4" /> Send email
+                </a>
+                <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
+                  <Plus className="h-4 w-4" /> Add note
+                </button>
+                <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
+                  <Sparkles className="h-4 w-4" /> New prospect prep
+                </button>
+                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50">
+                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Target className="h-4 w-4" />} Create opportunity
+                </button>
+                <button type="button" onClick={() => setShowCallChat((v) => !v)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-50">
+                  <Sparkles className="h-4 w-4" /> {showCallChat ? "Hide" : "Preview"} call assistant
+                </button>
+              </div>
 
-          {showCallChat && callContext && (
-            <div className="rounded-xl border border-violet-200 overflow-hidden h-96">
-              <CallAssistChat callContext={callContext} callType="discovery" orgName={enquiry.name} contactName={enquiry.name} />
+              {showCallChat && callContext && (
+                <div className="rounded-xl border border-violet-200 overflow-hidden h-96">
+                  <CallAssistChat callContext={callContext} callType="discovery" orgName={enquiry.name} contactName={enquiry.name} />
+                </div>
+              )}
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <button type="button" onClick={() => setActiveTab("calls")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{interactions.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Call records</p>
+                </button>
+                <button type="button" onClick={() => setActiveTab("preps")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{linkedPreps.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Prospect preps</p>
+                </button>
+                <button type="button" onClick={() => setActiveTab("opportunities")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
+                </button>
+              </div>
+
+              {enquiry.last_action && (
+                <div className="rounded-xl border border-[#111111]/10 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
+                  <p className="text-sm text-[#111111]">{enquiry.last_action}</p>
+                  {enquiry.last_action_date && (
+                    <p className="mt-1 text-xs text-[#6f6b62]">{new Date(enquiry.last_action_date).toLocaleString("en-GB")}</p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === "activity" && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
+              {loadingCrm ? (
+                <p className="text-sm text-[#6f6b62]">Loading activity…</p>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
+                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#063b32]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#111111]">Enquiry received</p>
+                      <p className="text-xs text-[#6f6b62]">{new Date(enquiry.created_at).toLocaleString("en-GB")}</p>
+                      <p className="mt-1 text-sm text-[#6f6b62]">{enquiry.support_type} — {enquiry.details.slice(0, 120)}{enquiry.details.length > 120 ? "…" : ""}</p>
+                    </div>
+                  </div>
+                  {interactions.map((i) => (
+                    <Link key={i.id} href={`/admin/engagement/interactions/${i.id}`} className="flex gap-3 rounded-lg border border-[#111111]/10 px-4 py-3 hover:bg-[#f7f4ea]/40">
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-[#111111] capitalize">Call — {i.interaction_type}</p>
+                        <p className="text-xs text-[#6f6b62]">{new Date(i.interaction_date).toLocaleString("en-GB")}</p>
+                        {i.summary && <p className="mt-1 text-sm text-[#6f6b62] line-clamp-2">{i.summary}</p>}
+                      </div>
+                    </Link>
+                  ))}
+                  {linkedPreps.map((prep) => (
+                    <div key={prep.id} className="flex gap-3 rounded-lg border border-emerald-200 bg-emerald-50/40 px-4 py-3">
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                      <div>
+                        <p className="text-sm font-semibold text-[#111111]">Prospect prep linked</p>
+                        <p className="text-sm text-[#111111]">{prep.name}</p>
+                        {prep.createdAt && <p className="text-xs text-[#6f6b62]">{new Date(prep.createdAt).toLocaleString("en-GB")}</p>}
+                      </div>
+                    </div>
+                  ))}
+                  {opportunities.map((opp) => (
+                    <Link key={opp.id} href={`/admin/engagement/pipeline/opportunities/${opp.id}`} className="flex gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50">
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                      <div>
+                        <p className="text-sm font-semibold text-[#111111]">Opportunity linked</p>
+                        <p className="text-sm text-[#111111]">{opp.title}</p>
+                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
+                      </div>
+                    </Link>
+                  ))}
+                  {interactions.length === 0 && linkedPreps.length === 0 && opportunities.length === 0 && !enquiry.last_action && (
+                    <p className="text-sm text-[#6f6b62]/60 py-4 text-center">No activity yet. Start a call or add a note to begin tracking.</p>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
-          {showPrepPicker && (
-            <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
+          {activeTab === "calls" && (
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Attach from history</p>
-                <button type="button" onClick={() => setShowPrepPicker(false)} className="text-[#6f6b62] hover:text-[#111111]"><X className="h-4 w-4" /></button>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Call records attached to this enquiry</p>
+                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]">
+                  <Phone className="h-3.5 w-3.5" /> Start call
+                </button>
               </div>
-              {prepPickerList.length === 0 ? (
-                <p className="text-sm text-[#6f6b62]">No saved preps yet.</p>
+              <InteractionList
+                interactions={interactions}
+                loading={loadingCrm}
+                emptyMessage="No calls recorded for this enquiry yet. Start a call from here — it will be linked automatically and also appear in Live Call Assist history."
+              />
+            </div>
+          )}
+
+          {activeTab === "preps" && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
+                  <Sparkles className="h-4 w-4" /> New prospect prep
+                </button>
+                <button type="button" onClick={() => void loadPrepPicker()} disabled={prepPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
+                  <History className="h-4 w-4" /> Attach existing prep
+                </button>
+                <button type="button" onClick={() => void prepareForContact()} disabled={loadingPrep} className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-50 disabled:opacity-50">
+                  {loadingPrep ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} AI call prep
+                </button>
+              </div>
+
+              {showPrepPicker && (
+                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Attach from history</p>
+                    <button type="button" onClick={() => setShowPrepPicker(false)} className="text-[#6f6b62] hover:text-[#111111]"><X className="h-4 w-4" /></button>
+                  </div>
+                  <div className="space-y-1 max-h-48 overflow-auto">
+                    {prepPickerList.map((p) => (
+                      <button key={p.id} type="button" onClick={() => void addProspectPrep(p)} disabled={linkedPreps.some((x) => x.id === p.id)} className="w-full rounded-lg border border-[#111111]/10 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40">
+                        <span className="font-semibold text-[#111111]">{p.name}</span>
+                        {p.sourceLabel && <span className="block text-[10px] text-[#6f6b62]">{p.sourceLabel}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {linkedPreps.length > 0 ? (
+                <div className="space-y-2">
+                  {linkedPreps.map((prep) => (
+                    <div key={prep.id} className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3">
+                      <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
+                      {prep.sourceLabel && <p className="text-[10px] text-emerald-600">{prep.sourceLabel}</p>}
+                      {prep.sector && <p className="text-xs text-[#6f6b62]">Sector: {prep.sector.name}</p>}
+                      {prep.prepNotes && <p className="mt-2 text-sm text-[#6f6b62] whitespace-pre-wrap line-clamp-4">{prep.prepNotes}</p>}
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <div className="space-y-1 max-h-48 overflow-auto">
-                  {prepPickerList.map((p) => (
-                    <button key={p.id} type="button" onClick={() => addProspectPrep(p)} disabled={prospectPreps.some((x) => x.id === p.id)} className="w-full rounded-lg border border-[#111111]/10 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40">
-                      <span className="font-semibold text-[#111111]">{p.name}</span>
-                      {p.sourceLabel && <span className="block text-[10px] text-[#6f6b62]">{p.sourceLabel}</span>}
-                    </button>
+                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No prospect preps linked yet.</p>
+              )}
+
+              {(aiPrepCards.length > 0 || prospectPreps.length > 0) && (
+                <div className="rounded-xl border border-violet-200 bg-violet-50/30 p-5 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-700">Session call preparation</p>
+                  {aiPrepCards.map((card, idx) => (
+                    <div key={card.id} className="rounded-lg border border-violet-200 bg-white overflow-hidden">
+                      <button type="button" onClick={() => toggleCard(card.id)} className="flex w-full items-center justify-between px-4 py-3 text-left">
+                        <span className="text-sm font-semibold text-violet-800">AI prep {idx + 1}</span>
+                        <ChevronDown className={`h-4 w-4 text-violet-600 transition-transform ${expandedCards[card.id] ? "rotate-180" : ""}`} />
+                      </button>
+                      {expandedCards[card.id] && card.suggested_opening && (
+                        <div className="border-t border-violet-200 px-4 py-3 text-sm italic text-[#111111]">&ldquo;{card.suggested_opening}&rdquo;</div>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
             </div>
           )}
 
-          {linkedPreps.length > 0 && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-5 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-700">Linked prospect preps ({linkedPreps.length})</p>
-              {linkedPreps.map((prep) => (
-                <div key={prep.id} className="rounded-lg border border-emerald-200 bg-white px-4 py-3">
-                  <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
-                  {prep.sourceLabel && <p className="text-[10px] text-emerald-600">Created from: {prep.sourceLabel}</p>}
-                  {prep.sector && <p className="text-xs text-[#6f6b62]">Sector: {prep.sector.name}</p>}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {showAddNote && (
-            <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Add note</p>
-              <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={3} placeholder="What happened? What was discussed?" className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none" />
-              <div className="flex gap-2">
-                <button type="button" onClick={() => void saveNote()} disabled={savingNote || !noteText.trim()} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
-                  {savingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save note
+          {activeTab === "opportunities" && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50">
+                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create opportunity
                 </button>
-                <button type="button" onClick={() => { setShowAddNote(false); setNoteText(""); }} className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
+                <button type="button" onClick={() => void loadOppPicker()} disabled={oppPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
+                  <Link2 className="h-4 w-4" /> Link existing
+                </button>
               </div>
+
+              {oppPickerOpen && (
+                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Link opportunity</p>
+                    <button type="button" onClick={() => setOppPickerOpen(false)} className="text-[#6f6b62] hover:text-[#111111]"><X className="h-4 w-4" /></button>
+                  </div>
+                  <div className="space-y-1 max-h-48 overflow-auto">
+                    {oppPickerList.map((o) => (
+                      <button key={o.id} type="button" onClick={() => void linkOpportunity(o.id)} disabled={linkingOpp} className="w-full rounded-lg border border-[#111111]/10 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40">
+                        <span className="font-semibold text-[#111111]">{o.title}</span>
+                        <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[o.stage] || "bg-gray-100 text-gray-600"}`}>{o.stage}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {opportunities.length > 0 ? (
+                <div className="space-y-2">
+                  {opportunities.map((opp) => (
+                    <Link key={opp.id} href={`/admin/engagement/pipeline/opportunities/${opp.id}`} className="block rounded-xl border border-[#111111]/10 p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/40">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-[#111111]">{opp.title}</p>
+                          {opp.next_action && <p className="mt-1 text-xs text-[#6f6b62]">Next: {opp.next_action}</p>}
+                        </div>
+                        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No opportunities linked yet.</p>
+              )}
             </div>
           )}
 
-          {(aiPrepCards.length > 0 || prospectPreps.length > 0 || customCards.length > 0) && (
-            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Call preparation ({aiPrepCards.length + prospectPreps.length + customCards.length})</p>
-              {aiPrepCards.map((card, idx) => (
-                <div key={card.id} className="rounded-lg border border-violet-200 bg-violet-50 overflow-hidden">
-                  <button type="button" onClick={() => toggleCard(card.id)} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                    <span className="text-sm font-semibold text-violet-800">AI prep {idx + 1}</span>
-                    <ChevronDown className={`h-4 w-4 text-violet-600 transition-transform ${expandedCards[card.id] ? "rotate-180" : ""}`} />
-                  </button>
-                  {expandedCards[card.id] && card.suggested_opening && (
-                    <div className="border-t border-violet-200 px-4 py-3 text-sm italic text-[#111111]">&ldquo;{card.suggested_opening}&rdquo;</div>
-                  )}
+          {activeTab === "notes" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Notes &amp; admin log</p>
+                <button type="button" onClick={() => setShowAddNote(true)} className="text-xs font-semibold text-[#063b32] hover:underline">Add note</button>
+              </div>
+              {showAddNote && (
+                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
+                  <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={4} placeholder="What happened? What was discussed?" className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none" />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => void saveNote()} disabled={savingNote || !noteText.trim()} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
+                      {savingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save note
+                    </button>
+                    <button type="button" onClick={() => { setShowAddNote(false); setNoteText(""); }} className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
+                  </div>
                 </div>
-              ))}
-              {prospectPreps.map((prep) => (
-                <div key={prep.id} className="rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/50 overflow-hidden">
-                  <button type="button" onClick={() => toggleCard(`prep-${prep.id}`)} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                    <span className="text-sm font-semibold text-[#111111]">{prep.name}</span>
-                    <ChevronDown className={`h-4 w-4 text-[#6f6b62] transition-transform ${expandedCards[`prep-${prep.id}`] ? "rotate-180" : ""}`} />
-                  </button>
-                  {expandedCards[`prep-${prep.id}`] && (
-                    <div className="border-t border-[#111111]/10 px-4 py-3 text-xs text-[#6f6b62] space-y-1">
-                      {prep.sector && <p><span className="font-medium text-[#111111]">Sector:</span> {prep.sector.name}</p>}
-                      {prep.persona && <p><span className="font-medium text-[#111111]">Persona:</span> {prep.persona.persona_name}</p>}
-                    </div>
-                  )}
+              )}
+              {enquiry.admin_notes ? (
+                <div className="rounded-xl border border-[#111111]/10 p-5">
+                  <p className="text-sm text-[#111111] whitespace-pre-wrap">{enquiry.admin_notes}</p>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {enquiry.admin_notes && (
-            <div className="rounded-xl border border-[#111111]/10 p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Notes</p>
-              <p className="text-sm text-[#111111] whitespace-pre-wrap">{enquiry.admin_notes}</p>
+              ) : (
+                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No notes yet.</p>
+              )}
             </div>
           )}
         </div>

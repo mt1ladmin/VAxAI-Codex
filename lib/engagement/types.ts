@@ -104,6 +104,7 @@ export type EngagementOpportunity = {
   loss_pause_reason: string | null;
   owner_email: string | null;
   notes: string | null;
+  enquiry_id: string | null;
   // joined
   organisation?: Pick<EngagementOrganisation, 'id' | 'name'> | null;
   primary_contact?: Pick<EngagementContact, 'id' | 'first_name' | 'last_name'> | null;
@@ -116,6 +117,7 @@ export type EngagementInteraction = {
   organisation_id: string | null;
   contact_id: string | null;
   opportunity_id: string | null;
+  enquiry_id: string | null;
   interaction_date: string;
   interaction_type: string;
   channel: string | null;

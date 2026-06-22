@@ -6,7 +6,9 @@ import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Check,
+  ExternalLink,
   Loader2,
+  MessageSquare,
   Phone,
   Plus,
   Save,
@@ -188,7 +190,9 @@ export default function OpportunityDetailPage() {
   const goToLiveCall = () => {
     const params = new URLSearchParams();
     if (opp?.organisation_id) params.set("org", opp.organisation_id);
-    params.set("opp", id);
+    if (opp?.primary_contact_id) params.set("contact", opp.primary_contact_id);
+    if (opp?.enquiry_id) params.set("enquiry", opp.enquiry_id);
+    params.set("opportunity", id);
     router.push(`/admin/engagement/live-call?${params}`);
   };
 
@@ -328,6 +332,14 @@ export default function OpportunityDetailPage() {
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${stageColor}`}>
                 {opp.stage}
               </span>
+              {opp.enquiry_id && (
+                <Link
+                  href={`/admin/enquiries/${opp.enquiry_id}`}
+                  className="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700 hover:bg-blue-100"
+                >
+                  <MessageSquare className="h-3 w-3" /> Website enquiry
+                </Link>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
