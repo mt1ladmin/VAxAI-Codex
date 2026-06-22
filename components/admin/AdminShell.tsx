@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart3,
   BookOpen,
   CalendarDays,
   ExternalLink,
-  FileText,
-  FlaskConical,
   Handshake,
   Inbox,
   LogOut,
@@ -18,12 +16,9 @@ import {
   PanelLeftOpen,
   Phone,
   Plus,
-  Search,
   Settings,
   Target,
-  Upload,
   Users,
-  Zap,
 } from "lucide-react";
 
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
@@ -72,6 +67,11 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (pathname === "/admin/login") return <>{children}</>;
 
@@ -153,6 +153,18 @@ export default function AdminShell({
               )}
               {section.items.map((item) => {
                 const active = section.section === "CONTENT" ? isContentActive : isActive(item.href);
+                if (!mounted) {
+                  return (
+                    <div
+                      key={item.href}
+                      className={`mb-0.5 flex items-center gap-3 rounded-md px-2 py-2 ${!open ? "justify-center" : ""}`}
+                      aria-hidden
+                    >
+                      <div className="h-4 w-4 shrink-0 rounded bg-white/10" />
+                      {open && <div className="h-4 flex-1 max-w-[8rem] rounded bg-white/10" />}
+                    </div>
+                  );
+                }
                 return (
                   <Link
                     key={item.href}

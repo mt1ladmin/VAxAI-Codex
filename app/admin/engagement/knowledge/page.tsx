@@ -8,7 +8,7 @@ import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
-import { KnowledgeReviewContent } from "../knowledge-review/page";
+import { KnowledgeReviewContent } from "../knowledge-review/knowledge-review-content";
 
 type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review";
 

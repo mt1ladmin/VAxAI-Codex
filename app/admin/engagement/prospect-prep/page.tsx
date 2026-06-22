@@ -730,7 +730,7 @@ function ProspectPrepPageInner() {
                         <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">SECTOR</p>
                         <p className="font-medium text-[#111111]">{historyEditDraft.sector.name}</p>
                         {historyEditDraft.sector.description && <p className="text-sm mt-1 text-[#111111]">{historyEditDraft.sector.description}</p>}
-                        {historyEditDraft.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {historyEditDraft.sector.common_admin_pressures.join(" · ")}</p>}
+                        {(historyEditDraft.sector.common_admin_pressures?.length ?? 0) > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {historyEditDraft.sector.common_admin_pressures!.join(" · ")}</p>}
                       </div>
                     )}
                     {historyEditDraft.persona && (
