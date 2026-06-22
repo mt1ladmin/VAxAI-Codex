@@ -510,3 +510,14 @@ export const PROSPECT_QUEUE_STATUS_COLORS: Record<string, string> = {
   'Do not contact': 'bg-red-100 text-red-600',
   'Closed': 'bg-gray-100 text-gray-500',
 };
+
+export type CallPreparationCard = {
+  what_we_know?: string[];
+  to_confirm?: string[];
+  previous_engagement_summary?: string;
+  sector_considerations?: string[];
+  pain_points_to_explore?: Array<{ title: string; why: string; caution?: string }>;
+  discovery_questions?: string[];
+  suggested_opening?: string;
+  key_cautions?: string[];
+};

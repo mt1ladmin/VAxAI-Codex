@@ -14,6 +14,7 @@ import {
   type EngagementOrganisation, type EngagementContact,
   type EngagementOpportunity, type EngagementInteraction,
   type EngagementTask,
+  type CallPreparationCard,
 } from "@/lib/engagement/types";
 
 const inputClass = "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] transition-colors";
@@ -66,7 +67,7 @@ export default function OrgDetailPage() {
   const [taskForm, setTaskForm] = useState({ title: "", priority: "medium", due_date: "" });
   const [savingTask, setSavingTask] = useState(false);
   const [loadingPrep, setLoadingPrep] = useState(false);
-  const [prepCard, setPrepCard] = useState<Record<string, unknown> | null>(null);
+  const [prepCard, setPrepCard] = useState<CallPreparationCard | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -123,7 +124,7 @@ export default function OrgDetailPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ organisationId: id }),
     });
-    const j = await res.json() as { data?: Record<string, unknown> };
+    const j = await res.json() as { data?: CallPreparationCard };
     setPrepCard(j.data || null);
     setLoadingPrep(false);
   };
@@ -240,45 +241,45 @@ export default function OrgDetailPage() {
             {prepCard.suggested_opening && (
               <div className="mb-4 rounded-lg bg-white border border-violet-100 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-500 mb-1">Suggested opening</p>
-                <p className="text-sm text-[#111111]">{prepCard.suggested_opening as string}</p>
+                <p className="text-sm text-[#111111]">{prepCard.suggested_opening}</p>
               </div>
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {Array.isArray(prepCard.what_we_know) && (prepCard.what_we_know as string[]).length > 0 && (
+              {Array.isArray(prepCard.what_we_know) && prepCard.what_we_know.length > 0 && (
                 <div className="rounded-lg bg-white border border-violet-100 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-500 mb-2">What we know</p>
                   <ul className="space-y-1">
-                    {(prepCard.what_we_know as string[]).map((item, i) => (
+                    {prepCard.what_we_know.map((item, i) => (
                       <li key={i} className="text-xs text-[#111111] flex gap-2"><span className="text-violet-400 shrink-0">·</span>{item}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              {Array.isArray(prepCard.to_confirm) && (prepCard.to_confirm as string[]).length > 0 && (
+              {Array.isArray(prepCard.to_confirm) && prepCard.to_confirm.length > 0 && (
                 <div className="rounded-lg bg-white border border-violet-100 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-500 mb-2">Worth confirming</p>
                   <ul className="space-y-1">
-                    {(prepCard.to_confirm as string[]).map((item, i) => (
+                    {prepCard.to_confirm.map((item, i) => (
                       <li key={i} className="text-xs text-[#111111] flex gap-2"><span className="text-amber-400 shrink-0">·</span>{item}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              {Array.isArray(prepCard.discovery_questions) && (prepCard.discovery_questions as string[]).length > 0 && (
+              {Array.isArray(prepCard.discovery_questions) && prepCard.discovery_questions.length > 0 && (
                 <div className="rounded-lg bg-white border border-violet-100 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-500 mb-2">Discovery questions</p>
                   <ul className="space-y-1">
-                    {(prepCard.discovery_questions as string[]).map((item, i) => (
+                    {prepCard.discovery_questions.map((item, i) => (
                       <li key={i} className="text-xs text-[#111111] flex gap-2"><span className="text-[#063b32] shrink-0">?</span>{item}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              {Array.isArray(prepCard.key_cautions) && (prepCard.key_cautions as string[]).length > 0 && (
+              {Array.isArray(prepCard.key_cautions) && prepCard.key_cautions.length > 0 && (
                 <div className="rounded-lg bg-white border border-violet-100 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-500 mb-2">Key cautions</p>
                   <ul className="space-y-1">
-                    {(prepCard.key_cautions as string[]).map((item, i) => (
+                    {prepCard.key_cautions.map((item, i) => (
                       <li key={i} className="text-xs text-[#111111] flex gap-2"><span className="text-red-400 shrink-0">!</span>{item}</li>
                     ))}
                   </ul>
