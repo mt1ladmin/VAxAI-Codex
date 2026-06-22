@@ -165,7 +165,7 @@ export default function ProspectImportsPage() {
     }
     const batchId = batchJson.data.id;
 
-    // 2. Create queue entries
+    // 2. Create queue entries with duplicate detection
     let importedCount = 0;
     let failed = 0;
     for (const row of parsedRows) {
@@ -174,6 +174,33 @@ export default function ProspectImportsPage() {
         const field = mapping[h];
         if (field) entry[field] = row[i] || null;
       });
+
+      // Duplicate check before inserting
+      try {
+        const dupRes = await fetch("/api/admin/engagement/ai/duplicate-check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orgName: entry.raw_org_name,
+            email: entry.raw_email,
+            phone: entry.raw_phone,
+            website: entry.raw_website,
+          }),
+        });
+        if (dupRes.ok) {
+          const dupJson = await dupRes.json() as { duplicates?: { id: string; type: string; score: number; reason: string; action: string }[] };
+          const top = (dupJson.duplicates || []).sort((a, b) => b.score - a.score)[0];
+          if (top) {
+            if (top.action === "use_existing" && top.type === "org") {
+              entry.duplicate_of_org_id = top.id;
+              entry.duplicate_warning = `Likely duplicate: ${top.reason} (${top.score}% match — action: ${top.action})`;
+            } else if (top.action !== "likely_different") {
+              entry.duplicate_warning = `Possible duplicate: ${top.reason} (${top.score}% match)`;
+            }
+          }
+        }
+      } catch { /* skip dup check on error, proceed with import */ }
+
       const res = await fetch("/api/admin/engagement/prospect-queue", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
