@@ -90,7 +90,7 @@ export function OpportunitiesListView({
         </div>
       )}
 
-      <div className="px-8 py-6">
+      <div className={`px-8 ${showHeader ? "py-6" : "pt-4 pb-6"}`}>
         {showMetrics && (
           <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/40 px-5 py-4">
             <div className="flex flex-wrap items-center gap-4">

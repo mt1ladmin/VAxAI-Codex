@@ -28,9 +28,9 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: "Opportunities tracker", href: "/admin/engagement/pipeline", icon: Users },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
+      { label: "Opportunities tracker", href: "/admin/engagement/pipeline", icon: Users },
       { label: "Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },
@@ -39,18 +39,13 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
       { label: "Prospect Prep", href: "/admin/engagement/prospect-prep", icon: Target },
-    ],
-  },
-  {
-    section: "KNOWLEDGE",
-    items: [
       { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen },
     ],
   },
   {
     section: "CONTENT",
     items: [
-      { label: "Content", href: "/admin/calendar", icon: CalendarDays },
+      { label: "Content Hub", href: "/admin/calendar", icon: CalendarDays },
     ],
   },
 ];
@@ -235,7 +230,7 @@ export default function AdminShell({
         {(pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/authors")) && (
           <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
             <div className="flex items-center gap-2 text-sm">
-              <span className="font-semibold text-[#111111]">Content</span>
+              <span className="font-semibold text-[#111111]">Content Hub</span>
               <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
                 <Link
                   href="/admin/calendar"

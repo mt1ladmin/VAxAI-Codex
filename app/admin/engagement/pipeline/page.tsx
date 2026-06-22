@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OpportunitiesListView } from "@/components/admin/OpportunitiesListView";
+import { TasksListView } from "@/components/admin/TasksListView";
 import {
   type NextActionFilter,
   type SourceFilter,
@@ -11,7 +12,7 @@ import {
 import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 import { InsightsContent } from "../insights-content";
 
-type Tab = "insights" | "opportunities";
+type Tab = "insights" | "opportunities" | "tasks";
 
 function OpportunitiesTrackerInner() {
   const router = useRouter();
@@ -28,16 +29,13 @@ function OpportunitiesTrackerInner() {
   useEffect(() => {
     const urlTab = searchParams.get("tab");
     if (urlTab === "opportunities" || urlTab === "pipeline") setTab("opportunities");
+    else if (urlTab === "tasks") setTab("tasks");
     else setTab("insights");
   }, [searchParams]);
 
   const switchTab = (key: Tab) => {
     setTab(key);
-    router.replace(
-      key === "insights"
-        ? "/admin/engagement/pipeline?tab=insights"
-        : "/admin/engagement/pipeline?tab=opportunities",
-    );
+    router.replace(`/admin/engagement/pipeline?tab=${key}`);
   };
 
   const load = useCallback(async () => {
@@ -66,25 +64,23 @@ function OpportunitiesTrackerInner() {
   return (
     <div className="min-h-screen bg-white">
       <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-semibold text-[#111111]">Opportunities tracker</span>
-          <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
-            {([
-              ["insights", "Insights"],
-              ["opportunities", "Opportunities"],
-            ] as [Tab, string][]).map(([key, label]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => switchTab(key)}
-                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
-                  tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+        <div className="flex overflow-hidden rounded-lg border border-[#111111]/15 w-fit">
+          {([
+            ["insights", "Insights"],
+            ["opportunities", "Opportunities"],
+            ["tasks", "Tasks"],
+          ] as [Tab, string][]).map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => switchTab(key)}
+              className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
+                tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -106,6 +102,8 @@ function OpportunitiesTrackerInner() {
           showHeader={false}
         />
       )}
+
+      {tab === "tasks" && <TasksListView embedded />}
     </div>
   );
 }

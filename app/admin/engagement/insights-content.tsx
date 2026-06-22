@@ -28,12 +28,16 @@ function InsightListCard({
   count,
   meta,
   seeAllHref,
+  secondaryHref,
+  secondaryLabel,
   children,
 }: {
   title: string;
   count: number;
   meta?: string;
   seeAllHref: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -45,9 +49,19 @@ function InsightListCard({
           </h2>
           {meta && <p className="mt-0.5 text-xs text-[#6f6b62]">{meta}</p>}
         </div>
-        <Link href={seeAllHref} className="text-xs font-semibold text-[#063b32] hover:underline shrink-0">
-          See all
-        </Link>
+        <div className="flex items-center gap-2 shrink-0 text-xs font-semibold text-[#063b32]">
+          <Link href={seeAllHref} className="hover:underline">
+            See all
+          </Link>
+          {secondaryHref && secondaryLabel && (
+            <>
+              <span className="text-[#6f6b62]/40">·</span>
+              <Link href={secondaryHref} className="hover:underline">
+                {secondaryLabel}
+              </Link>
+            </>
+          )}
+        </div>
       </div>
       {children}
     </div>
@@ -100,7 +114,7 @@ export function InsightsContent() {
         dueDate: t.due_date,
         href: t.opportunity_id
           ? `/admin/engagement/pipeline/opportunities/${t.opportunity_id}`
-          : "/admin/engagement/pipeline/tasks",
+          : "/admin/engagement/pipeline?tab=tasks",
         overdue: due < today,
       });
     }
@@ -142,7 +156,7 @@ export function InsightsContent() {
             value: stats.pipelineValue ? `£${stats.pipelineValue.toLocaleString()}` : "—",
             href: "/admin/engagement/pipeline?tab=opportunities",
           },
-          { label: "Open tasks", value: tasks.length, href: "/admin/engagement/pipeline/tasks" },
+          { label: "Open tasks", value: tasks.length, href: "/admin/engagement/pipeline?tab=tasks" },
         ].map(({ label, value, href }) => (
           <Link
             key={label}
@@ -156,7 +170,13 @@ export function InsightsContent() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <InsightListCard title="Open tasks" count={tasks.length} seeAllHref="/admin/engagement/pipeline/tasks">
+        <InsightListCard
+          title="Open tasks"
+          count={tasks.length}
+          seeAllHref="/admin/engagement/pipeline?tab=tasks"
+          secondaryHref="/admin/engagement/pipeline?tab=tasks"
+          secondaryLabel="Tasks"
+        >
           {tasks.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No open tasks.</div>
           ) : (
@@ -164,7 +184,7 @@ export function InsightsContent() {
               {tasks.slice(0, 8).map((t) => (
                 <Link
                   key={t.id}
-                  href={t.opportunity_id ? `/admin/engagement/pipeline/opportunities/${t.opportunity_id}` : "/admin/engagement/pipeline/tasks"}
+                  href={t.opportunity_id ? `/admin/engagement/pipeline/opportunities/${t.opportunity_id}` : "/admin/engagement/pipeline?tab=tasks"}
                   className="flex items-center gap-4 px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors"
                 >
                   <div
@@ -194,6 +214,8 @@ export function InsightsContent() {
           count={openOpps.length}
           meta={openOppsTotalValue ? `£${openOppsTotalValue.toLocaleString()} total value` : undefined}
           seeAllHref="/admin/engagement/pipeline?tab=opportunities"
+          secondaryHref="/admin/engagement/pipeline?tab=tasks"
+          secondaryLabel="Tasks"
         >
           {openOpps.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No open opportunities.</div>
@@ -224,7 +246,7 @@ export function InsightsContent() {
         </InsightListCard>
       </div>
 
-      <InsightListCard title="Follow-ups" count={followUps.length} seeAllHref="/admin/engagement/pipeline/tasks">
+      <InsightListCard title="Follow-ups" count={followUps.length} seeAllHref="/admin/engagement/pipeline?tab=tasks">
         {followUps.length === 0 ? (
           <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No follow-ups due in the next 7 days.</div>
         ) : (
