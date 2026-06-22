@@ -33,6 +33,7 @@ export default function KnowledgePage() {
   const [prepName, setPrepName] = useState("");
   const [prepResults, setPrepResults] = useState<any>(null);
   const [savedPreps, setSavedPreps] = useState<any[]>([]);
+  const [historyViewPrep, setHistoryViewPrep] = useState<{ prep: any; index: number } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -166,6 +167,17 @@ export default function KnowledgePage() {
     return newPrep;
   };
 
+  const updateSavedPrep = (index: number, updates: Partial<any>) => {
+    const updated = savedPreps.map((p, i) => (i === index ? { ...p, ...updates } : p));
+    setSavedPreps(updated);
+    localStorage.setItem("prospectPreps", JSON.stringify(updated));
+    const merged = { ...savedPreps[index], ...updates };
+    if (historyViewPrep?.index === index) {
+      setHistoryViewPrep({ prep: merged, index });
+    }
+    return merged;
+  };
+
   const attachPrep = (prep: any, isUnsavedBuild = false) => {
     let toAttach = prep;
     if (isUnsavedBuild) {
@@ -203,7 +215,7 @@ export default function KnowledgePage() {
             ] as [Tab, string][]).map(([key, label]) => (
               <button
                 key={key}
-                onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); }}
+                onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); setHistoryViewPrep(null); }}
                 className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
                   tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
                 }`}
@@ -215,11 +227,13 @@ export default function KnowledgePage() {
         </div>
       </div>
 
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "prospect_prep" ? "Prospect Prep" : tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : tab === "knowledge_review" ? "Knowledge Review" : "Prospect Prep History"}</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "prospect_prep" ? "Quickly prepare for a prospect by selecting sector and persona to pull relevant knowledge (no AI)." : tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : tab === "vat_prompts" ? "View VAT prompts by dimension for relevant insights." : tab === "knowledge_review" ? "Review and approve AI-generated draft pain points before they enter the knowledge library." : "Your saved prospect preps. View, attach directly to a live call, or delete. Saved preps appear here for history and reuse."}</p>
-      </div>
+      {tab !== "prospect_prep" && (
+        <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
+          <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : tab === "knowledge_review" ? "Knowledge Review" : "Prospect Prep History"}</h1>
+          <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : tab === "vat_prompts" ? "View VAT prompts by dimension for relevant insights." : tab === "knowledge_review" ? "Review and approve AI-generated draft pain points before they enter the knowledge library." : "Your saved prospect preps. View, attach directly to a live call, or delete. Saved preps appear here for history and reuse."}</p>
+        </div>
+      )}
 
       <div className="px-8 py-6">
         {/* Search + filters */}
@@ -550,7 +564,101 @@ export default function KnowledgePage() {
             )}
             {tab === "prospect_prep_history" && (
               <div className="max-w-3xl mx-auto">
-                {savedPreps.length === 0 ? (
+                {historyViewPrep ? (
+                  <div className="rounded-2xl border border-[#111111]/10 bg-white p-6">
+                    <button
+                      onClick={() => setHistoryViewPrep(null)}
+                      className="mb-4 text-xs font-semibold text-[#063b32] hover:underline"
+                    >
+                      ← Back to history
+                    </button>
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="font-semibold text-[#111111]">Prepared Summary</h4>
+                      <span className="text-[10px] text-[#6f6b62]">{new Date(historyViewPrep.prep.createdAt).toLocaleString()}</span>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Name this prep</label>
+                      <input
+                        value={historyViewPrep.prep.name || ""}
+                        onChange={(e) => setHistoryViewPrep({
+                          ...historyViewPrep,
+                          prep: { ...historyViewPrep.prep, name: e.target.value },
+                        })}
+                        className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      />
+                    </div>
+
+                    {historyViewPrep.prep.sector && (
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">SECTOR</p>
+                        <p className="font-medium text-[#111111]">{historyViewPrep.prep.sector.name}</p>
+                        {historyViewPrep.prep.sector.description && <p className="text-sm mt-1 text-[#111111]">{historyViewPrep.prep.sector.description}</p>}
+                        {historyViewPrep.prep.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {historyViewPrep.prep.sector.common_admin_pressures.join(" · ")}</p>}
+                      </div>
+                    )}
+                    {historyViewPrep.prep.persona && (
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">PERSONA</p>
+                        <p className="font-medium text-[#111111]">{historyViewPrep.prep.persona.persona_name}{historyViewPrep.prep.persona.typical_role ? ` — ${historyViewPrep.prep.persona.typical_role}` : ""}</p>
+                      </div>
+                    )}
+                    {historyViewPrep.prep.relevantPains?.length > 0 && (
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT PAIN POINTS ({historyViewPrep.prep.relevantPains.length})</p>
+                        <ul className="text-sm space-y-1 text-[#111111]">
+                          {historyViewPrep.prep.relevantPains.map((pp: any, idx: number) => (
+                            <li key={idx}>• {pp.title}{pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 70)}` : ""}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {historyViewPrep.prep.relevantVats?.length > 0 && (
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT VAT PROMPTS ({historyViewPrep.prep.relevantVats.length})</p>
+                        <ul className="text-sm space-y-1 text-[#111111]">
+                          {historyViewPrep.prep.relevantVats.map((v: any, idx: number) => (
+                            <li key={idx}>• {v.prompt}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Notes / Context</label>
+                      <textarea
+                        value={historyViewPrep.prep.prepNotes || historyViewPrep.prep.clientType || ""}
+                        onChange={(e) => setHistoryViewPrep({
+                          ...historyViewPrep,
+                          prep: { ...historyViewPrep.prep, prepNotes: e.target.value },
+                        })}
+                        className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-[#111111]/10">
+                      <button
+                        onClick={() => {
+                          const saved = updateSavedPrep(historyViewPrep.index, {
+                            name: historyViewPrep.prep.name,
+                            prepNotes: historyViewPrep.prep.prepNotes,
+                          });
+                          localStorage.setItem("currentProspectPrep", JSON.stringify(saved));
+                          alert("Changes saved.");
+                        }}
+                        className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        onClick={() => attachPrep(historyViewPrep.prep, false)}
+                        className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                      >
+                        Attach to Live Call
+                      </button>
+                    </div>
+                  </div>
+                ) : savedPreps.length === 0 ? (
                   <div className="rounded-2xl border border-[#111111]/10 py-12 text-center bg-white">
                     <p className="text-sm text-[#6f6b62]">No saved preps yet. Build one in the Prospect Prep tab and save it.</p>
                   </div>
@@ -569,16 +677,7 @@ export default function KnowledgePage() {
                           </div>
                           <div className="flex flex-col gap-1.5 shrink-0 text-sm">
                             <button
-                              onClick={() => {
-                                // load into prep tab for viewing/editing
-                                setClientType(p.clientType || "");
-                                setSelectedSectorId(p.sector?.id || "");
-                                setSelectedPersonaId(p.persona?.id || "");
-                                setPrepNotes(p.prepNotes || "");
-                                setPrepResults(p);
-                                setPrepName(p.name || "");
-                                setTab("prospect_prep");
-                              }}
+                              onClick={() => setHistoryViewPrep({ prep: p, index: idx })}
                               className="rounded-md border border-[#111111]/15 px-3 py-1 text-xs font-semibold hover:bg-[#f7f4ea]"
                             >
                               View / Edit
