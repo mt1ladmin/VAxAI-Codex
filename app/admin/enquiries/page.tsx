@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Calendar, Check, ChevronDown, ChevronRight, MessageSquare, Search, Trash2, X } from "lucide-react";
+import {
+  ENQUIRY_STATUSES,
+  ENQUIRY_STATUS_COLORS,
+  ENQUIRY_STATUS_OPTIONS,
+  enquiryStatusLabel,
+} from "@/lib/enquiries/constants";
 
 type Enquiry = {
   id: string;
@@ -19,29 +26,6 @@ type Enquiry = {
   connected_post_title: string | null;
 };
 
-const STATUSES = [
-  { key: "all", label: "All" },
-  { key: "new", label: "New" },
-  { key: "contacted", label: "Contacted" },
-  { key: "no_reply", label: "No reply" },
-  { key: "following_up", label: "Following up" },
-  { key: "met", label: "Met" },
-  { key: "completed", label: "Completed" },
-];
-
-const STATUS_COLORS: Record<string, string> = {
-  new: "bg-blue-100 text-blue-700",
-  contacted: "bg-purple-100 text-purple-700",
-  no_reply: "bg-amber-100 text-amber-700",
-  following_up: "bg-yellow-100 text-yellow-800",
-  met: "bg-teal-100 text-teal-700",
-  completed: "bg-[#063b32]/10 text-[#063b32]",
-};
-
-function statusLabel(s: string) {
-  return STATUSES.find((x) => x.key === s)?.label ?? s;
-}
-
 function LabeledField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div>
@@ -52,6 +36,7 @@ function LabeledField({ label, children }: { label: string; children: ReactNode 
 }
 
 export default function EnquiriesPage() {
+  const router = useRouter();
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
@@ -116,7 +101,7 @@ export default function EnquiriesPage() {
     void fetch_();
   };
 
-  const counts = STATUSES.reduce<Record<string, number>>((acc, s) => {
+  const counts = ENQUIRY_STATUSES.reduce<Record<string, number>>((acc, s) => {
     acc[s.key] = s.key === "all" ? enquiries.length : enquiries.filter((e) => e.status === s.key).length;
     return acc;
   }, {});
@@ -132,7 +117,7 @@ export default function EnquiriesPage() {
       <div className="px-8 py-6">
         {/* Tabs */}
         <div className="mb-5 flex flex-wrap gap-1 border-b border-[#111111]/10 pb-0">
-          {STATUSES.map((s) => (
+          {ENQUIRY_STATUSES.map((s) => (
             <button
               key={s.key}
               onClick={() => setActiveTab(s.key)}
@@ -220,11 +205,15 @@ export default function EnquiriesPage() {
             {filtered.map((e) => (
               <div
                 key={e.id}
-                className="flex items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
+                role="button"
+                tabIndex={0}
+                onClick={() => router.push(`/admin/enquiries/${e.id}`)}
+                onKeyDown={(ev) => { if (ev.key === "Enter") router.push(`/admin/enquiries/${e.id}`); }}
+                className="flex cursor-pointer items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
               >
                 <button
                   type="button"
-                  onClick={() => toggleSelect(e.id)}
+                  onClick={(ev) => { ev.stopPropagation(); toggleSelect(e.id); }}
                   className={`mt-3 grid h-4 w-4 shrink-0 place-items-center rounded border ${
                     selected.has(e.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25 bg-white"
                   }`}
@@ -243,7 +232,13 @@ export default function EnquiriesPage() {
                         <span className="font-semibold">{e.name}</span>
                       </LabeledField>
                       <LabeledField label="Email">
-                        <a href={`mailto:${e.email}`} className="text-[#063b32] hover:underline">{e.email}</a>
+                        <a
+                          href={`mailto:${e.email}`}
+                          onClick={(ev) => ev.stopPropagation()}
+                          className="text-[#063b32] hover:underline"
+                        >
+                          {e.email}
+                        </a>
                       </LabeledField>
                       <LabeledField label="Telephone">{e.telephone || "—"}</LabeledField>
                       <LabeledField label="Query type">
@@ -268,7 +263,11 @@ export default function EnquiriesPage() {
                       {e.connected_post_title && (
                         <LabeledField label="Related post">
                           {e.connected_post_id ? (
-                            <Link href={`/admin/posts/${e.connected_post_id}`} className="text-[#063b32] hover:underline">
+                            <Link
+                              href={`/admin/posts/${e.connected_post_id}`}
+                              onClick={(ev) => ev.stopPropagation()}
+                              className="text-[#063b32] hover:underline"
+                            >
                               {e.connected_post_title}
                             </Link>
                           ) : (
@@ -283,26 +282,26 @@ export default function EnquiriesPage() {
                       </div>
                     </div>
 
-                    <div className="flex shrink-0 flex-col items-end gap-2">
+                    <div className="flex shrink-0 flex-col items-end gap-2" onClick={(ev) => ev.stopPropagation()}>
                       <div className="relative">
                         <button
                           type="button"
                           onClick={() => setStatusMenuId(statusMenuId === e.id ? null : e.id)}
-                          className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
+                          className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ENQUIRY_STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
                         >
-                          {statusLabel(e.status)}
+                          {enquiryStatusLabel(e.status)}
                           <ChevronDown className="h-3 w-3" />
                         </button>
                         {statusMenuId === e.id && (
                           <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-[#111111]/10 bg-white shadow-lg">
-                            {STATUSES.filter((s) => s.key !== "all").map((s) => (
+                            {ENQUIRY_STATUS_OPTIONS.map((s) => (
                               <button
                                 key={s.key}
                                 type="button"
                                 onClick={() => void updateStatus(e.id, s.key)}
                                 className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea]"
                               >
-                                <span className={`h-2 w-2 rounded-full ${STATUS_COLORS[s.key]?.split(" ")[0]}`} />
+                                <span className={`h-2 w-2 rounded-full ${ENQUIRY_STATUS_COLORS[s.key]?.split(" ")[0]}`} />
                                 {s.label}
                               </button>
                             ))}
