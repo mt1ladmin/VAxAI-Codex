@@ -530,7 +530,7 @@ export default function ProspectQueuePage() {
         <p className="mt-0.5 text-sm text-[#6f6b62]">Imported and manually added prospects — review, contact, and convert.</p>
       </div>
 
-      <div className="mx-auto w-full max-w-[1400px] px-6 py-6 lg:px-10">
+      <div className="px-8 py-6">
         {/* Metrics */}
         <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
