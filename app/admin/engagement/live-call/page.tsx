@@ -568,6 +568,35 @@ function LiveCallAssistInner() {
                   {aiMatchError}
                 </div>
               )}
+              {aiMatchError && painPointSearch.trim() && !aiSearching && (
+                <div className="mt-2 px-3 py-2 rounded-lg border border-violet-200 bg-violet-50">
+                  <button
+                    onClick={async () => {
+                      const res = await fetch("/api/admin/engagement/ai/draft-pain-point", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          phrase: painPointSearch,
+                          orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
+                        }),
+                      });
+                      const j = await res.json() as { data?: unknown };
+                      if (j.data) {
+                        setNotes(prev => [...prev, {
+                          id: crypto.randomUUID(),
+                          text: `Draft pain point created for review: "${painPointSearch}"`,
+                          timestamp: new Date(),
+                          type: "note",
+                        }]);
+                        setAiMatches([]);
+                      }
+                    }}
+                    className="text-xs text-violet-700 hover:underline"
+                  >
+                    None match? Create a draft pain point for review →
+                  </button>
+                </div>
+              )}
               {aiMatches.length > 0 && (
                 <div className="mt-2 rounded-lg border border-violet-200 bg-violet-50 overflow-hidden">
                   <div className="flex items-center gap-2 px-3 py-2 border-b border-violet-200">
