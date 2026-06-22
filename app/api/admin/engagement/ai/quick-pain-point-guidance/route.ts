@@ -2,16 +2,15 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+// Do NOT pass apiKey here — let the SDK read ANTHROPIC_API_KEY from process.env at
+// request time so Next.js cannot inline an undefined value at build time.
+function getClient() {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new Error("ANTHROPIC_API_KEY_MISSING");
+  return new Anthropic({ apiKey: key });
+}
 
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY is not configured in the server environment. Add it to your Vercel/hosting environment variables." },
-      { status: 500 }
-    );
-  }
-
   const { phrase, orgContext, callType } = await req.json() as {
     phrase: string;
     orgContext?: string;
@@ -44,6 +43,16 @@ export async function POST(req: NextRequest) {
     }
   } catch {
     // DB unavailable — continue without examples
+  }
+
+  let client: Anthropic;
+  try {
+    client = getClient();
+  } catch {
+    return NextResponse.json(
+      { error: "ANTHROPIC_API_KEY is not set in the server environment. Add it to Vercel → Settings → Environment Variables, then redeploy." },
+      { status: 500 }
+    );
   }
 
   try {
@@ -80,14 +89,12 @@ Return ONLY valid JSON — no markdown, no commentary:
     return NextResponse.json({ data });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error("quick-pain-point-guidance failed:", msg);
-    const friendly = msg.includes("API key") || msg.includes("auth") || msg.includes("401")
-      ? "Invalid or missing ANTHROPIC_API_KEY — check server environment variables"
-      : msg.includes("model") || msg.includes("404")
-      ? "Model not available — check model ID in route"
-      : msg.includes("rate") || msg.includes("429")
-      ? "Anthropic rate limit reached — try again in a moment"
-      : msg.substring(0, 150);
-    return NextResponse.json({ error: friendly }, { status: 500 });
+    const status = (error as { status?: number })?.status;
+    console.error("quick-pain-point-guidance failed:", status ?? "", msg);
+    // Return the raw Anthropic error so it's diagnosable in the UI
+    return NextResponse.json(
+      { error: `Anthropic error${status ? ` (HTTP ${status})` : ""}: ${msg.substring(0, 200)}` },
+      { status: 500 }
+    );
   }
 }
