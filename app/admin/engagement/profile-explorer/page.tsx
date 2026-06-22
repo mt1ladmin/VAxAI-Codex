@@ -39,7 +39,9 @@ export default function ProfileExplorer() {
     if (industry) params.set("q", industry);
     const res = await fetch(`/api/admin/engagement/sectors?${params}`);
     const json = await res.json() as { data: SectorProfile[] };
-    setSectors(json.data || []);
+    const data = json.data || [];
+    const unique = data.filter((s, i, a) => a.findIndex((t) => t.name.toLowerCase() === s.name.toLowerCase()) === i);
+    setSectors(unique);
     setLoadingSectors(false);
   }, [industry]);
 

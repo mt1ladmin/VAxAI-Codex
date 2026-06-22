@@ -36,7 +36,9 @@ export default function KnowledgePage() {
       if (search) params.set("q", search);
       const res = await fetch(`/api/admin/engagement/sectors?${params}&limit=50`);
       const json = await res.json() as { data: SectorProfile[] };
-      setSectors(json.data || []);
+      const data = json.data || [];
+      const unique = data.filter((s, i, a) => a.findIndex((t) => t.name.toLowerCase() === s.name.toLowerCase()) === i);
+      setSectors(unique);
     } else if (tab === "personas") {
       const res = await fetch("/api/admin/engagement/personas?limit=50");
       const json = await res.json() as { data: Persona[] };
@@ -183,33 +185,30 @@ export default function KnowledgePage() {
 
             {/* SECTORS */}
             {tab === "sectors" && (
-              (() => {
-                const uniqueSectors = sectors.filter((s, i, a) => a.findIndex((t) => t.id === s.id) === i);
-                return uniqueSectors.length === 0 ? (
-                  <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No sectors found.</div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {uniqueSectors.map((s) => (
-                      <Link
-                        key={s.id}
-                        href={`/admin/engagement/knowledge/sectors/${s.id}`}
-                        className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group"
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">{s.name}</p>
-                          <ArrowRight className="h-4 w-4 shrink-0 text-[#6f6b62] group-hover:text-[#063b32]" />
-                        </div>
-                        {s.description && <p className="text-sm text-[#6f6b62] line-clamp-2">{s.description}</p>}
-                        {s.common_admin_pressures && s.common_admin_pressures.length > 0 && (
-                          <p className="mt-3 text-xs text-[#6f6b62]">
-                            {s.common_admin_pressures.slice(0, 2).join(" · ")}
-                          </p>
-                        )}
-                      </Link>
-                    ))}
-                  </div>
-                );
-              })()
+              sectors.length === 0 ? (
+                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No sectors found.</div>
+              ) : (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {sectors.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/admin/engagement/knowledge/sectors/${s.id}`}
+                      className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group"
+                    >
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">{s.name}</p>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-[#6f6b62] group-hover:text-[#063b32]" />
+                      </div>
+                      {s.description && <p className="text-sm text-[#6f6b62] line-clamp-2">{s.description}</p>}
+                      {s.common_admin_pressures && s.common_admin_pressures.length > 0 && (
+                        <p className="mt-3 text-xs text-[#6f6b62]">
+                          {s.common_admin_pressures.slice(0, 2).join(" · ")}
+                        </p>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              )
             )}
 
             {/* PERSONAS */}
