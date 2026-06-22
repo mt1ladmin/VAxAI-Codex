@@ -159,26 +159,31 @@ export default function KnowledgePage() {
       </div>
 
       <div className="px-8 py-6">
-        {/* Tabs - styled like content toggle */}
-        <div className="flex overflow-hidden rounded-lg border border-[#111111]/15 mb-4">
-          {([
-            ["prospect_prep", "Prospect Prep"],
-            ["sectors", "Sectors"],
-            ["personas", "Personas"],
-            ["pain_points", "Pain points"],
-            ["vat_prompts", "VAT prompts"],
-            ["knowledge_review", "Knowledge Review"],
-          ] as [Tab, string][]).map(([key, label]) => (
-            <button
-              key={key}
-              onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); }}
-              className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
-                tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        {/* Tabs - exactly like content page toggle, top right */}
+        <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-semibold text-[#111111]">Knowledge</span>
+            <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
+              {([
+                ["prospect_prep", "Prospect Prep"],
+                ["sectors", "Sectors"],
+                ["personas", "Personas"],
+                ["pain_points", "Pain points"],
+                ["vat_prompts", "VAT prompts"],
+                ["knowledge_review", "Knowledge Review"],
+              ] as [Tab, string][]).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); }}
+                  className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
+                    tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Brief descriptions per tab */}
