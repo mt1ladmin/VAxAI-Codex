@@ -220,7 +220,7 @@ Return ONLY valid JSON:
     // Adjusted batch size to 10 for cost control and better AI accuracy per item
     const { data: pending } = await supabase
       .from("prospect_queue")
-      .select("id, raw_org_name, raw_contact_name, raw_email, raw_industry, raw_location, raw_notes, organisation_id, contact_id")
+      .select("id, raw_org_name, raw_contact_name, raw_email, raw_phone, raw_website, raw_industry, raw_location, raw_linkedin, raw_notes, organisation_id, contact_id")
       .eq("status", "Needs review")
       .is("duplicate_warning", null)
       .limit(10);
