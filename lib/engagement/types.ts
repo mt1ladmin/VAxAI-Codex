@@ -412,3 +412,101 @@ export const STAGE_COLORS: Record<string, string> = {
   Lost: 'bg-red-100 text-red-600',
   'Not suitable': 'bg-gray-100 text-gray-500',
 };
+
+// ================================================================
+// New types: Prospect Imports, Queue, Knowledge Drafts
+// ================================================================
+
+export type ProspectImportBatch = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  filename: string;
+  original_csv: string;
+  column_mapping: Record<string, string> | null;
+  row_count: number | null;
+  imported_count: number;
+  status: 'pending' | 'reviewing' | 'imported' | 'failed';
+  notes: string | null;
+  created_by: string | null;
+};
+
+export type ProspectQueueEntry = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  import_batch_id: string | null;
+  organisation_id: string | null;
+  contact_id: string | null;
+  raw_org_name: string | null;
+  raw_contact_name: string | null;
+  raw_email: string | null;
+  raw_phone: string | null;
+  raw_website: string | null;
+  raw_industry: string | null;
+  raw_location: string | null;
+  raw_linkedin: string | null;
+  raw_notes: string | null;
+  status: string;
+  last_action: string | null;
+  last_action_date: string | null;
+  next_action: string | null;
+  next_action_date: string | null;
+  duplicate_of_org_id: string | null;
+  duplicate_warning: string | null;
+  previous_contact_warning: string | null;
+  owner_email: string | null;
+  tags: string[] | null;
+  // joined
+  organisation?: Pick<EngagementOrganisation, 'id' | 'name' | 'industry'> | null;
+  contact?: Pick<EngagementContact, 'id' | 'first_name' | 'last_name' | 'professional_email'> | null;
+};
+
+export type KnowledgeDraft = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  source_phrase: string | null;
+  source_call_id: string | null;
+  source_org_id: string | null;
+  category: string | null;
+  title: string;
+  plain_english_definition: string | null;
+  what_person_says: string[] | null;
+  what_this_means: string[] | null;
+  what_not_assume: string[] | null;
+  common_root_causes: string[] | null;
+  natural_questions: string[] | null;
+  possible_automation: string[] | null;
+  possible_ai: string[] | null;
+  human_va_responsibilities: string[] | null;
+  recommendation_pathways: string[] | null;
+  related_pain_point_ids: string[] | null;
+  tags: string[] | null;
+  status: 'pending_review' | 'approved' | 'rejected' | 'merged';
+  reviewer_notes: string | null;
+  merged_into_id: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_by: string | null;
+};
+
+export const PROSPECT_QUEUE_STATUSES = [
+  'Needs review', 'Ready to contact', 'Contact planned', 'Contact attempted',
+  'No response', 'Conversation held', 'Follow-up required', 'Opportunity',
+  'Not suitable', 'Do not contact', 'Closed',
+] as const;
+
+export const PROSPECT_QUEUE_STATUS_COLORS: Record<string, string> = {
+  'Needs review': 'bg-amber-100 text-amber-700',
+  'Ready to contact': 'bg-blue-100 text-blue-700',
+  'Contact planned': 'bg-indigo-100 text-indigo-700',
+  'Contact attempted': 'bg-violet-100 text-violet-700',
+  'No response': 'bg-slate-100 text-slate-600',
+  'Conversation held': 'bg-emerald-100 text-emerald-700',
+  'Follow-up required': 'bg-orange-100 text-orange-700',
+  'Opportunity': 'bg-[#063b32]/10 text-[#063b32]',
+  'Not suitable': 'bg-gray-100 text-gray-500',
+  'Do not contact': 'bg-red-100 text-red-600',
+  'Closed': 'bg-gray-100 text-gray-500',
+};

@@ -4,16 +4,19 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
+  Bot,
   CheckCircle2,
-  ChevronDown,
-  ChevronRight,
   Clock,
+  Copy,
+  FileEdit,
+  Loader2,
   Phone,
   PhoneOff,
   Plus,
   Save,
   Search,
   Shield,
+  Sparkles,
   Target,
   X,
   Zap,
@@ -22,6 +25,20 @@ import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } 
 
 type CallNote = { id: string; text: string; timestamp: Date; type: "note" | "pain_point" | "commitment" | "question" };
 type CallState = "pre" | "active" | "post";
+type AiMatch = { id: string; score: number; why: string; discovery_question: string; suggested_wording: string; pain_point?: PainPoint };
+type StructuredNotes = {
+  call_summary: string;
+  confirmed_pain_points: string[];
+  possible_pain_points: Array<{ topic: string; note: string }>;
+  current_tools_mentioned: string[];
+  admin_pressures_mentioned: string[];
+  desired_outcomes: string[];
+  agreed_next_steps: string[];
+  follow_up_tasks: string[];
+  possible_vaxai_support: string[];
+  trust_concerns: string[];
+  questions_raised: string[];
+};
 
 function LiveCallAssistInner() {
   const router = useRouter();
@@ -36,6 +53,7 @@ function LiveCallAssistInner() {
   const [selectedContact, setSelectedContact] = useState<EngagementContact | null>(null);
   const [notes, setNotes] = useState<CallNote[]>([]);
   const [noteText, setNoteText] = useState("");
+  const [noteType, setNoteType] = useState<CallNote["type"]>("note");
   const [painPointSearch, setPainPointSearch] = useState("");
   const [painPoints, setPainPoints] = useState<PainPoint[]>([]);
   const [selectedPainPoints, setSelectedPainPoints] = useState<PainPoint[]>([]);
@@ -46,6 +64,14 @@ function LiveCallAssistInner() {
   const [showSummary, setShowSummary] = useState(false);
   const [summaryApproved, setSummaryApproved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [aiSearching, setAiSearching] = useState(false);
+  const [aiMatches, setAiMatches] = useState<AiMatch[]>([]);
+  const [structuring, setStructuring] = useState(false);
+  const [structuredNotes, setStructuredNotes] = useState<StructuredNotes | null>(null);
+  const [structuredApproved, setStructuredApproved] = useState<Set<string>>(new Set());
+  const [draftingFollowUp, setDraftingFollowUp] = useState(false);
+  const [followUpDraft, setFollowUpDraft] = useState<{ draft: string; suggested_subject: string } | null>(null);
+  const [followUpCopied, setFollowUpCopied] = useState(false);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
   // Load pain point from URL if coming from navigator
@@ -138,6 +164,83 @@ function LiveCallAssistInner() {
       timestamp: new Date(),
       type: "pain_point",
     }]);
+  };
+
+  const runAiSearch = async () => {
+    if (!painPointSearch.trim()) return;
+    setAiSearching(true);
+    setAiMatches([]);
+    // Fetch a broad set of pain points to search across
+    const res = await fetch(`/api/admin/engagement/pain-points?limit=100`);
+    const j = await res.json() as { data: PainPoint[] };
+    const allPainPoints = j.data || [];
+    const searchRes = await fetch("/api/admin/engagement/ai/pain-point-search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        phrase: painPointSearch,
+        painPoints: allPainPoints.map(pp => ({
+          id: pp.id, title: pp.title, category: pp.category,
+          plain_english_definition: pp.plain_english_definition,
+          what_person_says: pp.what_person_says,
+        })),
+      }),
+    });
+    const sj = await searchRes.json() as { matches?: AiMatch[] };
+    const matches = (sj.matches || []).map(m => ({
+      ...m,
+      pain_point: allPainPoints.find(pp => pp.id === m.id),
+    }));
+    setAiMatches(matches);
+    setAiSearching(false);
+  };
+
+  const structureNotes = async () => {
+    if (!notes.length) return;
+    setStructuring(true);
+    const rawNotes = notes.map(n => `[${noteTypeLabel[n.type]}] ${n.text}`).join("\n");
+    const res = await fetch("/api/admin/engagement/ai/structure-notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rawNotes,
+        callContext: {
+          contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : undefined,
+          orgName: selectedOrg?.name,
+          callType,
+          duration: elapsed,
+        },
+      }),
+    });
+    const j = await res.json() as { data: StructuredNotes };
+    if (j.data) {
+      setStructuredNotes(j.data);
+      // Pre-select all sections
+      setStructuredApproved(new Set(Object.keys(j.data)));
+    }
+    setStructuring(false);
+  };
+
+  const generateFollowUp = async () => {
+    setDraftingFollowUp(true);
+    const summary = structuredNotes?.call_summary ||
+      notes.map(n => n.text).join(". ");
+    const nextSteps = structuredNotes?.agreed_next_steps || [];
+    const res = await fetch("/api/admin/engagement/ai/follow-up-draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        interactionSummary: summary,
+        nextSteps,
+        contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : undefined,
+        orgName: selectedOrg?.name,
+        callType,
+        channel: "email",
+      }),
+    });
+    const j = await res.json() as { data: { draft: string; suggested_subject: string } };
+    if (j.data) setFollowUpDraft(j.data);
+    setDraftingFollowUp(false);
   };
 
   const startCall = () => {
@@ -399,39 +502,137 @@ function LiveCallAssistInner() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Notes and pain points</p>
 
             {/* Pain point search */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-              <input
-                value={painPointSearch}
-                onChange={(e) => setPainPointSearch(e.target.value)}
-                placeholder="Search pain points to add…"
-                className="w-full rounded-lg border border-[#111111]/15 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
-              />
-              {painPoints.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
-                  {painPoints.map((pp) => (
-                    <button
-                      key={pp.id}
-                      onClick={() => addPainPoint(pp)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
-                    >
-                      <Zap className="h-3.5 w-3.5 text-amber-500" />
-                      <div>
-                        <p className="text-sm font-semibold text-[#111111]">{pp.title}</p>
-                        <p className="text-xs text-[#6f6b62]">{pp.category}</p>
-                      </div>
+            <div className="mb-4">
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                  <input
+                    value={painPointSearch}
+                    onChange={(e) => { setPainPointSearch(e.target.value); setAiMatches([]); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void runAiSearch(); }}}
+                    placeholder="Describe what they said or search by keyword…"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+                  />
+                  {painPoints.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
+                      {painPoints.map((pp) => (
+                        <button
+                          key={pp.id}
+                          onClick={() => addPainPoint(pp)}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
+                        >
+                          <Zap className="h-3.5 w-3.5 text-amber-500" />
+                          <div>
+                            <p className="text-sm font-semibold text-[#111111]">{pp.title}</p>
+                            <p className="text-xs text-[#6f6b62]">{pp.category}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => void runAiSearch()}
+                  disabled={!painPointSearch.trim() || aiSearching}
+                  title="AI semantic match — describe what you heard"
+                  className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-40 transition-colors"
+                >
+                  {aiSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                  AI match
+                </button>
+              </div>
+
+              {/* AI semantic match results */}
+              {aiMatches.length > 0 && (
+                <div className="mt-2 rounded-lg border border-violet-200 bg-violet-50 overflow-hidden">
+                  <div className="flex items-center gap-2 px-3 py-2 border-b border-violet-200">
+                    <Bot className="h-3.5 w-3.5 text-violet-600" />
+                    <p className="text-xs font-semibold text-violet-700">AI semantic matches — review before adding</p>
+                    <button onClick={() => setAiMatches([])} className="ml-auto text-violet-500 hover:text-violet-700">
+                      <X className="h-3.5 w-3.5" />
                     </button>
+                  </div>
+                  {aiMatches.map((match) => (
+                    <div key={match.id} className="px-3 py-2.5 border-b border-violet-200/60 last:border-0">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-semibold text-[#111111]">
+                              {match.pain_point?.title || match.id}
+                            </p>
+                            <span className="text-[10px] font-semibold text-violet-600 bg-violet-100 rounded-full px-1.5 py-0.5">
+                              {match.score}%
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#6f6b62] mt-0.5">{match.why}</p>
+                          {match.discovery_question && (
+                            <p className="mt-1 text-xs text-[#111111] italic">
+                              &ldquo;{match.discovery_question}&rdquo;
+                            </p>
+                          )}
+                        </div>
+                        {match.pain_point && (
+                          <button
+                            onClick={() => { addPainPoint(match.pain_point!); setAiMatches(prev => prev.filter(m => m.id !== match.id)); }}
+                            className="shrink-0 rounded-md bg-[#063b32] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]"
+                          >
+                            Add
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   ))}
+                  {painPointSearch.trim() && (
+                    <div className="px-3 py-2 border-t border-violet-200">
+                      <button
+                        onClick={async () => {
+                          const res = await fetch("/api/admin/engagement/ai/draft-pain-point", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              phrase: painPointSearch,
+                              orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
+                            }),
+                          });
+                          const j = await res.json() as { data?: unknown };
+                          if (j.data) {
+                            setNotes(prev => [...prev, {
+                              id: crypto.randomUUID(),
+                              text: `Draft pain point created for review: "${painPointSearch}"`,
+                              timestamp: new Date(),
+                              type: "note",
+                            }]);
+                            setAiMatches([]);
+                          }
+                        }}
+                        className="text-xs text-violet-700 hover:underline"
+                      >
+                        None match? Create a draft pain point for review →
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Note type chips */}
-            <div className="flex gap-2 mb-4 flex-wrap">
-              {(["note","pain_point","commitment","question"] as CallNote["type"][]).map((type) => (
-                <span key={type} className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${noteTypeColor[type]}`}>
+            {/* Note type selector */}
+            <div className="flex gap-2 mb-3 flex-wrap">
+              {(["note", "commitment", "question"] as CallNote["type"][]).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setNoteType(type)}
+                  className={`rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors ${
+                    noteType === type
+                      ? type === "commitment"
+                        ? "bg-emerald-600 text-white border-emerald-600"
+                        : type === "question"
+                        ? "bg-blue-600 text-white border-blue-600"
+                        : "bg-[#063b32] text-white border-[#063b32]"
+                      : noteTypeColor[type]
+                  }`}
+                >
                   {noteTypeLabel[type]}
-                </span>
+                </button>
               ))}
             </div>
 
@@ -441,20 +642,24 @@ function LiveCallAssistInner() {
                 ref={noteRef}
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(); }}}
-                placeholder="Type a note, quote or commitment… (Enter to save)"
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(noteType); }}}
+                placeholder="Type a note… (Enter to save)"
                 rows={3}
-                className="w-full rounded-lg border border-[#111111]/15 bg-white p-3 text-sm outline-none focus:border-[#063b32] resize-none"
+                className={`w-full rounded-lg border p-3 text-sm outline-none resize-none transition-colors ${
+                  noteType === "commitment"
+                    ? "border-emerald-200 focus:border-emerald-400 bg-emerald-50/40"
+                    : noteType === "question"
+                    ? "border-blue-200 focus:border-blue-400 bg-blue-50/40"
+                    : "border-[#111111]/15 focus:border-[#063b32] bg-white"
+                }`}
               />
-              <div className="mt-2 flex gap-2">
-                <button onClick={() => addNote("note")} className="rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]">
-                  + Note
-                </button>
-                <button onClick={() => addNote("commitment")} className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100">
-                  + Commitment
-                </button>
-                <button onClick={() => addNote("question")} className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">
-                  + Question
+              <div className="mt-2 flex justify-end">
+                <button
+                  onClick={() => addNote(noteType)}
+                  disabled={!noteText.trim()}
+                  className="rounded-md bg-[#063b32] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
+                >
+                  Add {noteTypeLabel[noteType].toLowerCase()}
                 </button>
               </div>
             </div>
@@ -620,6 +825,133 @@ function LiveCallAssistInner() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* AI note structuring */}
+            <div className="rounded-xl border border-violet-200 bg-violet-50 p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <Bot className="h-5 w-5 shrink-0 text-violet-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-violet-800">Help me structure these notes</p>
+                    <p className="mt-0.5 text-xs text-violet-700">
+                      AI will suggest a structured summary for review. Your original notes are always kept.
+                    </p>
+                  </div>
+                </div>
+                {!structuredNotes && (
+                  <button
+                    onClick={() => void structureNotes()}
+                    disabled={structuring || notes.length === 0}
+                    className="flex shrink-0 items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-40"
+                  >
+                    {structuring ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    {structuring ? "Structuring…" : "Structure notes"}
+                  </button>
+                )}
+              </div>
+
+              {structuredNotes && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-600">
+                    AI-suggested structure — review and deselect anything inaccurate
+                  </p>
+                  {[
+                    { key: "call_summary", label: "Call summary", value: structuredNotes.call_summary },
+                    { key: "confirmed_pain_points", label: "Confirmed pain points", value: structuredNotes.confirmed_pain_points },
+                    { key: "possible_pain_points", label: "Possible pain points (unconfirmed)", value: structuredNotes.possible_pain_points?.map((p: { topic: string; note: string }) => `${p.topic}: ${p.note}`) },
+                    { key: "agreed_next_steps", label: "Agreed next steps", value: structuredNotes.agreed_next_steps },
+                    { key: "desired_outcomes", label: "Desired outcomes", value: structuredNotes.desired_outcomes },
+                    { key: "follow_up_tasks", label: "Follow-up tasks", value: structuredNotes.follow_up_tasks },
+                    { key: "possible_vaxai_support", label: "Possible VAxAI support (to explore)", value: structuredNotes.possible_vaxai_support },
+                    { key: "trust_concerns", label: "Trust / AI concerns raised", value: structuredNotes.trust_concerns },
+                  ].filter(s => Array.isArray(s.value) ? (s.value as unknown[]).length > 0 : !!s.value).map(section => (
+                    <div key={section.key} className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={structuredApproved.has(section.key)}
+                        onChange={e => {
+                          setStructuredApproved(prev => {
+                            const next = new Set(prev);
+                            if (e.target.checked) next.add(section.key); else next.delete(section.key);
+                            return next;
+                          });
+                        }}
+                        className="mt-0.5 h-3.5 w-3.5 accent-violet-600"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-violet-700">{section.label}</p>
+                        {Array.isArray(section.value) ? (
+                          <ul className="mt-0.5 space-y-0.5">
+                            {(section.value as string[]).map((v, i) => (
+                              <li key={i} className="text-xs text-[#111111]">· {v}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="mt-0.5 text-xs text-[#111111]">{section.value as string}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* AI follow-up draft */}
+            {structuredNotes && (
+              <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <FileEdit className="h-5 w-5 shrink-0 text-[#063b32] mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#063b32]">Draft a follow-up</p>
+                      <p className="mt-0.5 text-xs text-[#6f6b62]">AI will draft a follow-up email based on this call. Edit before sending.</p>
+                    </div>
+                  </div>
+                  {!followUpDraft && (
+                    <button
+                      onClick={() => void generateFollowUp()}
+                      disabled={draftingFollowUp}
+                      className="flex shrink-0 items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
+                    >
+                      {draftingFollowUp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      {draftingFollowUp ? "Drafting…" : "Draft follow-up"}
+                    </button>
+                  )}
+                </div>
+                {followUpDraft && (
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Draft — edit before sending</p>
+                      <button
+                        onClick={() => {
+                          void navigator.clipboard.writeText(followUpDraft.draft);
+                          setFollowUpCopied(true);
+                          setTimeout(() => setFollowUpCopied(false), 2000);
+                        }}
+                        className="flex items-center gap-1 text-xs text-[#063b32] hover:underline"
+                      >
+                        <Copy className="h-3 w-3" />
+                        {followUpCopied ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                    {followUpDraft.suggested_subject && (
+                      <p className="text-xs text-[#6f6b62]">
+                        <span className="font-semibold">Subject:</span> {followUpDraft.suggested_subject}
+                      </p>
+                    )}
+                    <textarea
+                      value={followUpDraft.draft}
+                      onChange={e => setFollowUpDraft(prev => prev ? { ...prev, draft: e.target.value } : null)}
+                      rows={8}
+                      className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#063b32] resize-none"
+                    />
+                    <p className="text-[10px] text-[#6f6b62]">
+                      This is a draft only. Review carefully and do not send automatically. Copy and paste into your email client.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

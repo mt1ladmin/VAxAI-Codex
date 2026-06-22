@@ -107,7 +107,7 @@ export default function PostEditor({
   };
 
   return (
-    <div className="flex flex-col bg-white">
+    <div className="flex flex-col bg-white min-h-full">
       {/* Formatting toolbar */}
       <div className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 border-b border-gray-100 bg-white px-6 py-2">
         <ToolbarBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive("bold")} title="Bold">
@@ -222,7 +222,6 @@ export default function PostEditor({
               el.style.height = el.scrollHeight + "px";
             }}
           />
-          <p className="mt-1 text-[11px] text-gray-400">{description.trim().split(/\s+/).filter(Boolean).length} words</p>
         </div>
 
         {/* Body */}

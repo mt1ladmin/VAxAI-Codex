@@ -15,6 +15,8 @@ export default function PipelinePage() {
   const [opps, setOpps] = useState<EngagementOpportunity[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"kanban" | "list">("kanban");
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverStage, setDragOverStage] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -27,6 +29,20 @@ export default function PipelinePage() {
   useEffect(() => { load(); }, [load]);
 
   const byStage = (stage: string) => opps.filter((o) => o.stage === stage);
+
+  const handleDrop = async (targetStage: string) => {
+    if (!draggedId) return;
+    const opp = opps.find((o) => o.id === draggedId);
+    if (!opp || opp.stage === targetStage) { setDraggedId(null); setDragOverStage(null); return; }
+    setOpps((prev) => prev.map((o) => o.id === draggedId ? { ...o, stage: targetStage as EngagementOpportunity["stage"] } : o));
+    setDraggedId(null);
+    setDragOverStage(null);
+    await fetch(`/api/admin/engagement/opportunities/${draggedId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stage: targetStage }),
+    });
+  };
 
   const totalValue = opps
     .filter((o) => !CLOSED_LOST.includes(o.stage))
@@ -90,9 +106,16 @@ export default function PipelinePage() {
           <div className="flex gap-4 p-6 min-w-max">
             {ACTIVE_STAGES.map((stage) => {
               const items = byStage(stage);
+              const isOver = dragOverStage === stage;
               return (
-                <div key={stage} className="w-64 shrink-0">
-                  <div className="mb-3 flex items-center justify-between">
+                <div
+                  key={stage}
+                  className={`w-64 shrink-0 rounded-xl transition-colors ${isOver ? "bg-[#063b32]/5 ring-1 ring-[#063b32]/20" : ""}`}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverStage(stage); }}
+                  onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStage(null); }}
+                  onDrop={(e) => { e.preventDefault(); void handleDrop(stage); }}
+                >
+                  <div className="mb-3 flex items-center justify-between px-1">
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[stage] || "bg-gray-100 text-gray-600"}`}>
                       {stage}
                     </span>
@@ -100,31 +123,39 @@ export default function PipelinePage() {
                   </div>
                   <div className="space-y-2">
                     {items.map((opp) => (
-                      <Link
+                      <div
                         key={opp.id}
-                        href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
-                        className="block rounded-xl border border-[#111111]/10 bg-white p-3.5 hover:border-[#063b32]/30 hover:shadow-sm transition-all"
+                        draggable
+                        onDragStart={() => setDraggedId(opp.id)}
+                        onDragEnd={() => { setDraggedId(null); setDragOverStage(null); }}
+                        className={`cursor-grab active:cursor-grabbing transition-opacity ${draggedId === opp.id ? "opacity-40" : ""}`}
                       >
-                        <p className="text-sm font-semibold text-[#111111] leading-snug">{opp.title}</p>
-                        {opp.organisation && (
-                          <p className="mt-1 text-xs text-[#6f6b62]">{opp.organisation.name}</p>
-                        )}
-                        {(opp.indicative_value_low || opp.indicative_value_high) && (
-                          <p className="mt-2 text-xs font-semibold text-[#063b32]">
-                            £{(opp.indicative_value_low ?? 0).toLocaleString()}
-                            {opp.indicative_value_high ? ` – £${opp.indicative_value_high.toLocaleString()}` : ""}
-                          </p>
-                        )}
-                        {opp.next_action && (
-                          <p className="mt-1.5 text-[10px] text-[#6f6b62] line-clamp-2 border-t border-[#111111]/8 pt-1.5">
-                            {opp.next_action}
-                          </p>
-                        )}
-                      </Link>
+                        <Link
+                          href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
+                          className="block rounded-xl border border-[#111111]/10 bg-white p-3.5 hover:border-[#063b32]/30 hover:shadow-sm transition-all"
+                          onClick={(e) => { if (draggedId) e.preventDefault(); }}
+                        >
+                          <p className="text-sm font-semibold text-[#111111] leading-snug">{opp.title}</p>
+                          {opp.organisation && (
+                            <p className="mt-1 text-xs text-[#6f6b62]">{opp.organisation.name}</p>
+                          )}
+                          {(opp.indicative_value_low || opp.indicative_value_high) && (
+                            <p className="mt-2 text-xs font-semibold text-[#063b32]">
+                              £{(opp.indicative_value_low ?? 0).toLocaleString()}
+                              {opp.indicative_value_high ? ` – £${opp.indicative_value_high.toLocaleString()}` : ""}
+                            </p>
+                          )}
+                          {opp.next_action && (
+                            <p className="mt-1.5 text-[10px] text-[#6f6b62] line-clamp-2 border-t border-[#111111]/8 pt-1.5">
+                              {opp.next_action}
+                            </p>
+                          )}
+                        </Link>
+                      </div>
                     ))}
                     {items.length === 0 && (
-                      <div className="rounded-xl border border-dashed border-[#111111]/15 py-6 text-center text-xs text-[#6f6b62]">
-                        None
+                      <div className={`rounded-xl border border-dashed py-6 text-center text-xs transition-colors ${isOver ? "border-[#063b32]/30 text-[#063b32]" : "border-[#111111]/15 text-[#6f6b62]"}`}>
+                        {isOver ? "Drop here" : "None"}
                       </div>
                     )}
                   </div>
@@ -133,32 +164,56 @@ export default function PipelinePage() {
             })}
 
             {/* Won / clients column */}
-            <div className="w-64 shrink-0">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="rounded-full bg-[#063b32]/10 text-[#063b32] px-2.5 py-0.5 text-[10px] font-semibold">Won / Clients</span>
-                <span className="text-xs text-[#6f6b62]">{opps.filter((o) => CLOSED_WON.includes(o.stage)).length}</span>
-              </div>
-              <div className="space-y-2">
-                {opps.filter((o) => CLOSED_WON.includes(o.stage)).map((opp) => (
-                  <Link
-                    key={opp.id}
-                    href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
-                    className="block rounded-xl border border-[#111111]/10 bg-white p-3.5 hover:border-[#063b32]/30 hover:shadow-sm transition-all"
-                  >
-                    <div className="flex items-start gap-2">
-                      <TrendingUp className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[#063b32]" />
-                      <div>
-                        <p className="text-sm font-semibold text-[#111111] leading-snug">{opp.title}</p>
-                        {opp.organisation && <p className="mt-0.5 text-xs text-[#6f6b62]">{opp.organisation.name}</p>}
-                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage]}`}>
-                          {opp.stage}
-                        </span>
+            {(() => {
+              const wonStage = "Won";
+              const isOverWon = dragOverStage === wonStage;
+              return (
+                <div
+                  className={`w-64 shrink-0 rounded-xl transition-colors ${isOverWon ? "bg-[#063b32]/5 ring-1 ring-[#063b32]/20" : ""}`}
+                  onDragOver={(e) => { e.preventDefault(); setDragOverStage(wonStage); }}
+                  onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStage(null); }}
+                  onDrop={(e) => { e.preventDefault(); void handleDrop(wonStage); }}
+                >
+                  <div className="mb-3 flex items-center justify-between px-1">
+                    <span className="rounded-full bg-[#063b32]/10 text-[#063b32] px-2.5 py-0.5 text-[10px] font-semibold">Won / Clients</span>
+                    <span className="text-xs text-[#6f6b62]">{opps.filter((o) => CLOSED_WON.includes(o.stage)).length}</span>
+                  </div>
+                  <div className="space-y-2">
+                    {opps.filter((o) => CLOSED_WON.includes(o.stage)).map((opp) => (
+                      <div
+                        key={opp.id}
+                        draggable
+                        onDragStart={() => setDraggedId(opp.id)}
+                        onDragEnd={() => { setDraggedId(null); setDragOverStage(null); }}
+                        className={`cursor-grab active:cursor-grabbing transition-opacity ${draggedId === opp.id ? "opacity-40" : ""}`}
+                      >
+                        <Link
+                          href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
+                          className="block rounded-xl border border-[#111111]/10 bg-white p-3.5 hover:border-[#063b32]/30 hover:shadow-sm transition-all"
+                          onClick={(e) => { if (draggedId) e.preventDefault(); }}
+                        >
+                          <div className="flex items-start gap-2">
+                            <TrendingUp className="h-3.5 w-3.5 shrink-0 mt-0.5 text-[#063b32]" />
+                            <div>
+                              <p className="text-sm font-semibold text-[#111111] leading-snug">{opp.title}</p>
+                              {opp.organisation && <p className="mt-0.5 text-xs text-[#6f6b62]">{opp.organisation.name}</p>}
+                              <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage]}`}>
+                                {opp.stage}
+                              </span>
+                            </div>
+                          </div>
+                        </Link>
                       </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
+                    ))}
+                    {opps.filter((o) => CLOSED_WON.includes(o.stage)).length === 0 && (
+                      <div className={`rounded-xl border border-dashed py-6 text-center text-xs transition-colors ${isOverWon ? "border-[#063b32]/30 text-[#063b32]" : "border-[#111111]/15 text-[#6f6b62]"}`}>
+                        {isOverWon ? "Drop here" : "None"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       ) : (
