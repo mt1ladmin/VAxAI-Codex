@@ -122,8 +122,6 @@ export default function EngagementOverview() {
 
   const typeHref = (r: { type: string; id: string }) => {
     if (r.type === "pain_point") return `/admin/engagement/pain-points/${r.id}`;
-    if (r.type === "organisation") return `/admin/engagement/pipeline/organisations/${r.id}`;
-    if (r.type === "contact") return `/admin/engagement/pipeline/contacts/${r.id}`;
     if (r.type === "opportunity") return `/admin/engagement/pipeline/opportunities/${r.id}`;
     if (r.type === "sector") return `/admin/engagement/knowledge/sectors/${r.id}`;
     return `/admin/engagement/knowledge`;
@@ -516,8 +514,7 @@ export default function EngagementOverview() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
-            { label: "Organisations", href: "/admin/engagement/pipeline/organisations", icon: Users, desc: "Organisation records" },
-            { label: "Contacts", href: "/admin/engagement/pipeline/contacts", icon: Users, desc: "Contact records" },
+            { label: "Website Enquiries", href: "/admin/enquiries", icon: Users, desc: "Contact form submissions" },
             { label: "Prospect Prep", href: "/admin/engagement/prospect-prep", icon: CheckCircle2, desc: "Build and save prospect briefings" },
           ].map((item) => (
             <Link

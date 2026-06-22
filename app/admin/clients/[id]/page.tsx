@@ -295,23 +295,12 @@ export default function ClientDetailPage() {
             {contact.organisation && (
               <div>
                 <p className="text-[10px] text-[#6f6b62]">Organisation</p>
-                <Link
-                  href={`/admin/engagement/pipeline/organisations/${(contact.organisation as { id: string; name: string }).id}`}
-                  className="flex items-center gap-1 text-sm text-[#063b32] hover:underline"
-                >
-                  <Building2 className="h-3.5 w-3.5" />
+                <p className="flex items-center gap-1 text-sm text-[#111111]">
+                  <Building2 className="h-3.5 w-3.5 text-[#063b32]" />
                   {(contact.organisation as { id: string; name: string }).name}
-                </Link>
+                </p>
               </div>
             )}
-            <div>
-              <Link
-                href={`/admin/engagement/pipeline/contacts/${id}`}
-                className="text-xs text-[#6f6b62] hover:text-[#063b32] hover:underline"
-              >
-                View full CRM record →
-              </Link>
-            </div>
           </div>
 
           {/* Primary service card */}

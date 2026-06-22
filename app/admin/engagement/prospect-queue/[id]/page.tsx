@@ -452,14 +452,10 @@ export default function ProspectDetailPage() {
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">CRM record</p>
               {entry.organisation_id && (
-                <Link href={`/admin/engagement/pipeline/organisations/${entry.organisation_id}`} className="flex items-center gap-2 text-sm text-[#063b32] hover:underline">
-                  View organisation record →
-                </Link>
+                <p className="text-sm text-[#111111]">Organisation linked</p>
               )}
               {entry.contact_id && (
-                <Link href={`/admin/engagement/pipeline/contacts/${entry.contact_id}`} className="flex items-center gap-2 text-sm text-[#063b32] hover:underline">
-                  View contact record →
-                </Link>
+                <p className="text-sm text-[#111111]">Contact linked</p>
               )}
             </div>
           )}

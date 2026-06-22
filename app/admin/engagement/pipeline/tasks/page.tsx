@@ -256,9 +256,9 @@ export default function TasksPage() {
                             <span className="text-[10px] text-[#6f6b62]">{t.task_type.replace("_", " ")}</span>
                           )}
                           {t.organisation && (
-                            <Link href={`/admin/engagement/pipeline/organisations/${t.organisation.id}`} className="text-[10px] text-[#063b32] hover:underline">
+                            <span className="text-[10px] text-[#6f6b62]">
                               · {t.organisation.name}
-                            </Link>
+                            </span>
                           )}
                           {t.contact && (
                             <span className="text-[10px] text-[#6f6b62]">

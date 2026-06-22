@@ -321,12 +321,7 @@ export default function OpportunityDetailPage() {
             <h1 className="text-2xl font-semibold text-[#111111]">{opp.title}</h1>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {opp.organisation && (
-                <Link
-                  href={`/admin/engagement/pipeline/organisations/${opp.organisation.id}`}
-                  className="text-sm text-[#063b32] hover:underline"
-                >
-                  {opp.organisation.name}
-                </Link>
+                <span className="text-sm text-[#111111]">{opp.organisation.name}</span>
               )}
               {contactName && <span className="text-sm text-[#6f6b62]">· {contactName}</span>}
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${stageColor}`}>
@@ -417,20 +412,10 @@ export default function OpportunityDetailPage() {
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">CRM record</p>
               {opp.organisation_id && (
-                <Link
-                  href={`/admin/engagement/pipeline/organisations/${opp.organisation_id}`}
-                  className="block text-sm text-[#063b32] hover:underline"
-                >
-                  View organisation →
-                </Link>
+                <p className="text-sm text-[#111111]">Organisation linked</p>
               )}
               {opp.primary_contact_id && (
-                <Link
-                  href={`/admin/engagement/pipeline/contacts/${opp.primary_contact_id}`}
-                  className="block text-sm text-[#063b32] hover:underline"
-                >
-                  View contact →
-                </Link>
+                <p className="text-sm text-[#111111]">Contact linked</p>
               )}
             </div>
           )}

@@ -120,21 +120,21 @@ export default function InteractionDetailPage() {
               {ix.contact && (
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Contact</p>
-                  <Link href={`/admin/engagement/pipeline/contacts/${ix.contact.id}`} className="flex items-center gap-1.5 mt-0.5 text-sm font-semibold text-[#063b32] hover:underline">
-                    <User className="h-3.5 w-3.5" />
+                  <p className="flex items-center gap-1.5 mt-0.5 text-sm font-semibold text-[#111111]">
+                    <User className="h-3.5 w-3.5 text-[#063b32]" />
                     {ix.contact.first_name} {ix.contact.last_name || ""}
                     {ix.contact.role && <span className="font-normal text-[#6f6b62]">· {ix.contact.role}</span>}
-                  </Link>
+                  </p>
                 </div>
               )}
               {ix.organisation && (
                 <div>
                   <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Organisation</p>
-                  <Link href={`/admin/engagement/pipeline/organisations/${ix.organisation.id}`} className="flex items-center gap-1.5 mt-0.5 text-sm font-semibold text-[#063b32] hover:underline">
-                    <Building2 className="h-3.5 w-3.5" />
+                  <p className="flex items-center gap-1.5 mt-0.5 text-sm font-semibold text-[#111111]">
+                    <Building2 className="h-3.5 w-3.5 text-[#063b32]" />
                     {ix.organisation.name}
                     {ix.organisation.industry && <span className="font-normal text-[#6f6b62]">· {ix.organisation.industry}</span>}
-                  </Link>
+                  </p>
                 </div>
               )}
             </div>
@@ -241,12 +241,11 @@ export default function InteractionDetailPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">
                 Pain points identified ({ix.pain_point_ids.length})
               </p>
-              <Link
-                href={`/admin/engagement/pipeline/organisations/${ix.organisation?.id}`}
-                className="flex items-center gap-1 text-xs text-[#063b32] hover:underline mt-1"
-              >
-                View organisation profile <ChevronRight className="h-3 w-3" />
-              </Link>
+              {ix.organisation && (
+                <p className="text-xs text-[#6f6b62] mt-1">
+                  Organisation: {ix.organisation.name}
+                </p>
+              )}
             </div>
           )}
         </div>

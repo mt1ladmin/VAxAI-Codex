@@ -145,9 +145,9 @@ export default function InteractionsPage() {
                         )}
                       </div>
                       {i.organisation && (
-                        <Link href={`/admin/engagement/pipeline/organisations/${i.organisation.id}`} className="text-xs text-[#063b32] hover:underline">
+                        <span className="text-xs text-[#111111]">
                           {i.organisation.name}
-                        </Link>
+                        </span>
                       )}
                       {i.contact && (
                         <span className="ml-2 text-xs text-[#6f6b62]">

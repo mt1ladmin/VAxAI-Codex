@@ -601,14 +601,14 @@ export default function EnquiryDetailPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client record</p>
             {linkedContact && (
               <div className="space-y-2">
-                <Link href={`/admin/engagement/pipeline/contacts/${linkedContact.id}`} className="flex items-center gap-2 text-sm font-semibold text-[#063b32] hover:underline">
-                  <User className="h-4 w-4" />
+                <p className="flex items-center gap-2 text-sm font-semibold text-[#111111]">
+                  <User className="h-4 w-4 text-[#063b32]" />
                   {linkedContact.first_name} {linkedContact.last_name || ""}
-                </Link>
+                </p>
                 {linkedContact.organisation && (
-                  <Link href={`/admin/engagement/pipeline/organisations/${linkedContact.organisation.id}`} className="flex items-center gap-2 text-xs text-[#6f6b62] hover:text-[#063b32]">
+                  <p className="flex items-center gap-2 text-xs text-[#6f6b62]">
                     <Building2 className="h-3.5 w-3.5" /> {linkedContact.organisation.name}
-                  </Link>
+                  </p>
                 )}
               </div>
             )}
@@ -702,6 +702,49 @@ export default function EnquiryDetailPage() {
         <div className="lg:col-span-2 space-y-4">
           {activeTab === "overview" && (
             <>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <button type="button" onClick={() => setActiveTab("calls")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{interactions.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Call records</p>
+                </button>
+                <button type="button" onClick={() => setActiveTab("preps")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{linkedPreps.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Prospect preps</p>
+                </button>
+                <button type="button" onClick={() => setActiveTab("opportunities")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
+                </button>
+              </div>
+
+              <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">CATs</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62]">Contact</p>
+                    <p className="text-sm font-semibold text-[#111111]">{enquiry.name}</p>
+                    <a href={gmailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
+                      <Mail className="h-3.5 w-3.5" /> {enquiry.email}
+                    </a>
+                    {enquiry.telephone && (
+                      <a href={`tel:${enquiry.telephone}`} className="mt-1 flex items-center gap-1.5 text-sm text-[#111111]">
+                        <Phone className="h-3.5 w-3.5" /> {enquiry.telephone}
+                      </a>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62]">Activity</p>
+                    <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{enquiry.details || "—"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62]">Type</p>
+                    <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
+                    <p className="mt-2 text-[10px] text-[#6f6b62]">Preferred contact</p>
+                    <p className="text-sm text-[#111111]">{enquiry.preferred_contact || "—"}</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="rounded-xl border border-[#111111]/10 p-5">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
@@ -761,30 +804,19 @@ export default function EnquiryDetailPage() {
                 </div>
               )}
 
-              <div className="grid gap-3 sm:grid-cols-3">
-                <button type="button" onClick={() => setActiveTab("calls")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{interactions.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Call records</p>
-                </button>
-                <button type="button" onClick={() => setActiveTab("preps")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{linkedPreps.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Prospect preps</p>
-                </button>
-                <button type="button" onClick={() => setActiveTab("opportunities")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
-                </button>
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
+                {enquiry.last_action ? (
+                  <>
+                    <p className="text-sm text-[#111111]">{enquiry.last_action}</p>
+                    {enquiry.last_action_date && (
+                      <p className="mt-1 text-xs text-[#6f6b62]">{new Date(enquiry.last_action_date).toLocaleString("en-GB")}</p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-[#6f6b62]/50">No activity recorded yet.</p>
+                )}
               </div>
-
-              {enquiry.last_action && (
-                <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
-                  <p className="text-sm text-[#111111]">{enquiry.last_action}</p>
-                  {enquiry.last_action_date && (
-                    <p className="mt-1 text-xs text-[#6f6b62]">{new Date(enquiry.last_action_date).toLocaleString("en-GB")}</p>
-                  )}
-                </div>
-              )}
             </>
           )}
 

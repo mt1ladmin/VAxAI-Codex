@@ -1,9 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Calendar, Check, ChevronDown, ChevronRight, MessageSquare, Search, Trash2, X } from "lucide-react";
+import {
+  Calendar,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  MessageSquare,
+  Search,
+  Target,
+  Trash2,
+  X,
+} from "lucide-react";
 import {
   ENQUIRY_STATUS_COLORS,
   ENQUIRY_STATUS_OPTIONS,
@@ -24,7 +35,19 @@ type Enquiry = {
   status: string;
   connected_post_id: string | null;
   connected_post_title: string | null;
+  next_action: string | null;
+  next_action_date: string | null;
+  last_action: string | null;
+  last_action_date: string | null;
 };
+
+function SectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+      {children}
+    </p>
+  );
+}
 
 function LabeledField({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -55,11 +78,32 @@ export default function EnquiriesPage() {
 
   useEffect(() => { void fetch_(); }, [fetch_]);
 
-  const filtered = enquiries.filter((e) => {
+  const filtered = useMemo(() => enquiries.filter((e) => {
     if (!search) return true;
     const q = search.toLowerCase();
-    return e.name.toLowerCase().includes(q) || e.email.toLowerCase().includes(q) || e.details.toLowerCase().includes(q);
-  });
+    return (
+      e.name.toLowerCase().includes(q) ||
+      e.email.toLowerCase().includes(q) ||
+      e.details.toLowerCase().includes(q) ||
+      e.support_type.toLowerCase().includes(q) ||
+      (e.next_action || "").toLowerCase().includes(q) ||
+      (e.last_action || "").toLowerCase().includes(q)
+    );
+  }), [enquiries, search]);
+
+  const metrics = useMemo(() => {
+    const needsReview = filtered.filter((e) =>
+      e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status,
+    ).length;
+    const withNextAction = filtered.filter((e) => e.next_action).length;
+    const discoveryCalls = filtered.filter((e) => e.wants_discovery_call).length;
+    return {
+      total: filtered.length,
+      needsReview,
+      withNextAction,
+      discoveryCalls,
+    };
+  }, [filtered]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -115,6 +159,26 @@ export default function EnquiriesPage() {
       </div>
 
       <div className="px-8 py-6">
+        {/* Metrics */}
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{loading ? "—" : metrics.total}</p>
+          </div>
+          <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">Needs review</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{loading ? "—" : metrics.needsReview}</p>
+          </div>
+          <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">With next action</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{loading ? "—" : metrics.withNextAction}</p>
+          </div>
+          <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Discovery calls</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{loading ? "—" : metrics.discoveryCalls}</p>
+          </div>
+        </div>
+
         {/* Toolbar */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
           <select
@@ -127,7 +191,7 @@ export default function EnquiriesPage() {
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <div className="relative min-w-[200px] flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
             <input
               value={search}
@@ -164,7 +228,7 @@ export default function EnquiriesPage() {
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-[#f7f4ea] animate-pulse" />
+              <div key={i} className="h-28 rounded-xl bg-[#f7f4ea] animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -215,58 +279,110 @@ export default function EnquiriesPage() {
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                      <LabeledField label="Name">
-                        <span className="font-semibold">{e.name}</span>
-                      </LabeledField>
-                      <LabeledField label="Email">
-                        <a
-                          href={`mailto:${e.email}`}
-                          onClick={(ev) => ev.stopPropagation()}
-                          className="text-[#063b32] hover:underline"
-                        >
-                          {e.email}
-                        </a>
-                      </LabeledField>
-                      <LabeledField label="Telephone">{e.telephone || "—"}</LabeledField>
-                      <LabeledField label="Query type">
-                        <span className="rounded-full bg-[#f5f274]/80 px-2 py-0.5 text-xs font-semibold text-[#111111] inline-block">
-                          {e.support_type}
-                        </span>
-                      </LabeledField>
-                      <LabeledField label="Discovery call">
-                        {e.wants_discovery_call ? (
-                          <span className="rounded-full bg-[#063b32] px-2 py-0.5 text-xs font-semibold text-[#f5f274] inline-block">Yes — requested</span>
-                        ) : (
-                          <span className="text-[#6f6b62]">No</span>
-                        )}
-                      </LabeledField>
-                      <LabeledField label="Preferred contact">{e.preferred_contact || "—"}</LabeledField>
-                      <LabeledField label="Received">
-                        <span className="flex items-center gap-1 text-[#6f6b62]">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(e.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                        </span>
-                      </LabeledField>
-                      {e.connected_post_title && (
-                        <LabeledField label="Related post">
-                          {e.connected_post_id ? (
-                            <Link
-                              href={`/admin/posts/${e.connected_post_id}`}
+                    <div className="grid flex-1 gap-4 lg:grid-cols-4">
+                      {/* Metrics */}
+                      <div>
+                        <SectionLabel>Metrics</SectionLabel>
+                        <div className="space-y-2">
+                          <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${ENQUIRY_STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}>
+                            {enquiryStatusLabel(e.status)}
+                          </span>
+                          <LabeledField label="Received">
+                            <span className="flex items-center gap-1 text-[#6f6b62]">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(e.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            </span>
+                          </LabeledField>
+                          <LabeledField label="Discovery call">
+                            {e.wants_discovery_call ? (
+                              <span className="inline-flex rounded-full bg-[#063b32] px-2 py-0.5 text-xs font-semibold text-[#f5f274]">Requested</span>
+                            ) : (
+                              <span className="text-[#6f6b62]">No</span>
+                            )}
+                          </LabeledField>
+                        </div>
+                      </div>
+
+                      {/* CATs: Contact, Activity, Type */}
+                      <div>
+                        <SectionLabel>CATs</SectionLabel>
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          <LabeledField label="Contact">
+                            <span className="font-semibold">{e.name}</span>
+                          </LabeledField>
+                          <LabeledField label="Email">
+                            <a
+                              href={`mailto:${e.email}`}
                               onClick={(ev) => ev.stopPropagation()}
                               className="text-[#063b32] hover:underline"
                             >
-                              {e.connected_post_title}
-                            </Link>
-                          ) : (
-                            e.connected_post_title
+                              {e.email}
+                            </a>
+                          </LabeledField>
+                          <LabeledField label="Telephone">{e.telephone || "—"}</LabeledField>
+                          <LabeledField label="Activity">
+                            <span className="line-clamp-2 text-[#6f6b62] leading-relaxed">{e.details || "—"}</span>
+                          </LabeledField>
+                          <LabeledField label="Type">
+                            <span className="inline-block rounded-full bg-[#f5f274]/80 px-2 py-0.5 text-xs font-semibold text-[#111111]">
+                              {e.support_type}
+                            </span>
+                          </LabeledField>
+                          <LabeledField label="Preferred contact">{e.preferred_contact || "—"}</LabeledField>
+                          {e.connected_post_title && (
+                            <div className="sm:col-span-2">
+                              <LabeledField label="Related post">
+                                {e.connected_post_id ? (
+                                  <Link
+                                    href={`/admin/posts/${e.connected_post_id}`}
+                                    onClick={(ev) => ev.stopPropagation()}
+                                    className="text-[#063b32] hover:underline"
+                                  >
+                                    {e.connected_post_title}
+                                  </Link>
+                                ) : (
+                                  e.connected_post_title
+                                )}
+                              </LabeledField>
+                            </div>
                           )}
-                        </LabeledField>
-                      )}
-                      <div className="sm:col-span-2 lg:col-span-4">
-                        <LabeledField label="Description">
-                          <p className="whitespace-pre-wrap text-[#6f6b62] leading-relaxed">{e.details || "—"}</p>
-                        </LabeledField>
+                        </div>
+                      </div>
+
+                      {/* Next action */}
+                      <div>
+                        <SectionLabel>Next action</SectionLabel>
+                        {e.next_action ? (
+                          <div>
+                            <p className="text-sm text-[#111111] line-clamp-3">{e.next_action}</p>
+                            {e.next_action_date && (
+                              <p className="mt-1 flex items-center gap-1 text-xs text-[#6f6b62]">
+                                <Target className="h-3 w-3" />
+                                {new Date(e.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-[#6f6b62]/50">—</p>
+                        )}
+                      </div>
+
+                      {/* Last activity */}
+                      <div>
+                        <SectionLabel>Last activity</SectionLabel>
+                        {e.last_action ? (
+                          <div>
+                            <p className="text-sm text-[#111111] line-clamp-3">{e.last_action}</p>
+                            {e.last_action_date && (
+                              <p className="mt-1 flex items-center gap-1 text-xs text-[#6f6b62]">
+                                <Clock className="h-3 w-3" />
+                                {new Date(e.last_action_date).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-[#6f6b62]/50">—</p>
+                        )}
                       </div>
                     </div>
 
