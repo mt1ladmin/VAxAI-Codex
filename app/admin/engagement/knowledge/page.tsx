@@ -42,13 +42,17 @@ export default function KnowledgePage() {
     } else if (tab === "personas") {
       const res = await fetch("/api/admin/engagement/personas?limit=50");
       const json = await res.json() as { data: Persona[] };
-      setPersonas(json.data || []);
+      const data = json.data || [];
+      const unique = data.filter((p, i, a) => a.findIndex((t) => t.persona_name.toLowerCase() === p.persona_name.toLowerCase()) === i);
+      setPersonas(unique);
     } else if (tab === "vat_prompts") {
       const params = new URLSearchParams();
       if (dimension) params.set("dimension", dimension);
       const res = await fetch(`/api/admin/engagement/vat-prompts?${params}&limit=100`);
       const json = await res.json() as { data: VatPrompt[] };
-      setVatPrompts(json.data || []);
+      const data = json.data || [];
+      const unique = data.filter((p, i, a) => a.findIndex((t) => `${t.prompt.toLowerCase()}|${t.dimension}` === `${p.prompt.toLowerCase()}|${p.dimension}`) === i);
+      setVatPrompts(unique);
     }
     setLoading(false);
   }, [tab, search, category, dimension]);
