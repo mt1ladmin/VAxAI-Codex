@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -28,10 +28,7 @@ import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { InteractionList } from "@/components/admin/InteractionList";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
-import {
-  ENQUIRY_STATUS_COLORS,
-  enquiryStatusLabel,
-} from "@/lib/enquiries/constants";
+
 import type { CustomCard, PrepCard, ProspectCallContext } from "@/lib/engagement/call-context";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import type {
@@ -43,10 +40,11 @@ import type {
 } from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
-type HubTab = "overview" | "activity" | "calls" | "preps" | "opportunities" | "notes";
+type HubTab = "overview" | "profile" | "activity" | "calls" | "preps" | "opportunities" | "notes";
 
 const HUB_TABS: Array<{ id: HubTab; label: string }> = [
   { id: "overview", label: "Overview" },
+  { id: "profile", label: "Profile" },
   { id: "activity", label: "Activity" },
   { id: "calls", label: "Calls" },
   { id: "preps", label: "Preps" },
@@ -83,6 +81,184 @@ function gmailComposeUrl(email: string) {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
 }
 
+function KnowledgeList({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-1.5">
+      {items.map((item, i) => (
+        <li key={i} className="flex gap-2 text-sm text-[#111111]">
+          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#063b32]/40 shrink-0" />
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function KnowledgeSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
+      <div className="bg-[#f7f4ea] px-5 py-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{title}</p>
+      </div>
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+function SectorKnowledgePanel({ sector }: { sector: SectorProfile }) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Sector profile</p>
+        <h2 className="mt-1 text-xl font-semibold text-[#111111]">{sector.name}</h2>
+        {sector.description && (
+          <p className="mt-1 text-sm text-[#6f6b62]">{sector.description}</p>
+        )}
+        {sector.audience_types && sector.audience_types.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {sector.audience_types.map((a) => (
+              <span key={a} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{a}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {sector.common_operating_model && (
+        <KnowledgeSection title="How this sector typically operates">
+          <p className="text-sm text-[#111111]">{sector.common_operating_model}</p>
+        </KnowledgeSection>
+      )}
+      {sector.common_admin_pressures && sector.common_admin_pressures.length > 0 && (
+        <KnowledgeSection title="Common admin pressures">
+          <KnowledgeList items={sector.common_admin_pressures} />
+        </KnowledgeSection>
+      )}
+      {sector.typical_stakeholders && sector.typical_stakeholders.length > 0 && (
+        <KnowledgeSection title="Typical stakeholders">
+          <div className="flex flex-wrap gap-2">
+            {sector.typical_stakeholders.map((s) => (
+              <span key={s} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{s}</span>
+            ))}
+          </div>
+        </KnowledgeSection>
+      )}
+      {sector.common_systems && sector.common_systems.length > 0 && (
+        <KnowledgeSection title="Common systems and tools">
+          <div className="flex flex-wrap gap-2">
+            {sector.common_systems.map((s) => (
+              <span key={s} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs font-semibold text-[#6f6b62]">{s}</span>
+            ))}
+          </div>
+        </KnowledgeSection>
+      )}
+      {sector.common_data_types && sector.common_data_types.length > 0 && (
+        <KnowledgeSection title="Common data types">
+          <KnowledgeList items={sector.common_data_types} />
+        </KnowledgeSection>
+      )}
+      {sector.relevant_risk_areas && sector.relevant_risk_areas.length > 0 && (
+        <KnowledgeSection title="Risk areas to be aware of">
+          <div className="flex flex-wrap gap-2">
+            {sector.relevant_risk_areas.map((r) => (
+              <span key={r} className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-600">{r}</span>
+            ))}
+          </div>
+        </KnowledgeSection>
+      )}
+      {sector.starting_language && (
+        <KnowledgeSection title="Language to use when starting a conversation">
+          <p className="text-sm text-[#111111] italic">&ldquo;{sector.starting_language}&rdquo;</p>
+        </KnowledgeSection>
+      )}
+      {sector.questions_to_explore && sector.questions_to_explore.length > 0 && (
+        <KnowledgeSection title="Questions to explore">
+          <KnowledgeList items={sector.questions_to_explore} />
+        </KnowledgeSection>
+      )}
+      {sector.common_objections && sector.common_objections.length > 0 && (
+        <KnowledgeSection title="Common objections in this sector">
+          <div className="space-y-2">
+            {sector.common_objections.map((o, i) => (
+              <div key={i} className="rounded-lg bg-amber-50 border border-amber-100 px-4 py-3">
+                <p className="text-sm text-[#111111] italic">&ldquo;{o}&rdquo;</p>
+              </div>
+            ))}
+          </div>
+        </KnowledgeSection>
+      )}
+      {sector.potential_pathways && sector.potential_pathways.length > 0 && (
+        <KnowledgeSection title="Potential service pathways">
+          <KnowledgeList items={sector.potential_pathways} />
+        </KnowledgeSection>
+      )}
+    </div>
+  );
+}
+
+function PersonaKnowledgePanel({ persona }: { persona: Persona }) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Persona</p>
+        <h2 className="mt-1 text-xl font-semibold text-[#111111]">{persona.persona_name}</h2>
+        {persona.typical_role && (
+          <p className="mt-1 text-sm text-[#6f6b62]">{persona.typical_role}</p>
+        )}
+      </div>
+
+      {persona.goals && persona.goals.length > 0 && (
+        <KnowledgeSection title="Goals">
+          <KnowledgeList items={persona.goals} />
+        </KnowledgeSection>
+      )}
+      {persona.pressures && persona.pressures.length > 0 && (
+        <KnowledgeSection title="Pressures">
+          <KnowledgeList items={persona.pressures} />
+        </KnowledgeSection>
+      )}
+      {persona.decision_responsibilities && persona.decision_responsibilities.length > 0 && (
+        <KnowledgeSection title="Decision responsibilities">
+          <KnowledgeList items={persona.decision_responsibilities} />
+        </KnowledgeSection>
+      )}
+      {persona.likely_concerns && persona.likely_concerns.length > 0 && (
+        <KnowledgeSection title="Likely concerns">
+          <KnowledgeList items={persona.likely_concerns} />
+        </KnowledgeSection>
+      )}
+      {persona.information_needed && persona.information_needed.length > 0 && (
+        <KnowledgeSection title="Information needed">
+          <KnowledgeList items={persona.information_needed} />
+        </KnowledgeSection>
+      )}
+      {persona.useful_questions && persona.useful_questions.length > 0 && (
+        <KnowledgeSection title="Useful questions">
+          <KnowledgeList items={persona.useful_questions} />
+        </KnowledgeSection>
+      )}
+      {persona.language_to_avoid && persona.language_to_avoid.length > 0 && (
+        <KnowledgeSection title="Language to avoid">
+          <KnowledgeList items={persona.language_to_avoid} />
+        </KnowledgeSection>
+      )}
+      {persona.preferred_detail && (
+        <KnowledgeSection title="Preferred detail level">
+          <p className="text-sm text-[#111111]">{persona.preferred_detail}</p>
+        </KnowledgeSection>
+      )}
+      {persona.possible_channels && persona.possible_channels.length > 0 && (
+        <KnowledgeSection title="Possible channels">
+          <div className="flex flex-wrap gap-2">
+            {persona.possible_channels.map((c) => (
+              <span key={c} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs font-semibold text-[#6f6b62]">{c}</span>
+            ))}
+          </div>
+        </KnowledgeSection>
+      )}
+    </div>
+  );
+}
+
 export default function EnquiryDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -117,6 +293,8 @@ export default function EnquiryDetailPage() {
   const [selectedSectorId, setSelectedSectorId] = useState("");
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [profileSaved, setProfileSaved] = useState(false);
   const [showCallChat, setShowCallChat] = useState(false);
   const [activeTab, setActiveTab] = useState<HubTab>("overview");
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
@@ -267,13 +445,21 @@ export default function EnquiryDetailPage() {
 
   const saveSectorPersona = async () => {
     setSavingProfile(true);
-    const sector = sectors.find((s) => s.id === selectedSectorId) || null;
-    const persona = personas.find((p) => p.id === selectedPersonaId) || null;
-    await patchEnquiry({
-      sector_snapshot: sector,
-      persona_snapshot: persona,
-    } as Partial<Enquiry>);
-    setSavingProfile(false);
+    setProfileError(null);
+    setProfileSaved(false);
+    try {
+      const sector = sectors.find((s) => s.id === selectedSectorId) || null;
+      const persona = personas.find((p) => p.id === selectedPersonaId) || null;
+      await patchEnquiry({
+        sector_snapshot: sector,
+        persona_snapshot: persona,
+      } as Partial<Enquiry>);
+      setProfileSaved(true);
+    } catch (e) {
+      setProfileError(e instanceof Error ? e.message : "Failed to save profile");
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const prepareForContact = async () => {
@@ -490,9 +676,10 @@ export default function EnquiryDetailPage() {
   if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
   if (!enquiry) return <div className="p-8 text-sm text-[#6f6b62]">Enquiry not found.</div>;
 
-  const statusColor = ENQUIRY_STATUS_COLORS[enquiry.status] || "bg-gray-100 text-gray-600";
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
   const callContext = buildCallContext();
+  const selectedSector = sectors.find((s) => s.id === selectedSectorId) || null;
+  const selectedPersona = personas.find((p) => p.id === selectedPersonaId) || null;
   const clientOpportunity = opportunities.find((o) =>
     ["Won", "Onboarding", "Active client"].includes(o.stage)
   ) ?? null;
@@ -598,6 +785,38 @@ export default function EnquiryDetailPage() {
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Submission</p>
+            <div>
+              <p className="text-[10px] text-[#6f6b62]">Query type</p>
+              <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
+            </div>
+            <div>
+              <p className="text-[10px] text-[#6f6b62]">Description</p>
+              <p className="mt-0.5 text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{enquiry.details}</p>
+            </div>
+            {postTitle && (
+              <div>
+                <p className="text-[10px] text-[#6f6b62]">Related post</p>
+                {enquiry.connected_post_id ? (
+                  <Link href={`/admin/posts/${enquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
+                    <ExternalLink className="h-3.5 w-3.5" /> {postTitle}
+                  </Link>
+                ) : (
+                  <p className="text-sm text-[#111111]">{postTitle}</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-[#111111]/10 p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Status</p>
+            <StatusSelect value={enquiry.status} onChange={(status) => void updateStatus(status)} loading={updatingStatus} />
+            {statusError && (
+              <p className="mt-2 text-xs text-red-600 whitespace-pre-wrap">{statusError}</p>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client record</p>
             {linkedContact && (
               <div className="space-y-2">
@@ -637,66 +856,6 @@ export default function EnquiryDetailPage() {
               </button>
             )}
           </div>
-
-          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Sector &amp; persona</p>
-            <select
-              value={selectedSectorId}
-              onChange={(e) => setSelectedSectorId(e.target.value)}
-              className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-            >
-              <option value="">— Select sector —</option>
-              {sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-            <select
-              value={selectedPersonaId}
-              onChange={(e) => setSelectedPersonaId(e.target.value)}
-              className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-            >
-              <option value="">— Select persona —</option>
-              {personas.map((p) => <option key={p.id} value={p.id}>{p.persona_name}</option>)}
-            </select>
-            <button
-              type="button"
-              onClick={() => void saveSectorPersona()}
-              disabled={savingProfile}
-              className="w-full rounded-lg bg-[#063b32]/10 px-3 py-2 text-xs font-semibold text-[#063b32] hover:bg-[#063b32]/20 disabled:opacity-50"
-            >
-              {savingProfile ? "Saving…" : "Save profile"}
-            </button>
-          </div>
-
-          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Submission</p>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Query type</p>
-              <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
-            </div>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Description</p>
-              <p className="mt-0.5 text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{enquiry.details}</p>
-            </div>
-            {postTitle && (
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Related post</p>
-                {enquiry.connected_post_id ? (
-                  <Link href={`/admin/posts/${enquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
-                    <ExternalLink className="h-3.5 w-3.5" /> {postTitle}
-                  </Link>
-                ) : (
-                  <p className="text-sm text-[#111111]">{postTitle}</p>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-xl border border-[#111111]/10 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Status</p>
-            <StatusSelect value={enquiry.status} onChange={(status) => void updateStatus(status)} loading={updatingStatus} />
-            {statusError && (
-              <p className="mt-2 text-xs text-red-600 whitespace-pre-wrap">{statusError}</p>
-            )}
-          </div>
         </div>
 
         <div className="lg:col-span-2 space-y-4">
@@ -717,32 +876,25 @@ export default function EnquiryDetailPage() {
                 </button>
               </div>
 
-              <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">CATs</p>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <p className="text-[10px] text-[#6f6b62]">Contact</p>
-                    <p className="text-sm font-semibold text-[#111111]">{enquiry.name}</p>
-                    <a href={gmailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="mt-1 flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
-                      <Mail className="h-3.5 w-3.5" /> {enquiry.email}
-                    </a>
-                    {enquiry.telephone && (
-                      <a href={`tel:${enquiry.telephone}`} className="mt-1 flex items-center gap-1.5 text-sm text-[#111111]">
-                        <Phone className="h-3.5 w-3.5" /> {enquiry.telephone}
-                      </a>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[#6f6b62]">Activity</p>
-                    <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{enquiry.details || "—"}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-[#6f6b62]">Type</p>
-                    <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
-                    <p className="mt-2 text-[10px] text-[#6f6b62]">Preferred contact</p>
-                    <p className="text-sm text-[#111111]">{enquiry.preferred_contact || "—"}</p>
-                  </div>
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
+                  <Phone className="h-4 w-4" /> Start call
+                </button>
+                <a href={gmailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
+                  <Mail className="h-4 w-4" /> Send email
+                </a>
+                <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
+                  <Plus className="h-4 w-4" /> Add note
+                </button>
+                <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
+                  <Sparkles className="h-4 w-4" /> New prospect prep
+                </button>
+                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50">
+                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Target className="h-4 w-4" />} Create opportunity
+                </button>
+                <button type="button" onClick={() => setShowCallChat((v) => !v)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-50">
+                  <Sparkles className="h-4 w-4" /> {showCallChat ? "Hide" : "Preview"} call assistant
+                </button>
               </div>
 
               <div className="rounded-xl border border-[#111111]/10 p-5">
@@ -777,27 +929,6 @@ export default function EnquiryDetailPage() {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
-                  <Phone className="h-4 w-4" /> Start call
-                </button>
-                <a href={gmailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
-                  <Mail className="h-4 w-4" /> Send email
-                </a>
-                <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
-                  <Plus className="h-4 w-4" /> Add note
-                </button>
-                <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
-                  <Sparkles className="h-4 w-4" /> New prospect prep
-                </button>
-                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50">
-                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Target className="h-4 w-4" />} Create opportunity
-                </button>
-                <button type="button" onClick={() => setShowCallChat((v) => !v)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-50">
-                  <Sparkles className="h-4 w-4" /> {showCallChat ? "Hide" : "Preview"} call assistant
-                </button>
-              </div>
-
               {showCallChat && callContext && (
                 <div className="rounded-xl border border-violet-200 overflow-hidden h-96">
                   <CallAssistChat callContext={callContext} callType="discovery" orgName={enquiry.name} contactName={enquiry.name} />
@@ -818,6 +949,87 @@ export default function EnquiryDetailPage() {
                 )}
               </div>
             </>
+          )}
+
+          {activeTab === "profile" && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Sector &amp; persona</p>
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62] mb-1">Sector</p>
+                    <select
+                      value={selectedSectorId}
+                      onChange={(e) => { setSelectedSectorId(e.target.value); setProfileSaved(false); }}
+                      className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    >
+                      <option value="">— Select sector —</option>
+                      {sectors.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62] mb-1">Persona</p>
+                    <select
+                      value={selectedPersonaId}
+                      onChange={(e) => { setSelectedPersonaId(e.target.value); setProfileSaved(false); }}
+                      className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    >
+                      <option value="">— Select persona —</option>
+                      {personas.map((p) => <option key={p.id} value={p.id}>{p.persona_name}</option>)}
+                    </select>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void saveSectorPersona()}
+                    disabled={savingProfile || (!selectedSectorId && !selectedPersonaId)}
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                  >
+                    {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {savingProfile ? "Saving…" : "Save profile"}
+                  </button>
+                  {profileSaved && (
+                    <p className="text-xs font-semibold text-[#063b32]">Profile saved to this enquiry.</p>
+                  )}
+                  {profileError && (
+                    <p className="text-xs text-red-600 whitespace-pre-wrap">{profileError}</p>
+                  )}
+                  {(enquiry.sector_snapshot || enquiry.persona_snapshot) && (
+                    <div className="rounded-lg bg-[#f7f4ea]/60 px-3 py-2 space-y-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Saved on enquiry</p>
+                      {enquiry.sector_snapshot && (
+                        <p className="text-xs text-[#111111]">Sector: {enquiry.sector_snapshot.name}</p>
+                      )}
+                      {enquiry.persona_snapshot && (
+                        <p className="text-xs text-[#111111]">Persona: {enquiry.persona_snapshot.persona_name}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <Link
+                  href="/admin/engagement/knowledge"
+                  className="flex items-center gap-1.5 text-xs text-[#063b32] hover:underline"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" /> Browse knowledge library
+                </Link>
+              </div>
+
+              <div className="lg:col-span-2 space-y-6">
+                {selectedSector ? (
+                  <SectorKnowledgePanel sector={selectedSector} />
+                ) : (
+                  <div className="rounded-xl border border-dashed border-[#111111]/15 p-8 text-center">
+                    <p className="text-sm text-[#6f6b62]">Select a sector to view knowledge hub content.</p>
+                  </div>
+                )}
+                {selectedPersona ? (
+                  <PersonaKnowledgePanel persona={selectedPersona} />
+                ) : (
+                  <div className="rounded-xl border border-dashed border-[#111111]/15 p-8 text-center">
+                    <p className="text-sm text-[#6f6b62]">Select a persona to view knowledge hub content.</p>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {activeTab === "activity" && (
@@ -1004,9 +1216,15 @@ export default function EnquiryDetailPage() {
 
           {activeTab === "notes" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Notes &amp; admin log</p>
-                <button type="button" onClick={() => setShowAddNote(true)} className="text-xs font-semibold text-[#063b32] hover:underline">Add note</button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddNote(true)}
+                  className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+                >
+                  <Plus className="h-4 w-4" /> Add note
+                </button>
               </div>
               {showAddNote && (
                 <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
