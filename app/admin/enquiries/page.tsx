@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { Check, ChevronDown, Search, Trash2, X } from "lucide-react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import Link from "next/link";
+import { Calendar, Check, ChevronDown, ChevronRight, MessageSquare, Search, Trash2, X } from "lucide-react";
 
 type Enquiry = {
   id: string;
@@ -41,13 +42,21 @@ function statusLabel(s: string) {
   return STATUSES.find((x) => x.key === s)?.label ?? s;
 }
 
+function LabeledField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{label}</p>
+      <div className="mt-0.5 text-sm text-[#111111]">{children}</div>
+    </div>
+  );
+}
+
 export default function EnquiriesPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
 
   const fetch_ = useCallback(async () => {
@@ -59,7 +68,7 @@ export default function EnquiriesPage() {
     setLoading(false);
   }, [activeTab]);
 
-  useEffect(() => { fetch_(); }, [fetch_]);
+  useEffect(() => { void fetch_(); }, [fetch_]);
 
   const filtered = enquiries.filter((e) => {
     if (!search) return true;
@@ -70,7 +79,8 @@ export default function EnquiriesPage() {
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -87,13 +97,13 @@ export default function EnquiriesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ids: Array.from(selected) }),
     });
-    fetch_();
+    void fetch_();
   };
 
   const deleteSingle = async (id: string) => {
     if (!confirm("Delete this enquiry?")) return;
     await fetch(`/api/admin/enquiries/${id}`, { method: "DELETE" });
-    fetch_();
+    void fetch_();
   };
 
   const updateStatus = async (id: string, status: string) => {
@@ -103,7 +113,7 @@ export default function EnquiriesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
-    fetch_();
+    void fetch_();
   };
 
   const counts = STATUSES.reduce<Record<string, number>>((acc, s) => {
@@ -115,7 +125,7 @@ export default function EnquiriesPage() {
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Enquiries</h1>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Website Enquiries</h1>
         <p className="mt-0.5 text-sm text-[#6f6b62]">Contact form submissions — track status and manage each enquiry.</p>
       </div>
 
@@ -144,26 +154,28 @@ export default function EnquiriesPage() {
 
         {/* Toolbar */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search enquiries…"
-              className="w-full rounded-md border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
+              className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
             />
           </div>
           {selected.size > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-[#6f6b62]">{selected.size} selected</span>
               <button
-                onClick={bulkDelete}
+                type="button"
+                onClick={() => void bulkDelete()}
                 className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Delete selected
               </button>
               <button
+                type="button"
                 onClick={() => setSelected(new Set())}
                 className="grid h-8 w-8 place-items-center rounded-md border border-[#111111]/15 bg-white text-[#6f6b62] hover:bg-[#f7f4ea]"
               >
@@ -171,22 +183,28 @@ export default function EnquiriesPage() {
               </button>
             </div>
           )}
-          <div className="ml-auto text-sm text-[#6f6b62]">
+          <p className="ml-auto text-sm text-[#6f6b62]">
             {filtered.length} enquir{filtered.length === 1 ? "y" : "ies"}
-          </div>
+          </p>
         </div>
 
         {loading ? (
-          <div className="py-20 text-center text-sm text-[#6f6b62]">Loading…</div>
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-24 rounded-xl bg-[#f7f4ea] animate-pulse" />
+            ))}
+          </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-md border border-[#111111]/10 bg-white py-16 text-center text-sm text-[#6f6b62]">
-            No enquiries yet.
+          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea] py-16 text-center">
+            <MessageSquare className="mx-auto mb-3 h-10 w-10 text-[#6f6b62]/30" />
+            <p className="text-sm font-semibold text-[#111111]">No enquiries yet</p>
+            <p className="mt-1 text-xs text-[#6f6b62]">Submissions from the website contact form will appear here.</p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-md border border-[#111111]/10 bg-white">
-            {/* Header row */}
-            <div className="flex items-center gap-4 border-b border-[#111111]/10 px-4 py-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-4 px-1 py-1">
               <button
+                type="button"
                 onClick={toggleAll}
                 className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${
                   selected.size === filtered.length && filtered.length > 0
@@ -194,131 +212,121 @@ export default function EnquiriesPage() {
                     : "border-[#111111]/25 bg-white"
                 }`}
               >
-                {selected.size === filtered.length && filtered.length > 0 && (
-                  <Check className="h-3 w-3 text-white" />
-                )}
+                {selected.size === filtered.length && filtered.length > 0 && <Check className="h-3 w-3 text-white" />}
               </button>
-              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Name / Contact</span>
-              <span className="ml-auto text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Status</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Select all</span>
             </div>
 
             {filtered.map((e) => (
-              <div key={e.id} className="border-b border-[#111111]/8 last:border-0">
-                {/* Row */}
-                <div className="flex items-start gap-4 px-4 py-4">
-                  <button
-                    onClick={() => toggleSelect(e.id)}
-                    className={`mt-1 grid h-4 w-4 shrink-0 place-items-center rounded border ${
-                      selected.has(e.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25 bg-white"
-                    }`}
-                  >
-                    {selected.has(e.id) && <Check className="h-3 w-3 text-white" />}
-                  </button>
+              <div
+                key={e.id}
+                className="flex items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
+              >
+                <button
+                  type="button"
+                  onClick={() => toggleSelect(e.id)}
+                  className={`mt-3 grid h-4 w-4 shrink-0 place-items-center rounded border ${
+                    selected.has(e.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25 bg-white"
+                  }`}
+                >
+                  {selected.has(e.id) && <Check className="h-3 w-3 text-white" />}
+                </button>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-[#111111]">{e.name}</span>
-                      <span className="rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-[10px] font-semibold text-[#111111]">
-                        {e.support_type}
-                      </span>
-                      {e.wants_discovery_call && (
-                        <span className="rounded-full bg-[#063b32] px-2.5 py-0.5 text-[10px] font-semibold text-[#f5f274]">
-                          Discovery call
-                        </span>
-                      )}
-                    </div>
-                    <a href={`mailto:${e.email}`} className="mt-0.5 block text-sm text-[#063b32] underline">
-                      {e.email}
-                    </a>
-                    {e.telephone && <p className="text-sm text-[#6f6b62]">{e.telephone}</p>}
-                    {e.connected_post_title && (
-                      <a
-                        href={e.connected_post_id ? `/admin/posts/${e.connected_post_id}` : "#"}
-                        className="mt-1 flex items-center gap-1 text-xs text-[#063b32] underline"
-                      >
-                        Re: {e.connected_post_title}
-                      </a>
-                    )}
-
-                    <button
-                      onClick={() => setExpandedId(expandedId === e.id ? null : e.id)}
-                      className="mt-2 flex items-center gap-1 text-xs font-semibold text-[#6f6b62] hover:text-[#111111]"
-                    >
-                      {expandedId === e.id ? "Hide details" : "View details"}
-                      <ChevronDown className={`h-3 w-3 transition-transform ${expandedId === e.id ? "rotate-180" : ""}`} />
-                    </button>
-                  </div>
-
-                  <div className="flex shrink-0 items-center gap-2">
-                    {/* Status menu */}
-                    <div className="relative">
-                      <button
-                        onClick={() => setStatusMenuId(statusMenuId === e.id ? null : e.id)}
-                        className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
-                      >
-                        {statusLabel(e.status)}
-                        <ChevronDown className="h-3 w-3" />
-                      </button>
-                      {statusMenuId === e.id && (
-                        <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-[#111111]/10 bg-white shadow-lg">
-                          {STATUSES.filter((s) => s.key !== "all").map((s) => (
-                            <button
-                              key={s.key}
-                              onClick={() => updateStatus(e.id, s.key)}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea]"
-                            >
-                              <span className={`h-2 w-2 rounded-full ${STATUS_COLORS[s.key]?.split(" ")[0]}`} />
-                              {s.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => deleteSingle(e.id)}
-                      className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32]/10">
+                  <MessageSquare className="h-4 w-4 text-[#063b32]" />
                 </div>
 
-                {/* Expanded details */}
-                {expandedId === e.id && (
-                  <div className="border-t border-[#111111]/8 bg-gray-50 px-12 py-4">
-                    <div className="mb-3 grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Contact via</p>
-                        <p className="mt-1 text-[#111111]">{e.preferred_contact}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Support type</p>
-                        <p className="mt-1 text-[#111111]">{e.support_type}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Discovery call</p>
-                        <p className="mt-1 text-[#111111]">{e.wants_discovery_call ? "Requested" : "No"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Received</p>
-                        <p className="mt-1 text-[#111111]">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                      <LabeledField label="Name">
+                        <span className="font-semibold">{e.name}</span>
+                      </LabeledField>
+                      <LabeledField label="Email">
+                        <a href={`mailto:${e.email}`} className="text-[#063b32] hover:underline">{e.email}</a>
+                      </LabeledField>
+                      <LabeledField label="Telephone">{e.telephone || "—"}</LabeledField>
+                      <LabeledField label="Query type">
+                        <span className="rounded-full bg-[#f5f274]/80 px-2 py-0.5 text-xs font-semibold text-[#111111] inline-block">
+                          {e.support_type}
+                        </span>
+                      </LabeledField>
+                      <LabeledField label="Discovery call">
+                        {e.wants_discovery_call ? (
+                          <span className="rounded-full bg-[#063b32] px-2 py-0.5 text-xs font-semibold text-[#f5f274] inline-block">Yes — requested</span>
+                        ) : (
+                          <span className="text-[#6f6b62]">No</span>
+                        )}
+                      </LabeledField>
+                      <LabeledField label="Preferred contact">{e.preferred_contact || "—"}</LabeledField>
+                      <LabeledField label="Received">
+                        <span className="flex items-center gap-1 text-[#6f6b62]">
+                          <Calendar className="h-3 w-3" />
                           {new Date(e.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                        </p>
+                        </span>
+                      </LabeledField>
+                      {e.connected_post_title && (
+                        <LabeledField label="Related post">
+                          {e.connected_post_id ? (
+                            <Link href={`/admin/posts/${e.connected_post_id}`} className="text-[#063b32] hover:underline">
+                              {e.connected_post_title}
+                            </Link>
+                          ) : (
+                            e.connected_post_title
+                          )}
+                        </LabeledField>
+                      )}
+                      <div className="sm:col-span-2 lg:col-span-4">
+                        <LabeledField label="Description">
+                          <p className="whitespace-pre-wrap text-[#6f6b62] leading-relaxed">{e.details || "—"}</p>
+                        </LabeledField>
                       </div>
                     </div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Message</p>
-                    <p className="mt-2 whitespace-pre-wrap rounded-md bg-white p-4 text-sm leading-6 text-[#6f6b62]">
-                      {e.details}
-                    </p>
+
+                    <div className="flex shrink-0 flex-col items-end gap-2">
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setStatusMenuId(statusMenuId === e.id ? null : e.id)}
+                          className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
+                        >
+                          {statusLabel(e.status)}
+                          <ChevronDown className="h-3 w-3" />
+                        </button>
+                        {statusMenuId === e.id && (
+                          <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-[#111111]/10 bg-white shadow-lg">
+                            {STATUSES.filter((s) => s.key !== "all").map((s) => (
+                              <button
+                                key={s.key}
+                                type="button"
+                                onClick={() => void updateStatus(e.id, s.key)}
+                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea]"
+                              >
+                                <span className={`h-2 w-2 rounded-full ${STATUS_COLORS[s.key]?.split(" ")[0]}`} />
+                                {s.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => void deleteSingle(e.id)}
+                        className="rounded-md border border-[#111111]/15 p-2 text-[#6f6b62] hover:border-red-200 hover:text-red-600"
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                      <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Click outside to close status menus */}
       {statusMenuId && (
         <div className="fixed inset-0 z-10" onClick={() => setStatusMenuId(null)} />
       )}

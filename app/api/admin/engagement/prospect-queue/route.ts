@@ -37,3 +37,12 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data }, { status: 201 });
 }
+
+export async function DELETE(req: NextRequest) {
+  const supabase = createServiceClient();
+  const { ids } = await req.json() as { ids?: string[] };
+  if (!ids?.length) return NextResponse.json({ error: "No IDs provided" }, { status: 400 });
+  const { error } = await supabase.from("prospect_queue").delete().in("id", ids);
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ success: true });
+}

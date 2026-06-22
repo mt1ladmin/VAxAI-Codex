@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
+  Check,
   ChevronDown,
   ChevronRight,
   Inbox,
@@ -17,6 +18,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import type { ProspectQueueEntry } from "@/lib/engagement/types";
 import { INDUSTRIES, PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
 
@@ -47,6 +49,15 @@ type ProspectForm = {
   raw_linkedin: string;
   raw_notes: string;
 };
+
+function LabeledField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{label}</p>
+      <div className="mt-0.5 text-sm text-[#111111]">{children}</div>
+    </div>
+  );
+}
 
 const EMPTY_FORM: ProspectForm = {
   raw_org_name: "",
@@ -254,6 +265,8 @@ export default function ProspectQueuePage() {
   const [showImportMenu, setShowImportMenu] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<ProspectQueueEntry | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const importRef = useRef<HTMLDivElement>(null);
 
   const showToast = (message: string) => {
@@ -268,6 +281,7 @@ export default function ProspectQueuePage() {
     const res = await fetch(`/api/admin/engagement/prospect-queue?${params}`);
     const j = await res.json() as { data: ProspectQueueEntry[] };
     setEntries(j.data || []);
+    setSelected(new Set());
     setLoading(false);
   }, [statusFilter]);
 
@@ -407,8 +421,36 @@ export default function ProspectQueuePage() {
 
   const hasActiveFilters = statusFilter !== "all" || industryFilter !== "all" || locationFilter !== "all" || search.trim();
 
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (selected.size === filtered.length) setSelected(new Set());
+    else setSelected(new Set(filtered.map((e) => e.id)));
+  };
+
+  const bulkDelete = async () => {
+    if (selected.size === 0) return;
+    setBulkDeleting(true);
+    const res = await fetch("/api/admin/engagement/prospect-queue", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ids: Array.from(selected) }),
+    });
+    if (!res.ok) showToast("Could not delete selected prospects");
+    else showToast(`Removed ${selected.size} prospect${selected.size !== 1 ? "s" : ""}`);
+    setBulkDeleting(false);
+    void fetchQueue();
+  };
+
   return (
-    <div className="min-h-screen bg-[#f7f4ea]/30">
+    <div className="min-h-screen bg-white">
       {showAddModal && (
         <ProspectFormModal
           title="Add to queue"
@@ -573,32 +615,71 @@ export default function ProspectQueuePage() {
           </div>
         </div>
 
-        {/* Count */}
-        <p className="mb-4 text-xs text-[#6f6b62]">
-          {loading ? "Loading…" : `${filtered.length} prospect${filtered.length !== 1 ? "s" : ""}`}
-        </p>
+        {/* Bulk actions + count */}
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          {selected.size > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-[#6f6b62]">{selected.size} selected</span>
+              <button
+                type="button"
+                onClick={() => void bulkDelete()}
+                disabled={bulkDeleting}
+                className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50"
+              >
+                {bulkDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                Delete selected
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelected(new Set())}
+                className="grid h-8 w-8 place-items-center rounded-md border border-[#111111]/15 bg-white text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+          <p className="ml-auto text-sm text-[#6f6b62]">
+            {loading ? "Loading…" : `${filtered.length} prospect${filtered.length !== 1 ? "s" : ""}`}
+          </p>
+        </div>
 
         {/* List */}
         {loading ? (
-          <div className="flex items-center justify-center gap-2 rounded-2xl border border-[#111111]/10 bg-white py-20 text-sm text-[#6f6b62]">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading queue…
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-24 rounded-xl bg-[#f7f4ea] animate-pulse" />
+            ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-2xl border border-[#111111]/10 bg-white py-20 text-center shadow-sm">
-            <Inbox className="mx-auto mb-3 h-8 w-8 text-[#6f6b62]/30" />
-            <p className="text-sm text-[#6f6b62]">No prospects match your filters.</p>
+          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea] py-16 text-center">
+            <Inbox className="mx-auto mb-3 h-10 w-10 text-[#6f6b62]/30" />
+            <p className="text-sm font-semibold text-[#111111]">No prospects match your filters</p>
             <button
               type="button"
               onClick={() => { setFormError(null); setShowAddModal(true); }}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
             >
               <Plus className="h-4 w-4" /> Add to queue
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-4 px-1 py-1">
+              <button
+                type="button"
+                onClick={toggleAll}
+                className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${
+                  selected.size === filtered.length && filtered.length > 0
+                    ? "border-[#063b32] bg-[#063b32]"
+                    : "border-[#111111]/25 bg-white"
+                }`}
+              >
+                {selected.size === filtered.length && filtered.length > 0 && <Check className="h-3 w-3 text-white" />}
+              </button>
+              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Select all</span>
+            </div>
             {filtered.map((e) => {
-              const orgName = e.organisation?.name || e.raw_org_name || "Unnamed organisation";
+              const orgName = e.organisation?.name || e.raw_org_name || "—";
               const contactName = e.contact
                 ? `${e.contact.first_name} ${e.contact.last_name || ""}`.trim()
                 : e.raw_contact_name;
@@ -608,89 +689,102 @@ export default function ProspectQueuePage() {
               return (
                 <div
                   key={e.id}
-                  className="group rounded-2xl border border-[#111111]/10 bg-white p-4 shadow-sm transition-shadow hover:shadow-md sm:p-5"
+                  className="flex items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
                 >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Link
-                          href={`/admin/engagement/prospect-queue/${e.id}`}
-                          className="text-base font-semibold text-[#111111] hover:text-[#063b32]"
-                        >
-                          {orgName}
-                        </Link>
+                  <button
+                    type="button"
+                    onClick={() => toggleSelect(e.id)}
+                    className={`mt-3 grid h-4 w-4 shrink-0 place-items-center rounded border ${
+                      selected.has(e.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25 bg-white"
+                    }`}
+                  >
+                    {selected.has(e.id) && <Check className="h-3 w-3 text-white" />}
+                  </button>
+
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32]/10">
+                    <Inbox className="h-4 w-4 text-[#063b32]" />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <LabeledField label="Organisation">
+                          <Link href={`/admin/engagement/prospect-queue/${e.id}`} className="font-semibold hover:text-[#063b32] hover:underline">
+                            {orgName}
+                          </Link>
+                        </LabeledField>
+                        <LabeledField label="Contact">{contactName || "—"}</LabeledField>
+                        <LabeledField label="Email">
+                          {email ? <a href={`mailto:${email}`} className="text-[#063b32] hover:underline">{email}</a> : "—"}
+                        </LabeledField>
+                        <LabeledField label="Phone">{e.raw_phone || "—"}</LabeledField>
+                        <LabeledField label="Industry">{industry || "—"}</LabeledField>
+                        <LabeledField label="Location">{e.raw_location || "—"}</LabeledField>
+                        <LabeledField label="Status">
+                          <div className={updatingId === e.id ? "opacity-50 pointer-events-none" : ""}>
+                            <CustomSelect
+                              value={e.status}
+                              onChange={(status) => void updateStatus(e.id, status)}
+                              options={PROSPECT_QUEUE_STATUSES.map((s) => ({ value: s, label: s }))}
+                              placeholder="Status"
+                              className="w-full max-w-[11rem]"
+                            />
+                          </div>
+                        </LabeledField>
+                        <LabeledField label="Next action">
+                          {e.next_action ? (
+                            <>
+                              {e.next_action}
+                              {e.next_action_date && (
+                                <span className="block text-xs text-[#6f6b62]">
+                                  {new Date(e.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                                </span>
+                              )}
+                            </>
+                          ) : "—"}
+                        </LabeledField>
+                        {e.raw_notes && (
+                          <div className="sm:col-span-2 lg:col-span-4">
+                            <LabeledField label="Notes">
+                              <span className="line-clamp-2 text-[#6f6b62]">{e.raw_notes}</span>
+                            </LabeledField>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex shrink-0 flex-col items-end gap-2">
                         {(e.duplicate_warning || e.previous_contact_warning) && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">
                             <AlertTriangle className="h-3 w-3" />
                             {e.duplicate_warning ? "Duplicate" : "Previous contact"}
                           </span>
                         )}
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => { setFormError(null); setEditingEntry(e); }}
+                            className="rounded-md border border-[#111111]/15 p-2 text-[#6f6b62] hover:border-[#063b32]/30 hover:text-[#063b32]"
+                            title="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDelete(e)}
+                            className="rounded-md border border-[#111111]/15 p-2 text-[#6f6b62] hover:border-red-200 hover:text-red-600"
+                            title="Remove"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          <Link
+                            href={`/admin/engagement/prospect-queue/${e.id}`}
+                            className="rounded-md border border-[#111111]/15 p-2 text-[#6f6b62] hover:border-[#063b32]/30 hover:text-[#063b32]"
+                            title="View details"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Link>
+                        </div>
                       </div>
-
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[#6f6b62]">
-                        {contactName && <span>{contactName}</span>}
-                        {email && <span>{email}</span>}
-                        {e.raw_phone && <span>{e.raw_phone}</span>}
-                      </div>
-
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {industry && (
-                          <span className="rounded-lg bg-[#f7f4ea] px-2.5 py-1 text-xs font-medium text-[#6f6b62]">
-                            {industry}
-                          </span>
-                        )}
-                        {e.raw_location && (
-                          <span className="rounded-lg bg-[#f7f4ea] px-2.5 py-1 text-xs font-medium text-[#6f6b62]">
-                            {e.raw_location}
-                          </span>
-                        )}
-                        {e.next_action && (
-                          <span className="rounded-lg border border-[#111111]/10 px-2.5 py-1 text-xs text-[#111111]">
-                            Next: {e.next_action}
-                            {e.next_action_date && (
-                              <> · {new Date(e.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</>
-                            )}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-2">
-                      <div className={updatingId === e.id ? "opacity-50 pointer-events-none" : ""}>
-                        <CustomSelect
-                          value={e.status}
-                          onChange={(status) => void updateStatus(e.id, status)}
-                          options={PROSPECT_QUEUE_STATUSES.map((s) => ({ value: s, label: s }))}
-                          placeholder="Status"
-                          className="w-44"
-                        />
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => { setFormError(null); setEditingEntry(e); }}
-                        className="rounded-xl border border-[#111111]/15 p-2 text-[#6f6b62] transition-colors hover:border-[#063b32]/30 hover:text-[#063b32]"
-                        title="Edit"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setConfirmDelete(e)}
-                        className="rounded-xl border border-[#111111]/15 p-2 text-[#6f6b62] transition-colors hover:border-red-200 hover:text-red-600"
-                        title="Remove"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-
-                      <Link
-                        href={`/admin/engagement/prospect-queue/${e.id}`}
-                        className="rounded-xl border border-[#111111]/15 p-2 text-[#6f6b62] transition-colors hover:border-[#063b32]/30 hover:text-[#063b32]"
-                        title="View details"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Link>
                     </div>
                   </div>
                 </div>
