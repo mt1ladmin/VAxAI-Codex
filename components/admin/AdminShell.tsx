@@ -81,7 +81,7 @@ export default function AdminShell({
   const isActive = (href: string) =>
     exactMatchRoutes.has(href) ? pathname === href : pathname.startsWith(href);
 
-  const isContentActive = pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/calendar");
+  const isContentActive = pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/authors");
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
@@ -186,16 +186,6 @@ export default function AdminShell({
             <Settings className="h-4 w-4 shrink-0" />
             {open && "Settings"}
           </Link>
-          <Link
-            href="/admin/authors"
-            title={!open ? "Authors" : undefined}
-            className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
-              pathname.startsWith("/admin/authors") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
-            } ${!open ? "justify-center" : ""}`}
-          >
-            <Users className="h-4 w-4 shrink-0" />
-            {open && "Authors"}
-          </Link>
           <a
             href="/"
             target="_blank"
@@ -233,22 +223,40 @@ export default function AdminShell({
           </div>
         )}
 
-        {pathname.startsWith("/admin/calendar") && (
+        {(pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/authors")) && (
           <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-semibold text-[#111111]">Content</span>
               <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
                 <Link
                   href="/admin/calendar"
-                  className="px-4 py-1.5 text-xs font-semibold bg-[#063b32] text-white"
+                  className={`px-4 py-1.5 text-xs font-semibold ${
+                    pathname.startsWith("/admin/calendar")
+                      ? "bg-[#063b32] text-white"
+                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
                 >
                   Calendar
                 </Link>
                 <Link
                   href="/admin/posts"
-                  className="px-4 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  className={`px-4 py-1.5 text-xs font-semibold ${
+                    pathname.startsWith("/admin/posts")
+                      ? "bg-[#063b32] text-white"
+                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
                 >
                   Posts
+                </Link>
+                <Link
+                  href="/admin/authors"
+                  className={`px-4 py-1.5 text-xs font-semibold ${
+                    pathname.startsWith("/admin/authors")
+                      ? "bg-[#063b32] text-white"
+                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
+                >
+                  Authors
                 </Link>
               </div>
             </div>
