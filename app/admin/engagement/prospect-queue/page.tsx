@@ -111,6 +111,11 @@ export default function ProspectQueuePage() {
 
   useEffect(() => {
     fetchQueue();
+    // Auto-sync on load if queue is empty (so new Supabase files go straight to queue)
+    if (entries.length === 0 && !loading) {
+      // non-blocking
+      fetch("/api/admin/engagement/prospect-sync?mode=files", { method: "POST" }).then(() => fetchQueue());
+    }
   }, [statusFilter]);
 
   const fetchQueue = async () => {
@@ -166,6 +171,52 @@ export default function ProspectQueuePage() {
             className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
           >
             <Plus className="h-4 w-4" /> Add manually
+          </button>
+        </div>
+      </div>
+
+      {/* Supabase Storage Sync Controls */}
+      <div className="px-8 pt-4">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/60 p-4">
+          <div className="flex-1 min-w-[200px]">
+            <p className="text-sm font-semibold text-[#111111]">Supabase-first imports</p>
+            <p className="text-xs text-[#6f6b62]">Upload CSVs to the <code className="bg-white px-1 rounded">prospect-imports</code> storage bucket in Supabase. Then sync here. New files will appear in the queue automatically on sync.</p>
+          </div>
+          <button
+            onClick={async () => {
+              setLoading(true);
+              try {
+                const res = await fetch("/api/admin/engagement/prospect-sync?mode=files", { method: "POST" });
+                const j = await res.json();
+                alert(`Sync complete. Files: ${j.filesProcessed || 0}, Entries: ${j.entriesCreated || 0}. ${j.errors?.length ? "Errors: " + j.errors.join(", ") : ""}`);
+                fetchQueue();
+              } catch (e) {
+                alert("Sync failed. Check bucket name and permissions.");
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className="rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+          >
+            Sync from Supabase Storage
+          </button>
+          <button
+            onClick={async () => {
+              setLoading(true);
+              try {
+                const res = await fetch("/api/admin/engagement/prospect-sync?mode=ai", { method: "POST" });
+                const j = await res.json();
+                alert(`AI dedup complete. Processed: ${j.aiProcessed || 0}. Duplicates/conflicts flagged in queue.`);
+                fetchQueue();
+              } catch (e) {
+                alert("AI sync failed.");
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className="rounded-lg border border-[#063b32] px-4 py-2 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+          >
+            Run AI Dedup & Conflict Check
           </button>
         </div>
       </div>

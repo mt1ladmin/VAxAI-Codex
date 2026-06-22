@@ -53,7 +53,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen },
       { label: "Insights", href: "/admin/engagement/insights", icon: BarChart3 },
       { label: "Settings", href: "/admin/engagement/settings", icon: Settings },
-      { label: "Prospect Imports", href: "/admin/engagement/prospect-imports", icon: Upload },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Knowledge Review", href: "/admin/engagement/knowledge-review", icon: FlaskConical },
     ],
