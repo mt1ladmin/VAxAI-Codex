@@ -11,7 +11,6 @@ import {
   FileText,
   FlaskConical,
   Handshake,
-  Home,
   Inbox,
   LogOut,
   MessageSquare,
@@ -29,12 +28,6 @@ import {
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 
 const navSections: Array<{ section: string; items: NavItem[] }> = [
-  {
-    section: "STUDIO",
-    items: [
-      { label: "Home", href: "/admin", icon: Home },
-    ],
-  },
   {
     section: "CLIENT ENGAGEMENT",
     items: [
