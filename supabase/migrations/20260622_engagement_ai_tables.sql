@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS engagement_knowledge_drafts (
   -- review workflow
   status              text NOT NULL DEFAULT 'pending_review', -- pending_review, approved, rejected, merged
   reviewer_notes      text,
-  merged_into_id      uuid REFERENCES pain_points(id) ON DELETE SET NULL,
+  merged_into_id      uuid REFERENCES engagement_pain_points(id) ON DELETE SET NULL,
   reviewed_by         text,
   reviewed_at         timestamptz,
   created_by          text
