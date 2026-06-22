@@ -11,6 +11,7 @@ import {
   FileText,
   FlaskConical,
   Handshake,
+  Home,
   Inbox,
   LogOut,
   MessageSquare,
@@ -29,12 +30,36 @@ type NavItem = { label: string; href: string; icon: React.ComponentType<{ classN
 
 const navSections: Array<{ section: string; items: NavItem[] }> = [
   {
-    section: "OVERVIEW",
-    items: [{ label: "Overview", href: "/admin/engagement", icon: Handshake }],
+    section: "STUDIO",
+    items: [
+      { label: "Home", href: "/admin", icon: Home },
+    ],
   },
   {
-    section: "ENQUIRIES",
-    items: [{ label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare }],
+    section: "CLIENT ENGAGEMENT",
+    items: [
+      { label: "Overview", href: "/admin/engagement", icon: Handshake },
+      { label: "Insights", href: "/admin/engagement/insights", icon: BarChart3 },
+      { label: "Pipeline & CRM", href: "/admin/engagement/pipeline", icon: Users },
+      { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
+      { label: "Prospect Imports", href: "/admin/engagement/prospect-imports", icon: Upload },
+      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
+    ],
+  },
+  {
+    section: "LIVE TOOLS",
+    items: [
+      { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
+      { label: "Profile Explorer", href: "/admin/engagement/profile-explorer", icon: Search },
+    ],
+  },
+  {
+    section: "KNOWLEDGE",
+    items: [
+      { label: "Pain Points", href: "/admin/engagement/pain-points", icon: Zap },
+      { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen },
+      { label: "Knowledge Review", href: "/admin/engagement/knowledge-review", icon: FlaskConical },
+    ],
   },
   {
     section: "CONTENT",
@@ -43,21 +68,10 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Content Calendar", href: "/admin/calendar", icon: CalendarDays },
     ],
   },
-  {
-    section: "CLIENT ENGAGEMENT",
-    items: [
-      { label: "Profile Explorer", href: "/admin/engagement/profile-explorer", icon: Search },
-      { label: "Pain Points", href: "/admin/engagement/pain-points", icon: Zap },
-      { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
-      { label: "Pipeline & CRM", href: "/admin/engagement/pipeline", icon: Users },
-      { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen },
-      { label: "Insights", href: "/admin/engagement/insights", icon: BarChart3 },
-      { label: "Settings", href: "/admin/engagement/settings", icon: Settings },
-      { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
-      { label: "Knowledge Review", href: "/admin/engagement/knowledge-review", icon: FlaskConical },
-    ],
-  },
 ];
+
+// Routes that need exact-match active detection (startsWith would over-match)
+const exactMatchRoutes = new Set(["/admin", "/admin/engagement"]);
 
 export default function AdminShell({
   children,
@@ -71,6 +85,9 @@ export default function AdminShell({
 
   if (pathname === "/admin/login") return <>{children}</>;
 
+  const isActive = (href: string) =>
+    exactMatchRoutes.has(href) ? pathname === href : pathname.startsWith(href);
+
   return (
     <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
       {/* Sidebar */}
@@ -82,7 +99,7 @@ export default function AdminShell({
         {/* Logo */}
         <div className={`flex h-14 items-center border-b border-white/10 px-3 ${open ? "justify-between" : "justify-center"}`}>
           {open && (
-            <div className="flex items-center gap-2.5">
+            <Link href="/admin" className="flex items-center gap-2.5">
               <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
                 VA
               </span>
@@ -90,12 +107,14 @@ export default function AdminShell({
                 <span className="block text-sm font-semibold text-white">VAxAI</span>
                 <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/40">Studio</span>
               </div>
-            </div>
+            </Link>
           )}
           {!open && (
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
-              VA
-            </span>
+            <Link href="/admin">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
+                VA
+              </span>
+            </Link>
           )}
           {open && (
             <button
@@ -107,17 +126,27 @@ export default function AdminShell({
           )}
         </div>
 
-        {/* New post */}
-        <div className={`px-3 pt-3 pb-1 ${!open ? "flex justify-center" : ""}`}>
+        {/* Quick actions */}
+        <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
           <Link
             href="/admin/posts/new"
-            className={`flex items-center gap-2 rounded-md bg-[#1a5c42] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1f6e4f] ${
+            className={`flex items-center gap-2 rounded-md bg-[#1a5c42] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1f6e4f] transition-colors ${
               !open ? "h-8 w-8 justify-center p-0" : "w-full"
             }`}
             title={!open ? "New post" : undefined}
           >
             <Plus className="h-4 w-4 shrink-0" />
             {open && "New post"}
+          </Link>
+          <Link
+            href="/admin/engagement/live-call"
+            className={`flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors ${
+              !open ? "h-8 w-8 justify-center p-0" : "w-full"
+            }`}
+            title={!open ? "Start live call" : undefined}
+          >
+            <Phone className="h-4 w-4 shrink-0" />
+            {open && "Start live call"}
           </Link>
         </div>
 
@@ -131,9 +160,7 @@ export default function AdminShell({
                 </p>
               )}
               {section.items.map((item) => {
-                const active = item.href === "/admin/engagement"
-                  ? pathname === "/admin/engagement"
-                  : pathname.startsWith(item.href);
+                const active = isActive(item.href);
                 return (
                   <Link
                     key={item.href}
@@ -162,6 +189,16 @@ export default function AdminShell({
               <PanelLeftOpen className="h-4 w-4" />
             </button>
           )}
+          <Link
+            href="/admin/engagement/settings"
+            title={!open ? "Settings" : undefined}
+            className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+              pathname.startsWith("/admin/engagement/settings") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
+            } ${!open ? "justify-center" : ""}`}
+          >
+            <Settings className="h-4 w-4 shrink-0" />
+            {open && "Settings"}
+          </Link>
           <Link
             href="/admin/authors"
             title={!open ? "Authors" : undefined}
