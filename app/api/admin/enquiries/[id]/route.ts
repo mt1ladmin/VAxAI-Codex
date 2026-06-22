@@ -43,6 +43,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       organisation_id?: string | null;
       sector_snapshot?: Record<string, unknown> | null;
       persona_snapshot?: Record<string, unknown> | null;
+      pain_points_snapshot?: Record<string, unknown>[] | null;
     };
 
     const updates: Record<string, unknown> = {};
@@ -63,6 +64,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.organisation_id !== undefined) updates.organisation_id = body.organisation_id;
     if (body.sector_snapshot !== undefined) updates.sector_snapshot = body.sector_snapshot;
     if (body.persona_snapshot !== undefined) updates.persona_snapshot = body.persona_snapshot;
+    if (body.pain_points_snapshot !== undefined) updates.pain_points_snapshot = body.pain_points_snapshot;
 
     const db = createServiceClient();
     const { data, error } = await db
