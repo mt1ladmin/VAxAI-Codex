@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  BarChart3,
   BookOpen,
   CalendarDays,
   ExternalLink,
@@ -28,7 +27,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: "Insights", href: "/admin/engagement/insights", icon: BarChart3 },
       { label: "Pipeline & CRM", href: "/admin/engagement/pipeline", icon: Users },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },

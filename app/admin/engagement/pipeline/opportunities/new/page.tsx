@@ -116,7 +116,7 @@ function NewOpportunityForm() {
         <button onClick={save} disabled={saving} className="flex-1 rounded-lg bg-[#063b32] py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60">
           {saving ? "Saving…" : "Save opportunity"}
         </button>
-        <Link href="/admin/engagement/pipeline/opportunities" className="rounded-lg border border-[#111111]/15 px-5 py-2.5 text-sm font-semibold text-[#6f6b62] hover:text-[#111111]">
+        <Link href="/admin/engagement/pipeline?tab=pipeline" className="rounded-lg border border-[#111111]/15 px-5 py-2.5 text-sm font-semibold text-[#6f6b62] hover:text-[#111111]">
           Cancel
         </Link>
       </div>
@@ -128,8 +128,8 @@ export default function NewOpportunityPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <Link href="/admin/engagement/pipeline/opportunities" className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]">
-          <ArrowLeft className="h-3.5 w-3.5" /> Opportunities
+        <Link href="/admin/engagement/pipeline?tab=pipeline" className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]">
+          <ArrowLeft className="h-3.5 w-3.5" /> Pipeline
         </Link>
         <h1 className="text-2xl font-semibold text-[#111111]">New opportunity</h1>
         <p className="mt-0.5 text-sm text-[#6f6b62]">Track a prospect through your engagement pipeline.</p>
