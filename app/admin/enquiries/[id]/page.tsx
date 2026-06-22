@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
+import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
@@ -112,7 +113,7 @@ export default function EnquiryDetailPage() {
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
   const [loadingCrm, setLoadingCrm] = useState(false);
-  const [creatingOpp, setCreatingOpp] = useState(false);
+  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
   const [linkingOpp, setLinkingOpp] = useState(false);
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
@@ -369,31 +370,9 @@ export default function EnquiryDetailPage() {
     router.push(`/admin/engagement/live-call?${params}`);
   };
 
-  const createOpportunity = async () => {
-    if (!enquiry) return;
-    setCreatingOpp(true);
-    try {
-      const res = await fetch("/api/admin/engagement/opportunities", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: `${enquiry.name} — ${enquiry.support_type}`.slice(0, 120),
-          organisation_id: enquiry.organisation_id,
-          primary_contact_id: enquiry.contact_id,
-          enquiry_id: enquiry.id,
-          stage: "Identified",
-          notes: enquiry.details,
-          next_action: enquiry.next_action,
-        }),
-      });
-      const j = await res.json() as { data?: EngagementOpportunity };
-      if (j.data) {
-        setOpportunities((prev) => [j.data!, ...prev.filter((o) => o.id !== j.data!.id)]);
-        setActiveTab("opportunities");
-      }
-    } finally {
-      setCreatingOpp(false);
-    }
+  const handleOpportunityCreated = (opp: EngagementOpportunity) => {
+    setOpportunities((prev) => [opp, ...prev.filter((o) => o.id !== opp.id)]);
+    setActiveTab("opportunities");
   };
 
   const loadOppPicker = async () => {
@@ -469,6 +448,24 @@ export default function EnquiryDetailPage() {
         enquiryDetails={enquiry.details}
         existingContactId={enquiry.contact_id}
         existingOrgId={enquiry.organisation_id}
+      />
+
+      <CreateOpportunityModal
+        open={showCreateOppModal}
+        onClose={() => setShowCreateOppModal(false)}
+        onCreated={handleOpportunityCreated}
+        contextLabel={`Website enquiry — ${enquiry.name}`}
+        defaults={{
+          title: `${enquiry.name} — ${enquiry.support_type}`.slice(0, 120),
+          stage: "Identified",
+          desired_outcomes: enquiry.details,
+          notes: enquiry.details,
+          next_action: enquiry.next_action ?? "",
+          expected_decision_date: enquiry.next_action_date?.split("T")[0] ?? "",
+          organisation_id: enquiry.organisation_id,
+          primary_contact_id: enquiry.contact_id,
+          enquiry_id: enquiry.id,
+        }}
       />
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
@@ -641,8 +638,8 @@ export default function EnquiryDetailPage() {
                 <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
                   <Sparkles className="h-4 w-4" /> New prospect prep
                 </button>
-                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50">
-                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Target className="h-4 w-4" />} Create opportunity
+                <button type="button" onClick={() => setShowCreateOppModal(true)} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100">
+                  <Target className="h-4 w-4" /> Create opportunity
                 </button>
                 <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
                   <Plus className="h-4 w-4" /> Add note
@@ -848,8 +845,8 @@ export default function EnquiryDetailPage() {
           {activeTab === "opportunities" && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50">
-                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create opportunity
+                <button type="button" onClick={() => setShowCreateOppModal(true)} className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
+                  <Plus className="h-4 w-4" /> Create opportunity
                 </button>
                 <button type="button" onClick={() => void loadOppPicker()} disabled={oppPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
                   <Link2 className="h-4 w-4" /> Link existing

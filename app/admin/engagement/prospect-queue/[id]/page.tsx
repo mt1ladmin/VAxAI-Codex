@@ -24,6 +24,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
@@ -89,8 +90,8 @@ export default function ProspectDetailPage() {
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
   const [loadingCrm, setLoadingCrm] = useState(false);
-  const [creatingOpp, setCreatingOpp] = useState(false);
-  const [convertingClient, setConvertingClient] = useState(false);
+  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
+  const [createOppPresetStage, setCreateOppPresetStage] = useState<string | undefined>();
   const [linkingOpp, setLinkingOpp] = useState(false);
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
@@ -347,41 +348,15 @@ export default function ProspectDetailPage() {
     router.push(`/admin/engagement/live-call?${params}`);
   };
 
-  const createOpportunity = async (stage = "Identified") => {
-    if (!entry) return;
-    const oppOrgName = entry.organisation?.name || entry.raw_org_name || "Unknown organisation";
-    setCreatingOpp(true);
-    try {
-      const res = await fetch("/api/admin/engagement/opportunities", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: `${oppOrgName} — Prospect`.slice(0, 120),
-          organisation_id: entry.organisation_id,
-          primary_contact_id: entry.contact_id,
-          stage,
-          notes: entry.raw_notes,
-          next_action: entry.next_action,
-        }),
-      });
-      const j = await res.json() as { data?: EngagementOpportunity };
-      if (j.data) {
-        setOpportunities((prev) => [j.data!, ...prev.filter((o) => o.id !== j.data!.id)]);
-        setActiveTab("opportunities");
-      }
-    } finally {
-      setCreatingOpp(false);
-    }
+  const openCreateOpportunity = (presetStage?: string) => {
+    setCreateOppPresetStage(presetStage);
+    setShowCreateOppModal(true);
   };
 
-  const convertToClient = async () => {
-    if (!entry) return;
-    setConvertingClient(true);
-    try {
-      await createOpportunity("Active client");
-    } finally {
-      setConvertingClient(false);
-    }
+  const handleOpportunityCreated = (opp: EngagementOpportunity) => {
+    setOpportunities((prev) => [opp, ...prev.filter((o) => o.id !== opp.id)]);
+    setActiveTab("opportunities");
+    setCreateOppPresetStage(undefined);
   };
 
   const loadOppPicker = async () => {
@@ -451,6 +426,26 @@ export default function ProspectDetailPage() {
           organisationId: entry.organisation_id,
           sourceType: "queue",
           sourceLabel: `Prospect queue — ${orgName}`,
+        }}
+      />
+
+      <CreateOpportunityModal
+        open={showCreateOppModal}
+        onClose={() => {
+          setShowCreateOppModal(false);
+          setCreateOppPresetStage(undefined);
+        }}
+        onCreated={handleOpportunityCreated}
+        contextLabel={`Prospect queue — ${orgName}`}
+        defaults={{
+          title: `${orgName} — Prospect`.slice(0, 120),
+          stage: createOppPresetStage ?? "Identified",
+          desired_outcomes: entry.raw_notes ?? "",
+          notes: entry.raw_notes ?? "",
+          next_action: entry.next_action ?? "",
+          expected_decision_date: entry.next_action_date?.split("T")[0] ?? "",
+          organisation_id: entry.organisation_id,
+          primary_contact_id: entry.contact_id,
         }}
       />
 
@@ -683,11 +678,10 @@ export default function ProspectDetailPage() {
             ) : (
               <button
                 type="button"
-                onClick={() => void convertToClient()}
-                disabled={convertingClient}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:opacity-50"
+                onClick={() => openCreateOpportunity("Active client")}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10"
               >
-                {convertingClient ? <Loader2 className="h-4 w-4 animate-spin" /> : <Briefcase className="h-4 w-4" />}
+                <Briefcase className="h-4 w-4" />
                 Convert to client
               </button>
             )}
@@ -728,8 +722,8 @@ export default function ProspectDetailPage() {
                 <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
                   <Sparkles className="h-4 w-4" /> New prospect prep
                 </button>
-                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50">
-                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Target className="h-4 w-4" />} Create opportunity
+                <button type="button" onClick={() => openCreateOpportunity()} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100">
+                  <Target className="h-4 w-4" /> Create opportunity
                 </button>
                 <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
                   <Plus className="h-4 w-4" /> Add note
@@ -935,8 +929,8 @@ export default function ProspectDetailPage() {
           {activeTab === "opportunities" && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => void createOpportunity()} disabled={creatingOpp} className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50">
-                  {creatingOpp ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create opportunity
+                <button type="button" onClick={() => openCreateOpportunity()} className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
+                  <Plus className="h-4 w-4" /> Create opportunity
                 </button>
                 <button type="button" onClick={() => void loadOppPicker()} disabled={oppPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
                   <Link2 className="h-4 w-4" /> Link existing
