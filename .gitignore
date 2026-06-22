@@ -21,6 +21,9 @@ pnpm-debug.log*
 # env files
 .env*
 
+# TypeScript build cache
+tsconfig.tsbuildinfo
+
 # local workspace scratch
 work
 outputs
