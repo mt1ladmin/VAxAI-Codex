@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
     wants_discovery_call: wantsDiscoveryCall === true,
     connected_post_id: connected_post_id ?? null,
     connected_post_title: connected_post_title ?? null,
+    status: "Needs review",
   });
 
   if (error) {

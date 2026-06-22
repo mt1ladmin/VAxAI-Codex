@@ -89,7 +89,7 @@ export default function EngagementOverview() {
 
       setStats({
         pendingQueue: queueData.filter(q => q.status === "Needs review").length,
-        newEnquiries: enqData.filter(e => e.status === "new" || e.status === "open" || !e.status).length,
+        newEnquiries: enqData.filter(e => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
         overdueTasks: taskData.filter(t => t.due_date && t.due_date < today && t.status !== "done").length,
         openOpps: oppData.filter(o => !["Closed", "Won", "Lost"].includes(o.stage)).length,
         recentInsightPosts: postData.filter(p => p.status === "published" && !isSocial(p)).slice(0, 3),

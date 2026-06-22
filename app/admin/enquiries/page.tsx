@@ -5,11 +5,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Calendar, Check, ChevronDown, ChevronRight, MessageSquare, Search, Trash2, X } from "lucide-react";
 import {
-  ENQUIRY_STATUSES,
   ENQUIRY_STATUS_COLORS,
   ENQUIRY_STATUS_OPTIONS,
   enquiryStatusLabel,
 } from "@/lib/enquiries/constants";
+import { PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
 
 type Enquiry = {
   id: string;
@@ -39,19 +39,19 @@ export default function EnquiriesPage() {
   const router = useRouter();
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
 
   const fetch_ = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/admin/enquiries?status=${activeTab}`);
+    const res = await fetch(`/api/admin/enquiries?status=${statusFilter}`);
     const json = await res.json() as { data: Enquiry[] };
     setEnquiries(json.data ?? []);
     setSelected(new Set());
     setLoading(false);
-  }, [activeTab]);
+  }, [statusFilter]);
 
   useEffect(() => { void fetch_(); }, [fetch_]);
 
@@ -101,11 +101,6 @@ export default function EnquiriesPage() {
     void fetch_();
   };
 
-  const counts = ENQUIRY_STATUSES.reduce<Record<string, number>>((acc, s) => {
-    acc[s.key] = s.key === "all" ? enquiries.length : enquiries.filter((e) => e.status === s.key).length;
-    return acc;
-  }, {});
-
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
@@ -115,30 +110,18 @@ export default function EnquiriesPage() {
       </div>
 
       <div className="px-8 py-6">
-        {/* Tabs */}
-        <div className="mb-5 flex flex-wrap gap-1 border-b border-[#111111]/10 pb-0">
-          {ENQUIRY_STATUSES.map((s) => (
-            <button
-              key={s.key}
-              onClick={() => setActiveTab(s.key)}
-              className={`relative -mb-px px-4 py-2.5 text-sm font-semibold transition-colors ${
-                activeTab === s.key
-                  ? "border-b-2 border-[#063b32] text-[#063b32]"
-                  : "text-[#6f6b62] hover:text-[#111111]"
-              }`}
-            >
-              {s.label}
-              <span className={`ml-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
-                activeTab === s.key ? "bg-[#063b32] text-white" : "bg-[#111111]/10 text-[#6f6b62]"
-              }`}>
-                {counts[s.key] ?? 0}
-              </span>
-            </button>
-          ))}
-        </div>
-
         {/* Toolbar */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
+          >
+            <option value="all">All statuses</option>
+            {PROSPECT_QUEUE_STATUSES.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
           <div className="relative flex-1 min-w-[200px] max-w-sm">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
             <input
