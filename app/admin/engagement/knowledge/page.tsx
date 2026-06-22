@@ -115,6 +115,30 @@ export default function KnowledgePage() {
     }
   }, [prepResults]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const prepFingerprint = (prep: any) => JSON.stringify({
+    clientType: (prep.clientType || "").trim().toLowerCase(),
+    sectorId: prep.sector?.id || "",
+    personaId: prep.persona?.id || "",
+    prepNotes: (prep.prepNotes || "").trim().toLowerCase(),
+    painIds: (prep.relevantPains || []).map((p: any) => p.id).sort(),
+    vatIds: (prep.relevantVats || []).map((v: any) => v.id).sort(),
+  });
+
+  const findDuplicatePrep = (prep: any) => {
+    const fp = prepFingerprint(prep);
+    const index = savedPreps.findIndex((p) => prepFingerprint(p) === fp);
+    return index >= 0 ? { prep: savedPreps[index], index } : null;
+  };
+
+  const resetPrepForm = () => {
+    setClientType("");
+    setSelectedSectorId("");
+    setSelectedPersonaId("");
+    setPrepNotes("");
+    setPrepName("");
+    setPrepResults(null);
+  };
+
   const buildPrep = () => {
     const sector = sectors.find((s) => s.id === selectedSectorId);
     const persona = personas.find((p) => p.id === selectedPersonaId);
@@ -150,9 +174,23 @@ export default function KnowledgePage() {
     }
   };
 
-  const savePrep = (customName?: string) => {
-    if (!prepResults) return;
-    const name = (customName || prepName || clientType || "").slice(0, 80) || "Prep " + new Date().toLocaleDateString();
+  const savePrep = (options?: { customName?: string; navigatePrompt?: boolean }) => {
+    if (!prepResults) return null;
+
+    const duplicate = findDuplicatePrep(prepResults);
+    if (duplicate) {
+      if (options?.navigatePrompt !== false) {
+        const viewHistory = window.confirm("This prep is already saved in Prospect Prep History. Would you like to view it there?");
+        if (viewHistory) {
+          resetPrepForm();
+          setTab("prospect_prep_history");
+          setHistoryViewPrep(duplicate);
+        }
+      }
+      return duplicate.prep;
+    }
+
+    const name = (options?.customName || prepName || clientType || "").slice(0, 80) || "Prep " + new Date().toLocaleDateString();
     const newPrep = {
       id: Date.now().toString(),
       name,
@@ -163,7 +201,17 @@ export default function KnowledgePage() {
     setSavedPreps(updated);
     localStorage.setItem("prospectPreps", JSON.stringify(updated));
     localStorage.setItem("currentProspectPrep", JSON.stringify(newPrep));
-    setPrepName(name);
+
+    resetPrepForm();
+
+    if (options?.navigatePrompt !== false) {
+      const viewHistory = window.confirm("Saved to Prospect Prep History. Would you like to view it there now?");
+      if (viewHistory) {
+        setTab("prospect_prep_history");
+        setHistoryViewPrep({ prep: newPrep, index: 0 });
+      }
+    }
+
     return newPrep;
   };
 
@@ -184,7 +232,7 @@ export default function KnowledgePage() {
       const shouldSave = window.confirm("Save this prep to Prospect Prep History first (recommended for your records)?");
       if (shouldSave) {
         const nameInput = window.prompt("Name for this saved prep:", prepName || clientType?.slice(0, 60) || "Quick Prospect Prep");
-        const saved = savePrep(nameInput || undefined);
+        const saved = savePrep({ customName: nameInput || undefined, navigatePrompt: false });
         if (saved) toAttach = saved;
       } else {
         toAttach = {
@@ -553,7 +601,29 @@ export default function KnowledgePage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2 pt-2 border-t border-[#111111]/10">
-                      <button onClick={() => savePrep()} className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]">Save to History</button>
+                      {findDuplicatePrep(prepResults) && (
+                        <p className="w-full text-xs text-amber-700 mb-1">This prep is already in your history — it can only be saved once.</p>
+                      )}
+                      <button
+                        onClick={() => savePrep()}
+                        disabled={!!findDuplicatePrep(prepResults)}
+                        className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Save to History
+                      </button>
+                      {findDuplicatePrep(prepResults) && (
+                        <button
+                          onClick={() => {
+                            const duplicate = findDuplicatePrep(prepResults)!;
+                            resetPrepForm();
+                            setTab("prospect_prep_history");
+                            setHistoryViewPrep(duplicate);
+                          }}
+                          className="rounded-lg border border-[#063b32]/25 px-4 py-1.5 text-sm font-semibold text-[#063b32] hover:bg-[#f7f4ea]"
+                        >
+                          View in History
+                        </button>
+                      )}
                       <button onClick={() => attachPrep(prepResults, true)} className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]">Attach to Live Call</button>
                       <button onClick={() => attachPrep(prepResults, false)} className="rounded-lg border border-[#063b32]/25 px-4 py-1.5 text-sm font-semibold text-[#063b32] hover:bg-[#f7f4ea]">Attach without saving</button>
                     </div>
