@@ -90,6 +90,7 @@ function LiveCallAssistInner() {
   const [activeLiveDraft, setActiveLiveDraft] = useState<LiveDraft | null>(null);
   const [generatingGuidance, setGeneratingGuidance] = useState(false);
   const [guidanceError, setGuidanceError] = useState<string | null>(null);
+  const [loadedPrep, setLoadedPrep] = useState<any>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
   const generateQuickGuidance = useCallback(async (phrase: string) => {
@@ -139,6 +140,11 @@ function LiveCallAssistInner() {
         });
     }
   }, [initialPainPointId]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("currentProspectPrep");
+    if (saved) setLoadedPrep(JSON.parse(saved));
+  }, []);
 
   // Timer
   useEffect(() => {
@@ -638,6 +644,44 @@ function LiveCallAssistInner() {
                 </div>
               </div>
             )}
+            {loadedPrep && (
+              <div className="mb-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Prospect Prep</p>
+                <div className="text-xs border border-[#111111]/10 rounded p-2 bg-white">
+                  <p className="font-medium truncate">{loadedPrep.name || loadedPrep.clientType?.slice(0, 30)}</p>
+                  {loadedPrep.sector && <p className="text-[#6f6b62]">Sector: {loadedPrep.sector.name}</p>}
+                  {loadedPrep.persona && <p className="text-[#6f6b62]">Persona: {loadedPrep.persona.persona_name}</p>}
+                  {loadedPrep.relevantPains?.length > 0 && <p className="text-[#6f6b62]">Pains: {loadedPrep.relevantPains.length}</p>}
+                  <div className="mt-1 flex gap-2 text-[10px]">
+                    <button onClick={() => alert("Full Prep:\n" + JSON.stringify(loadedPrep, null, 2))} className="underline text-[#063b32]">View</button>
+                    <button onClick={() => { setLoadedPrep(null); localStorage.removeItem("currentProspectPrep"); }} className="underline text-red-600">Clear</button>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="mb-1">
+              <button
+                onClick={() => {
+                  const saved = localStorage.getItem("prospectPreps");
+                  if (saved) {
+                    const list = JSON.parse(saved);
+                    const idx = prompt("Saved Preps:\n" + list.map((p: any, i: number) => `${i + 1}. ${p.name}`).join("\n") + "\n\nEnter number:");
+                    if (idx) {
+                      const p = list[parseInt(idx) - 1];
+                      if (p) {
+                        setLoadedPrep(p);
+                        localStorage.setItem("currentProspectPrep", JSON.stringify(p));
+                      }
+                    }
+                  } else {
+                    alert("No saved preps yet. Create in Knowledge Library > Prospect Prep tab.");
+                  }
+                }}
+                className="text-[10px] text-[#063b32] hover:underline"
+              >
+                Load Prospect Prep from Library
+              </button>
+            </div>
             {liveDrafts.length > 0 && (
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-500 mb-2">

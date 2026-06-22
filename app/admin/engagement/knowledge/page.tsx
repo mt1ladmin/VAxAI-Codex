@@ -9,7 +9,7 @@ import {
 } from "@/lib/engagement/types";
 import KnowledgeReviewPage from "../knowledge-review/page";
 
-type Tab = "pain_points" | "sectors" | "personas" | "vat_prompts" | "knowledge_review";
+type Tab = "pain_points" | "sectors" | "personas" | "vat_prompts" | "knowledge_review" | "prospect_prep";
 
 export default function KnowledgePage() {
   const [tab, setTab] = useState<Tab>("pain_points");
@@ -22,6 +22,14 @@ export default function KnowledgePage() {
   const [vatPrompts, setVatPrompts] = useState<VatPrompt[]>([]);
   const [loading, setLoading] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Prospect Prep states (client-side, no LLM)
+  const [clientType, setClientType] = useState("");
+  const [selectedSectorId, setSelectedSectorId] = useState("");
+  const [selectedPersonaId, setSelectedPersonaId] = useState("");
+  const [prepNotes, setPrepNotes] = useState("");
+  const [prepResults, setPrepResults] = useState<any>(null);
+  const [savedPreps, setSavedPreps] = useState<any[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -54,6 +62,32 @@ export default function KnowledgePage() {
       const data = json.data || [];
       const unique = data.filter((p, i, a) => a.findIndex((t) => `${t.prompt.toLowerCase()}|${t.dimension}` === `${p.prompt.toLowerCase()}|${p.dimension}`) === i);
       setVatPrompts(unique);
+    } else if (tab === "prospect_prep") {
+      // Preload data for quick prep (no LLM)
+      if (sectors.length === 0) {
+        const res = await fetch(`/api/admin/engagement/sectors?limit=50`);
+        const json = await res.json() as { data: SectorProfile[] };
+        const data = json.data || [];
+        const unique = data.filter((s, i, a) => a.findIndex((t) => t.name.toLowerCase() === s.name.toLowerCase()) === i);
+        setSectors(unique);
+      }
+      if (personas.length === 0) {
+        const res = await fetch("/api/admin/engagement/personas?limit=50");
+        const json = await res.json() as { data: Persona[] };
+        const data = json.data || [];
+        const unique = data.filter((p, i, a) => a.findIndex((t) => t.persona_name.toLowerCase() === p.persona_name.toLowerCase()) === i);
+        setPersonas(unique);
+      }
+      if (painPoints.length === 0) {
+        const res = await fetch(`/api/admin/engagement/pain-points?limit=100`);
+        const json = await res.json() as { data: PainPoint[] };
+        setPainPoints(json.data || []);
+      }
+      if (vatPrompts.length === 0) {
+        const res = await fetch(`/api/admin/engagement/vat-prompts?limit=100`);
+        const json = await res.json() as { data: VatPrompt[] };
+        setVatPrompts(json.data || []);
+      }
     }
     setLoading(false);
   }, [tab, search, category, dimension]);
@@ -64,6 +98,57 @@ export default function KnowledgePage() {
   }, [load]);
 
   useEffect(() => { inputRef.current?.focus(); }, [tab]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('prospectPreps');
+    if (saved) setSavedPreps(JSON.parse(saved));
+  }, []);
+
+  const buildPrep = () => {
+    const sector = sectors.find((s) => s.id === selectedSectorId);
+    const persona = personas.find((p) => p.id === selectedPersonaId);
+    const keywords = (clientType + " " + prepNotes).toLowerCase().split(/\s+/).filter((w) => w.length > 2);
+    const relevantPains = painPoints
+      .filter((pp) => {
+        const text = [pp.title, pp.plain_english_definition, ...(pp.what_person_says || [])].join(" ").toLowerCase();
+        const sectorMatch = sector && pp.relevant_sectors && pp.relevant_sectors.some((rs: string) => rs.toLowerCase().includes(sector.name.toLowerCase()));
+        const keywordMatch = keywords.some((k) => text.includes(k));
+        return sectorMatch || keywordMatch;
+      })
+      .slice(0, 5);
+    const relevantVats = vatPrompts
+      .filter((v) => {
+        const text = [v.prompt, ...(v.context_tags || [])].join(" ").toLowerCase();
+        const sectorMatch = sector && v.context_tags && v.context_tags.some((t: string) => t.toLowerCase().includes(sector.name.toLowerCase()));
+        const keywordMatch = keywords.some((k) => text.includes(k));
+        return sectorMatch || keywordMatch;
+      })
+      .slice(0, 5);
+    setPrepResults({
+      sector,
+      persona,
+      relevantPains,
+      relevantVats,
+      clientType,
+      prepNotes,
+      keywords,
+    });
+  };
+
+  const savePrep = () => {
+    if (!prepResults) return;
+    const newPrep = {
+      id: Date.now().toString(),
+      name: clientType.slice(0, 50) || "Prep " + new Date().toLocaleDateString(),
+      ...prepResults,
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newPrep, ...savedPreps].slice(0, 20);
+    setSavedPreps(updated);
+    localStorage.setItem("prospectPreps", JSON.stringify(updated));
+    localStorage.setItem("currentProspectPrep", JSON.stringify(newPrep));
+    alert("Prep saved! Can be loaded in Live Call Assist.");
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -82,6 +167,7 @@ export default function KnowledgePage() {
             ["personas", "Personas"],
             ["vat_prompts", "VAT prompts"],
             ["knowledge_review", "Knowledge Review"],
+            ["prospect_prep", "Prospect Prep"],
           ] as [Tab, string][]).map(([key, label]) => (
             <button
               key={key}
@@ -96,7 +182,7 @@ export default function KnowledgePage() {
         </div>
 
         {/* Search + filters */}
-        {tab !== "knowledge_review" && (
+        {tab !== "knowledge_review" && tab !== "prospect_prep" && (
           <div className="flex gap-3 mb-5">
             {tab !== "vat_prompts" && (
               <div className="relative flex-1 max-w-md">
@@ -296,6 +382,121 @@ export default function KnowledgePage() {
             {tab === "knowledge_review" && (
               <div className="[&>div>div:first-child]:hidden">
                 <KnowledgeReviewPage />
+              </div>
+            )}
+            {tab === "prospect_prep" && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-semibold text-[#111111] mb-2">Quick Prospect Preparation</h3>
+                  <p className="text-sm text-[#6f6b62] mb-4">No LLM call. Enter client info to quickly pull relevant sector, persona, pain points and VAT prompts. Save for live call use and later AI enhancement.</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Client Type / Description</label>
+                      <textarea
+                        value={clientType}
+                        onChange={(e) => setClientType(e.target.value)}
+                        placeholder="e.g. Small charity in education sector struggling with volunteer coordination and reporting"
+                        className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-3 pr-3 text-sm outline-none focus:border-[#063b32] resize-y min-h-[60px]"
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Sector</label>
+                        <select value={selectedSectorId} onChange={(e) => setSelectedSectorId(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
+                          <option value="">Select sector</option>
+                          {sectors.map((s) => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Persona (optional)</label>
+                        <select value={selectedPersonaId} onChange={(e) => setSelectedPersonaId(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
+                          <option value="">Select persona</option>
+                          {personas.map((p) => (
+                            <option key={p.id} value={p.id}>{p.persona_name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Additional Notes</label>
+                    <textarea value={prepNotes} onChange={(e) => setPrepNotes(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-3 pr-3 text-sm outline-none focus:border-[#063b32] resize-y" rows={2} placeholder="Any other context or goals..." />
+                  </div>
+                  <button onClick={buildPrep} disabled={!clientType.trim() && !selectedSectorId} className="mt-3 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
+                    Build Prep (Quick & Efficient)
+                  </button>
+                </div>
+
+                {prepResults && (
+                  <div className="border border-[#111111]/10 rounded-xl p-5 bg-white">
+                    <h4 className="font-semibold mb-3 text-[#111111]">Prepared Information (All in One Place)</h4>
+                    {prepResults.sector && (
+                      <div className="mb-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Sector: {prepResults.sector.name}</p>
+                        {prepResults.sector.description && <p className="text-sm text-[#111111]">{prepResults.sector.description}</p>}
+                        {prepResults.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Pressures: {prepResults.sector.common_admin_pressures.join(", ")}</p>}
+                      </div>
+                    )}
+                    {prepResults.persona && (
+                      <div className="mb-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Persona: {prepResults.persona.persona_name}</p>
+                        {prepResults.persona.typical_role && <p className="text-sm text-[#111111]">{prepResults.persona.typical_role}</p>}
+                      </div>
+                    )}
+                    {prepResults.relevantPains?.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Relevant Pain Points ({prepResults.relevantPains.length})</p>
+                        <ul className="text-sm space-y-1 text-[#111111]">
+                          {prepResults.relevantPains.map((pp: any) => (
+                            <li key={pp.id}>• {pp.title} — {pp.plain_english_definition?.slice(0, 60)}...</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {prepResults.relevantVats?.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Relevant VAT Prompts ({prepResults.relevantVats.length})</p>
+                        <ul className="text-sm space-y-1 text-[#111111]">
+                          {prepResults.relevantVats.map((v: any) => (
+                            <li key={v.id}>• {v.prompt.slice(0, 70)}...</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Notes</p>
+                      <p className="text-sm text-[#111111]">{prepResults.prepNotes || prepResults.clientType}</p>
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <button onClick={savePrep} className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]">Save Prep</button>
+                      <button onClick={() => { localStorage.setItem("currentProspectPrep", JSON.stringify(prepResults)); alert("Ready for Live Call! Load it there."); }} className="rounded-lg border border-[#063b32]/30 px-3 py-1.5 text-xs font-semibold hover:bg-[#f7f4ea]">Ready for Live Call</button>
+                    </div>
+                  </div>
+                )}
+
+                {savedPreps.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold mb-2">Saved Preps (for Live Call & later AI)</p>
+                    <div className="space-y-2 text-sm">
+                      {savedPreps.map((p, i) => (
+                        <div key={i} className="border border-[#111111]/10 rounded p-3 flex justify-between items-start">
+                          <div>
+                            <p className="font-medium">{p.name}</p>
+                            <p className="text-xs text-[#6f6b62]">{new Date(p.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <div className="flex gap-2 text-xs">
+                            <button onClick={() => { setClientType(p.clientType); setPrepResults(p); setPrepNotes(p.prepNotes || ""); }} className="underline text-[#063b32]">View</button>
+                            <button onClick={() => { localStorage.setItem("currentProspectPrep", JSON.stringify(p)); alert("Attached for live call"); }} className="underline text-[#063b32]">Attach to Live Call</button>
+                            <button onClick={() => { const u = savedPreps.filter((_, ii) => ii !== i); setSavedPreps(u); localStorage.setItem("prospectPreps", JSON.stringify(u)); }} className="underline text-red-600">Delete</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>
