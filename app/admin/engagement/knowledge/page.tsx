@@ -293,7 +293,11 @@ export default function KnowledgePage() {
                 </div>
               )
             )}
-            {tab === "knowledge_review" && <KnowledgeReviewPage />}
+            {tab === "knowledge_review" && (
+              <div className="[&>div>div:first-child]:hidden">
+                <KnowledgeReviewPage />
+              </div>
+            )}
           </>
         )}
       </div>
