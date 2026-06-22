@@ -237,9 +237,9 @@ function DraftCard({
 }
 
 // ----------------------------------------------------------------
-// Main page
+// Tab content (no page shell — used inside Knowledge Hub tabs)
 // ----------------------------------------------------------------
-export default function KnowledgeReviewPage() {
+export function KnowledgeReviewContent() {
   const [drafts, setDrafts] = useState<KnowledgeDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("pending_review");
@@ -264,71 +264,77 @@ export default function KnowledgeReviewPage() {
   }, [statusFilter]);
 
   return (
+    <div className="max-w-4xl space-y-6">
+      <div className="flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 px-5 py-4">
+        <AlertTriangle className="h-5 w-5 shrink-0 text-violet-600 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-violet-800">These are AI-generated drafts — review carefully</p>
+          <p className="mt-0.5 text-xs text-violet-700">
+            Claude created these pain point drafts based on call phrases and context. They may be inaccurate, incomplete, or duplicate existing entries.
+            Always review and verify before approving. Approving a draft does not automatically add it to the live knowledge library — that requires a manual step.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2">
+        {statusOptions.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => setStatusFilter(opt.value)}
+            className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+              statusFilter === opt.value
+                ? "bg-[#063b32] text-white"
+                : "border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32]/30"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="flex items-center gap-2 py-12 text-sm text-[#6f6b62]">
+          <Loader2 className="h-4 w-4 animate-spin" /> Loading drafts…
+        </div>
+      ) : drafts.length === 0 ? (
+        <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/40 py-16 text-center">
+          <FlaskConical className="mx-auto h-8 w-8 text-[#6f6b62]/30 mb-2" />
+          <p className="text-sm text-[#6f6b62]">
+            {statusFilter === "pending_review"
+              ? "No drafts awaiting review."
+              : `No drafts with status "${statusOptions.find(o => o.value === statusFilter)?.label}".`}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {drafts.map((draft) => (
+            <DraftCard
+              key={draft.id}
+              draft={draft}
+              onStatusChange={() => fetchDrafts(statusFilter)}
+            />
+          ))}
+        </div>
+      )}
+
+      <p className="text-xs text-[#6f6b62]">{drafts.length} draft{drafts.length !== 1 ? "s" : ""} shown.</p>
+    </div>
+  );
+}
+
+// ----------------------------------------------------------------
+// Standalone page (direct route only)
+// ----------------------------------------------------------------
+export default function KnowledgeReviewPage() {
+  return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
         <h1 className="mt-0.5 text-2xl font-semibold text-[#111111]">Knowledge Review</h1>
         <p className="mt-1 text-sm text-[#6f6b62]">Review AI-generated draft pain points before they enter the knowledge library.</p>
       </div>
-
-      <div className="px-8 py-6 max-w-4xl space-y-6">
-        {/* AI disclaimer banner */}
-        <div className="flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 px-5 py-4">
-          <AlertTriangle className="h-5 w-5 shrink-0 text-violet-600 mt-0.5" />
-          <div>
-            <p className="text-sm font-semibold text-violet-800">These are AI-generated drafts — review carefully</p>
-            <p className="mt-0.5 text-xs text-violet-700">
-              Claude created these pain point drafts based on call phrases and context. They may be inaccurate, incomplete, or duplicate existing entries.
-              Always review and verify before approving. Approving a draft does not automatically add it to the live knowledge library — that requires a manual step.
-            </p>
-          </div>
-        </div>
-
-        {/* Status filter */}
-        <div className="flex gap-2">
-          {statusOptions.map((opt) => (
-            <button
-              key={opt.value}
-              onClick={() => setStatusFilter(opt.value)}
-              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                statusFilter === opt.value
-                  ? "bg-[#063b32] text-white"
-                  : "border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32]/30"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Draft list */}
-        {loading ? (
-          <div className="flex items-center gap-2 py-12 text-sm text-[#6f6b62]">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading drafts…
-          </div>
-        ) : drafts.length === 0 ? (
-          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/40 py-16 text-center">
-            <FlaskConical className="mx-auto h-8 w-8 text-[#6f6b62]/30 mb-2" />
-            <p className="text-sm text-[#6f6b62]">
-              {statusFilter === "pending_review"
-                ? "No drafts awaiting review."
-                : `No drafts with status "${statusOptions.find(o => o.value === statusFilter)?.label}".`}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {drafts.map((draft) => (
-              <DraftCard
-                key={draft.id}
-                draft={draft}
-                onStatusChange={() => fetchDrafts(statusFilter)}
-              />
-            ))}
-          </div>
-        )}
-
-        <p className="text-xs text-[#6f6b62]">{drafts.length} draft{drafts.length !== 1 ? "s" : ""} shown.</p>
+      <div className="px-8 py-6">
+        <KnowledgeReviewContent />
       </div>
     </div>
   );

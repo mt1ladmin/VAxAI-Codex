@@ -1,19 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, BookOpen, Search } from "lucide-react";
 import {
-  BADGE_COLORS, PAIN_POINT_CATEGORIES,
+  PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
-import KnowledgeReviewPage from "../knowledge-review/page";
+import { prepFingerprint, type ProspectPrepClient } from "@/lib/engagement/prospect-prep";
+import { KnowledgeReviewContent } from "../knowledge-review/page";
 
 type Tab = "prospect_prep" | "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review" | "prospect_prep_history";
 
-export default function KnowledgePage() {
+const TAB_KEYS: Tab[] = ["prospect_prep", "sectors", "personas", "pain_points", "vat_prompts", "knowledge_review", "prospect_prep_history"];
+
+function KnowledgePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("prospect_prep");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -32,8 +36,12 @@ export default function KnowledgePage() {
   const [prepNotes, setPrepNotes] = useState("");
   const [prepName, setPrepName] = useState("");
   const [prepResults, setPrepResults] = useState<any>(null);
-  const [savedPreps, setSavedPreps] = useState<any[]>([]);
-  const [historyViewPrep, setHistoryViewPrep] = useState<{ prep: any; index: number } | null>(null);
+  const [savedPreps, setSavedPreps] = useState<ProspectPrepClient[]>([]);
+  const [historyViewPrepId, setHistoryViewPrepId] = useState<string | null>(null);
+  const [historyEditDraft, setHistoryEditDraft] = useState<ProspectPrepClient | null>(null);
+  const [prepsLoading, setPrepsLoading] = useState(false);
+  const [savingPrep, setSavingPrep] = useState(false);
+  const [prepsError, setPrepsError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -103,10 +111,71 @@ export default function KnowledgePage() {
 
   useEffect(() => { inputRef.current?.focus(); }, [tab]);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('prospectPreps');
-    if (saved) setSavedPreps(JSON.parse(saved));
+  const loadSavedPreps = useCallback(async () => {
+    setPrepsLoading(true);
+    setPrepsError(null);
+    try {
+      const res = await fetch("/api/admin/engagement/prospect-preps?limit=50");
+      const json = await res.json() as { data?: ProspectPrepClient[]; error?: string };
+      if (!res.ok) throw new Error(json.error || "Failed to load prospect preps");
+      setSavedPreps(json.data || []);
+    } catch (e) {
+      setPrepsError(e instanceof Error ? e.message : "Failed to load prospect preps");
+    } finally {
+      setPrepsLoading(false);
+    }
   }, []);
+
+  const migrateLocalPreps = useCallback(async () => {
+    const local = localStorage.getItem("prospectPreps");
+    if (!local) return;
+    const list = JSON.parse(local) as any[];
+    for (const p of list) {
+      await fetch("/api/admin/engagement/prospect-preps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: p.name,
+          clientType: p.clientType,
+          prepNotes: p.prepNotes,
+          sector: p.sector,
+          persona: p.persona,
+          relevantPains: p.relevantPains || [],
+          relevantVats: p.relevantVats || [],
+          keywords: p.keywords || [],
+        }),
+      });
+    }
+    localStorage.removeItem("prospectPreps");
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      await loadSavedPreps();
+      await migrateLocalPreps();
+      await loadSavedPreps();
+    })();
+  }, [loadSavedPreps, migrateLocalPreps]);
+
+  useEffect(() => {
+    if (tab === "prospect_prep_history") loadSavedPreps();
+  }, [tab, loadSavedPreps]);
+
+  useEffect(() => {
+    const urlTab = searchParams.get("tab");
+    if (urlTab && TAB_KEYS.includes(urlTab as Tab)) setTab(urlTab as Tab);
+    const prepId = searchParams.get("prep");
+    if (prepId) setHistoryViewPrepId(prepId);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!historyViewPrepId) {
+      setHistoryEditDraft(null);
+      return;
+    }
+    const prep = savedPreps.find((p) => p.id === historyViewPrepId);
+    if (prep) setHistoryEditDraft({ ...prep });
+  }, [historyViewPrepId, savedPreps]);
 
   // When arriving back or prep changes, sync a friendly name default for the form if building
   useEffect(() => {
@@ -115,19 +184,14 @@ export default function KnowledgePage() {
     }
   }, [prepResults]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const prepFingerprint = (prep: any) => JSON.stringify({
-    clientType: (prep.clientType || "").trim().toLowerCase(),
-    sectorId: prep.sector?.id || "",
-    personaId: prep.persona?.id || "",
-    prepNotes: (prep.prepNotes || "").trim().toLowerCase(),
-    painIds: (prep.relevantPains || []).map((p: any) => p.id).sort(),
-    vatIds: (prep.relevantVats || []).map((v: any) => v.id).sort(),
-  });
-
   const findDuplicatePrep = (prep: any) => {
     const fp = prepFingerprint(prep);
-    const index = savedPreps.findIndex((p) => prepFingerprint(p) === fp);
-    return index >= 0 ? { prep: savedPreps[index], index } : null;
+    const match = savedPreps.find((p) => prepFingerprint(p) === fp);
+    return match || null;
+  };
+
+  const setCurrentProspectPrep = (prep: ProspectPrepClient | Record<string, unknown>) => {
+    sessionStorage.setItem("currentProspectPrep", JSON.stringify(prep));
   };
 
   const resetPrepForm = () => {
@@ -174,7 +238,7 @@ export default function KnowledgePage() {
     }
   };
 
-  const savePrep = (options?: { customName?: string; navigatePrompt?: boolean }) => {
+  const savePrep = async (options?: { customName?: string; navigatePrompt?: boolean }) => {
     if (!prepResults) return null;
 
     const duplicate = findDuplicatePrep(prepResults);
@@ -184,55 +248,114 @@ export default function KnowledgePage() {
         if (viewHistory) {
           resetPrepForm();
           setTab("prospect_prep_history");
-          setHistoryViewPrep(duplicate);
+          setHistoryViewPrepId(duplicate.id);
         }
       }
-      return duplicate.prep;
+      return duplicate;
     }
 
-    const name = (options?.customName || prepName || clientType || "").slice(0, 80) || "Prep " + new Date().toLocaleDateString();
-    const newPrep = {
-      id: Date.now().toString(),
-      name,
-      ...prepResults,
-      createdAt: new Date().toISOString(),
-    };
-    const updated = [newPrep, ...savedPreps].slice(0, 20);
-    setSavedPreps(updated);
-    localStorage.setItem("prospectPreps", JSON.stringify(updated));
-    localStorage.setItem("currentProspectPrep", JSON.stringify(newPrep));
-
-    resetPrepForm();
-
-    if (options?.navigatePrompt !== false) {
-      const viewHistory = window.confirm("Saved to Prospect Prep History. Would you like to view it there now?");
-      if (viewHistory) {
-        setTab("prospect_prep_history");
-        setHistoryViewPrep({ prep: newPrep, index: 0 });
+    setSavingPrep(true);
+    setPrepsError(null);
+    try {
+      const name = (options?.customName || prepName || clientType || "").slice(0, 80) || "Prep " + new Date().toLocaleDateString();
+      const res = await fetch("/api/admin/engagement/prospect-preps", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          clientType: prepResults.clientType,
+          prepNotes: prepResults.prepNotes,
+          sector: prepResults.sector,
+          persona: prepResults.persona,
+          relevantPains: prepResults.relevantPains || [],
+          relevantVats: prepResults.relevantVats || [],
+          keywords: prepResults.keywords || [],
+        }),
+      });
+      const json = await res.json() as { data?: ProspectPrepClient; error?: string };
+      if (res.status === 409 && json.data) {
+        await loadSavedPreps();
+        if (options?.navigatePrompt !== false) {
+          const viewHistory = window.confirm("This prep is already saved in Prospect Prep History. Would you like to view it there?");
+          if (viewHistory) {
+            resetPrepForm();
+            setTab("prospect_prep_history");
+            setHistoryViewPrepId(json.data.id);
+          }
+        }
+        return json.data;
       }
-    }
+      if (!res.ok) throw new Error(json.error || "Failed to save prep");
 
-    return newPrep;
+      const newPrep = json.data!;
+      setCurrentProspectPrep(newPrep);
+      await loadSavedPreps();
+      resetPrepForm();
+
+      if (options?.navigatePrompt !== false) {
+        const viewHistory = window.confirm("Saved to Prospect Prep History. Would you like to view it there now?");
+        if (viewHistory) {
+          setTab("prospect_prep_history");
+          setHistoryViewPrepId(newPrep.id);
+        }
+      }
+
+      return newPrep;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to save prep";
+      setPrepsError(message);
+      alert(message);
+      return null;
+    } finally {
+      setSavingPrep(false);
+    }
   };
 
-  const updateSavedPrep = (index: number, updates: Partial<any>) => {
-    const updated = savedPreps.map((p, i) => (i === index ? { ...p, ...updates } : p));
-    setSavedPreps(updated);
-    localStorage.setItem("prospectPreps", JSON.stringify(updated));
-    const merged = { ...savedPreps[index], ...updates };
-    if (historyViewPrep?.index === index) {
-      setHistoryViewPrep({ prep: merged, index });
+  const updateSavedPrep = async (id: string, updates: { name?: string; prepNotes?: string }) => {
+    setSavingPrep(true);
+    setPrepsError(null);
+    try {
+      const res = await fetch(`/api/admin/engagement/prospect-preps/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      const json = await res.json() as { data?: ProspectPrepClient; error?: string };
+      if (!res.ok) throw new Error(json.error || "Failed to update prep");
+      await loadSavedPreps();
+      return json.data!;
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to update prep";
+      setPrepsError(message);
+      alert(message);
+      return null;
+    } finally {
+      setSavingPrep(false);
     }
-    return merged;
   };
 
-  const attachPrep = (prep: any, isUnsavedBuild = false) => {
-    let toAttach = prep;
+  const deleteSavedPrep = async (id: string) => {
+    setSavingPrep(true);
+    try {
+      const res = await fetch(`/api/admin/engagement/prospect-preps/${id}`, { method: "DELETE" });
+      const json = await res.json() as { error?: string };
+      if (!res.ok) throw new Error(json.error || "Failed to delete prep");
+      if (historyViewPrepId === id) setHistoryViewPrepId(null);
+      await loadSavedPreps();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to delete prep");
+    } finally {
+      setSavingPrep(false);
+    }
+  };
+
+  const attachPrep = async (prep: ProspectPrepClient | any, isUnsavedBuild = false) => {
+    let toAttach: ProspectPrepClient | Record<string, unknown> = prep;
     if (isUnsavedBuild) {
       const shouldSave = window.confirm("Save this prep to Prospect Prep History first (recommended for your records)?");
       if (shouldSave) {
         const nameInput = window.prompt("Name for this saved prep:", prepName || clientType?.slice(0, 60) || "Quick Prospect Prep");
-        const saved = savePrep({ customName: nameInput || undefined, navigatePrompt: false });
+        const saved = await savePrep({ customName: nameInput || undefined, navigatePrompt: false });
         if (saved) toAttach = saved;
       } else {
         toAttach = {
@@ -241,7 +364,7 @@ export default function KnowledgePage() {
         };
       }
     }
-    localStorage.setItem("currentProspectPrep", JSON.stringify(toAttach));
+    setCurrentProspectPrep(toAttach as ProspectPrepClient);
     router.push("/admin/engagement/live-call");
   };
 
@@ -263,7 +386,7 @@ export default function KnowledgePage() {
             ] as [Tab, string][]).map(([key, label]) => (
               <button
                 key={key}
-                onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); setHistoryViewPrep(null); }}
+                onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); setHistoryViewPrepId(null); }}
                 className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
                   tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
                 }`}
@@ -275,7 +398,7 @@ export default function KnowledgePage() {
         </div>
       </div>
 
-      {tab !== "prospect_prep" && (
+      {tab !== "prospect_prep" && !(tab === "prospect_prep_history" && historyViewPrepId) && (
         <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
           <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : tab === "knowledge_review" ? "Knowledge Review" : "Prospect Prep History"}</h1>
@@ -482,11 +605,7 @@ export default function KnowledgePage() {
                 </div>
               )
             )}
-            {tab === "knowledge_review" && (
-              <div className="[&>div>div:first-child]:hidden">
-                <KnowledgeReviewPage />
-              </div>
-            )}
+            {tab === "knowledge_review" && <KnowledgeReviewContent />}
             {tab === "prospect_prep" && (
               <div className="max-w-2xl mx-auto">
                 <div className="rounded-2xl border border-[#111111]/10 bg-white p-8 shadow-sm">
@@ -605,11 +724,11 @@ export default function KnowledgePage() {
                         <p className="w-full text-xs text-amber-700 mb-1">This prep is already in your history — it can only be saved once.</p>
                       )}
                       <button
-                        onClick={() => savePrep()}
-                        disabled={!!findDuplicatePrep(prepResults)}
+                        onClick={() => void savePrep()}
+                        disabled={!!findDuplicatePrep(prepResults) || savingPrep}
                         className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Save to History
+                        {savingPrep ? "Saving…" : "Save to History"}
                       </button>
                       {findDuplicatePrep(prepResults) && (
                         <button
@@ -617,15 +736,15 @@ export default function KnowledgePage() {
                             const duplicate = findDuplicatePrep(prepResults)!;
                             resetPrepForm();
                             setTab("prospect_prep_history");
-                            setHistoryViewPrep(duplicate);
+                            setHistoryViewPrepId(duplicate.id);
                           }}
                           className="rounded-lg border border-[#063b32]/25 px-4 py-1.5 text-sm font-semibold text-[#063b32] hover:bg-[#f7f4ea]"
                         >
                           View in History
                         </button>
                       )}
-                      <button onClick={() => attachPrep(prepResults, true)} className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]">Attach to Live Call</button>
-                      <button onClick={() => attachPrep(prepResults, false)} className="rounded-lg border border-[#063b32]/25 px-4 py-1.5 text-sm font-semibold text-[#063b32] hover:bg-[#f7f4ea]">Attach without saving</button>
+                      <button onClick={() => void attachPrep(prepResults, true)} className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]">Attach to Live Call</button>
+                      <button onClick={() => void attachPrep(prepResults, false)} className="rounded-lg border border-[#063b32]/25 px-4 py-1.5 text-sm font-semibold text-[#063b32] hover:bg-[#f7f4ea]">Attach without saving</button>
                     </div>
                     <p className="mt-2 text-[10px] text-[#6f6b62]">Attaching navigates to Live Call with this prep loaded on the left. Use "Attach to Live Call" to be asked about saving first.</p>
                   </div>
@@ -634,60 +753,62 @@ export default function KnowledgePage() {
             )}
             {tab === "prospect_prep_history" && (
               <div className="max-w-3xl mx-auto">
-                {historyViewPrep ? (
+                {prepsError && (
+                  <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {prepsError} — run the Supabase migration <code className="text-xs">20260624_prospect_preps.sql</code> if you have not already.
+                  </div>
+                )}
+                {historyEditDraft ? (
                   <div className="rounded-2xl border border-[#111111]/10 bg-white p-6">
                     <button
-                      onClick={() => setHistoryViewPrep(null)}
+                      onClick={() => setHistoryViewPrepId(null)}
                       className="mb-4 text-xs font-semibold text-[#063b32] hover:underline"
                     >
                       ← Back to history
                     </button>
                     <div className="flex items-start justify-between mb-3">
                       <h4 className="font-semibold text-[#111111]">Prepared Summary</h4>
-                      <span className="text-[10px] text-[#6f6b62]">{new Date(historyViewPrep.prep.createdAt).toLocaleString()}</span>
+                      <span className="text-[10px] text-[#6f6b62]">{new Date(historyEditDraft.createdAt).toLocaleString()}</span>
                     </div>
 
                     <div className="mb-4">
                       <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Name this prep</label>
                       <input
-                        value={historyViewPrep.prep.name || ""}
-                        onChange={(e) => setHistoryViewPrep({
-                          ...historyViewPrep,
-                          prep: { ...historyViewPrep.prep, name: e.target.value },
-                        })}
+                        value={historyEditDraft.name || ""}
+                        onChange={(e) => setHistoryEditDraft({ ...historyEditDraft, name: e.target.value })}
                         className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                       />
                     </div>
 
-                    {historyViewPrep.prep.sector && (
+                    {historyEditDraft.sector && (
                       <div className="mb-3 pb-3 border-b border-[#111111]/10">
                         <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">SECTOR</p>
-                        <p className="font-medium text-[#111111]">{historyViewPrep.prep.sector.name}</p>
-                        {historyViewPrep.prep.sector.description && <p className="text-sm mt-1 text-[#111111]">{historyViewPrep.prep.sector.description}</p>}
-                        {historyViewPrep.prep.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {historyViewPrep.prep.sector.common_admin_pressures.join(" · ")}</p>}
+                        <p className="font-medium text-[#111111]">{historyEditDraft.sector.name}</p>
+                        {historyEditDraft.sector.description && <p className="text-sm mt-1 text-[#111111]">{historyEditDraft.sector.description}</p>}
+                        {historyEditDraft.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {historyEditDraft.sector.common_admin_pressures.join(" · ")}</p>}
                       </div>
                     )}
-                    {historyViewPrep.prep.persona && (
+                    {historyEditDraft.persona && (
                       <div className="mb-3 pb-3 border-b border-[#111111]/10">
                         <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">PERSONA</p>
-                        <p className="font-medium text-[#111111]">{historyViewPrep.prep.persona.persona_name}{historyViewPrep.prep.persona.typical_role ? ` — ${historyViewPrep.prep.persona.typical_role}` : ""}</p>
+                        <p className="font-medium text-[#111111]">{historyEditDraft.persona.persona_name}{historyEditDraft.persona.typical_role ? ` — ${historyEditDraft.persona.typical_role}` : ""}</p>
                       </div>
                     )}
-                    {historyViewPrep.prep.relevantPains?.length > 0 && (
+                    {historyEditDraft.relevantPains?.length > 0 && (
                       <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT PAIN POINTS ({historyViewPrep.prep.relevantPains.length})</p>
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT PAIN POINTS ({historyEditDraft.relevantPains.length})</p>
                         <ul className="text-sm space-y-1 text-[#111111]">
-                          {historyViewPrep.prep.relevantPains.map((pp: any, idx: number) => (
+                          {historyEditDraft.relevantPains.map((pp, idx) => (
                             <li key={idx}>• {pp.title}{pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 70)}` : ""}</li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    {historyViewPrep.prep.relevantVats?.length > 0 && (
+                    {historyEditDraft.relevantVats?.length > 0 && (
                       <div className="mb-3 pb-3 border-b border-[#111111]/10">
-                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT VAT PROMPTS ({historyViewPrep.prep.relevantVats.length})</p>
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT VAT PROMPTS ({historyEditDraft.relevantVats.length})</p>
                         <ul className="text-sm space-y-1 text-[#111111]">
-                          {historyViewPrep.prep.relevantVats.map((v: any, idx: number) => (
+                          {historyEditDraft.relevantVats.map((v, idx) => (
                             <li key={idx}>• {v.prompt}</li>
                           ))}
                         </ul>
@@ -696,11 +817,8 @@ export default function KnowledgePage() {
                     <div className="mb-4">
                       <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Notes / Context</label>
                       <textarea
-                        value={historyViewPrep.prep.prepNotes || historyViewPrep.prep.clientType || ""}
-                        onChange={(e) => setHistoryViewPrep({
-                          ...historyViewPrep,
-                          prep: { ...historyViewPrep.prep, prepNotes: e.target.value },
-                        })}
+                        value={historyEditDraft.prepNotes || historyEditDraft.clientType || ""}
+                        onChange={(e) => setHistoryEditDraft({ ...historyEditDraft, prepNotes: e.target.value })}
                         className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
                         rows={3}
                       />
@@ -708,34 +826,39 @@ export default function KnowledgePage() {
 
                     <div className="flex flex-wrap gap-2 pt-2 border-t border-[#111111]/10">
                       <button
-                        onClick={() => {
-                          const saved = updateSavedPrep(historyViewPrep.index, {
-                            name: historyViewPrep.prep.name,
-                            prepNotes: historyViewPrep.prep.prepNotes,
+                        onClick={async () => {
+                          const saved = await updateSavedPrep(historyEditDraft.id, {
+                            name: historyEditDraft.name,
+                            prepNotes: historyEditDraft.prepNotes,
                           });
-                          localStorage.setItem("currentProspectPrep", JSON.stringify(saved));
-                          alert("Changes saved.");
+                          if (saved) {
+                            setCurrentProspectPrep(saved);
+                            alert("Changes saved.");
+                          }
                         }}
-                        className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+                        disabled={savingPrep}
+                        className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
                       >
-                        Save Changes
+                        {savingPrep ? "Saving…" : "Save Changes"}
                       </button>
                       <button
-                        onClick={() => attachPrep(historyViewPrep.prep, false)}
+                        onClick={() => void attachPrep(historyEditDraft, false)}
                         className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
                       >
                         Attach to Live Call
                       </button>
                     </div>
                   </div>
+                ) : prepsLoading ? (
+                  <div className="py-12 text-center text-sm text-[#6f6b62]">Loading saved preps…</div>
                 ) : savedPreps.length === 0 ? (
                   <div className="rounded-2xl border border-[#111111]/10 py-12 text-center bg-white">
                     <p className="text-sm text-[#6f6b62]">No saved preps yet. Build one in the Prospect Prep tab and save it.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {savedPreps.map((p, idx) => (
-                      <div key={p.id || idx} className="rounded-xl border border-[#111111]/10 bg-white p-5">
+                    {savedPreps.map((p) => (
+                      <div key={p.id} className="rounded-xl border border-[#111111]/10 bg-white p-5">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="font-semibold text-[#111111]">{p.name}</p>
@@ -747,13 +870,13 @@ export default function KnowledgePage() {
                           </div>
                           <div className="flex flex-col gap-1.5 shrink-0 text-sm">
                             <button
-                              onClick={() => setHistoryViewPrep({ prep: p, index: idx })}
+                              onClick={() => setHistoryViewPrepId(p.id)}
                               className="rounded-md border border-[#111111]/15 px-3 py-1 text-xs font-semibold hover:bg-[#f7f4ea]"
                             >
                               View / Edit
                             </button>
                             <button
-                              onClick={() => attachPrep(p, false)}
+                              onClick={() => void attachPrep(p, false)}
                               className="rounded-md bg-[#063b32] px-3 py-1 text-xs font-semibold text-white hover:bg-[#1a5c42]"
                             >
                               Attach to Call
@@ -761,11 +884,10 @@ export default function KnowledgePage() {
                             <button
                               onClick={() => {
                                 if (!confirm("Delete this saved prep?")) return;
-                                const u = savedPreps.filter((_, ii) => ii !== idx);
-                                setSavedPreps(u);
-                                localStorage.setItem("prospectPreps", JSON.stringify(u));
+                                void deleteSavedPrep(p.id);
                               }}
-                              className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                              disabled={savingPrep}
+                              className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
                             >
                               Delete
                             </button>
@@ -782,5 +904,13 @@ export default function KnowledgePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function KnowledgePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white px-8 py-16 text-sm text-[#6f6b62]">Loading knowledge hub…</div>}>
+      <KnowledgePageInner />
+    </Suspense>
   );
 }

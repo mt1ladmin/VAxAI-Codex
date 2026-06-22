@@ -22,6 +22,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } from "@/lib/engagement/types";
+import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 
 type CallNote = { id: string; text: string; timestamp: Date; type: "note" | "pain_point" | "commitment" | "question" };
 type CallState = "pre" | "active" | "post";
@@ -90,7 +91,10 @@ function LiveCallAssistInner() {
   const [activeLiveDraft, setActiveLiveDraft] = useState<LiveDraft | null>(null);
   const [generatingGuidance, setGeneratingGuidance] = useState(false);
   const [guidanceError, setGuidanceError] = useState<string | null>(null);
-  const [loadedPrep, setLoadedPrep] = useState<any>(null);
+  const [loadedPrep, setLoadedPrep] = useState<ProspectPrepClient | null>(null);
+  const [showPrepPicker, setShowPrepPicker] = useState(false);
+  const [prepPickerList, setPrepPickerList] = useState<ProspectPrepClient[]>([]);
+  const [prepPickerLoading, setPrepPickerLoading] = useState(false);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
   const generateQuickGuidance = useCallback(async (phrase: string) => {
@@ -142,9 +146,33 @@ function LiveCallAssistInner() {
   }, [initialPainPointId]);
 
   useEffect(() => {
-    const saved = localStorage.getItem("currentProspectPrep");
-    if (saved) setLoadedPrep(JSON.parse(saved));
+    const saved = sessionStorage.getItem("currentProspectPrep") || localStorage.getItem("currentProspectPrep");
+    if (saved) {
+      setLoadedPrep(JSON.parse(saved));
+      sessionStorage.setItem("currentProspectPrep", saved);
+      localStorage.removeItem("currentProspectPrep");
+    }
   }, []);
+
+  const loadPrepPicker = async () => {
+    setPrepPickerLoading(true);
+    try {
+      const res = await fetch("/api/admin/engagement/prospect-preps?limit=50");
+      const json = await res.json() as { data?: ProspectPrepClient[] };
+      setPrepPickerList(json.data || []);
+      setShowPrepPicker(true);
+    } catch {
+      alert("Could not load prospect preps. Check that the Supabase migration has been run.");
+    } finally {
+      setPrepPickerLoading(false);
+    }
+  };
+
+  const selectPrepFromPicker = (prep: ProspectPrepClient) => {
+    setLoadedPrep(prep);
+    sessionStorage.setItem("currentProspectPrep", JSON.stringify(prep));
+    setShowPrepPicker(false);
+  };
 
   // Timer
   useEffect(() => {
@@ -648,7 +676,7 @@ function LiveCallAssistInner() {
               <div className="mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2 flex items-center justify-between">
                   <span>Prospect Prep</span>
-                  <button onClick={() => { setLoadedPrep(null); localStorage.removeItem("currentProspectPrep"); }} className="underline text-red-600 text-[9px]">Clear</button>
+                  <button onClick={() => { setLoadedPrep(null); sessionStorage.removeItem("currentProspectPrep"); }} className="underline text-red-600 text-[9px]">Clear</button>
                 </p>
                 <div className="text-[10px] border border-[#111111]/10 rounded bg-white p-2 max-h-80 overflow-auto space-y-1.5">
                   {loadedPrep.name && <p className="font-semibold text-[#111111]">{loadedPrep.name}</p>}
@@ -696,26 +724,36 @@ function LiveCallAssistInner() {
             )}
             <div className="mb-1">
               <button
-                onClick={() => {
-                  const saved = localStorage.getItem("prospectPreps");
-                  if (saved) {
-                    const list = JSON.parse(saved);
-                    const idx = prompt("Saved Preps:\n" + list.map((p: any, i: number) => `${i + 1}. ${p.name}`).join("\n") + "\n\nEnter number to load:");
-                    if (idx) {
-                      const p = list[parseInt(idx) - 1];
-                      if (p) {
-                        setLoadedPrep(p);
-                        localStorage.setItem("currentProspectPrep", JSON.stringify(p));
-                      }
-                    }
-                  } else {
-                    alert("No saved preps yet. Go to Knowledge Hub → Prospect Prep History to save some.");
-                  }
-                }}
-                className="text-[10px] text-[#063b32] hover:underline"
+                onClick={() => void loadPrepPicker()}
+                disabled={prepPickerLoading}
+                className="text-[10px] text-[#063b32] hover:underline disabled:opacity-50"
               >
-                Load from Prospect Prep History
+                {prepPickerLoading ? "Loading preps…" : "Load from Prospect Prep History"}
               </button>
+              {showPrepPicker && (
+                <div className="mt-2 rounded-lg border border-[#111111]/15 bg-white p-2 max-h-48 overflow-auto space-y-1">
+                  {prepPickerList.length === 0 ? (
+                    <p className="text-[10px] text-[#6f6b62] px-1 py-2">No saved preps yet.</p>
+                  ) : (
+                    prepPickerList.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => selectPrepFromPicker(p)}
+                        className="w-full text-left rounded px-2 py-1.5 text-[10px] hover:bg-[#f7f4ea] border border-transparent hover:border-[#111111]/10"
+                      >
+                        <span className="font-semibold text-[#111111]">{p.name}</span>
+                        {p.clientType && <span className="block text-[#6f6b62] line-clamp-1">{p.clientType}</span>}
+                      </button>
+                    ))
+                  )}
+                  <button
+                    onClick={() => setShowPrepPicker(false)}
+                    className="w-full text-center text-[9px] text-[#6f6b62] hover:underline pt-1"
+                  >
+                    Close
+                  </button>
+                </div>
+              )}
             </div>
             {liveDrafts.length > 0 && (
               <div>
