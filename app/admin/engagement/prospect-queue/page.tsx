@@ -38,6 +38,8 @@ const UK_REGIONS = [
   "Remote / UK-wide",
 ];
 
+type TriFilter = "all" | "yes" | "no";
+
 type ProspectForm = {
   raw_org_name: string;
   raw_contact_name: string;
@@ -254,6 +256,10 @@ export default function ProspectQueuePage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [industryFilter, setIndustryFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [nextActionFilter, setNextActionFilter] = useState<TriFilter>("all");
+  const [opportunityFilter, setOpportunityFilter] = useState<TriFilter>("all");
+  const [contactIdsWithOpportunity, setContactIdsWithOpportunity] = useState<Set<string>>(new Set());
+  const [orgIdsWithOpportunity, setOrgIdsWithOpportunity] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<ProspectQueueEntry | null>(null);
@@ -278,8 +284,20 @@ export default function ProspectQueuePage() {
     setLoading(true);
     const params = new URLSearchParams({ limit: "200" });
     if (statusFilter !== "all") params.set("status", statusFilter);
-    const res = await fetch(`/api/admin/engagement/prospect-queue?${params}`);
-    const j = await res.json() as { data: ProspectQueueEntry[] };
+    const [queueRes, oppRes] = await Promise.all([
+      fetch(`/api/admin/engagement/prospect-queue?${params}`),
+      fetch("/api/admin/engagement/opportunities?limit=500"),
+    ]);
+    const j = await queueRes.json() as { data: ProspectQueueEntry[] };
+    const oppJson = await oppRes.json() as { data?: Array<{ organisation_id?: string | null; primary_contact_id?: string | null }> };
+    const contactIds = new Set<string>();
+    const orgIds = new Set<string>();
+    for (const opp of oppJson.data || []) {
+      if (opp.primary_contact_id) contactIds.add(opp.primary_contact_id);
+      if (opp.organisation_id) orgIds.add(opp.organisation_id);
+    }
+    setContactIdsWithOpportunity(contactIds);
+    setOrgIdsWithOpportunity(orgIds);
     setEntries(j.data || []);
     setSelected(new Set());
     setLoading(false);
@@ -310,12 +328,42 @@ export default function ProspectQueuePage() {
     [],
   );
 
+  const nextActionOptions = useMemo(
+    () => [
+      { value: "all", label: "Next action: all" },
+      { value: "yes", label: "With next action" },
+      { value: "no", label: "No next action" },
+    ],
+    [],
+  );
+
+  const opportunityOptions = useMemo(
+    () => [
+      { value: "all", label: "Opportunity: all" },
+      { value: "yes", label: "Has opportunity" },
+      { value: "no", label: "No opportunity" },
+    ],
+    [],
+  );
+
+  const entryHasOpportunity = useCallback((e: ProspectQueueEntry) => {
+    return (
+      (e.contact_id && contactIdsWithOpportunity.has(e.contact_id)) ||
+      (e.organisation_id && orgIdsWithOpportunity.has(e.organisation_id))
+    );
+  }, [contactIdsWithOpportunity, orgIdsWithOpportunity]);
+
   const filtered = useMemo(() => entries.filter((e) => {
     const industry = (e.raw_industry || e.organisation?.industry || "").toLowerCase();
     const location = (e.raw_location || "").toLowerCase();
 
     if (industryFilter !== "all" && !industry.includes(industryFilter.toLowerCase())) return false;
     if (locationFilter !== "all" && !location.includes(locationFilter.toLowerCase())) return false;
+    if (nextActionFilter === "yes" && !e.next_action) return false;
+    if (nextActionFilter === "no" && e.next_action) return false;
+    const hasOpportunity = entryHasOpportunity(e);
+    if (opportunityFilter === "yes" && !hasOpportunity) return false;
+    if (opportunityFilter === "no" && hasOpportunity) return false;
 
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -328,7 +376,7 @@ export default function ProspectQueuePage() {
       e.organisation?.name?.toLowerCase().includes(q) ||
       e.raw_notes?.toLowerCase().includes(q)
     );
-  }), [entries, industryFilter, locationFilter, search]);
+  }), [entries, industryFilter, locationFilter, nextActionFilter, opportunityFilter, search, entryHasOpportunity]);
 
   const metrics = useMemo(() => {
     const needsReview = filtered.filter((e) => e.status === "Needs review").length;
@@ -431,7 +479,13 @@ export default function ProspectQueuePage() {
     }
   };
 
-  const hasActiveFilters = statusFilter !== "all" || industryFilter !== "all" || locationFilter !== "all" || search.trim();
+  const hasActiveFilters =
+    statusFilter !== "all" ||
+    industryFilter !== "all" ||
+    locationFilter !== "all" ||
+    nextActionFilter !== "all" ||
+    opportunityFilter !== "all" ||
+    search.trim();
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -593,6 +647,20 @@ export default function ProspectQueuePage() {
             placeholder="Location"
             className="w-44"
           />
+          <CustomSelect
+            value={nextActionFilter}
+            onChange={(v) => setNextActionFilter(v as TriFilter)}
+            options={nextActionOptions}
+            placeholder="Next action"
+            className="w-44"
+          />
+          <CustomSelect
+            value={opportunityFilter}
+            onChange={(v) => setOpportunityFilter(v as TriFilter)}
+            options={opportunityOptions}
+            placeholder="Opportunity"
+            className="w-44"
+          />
 
           {hasActiveFilters && (
             <button
@@ -602,6 +670,8 @@ export default function ProspectQueuePage() {
                 setStatusFilter("all");
                 setIndustryFilter("all");
                 setLocationFilter("all");
+                setNextActionFilter("all");
+                setOpportunityFilter("all");
               }}
               className="text-xs font-medium text-[#063b32] hover:underline"
             >

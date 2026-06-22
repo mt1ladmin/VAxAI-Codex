@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { InteractionList } from "@/components/admin/InteractionList";
+import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
@@ -94,6 +95,7 @@ export default function ProspectDetailPage() {
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
+  const [expandedActivityOppId, setExpandedActivityOppId] = useState<string | null>(null);
 
   const loadLinkedPreps = useCallback(async () => {
     const res = await fetch(`/api/admin/engagement/prospect-preps?queue_id=${id}&limit=20`);
@@ -818,14 +820,24 @@ export default function ProspectDetailPage() {
                     </div>
                   ))}
                   {opportunities.map((opp) => (
-                    <Link key={opp.id} href={`/admin/engagement/pipeline/opportunities/${opp.id}`} className="flex gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50">
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
-                      <div>
-                        <p className="text-sm font-semibold text-[#111111]">Opportunity linked</p>
-                        <p className="text-sm text-[#111111]">{opp.title}</p>
-                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
-                      </div>
-                    </Link>
+                    <div key={opp.id} className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setExpandedActivityOppId((id) => (id === opp.id ? null : opp.id))}
+                        className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 text-left hover:bg-amber-50"
+                      >
+                        <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-[#111111]">Opportunity linked</p>
+                          <p className="text-sm text-[#111111]">{opp.title}</p>
+                          <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
+                        </div>
+                        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expandedActivityOppId === opp.id ? "rotate-180" : ""}`} />
+                      </button>
+                      {expandedActivityOppId === opp.id && (
+                        <OpportunityPreviewCard opportunity={opp} defaultExpanded />
+                      )}
+                    </div>
                   ))}
                   {interactions.length === 0 && linkedPreps.length === 0 && opportunities.length === 0 && !entry.last_action && (
                     <p className="text-sm text-[#6f6b62]/60 py-4 text-center">No activity yet. Start a call or add a note to begin tracking.</p>
@@ -951,15 +963,7 @@ export default function ProspectDetailPage() {
               {opportunities.length > 0 ? (
                 <div className="space-y-2">
                   {opportunities.map((opp) => (
-                    <Link key={opp.id} href={`/admin/engagement/pipeline/opportunities/${opp.id}`} className="block rounded-xl border border-[#111111]/10 p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/40">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-[#111111]">{opp.title}</p>
-                          {opp.next_action && <p className="mt-1 text-xs text-[#6f6b62]">Next: {opp.next_action}</p>}
-                        </div>
-                        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
-                      </div>
-                    </Link>
+                    <OpportunityPreviewCard key={opp.id} opportunity={opp} />
                   ))}
                 </div>
               ) : (
