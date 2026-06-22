@@ -42,10 +42,26 @@ export async function POST(req: NextRequest) {
     contact = data;
   }
 
+  // Usefulness gate + DB leverage for "call-preparation" AI area (pre live call)
+  // Leverage DB data already fetched (interactions, known pain points) — no extra API needed.
+  const hasData = !!org || interactions.length > 0 || painPoints.length > 0;
+  if (!hasData && !callType) {
+    return NextResponse.json({ data: {
+      what_we_know: ["Limited CRM data available for this prospect"],
+      to_confirm: ["Basic context and goals"],
+      previous_engagement_summary: "No previous contact recorded",
+      sector_considerations: [],
+      pain_points_to_explore: [],
+      discovery_questions: ["What brings you here today?"],
+      suggested_opening: "Hi, thanks for your time today.",
+      key_cautions: ["Gather primary details before making assumptions"]
+    }});
+  }
+
+  // Sonnet good for synthesizing history into actionable prep card. Cache the result keyed by org+contact in future calls if same context.
   const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: 2000,
-    thinking: { type: "adaptive" },
+    model: "claude-sonnet-4-6",
+    max_tokens: 1000,
     messages: [{
       role: "user",
       content: `You are helping a Virtual Assistant consultant prepare for a call with a prospect or client.

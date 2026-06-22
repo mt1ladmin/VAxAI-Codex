@@ -16,10 +16,29 @@ export async function POST(req: NextRequest) {
 
   if (!rawNotes?.trim()) return NextResponse.json({ error: "No notes provided" }, { status: 400 });
 
+  // Usefulness gate + efficiency for "structure-notes" AI area (used mid/post live call)
+  const noteLen = rawNotes.trim().length;
+  if (noteLen < 30) {
+    return NextResponse.json({ data: {
+      call_summary: rawNotes.trim(),
+      confirmed_pain_points: [],
+      possible_pain_points: [],
+      current_tools_mentioned: [],
+      admin_pressures_mentioned: [],
+      desired_outcomes: [],
+      agreed_next_steps: [],
+      follow_up_tasks: [],
+      possible_vaxai_support: [],
+      trust_concerns: [],
+      questions_raised: []
+    }});
+  }
+
+  // Haiku is sufficient and far cheaper for structuring notes. Sonnet only if very complex reasoning needed.
+  // Natural live call flow: consultant wants quick organized summary without high cost.
   const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: 2000,
-    thinking: { type: "adaptive" },
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 800,
     messages: [{
       role: "user",
       content: `You are helping a Virtual Assistant consultant structure rough notes taken during a call.

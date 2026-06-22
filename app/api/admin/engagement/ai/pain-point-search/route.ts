@@ -13,13 +13,48 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ matches: [] });
   }
 
+  // Usefulness gate + DB pre-filter for "pain-point-search" AI area (high-frequency during live calls)
+  const trimmed = phrase.trim().toLowerCase();
+  if (trimmed.length < 6) {
+    return NextResponse.json({ matches: [] });
+  }
+
+  // Use DB data (passed painPoints) for cheap exact/keyword match first — avoid AI call if possible
+  const keywordMatches = painPoints
+    .map((pp, idx) => {
+      const hay = [
+        pp.title || "",
+        pp.plain_english_definition || "",
+        ...(pp.what_person_says || []),
+      ].join(" ").toLowerCase();
+      const score = hay.includes(trimmed) ? 90 : (hay.split(" ").some(w => trimmed.includes(w)) ? 60 : 0);
+      return { pp, idx, score };
+    })
+    .filter(m => m.score >= 50)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  if (keywordMatches.length > 0 && keywordMatches[0].score > 85) {
+    // Strong DB match — no need for AI semantic call (cost + speed win)
+    return NextResponse.json({
+      matches: keywordMatches.slice(0, 3).map(m => ({
+        id: m.pp.id,
+        score: m.score,
+        why: "Direct match from existing knowledge base",
+        discovery_question: `Can you tell me more about ${m.pp.title.toLowerCase()}?`,
+        suggested_wording: m.pp.title,
+      }))
+    });
+  }
+
   const ppList = painPoints.map((pp, i) =>
     `[${i}] ID: ${pp.id}\nTitle: ${pp.title}\nCategory: ${pp.category}\nDefinition: ${pp.plain_english_definition || ""}\nThings they say: ${(pp.what_person_says || []).slice(0, 3).join("; ")}`
   ).join("\n\n");
 
+  // Haiku is better here: fast, cheap semantic matching for live call support. Sonnet/Opus overkill.
   const message = await client.messages.create({
-    model: "claude-opus-4-8",
-    max_tokens: 1024,
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 400,
     messages: [{
       role: "user",
       content: `You are helping a Virtual Assistant consultant identify pain points during a client call.

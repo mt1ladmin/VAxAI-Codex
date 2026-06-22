@@ -16,10 +16,29 @@ export async function POST(req: NextRequest) {
 
   const categories = PAIN_POINT_CATEGORIES.join(", ");
 
+  // Usefulness gate for "draft-pain-point" AI area (knowledge base contribution, less frequent)
+  if (!phrase?.trim() || phrase.trim().length < 12) {
+    return NextResponse.json({ error: "Input too short for useful AI draft" }, { status: 400 });
+  }
+
+  // DB cache check: if this exact phrase was already drafted recently, return it instead of new AI call (cost reduction + consistency for engagement knowledge)
+  const supabaseCheck = createServiceClient();
+  const { data: existing } = await supabaseCheck
+    .from("engagement_knowledge_drafts")
+    .select("*")
+    .eq("source_phrase", phrase)
+    .eq("status", "pending_review")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (existing) {
+    return NextResponse.json({ data: existing });
+  }
+
+  // Keep stronger model (Sonnet) here: this creates structured, reviewable knowledge for future client engagement. Higher value justifies cost vs routine tasks.
   const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: 2000,
-    thinking: { type: "adaptive" },
+    model: "claude-sonnet-4-6",
+    max_tokens: 1000,
     messages: [{
       role: "user",
       content: `You are helping a Virtual Assistant consultancy (VAxAI) build their knowledge library of client pain points.

@@ -13,9 +13,15 @@ export async function POST(req: NextRequest) {
     channel?: string; // email, linkedin, etc.
   };
 
+  // Usefulness gate for "follow-up-draft" AI area (post live call / logging)
+  if (!interactionSummary?.trim() || interactionSummary.trim().length < 15) {
+    return NextResponse.json({ data: { draft: "Thanks for the call. Looking forward to next steps.", suggested_subject: "Follow up from our call" } });
+  }
+
+  // Haiku is better + much lower cost for standard follow-up drafting. Aligns with natural usage: quick polite email after engagement.
   const stream = client.messages.stream({
-    model: "claude-opus-4-8",
-    max_tokens: 1000,
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 400,
     messages: [{
       role: "user",
       content: `You are helping a Virtual Assistant consultant draft a follow-up message after a call.
