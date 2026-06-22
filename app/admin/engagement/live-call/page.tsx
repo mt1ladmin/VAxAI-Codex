@@ -1,0 +1,671 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Phone,
+  PhoneOff,
+  Plus,
+  Save,
+  Search,
+  Shield,
+  Target,
+  X,
+  Zap,
+} from "lucide-react";
+import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } from "@/lib/engagement/types";
+
+type CallNote = { id: string; text: string; timestamp: Date; type: "note" | "pain_point" | "commitment" | "question" };
+type CallState = "pre" | "active" | "post";
+
+export default function LiveCallAssist() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [callState, setCallState] = useState<CallState>("pre");
+  const [callType, setCallType] = useState("prospecting");
+  const [orgSearch, setOrgSearch] = useState("");
+  const [contactSearch, setContactSearch] = useState("");
+  const [orgs, setOrgs] = useState<EngagementOrganisation[]>([]);
+  const [contacts, setContacts] = useState<EngagementContact[]>([]);
+  const [selectedOrg, setSelectedOrg] = useState<EngagementOrganisation | null>(null);
+  const [selectedContact, setSelectedContact] = useState<EngagementContact | null>(null);
+  const [notes, setNotes] = useState<CallNote[]>([]);
+  const [noteText, setNoteText] = useState("");
+  const [painPointSearch, setPainPointSearch] = useState("");
+  const [painPoints, setPainPoints] = useState<PainPoint[]>([]);
+  const [selectedPainPoints, setSelectedPainPoints] = useState<PainPoint[]>([]);
+  const [activePainPoint, setActivePainPoint] = useState<PainPoint | null>(null);
+  const [vatPrompts, setVatPrompts] = useState<VatPrompt[]>([]);
+  const [callStartTime, setCallStartTime] = useState<Date | null>(null);
+  const [elapsed, setElapsed] = useState("0:00");
+  const [showSummary, setShowSummary] = useState(false);
+  const [summaryApproved, setSummaryApproved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const noteRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load pain point from URL if coming from navigator
+  const initialPainPointId = searchParams.get("pain_point");
+
+  useEffect(() => {
+    if (initialPainPointId) {
+      fetch(`/api/admin/engagement/pain-points/${initialPainPointId}`)
+        .then((r) => r.json())
+        .then((j: { data: PainPoint }) => {
+          if (j.data) setSelectedPainPoints([j.data]);
+        });
+    }
+  }, [initialPainPointId]);
+
+  // Timer
+  useEffect(() => {
+    if (callState !== "active" || !callStartTime) return;
+    const interval = setInterval(() => {
+      const diff = Math.floor((Date.now() - callStartTime.getTime()) / 1000);
+      const m = Math.floor(diff / 60);
+      const s = diff % 60;
+      setElapsed(`${m}:${s.toString().padStart(2, "0")}`);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [callState, callStartTime]);
+
+  // Search orgs
+  useEffect(() => {
+    if (!orgSearch.trim()) { setOrgs([]); return; }
+    const t = setTimeout(async () => {
+      const res = await fetch(`/api/admin/engagement/organisations?q=${encodeURIComponent(orgSearch)}&limit=5`);
+      const j = await res.json() as { data: EngagementOrganisation[] };
+      setOrgs(j.data || []);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [orgSearch]);
+
+  // Search contacts
+  useEffect(() => {
+    if (!contactSearch.trim()) { setContacts([]); return; }
+    const t = setTimeout(async () => {
+      const params = new URLSearchParams({ q: contactSearch, limit: "5" });
+      if (selectedOrg) params.set("organisation_id", selectedOrg.id);
+      const res = await fetch(`/api/admin/engagement/contacts?${params}`);
+      const j = await res.json() as { data: EngagementContact[] };
+      setContacts(j.data || []);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [contactSearch, selectedOrg]);
+
+  // Search pain points
+  useEffect(() => {
+    if (!painPointSearch.trim()) { setPainPoints([]); return; }
+    const t = setTimeout(async () => {
+      const res = await fetch(`/api/admin/engagement/pain-points?q=${encodeURIComponent(painPointSearch)}&limit=8`);
+      const j = await res.json() as { data: PainPoint[] };
+      setPainPoints(j.data || []);
+    }, 250);
+    return () => clearTimeout(t);
+  }, [painPointSearch]);
+
+  const loadVatPrompts = useCallback(async (pp: PainPoint) => {
+    const res = await fetch(`/api/admin/engagement/vat-prompts?tags=all`);
+    const j = await res.json() as { data: VatPrompt[] };
+    setVatPrompts(j.data || []);
+    setActivePainPoint(pp);
+  }, []);
+
+  const addNote = (type: CallNote["type"] = "note") => {
+    if (!noteText.trim()) return;
+    setNotes((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text: noteText, timestamp: new Date(), type },
+    ]);
+    setNoteText("");
+    noteRef.current?.focus();
+  };
+
+  const addPainPoint = (pp: PainPoint) => {
+    if (selectedPainPoints.find((p) => p.id === pp.id)) return;
+    setSelectedPainPoints((prev) => [...prev, pp]);
+    setPainPointSearch("");
+    setPainPoints([]);
+    loadVatPrompts(pp);
+    // Also add as a note chip
+    setNotes((prev) => [...prev, {
+      id: crypto.randomUUID(),
+      text: `Pain point identified: ${pp.title}`,
+      timestamp: new Date(),
+      type: "pain_point",
+    }]);
+  };
+
+  const startCall = () => {
+    setCallState("active");
+    setCallStartTime(new Date());
+    noteRef.current?.focus();
+  };
+
+  const endCall = () => {
+    setCallState("post");
+    setShowSummary(true);
+  };
+
+  const saveCallRecord = async () => {
+    if (!summaryApproved) return;
+    setSaving(true);
+    const fullNotes = notes.map((n) => `[${n.timestamp.toLocaleTimeString()}] ${n.text}`).join("\n");
+    const summary = `Call with ${selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : "unknown contact"} (${callType}). Duration: ${elapsed}. Pain points: ${selectedPainPoints.map((p) => p.title).join(", ") || "none identified"}.`;
+
+    await fetch("/api/admin/engagement/interactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        organisation_id: selectedOrg?.id || null,
+        contact_id: selectedContact?.id || null,
+        interaction_date: callStartTime?.toISOString() || new Date().toISOString(),
+        interaction_type: callType,
+        channel: "phone",
+        direction: "outbound",
+        summary,
+        full_notes: fullNotes,
+        pain_point_ids: selectedPainPoints.map((p) => p.id),
+        outcome: "completed",
+      }),
+    });
+    setSaving(false);
+    router.push("/admin/engagement/pipeline/interactions");
+  };
+
+  const noteTypeColor: Record<string, string> = {
+    note: "bg-white border-[#111111]/10",
+    pain_point: "bg-amber-50 border-amber-200",
+    commitment: "bg-emerald-50 border-emerald-200",
+    question: "bg-blue-50 border-blue-200",
+  };
+  const noteTypeLabel: Record<string, string> = {
+    note: "Note",
+    pain_point: "Pain point",
+    commitment: "Commitment",
+    question: "Question",
+  };
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
+            <h1 className="mt-0.5 text-2xl font-semibold text-[#111111]">Live Call Assist</h1>
+          </div>
+          {callState === "active" && (
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <Clock className="h-4 w-4 text-emerald-600" />
+                <span className="text-sm font-semibold text-emerald-700">{elapsed}</span>
+              </div>
+              <button
+                onClick={endCall}
+                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
+              >
+                <PhoneOff className="h-4 w-4" /> End call
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {callState === "pre" && (
+        <div className="px-8 py-8 max-w-xl">
+          <h2 className="text-lg font-semibold text-[#111111] mb-6">Set up this call</h2>
+
+          {/* Call type */}
+          <div className="mb-5">
+            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
+              Call type
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {["prospecting","discovery","review","support","follow-up"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setCallType(type)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
+                    callType === type
+                      ? "bg-[#063b32] text-white"
+                      : "border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32]/30"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Organisation */}
+          <div className="mb-4 relative">
+            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
+              Organisation (optional)
+            </label>
+            {selectedOrg ? (
+              <div className="flex items-center gap-2 rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 px-3 py-2">
+                <span className="flex-1 text-sm font-semibold text-[#063b32]">{selectedOrg.name}</span>
+                <button onClick={() => setSelectedOrg(null)}>
+                  <X className="h-4 w-4 text-[#6f6b62]" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                  <input
+                    value={orgSearch}
+                    onChange={(e) => setOrgSearch(e.target.value)}
+                    placeholder="Search organisations…"
+                    className="w-full rounded-lg border border-[#111111]/15 py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+                {orgs.length > 0 && (
+                  <div className="absolute z-10 left-0 right-0 mt-1 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
+                    {orgs.map((o) => (
+                      <button
+                        key={o.id}
+                        onClick={() => { setSelectedOrg(o); setOrgSearch(""); setOrgs([]); }}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
+                      >
+                        <span className="text-sm font-semibold text-[#111111]">{o.name}</span>
+                        {o.industry && <span className="text-xs text-[#6f6b62]">{o.industry}</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Contact */}
+          <div className="mb-6 relative">
+            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
+              Contact (optional)
+            </label>
+            {selectedContact ? (
+              <div className="flex items-center gap-2 rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 px-3 py-2">
+                <span className="flex-1 text-sm font-semibold text-[#063b32]">
+                  {selectedContact.first_name} {selectedContact.last_name || ""}
+                </span>
+                <button onClick={() => setSelectedContact(null)}>
+                  <X className="h-4 w-4 text-[#6f6b62]" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                  <input
+                    value={contactSearch}
+                    onChange={(e) => setContactSearch(e.target.value)}
+                    placeholder="Search contacts…"
+                    className="w-full rounded-lg border border-[#111111]/15 py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+                {contacts.length > 0 && (
+                  <div className="absolute z-10 left-0 right-0 mt-1 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
+                    {contacts.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => { setSelectedContact(c); setContactSearch(""); setContacts([]); }}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
+                      >
+                        <span className="text-sm font-semibold text-[#111111]">
+                          {c.first_name} {c.last_name || ""}
+                        </span>
+                        {c.role && <span className="text-xs text-[#6f6b62]">{c.role}</span>}
+                      </button>
+                    ))}
+                    <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#063b32] hover:bg-[#f7f4ea] border-t border-[#111111]/5">
+                      <Plus className="h-3.5 w-3.5" /> Start without selecting a contact
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <button
+            onClick={startCall}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#063b32] px-6 py-4 text-base font-semibold text-white hover:bg-[#1a5c42] transition-colors"
+          >
+            <Phone className="h-5 w-5" /> Start call
+          </button>
+        </div>
+      )}
+
+      {callState === "active" && (
+        <div className="flex h-[calc(100vh-73px)] overflow-hidden">
+          {/* Left: context */}
+          <div className="w-64 shrink-0 border-r border-[#111111]/10 overflow-y-auto bg-[#f7f4ea] p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Call context</p>
+            {selectedOrg && (
+              <div className="mb-3 rounded-lg bg-white border border-[#111111]/10 p-3">
+                <p className="text-xs font-semibold text-[#111111]">{selectedOrg.name}</p>
+                {selectedOrg.industry && <p className="text-xs text-[#6f6b62]">{selectedOrg.industry}</p>}
+                {selectedOrg.size && selectedOrg.size !== "Unknown" && (
+                  <p className="text-xs text-[#6f6b62]">{selectedOrg.size}</p>
+                )}
+              </div>
+            )}
+            {selectedContact && (
+              <div className="mb-3 rounded-lg bg-white border border-[#111111]/10 p-3">
+                <p className="text-xs font-semibold text-[#111111]">
+                  {selectedContact.first_name} {selectedContact.last_name || ""}
+                </p>
+                {selectedContact.role && <p className="text-xs text-[#6f6b62]">{selectedContact.role}</p>}
+              </div>
+            )}
+            <div className="mb-3">
+              <p className="text-xs text-[#6f6b62] mb-1">Call type</p>
+              <span className="rounded-full bg-[#063b32] px-2 py-0.5 text-[10px] font-semibold text-white capitalize">
+                {callType}
+              </span>
+            </div>
+            {selectedPainPoints.length > 0 && (
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">
+                  Pain points ({selectedPainPoints.length})
+                </p>
+                <div className="space-y-1">
+                  {selectedPainPoints.map((pp) => (
+                    <button
+                      key={pp.id}
+                      onClick={() => loadVatPrompts(pp)}
+                      className={`w-full text-left rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
+                        activePainPoint?.id === pp.id
+                          ? "border-[#063b32] bg-[#063b32]/10 text-[#063b32]"
+                          : "border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300"
+                      }`}
+                    >
+                      <Zap className="inline h-3 w-3 mr-1" />
+                      {pp.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Centre: notes */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Notes and pain points</p>
+
+            {/* Pain point search */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+              <input
+                value={painPointSearch}
+                onChange={(e) => setPainPointSearch(e.target.value)}
+                placeholder="Search pain points to add…"
+                className="w-full rounded-lg border border-[#111111]/15 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+              />
+              {painPoints.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
+                  {painPoints.map((pp) => (
+                    <button
+                      key={pp.id}
+                      onClick={() => addPainPoint(pp)}
+                      className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
+                    >
+                      <Zap className="h-3.5 w-3.5 text-amber-500" />
+                      <div>
+                        <p className="text-sm font-semibold text-[#111111]">{pp.title}</p>
+                        <p className="text-xs text-[#6f6b62]">{pp.category}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Note type chips */}
+            <div className="flex gap-2 mb-4 flex-wrap">
+              {(["note","pain_point","commitment","question"] as CallNote["type"][]).map((type) => (
+                <span key={type} className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${noteTypeColor[type]}`}>
+                  {noteTypeLabel[type]}
+                </span>
+              ))}
+            </div>
+
+            {/* Note input */}
+            <div className="mb-4">
+              <textarea
+                ref={noteRef}
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(); }}}
+                placeholder="Type a note, quote or commitment… (Enter to save)"
+                rows={3}
+                className="w-full rounded-lg border border-[#111111]/15 bg-white p-3 text-sm outline-none focus:border-[#063b32] resize-none"
+              />
+              <div className="mt-2 flex gap-2">
+                <button onClick={() => addNote("note")} className="rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]">
+                  + Note
+                </button>
+                <button onClick={() => addNote("commitment")} className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100">
+                  + Commitment
+                </button>
+                <button onClick={() => addNote("question")} className="rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100">
+                  + Question
+                </button>
+              </div>
+            </div>
+
+            {/* Notes list */}
+            <div className="space-y-2">
+              {notes.map((note) => (
+                <div key={note.id} className={`rounded-lg border p-3 ${noteTypeColor[note.type]}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm text-[#111111] flex-1">{note.text}</p>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                        {noteTypeLabel[note.type]}
+                      </span>
+                      <span className="text-[10px] text-[#6f6b62]">
+                        {note.timestamp.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                      <button onClick={() => setNotes((n) => n.filter((x) => x.id !== note.id))}>
+                        <X className="h-3.5 w-3.5 text-[#6f6b62] hover:text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {notes.length === 0 && (
+                <p className="text-sm text-[#6f6b62] text-center py-8">
+                  Notes will appear here. Use the search above to add pain points.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Right: guidance */}
+          <div className="w-72 shrink-0 border-l border-[#111111]/10 overflow-y-auto p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Guidance</p>
+            {activePainPoint ? (
+              <div className="space-y-4">
+                <div className="rounded-lg bg-[#f5f274]/20 border border-[#f5f274] p-3">
+                  <p className="text-xs font-semibold text-[#111111] mb-1">{activePainPoint.title}</p>
+                  {activePainPoint.natural_questions?.[0] && (
+                    <div className="mb-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">
+                        Natural next question
+                      </p>
+                      <p className="text-sm text-[#111111]">&ldquo;{activePainPoint.natural_questions[0]}&rdquo;</p>
+                    </div>
+                  )}
+                  {activePainPoint.what_not_assume?.[0] && (
+                    <div className="mt-2 flex items-start gap-2 rounded bg-amber-50 border border-amber-200 p-2">
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 mt-0.5" />
+                      <p className="text-xs text-amber-700">{activePainPoint.what_not_assume[0]}</p>
+                    </div>
+                  )}
+                </div>
+
+                {vatPrompts.slice(0, 3).map((v) => (
+                  <div key={v.id} className={`rounded-lg border p-3 text-xs ${
+                    v.dimension === "value" ? "border-emerald-200 bg-emerald-50" :
+                    v.dimension === "alignment" ? "border-blue-200 bg-blue-50" :
+                    "border-amber-200 bg-amber-50"
+                  }`}>
+                    <p className={`mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] ${
+                      v.dimension === "value" ? "text-emerald-700" :
+                      v.dimension === "alignment" ? "text-blue-700" : "text-amber-700"
+                    }`}>
+                      VAT — {v.dimension}
+                    </p>
+                    <p className={
+                      v.dimension === "value" ? "text-emerald-800" :
+                      v.dimension === "alignment" ? "text-blue-800" : "text-amber-800"
+                    }>
+                      {v.prompt}
+                    </p>
+                  </div>
+                ))}
+
+                {activePainPoint.recommendation_pathways?.[0] && (
+                  <div className="rounded-lg border border-[#111111]/10 bg-white p-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">
+                      Possible next step
+                    </p>
+                    <p className="text-xs text-[#111111]">{activePainPoint.recommendation_pathways[0]}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Target className="mx-auto h-8 w-8 text-[#6f6b62]/30 mb-2" />
+                <p className="text-xs text-[#6f6b62]">
+                  Search and add a pain point to see guidance here
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Post-call summary */}
+      {callState === "post" && showSummary && (
+        <div className="px-8 py-8 max-w-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-100">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-[#111111]">Call ended — review before saving</h2>
+              <p className="text-sm text-[#6f6b62]">Nothing is saved as a confirmed fact until you approve it.</p>
+            </div>
+          </div>
+
+          <div className="space-y-4 mb-6">
+            <div className="rounded-xl border border-[#111111]/10 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">Summary</p>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Contact</p>
+                  <p className="mt-0.5 text-[#111111]">
+                    {selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : "Not recorded"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Organisation</p>
+                  <p className="mt-0.5 text-[#111111]">{selectedOrg?.name || "Not recorded"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Call type</p>
+                  <p className="mt-0.5 text-[#111111] capitalize">{callType}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Duration</p>
+                  <p className="mt-0.5 text-[#111111]">{elapsed}</p>
+                </div>
+              </div>
+            </div>
+
+            {selectedPainPoints.length > 0 && (
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">
+                  Confirmed pain points ({selectedPainPoints.length})
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedPainPoints.map((pp) => (
+                    <span key={pp.id} className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                      <Zap className="h-3 w-3" /> {pp.title}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {notes.length > 0 && (
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">
+                  Notes ({notes.length})
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {notes.map((n) => (
+                    <div key={n.id} className={`rounded-lg border p-2.5 text-xs ${noteTypeColor[n.type]}`}>
+                      <span className="font-semibold text-[#6f6b62] uppercase tracking-[0.08em] mr-2">
+                        {noteTypeLabel[n.type]}
+                      </span>
+                      {n.text}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+              <div className="flex items-start gap-3">
+                <Shield className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-amber-800">Review before saving</p>
+                  <p className="mt-1 text-xs text-amber-700">
+                    Please review the notes above. Once saved, this will create an interaction record. AI-generated summaries are labelled as such.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="approve"
+              checked={summaryApproved}
+              onChange={(e) => setSummaryApproved(e.target.checked)}
+              className="h-4 w-4 rounded border-[#111111]/20 accent-[#063b32]"
+            />
+            <label htmlFor="approve" className="text-sm font-semibold text-[#111111]">
+              I have reviewed the notes and they are accurate
+            </label>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={saveCallRecord}
+              disabled={!summaryApproved || saving}
+              className="flex items-center gap-2 rounded-lg bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+            >
+              <Save className="h-4 w-4" /> {saving ? "Saving…" : "Save interaction record"}
+            </button>
+            <button
+              onClick={() => router.push("/admin/engagement")}
+              className="rounded-lg border border-[#111111]/15 px-5 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+            >
+              Discard and go to overview
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

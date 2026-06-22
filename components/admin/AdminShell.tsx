@@ -4,15 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
+  BarChart3,
+  BookOpen,
   CalendarDays,
   ExternalLink,
   FileText,
+  Handshake,
   LogOut,
   MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
+  Phone,
   Plus,
+  Search,
+  Settings,
   Users,
+  Zap,
 } from "lucide-react";
 
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
@@ -27,6 +34,19 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { label: "Posts", href: "/admin/posts", icon: FileText },
       { label: "Content Calendar", href: "/admin/calendar", icon: CalendarDays },
+    ],
+  },
+  {
+    section: "CLIENT ENGAGEMENT",
+    items: [
+      { label: "Overview", href: "/admin/engagement", icon: Handshake },
+      { label: "Profile Explorer", href: "/admin/engagement/profile-explorer", icon: Search },
+      { label: "Pain Points", href: "/admin/engagement/pain-points", icon: Zap },
+      { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
+      { label: "Pipeline & CRM", href: "/admin/engagement/pipeline", icon: Users },
+      { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen },
+      { label: "Insights", href: "/admin/engagement/insights", icon: BarChart3 },
+      { label: "Settings", href: "/admin/engagement/settings", icon: Settings },
     ],
   },
 ];
@@ -103,7 +123,9 @@ export default function AdminShell({
                 </p>
               )}
               {section.items.map((item) => {
-                const active = pathname.startsWith(item.href);
+                const active = item.href === "/admin/engagement"
+                  ? pathname === "/admin/engagement"
+                  : pathname.startsWith(item.href);
                 return (
                   <Link
                     key={item.href}
