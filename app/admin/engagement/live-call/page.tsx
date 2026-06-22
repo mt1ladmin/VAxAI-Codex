@@ -66,6 +66,7 @@ function LiveCallAssistInner() {
   const [saving, setSaving] = useState(false);
   const [aiSearching, setAiSearching] = useState(false);
   const [aiMatches, setAiMatches] = useState<AiMatch[]>([]);
+  const [aiMatchError, setAiMatchError] = useState<string | null>(null);
   const [structuring, setStructuring] = useState(false);
   const [structuredNotes, setStructuredNotes] = useState<StructuredNotes | null>(null);
   const [structuredApproved, setStructuredApproved] = useState<Set<string>>(new Set());
@@ -170,29 +171,48 @@ function LiveCallAssistInner() {
     if (!painPointSearch.trim()) return;
     setAiSearching(true);
     setAiMatches([]);
-    // Fetch a broad set of pain points to search across
-    const res = await fetch(`/api/admin/engagement/pain-points?limit=100`);
-    const j = await res.json() as { data: PainPoint[] };
-    const allPainPoints = j.data || [];
-    const searchRes = await fetch("/api/admin/engagement/ai/pain-point-search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        phrase: painPointSearch,
-        painPoints: allPainPoints.map(pp => ({
-          id: pp.id, title: pp.title, category: pp.category,
-          plain_english_definition: pp.plain_english_definition,
-          what_person_says: pp.what_person_says,
-        })),
-      }),
-    });
-    const sj = await searchRes.json() as { matches?: AiMatch[] };
-    const matches = (sj.matches || []).map(m => ({
-      ...m,
-      pain_point: allPainPoints.find(pp => pp.id === m.id),
-    }));
-    setAiMatches(matches);
-    setAiSearching(false);
+    setAiMatchError(null);
+    try {
+      // Fetch a broad set of pain points to search across
+      const res = await fetch(`/api/admin/engagement/pain-points?limit=100`);
+      const j = await res.json() as { data: PainPoint[] };
+      const allPainPoints = j.data || [];
+      const searchRes = await fetch("/api/admin/engagement/ai/pain-point-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phrase: painPointSearch,
+          painPoints: allPainPoints.map(pp => ({
+            id: pp.id, title: pp.title, category: pp.category,
+            plain_english_definition: pp.plain_english_definition,
+            what_person_says: pp.what_person_says,
+          })),
+          forceSemantic: true,  // Explicitly request AI semantic matching for the "AI match" button
+        }),
+      });
+      if (!searchRes.ok) {
+        const errText = await searchRes.text();
+        console.error("AI match API error", errText);
+        setAiMatchError("AI search failed (see console for details)");
+        setAiMatches([]);
+        return;
+      }
+      const sj = await searchRes.json() as { matches?: AiMatch[] };
+      const matches = (sj.matches || []).map(m => ({
+        ...m,
+        pain_point: allPainPoints.find(pp => pp.id === m.id),
+      }));
+      setAiMatches(matches);
+      if (matches.length === 0) {
+        setAiMatchError("No good semantic matches found. Try a different description or use the keyword search.");
+      }
+    } catch (e) {
+      console.error("AI match failed", e);
+      setAiMatchError("AI match failed. Check Vercel logs or console.");
+      setAiMatches([]);
+    } finally {
+      setAiSearching(false);
+    }
   };
 
   const structureNotes = async () => {
@@ -508,7 +528,7 @@ function LiveCallAssistInner() {
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
                   <input
                     value={painPointSearch}
-                    onChange={(e) => { setPainPointSearch(e.target.value); setAiMatches([]); }}
+                    onChange={(e) => { setPainPointSearch(e.target.value); setAiMatches([]); setAiMatchError(null); }}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void runAiSearch(); }}}
                     placeholder="Describe what they said or search by keyword…"
                     className="w-full rounded-lg border border-[#111111]/15 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
@@ -543,6 +563,11 @@ function LiveCallAssistInner() {
               </div>
 
               {/* AI semantic match results */}
+              {aiMatchError && (
+                <div className="mt-2 text-xs text-red-600 bg-red-50 p-2 rounded">
+                  {aiMatchError}
+                </div>
+              )}
               {aiMatches.length > 0 && (
                 <div className="mt-2 rounded-lg border border-violet-200 bg-violet-50 overflow-hidden">
                   <div className="flex items-center gap-2 px-3 py-2 border-b border-violet-200">
