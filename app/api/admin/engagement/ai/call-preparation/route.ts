@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     if (ixns) interactions.push(...ixns);
 
     if (org?.known_pain_points?.length) {
-      const { data: pps } = await supabase.from("pain_points")
+      const { data: pps } = await supabase.from("engagement_pain_points")
         .select("id, title, category, plain_english_definition")
         .in("id", org.known_pain_points)
         .limit(5);
