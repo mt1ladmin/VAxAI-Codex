@@ -307,10 +307,10 @@ export default function OpportunityDetailPage() {
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
         <Link
-          href="/admin/engagement/pipeline?tab=insights"
+          href="/admin/engagement/pipeline?tab=pipeline"
           className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> Insights
+          <ArrowLeft className="h-3.5 w-3.5" /> Pipeline
         </Link>
         <div className="flex items-start justify-between gap-4">
           <div>
