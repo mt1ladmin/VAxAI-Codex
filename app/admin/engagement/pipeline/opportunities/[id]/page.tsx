@@ -59,6 +59,8 @@ export default function OpportunityDetailPage() {
   const [savingNote, setSavingNote] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [convertingClient, setConvertingClient] = useState(false);
+  const [sourceContactName, setSourceContactName] = useState<string | null>(null);
+  const [sourceOrgName, setSourceOrgName] = useState<string | null>(null);
 
   const headerBtn =
     "flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]";
@@ -81,6 +83,38 @@ export default function OpportunityDetailPage() {
     setNextActionDate(oData.data?.expected_decision_date?.split("T")[0] || "");
     setInteractions(iData.data || []);
     setTasks(tData.data || []);
+
+    setSourceContactName(null);
+    setSourceOrgName(null);
+    if (oData.data?.enquiry_id) {
+      const eRes = await fetch(`/api/admin/enquiries/${oData.data.enquiry_id}`);
+      if (eRes.ok) {
+        const eJson = (await eRes.json()) as { data?: { name?: string; organisation_id?: string | null } };
+        setSourceContactName(eJson.data?.name?.trim() || null);
+        setSourceOrgName(oData.data.organisation?.name ?? null);
+      }
+    } else if (oData.data?.queue_id) {
+      const qRes = await fetch(`/api/admin/engagement/prospect-queue/${oData.data.queue_id}`);
+      if (qRes.ok) {
+        const qJson = (await qRes.json()) as {
+          data?: {
+            raw_contact_name?: string | null;
+            raw_org_name?: string | null;
+            contact?: { first_name: string; last_name?: string | null } | null;
+            organisation?: { name: string } | null;
+          };
+        };
+        const q = qJson.data;
+        if (q) {
+          const queueContact = q.contact
+            ? `${q.contact.first_name} ${q.contact.last_name ?? ""}`.trim()
+            : q.raw_contact_name?.trim() || null;
+          setSourceContactName(queueContact);
+          setSourceOrgName(q.organisation?.name ?? q.raw_org_name?.trim() ?? null);
+        }
+      }
+    }
+
     setLoading(false);
   }, [id]);
 
@@ -205,7 +239,7 @@ export default function OpportunityDetailPage() {
       const res = await fetch(`/api/admin/engagement/opportunities/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stage: "Active client" }),
+        body: JSON.stringify({ stage: "Won" }),
       });
       const j = (await res.json()) as { data?: EngagementOpportunity };
       if (j.data) setOpp(j.data);
@@ -365,7 +399,13 @@ export default function OpportunityDetailPage() {
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${stageColor}`}>
                 {opp.stage}
               </span>
-              <OpportunitySourceBadge opportunity={opp} />
+              <OpportunitySourceBadge
+                opportunity={opp}
+                compact
+                showNames
+                contactName={sourceContactName}
+                organisationName={sourceOrgName}
+              />
             </div>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
@@ -478,7 +518,12 @@ export default function OpportunityDetailPage() {
           {(opp.enquiry_id || opp.queue_id) && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Created from</p>
-              <OpportunitySourceBadge opportunity={opp} />
+              <OpportunitySourceBadge
+                opportunity={opp}
+                showNames
+                contactName={sourceContactName}
+                organisationName={sourceOrgName}
+              />
             </div>
           )}
 
@@ -500,27 +545,35 @@ export default function OpportunityDetailPage() {
             </div>
           )}
 
-          {isClientStage && opp.primary_contact_id && (
-            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+          {isClientStage && (
+            <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
               <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
                 <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
-                <span className="text-xs font-semibold text-[#063b32]">{opp.stage}</span>
+                <span className="text-xs font-semibold text-[#063b32]">Converted to client</span>
               </div>
-              <Link
-                href={`/admin/clients/${opp.primary_contact_id}`}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
-              >
-                <Briefcase className="h-4 w-4" />
-                View client record
-              </Link>
+              {(contactName || opp.organisation?.name) && (
+                <div className="space-y-0.5">
+                  {contactName && <p className="text-sm font-semibold text-[#111111]">{contactName}</p>}
+                  {opp.organisation?.name && <p className="text-sm text-[#6f6b62]">{opp.organisation.name}</p>}
+                </div>
+              )}
+              {opp.primary_contact_id && (
+                <Link
+                  href={`/admin/clients/${opp.primary_contact_id}`}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  View client record
+                </Link>
+              )}
             </div>
           )}
 
-          {(opp.organisation_id || opp.primary_contact_id) && (
+          {!isClientStage && (opp.organisation_id || opp.primary_contact_id) && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">CRM record</p>
-              {opp.organisation && <p className="text-sm text-[#111111]">{opp.organisation.name}</p>}
-              {contactName && <p className="text-sm text-[#6f6b62]">{contactName}</p>}
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Linked contact</p>
+              {contactName && <p className="text-sm text-[#111111]">{contactName}</p>}
+              {opp.organisation?.name && <p className="text-sm text-[#6f6b62]">{opp.organisation.name}</p>}
             </div>
           )}
         </div>

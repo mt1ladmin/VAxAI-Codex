@@ -93,7 +93,7 @@ export function ConvertOpportunityToClientModal({
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          stage: "Active client",
+          stage: "Won",
           primary_contact_id: contactId,
           organisation_id: organisationId,
         }),
@@ -134,7 +134,7 @@ export function ConvertOpportunityToClientModal({
             <div className="flex items-start gap-2 rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-3">
               <Check className="h-4 w-4 shrink-0 text-[#063b32] mt-0.5" />
               <p className="text-sm text-[#111111]">
-                This will set the opportunity to <span className="font-semibold">Active client</span> and link it to{" "}
+                This will mark the opportunity as <span className="font-semibold">Won</span> and link it to{" "}
                 <span className="font-semibold">{contactName || "the existing contact"}</span> on their client profile.
               </p>
             </div>
