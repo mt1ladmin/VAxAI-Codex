@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowRight, BookOpen, Search } from "lucide-react";
 import {
   BADGE_COLORS, PAIN_POINT_CATEGORIES,
@@ -9,10 +10,11 @@ import {
 } from "@/lib/engagement/types";
 import KnowledgeReviewPage from "../knowledge-review/page";
 
-type Tab = "prospect_prep" | "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review";
+type Tab = "prospect_prep" | "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review" | "prospect_prep_history";
 
 export default function KnowledgePage() {
-  const [tab, setTab] = useState<Tab>("pain_points");
+  const router = useRouter();
+  const [tab, setTab] = useState<Tab>("prospect_prep");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [dimension, setDimension] = useState("");
@@ -28,6 +30,7 @@ export default function KnowledgePage() {
   const [selectedSectorId, setSelectedSectorId] = useState("");
   const [selectedPersonaId, setSelectedPersonaId] = useState("");
   const [prepNotes, setPrepNotes] = useState("");
+  const [prepName, setPrepName] = useState("");
   const [prepResults, setPrepResults] = useState<any>(null);
   const [savedPreps, setSavedPreps] = useState<any[]>([]);
 
@@ -104,6 +107,13 @@ export default function KnowledgePage() {
     if (saved) setSavedPreps(JSON.parse(saved));
   }, []);
 
+  // When arriving back or prep changes, sync a friendly name default for the form if building
+  useEffect(() => {
+    if (prepResults && !prepName) {
+      setPrepName((clientType || prepResults.name || "Prospect Prep").slice(0, 70));
+    }
+  }, [prepResults]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const buildPrep = () => {
     const sector = sectors.find((s) => s.id === selectedSectorId);
     const persona = personas.find((p) => p.id === selectedPersonaId);
@@ -124,7 +134,7 @@ export default function KnowledgePage() {
         return sectorMatch || keywordMatch;
       })
       .slice(0, 5);
-    setPrepResults({
+    const results = {
       sector,
       persona,
       relevantPains,
@@ -132,14 +142,19 @@ export default function KnowledgePage() {
       clientType,
       prepNotes,
       keywords,
-    });
+    };
+    setPrepResults(results);
+    if (!prepName) {
+      setPrepName((clientType || "Prospect Prep").slice(0, 70));
+    }
   };
 
-  const savePrep = () => {
+  const savePrep = (customName?: string) => {
     if (!prepResults) return;
+    const name = (customName || prepName || clientType || "").slice(0, 80) || "Prep " + new Date().toLocaleDateString();
     const newPrep = {
       id: Date.now().toString(),
-      name: clientType.slice(0, 50) || "Prep " + new Date().toLocaleDateString(),
+      name,
       ...prepResults,
       createdAt: new Date().toISOString(),
     };
@@ -147,7 +162,27 @@ export default function KnowledgePage() {
     setSavedPreps(updated);
     localStorage.setItem("prospectPreps", JSON.stringify(updated));
     localStorage.setItem("currentProspectPrep", JSON.stringify(newPrep));
-    alert("Prep saved! Can be loaded in Live Call Assist.");
+    setPrepName(name);
+    return newPrep;
+  };
+
+  const attachPrep = (prep: any, isUnsavedBuild = false) => {
+    let toAttach = prep;
+    if (isUnsavedBuild) {
+      const shouldSave = window.confirm("Save this prep to Prospect Prep History first (recommended for your records)?");
+      if (shouldSave) {
+        const nameInput = window.prompt("Name for this saved prep:", prepName || clientType?.slice(0, 60) || "Quick Prospect Prep");
+        const saved = savePrep(nameInput || undefined);
+        if (saved) toAttach = saved;
+      } else {
+        toAttach = {
+          ...prep,
+          name: prepName || clientType?.slice(0, 60) || "Unsaved prep",
+        };
+      }
+    }
+    localStorage.setItem("currentProspectPrep", JSON.stringify(toAttach));
+    router.push("/admin/engagement/live-call");
   };
 
   return (
@@ -164,6 +199,7 @@ export default function KnowledgePage() {
               ["pain_points", "Pain points"],
               ["vat_prompts", "VAT prompts"],
               ["knowledge_review", "Knowledge Review"],
+              ["prospect_prep_history", "Prospect Prep History"],
             ] as [Tab, string][]).map(([key, label]) => (
               <button
                 key={key}
@@ -181,13 +217,13 @@ export default function KnowledgePage() {
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "prospect_prep" ? "Prospect Prep" : tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : "Knowledge Review"}</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "prospect_prep" ? "Quickly prepare for a prospect by selecting sector and persona to pull relevant knowledge (no AI)." : tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : tab === "vat_prompts" ? "View VAT prompts by dimension for relevant insights." : "Review and approve AI-generated draft pain points before they enter the knowledge library."}</p>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "prospect_prep" ? "Prospect Prep" : tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : tab === "knowledge_review" ? "Knowledge Review" : "Prospect Prep History"}</h1>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "prospect_prep" ? "Quickly prepare for a prospect by selecting sector and persona to pull relevant knowledge (no AI)." : tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : tab === "vat_prompts" ? "View VAT prompts by dimension for relevant insights." : tab === "knowledge_review" ? "Review and approve AI-generated draft pain points before they enter the knowledge library." : "Your saved prospect preps. View, attach directly to a live call, or delete. Saved preps appear here for history and reuse."}</p>
       </div>
 
       <div className="px-8 py-6">
         {/* Search + filters */}
-        {tab !== "knowledge_review" && tab !== "prospect_prep" && (
+        {tab !== "knowledge_review" && tab !== "prospect_prep" && tab !== "prospect_prep_history" && (
           <div className="flex gap-3 mb-5">
             {tab !== "vat_prompts" && (
               <div className="relative flex-1 max-w-md">
@@ -390,25 +426,29 @@ export default function KnowledgePage() {
               </div>
             )}
             {tab === "prospect_prep" && (
-              <div className="space-y-6">
-                <div>
-                  <h3 className="font-semibold text-[#111111] mb-2">Quick Prospect Preparation</h3>
-                  <p className="text-sm text-[#6f6b62] mb-4">Enter client info to quickly pull relevant sector, persona, pain points and VAT prompts. Save for live call use and later AI enhancement.</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="max-w-2xl mx-auto">
+                <div className="rounded-2xl border border-[#111111]/10 bg-white p-8 shadow-sm">
+                  <div className="text-center mb-6">
+                    <h3 className="font-semibold text-xl text-[#111111]">Quick Prospect Prep</h3>
+                    <p className="mt-1 text-sm text-[#6f6b62]">Build a fast briefing from your library. Save it for history, then attach to a live call.</p>
+                  </div>
+
+                  <div className="space-y-5">
                     <div>
-                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Client Type / Description</label>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Client / Prospect Description</label>
                       <textarea
                         value={clientType}
                         onChange={(e) => setClientType(e.target.value)}
                         placeholder="e.g. Small charity in education sector struggling with volunteer coordination and reporting"
-                        className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-3 pr-3 text-sm outline-none focus:border-[#063b32] resize-y min-h-[60px]"
+                        className="w-full rounded-xl border border-[#111111]/15 bg-white py-3 px-4 text-sm outline-none focus:border-[#063b32] resize-y min-h-[72px]"
                         rows={3}
                       />
                     </div>
-                    <div className="space-y-3">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Sector</label>
-                        <select value={selectedSectorId} onChange={(e) => setSelectedSectorId(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
+                        <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Sector</label>
+                        <select value={selectedSectorId} onChange={(e) => setSelectedSectorId(e.target.value)} className="w-full rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#063b32]">
                           <option value="">Select sector</option>
                           {sectors.map((s) => (
                             <option key={s.id} value={s.id}>{s.name}</option>
@@ -416,8 +456,8 @@ export default function KnowledgePage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Persona (optional)</label>
-                        <select value={selectedPersonaId} onChange={(e) => setSelectedPersonaId(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
+                        <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Persona (optional)</label>
+                        <select value={selectedPersonaId} onChange={(e) => setSelectedPersonaId(e.target.value)} className="w-full rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#063b32]">
                           <option value="">Select persona</option>
                           {personas.map((p) => (
                             <option key={p.id} value={p.id}>{p.persona_name}</option>
@@ -425,81 +465,146 @@ export default function KnowledgePage() {
                         </select>
                       </div>
                     </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Additional Notes</label>
+                      <textarea value={prepNotes} onChange={(e) => setPrepNotes(e.target.value)} className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 px-4 text-sm outline-none focus:border-[#063b32] resize-y" rows={2} placeholder="Any other context or goals..." />
+                    </div>
                   </div>
-                  <div className="mt-3">
-                    <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Additional Notes</label>
-                    <textarea value={prepNotes} onChange={(e) => setPrepNotes(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-3 pr-3 text-sm outline-none focus:border-[#063b32] resize-y" rows={2} placeholder="Any other context or goals..." />
-                  </div>
-                  <button onClick={buildPrep} disabled={!clientType.trim() && !selectedSectorId} className="mt-3 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
-                    Build Prep (Quick & Efficient)
+
+                  <button
+                    onClick={buildPrep}
+                    disabled={!clientType.trim() && !selectedSectorId}
+                    className="mt-6 w-full rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50 transition-colors"
+                  >
+                    Build Prep
                   </button>
                 </div>
 
                 {prepResults && (
-                  <div className="border border-[#111111]/10 rounded-xl p-5 bg-white">
-                    <h4 className="font-semibold mb-3 text-[#111111]">Prepared Information (All in One Place)</h4>
+                  <div className="mt-6 rounded-2xl border border-[#111111]/10 bg-white p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <h4 className="font-semibold text-[#111111]">Prepared Summary</h4>
+                      <span className="text-[10px] text-[#6f6b62]">Ready to save or attach</span>
+                    </div>
+
+                    {/* Name for history */}
+                    <div className="mb-4">
+                      <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Name this prep (for history)</label>
+                      <input
+                        value={prepName}
+                        onChange={(e) => setPrepName(e.target.value)}
+                        placeholder={clientType.slice(0, 60) || "My Prospect Prep"}
+                        className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      />
+                    </div>
+
                     {prepResults.sector && (
-                      <div className="mb-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Sector: {prepResults.sector.name}</p>
-                        {prepResults.sector.description && <p className="text-sm text-[#111111]">{prepResults.sector.description}</p>}
-                        {prepResults.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Pressures: {prepResults.sector.common_admin_pressures.join(", ")}</p>}
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">SECTOR</p>
+                        <p className="font-medium text-[#111111]">{prepResults.sector.name}</p>
+                        {prepResults.sector.description && <p className="text-sm mt-1 text-[#111111]">{prepResults.sector.description}</p>}
+                        {prepResults.sector.common_admin_pressures?.length > 0 && <p className="mt-1 text-xs text-[#6f6b62]">Key pressures: {prepResults.sector.common_admin_pressures.join(" · ")}</p>}
                       </div>
                     )}
                     {prepResults.persona && (
-                      <div className="mb-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Persona: {prepResults.persona.persona_name}</p>
-                        {prepResults.persona.typical_role && <p className="text-sm text-[#111111]">{prepResults.persona.typical_role}</p>}
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">PERSONA</p>
+                        <p className="font-medium text-[#111111]">{prepResults.persona.persona_name}{prepResults.persona.typical_role ? ` — ${prepResults.persona.typical_role}` : ""}</p>
                       </div>
                     )}
                     {prepResults.relevantPains?.length > 0 && (
-                      <div className="mb-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Relevant Pain Points ({prepResults.relevantPains.length})</p>
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT PAIN POINTS ({prepResults.relevantPains.length})</p>
                         <ul className="text-sm space-y-1 text-[#111111]">
-                          {prepResults.relevantPains.map((pp: any) => (
-                            <li key={pp.id}>• {pp.title} — {pp.plain_english_definition?.slice(0, 60)}...</li>
+                          {prepResults.relevantPains.map((pp: any, idx: number) => (
+                            <li key={idx}>• {pp.title}{pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 70)}` : ""}</li>
                           ))}
                         </ul>
                       </div>
                     )}
                     {prepResults.relevantVats?.length > 0 && (
-                      <div className="mb-4">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Relevant VAT Prompts ({prepResults.relevantVats.length})</p>
+                      <div className="mb-3 pb-3 border-b border-[#111111]/10">
+                        <p className="text-xs font-semibold text-[#6f6b62] mb-1">RELEVANT VAT PROMPTS ({prepResults.relevantVats.length})</p>
                         <ul className="text-sm space-y-1 text-[#111111]">
-                          {prepResults.relevantVats.map((v: any) => (
-                            <li key={v.id}>• {v.prompt.slice(0, 70)}...</li>
+                          {prepResults.relevantVats.map((v: any, idx: number) => (
+                            <li key={idx}>• {v.prompt}</li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Notes</p>
-                      <p className="text-sm text-[#111111]">{prepResults.prepNotes || prepResults.clientType}</p>
+                    <div className="mb-4">
+                      <p className="text-xs font-semibold text-[#6f6b62] mb-0.5">NOTES / CONTEXT</p>
+                      <p className="text-sm text-[#111111]">{prepResults.prepNotes || prepResults.clientType || "—"}</p>
                     </div>
-                    <div className="mt-4 flex gap-2">
-                      <button onClick={savePrep} className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]">Save Prep</button>
-                      <button onClick={() => { localStorage.setItem("currentProspectPrep", JSON.stringify(prepResults)); alert("Ready for Live Call! Load it there."); }} className="rounded-lg border border-[#063b32]/30 px-3 py-1.5 text-xs font-semibold hover:bg-[#f7f4ea]">Ready for Live Call</button>
+
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-[#111111]/10">
+                      <button onClick={() => savePrep()} className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]">Save to History</button>
+                      <button onClick={() => attachPrep(prepResults, true)} className="rounded-lg bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42]">Attach to Live Call</button>
+                      <button onClick={() => attachPrep(prepResults, false)} className="rounded-lg border border-[#063b32]/25 px-4 py-1.5 text-sm font-semibold text-[#063b32] hover:bg-[#f7f4ea]">Attach without saving</button>
                     </div>
+                    <p className="mt-2 text-[10px] text-[#6f6b62]">Attaching navigates to Live Call with this prep loaded on the left. Use "Attach to Live Call" to be asked about saving first.</p>
                   </div>
                 )}
-
-                {savedPreps.length > 0 && (
-                  <div>
-                    <p className="text-sm font-semibold mb-2">Saved Preps (for Live Call & later AI)</p>
-                    <div className="space-y-2 text-sm">
-                      {savedPreps.map((p, i) => (
-                        <div key={i} className="border border-[#111111]/10 rounded p-3 flex justify-between items-start">
-                          <div>
-                            <p className="font-medium">{p.name}</p>
-                            <p className="text-xs text-[#6f6b62]">{new Date(p.createdAt).toLocaleDateString()}</p>
+              </div>
+            )}
+            {tab === "prospect_prep_history" && (
+              <div className="max-w-3xl mx-auto">
+                {savedPreps.length === 0 ? (
+                  <div className="rounded-2xl border border-[#111111]/10 py-12 text-center bg-white">
+                    <p className="text-sm text-[#6f6b62]">No saved preps yet. Build one in the Prospect Prep tab and save it.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {savedPreps.map((p, idx) => (
+                      <div key={p.id || idx} className="rounded-xl border border-[#111111]/10 bg-white p-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[#111111]">{p.name}</p>
+                            <p className="text-xs text-[#6f6b62] mt-0.5">{new Date(p.createdAt).toLocaleString()}</p>
+                            {p.clientType && <p className="mt-1 text-sm text-[#6f6b62] line-clamp-1">{p.clientType}</p>}
+                            {p.sector && <p className="text-xs mt-1"><span className="text-[#6f6b62]">Sector:</span> {p.sector.name}</p>}
+                            {p.persona && <p className="text-xs"><span className="text-[#6f6b62]">Persona:</span> {p.persona.persona_name}</p>}
+                            {p.relevantPains?.length > 0 && <p className="text-xs text-[#6f6b62] mt-0.5">{p.relevantPains.length} pain points • {p.relevantVats?.length || 0} VAT prompts</p>}
                           </div>
-                          <div className="flex gap-2 text-xs">
-                            <button onClick={() => { setClientType(p.clientType); setPrepResults(p); setPrepNotes(p.prepNotes || ""); }} className="underline text-[#063b32]">View</button>
-                            <button onClick={() => { localStorage.setItem("currentProspectPrep", JSON.stringify(p)); alert("Attached for live call"); }} className="underline text-[#063b32]">Attach to Live Call</button>
-                            <button onClick={() => { const u = savedPreps.filter((_, ii) => ii !== i); setSavedPreps(u); localStorage.setItem("prospectPreps", JSON.stringify(u)); }} className="underline text-red-600">Delete</button>
+                          <div className="flex flex-col gap-1.5 shrink-0 text-sm">
+                            <button
+                              onClick={() => {
+                                // load into prep tab for viewing/editing
+                                setClientType(p.clientType || "");
+                                setSelectedSectorId(p.sector?.id || "");
+                                setSelectedPersonaId(p.persona?.id || "");
+                                setPrepNotes(p.prepNotes || "");
+                                setPrepResults(p);
+                                setPrepName(p.name || "");
+                                setTab("prospect_prep");
+                              }}
+                              className="rounded-md border border-[#111111]/15 px-3 py-1 text-xs font-semibold hover:bg-[#f7f4ea]"
+                            >
+                              View / Edit
+                            </button>
+                            <button
+                              onClick={() => attachPrep(p, false)}
+                              className="rounded-md bg-[#063b32] px-3 py-1 text-xs font-semibold text-white hover:bg-[#1a5c42]"
+                            >
+                              Attach to Call
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!confirm("Delete this saved prep?")) return;
+                                const u = savedPreps.filter((_, ii) => ii !== idx);
+                                setSavedPreps(u);
+                                localStorage.setItem("prospectPreps", JSON.stringify(u));
+                              }}
+                              className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                            >
+                              Delete
+                            </button>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        {p.prepNotes && <p className="mt-2 text-xs text-[#6f6b62] italic">Notes: {p.prepNotes}</p>}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

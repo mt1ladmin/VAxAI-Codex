@@ -646,16 +646,51 @@ function LiveCallAssistInner() {
             )}
             {loadedPrep && (
               <div className="mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Prospect Prep</p>
-                <div className="text-xs border border-[#111111]/10 rounded p-2 bg-white">
-                  <p className="font-medium truncate">{loadedPrep.name || loadedPrep.clientType?.slice(0, 30)}</p>
-                  {loadedPrep.sector && <p className="text-[#6f6b62]">Sector: {loadedPrep.sector.name}</p>}
-                  {loadedPrep.persona && <p className="text-[#6f6b62]">Persona: {loadedPrep.persona.persona_name}</p>}
-                  {loadedPrep.relevantPains?.length > 0 && <p className="text-[#6f6b62]">Pains: {loadedPrep.relevantPains.length}</p>}
-                  <div className="mt-1 flex gap-2 text-[10px]">
-                    <button onClick={() => alert("Full Prep:\n" + JSON.stringify(loadedPrep, null, 2))} className="underline text-[#063b32]">View</button>
-                    <button onClick={() => { setLoadedPrep(null); localStorage.removeItem("currentProspectPrep"); }} className="underline text-red-600">Clear</button>
-                  </div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2 flex items-center justify-between">
+                  <span>Prospect Prep</span>
+                  <button onClick={() => { setLoadedPrep(null); localStorage.removeItem("currentProspectPrep"); }} className="underline text-red-600 text-[9px]">Clear</button>
+                </p>
+                <div className="text-[10px] border border-[#111111]/10 rounded bg-white p-2 max-h-80 overflow-auto space-y-1.5">
+                  {loadedPrep.name && <p className="font-semibold text-[#111111]">{loadedPrep.name}</p>}
+                  {loadedPrep.clientType && <p className="text-[#6f6b62]">{loadedPrep.clientType}</p>}
+                  {loadedPrep.sector && (
+                    <div>
+                      <span className="font-medium text-[#111111]">Sector:</span> {loadedPrep.sector.name}
+                      {loadedPrep.sector.description && <p className="text-[#6f6b62] mt-0.5 leading-snug">{loadedPrep.sector.description}</p>}
+                      {loadedPrep.sector.common_admin_pressures?.length > 0 && (
+                        <p className="text-[#6f6b62] mt-0.5">Pressures: {loadedPrep.sector.common_admin_pressures.join(" · ")}</p>
+                      )}
+                    </div>
+                  )}
+                  {loadedPrep.persona && (
+                    <div>
+                      <span className="font-medium text-[#111111]">Persona:</span> {loadedPrep.persona.persona_name}
+                      {loadedPrep.persona.typical_role && <span className="text-[#6f6b62]"> — {loadedPrep.persona.typical_role}</span>}
+                    </div>
+                  )}
+                  {loadedPrep.relevantPains?.length > 0 && (
+                    <div>
+                      <span className="font-medium text-[#111111]">Relevant Pain Points:</span>
+                      <ul className="mt-0.5 list-disc pl-4 space-y-0.5 text-[#111111]">
+                        {loadedPrep.relevantPains.map((pp: any, i: number) => (
+                          <li key={i}>{pp.title}{pp.plain_english_definition ? ` — ${pp.plain_english_definition.slice(0, 80)}` : ""}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {loadedPrep.relevantVats?.length > 0 && (
+                    <div>
+                      <span className="font-medium text-[#111111]">Relevant VAT Prompts:</span>
+                      <ul className="mt-0.5 list-disc pl-4 space-y-0.5 text-[#111111]">
+                        {loadedPrep.relevantVats.map((v: any, i: number) => (
+                          <li key={i}>{v.prompt}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {(loadedPrep.prepNotes || loadedPrep.notes) && (
+                    <p className="text-[#6f6b62] italic">Notes: {loadedPrep.prepNotes || loadedPrep.notes}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -665,7 +700,7 @@ function LiveCallAssistInner() {
                   const saved = localStorage.getItem("prospectPreps");
                   if (saved) {
                     const list = JSON.parse(saved);
-                    const idx = prompt("Saved Preps:\n" + list.map((p: any, i: number) => `${i + 1}. ${p.name}`).join("\n") + "\n\nEnter number:");
+                    const idx = prompt("Saved Preps:\n" + list.map((p: any, i: number) => `${i + 1}. ${p.name}`).join("\n") + "\n\nEnter number to load:");
                     if (idx) {
                       const p = list[parseInt(idx) - 1];
                       if (p) {
@@ -674,12 +709,12 @@ function LiveCallAssistInner() {
                       }
                     }
                   } else {
-                    alert("No saved preps yet. Create in Knowledge Library > Prospect Prep tab.");
+                    alert("No saved preps yet. Go to Knowledge Hub → Prospect Prep History to save some.");
                   }
                 }}
                 className="text-[10px] text-[#063b32] hover:underline"
               >
-                Load Prospect Prep from Library
+                Load from Prospect Prep History
               </button>
             </div>
             {liveDrafts.length > 0 && (
