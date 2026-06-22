@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { ConvertOpportunityToClientModal } from "@/components/admin/ConvertOpportunityToClientModal";
+import { OpportunityCreatedFrom } from "@/components/admin/OpportunityCreatedFrom";
 import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
 import {
   OPPORTUNITY_STAGES,
@@ -518,9 +519,8 @@ export default function OpportunityDetailPage() {
           {(opp.enquiry_id || opp.queue_id) && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Created from</p>
-              <OpportunitySourceBadge
+              <OpportunityCreatedFrom
                 opportunity={opp}
-                showNames
                 contactName={sourceContactName}
                 organisationName={sourceOrgName}
               />

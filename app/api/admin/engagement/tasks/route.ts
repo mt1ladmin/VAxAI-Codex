@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   let query = supabase
     .from("engagement_tasks")
     .select(
-      `*, organisation:organisation_id(id, name), contact:contact_id(id, first_name, last_name), opportunity:opportunity_id(id, title, stage)`,
+      `*, organisation:organisation_id(id, name), contact:contact_id(id, first_name, last_name), opportunity:opportunity_id(id, title, stage, enquiry_id, queue_id)`,
       { count: "exact" },
     )
     .order("due_date", { ascending: true })

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { OpportunitiesListView } from "@/components/admin/OpportunitiesListView";
 import {
   type NextActionFilter,
+  type SourceFilter,
   type TaskFilter,
 } from "@/lib/engagement/pipeline-filters";
 import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
@@ -22,6 +23,7 @@ function OpportunitiesTrackerInner() {
   const [stageFilter, setStageFilter] = useState("");
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
   const [nextActionFilter, setNextActionFilter] = useState<NextActionFilter>("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
 
   useEffect(() => {
     const urlTab = searchParams.get("tab");
@@ -86,16 +88,7 @@ function OpportunitiesTrackerInner() {
         </div>
       </div>
 
-      {tab === "insights" && (
-        <>
-          <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Insights</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">An at-a-glance view of your opportunities and activity.</p>
-          </div>
-          <InsightsContent />
-        </>
-      )}
+      {tab === "insights" && <InsightsContent />}
 
       {tab === "opportunities" && (
         <OpportunitiesListView
@@ -105,9 +98,12 @@ function OpportunitiesTrackerInner() {
           stageFilter={stageFilter}
           taskFilter={taskFilter}
           nextActionFilter={nextActionFilter}
+          sourceFilter={sourceFilter}
           onStageFilterChange={setStageFilter}
           onTaskFilterChange={setTaskFilter}
           onNextActionFilterChange={setNextActionFilter}
+          onSourceFilterChange={setSourceFilter}
+          showHeader={false}
         />
       )}
     </div>

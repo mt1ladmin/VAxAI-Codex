@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Check, CheckSquare, Plus, Target, X } from "lucide-react";
+import { ArrowLeft, Check, CheckSquare, Inbox, MessageSquare, Plus, Target, X } from "lucide-react";
 import {
   DUE_DATE_FILTER_OPTIONS,
+  SOURCE_FILTER_OPTIONS,
   matchesDueDateFilter,
+  matchesTaskSourceFilter,
   type DueDateFilter,
+  type SourceFilter,
 } from "@/lib/engagement/pipeline-filters";
 import { type EngagementTask } from "@/lib/engagement/types";
 
@@ -29,10 +32,29 @@ const inputClass =
 const selectClass =
   "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32]";
 
+function TaskSourceLabel({ task }: { task: EngagementTask }) {
+  if (!task.opportunity) return null;
+  if (task.opportunity.enquiry_id) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700">
+        <MessageSquare className="h-3 w-3" /> Website enquiry
+      </span>
+    );
+  }
+  if (task.opportunity.queue_id) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-700">
+        <Inbox className="h-3 w-3" /> Prospect queue
+      </span>
+    );
+  }
+  return null;
+}
+
 export default function TasksPage() {
   const [status, setStatus] = useState("todo");
-  const [priority, setPriority] = useState("");
   const [dueDateFilter, setDueDateFilter] = useState<DueDateFilter>("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -44,21 +66,20 @@ export default function TasksPage() {
     setLoading(true);
     const params = new URLSearchParams();
     if (status) params.set("status", status);
-    if (priority) params.set("priority", priority);
     params.set("limit", "200");
     const res = await fetch(`/api/admin/engagement/tasks?${params}`);
     const json = (await res.json()) as { data: EngagementTask[] };
     setTasks(json.data || []);
     setLoading(false);
-  }, [status, priority]);
+  }, [status]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
   const filteredTasks = useMemo(
-    () => tasks.filter((t) => matchesDueDateFilter(t, dueDateFilter)),
-    [tasks, dueDateFilter],
+    () => tasks.filter((t) => matchesDueDateFilter(t, dueDateFilter) && matchesTaskSourceFilter(t, sourceFilter)),
+    [tasks, dueDateFilter, sourceFilter],
   );
 
   const markDone = async (taskId: string) => {
@@ -231,18 +252,23 @@ export default function TasksPage() {
               </button>
             ))}
           </div>
-          <select value={priority} onChange={(e) => setPriority(e.target.value)} className={selectClass}>
-            <option value="">All priorities</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
           <select
             value={dueDateFilter}
             onChange={(e) => setDueDateFilter(e.target.value as DueDateFilter)}
             className={selectClass}
           >
             {DUE_DATE_FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value as SourceFilter)}
+            className={selectClass}
+          >
+            {SOURCE_FILTER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
                 {opt.label}
               </option>
@@ -305,6 +331,7 @@ export default function TasksPage() {
                           {t.task_type && (
                             <span className="text-[10px] text-[#6f6b62]">{t.task_type.replace("_", " ")}</span>
                           )}
+                          <TaskSourceLabel task={t} />
                           {t.opportunity_id && t.opportunity ? (
                             <Link
                               href={`/admin/engagement/pipeline/opportunities/${t.opportunity_id}`}

@@ -16,6 +16,15 @@ export type NextActionFilter = "all" | "has_next_action" | "no_next_action";
 
 export type DueDateFilter = "all" | "overdue" | "due_7d" | "due_30d" | "no_due_date" | "due_today";
 
+export type SourceFilter = "all" | "website_enquiry" | "prospect_queue" | "direct";
+
+export const SOURCE_FILTER_OPTIONS: { value: SourceFilter; label: string }[] = [
+  { value: "all", label: "All sources" },
+  { value: "website_enquiry", label: "Website enquiry" },
+  { value: "prospect_queue", label: "Prospect queue" },
+  { value: "direct", label: "Created directly" },
+];
+
 export const TASK_FILTER_OPTIONS: { value: TaskFilter; label: string }[] = [
   { value: "all", label: "All tasks" },
   { value: "has_open_tasks", label: "Has open tasks" },
@@ -143,4 +152,45 @@ export function computePipelineStats(opps: EngagementOpportunity[]) {
 
 export function isOpenOpportunity(opp: EngagementOpportunity): boolean {
   return !["Lost", "Not suitable", "Won", "Onboarding", "Active client"].includes(opp.stage);
+}
+
+export function getOpportunitySource(
+  opp: Pick<EngagementOpportunity, "enquiry_id" | "queue_id">,
+): Exclude<SourceFilter, "all"> {
+  if (opp.enquiry_id) return "website_enquiry";
+  if (opp.queue_id) return "prospect_queue";
+  return "direct";
+}
+
+export function matchesSourceFilter(
+  opp: Pick<EngagementOpportunity, "enquiry_id" | "queue_id">,
+  filter: SourceFilter,
+): boolean {
+  if (filter === "all") return true;
+  return getOpportunitySource(opp) === filter;
+}
+
+export function matchesTaskSourceFilter(
+  task: EngagementTask,
+  filter: SourceFilter,
+): boolean {
+  if (filter === "all") return true;
+  if (!task.opportunity_id || !task.opportunity) return filter === "direct";
+  return matchesSourceFilter(task.opportunity, filter);
+}
+
+export function opportunityPartyLabel(
+  opp: Pick<EngagementOpportunity, "organisation" | "primary_contact">,
+): string {
+  const contact = opp.primary_contact
+    ? `${opp.primary_contact.first_name} ${opp.primary_contact.last_name ?? ""}`.trim()
+    : null;
+  const org = opp.organisation?.name ?? null;
+  return contact || org || "—";
+}
+
+export function openOpportunitiesValue(opps: EngagementOpportunity[]): number {
+  return opps
+    .filter(isOpenOpportunity)
+    .reduce((sum, o) => sum + (o.indicative_value_high ?? o.indicative_value_low ?? 0), 0);
 }

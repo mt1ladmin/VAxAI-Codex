@@ -1,10 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { OpportunitiesListView } from "@/components/admin/OpportunitiesListView";
-import { type NextActionFilter, type TaskFilter } from "@/lib/engagement/pipeline-filters";
+import { type NextActionFilter, type SourceFilter, type TaskFilter } from "@/lib/engagement/pipeline-filters";
 import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 
 export default function OpportunitiesPage() {
@@ -14,6 +12,7 @@ export default function OpportunitiesPage() {
   const [stageFilter, setStageFilter] = useState("");
   const [taskFilter, setTaskFilter] = useState<TaskFilter>("all");
   const [nextActionFilter, setNextActionFilter] = useState<NextActionFilter>("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -36,14 +35,6 @@ export default function OpportunitiesPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="border-b border-[#111111]/10 px-8 py-3">
-        <Link
-          href="/admin/engagement/pipeline?tab=insights"
-          className="inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Opportunities tracker
-        </Link>
-      </div>
       <OpportunitiesListView
         opps={opps}
         tasks={tasks}
@@ -51,9 +42,12 @@ export default function OpportunitiesPage() {
         stageFilter={stageFilter}
         taskFilter={taskFilter}
         nextActionFilter={nextActionFilter}
+        sourceFilter={sourceFilter}
         onStageFilterChange={setStageFilter}
         onTaskFilterChange={setTaskFilter}
         onNextActionFilterChange={setNextActionFilter}
+        onSourceFilterChange={setSourceFilter}
+        showHeader={false}
       />
     </div>
   );

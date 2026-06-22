@@ -2,9 +2,16 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Calendar, TrendingUp } from "lucide-react";
-import { computePipelineStats, isOpenOpportunity, startOfDay } from "@/lib/engagement/pipeline-filters";
-import { OPPORTUNITY_STAGES, STAGE_COLORS, type EngagementOpportunity, type EngagementTask } from "@/lib/engagement/types";
+import { Calendar } from "lucide-react";
+import {
+  computePipelineStats,
+  formatOpportunityValue,
+  isOpenOpportunity,
+  openOpportunitiesValue,
+  opportunityPartyLabel,
+  startOfDay,
+} from "@/lib/engagement/pipeline-filters";
+import { STAGE_COLORS, type EngagementOpportunity, type EngagementTask } from "@/lib/engagement/types";
 
 type FollowUpItem = {
   id: string;
@@ -19,21 +26,26 @@ type FollowUpItem = {
 function InsightListCard({
   title,
   count,
+  meta,
   seeAllHref,
   children,
 }: {
   title: string;
   count: number;
+  meta?: string;
   seeAllHref: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 bg-[#f7f4ea]">
-        <h2 className="text-sm font-semibold text-[#111111]">
-          {title} ({count})
-        </h2>
-        <Link href={seeAllHref} className="text-xs font-semibold text-[#063b32] hover:underline">
+        <div>
+          <h2 className="text-sm font-semibold text-[#111111]">
+            {title} ({count})
+          </h2>
+          {meta && <p className="mt-0.5 text-xs text-[#6f6b62]">{meta}</p>}
+        </div>
+        <Link href={seeAllHref} className="text-xs font-semibold text-[#063b32] hover:underline shrink-0">
           See all
         </Link>
       </div>
@@ -68,14 +80,7 @@ export function InsightsContent() {
 
   const stats = useMemo(() => computePipelineStats(opps), [opps]);
   const openOpps = useMemo(() => opps.filter(isOpenOpportunity), [opps]);
-
-  const byStage = OPPORTUNITY_STAGES.map((stage) => ({
-    stage,
-    count: opps.filter((o) => o.stage === stage).length,
-    value: opps.filter((o) => o.stage === stage).reduce((sum, o) => sum + (o.indicative_value_high ?? 0), 0),
-  })).filter((s) => s.count > 0);
-
-  const maxCount = Math.max(...byStage.map((s) => s.count), 1);
+  const openOppsTotalValue = useMemo(() => openOpportunitiesValue(opps), [opps]);
 
   const followUps = useMemo(() => {
     const today = startOfDay(new Date());
@@ -150,44 +155,6 @@ export function InsightsContent() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-[#111111]/10 p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-sm font-semibold text-[#111111]">Pipeline by stage</h2>
-          <Link
-            href="/admin/engagement/pipeline?tab=opportunities"
-            className="flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
-          >
-            <TrendingUp className="h-3.5 w-3.5" /> View opportunities
-          </Link>
-        </div>
-        <div className="space-y-3">
-          {byStage.map(({ stage, count, value }) => (
-            <Link key={stage} href="/admin/engagement/pipeline?tab=opportunities" className="block group">
-              <div className="flex items-center gap-3">
-                <div className="w-36 shrink-0">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[stage] || "bg-gray-100 text-gray-600"}`}
-                  >
-                    {stage}
-                  </span>
-                </div>
-                <div className="flex-1 h-6 bg-[#f7f4ea] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-[#063b32]/20 group-hover:bg-[#063b32]/30 transition-colors rounded-full"
-                    style={{ width: `${(count / maxCount) * 100}%`, minWidth: count > 0 ? "2rem" : 0 }}
-                  />
-                </div>
-                <span className="w-6 text-right text-sm font-semibold text-[#111111]">{count}</span>
-                {value > 0 && (
-                  <span className="w-24 text-right text-xs text-[#6f6b62]">£{value.toLocaleString()}</span>
-                )}
-              </div>
-            </Link>
-          ))}
-          {byStage.length === 0 && <p className="text-sm text-[#6f6b62]">No opportunities yet.</p>}
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <InsightListCard title="Open tasks" count={tasks.length} seeAllHref="/admin/engagement/pipeline/tasks">
           {tasks.length === 0 ? (
@@ -222,7 +189,12 @@ export function InsightsContent() {
           )}
         </InsightListCard>
 
-        <InsightListCard title="Open opportunities" count={openOpps.length} seeAllHref="/admin/engagement/pipeline?tab=opportunities">
+        <InsightListCard
+          title="Open opportunities"
+          count={openOpps.length}
+          meta={openOppsTotalValue ? `£${openOppsTotalValue.toLocaleString()} total value` : undefined}
+          seeAllHref="/admin/engagement/pipeline?tab=opportunities"
+        >
           {openOpps.length === 0 ? (
             <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No open opportunities.</div>
           ) : (
@@ -235,13 +207,11 @@ export function InsightsContent() {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#111111] truncate">{o.title}</p>
-                    <p className="text-xs text-[#6f6b62] truncate">
-                      {o.organisation?.name ??
-                        (o.primary_contact
-                          ? `${o.primary_contact.first_name} ${o.primary_contact.last_name ?? ""}`.trim()
-                          : o.next_action ?? "—")}
-                    </p>
+                    <p className="text-xs text-[#6f6b62] truncate">{opportunityPartyLabel(o)}</p>
                   </div>
+                  <span className="text-xs font-semibold text-[#063b32] shrink-0 tabular-nums">
+                    {formatOpportunityValue(o) ?? "—"}
+                  </span>
                   <span
                     className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[o.stage] || "bg-gray-100 text-gray-600"}`}
                   >
@@ -256,9 +226,7 @@ export function InsightsContent() {
 
       <InsightListCard title="Follow-ups" count={followUps.length} seeAllHref="/admin/engagement/pipeline/tasks">
         {followUps.length === 0 ? (
-          <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">
-            No follow-ups due in the next 7 days.
-          </div>
+          <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No follow-ups due in the next 7 days.</div>
         ) : (
           <div className="divide-y divide-[#111111]/5">
             {followUps.slice(0, 10).map((item) => (
@@ -286,7 +254,9 @@ export function InsightsContent() {
                   {item.subtitle && <p className="text-xs text-[#6f6b62] truncate">{item.subtitle}</p>}
                 </div>
                 {item.dueDate && (
-                  <span className={`shrink-0 flex items-center gap-1 text-xs ${item.overdue ? "text-red-600 font-semibold" : "text-[#6f6b62]"}`}>
+                  <span
+                    className={`shrink-0 flex items-center gap-1 text-xs ${item.overdue ? "text-red-600 font-semibold" : "text-[#6f6b62]"}`}
+                  >
                     <Calendar className="h-3 w-3" />
                     {new Date(item.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                   </span>
