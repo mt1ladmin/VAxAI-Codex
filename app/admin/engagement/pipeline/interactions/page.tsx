@@ -69,7 +69,7 @@ export default function InteractionsPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Pipeline</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Opportunities tracker</p>
         <div className="mt-1 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-[#111111]">Interactions</h1>
           <Link

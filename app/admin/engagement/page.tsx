@@ -184,7 +184,7 @@ export default function EngagementOverview() {
         {!stats.loading && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Open opportunities", value: stats.openOpps, href: "/admin/engagement/pipeline?tab=pipeline", color: "text-[#063b32]" },
+              { label: "Open opportunities", value: stats.openOpps, href: "/admin/engagement/pipeline?tab=opportunities", color: "text-[#063b32]" },
               { label: "Prospects in queue", value: stats.pendingQueue, href: "/admin/engagement/prospect-queue", color: "text-amber-600" },
               { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
               { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline/tasks", color: "text-red-600" },
@@ -350,8 +350,8 @@ export default function EngagementOverview() {
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-semibold text-[#111111]">Open opportunities</h2>
-              <Link href="/admin/engagement/pipeline?tab=pipeline" className="text-xs text-[#063b32] hover:underline">
-                Full pipeline
+              <Link href="/admin/engagement/pipeline?tab=opportunities" className="text-xs text-[#063b32] hover:underline">
+                All opportunities
               </Link>
             </div>
             <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">

@@ -1,8 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { Check, CheckSquare, Plus, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowLeft, Check, CheckSquare, Plus, Target, X } from "lucide-react";
+import {
+  DUE_DATE_FILTER_OPTIONS,
+  matchesDueDateFilter,
+  type DueDateFilter,
+} from "@/lib/engagement/pipeline-filters";
 import { type EngagementTask } from "@/lib/engagement/types";
 
 const PRIORITY_DOT: Record<string, string> = {
@@ -18,11 +23,16 @@ const STATUS_BADGE: Record<string, string> = {
   cancelled: "bg-gray-100 text-gray-400 line-through",
 };
 
-const inputClass = "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] transition-colors";
+const inputClass =
+  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] transition-colors";
+
+const selectClass =
+  "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32]";
 
 export default function TasksPage() {
   const [status, setStatus] = useState("todo");
   const [priority, setPriority] = useState("");
+  const [dueDateFilter, setDueDateFilter] = useState<DueDateFilter>("all");
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -35,14 +45,21 @@ export default function TasksPage() {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
     if (priority) params.set("priority", priority);
-    params.set("limit", "100");
+    params.set("limit", "200");
     const res = await fetch(`/api/admin/engagement/tasks?${params}`);
-    const json = await res.json() as { data: EngagementTask[] };
+    const json = (await res.json()) as { data: EngagementTask[] };
     setTasks(json.data || []);
     setLoading(false);
   }, [status, priority]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const filteredTasks = useMemo(
+    () => tasks.filter((t) => matchesDueDateFilter(t, dueDateFilter)),
+    [tasks, dueDateFilter],
+  );
 
   const markDone = async (taskId: string) => {
     await fetch(`/api/admin/engagement/tasks/${taskId}`, {
@@ -50,7 +67,7 @@ export default function TasksPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" }),
     });
-    load();
+    void load();
   };
 
   const saveTask = async () => {
@@ -70,7 +87,7 @@ export default function TasksPage() {
       }),
     });
     if (!res.ok) {
-      const j = await res.json().catch(() => ({})) as { error?: string };
+      const j = (await res.json().catch(() => ({}))) as { error?: string };
       setSaveError(j.error ?? "Failed to save task.");
       setSaving(false);
       return;
@@ -78,10 +95,10 @@ export default function TasksPage() {
     setForm({ title: "", priority: "medium", due_date: "", notes: "", task_type: "follow_up" });
     setAdding(false);
     setSaving(false);
-    load();
+    void load();
   };
 
-  const grouped = tasks.reduce<Record<string, EngagementTask[]>>((acc, t) => {
+  const grouped = filteredTasks.reduce<Record<string, EngagementTask[]>>((acc, t) => {
     const key = t.due_date
       ? new Date(t.due_date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })
       : "No due date";
@@ -92,10 +109,17 @@ export default function TasksPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Pipeline</p>
+        <Link
+          href="/admin/engagement/pipeline?tab=insights"
+          className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Opportunities tracker
+        </Link>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Opportunities tracker</p>
         <div className="mt-1 flex items-center justify-between gap-4">
           <h1 className="text-2xl font-semibold text-[#111111]">Tasks</h1>
           <button
+            type="button"
             onClick={() => setAdding((v) => !v)}
             className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] transition-colors"
           >
@@ -106,8 +130,6 @@ export default function TasksPage() {
       </div>
 
       <div className="px-8 py-6">
-
-        {/* Add task form */}
         {adding && (
           <div className="mb-6 rounded-xl border border-[#063b32]/20 bg-[#f7f4ea] p-5">
             <h2 className="text-sm font-semibold text-[#111111] mb-4">New task</h2>
@@ -118,7 +140,7 @@ export default function TasksPage() {
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  onKeyDown={(e) => e.key === "Enter" && saveTask()}
+                  onKeyDown={(e) => e.key === "Enter" && void saveTask()}
                   placeholder="What needs to be done?"
                   autoFocus
                   className={inputClass}
@@ -126,7 +148,11 @@ export default function TasksPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Priority</label>
-                <select value={form.priority} onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))} className={inputClass}>
+                <select
+                  value={form.priority}
+                  onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}
+                  className={inputClass}
+                >
                   <option value="high">High</option>
                   <option value="medium">Medium</option>
                   <option value="low">Low</option>
@@ -134,7 +160,11 @@ export default function TasksPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Type</label>
-                <select value={form.task_type} onChange={(e) => setForm((f) => ({ ...f, task_type: e.target.value }))} className={inputClass}>
+                <select
+                  value={form.task_type}
+                  onChange={(e) => setForm((f) => ({ ...f, task_type: e.target.value }))}
+                  className={inputClass}
+                >
                   <option value="follow_up">Follow-up</option>
                   <option value="call">Call</option>
                   <option value="email">Email</option>
@@ -167,20 +197,20 @@ export default function TasksPage() {
             {saveError && <p className="mt-3 text-sm text-red-600">{saveError}</p>}
             <div className="mt-4 flex items-center gap-3">
               <button
-                onClick={saveTask}
+                type="button"
+                onClick={() => void saveTask()}
                 disabled={saving || !form.title.trim()}
                 className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60 transition-colors"
               >
                 <Check className="h-4 w-4" /> {saving ? "Saving…" : "Save task"}
               </button>
-              <button onClick={() => setAdding(false)} className="text-sm text-[#6f6b62] hover:text-[#111111]">
+              <button type="button" onClick={() => setAdding(false)} className="text-sm text-[#6f6b62] hover:text-[#111111]">
                 Cancel
               </button>
             </div>
           </div>
         )}
 
-        {/* Filters */}
         <div className="mb-5 flex flex-wrap gap-3">
           <div className="flex rounded-lg border border-[#111111]/15 overflow-hidden">
             {[
@@ -191,6 +221,7 @@ export default function TasksPage() {
             ].map(({ val, label }) => (
               <button
                 key={val}
+                type="button"
                 onClick={() => setStatus(val)}
                 className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
                   status === val ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:text-[#111111]"
@@ -200,26 +231,42 @@ export default function TasksPage() {
               </button>
             ))}
           </div>
-          <select value={priority} onChange={(e) => setPriority(e.target.value)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs outline-none focus:border-[#063b32]">
+          <select value={priority} onChange={(e) => setPriority(e.target.value)} className={selectClass}>
             <option value="">All priorities</option>
             <option value="high">High</option>
             <option value="medium">Medium</option>
             <option value="low">Low</option>
           </select>
+          <select
+            value={dueDateFilter}
+            onChange={(e) => setDueDateFilter(e.target.value as DueDateFilter)}
+            className={selectClass}
+          >
+            {DUE_DATE_FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {loading ? (
           <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>
-        ) : tasks.length === 0 ? (
+        ) : filteredTasks.length === 0 ? (
           <div className="rounded-xl border border-[#111111]/10 py-16 text-center">
             <CheckSquare className="mx-auto h-8 w-8 text-[#6f6b62]/40 mb-3" />
-            <p className="text-sm text-[#6f6b62]">No tasks found.</p>
-            <button
-              onClick={() => setAdding(true)}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-            >
-              <Plus className="h-4 w-4" /> Add first task
-            </button>
+            <p className="text-sm text-[#6f6b62]">
+              {tasks.length === 0 ? "No tasks found." : "No tasks match your filters."}
+            </p>
+            {tasks.length === 0 && (
+              <button
+                type="button"
+                onClick={() => setAdding(true)}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+              >
+                <Plus className="h-4 w-4" /> Add first task
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-6">
@@ -230,7 +277,8 @@ export default function TasksPage() {
                   {items.map((t) => (
                     <div key={t.id} className="flex items-center gap-4 px-5 py-3.5">
                       <button
-                        onClick={() => markDone(t.id)}
+                        type="button"
+                        onClick={() => void markDone(t.id)}
                         disabled={t.status === "done"}
                         className={`h-5 w-5 shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
                           t.status === "done"
@@ -248,30 +296,46 @@ export default function TasksPage() {
                       <div className={`h-2 w-2 rounded-full shrink-0 ${PRIORITY_DOT[t.priority] || "bg-gray-300"}`} />
 
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-semibold ${t.status === "done" ? "text-[#6f6b62] line-through" : "text-[#111111]"}`}>
+                        <p
+                          className={`text-sm font-semibold ${t.status === "done" ? "text-[#6f6b62] line-through" : "text-[#111111]"}`}
+                        >
                           {t.title}
                         </p>
-                        <div className="flex flex-wrap gap-1.5 mt-0.5">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
                           {t.task_type && (
                             <span className="text-[10px] text-[#6f6b62]">{t.task_type.replace("_", " ")}</span>
                           )}
-                          {t.organisation && (
-                            <span className="text-[10px] text-[#6f6b62]">
-                              · {t.organisation.name}
-                            </span>
-                          )}
+                          {t.opportunity_id && t.opportunity ? (
+                            <Link
+                              href={`/admin/engagement/pipeline/opportunities/${t.opportunity_id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                            >
+                              <Target className="h-3 w-3" />
+                              {t.opportunity.title}
+                            </Link>
+                          ) : t.opportunity_id ? (
+                            <Link
+                              href={`/admin/engagement/pipeline/opportunities/${t.opportunity_id}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-[10px] font-semibold text-[#063b32] hover:underline"
+                            >
+                              View opportunity
+                            </Link>
+                          ) : null}
+                          {t.organisation && <span className="text-[10px] text-[#6f6b62]">· {t.organisation.name}</span>}
                           {t.contact && (
                             <span className="text-[10px] text-[#6f6b62]">
                               · {t.contact.first_name} {t.contact.last_name}
                             </span>
                           )}
-                          {t.notes && (
-                            <span className="text-[10px] text-[#6f6b62] truncate">· {t.notes}</span>
-                          )}
+                          {t.notes && <span className="text-[10px] text-[#6f6b62] truncate">· {t.notes}</span>}
                         </div>
                       </div>
 
-                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold shrink-0 ${STATUS_BADGE[t.status] || "bg-gray-100 text-gray-600"}`}>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold shrink-0 ${STATUS_BADGE[t.status] || "bg-gray-100 text-gray-600"}`}
+                      >
                         {t.status.replace("_", " ")}
                       </span>
                     </div>

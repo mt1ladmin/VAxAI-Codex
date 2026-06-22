@@ -28,7 +28,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: "Pipeline & CRM", href: "/admin/engagement/pipeline", icon: Users },
+      { label: "Opportunities tracker", href: "/admin/engagement/pipeline", icon: Users },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Clients", href: "/admin/clients", icon: Briefcase },

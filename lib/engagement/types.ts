@@ -155,6 +155,7 @@ export type EngagementTask = {
   // joined
   organisation?: Pick<EngagementOrganisation, 'id' | 'name'> | null;
   contact?: Pick<EngagementContact, 'id' | 'first_name' | 'last_name'> | null;
+  opportunity?: Pick<EngagementOpportunity, 'id' | 'title' | 'stage'> | null;
 };
 
 export type PainPoint = {

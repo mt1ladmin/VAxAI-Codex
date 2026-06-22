@@ -1,21 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { TrendingUp } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Calendar, TrendingUp } from "lucide-react";
+import { computePipelineStats, isOpenOpportunity, startOfDay } from "@/lib/engagement/pipeline-filters";
 import { OPPORTUNITY_STAGES, STAGE_COLORS, type EngagementOpportunity, type EngagementTask } from "@/lib/engagement/types";
 
-type Stats = {
-  totalOpps: number;
-  openTasks: number;
-  wonCount: number;
-  pipelineValue: number;
+type FollowUpItem = {
+  id: string;
+  kind: "task" | "opportunity";
+  title: string;
+  subtitle: string | null;
+  dueDate: string | null;
+  href: string;
+  overdue: boolean;
 };
+
+function InsightListCard({
+  title,
+  count,
+  seeAllHref,
+  children,
+}: {
+  title: string;
+  count: number;
+  seeAllHref: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 bg-[#f7f4ea]">
+        <h2 className="text-sm font-semibold text-[#111111]">
+          {title} ({count})
+        </h2>
+        <Link href={seeAllHref} className="text-xs font-semibold text-[#063b32] hover:underline">
+          See all
+        </Link>
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export function InsightsContent() {
   const [opps, setOpps] = useState<EngagementOpportunity[]>([]);
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -28,26 +57,17 @@ export function InsightsContent() {
       oppsRes.json() as Promise<{ data: EngagementOpportunity[] }>,
       tasksRes.json() as Promise<{ data: EngagementTask[] }>,
     ]);
-    const allOpps = oppsData.data || [];
-    const allTasks = tasksData.data || [];
-    setOpps(allOpps);
-    setTasks(allTasks);
-
-    const wonCount = allOpps.filter((o) => ["Won", "Onboarding", "Active client"].includes(o.stage)).length;
-    const pipelineValue = allOpps
-      .filter((o) => !["Lost", "Not suitable"].includes(o.stage))
-      .reduce((sum, o) => sum + (o.indicative_value_high ?? o.indicative_value_low ?? 0), 0);
-
-    setStats({
-      totalOpps: allOpps.length,
-      openTasks: allTasks.length,
-      wonCount,
-      pipelineValue,
-    });
+    setOpps(oppsData.data || []);
+    setTasks(tasksData.data || []);
     setLoading(false);
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const stats = useMemo(() => computePipelineStats(opps), [opps]);
+  const openOpps = useMemo(() => opps.filter(isOpenOpportunity), [opps]);
 
   const byStage = OPPORTUNITY_STAGES.map((stage) => ({
     stage,
@@ -57,6 +77,51 @@ export function InsightsContent() {
 
   const maxCount = Math.max(...byStage.map((s) => s.count), 1);
 
+  const followUps = useMemo(() => {
+    const today = startOfDay(new Date());
+    const in7 = new Date(today);
+    in7.setDate(in7.getDate() + 7);
+    const items: FollowUpItem[] = [];
+
+    for (const t of tasks) {
+      if (!t.due_date) continue;
+      const due = startOfDay(new Date(t.due_date));
+      if (due > in7) continue;
+      items.push({
+        id: `task-${t.id}`,
+        kind: "task",
+        title: t.title,
+        subtitle: t.organisation?.name ?? (t.contact ? `${t.contact.first_name} ${t.contact.last_name ?? ""}`.trim() : null),
+        dueDate: t.due_date,
+        href: t.opportunity_id
+          ? `/admin/engagement/pipeline/opportunities/${t.opportunity_id}`
+          : "/admin/engagement/pipeline/tasks",
+        overdue: due < today,
+      });
+    }
+
+    for (const o of openOpps) {
+      if (!o.next_action?.trim() || !o.expected_decision_date) continue;
+      const due = startOfDay(new Date(o.expected_decision_date));
+      if (due > in7) continue;
+      items.push({
+        id: `opp-${o.id}`,
+        kind: "opportunity",
+        title: o.next_action,
+        subtitle: o.title,
+        dueDate: o.expected_decision_date,
+        href: `/admin/engagement/pipeline/opportunities/${o.id}`,
+        overdue: due < today,
+      });
+    }
+
+    return items.sort((a, b) => {
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
+  }, [tasks, openOpps]);
+
   if (loading) {
     return <div className="py-20 text-center text-sm text-[#6f6b62]">Loading…</div>;
   }
@@ -65,12 +130,20 @@ export function InsightsContent() {
     <div className="px-8 py-6 space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
-          { label: "Opportunities", value: stats?.totalOpps ?? 0, href: "/admin/engagement/pipeline?tab=pipeline" },
-          { label: "Won / clients", value: stats?.wonCount ?? 0, href: "/admin/engagement/pipeline?tab=pipeline" },
-          { label: "Pipeline value", value: stats?.pipelineValue ? `£${stats.pipelineValue.toLocaleString()}` : "—", href: "/admin/engagement/pipeline?tab=pipeline" },
-          { label: "Open tasks", value: stats?.openTasks ?? 0, href: "/admin/engagement/pipeline/tasks" },
+          { label: "Opportunities", value: stats.totalCount, href: "/admin/engagement/pipeline?tab=opportunities" },
+          { label: "Won / clients", value: stats.wonCount, href: "/admin/engagement/pipeline?tab=opportunities" },
+          {
+            label: "Pipeline value",
+            value: stats.pipelineValue ? `£${stats.pipelineValue.toLocaleString()}` : "—",
+            href: "/admin/engagement/pipeline?tab=opportunities",
+          },
+          { label: "Open tasks", value: tasks.length, href: "/admin/engagement/pipeline/tasks" },
         ].map(({ label, value, href }) => (
-          <Link key={label} href={href} className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all">
+          <Link
+            key={label}
+            href={href}
+            className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all"
+          >
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{label}</p>
             <p className="mt-2 text-2xl font-semibold text-[#111111]">{value}</p>
           </Link>
@@ -80,16 +153,21 @@ export function InsightsContent() {
       <div className="rounded-xl border border-[#111111]/10 p-6">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-sm font-semibold text-[#111111]">Pipeline by stage</h2>
-          <Link href="/admin/engagement/pipeline?tab=pipeline" className="flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline">
-            <TrendingUp className="h-3.5 w-3.5" /> View pipeline
+          <Link
+            href="/admin/engagement/pipeline?tab=opportunities"
+            className="flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
+          >
+            <TrendingUp className="h-3.5 w-3.5" /> View opportunities
           </Link>
         </div>
         <div className="space-y-3">
           {byStage.map(({ stage, count, value }) => (
-            <Link key={stage} href="/admin/engagement/pipeline?tab=pipeline" className="block group">
+            <Link key={stage} href="/admin/engagement/pipeline?tab=opportunities" className="block group">
               <div className="flex items-center gap-3">
                 <div className="w-36 shrink-0">
-                  <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[stage] || "bg-gray-100 text-gray-600"}`}>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[stage] || "bg-gray-100 text-gray-600"}`}
+                  >
                     {stage}
                   </span>
                 </div>
@@ -106,36 +184,118 @@ export function InsightsContent() {
               </div>
             </Link>
           ))}
-          {byStage.length === 0 && (
-            <p className="text-sm text-[#6f6b62]">No opportunities yet.</p>
-          )}
+          {byStage.length === 0 && <p className="text-sm text-[#6f6b62]">No opportunities yet.</p>}
         </div>
       </div>
 
-      {tasks.length > 0 && (
-        <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 bg-[#f7f4ea]">
-            <h2 className="text-sm font-semibold text-[#111111]">Open tasks ({tasks.length})</h2>
-            <Link href="/admin/engagement/pipeline/tasks" className="text-xs font-semibold text-[#063b32] hover:underline">See all</Link>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <InsightListCard title="Open tasks" count={tasks.length} seeAllHref="/admin/engagement/pipeline/tasks">
+          {tasks.length === 0 ? (
+            <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No open tasks.</div>
+          ) : (
+            <div className="divide-y divide-[#111111]/5">
+              {tasks.slice(0, 8).map((t) => (
+                <Link
+                  key={t.id}
+                  href={t.opportunity_id ? `/admin/engagement/pipeline/opportunities/${t.opportunity_id}` : "/admin/engagement/pipeline/tasks"}
+                  className="flex items-center gap-4 px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors"
+                >
+                  <div
+                    className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-red-500" : t.priority === "medium" ? "bg-amber-500" : "bg-gray-300"}`}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-[#111111] truncate">{t.title}</p>
+                    <p className="text-xs text-[#6f6b62] truncate">
+                      {t.opportunity?.title
+                        ? t.opportunity.title
+                        : t.organisation?.name ?? (t.contact ? `${t.contact.first_name} ${t.contact.last_name ?? ""}`.trim() : null)}
+                    </p>
+                  </div>
+                  {t.due_date && (
+                    <span className="text-xs text-[#6f6b62] shrink-0">
+                      {new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
+        </InsightListCard>
+
+        <InsightListCard title="Open opportunities" count={openOpps.length} seeAllHref="/admin/engagement/pipeline?tab=opportunities">
+          {openOpps.length === 0 ? (
+            <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No open opportunities.</div>
+          ) : (
+            <div className="divide-y divide-[#111111]/5">
+              {openOpps.slice(0, 8).map((o) => (
+                <Link
+                  key={o.id}
+                  href={`/admin/engagement/pipeline/opportunities/${o.id}`}
+                  className="flex items-center gap-4 px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#111111] truncate">{o.title}</p>
+                    <p className="text-xs text-[#6f6b62] truncate">
+                      {o.organisation?.name ??
+                        (o.primary_contact
+                          ? `${o.primary_contact.first_name} ${o.primary_contact.last_name ?? ""}`.trim()
+                          : o.next_action ?? "—")}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[o.stage] || "bg-gray-100 text-gray-600"}`}
+                  >
+                    {o.stage}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </InsightListCard>
+      </div>
+
+      <InsightListCard title="Follow-ups" count={followUps.length} seeAllHref="/admin/engagement/pipeline/tasks">
+        {followUps.length === 0 ? (
+          <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">
+            No follow-ups due in the next 7 days.
           </div>
+        ) : (
           <div className="divide-y divide-[#111111]/5">
-            {tasks.slice(0, 8).map((t) => (
-              <div key={t.id} className="flex items-center gap-4 px-5 py-3">
-                <div className={`h-2 w-2 rounded-full shrink-0 ${t.priority === "high" ? "bg-red-500" : t.priority === "medium" ? "bg-amber-500" : "bg-gray-300"}`} />
-                <div className="flex-1">
-                  <p className="text-sm text-[#111111]">{t.title}</p>
-                  {t.organisation && <p className="text-xs text-[#6f6b62]">{t.organisation.name}</p>}
+            {followUps.slice(0, 10).map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                className="flex items-center gap-4 px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        item.kind === "task" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"
+                      }`}
+                    >
+                      {item.kind === "task" ? "Task" : "Opportunity"}
+                    </span>
+                    {item.overdue && (
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                        Overdue
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-sm text-[#111111] truncate">{item.title}</p>
+                  {item.subtitle && <p className="text-xs text-[#6f6b62] truncate">{item.subtitle}</p>}
                 </div>
-                {t.due_date && (
-                  <span className="text-xs text-[#6f6b62] shrink-0">
-                    {new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                {item.dueDate && (
+                  <span className={`shrink-0 flex items-center gap-1 text-xs ${item.overdue ? "text-red-600 font-semibold" : "text-[#6f6b62]"}`}>
+                    <Calendar className="h-3 w-3" />
+                    {new Date(item.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                   </span>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </InsightListCard>
     </div>
   );
 }
