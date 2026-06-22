@@ -90,6 +90,7 @@ function LiveCallAssistInner() {
   const [activeLiveDraft, setActiveLiveDraft] = useState<LiveDraft | null>(null);
   const [generatingGuidance, setGeneratingGuidance] = useState(false);
   const noteRef = useRef<HTMLTextAreaElement>(null);
+  const generatingRef = useRef(false);
 
   // Load pain point from URL if coming from navigator
   const initialPainPointId = searchParams.get("pain_point");
@@ -140,7 +141,7 @@ function LiveCallAssistInner() {
     return () => clearTimeout(t);
   }, [contactSearch, selectedOrg]);
 
-  // Search pain points
+  // Search pain points (keyword)
   useEffect(() => {
     if (!painPointSearch.trim()) { setPainPoints([]); return; }
     const t = setTimeout(async () => {
@@ -150,6 +151,17 @@ function LiveCallAssistInner() {
     }, 250);
     return () => clearTimeout(t);
   }, [painPointSearch]);
+
+  // Auto-fire quick guidance as the user types — debounced so it waits for a pause
+  useEffect(() => {
+    if (callState !== "active") return;
+    const trimmed = painPointSearch.trim();
+    if (trimmed.length < 8) return;
+    const t = setTimeout(() => {
+      void generateQuickGuidance(trimmed);
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [painPointSearch, callState, generateQuickGuidance]);
 
   const loadVatPrompts = useCallback(async (pp: PainPoint) => {
     const res = await fetch(`/api/admin/engagement/vat-prompts?tags=all`);
@@ -183,8 +195,11 @@ function LiveCallAssistInner() {
     }]);
   };
 
-  const generateQuickGuidance = async (phrase: string) => {
+  const generateQuickGuidance = useCallback(async (phrase: string) => {
+    if (generatingRef.current) return;
+    generatingRef.current = true;
     setGeneratingGuidance(true);
+    setActiveLiveDraft(null);
     try {
       const res = await fetch("/api/admin/engagement/ai/quick-pain-point-guidance", {
         method: "POST",
@@ -204,9 +219,10 @@ function LiveCallAssistInner() {
     } catch (e) {
       console.error("Quick guidance failed", e);
     } finally {
+      generatingRef.current = false;
       setGeneratingGuidance(false);
     }
-  };
+  }, [selectedOrg, callType]);
 
   const runAiSearch = async () => {
     if (!painPointSearch.trim()) return;
