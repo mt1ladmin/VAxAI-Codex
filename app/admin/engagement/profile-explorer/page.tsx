@@ -243,7 +243,7 @@ export default function ProfileExplorer() {
                   .map((sector) => (
                     <Link
                       key={sector.id}
-                      href={`/admin/engagement/knowledge?type=sector&id=${sector.id}`}
+                      href={`/admin/engagement/knowledge/sectors/${sector.id}`}
                       className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group"
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">

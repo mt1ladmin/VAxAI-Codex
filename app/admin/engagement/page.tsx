@@ -65,7 +65,7 @@ export default function EngagementOverview() {
     if (r.type === "organisation") return `/admin/engagement/pipeline/organisations/${r.id}`;
     if (r.type === "contact") return `/admin/engagement/pipeline/contacts/${r.id}`;
     if (r.type === "opportunity") return `/admin/engagement/pipeline/opportunities/${r.id}`;
-    if (r.type === "sector") return `/admin/engagement/knowledge?type=sector&id=${r.id}`;
+    if (r.type === "sector") return `/admin/engagement/knowledge/sectors/${r.id}`;
     return `/admin/engagement/knowledge`;
   };
 
