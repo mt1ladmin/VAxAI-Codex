@@ -8,6 +8,7 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "50", 10);
   const enquiryId = searchParams.get("enquiry_id");
   const contactId = searchParams.get("contact_id");
+  const queueId = searchParams.get("queue_id");
 
   let query = supabase
     .from("engagement_prospect_preps")
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest) {
 
   if (enquiryId) query = query.eq("enquiry_id", enquiryId);
   if (contactId) query = query.eq("contact_id", contactId);
+  if (queueId) query = query.eq("queue_id", queueId);
 
   const { data, error } = await query;
 

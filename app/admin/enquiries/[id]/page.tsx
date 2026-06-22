@@ -29,7 +29,7 @@ import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 
-import type { CustomCard, PrepCard, ProspectCallContext } from "@/lib/engagement/call-context";
+import type { CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import type {
   EngagementContact,
@@ -92,8 +92,6 @@ export default function EnquiryDetailPage() {
   const [nextAction, setNextAction] = useState("");
   const [nextActionDate, setNextActionDate] = useState("");
   const [savingAction, setSavingAction] = useState(false);
-  const [loadingPrep, setLoadingPrep] = useState(false);
-  const [aiPrepCards, setAiPrepCards] = useState<PrepCard[]>([]);
   const [prospectPreps, setProspectPreps] = useState<ProspectPrepClient[]>([]);
   const [linkedPreps, setLinkedPreps] = useState<ProspectPrepClient[]>([]);
   const [customCards, setCustomCards] = useState<CustomCard[]>([]);
@@ -107,7 +105,7 @@ export default function EnquiryDetailPage() {
   const [showAddCustomCard, setShowAddCustomCard] = useState(false);
   const [customCardTitle, setCustomCardTitle] = useState("");
   const [customCardContent, setCustomCardContent] = useState("");
-  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const [expandedPrepCards, setExpandedPrepCards] = useState<Record<string, boolean>>({});
   const [promoting, setPromoting] = useState(false);
   const [activeTab, setActiveTab] = useState<HubTab>("overview");
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
@@ -244,29 +242,6 @@ export default function EnquiryDetailPage() {
     }
   };
 
-  const prepareForContact = async () => {
-    if (!enquiry) return;
-    setLoadingPrep(true);
-    const res = await fetch("/api/admin/engagement/ai/call-preparation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        callType: "discovery",
-        orgName: enquiry.name,
-        contactName: enquiry.name,
-        supportType: enquiry.support_type,
-        details: enquiry.details,
-      }),
-    });
-    const j = await res.json() as { data?: Omit<PrepCard, "id"> };
-    if (j.data) {
-      const card: PrepCard = { ...j.data, id: `ai-${Date.now()}` };
-      setAiPrepCards((prev) => [...prev, card]);
-      setExpandedCards((prev) => ({ ...prev, [card.id]: true }));
-    }
-    setLoadingPrep(false);
-  };
-
   const saveNote = async () => {
     if (!noteText.trim() || !enquiry) return;
     setSavingNote(true);
@@ -298,7 +273,7 @@ export default function EnquiryDetailPage() {
   const addProspectPrep = async (prep: ProspectPrepClient) => {
     if (prospectPreps.some((p) => p.id === prep.id)) return;
     setProspectPreps((prev) => [...prev, prep]);
-    setExpandedCards((prev) => ({ ...prev, [`prep-${prep.id}`]: true }));
+    setExpandedPrepCards((prev) => ({ ...prev, [prep.id]: false }));
     if (prep.id && !linkedPreps.some((lp) => lp.id === prep.id)) {
       await fetch(`/api/admin/engagement/prospect-preps/${prep.id}`, {
         method: "PATCH",
@@ -328,7 +303,6 @@ export default function EnquiryDetailPage() {
       content: customCardContent.trim(),
     };
     setCustomCards((prev) => [...prev, card]);
-    setExpandedCards((prev) => ({ ...prev, [card.id]: true }));
     setCustomCardTitle("");
     setCustomCardContent("");
     setShowAddCustomCard(false);
@@ -369,7 +343,7 @@ export default function EnquiryDetailPage() {
       nextActionDate: enquiry.next_action_date,
       sector: enquiry.sector_snapshot,
       persona: enquiry.persona_snapshot,
-      aiPrepCards,
+      aiPrepCards: [],
       prospectPreps: allPreps,
       customCards: [submissionCard, ...customCards],
     };
@@ -451,8 +425,8 @@ export default function EnquiryDetailPage() {
     }
   };
 
-  const toggleCard = (cardId: string) => {
-    setExpandedCards((prev) => ({ ...prev, [cardId]: !prev[cardId] }));
+  const togglePrepCard = (prepId: string) => {
+    setExpandedPrepCards((prev) => ({ ...prev, [prepId]: !prev[prepId] }));
   };
 
   if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
@@ -778,8 +752,8 @@ export default function EnquiryDetailPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Call records attached to this enquiry</p>
-                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]">
-                  <Phone className="h-3.5 w-3.5" /> Start call assist
+                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
+                  <Phone className="h-4 w-4" /> Start call assist
                 </button>
               </div>
               <InteractionList
@@ -799,8 +773,8 @@ export default function EnquiryDetailPage() {
                 <button type="button" onClick={() => void loadPrepPicker()} disabled={prepPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
                   <History className="h-4 w-4" /> Attach existing prep
                 </button>
-                <button type="button" onClick={() => void prepareForContact()} disabled={loadingPrep} className="flex items-center gap-1.5 rounded-lg border border-violet-200 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-50 disabled:opacity-50">
-                  {loadingPrep ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} AI call prep
+                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
+                  <Phone className="h-4 w-4" /> Start call assist
                 </button>
               </div>
 
@@ -823,39 +797,38 @@ export default function EnquiryDetailPage() {
 
               {linkedPreps.length > 0 ? (
                 <div className="space-y-2">
-                  {linkedPreps.map((prep) => (
-                    <div key={prep.id} className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3 space-y-2">
-                      <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
-                      {prep.sourceLabel && <p className="text-[10px] text-emerald-600">{prep.sourceLabel}</p>}
-                      <PrepKnowledgeSummary
-                        sector={prep.sector}
-                        persona={prep.persona}
-                        relevantPains={prep.relevantPains}
-                        compact
-                      />
-                      {prep.prepNotes && <p className="text-sm text-[#6f6b62] whitespace-pre-wrap line-clamp-4">{prep.prepNotes}</p>}
-                    </div>
-                  ))}
+                  {linkedPreps.map((prep) => {
+                    const expanded = !!expandedPrepCards[prep.id];
+                    return (
+                      <div key={prep.id} className="rounded-xl border border-emerald-200 bg-emerald-50/50 overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => togglePrepCard(prep.id)}
+                          className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-emerald-50"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
+                            {prep.sourceLabel && <p className="text-[10px] text-emerald-600">{prep.sourceLabel}</p>}
+                          </div>
+                          <ChevronDown className={`h-4 w-4 shrink-0 text-emerald-700 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                        </button>
+                        {expanded && (
+                          <div className="border-t border-emerald-200 px-4 py-3 space-y-2">
+                            <PrepKnowledgeSummary
+                              sector={prep.sector}
+                              persona={prep.persona}
+                              relevantPains={prep.relevantPains}
+                              compact
+                            />
+                            {prep.prepNotes && <p className="text-sm text-[#6f6b62] whitespace-pre-wrap">{prep.prepNotes}</p>}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No prospect preps linked yet.</p>
-              )}
-
-              {(aiPrepCards.length > 0 || prospectPreps.length > 0) && (
-                <div className="rounded-xl border border-violet-200 bg-violet-50/30 p-5 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-700">Session call preparation</p>
-                  {aiPrepCards.map((card, idx) => (
-                    <div key={card.id} className="rounded-lg border border-violet-200 bg-white overflow-hidden">
-                      <button type="button" onClick={() => toggleCard(card.id)} className="flex w-full items-center justify-between px-4 py-3 text-left">
-                        <span className="text-sm font-semibold text-violet-800">AI prep {idx + 1}</span>
-                        <ChevronDown className={`h-4 w-4 text-violet-600 transition-transform ${expandedCards[card.id] ? "rotate-180" : ""}`} />
-                      </button>
-                      {expandedCards[card.id] && card.suggested_opening && (
-                        <div className="border-t border-violet-200 px-4 py-3 text-sm italic text-[#111111]">&ldquo;{card.suggested_opening}&rdquo;</div>
-                      )}
-                    </div>
-                  ))}
-                </div>
               )}
             </div>
           )}
