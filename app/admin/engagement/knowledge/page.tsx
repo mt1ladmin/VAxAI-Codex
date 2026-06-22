@@ -186,16 +186,6 @@ export default function KnowledgePage() {
       </div>
 
       <div className="px-8 py-6">
-        {/* Brief descriptions per tab */}
-        <p className="text-xs text-[#6f6b62] mt-1 mb-4">
-          {tab === "prospect_prep" && "Quick client prep: select sector/persona to pull relevant knowledge (no AI). Save for live calls."}
-          {tab === "sectors" && "Browse sector profiles for industry context and pressures."}
-          {tab === "personas" && "Explore typical client personas and their needs."}
-          {tab === "pain_points" && "Browse pain points by category with counts and details."}
-          {tab === "vat_prompts" && "View VAT prompts by dimension for relevant insights."}
-          {tab === "knowledge_review" && "Review and approve AI-generated draft pain points."}
-        </p>
-
         {/* Search + filters */}
         {tab !== "knowledge_review" && tab !== "prospect_prep" && (
           <div className="flex gap-3 mb-5">
@@ -403,7 +393,7 @@ export default function KnowledgePage() {
               <div className="space-y-6">
                 <div>
                   <h3 className="font-semibold text-[#111111] mb-2">Quick Prospect Preparation</h3>
-                  <p className="text-sm text-[#6f6b62] mb-4">No LLM call. Enter client info to quickly pull relevant sector, persona, pain points and VAT prompts. Save for live call use and later AI enhancement.</p>
+                  <p className="text-sm text-[#6f6b62] mb-4">Enter client info to quickly pull relevant sector, persona, pain points and VAT prompts. Save for live call use and later AI enhancement.</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Client Type / Description</label>
