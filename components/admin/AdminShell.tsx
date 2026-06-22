@@ -58,8 +58,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
   {
     section: "CONTENT",
     items: [
-      { label: "Posts", href: "/admin/posts", icon: FileText },
-      { label: "Content Calendar", href: "/admin/calendar", icon: CalendarDays },
+      { label: "Content", href: "/admin/calendar", icon: CalendarDays },
     ],
   },
 ];
@@ -81,6 +80,8 @@ export default function AdminShell({
 
   const isActive = (href: string) =>
     exactMatchRoutes.has(href) ? pathname === href : pathname.startsWith(href);
+
+  const isContentActive = pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/calendar");
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
@@ -154,7 +155,7 @@ export default function AdminShell({
                 </p>
               )}
               {section.items.map((item) => {
-                const active = isActive(item.href);
+                const active = section.section === "CONTENT" ? isContentActive : isActive(item.href);
                 return (
                   <Link
                     key={item.href}
@@ -175,14 +176,6 @@ export default function AdminShell({
 
         {/* Bottom */}
         <div className="space-y-0.5 border-t border-white/10 px-2 py-3">
-          {!open && (
-            <button
-              onClick={() => setOpen(true)}
-              className="mb-2 flex w-full items-center justify-center rounded-md py-2 text-white/40 hover:bg-white/10 hover:text-white"
-            >
-              <PanelLeftOpen className="h-4 w-4" />
-            </button>
-          )}
           <Link
             href="/admin/engagement/settings"
             title={!open ? "Settings" : undefined}
@@ -226,7 +219,44 @@ export default function AdminShell({
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto bg-white">{children}</main>
+      <main className="flex-1 overflow-y-auto bg-white">
+        {!open && (
+          <div className="px-4 pt-2">
+            <button
+              onClick={() => setOpen(true)}
+              className="flex items-center gap-1.5 rounded-md border border-[#111111]/15 bg-white px-2.5 py-1 text-xs font-medium text-[#063b32] hover:bg-[#f7f4ea]"
+              title="Open sidebar"
+            >
+              <PanelLeftOpen className="h-3.5 w-3.5" />
+              Open sidebar
+            </button>
+          </div>
+        )}
+
+        {pathname.startsWith("/admin/calendar") && (
+          <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="font-semibold text-[#111111]">Content</span>
+              <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
+                <Link
+                  href="/admin/calendar"
+                  className="px-4 py-1.5 text-xs font-semibold bg-[#063b32] text-white"
+                >
+                  Calendar
+                </Link>
+                <Link
+                  href="/admin/posts"
+                  className="px-4 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                >
+                  Posts
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {children}
+      </main>
     </div>
   );
 }
