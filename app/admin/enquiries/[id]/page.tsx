@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Calendar,
-  Check,
   ChevronDown,
   ExternalLink,
   History,
@@ -19,9 +18,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { StatusSelect } from "@/components/admin/StatusSelect";
 import {
   ENQUIRY_STATUS_COLORS,
-  ENQUIRY_STATUS_OPTIONS,
   enquiryStatusLabel,
 } from "@/lib/enquiries/constants";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
@@ -401,28 +400,11 @@ export default function EnquiryDetailPage() {
 
           <div className="rounded-xl border border-[#111111]/10 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Update status</p>
-            <div className="space-y-1">
-              {ENQUIRY_STATUS_OPTIONS.map((s) => (
-                <button
-                  key={s.key}
-                  type="button"
-                  onClick={() => void updateStatus(s.key)}
-                  disabled={updatingStatus || enquiry.status === s.key}
-                  className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-left transition-colors ${
-                    enquiry.status === s.key
-                      ? `${ENQUIRY_STATUS_COLORS[s.key] || "bg-gray-100 text-gray-600"} cursor-default`
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
-                  }`}
-                >
-                  {enquiry.status === s.key ? (
-                    <Check className="h-3.5 w-3.5 shrink-0" />
-                  ) : (
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${ENQUIRY_STATUS_COLORS[s.key]?.split(" ")[0] || "bg-gray-300"}`} />
-                  )}
-                  {s.label}
-                </button>
-              ))}
-            </div>
+            <StatusSelect
+              value={enquiry.status}
+              onChange={(status) => void updateStatus(status)}
+              loading={updatingStatus}
+            />
           </div>
         </div>
 

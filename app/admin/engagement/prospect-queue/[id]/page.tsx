@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import {
   AlertTriangle,
   ArrowLeft,
-  Check,
   ChevronDown,
   ExternalLink,
   History,
@@ -20,8 +19,9 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { StatusSelect } from "@/components/admin/StatusSelect";
 import type { ProspectQueueEntry } from "@/lib/engagement/types";
-import { PROSPECT_QUEUE_STATUSES, PROSPECT_QUEUE_STATUS_COLORS } from "@/lib/engagement/types";
+import { PROSPECT_QUEUE_STATUS_COLORS } from "@/lib/engagement/types";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 
 type PrepCard = {
@@ -468,23 +468,11 @@ export default function ProspectDetailPage() {
 
           <div className="rounded-xl border border-[#111111]/10 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Update status</p>
-            <div className="space-y-1">
-              {PROSPECT_QUEUE_STATUSES.map(s => (
-                <button
-                  key={s}
-                  onClick={() => void updateStatus(s)}
-                  disabled={updatingStatus || entry.status === s}
-                  className={`w-full flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-left transition-colors ${
-                    entry.status === s
-                      ? `${statusColor} cursor-default`
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
-                  }`}
-                >
-                  {entry.status === s && <Check className="h-3.5 w-3.5 shrink-0" />}
-                  {s}
-                </button>
-              ))}
-            </div>
+            <StatusSelect
+              value={entry.status}
+              onChange={(status) => void updateStatus(status)}
+              loading={updatingStatus}
+            />
           </div>
 
           {(entry.organisation_id || entry.contact_id) && (
