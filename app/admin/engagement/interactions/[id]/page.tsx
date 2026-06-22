@@ -80,7 +80,7 @@ export default function InteractionDetailPage() {
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
         <div className="flex items-center gap-3">
-          <Link href="/admin/engagement/interactions" className="text-[#6f6b62] hover:text-[#111111]">
+          <Link href="/admin/engagement/live-call?tab=call_records" className="text-[#6f6b62] hover:text-[#111111]">
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>

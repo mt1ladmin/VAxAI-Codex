@@ -23,6 +23,9 @@ import {
 } from "lucide-react";
 import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } from "@/lib/engagement/types";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
+import { CallRecordsContent } from "./call-records-content";
+
+type PageTab = "live_call" | "call_records";
 
 type CallNote = { id: string; text: string; timestamp: Date; type: "note" | "pain_point" | "commitment" | "question" };
 type CallState = "pre" | "active" | "post";
@@ -95,6 +98,7 @@ function LiveCallAssistInner() {
   const [showPrepPicker, setShowPrepPicker] = useState(false);
   const [prepPickerList, setPrepPickerList] = useState<ProspectPrepClient[]>([]);
   const [prepPickerLoading, setPrepPickerLoading] = useState(false);
+  const [pageTab, setPageTab] = useState<PageTab>("live_call");
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
   const generateQuickGuidance = useCallback(async (phrase: string) => {
@@ -132,8 +136,12 @@ function LiveCallAssistInner() {
     }
   }, [selectedOrg, callType]);
 
-  // Load pain point from URL if coming from navigator
   const initialPainPointId = searchParams.get("pain_point");
+
+  useEffect(() => {
+    const urlTab = searchParams.get("tab");
+    if (urlTab === "call_records") setPageTab("call_records");
+  }, [searchParams]);
 
   useEffect(() => {
     if (initialPainPointId) {
@@ -385,6 +393,7 @@ function LiveCallAssistInner() {
   };
 
   const startCall = () => {
+    setPageTab("live_call");
     setCallState("active");
     setCallStartTime(new Date());
     noteRef.current?.focus();
@@ -451,7 +460,9 @@ function LiveCallAssistInner() {
         });
       }
 
-      router.push("/admin/engagement/interactions");
+      setCallState("pre");
+      setPageTab("call_records");
+      router.push("/admin/engagement/live-call?tab=call_records");
     } finally {
       setSaving(false);
     }
@@ -470,159 +481,202 @@ function LiveCallAssistInner() {
     question: "Question",
   };
 
+  const inCall = callState === "active" || callState === "post";
+
+  useEffect(() => {
+    if (inCall && pageTab === "call_records") setPageTab("live_call");
+  }, [inCall, pageTab]);
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
-            <h1 className="mt-0.5 text-2xl font-semibold text-[#111111]">Live Call Assist</h1>
+      <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-semibold text-[#111111]">Calls</span>
+            <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
+              {([
+                ["live_call", "Live Call Assist"],
+                ["call_records", "Call Records"],
+              ] as [PageTab, string][]).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    if (inCall && key === "call_records") return;
+                    setPageTab(key);
+                    if (key === "call_records") router.replace("/admin/engagement/live-call?tab=call_records");
+                    else router.replace("/admin/engagement/live-call");
+                  }}
+                  disabled={inCall && key === "call_records"}
+                  className={`px-4 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                    pageTab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           {callState === "active" && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-2">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <Clock className="h-4 w-4 text-emerald-600" />
-                <span className="text-sm font-semibold text-emerald-700">{elapsed}</span>
+                <Clock className="h-3.5 w-3.5 text-emerald-600" />
+                <span className="text-xs font-semibold text-emerald-700">{elapsed}</span>
               </div>
               <button
                 onClick={endCall}
-                className="flex items-center gap-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
+                className="flex items-center gap-2 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-600"
               >
-                <PhoneOff className="h-4 w-4" /> End call
+                <PhoneOff className="h-3.5 w-3.5" /> End call
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {callState === "pre" && (
-        <div className="px-8 py-8 max-w-xl">
-          <h2 className="text-lg font-semibold text-[#111111] mb-6">Set up this call</h2>
+      {pageTab === "call_records" && !inCall && (
+        <>
+          <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
+            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Call Records</h1>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">Saved call records from completed live calls. Review summaries, notes, and AI-structured outcomes.</p>
+          </div>
+          <CallRecordsContent onStartCall={() => setPageTab("live_call")} />
+        </>
+      )}
 
-          {/* Call type */}
-          <div className="mb-5">
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
-              Call type
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {["prospecting","discovery","review","support","follow-up"].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setCallType(type)}
-                  className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
-                    callType === type
-                      ? "bg-[#063b32] text-white"
-                      : "border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32]/30"
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+      {pageTab === "live_call" && callState === "pre" && (
+        <div className="px-8 py-6">
+          <div className="max-w-2xl mx-auto">
+            <div className="rounded-2xl border border-[#111111]/10 bg-white p-8 shadow-sm">
+              <div className="text-center mb-6">
+                <h3 className="font-semibold text-xl text-[#111111]">Set up this call</h3>
+                <p className="mt-1 text-sm text-[#6f6b62]">Choose call type and link an organisation or contact, then start your assisted call.</p>
+              </div>
+
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
+                    Call type
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {["prospecting", "discovery", "review", "support", "follow-up"].map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setCallType(type)}
+                        className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
+                          callType === type
+                            ? "bg-[#063b32] text-white"
+                            : "border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32]/30"
+                        }`}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">
+                    Organisation (optional)
+                  </label>
+                  {selectedOrg ? (
+                    <div className="flex items-center gap-2 rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-2.5">
+                      <span className="flex-1 text-sm font-semibold text-[#063b32]">{selectedOrg.name}</span>
+                      <button onClick={() => setSelectedOrg(null)}>
+                        <X className="h-4 w-4 text-[#6f6b62]" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                        <input
+                          value={orgSearch}
+                          onChange={(e) => setOrgSearch(e.target.value)}
+                          placeholder="Search organisations…"
+                          className="w-full rounded-xl border border-[#111111]/15 bg-white py-3 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+                        />
+                      </div>
+                      {orgs.length > 0 && (
+                        <div className="absolute z-10 left-0 right-0 mt-1 rounded-xl border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
+                          {orgs.map((o) => (
+                            <button
+                              key={o.id}
+                              onClick={() => { setSelectedOrg(o); setOrgSearch(""); setOrgs([]); }}
+                              className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
+                            >
+                              <span className="text-sm font-semibold text-[#111111]">{o.name}</span>
+                              {o.industry && <span className="text-xs text-[#6f6b62]">{o.industry}</span>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">
+                    Contact (optional)
+                  </label>
+                  {selectedContact ? (
+                    <div className="flex items-center gap-2 rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-2.5">
+                      <span className="flex-1 text-sm font-semibold text-[#063b32]">
+                        {selectedContact.first_name} {selectedContact.last_name || ""}
+                      </span>
+                      <button onClick={() => setSelectedContact(null)}>
+                        <X className="h-4 w-4 text-[#6f6b62]" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                        <input
+                          value={contactSearch}
+                          onChange={(e) => setContactSearch(e.target.value)}
+                          placeholder="Search contacts…"
+                          className="w-full rounded-xl border border-[#111111]/15 bg-white py-3 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+                        />
+                      </div>
+                      {contacts.length > 0 && (
+                        <div className="absolute z-10 left-0 right-0 mt-1 rounded-xl border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
+                          {contacts.map((c) => (
+                            <button
+                              key={c.id}
+                              onClick={() => { setSelectedContact(c); setContactSearch(""); setContacts([]); }}
+                              className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
+                            >
+                              <span className="text-sm font-semibold text-[#111111]">
+                                {c.first_name} {c.last_name || ""}
+                              </span>
+                              {c.role && <span className="text-xs text-[#6f6b62]">{c.role}</span>}
+                            </button>
+                          ))}
+                          <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#063b32] hover:bg-[#f7f4ea] border-t border-[#111111]/5">
+                            <Plus className="h-3.5 w-3.5" /> Start without selecting a contact
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={startCall}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1a5c42] transition-colors"
+              >
+                <Phone className="h-5 w-5" /> Start call
+              </button>
             </div>
           </div>
-
-          {/* Organisation */}
-          <div className="mb-4 relative">
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
-              Organisation (optional)
-            </label>
-            {selectedOrg ? (
-              <div className="flex items-center gap-2 rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 px-3 py-2">
-                <span className="flex-1 text-sm font-semibold text-[#063b32]">{selectedOrg.name}</span>
-                <button onClick={() => setSelectedOrg(null)}>
-                  <X className="h-4 w-4 text-[#6f6b62]" />
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-                  <input
-                    value={orgSearch}
-                    onChange={(e) => setOrgSearch(e.target.value)}
-                    placeholder="Search organisations…"
-                    className="w-full rounded-lg border border-[#111111]/15 py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
-                  />
-                </div>
-                {orgs.length > 0 && (
-                  <div className="absolute z-10 left-0 right-0 mt-1 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
-                    {orgs.map((o) => (
-                      <button
-                        key={o.id}
-                        onClick={() => { setSelectedOrg(o); setOrgSearch(""); setOrgs([]); }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
-                      >
-                        <span className="text-sm font-semibold text-[#111111]">{o.name}</span>
-                        {o.industry && <span className="text-xs text-[#6f6b62]">{o.industry}</span>}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Contact */}
-          <div className="mb-6 relative">
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
-              Contact (optional)
-            </label>
-            {selectedContact ? (
-              <div className="flex items-center gap-2 rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 px-3 py-2">
-                <span className="flex-1 text-sm font-semibold text-[#063b32]">
-                  {selectedContact.first_name} {selectedContact.last_name || ""}
-                </span>
-                <button onClick={() => setSelectedContact(null)}>
-                  <X className="h-4 w-4 text-[#6f6b62]" />
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-                  <input
-                    value={contactSearch}
-                    onChange={(e) => setContactSearch(e.target.value)}
-                    placeholder="Search contacts…"
-                    className="w-full rounded-lg border border-[#111111]/15 py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
-                  />
-                </div>
-                {contacts.length > 0 && (
-                  <div className="absolute z-10 left-0 right-0 mt-1 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
-                    {contacts.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => { setSelectedContact(c); setContactSearch(""); setContacts([]); }}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
-                      >
-                        <span className="text-sm font-semibold text-[#111111]">
-                          {c.first_name} {c.last_name || ""}
-                        </span>
-                        {c.role && <span className="text-xs text-[#6f6b62]">{c.role}</span>}
-                      </button>
-                    ))}
-                    <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#063b32] hover:bg-[#f7f4ea] border-t border-[#111111]/5">
-                      <Plus className="h-3.5 w-3.5" /> Start without selecting a contact
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          <button
-            onClick={startCall}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#063b32] px-6 py-4 text-base font-semibold text-white hover:bg-[#1a5c42] transition-colors"
-          >
-            <Phone className="h-5 w-5" /> Start call
-          </button>
         </div>
       )}
 
-      {callState === "active" && (
-        <div className="flex h-[calc(100vh-73px)] overflow-hidden">
+      {pageTab === "live_call" && callState === "active" && (
+        <div className="flex h-[calc(100vh-57px)] overflow-hidden">
           {/* Left: context */}
           <div className="w-64 shrink-0 border-r border-[#111111]/10 overflow-y-auto bg-[#f7f4ea] p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Call context</p>
@@ -1126,7 +1180,7 @@ function LiveCallAssistInner() {
       )}
 
       {/* Post-call summary */}
-      {callState === "post" && showSummary && (
+      {pageTab === "live_call" && callState === "post" && showSummary && (
         <div className="px-8 py-8 max-w-2xl">
           <div className="flex items-center gap-3 mb-6">
             <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-100">
