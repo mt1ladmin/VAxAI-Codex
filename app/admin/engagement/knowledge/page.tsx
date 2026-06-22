@@ -152,6 +152,33 @@ export default function KnowledgePage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Tabs at top right, above the Client Engagement / Knowledge Hub section, exactly like content page */}
+      <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
+        <div className="flex items-center gap-2 text-sm">
+          <span className="font-semibold text-[#111111]">Knowledge</span>
+          <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
+            {([
+              ["prospect_prep", "Prospect Prep"],
+              ["sectors", "Sectors"],
+              ["personas", "Personas"],
+              ["pain_points", "Pain points"],
+              ["vat_prompts", "VAT prompts"],
+              ["knowledge_review", "Knowledge Review"],
+            ] as [Tab, string][]).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); }}
+                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
+                  tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Knowledge Hub</h1>
@@ -159,33 +186,6 @@ export default function KnowledgePage() {
       </div>
 
       <div className="px-8 py-6">
-        {/* Tabs - exactly like content page toggle, top right */}
-        <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-semibold text-[#111111]">Knowledge</span>
-            <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
-              {([
-                ["prospect_prep", "Prospect Prep"],
-                ["sectors", "Sectors"],
-                ["personas", "Personas"],
-                ["pain_points", "Pain points"],
-                ["vat_prompts", "VAT prompts"],
-                ["knowledge_review", "Knowledge Review"],
-              ] as [Tab, string][]).map(([key, label]) => (
-                <button
-                  key={key}
-                  onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); }}
-                  className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
-                    tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* Brief descriptions per tab */}
         <p className="text-xs text-[#6f6b62] mt-1 mb-4">
           {tab === "prospect_prep" && "Quick client prep: select sector/persona to pull relevant knowledge (no AI). Save for live calls."}
