@@ -518,7 +518,7 @@ export default function EngagementOverview() {
             { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
             { label: "Organisations", href: "/admin/engagement/pipeline/organisations", icon: Users, desc: "Organisation records" },
             { label: "Contacts", href: "/admin/engagement/pipeline/contacts", icon: Users, desc: "Contact records" },
-            { label: "Call Records", href: "/admin/engagement/live-call?tab=call_records", icon: CheckCircle2, desc: "Call and contact log" },
+            { label: "Prospect Prep", href: "/admin/engagement/prospect-prep", icon: CheckCircle2, desc: "Build and save prospect briefings" },
           ].map((item) => (
             <Link
               key={item.href}
