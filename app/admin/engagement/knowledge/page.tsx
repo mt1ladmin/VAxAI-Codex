@@ -7,8 +7,9 @@ import {
   BADGE_COLORS, PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
+import KnowledgeReviewPage from "../knowledge-review/page";
 
-type Tab = "pain_points" | "sectors" | "personas" | "vat_prompts";
+type Tab = "pain_points" | "sectors" | "personas" | "vat_prompts" | "knowledge_review";
 
 export default function KnowledgePage() {
   const [tab, setTab] = useState<Tab>("pain_points");
@@ -80,6 +81,7 @@ export default function KnowledgePage() {
             ["sectors", "Sectors"],
             ["personas", "Personas"],
             ["vat_prompts", "VAT prompts"],
+            ["knowledge_review", "Knowledge Review"],
           ] as [Tab, string][]).map(([key, label]) => (
             <button
               key={key}
@@ -94,43 +96,45 @@ export default function KnowledgePage() {
         </div>
 
         {/* Search + filters */}
-        <div className="flex gap-3 mb-5">
-          {tab !== "vat_prompts" && (
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-              <input
-                ref={inputRef}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={tab === "pain_points" ? "Search pain points…" : tab === "sectors" ? "Search sectors…" : "Search…"}
-                className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
-              />
-            </div>
-          )}
-          {tab === "pain_points" && (
-            <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
-              <option value="">All categories</option>
-              {PAIN_POINT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          )}
-          {tab === "vat_prompts" && (
-            <div className="flex gap-2">
-              {(["value", "alignment", "trust"] as const).map((dim) => (
-                <button
-                  key={dim}
-                  onClick={() => setDimension(dimension === dim ? "" : dim)}
-                  className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
-                    dimension === dim
-                      ? dim === "value" ? "bg-[#063b32] text-white" : dim === "alignment" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
-                      : "border border-[#111111]/15 text-[#6f6b62] hover:text-[#111111]"
-                  }`}
-                >
-                  {dim}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {tab !== "knowledge_review" && (
+          <div className="flex gap-3 mb-5">
+            {tab !== "vat_prompts" && (
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                <input
+                  ref={inputRef}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={tab === "pain_points" ? "Search pain points…" : tab === "sectors" ? "Search sectors…" : "Search…"}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+                />
+              </div>
+            )}
+            {tab === "pain_points" && (
+              <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
+                <option value="">All categories</option>
+                {PAIN_POINT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            )}
+            {tab === "vat_prompts" && (
+              <div className="flex gap-2">
+                {(["value", "alignment", "trust"] as const).map((dim) => (
+                  <button
+                    key={dim}
+                    onClick={() => setDimension(dimension === dim ? "" : dim)}
+                    className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
+                      dimension === dim
+                        ? dim === "value" ? "bg-[#063b32] text-white" : dim === "alignment" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
+                        : "border border-[#111111]/15 text-[#6f6b62] hover:text-[#111111]"
+                    }`}
+                  >
+                    {dim}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {loading ? (
           <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>
@@ -289,6 +293,7 @@ export default function KnowledgePage() {
                 </div>
               )
             )}
+            {tab === "knowledge_review" && <KnowledgeReviewPage />}
           </>
         )}
       </div>
