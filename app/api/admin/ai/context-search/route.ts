@@ -52,7 +52,8 @@ export async function GET(req: NextRequest) {
   }
 
   for (const c of contactRes.data ?? []) {
-    const org = c.organisation as { name: string } | null;
+    const rawOrg = c.organisation as unknown;
+    const org = (Array.isArray(rawOrg) ? rawOrg[0] : rawOrg) as { name: string } | null | undefined;
     results.push({
       type: "client",
       id: c.id,

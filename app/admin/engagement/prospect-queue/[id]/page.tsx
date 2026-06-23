@@ -600,27 +600,6 @@ function ProspectDetailContent() {
         </div>
       </div>
 
-      {activeTab === "chat" && (
-        <div className="px-8 py-6">
-          <AIChatHistory
-            contextType="prospect"
-            contextId={entry.id}
-            contextLabel={orgName}
-            contextSummary={[
-              `Organisation: ${entry.raw_org_name || "—"} | Contact: ${contactName || "—"}`,
-              email ? `Email: ${email}` : null,
-              entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
-              `Status: ${entry.status}`,
-              entry.last_action ? `Last action: ${entry.last_action}` : null,
-              entry.next_action ? `Next action: ${entry.next_action}` : null,
-              entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
-            ].filter(Boolean).join("\n")}
-            allowModelUpgrade={false}
-          />
-        </div>
-      )}
-
-      {activeTab !== "chat" && (
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
@@ -1093,9 +1072,28 @@ function ProspectDetailContent() {
               )}
             </div>
           )}
+
+          {activeTab === "chat" && (
+            <div className="col-span-full">
+              <AIChatHistory
+                contextType="prospect"
+                contextId={entry.id}
+                contextLabel={orgName}
+                contextSummary={[
+                  `Organisation: ${entry.raw_org_name || "—"} | Contact: ${contactName || "—"}`,
+                  email ? `Email: ${email}` : null,
+                  entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
+                  `Status: ${entry.status}`,
+                  entry.last_action ? `Last action: ${entry.last_action}` : null,
+                  entry.next_action ? `Next action: ${entry.next_action}` : null,
+                  entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
+                ].filter(Boolean).join("\n")}
+                allowModelUpgrade={false}
+              />
+            </div>
+          )}
         </div>
       </div>
-      )}
     </div>
   );
 }
