@@ -27,3 +27,4 @@ tsconfig.tsbuildinfo
 # local workspace scratch
 work
 outputs
+__pycache__/

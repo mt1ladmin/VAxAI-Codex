@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
+  Send,
   Settings,
   Users,
 } from "lucide-react";
@@ -29,6 +30,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
+      { label: "Prospect outreach", href: "/admin/engagement/prospect-outreach", icon: Send },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Opportunities tracker", href: "/admin/engagement/pipeline", icon: Users },
