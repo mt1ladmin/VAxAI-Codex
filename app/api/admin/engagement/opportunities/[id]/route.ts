@@ -1,3 +1,4 @@
+import { logActivity } from "@/lib/engagement/activity-log";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,6 +18,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const supabase = createServiceClient();
   const { id } = await params;
   const body = await req.json();
+
+  const { data: before } = await supabase
+    .from("engagement_opportunities")
+    .select("*")
+    .eq("id", id)
+    .single();
+
   const { data, error } = await supabase
     .from("engagement_opportunities")
     .update(body)
@@ -24,6 +32,42 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+
+  if (before && data) {
+    if (body.stage && body.stage !== before.stage) {
+      await logActivity(supabase, {
+        event_type: "opportunity_stage",
+        title: `Pipeline stage → ${body.stage}`,
+        detail: before.stage ? `From ${before.stage}` : null,
+        opportunity_id: id,
+        enquiry_id: data.enquiry_id,
+        queue_id: data.queue_id,
+        contact_id: data.primary_contact_id,
+        metadata: { from: before.stage, to: body.stage, stage: body.stage },
+      });
+    }
+
+    if (body.enquiry_id && body.enquiry_id !== before.enquiry_id) {
+      await logActivity(supabase, {
+        event_type: "opportunity_linked",
+        title: "Opportunity linked to enquiry",
+        opportunity_id: id,
+        enquiry_id: body.enquiry_id,
+        contact_id: data.primary_contact_id,
+      });
+    }
+
+    if (body.queue_id && body.queue_id !== before.queue_id) {
+      await logActivity(supabase, {
+        event_type: "opportunity_linked",
+        title: "Opportunity linked to prospect queue",
+        opportunity_id: id,
+        queue_id: body.queue_id,
+        contact_id: data.primary_contact_id,
+      });
+    }
+  }
+
   return NextResponse.json({ data });
 }
 

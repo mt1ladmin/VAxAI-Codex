@@ -18,6 +18,12 @@ export const JOURNEY_STAGES = [
     path: "/admin/engagement/prospect-queue",
   },
   {
+    id: "pre_sales",
+    label: "Pre-sales pipeline",
+    description: "Discovery, proposals, and decision — track the opportunity before client onboarding.",
+    path: "/admin/engagement/pipeline",
+  },
+  {
     id: "client",
     label: "Prospect/Client",
     description: "Strategic work — proposals, onboarding, delivery planning. Work continues offline once agreed.",
@@ -40,6 +46,13 @@ export function canAdvanceToClientWork(status: string): boolean {
 
 export function journeyStageForQueueStatus(status: string): JourneyStageId {
   if (status === "Closed") return "client";
+  if (status === "Opportunity") return "pre_sales";
+  return "queue";
+}
+
+export function journeyStageForEnquiryStatus(status: string): JourneyStageId {
+  if (status === "Closed") return "client";
+  if (status === "Opportunity") return "pre_sales";
   return "queue";
 }
 

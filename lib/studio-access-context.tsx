@@ -31,7 +31,7 @@ export function StudioAccessProvider({
         isPlatformAdmin: admin,
         canUseAiAssistant: admin,
         canUseProspectQueueAi: true,
-        canUseEnquiryAi: false,
+        canUseEnquiryAi: true,
       }}
     >
       {children}

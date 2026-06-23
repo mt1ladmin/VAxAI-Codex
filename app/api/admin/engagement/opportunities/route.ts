@@ -1,3 +1,4 @@
+import { logActivity } from "@/lib/engagement/activity-log";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -49,5 +50,17 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+
+  await logActivity(supabase, {
+    event_type: "opportunity_created",
+    title: "Opportunity created",
+    detail: data.title,
+    opportunity_id: data.id,
+    enquiry_id: data.enquiry_id,
+    queue_id: data.queue_id,
+    contact_id: data.primary_contact_id,
+    metadata: { stage: data.stage },
+  });
+
   return NextResponse.json({ data }, { status: 201 });
 }

@@ -1,3 +1,5 @@
+import { logActivity } from "@/lib/engagement/activity-log";
+import { ensurePreSalesOpportunity } from "@/lib/engagement/pre-sales-pipeline";
 import { NextRequest, NextResponse } from "next/server";
 import { createSessionClient, createServiceClient } from "@/lib/supabase";
 import { PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
@@ -67,6 +69,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.pain_points_snapshot !== undefined) updates.pain_points_snapshot = body.pain_points_snapshot;
 
     const db = createServiceClient();
+
+    const { data: before } = await db.from("enquiries").select("*").eq("id", id).single();
+
     const { data, error } = await db
       .from("enquiries")
       .update(updates)
@@ -81,6 +86,66 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           : undefined;
       return NextResponse.json({ error: error.message, hint }, { status: 500 });
     }
+
+    if (before && data) {
+      if (updates.status && updates.status !== before.status) {
+        await logActivity(db, {
+          event_type: "status_change",
+          title: `Status → ${updates.status}`,
+          detail: before.status ? `From ${before.status}` : null,
+          enquiry_id: id,
+          contact_id: data.contact_id,
+          metadata: { from: before.status, to: updates.status },
+        });
+
+        if (updates.status === "Opportunity") {
+          await ensurePreSalesOpportunity(db, {
+            source: "enquiry",
+            sourceId: id,
+            title: `${data.name} — ${data.support_type}`.slice(0, 120),
+            notes: data.details,
+            desiredOutcomes: data.details,
+            organisationId: data.organisation_id,
+            contactId: data.contact_id,
+            nextAction: data.next_action,
+          });
+        }
+
+        if (updates.status === "Closed" && updates.last_action?.toString().includes("Advanced")) {
+          await logActivity(db, {
+            event_type: "advanced_to_client",
+            title: "Advanced to client work",
+            enquiry_id: id,
+            contact_id: data.contact_id,
+          });
+        }
+      }
+
+      if (updates.admin_notes && updates.admin_notes !== before.admin_notes) {
+        await logActivity(db, {
+          event_type: updates.last_action?.toString().includes("AI summary") ? "ai_summary" : "note_added",
+          title: updates.last_action?.toString().includes("AI summary") ? "AI summary saved" : "Note added",
+          detail: updates.last_action?.toString().slice(0, 200) ?? null,
+          enquiry_id: id,
+          contact_id: data.contact_id,
+        });
+      }
+
+      if (
+        (updates.next_action !== undefined && updates.next_action !== before.next_action) ||
+        (updates.next_action_date !== undefined && updates.next_action_date !== before.next_action_date)
+      ) {
+        await logActivity(db, {
+          event_type: "next_action",
+          title: "Next action updated",
+          detail: data.next_action ?? null,
+          enquiry_id: id,
+          contact_id: data.contact_id,
+          metadata: { due: data.next_action_date },
+        });
+      }
+    }
+
     return NextResponse.json({ data });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error";

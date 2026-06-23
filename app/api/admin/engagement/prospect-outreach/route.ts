@@ -1,3 +1,4 @@
+import { logActivity } from "@/lib/engagement/activity-log";
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
@@ -180,6 +181,16 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  for (const row of data ?? []) {
+    await logActivity(supabase, {
+      event_type: "queued",
+      title: "Added to prospect queue",
+      detail: row.raw_org_name ?? undefined,
+      queue_id: row.id,
+      outreach_id: row.outreach_id ?? undefined,
+    });
   }
 
   return NextResponse.json({ data, count: data?.length ?? 0 }, { status: 201 });

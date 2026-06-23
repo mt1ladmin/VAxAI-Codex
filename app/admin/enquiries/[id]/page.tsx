@@ -21,12 +21,19 @@ import {
   User,
   X,
 } from "lucide-react";
+import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
+import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
+import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { StatusSelect } from "@/components/admin/StatusSelect";
+import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
 import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { journeyStageForEnquiryStatus } from "@/lib/engagement/journey";
+import { useStudioAccess } from "@/lib/studio-access-context";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
@@ -96,7 +103,20 @@ function EnquiryDetailContent() {
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
-  const hubTabs = getCrmHubTabs(false);
+  const [chatActivityKey, setChatActivityKey] = useState(0);
+  const { canUseEnquiryAi } = useStudioAccess();
+  const hubTabs = getCrmHubTabs(canUseEnquiryAi);
+
+  useSetAIContext(
+    enquiry
+      ? {
+          type: "enquiry",
+          id: enquiry.id,
+          label: enquiry.name,
+          summary: buildEnquiryContextSummary(enquiry, opportunities),
+        }
+      : null,
+  );
 
   const loadCrmData = useCallback(async (contactId?: string | null): Promise<EngagementOpportunity[]> => {
     setLoadingCrm(true);
@@ -187,12 +207,23 @@ function EnquiryDetailContent() {
     return j.data;
   };
 
+  const bumpTimeline = () => setChatActivityKey((k) => k + 1);
+
+  const refreshAfterChat = useCallback(() => {
+    void load();
+    bumpTimeline();
+  }, [load]);
+
   const updateStatus = async (status: string) => {
     if (!enquiry || status === enquiry.status) return;
     setUpdatingStatus(true);
     setStatusError(null);
     try {
       await patchEnquiry({ status });
+      if (status === "Opportunity") {
+        await loadCrmData(enquiry.contact_id);
+      }
+      bumpTimeline();
     } catch (e) {
       setStatusError(e instanceof Error ? e.message : "Failed to update status");
     } finally {
@@ -208,6 +239,7 @@ function EnquiryDetailContent() {
     } as Partial<Enquiry>);
     setEditingNextAction(false);
     setSavingAction(false);
+    bumpTimeline();
   };
 
   const saveNote = async () => {
@@ -223,6 +255,7 @@ function EnquiryDetailContent() {
     setNoteText("");
     setShowAddNote(false);
     setSavingNote(false);
+    bumpTimeline();
   };
 
   const createTask = async () => {
@@ -501,6 +534,12 @@ function EnquiryDetailContent() {
         <div className="lg:col-span-2 space-y-4">
           {activeTab === "overview" && (
             <>
+              <JourneyStageBanner
+                currentStage={journeyStageForEnquiryStatus(enquiry.status)}
+                status={enquiry.status}
+                hint="Website enquiry — qualify the inbound need and respond."
+              />
+
               <div className="grid gap-3 sm:grid-cols-3">
                 <button type="button" onClick={() => setActiveTab("tasks")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{openTasks.length}</p>
@@ -598,41 +637,20 @@ function EnquiryDetailContent() {
           {activeTab === "activity" && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
-              {loadingCrm ? (
-                <p className="text-sm text-[#6f6b62]">Loading activity…</p>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#063b32]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#111111]">Enquiry received</p>
-                      <p className="text-xs text-[#6f6b62]">{new Date(enquiry.created_at).toLocaleString("en-GB")}</p>
-                      <p className="mt-1 text-sm text-[#6f6b62]">{enquiry.support_type} — {enquiry.details.slice(0, 120)}{enquiry.details.length > 120 ? "…" : ""}</p>
-                    </div>
-                  </div>
-                  {opportunities.map((opp) => (
-                    <Link
-                      key={opp.id}
-                      href={opportunityDetailPath(opp.id, {
-                        returnTo: `/admin/enquiries/${id}?tab=activity`,
-                        returnLabel: "Enquiry activity",
-                      })}
-                      className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50"
-                    >
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#111111]">Opportunity linked</p>
-                        <p className="text-sm text-[#111111]">{opp.title}</p>
-                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
-                      </div>
-                      <ChevronDown className="h-4 w-4 shrink-0 -rotate-90 text-[#6f6b62]" />
-                    </Link>
-                  ))}
-                  {opportunities.length === 0 && !enquiry.last_action && (
-                    <p className="text-sm text-[#6f6b62]/60 py-4 text-center">No activity yet. Create an opportunity or add a note to begin tracking.</p>
-                  )}
-                </div>
-              )}
+              <ActivityTimeline
+                enquiryId={id}
+                contactId={enquiry.contact_id ?? undefined}
+                chatContextType="enquiry"
+                chatContextId={id}
+                refreshKey={chatActivityKey}
+                seedEvents={[
+                  {
+                    title: "Enquiry received",
+                    detail: `${enquiry.support_type} — ${enquiry.details.slice(0, 200)}${enquiry.details.length > 200 ? "…" : ""}`,
+                    created_at: enquiry.created_at,
+                  },
+                ]}
+              />
             </div>
           )}
 
@@ -716,7 +734,19 @@ function EnquiryDetailContent() {
             </div>
           )}
 
-
+          {canUseEnquiryAi && activeTab === "chat" && (
+            <div className="col-span-full">
+              <AIChatHistory
+                contextType="enquiry"
+                contextId={enquiry.id}
+                contextLabel={enquiry.name}
+                contextSummary={buildEnquiryContextSummary(enquiry, opportunities)}
+                allowModelUpgrade={false}
+                onNotesSaved={refreshAfterChat}
+                onActivityRecorded={() => bumpTimeline()}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

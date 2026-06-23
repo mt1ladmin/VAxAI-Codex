@@ -242,7 +242,7 @@ export async function POST(req: NextRequest) {
     client:
       "STAGE GOAL: Help with journey summary, proposals, onboarding planning, Knowledge Hub connections, and strategic next steps. Delivery happens offline once agreed.",
     enquiry:
-      "STAGE GOAL: Understand the inbound enquiry and plan qualification — similar to early prospect queue work.",
+      "STAGE GOAL: Understand the inbound enquiry, plan qualification and response, and when status is Opportunity help with pre-sales pipeline (discovery, proposal). Judge readiness to advance to Prospect/Client work.",
   };
   const stageRules = stageGuidance[contextType] ?? "";
 

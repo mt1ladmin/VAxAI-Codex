@@ -21,7 +21,8 @@ import {
   X,
 } from "lucide-react";
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
-import { ChatActivityList } from "@/components/admin/ChatActivityList";
+import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
+import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
 import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
@@ -488,7 +489,14 @@ function ClientDetailContent() {
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-start gap-3">
+                <JourneySummaryButton
+                  contactId={id}
+                  onSaved={() => {
+                    void loadData();
+                    setChatActivityKey((k) => k + 1);
+                  }}
+                />
                 <button
                   type="button"
                   onClick={openCreateOpportunity}
@@ -729,61 +737,37 @@ function ClientDetailContent() {
           {activeTab === "activity" && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
-              <div className="space-y-3">
-                {linkedEnquiry && (
-                  <div className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#063b32]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#111111]">Website enquiry received</p>
-                      <p className="text-xs text-[#6f6b62]">{new Date(linkedEnquiry.created_at).toLocaleString("en-GB")}</p>
-                      <p className="mt-1 text-sm text-[#6f6b62]">{linkedEnquiry.support_type} — {linkedEnquiry.details.slice(0, 120)}{linkedEnquiry.details.length > 120 ? "…" : ""}</p>
-                    </div>
-                  </div>
-                )}
-                {linkedQueue && !linkedEnquiry && (
-                  <div className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#063b32]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#111111]">Added to prospect queue</p>
-                      <p className="text-xs text-[#6f6b62]">{new Date(linkedQueue.created_at).toLocaleString("en-GB")}</p>
-                    </div>
-                  </div>
-                )}
-                {(linkedEnquiry?.last_action?.includes("Converted") || linkedQueue?.last_action?.includes("Converted")) && (
-                  <div className="flex gap-3 rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-3">
-                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#063b32]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#063b32]">Converted to client</p>
-                      <p className="text-xs text-[#6f6b62]">
-                        {new Date(linkedEnquiry?.last_action_date || linkedQueue?.last_action_date || primaryOpp?.created_at || "").toLocaleString("en-GB")}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                <ChatActivityList
-                  contextType="client"
-                  contextId={id}
-                  refreshKey={chatActivityKey}
-                />
-                {opportunities.map((opp) => (
-                  <Link
-                    key={opp.id}
-                    href={opportunityDetailPath(opp.id, {
-                      returnTo: `/admin/clients/${id}?tab=activity`,
-                      returnLabel: "Client activity",
-                    })}
-                    className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50"
-                  >
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-[#111111]">Opportunity</p>
-                      <p className="text-sm text-[#111111]">{opp.title}</p>
-                      <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] ?? "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
-                    </div>
-                    <ChevronDown className="h-4 w-4 shrink-0 -rotate-90 text-[#6f6b62]" />
-                  </Link>
-                ))}
-              </div>
+              <ActivityTimeline
+                contactId={id}
+                enquiryId={linkedEnquiry?.id}
+                queueId={linkedQueue?.id}
+                chatContextType="client"
+                chatContextId={id}
+                refreshKey={chatActivityKey}
+                seedEvents={[
+                  ...(linkedEnquiry
+                    ? [{
+                        title: "Website enquiry received",
+                        detail: `${linkedEnquiry.support_type} — ${linkedEnquiry.details.slice(0, 120)}${linkedEnquiry.details.length > 120 ? "…" : ""}`,
+                        created_at: linkedEnquiry.created_at,
+                      }]
+                    : []),
+                  ...(linkedQueue && !linkedEnquiry
+                    ? [{
+                        title: "Added to prospect queue",
+                        detail: linkedQueue.raw_org_name ?? undefined,
+                        created_at: linkedQueue.created_at,
+                      }]
+                    : []),
+                  ...((linkedEnquiry?.last_action?.includes("Advanced") || linkedQueue?.last_action?.includes("Advanced")) && primaryOpp
+                    ? [{
+                        title: "Advanced to client work",
+                        created_at: linkedEnquiry?.last_action_date || linkedQueue?.last_action_date || primaryOpp.created_at,
+                        dotClass: "bg-[#063b32]",
+                      }]
+                    : []),
+                ]}
+              />
             </div>
           )}
 

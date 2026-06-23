@@ -1,3 +1,4 @@
+import { logActivity } from "@/lib/engagement/activity-log";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -52,6 +53,12 @@ export async function POST(req: NextRequest) {
       .eq("id", contextId);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await logActivity(supabase, {
+      event_type: "ai_summary",
+      title: `AI summary: ${title.trim().slice(0, 60)}`,
+      detail: summary.trim().slice(0, 300),
+      enquiry_id: contextId,
+    });
     return NextResponse.json({ data: { saved: true } });
   }
 
@@ -77,6 +84,12 @@ export async function POST(req: NextRequest) {
       .eq("id", contextId);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await logActivity(supabase, {
+      event_type: "ai_summary",
+      title: `AI summary: ${title.trim().slice(0, 60)}`,
+      detail: summary.trim().slice(0, 300),
+      queue_id: contextId,
+    });
     return NextResponse.json({ data: { saved: true } });
   }
 
@@ -123,6 +136,12 @@ export async function POST(req: NextRequest) {
       .eq("id", contextId);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await logActivity(supabase, {
+      event_type: "ai_summary",
+      title: `AI summary: ${title.trim().slice(0, 60)}`,
+      detail: summary.trim().slice(0, 300),
+      contact_id: contextId,
+    });
     return NextResponse.json({ data: { saved: true } });
   }
 

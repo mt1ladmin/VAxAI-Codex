@@ -25,7 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
-import { ChatActivityList } from "@/components/admin/ChatActivityList";
+import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
@@ -35,7 +35,7 @@ import { StatusSelect } from "@/components/admin/StatusSelect";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildProspectContextSummary } from "@/lib/ai/context-builders";
-import { ADVANCE_ACTION_LABEL } from "@/lib/engagement/journey";
+import { ADVANCE_ACTION_LABEL, journeyStageForQueueStatus } from "@/lib/engagement/journey";
 import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import { outreachSummaryForConversion, syncQueueFromSnapshot } from "@/lib/engagement/prospect-outreach/snapshot";
 import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
@@ -258,12 +258,19 @@ function ProspectDetailContent() {
     return j.data;
   };
 
+  const bumpTimeline = () => setChatActivityKey((k) => k + 1);
+
   const updateStatus = async (status: string) => {
     if (!entry || status === entry.status) return;
     setUpdatingStatus(true);
     setStatusError(null);
     try {
       await patchEntry({ status, last_action_date: new Date().toISOString() });
+      if (status === "Opportunity") {
+        const opps = await loadCrmData(entry.contact_id, entry.organisation_id);
+        await loadTasks(entry.contact_id, entry.organisation_id, opps);
+      }
+      bumpTimeline();
     } catch (e) {
       setStatusError(e instanceof Error ? e.message : "Failed to update status");
     } finally {
@@ -279,6 +286,7 @@ function ProspectDetailContent() {
     });
     setEditingNextAction(false);
     setSavingAction(false);
+    bumpTimeline();
   };
 
   const saveContact = async () => {
@@ -304,6 +312,7 @@ function ProspectDetailContent() {
     setNoteText("");
     setShowAddNote(false);
     setSavingNote(false);
+    bumpTimeline();
   };
 
   const createTask = async () => {
@@ -699,7 +708,10 @@ function ProspectDetailContent() {
         <div className="lg:col-span-2 space-y-4">
           {activeTab === "overview" && (
             <>
-              <JourneyStageBanner currentStage="queue" status={entry.status} />
+              <JourneyStageBanner
+                currentStage={journeyStageForQueueStatus(entry.status)}
+                status={entry.status}
+              />
 
               <div className="grid gap-3 sm:grid-cols-3">
                 <button type="button" onClick={() => setActiveTab("tasks")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
@@ -852,46 +864,20 @@ function ProspectDetailContent() {
           {activeTab === "activity" && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
-              {loadingCrm ? (
-                <p className="text-sm text-[#6f6b62]">Loading activity…</p>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#063b32]" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#111111]">Prospect added</p>
-                      <p className="text-xs text-[#6f6b62]">{new Date(entry.created_at).toLocaleString("en-GB")}</p>
-                      <p className="mt-1 text-sm text-[#6f6b62]">{orgName}</p>
-                    </div>
-                  </div>
-                  <ChatActivityList
-                    contextType="prospect"
-                    contextId={id}
-                    refreshKey={chatActivityKey}
-                  />
-                  {opportunities.map((opp) => (
-                    <Link
-                      key={opp.id}
-                      href={opportunityDetailPath(opp.id, {
-                        returnTo: `/admin/engagement/prospect-queue/${id}?tab=activity`,
-                        returnLabel: "Prospect activity",
-                      })}
-                      className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50"
-                    >
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#111111]">Opportunity linked</p>
-                        <p className="text-sm text-[#111111]">{opp.title}</p>
-                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
-                      </div>
-                      <ChevronDown className="h-4 w-4 shrink-0 -rotate-90 text-[#6f6b62]" />
-                    </Link>
-                  ))}
-                  {opportunities.length === 0 && !entry.last_action && (
-                    <p className="text-sm text-[#6f6b62]/60 py-4 text-center">No activity yet. Create an opportunity or add a note to begin tracking.</p>
-                  )}
-                </div>
-              )}
+              <ActivityTimeline
+                queueId={id}
+                contactId={entry.contact_id ?? undefined}
+                chatContextType="prospect"
+                chatContextId={id}
+                refreshKey={chatActivityKey}
+                seedEvents={[
+                  {
+                    title: "Prospect added to queue",
+                    detail: orgName,
+                    created_at: entry.created_at,
+                  },
+                ]}
+              />
             </div>
           )}
 

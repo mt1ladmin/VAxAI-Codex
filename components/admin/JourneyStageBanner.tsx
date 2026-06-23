@@ -56,6 +56,11 @@ export function JourneyStageBanner({ currentStage, status, hint }: Props) {
           {ADVANCE_READY_STATUSES.map((s) => `"${s}"`).join(", ")} — e.g. after a positive meeting or agreed follow-up.
         </p>
       )}
+      {currentStage === "pre_sales" && (
+        <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          Pre-sales pipeline is active — track discovery, proposals, and decision here. Advance to client work once there is agreement to proceed.
+        </p>
+      )}
       {currentStage === "outreach" && (
         <Link
           href="/admin/engagement/knowledge?tab=sectors"

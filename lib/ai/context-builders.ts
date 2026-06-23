@@ -3,6 +3,46 @@ import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue
 import type { ProspectQueueEntry, EngagementContact, EngagementOpportunity } from "@/lib/engagement/types";
 import { canAdvanceToClientWork } from "@/lib/engagement/journey";
 
+type EnquiryLike = {
+  name: string;
+  email: string;
+  support_type: string;
+  details: string;
+  status: string;
+  telephone?: string | null;
+  wants_discovery_call?: boolean;
+  admin_notes?: string | null;
+  next_action?: string | null;
+  last_action?: string | null;
+};
+
+export function buildEnquiryContextSummary(
+  enquiry: EnquiryLike,
+  opportunities?: EngagementOpportunity[],
+): string {
+  const preSales = opportunities?.find(
+    (o) => !["Won", "Onboarding planned", "Onboarding", "Active client", "Lost", "Not suitable"].includes(o.stage),
+  );
+
+  return [
+    `JOURNEY STAGE: Website enquiry (inbound qualification)`,
+    `Status: ${enquiry.status}${enquiry.status === "Opportunity" ? " — pre-sales pipeline active" : ""}`,
+    `Contact: ${enquiry.name}`,
+    `Email: ${enquiry.email}`,
+    enquiry.telephone ? `Phone: ${enquiry.telephone}` : null,
+    `Query type: ${enquiry.support_type}`,
+    `Details: ${enquiry.details}`,
+    enquiry.wants_discovery_call ? `Wants discovery call: yes` : null,
+    preSales ? `Pre-sales opportunity: ${preSales.title} | Stage: ${preSales.stage}` : null,
+    enquiry.next_action ? `Next action: ${enquiry.next_action}` : null,
+    enquiry.last_action ? `Last action: ${enquiry.last_action}` : null,
+    enquiry.admin_notes ? `Team notes:\n${enquiry.admin_notes}` : null,
+    `YOUR FOCUS: Understand the inbound need, plan qualification and response, suggest pre-sales steps when interest is confirmed, and judge readiness to advance to Prospect/Client work. Use Knowledge Hub for sector-specific language.`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export function buildOutreachContextSummary(
   record: ProspectOutreachRecord,
   reviewNotes?: string | null,
