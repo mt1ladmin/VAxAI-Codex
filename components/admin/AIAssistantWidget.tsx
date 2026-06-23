@@ -48,21 +48,21 @@ const TYPE_BADGE: Record<string, string> = {
   prospect: "bg-amber-100 text-amber-700",
 };
 
-const TYPE_BORDER: Record<string, string> = {
-  enquiry: "border-l-violet-400",
-  client: "border-l-[#063b32]",
-  prospect: "border-l-amber-400",
+const TYPE_DOT: Record<string, string> = {
+  enquiry: "bg-violet-500",
+  client: "bg-[#063b32]",
+  prospect: "bg-amber-500",
 };
 
-type PanelSize = "default" | "large" | "xl";
+type PanelSize = "large" | "xl";
 
 const PANEL_SIZES: Record<PanelSize, { width: number; height: number }> = {
-  default: { width: 400, height: 520 },
   large: { width: 500, height: 640 },
   xl: { width: 620, height: 760 },
 };
 
-const PANEL_SIZE_ORDER: PanelSize[] = ["default", "large", "xl"];
+const PANEL_MIN = { width: 380, height: 420 };
+const PANEL_MAX = { width: 920, height: 900 };
 
 const TYPE_LABEL: Record<string, string> = {
   enquiry: "Enquiry",
@@ -144,6 +144,7 @@ function ChatPanel({
   contextSummary,
   allowModelUpgrade,
   onChangeContext,
+  showContextSwitcher = true,
 }: {
   contextType: string;
   contextId: string;
@@ -151,6 +152,7 @@ function ChatPanel({
   contextSummary: string;
   allowModelUpgrade: boolean;
   onChangeContext: () => void;
+  showContextSwitcher?: boolean;
 }) {
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [session, setSession] = useState<AISession | null>(null);
@@ -164,6 +166,7 @@ function ChatPanel({
   const [error, setError] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const modelMenuRef = useRef<HTMLDivElement>(null);
 
   const loadSession = useCallback(async () => {
     setSessionLoading(true);
@@ -199,6 +202,17 @@ function ChatPanel({
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (!showModelMenu) return;
+    const close = (e: MouseEvent) => {
+      if (modelMenuRef.current && !modelMenuRef.current.contains(e.target as Node)) {
+        setShowModelMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [showModelMenu]);
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -266,44 +280,52 @@ function ChatPanel({
   const suggestedList = SUGGESTED[contextType] ?? SUGGESTED.default;
   const selectedModel = MODEL_OPTIONS.find((m) => m.id === model) ?? MODEL_OPTIONS[0];
 
+  const typeDot = TYPE_DOT[contextType] ?? "bg-gray-400";
+
   return (
     <div className="flex h-full flex-col bg-white">
-      {/* Sub-header: context + model */}
-      <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/8 bg-[#faf9f6] px-3 py-2 gap-2">
-        <button
-          type="button"
-          onClick={onChangeContext}
-          className="flex min-w-0 items-center gap-1.5 rounded-full border border-[#111111]/10 bg-white px-2.5 py-1 text-xs font-semibold text-[#111111] shadow-sm hover:border-[#063b32]/25 max-w-[200px]"
-          title="Change context"
-        >
-          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
-            {TYPE_LABEL[contextType] ?? contextType}
-          </span>
-          <span className="truncate">{contextLabel}</span>
-          <ChevronDown className="h-3 w-3 shrink-0 text-[#6f6b62]" />
-        </button>
+      {/* Toolbar */}
+      <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/6 px-3 py-2">
+        {showContextSwitcher ? (
+          <button
+            type="button"
+            onClick={onChangeContext}
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-0.5 text-left hover:bg-[#111111]/[0.03]"
+            title={`${TYPE_LABEL[contextType] ?? contextType} — click to change`}
+          >
+            <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
+            <span className="truncate text-xs font-medium text-[#111111]">{contextLabel}</span>
+            <ChevronDown className="h-3 w-3 shrink-0 text-[#6f6b62]/70" />
+          </button>
+        ) : (
+          <div className="flex min-w-0 flex-1 items-center gap-2 px-1">
+            <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
+            <span className="truncate text-xs font-medium text-[#111111]">{contextLabel}</span>
+          </div>
+        )}
 
-        {/* Model selector */}
-        <div className="relative">
+        <div className="relative shrink-0" ref={modelMenuRef}>
           <button
             type="button"
             onClick={() => setShowModelMenu((v) => !v)}
-            className="flex items-center gap-1 rounded-full border border-[#111111]/10 bg-white px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62] shadow-sm hover:border-[#063b32]/25"
+            className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] text-[#6f6b62] hover:bg-[#111111]/[0.03] hover:text-[#111111]"
           >
             {selectedModel.label}
-            <ChevronDown className="h-3 w-3" />
+            <ChevronDown className="h-3 w-3 opacity-60" />
           </button>
           {showModelMenu && (
-            <div className="absolute right-0 top-8 z-10 w-44 rounded-xl border border-[#111111]/10 bg-white shadow-xl">
+            <div className="absolute right-0 top-full z-20 mt-1 w-48 overflow-hidden rounded-xl border border-[#111111]/8 bg-white py-1 shadow-lg">
               {MODEL_OPTIONS.filter((o) => allowModelUpgrade || o.id === "claude-haiku-4-5-20251001").map((o) => (
                 <button
                   key={o.id}
                   type="button"
                   onClick={() => { setModel(o.id); setShowModelMenu(false); }}
-                  className="flex w-full items-center justify-between px-3 py-2 text-xs hover:bg-[#f7f4ea] first:rounded-t-xl last:rounded-b-xl"
+                  className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs hover:bg-[#faf9f6] ${
+                    model === o.id ? "bg-[#063b32]/5 text-[#063b32]" : "text-[#111111]"
+                  }`}
                 >
-                  <span className="font-semibold text-[#111111]">{o.label}</span>
-                  <span className="text-[#6f6b62]">{o.note}</span>
+                  <span className="font-medium">{o.label}</span>
+                  <span className="text-[10px] text-[#6f6b62]">{o.note}</span>
                 </button>
               ))}
             </div>
@@ -489,47 +511,82 @@ function ContextPicker({
 export function AIAssistantWidget() {
   const { context, setContext } = useAIAssistantContext();
   const [isOpen, setIsOpen] = useState(false);
-  const [panelSize, setPanelSize] = useState<PanelSize>("default");
+  const [panelSize, setPanelSize] = useState<PanelSize>("large");
+  const [customSize, setCustomSize] = useState<{ width: number; height: number } | null>(null);
   const [showPicker, setShowPicker] = useState(false);
-  const [manualContext, setManualContext] = useState<{
-    type: string;
-    id: string;
-    label: string;
-  } | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const resizeDrag = useRef<{ startX: number; startY: number; startW: number; startH: number } | null>(null);
 
-  // Resolve active context (manual override takes precedence)
-  const activeType = manualContext?.type ?? context.type ?? null;
-  const activeId = manualContext?.id ?? context.id ?? null;
-  const activeLabel = manualContext?.label ?? context.label ?? null;
-  const activeSummary = context.summary ?? buildContextSummary(activeType as AIContextType, activeLabel);
+  const activeType = context.type;
+  const activeId = context.id;
+  const activeLabel = context.label;
+  const activeSummary = context.summary ?? buildContextSummary(activeType, activeLabel);
 
   const hasContext = !!(activeType && activeId);
   const allowModelUpgrade = activeType === "client";
 
   const handleSelectContext = (type: string, id: string, label: string) => {
-    setManualContext({ type, id, label });
+    setContext({
+      type: type as AIContextType,
+      id,
+      label,
+      summary: buildContextSummary(type as AIContextType, label),
+    });
     setShowPicker(false);
   };
 
   const handleChangeContext = () => {
-    setManualContext(null);
     setShowPicker(true);
   };
 
-  const cyclePanelSize = () => {
-    const idx = PANEL_SIZE_ORDER.indexOf(panelSize);
-    setPanelSize(PANEL_SIZE_ORDER[(idx + 1) % PANEL_SIZE_ORDER.length]);
+  const openPanel = () => {
+    setIsOpen(true);
+    setPanelSize("large");
+    setCustomSize(null);
   };
 
-  const panelDimensions = PANEL_SIZES[panelSize];
-  const contextBorder = activeType ? TYPE_BORDER[activeType] ?? "border-l-[#063b32]" : "border-l-[#063b32]";
+  const cyclePanelSize = () => {
+    setCustomSize(null);
+    setPanelSize((s) => (s === "large" ? "xl" : "large"));
+  };
+
+  const panelDimensions = customSize ?? PANEL_SIZES[panelSize];
+
+  const startResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    resizeDrag.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startW: panelDimensions.width,
+      startH: panelDimensions.height,
+    };
+
+    const onMove = (ev: MouseEvent) => {
+      if (!resizeDrag.current) return;
+      const dw = resizeDrag.current.startX - ev.clientX;
+      const dh = resizeDrag.current.startY - ev.clientY;
+      setCustomSize({
+        width: Math.min(PANEL_MAX.width, Math.max(PANEL_MIN.width, resizeDrag.current.startW + dw)),
+        height: Math.min(PANEL_MAX.height, Math.max(PANEL_MIN.height, resizeDrag.current.startH + dh)),
+      });
+    };
+
+    const onUp = () => {
+      resizeDrag.current = null;
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  };
 
   return (
     <>
       {/* Floating trigger button */}
       <button
         type="button"
-        onClick={() => setIsOpen((v) => !v)}
+        onClick={() => (isOpen ? setIsOpen(false) : openPanel())}
         className="fixed bottom-6 right-6 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#063b32] shadow-lg hover:bg-[#1a5c42] transition-colors"
         title="AI Assistant"
       >
@@ -543,31 +600,32 @@ export function AIAssistantWidget() {
       {/* Panel */}
       {isOpen && (
         <div
-          className={`fixed bottom-20 right-6 z-40 flex flex-col rounded-2xl border border-[#111111]/10 border-l-4 ${contextBorder} bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden transition-[width,height] duration-200 ease-out`}
+          ref={panelRef}
+          className="fixed bottom-20 right-6 z-40 flex flex-col rounded-2xl border border-[#111111]/10 bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden transition-[width,height] duration-150 ease-out"
           style={{ width: panelDimensions.width, height: panelDimensions.height }}
         >
+          {/* Manual resize — drag top-left corner */}
+          <button
+            type="button"
+            aria-label="Resize panel"
+            onMouseDown={startResize}
+            className="absolute left-0 top-0 z-50 h-4 w-4 cursor-nwse-resize rounded-tl-2xl hover:bg-[#111111]/5"
+            title="Drag to resize"
+          />
+
           {/* Header */}
           <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
             <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
               <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
             </div>
             <span className="flex-1 text-sm font-semibold text-white">AI Assistant</span>
-            {hasContext && !showPicker && (
-              <button
-                type="button"
-                onClick={handleChangeContext}
-                className="text-[10px] text-white/50 hover:text-white/80 underline"
-              >
-                change
-              </button>
-            )}
             <button
               type="button"
               onClick={cyclePanelSize}
               className="grid h-7 w-7 place-items-center rounded-md text-white/50 hover:bg-white/10 hover:text-white"
-              title={`Panel size: ${panelSize === "default" ? "Standard" : panelSize === "large" ? "Large" : "Extra large"} — click to resize`}
+              title={panelSize === "xl" ? "Shrink to large" : "Expand to extra large"}
             >
-              {panelSize === "xl" ? (
+              {panelSize === "xl" && !customSize ? (
                 <Minimize2 className="h-3.5 w-3.5" />
               ) : (
                 <Maximize2 className="h-3.5 w-3.5" />
@@ -618,22 +676,20 @@ export function AIChatHistory({
   contextSummary: string;
   allowModelUpgrade?: boolean;
 }) {
-  const contextBorder = TYPE_BORDER[contextType] ?? "border-l-[#063b32]";
+  const typeDot = TYPE_DOT[contextType] ?? "bg-gray-400";
 
   return (
     <div
-      className={`flex flex-col rounded-xl border border-[#111111]/10 border-l-4 ${contextBorder} overflow-hidden shadow-sm`}
+      className="flex flex-col rounded-xl border border-[#111111]/10 overflow-hidden shadow-sm"
       style={{ minHeight: "500px" }}
     >
       <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
         <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
           <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
         </div>
-        <span className="flex-1 text-sm font-semibold text-white">AI conversation history</span>
-        <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
-          {TYPE_LABEL[contextType] ?? contextType}
-        </span>
-        <span className="text-xs text-white/60">{contextLabel}</span>
+        <span className="flex-1 text-sm font-semibold text-white">AI Chat</span>
+        <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
+        <span className="truncate text-xs text-white/70">{contextLabel}</span>
       </div>
       <div className="flex flex-1 flex-col">
         <ChatPanel
@@ -643,6 +699,7 @@ export function AIChatHistory({
           contextSummary={contextSummary}
           allowModelUpgrade={allowModelUpgrade ?? false}
           onChangeContext={() => {}}
+          showContextSwitcher={false}
         />
       </div>
     </div>
