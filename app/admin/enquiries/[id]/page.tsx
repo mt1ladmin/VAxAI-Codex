@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Briefcase,
@@ -42,6 +42,7 @@ import type {
   Persona,
   SectorProfile,
 } from "@/lib/engagement/types";
+import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
 type HubTab = "overview" | "preps" | "calls" | "opportunities" | "notes" | "activity" | "chat";
@@ -55,6 +56,8 @@ const HUB_TABS: Array<{ id: HubTab; label: string }> = [
   { id: "activity", label: "Activity" },
   { id: "chat", label: "AI Chat" },
 ];
+
+const VALID_HUB_TABS = new Set<string>(HUB_TABS.map((t) => t.id));
 
 type Enquiry = {
   id: string;
@@ -85,9 +88,10 @@ function gmailComposeUrl(email: string) {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
 }
 
-export default function EnquiryDetailPage() {
+function EnquiryDetailContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [enquiry, setEnquiry] = useState<Enquiry | null>(null);
   const [linkedContact, setLinkedContact] = useState<EngagementContact | null>(null);
   const [loading, setLoading] = useState(true);
@@ -122,7 +126,7 @@ export default function EnquiryDetailPage() {
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
-  const [expandedActivityOppId, setExpandedActivityOppId] = useState<string | null>(null);
+
 
   // Auto-set global AI assistant context when enquiry data is loaded
   useSetAIContext(
@@ -221,6 +225,13 @@ export default function EnquiryDetailPage() {
   }, [id, loadLinkedPreps, loadCrmData]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && VALID_HUB_TABS.has(tab)) {
+      setActiveTab(tab as HubTab);
+    }
+  }, [searchParams]);
 
   const patchEnquiry = async (updates: Partial<Enquiry>) => {
     const res = await fetch(`/api/admin/enquiries/${id}`, {
@@ -769,24 +780,22 @@ export default function EnquiryDetailPage() {
                     </div>
                   ))}
                   {opportunities.map((opp) => (
-                    <div key={opp.id} className="space-y-2">
-                      <button
-                        type="button"
-                        onClick={() => setExpandedActivityOppId((id) => (id === opp.id ? null : opp.id))}
-                        className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 text-left hover:bg-amber-50"
-                      >
-                        <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-[#111111]">Opportunity linked</p>
-                          <p className="text-sm text-[#111111]">{opp.title}</p>
-                          <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
-                        </div>
-                        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expandedActivityOppId === opp.id ? "rotate-180" : ""}`} />
-                      </button>
-                      {expandedActivityOppId === opp.id && (
-                        <OpportunityPreviewCard opportunity={opp} defaultExpanded editable onUpdated={handleOpportunityUpdated} />
-                      )}
-                    </div>
+                    <Link
+                      key={opp.id}
+                      href={opportunityDetailPath(opp.id, {
+                        returnTo: `/admin/enquiries/${id}?tab=activity`,
+                        returnLabel: "Enquiry activity",
+                      })}
+                      className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50"
+                    >
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-[#111111]">Opportunity linked</p>
+                        <p className="text-sm text-[#111111]">{opp.title}</p>
+                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] || "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
+                      </div>
+                      <ChevronDown className="h-4 w-4 shrink-0 -rotate-90 text-[#6f6b62]" />
+                    </Link>
                   ))}
                   {interactions.length === 0 && linkedPreps.length === 0 && opportunities.length === 0 && !enquiry.last_action && (
                     <p className="text-sm text-[#6f6b62]/60 py-4 text-center">No activity yet. Start a call or add a note to begin tracking.</p>
@@ -912,7 +921,14 @@ export default function EnquiryDetailPage() {
               {opportunities.length > 0 ? (
                 <div className="space-y-2">
                   {opportunities.map((opp) => (
-                    <OpportunityPreviewCard key={opp.id} opportunity={opp} editable onUpdated={handleOpportunityUpdated} />
+                    <OpportunityPreviewCard
+                      key={opp.id}
+                      opportunity={opp}
+                      editable
+                      onUpdated={handleOpportunityUpdated}
+                      returnTo={`/admin/enquiries/${id}?tab=opportunities`}
+                      returnLabel="Enquiry opportunities"
+                    />
                   ))}
                 </div>
               ) : (
@@ -975,5 +991,13 @@ export default function EnquiryDetailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EnquiryDetailPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-[#6f6b62]">Loading…</div>}>
+      <EnquiryDetailContent />
+    </Suspense>
   );
 }

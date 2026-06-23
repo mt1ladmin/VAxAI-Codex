@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Briefcase,
@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
+import { opportunityReturnLabel, safeReturnTo } from "@/lib/engagement/opportunity-nav";
 import { OpportunityCreatedFrom } from "@/components/admin/OpportunityCreatedFrom";
 import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
 import {
@@ -28,9 +29,15 @@ import {
 const inputClass =
   "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]";
 
-export default function OpportunityDetailPage() {
+function OpportunityDetailContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnHref = safeReturnTo(searchParams.get("returnTo"));
+  const returnLabel = opportunityReturnLabel(
+    searchParams.get("returnTo"),
+    searchParams.get("returnLabel"),
+  );
   const [opp, setOpp] = useState<EngagementOpportunity | null>(null);
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
@@ -352,10 +359,10 @@ export default function OpportunityDetailPage() {
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
         <Link
-          href="/admin/engagement/pipeline?tab=opportunities"
+          href={returnHref}
           className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> Opportunities
+          <ArrowLeft className="h-3.5 w-3.5" /> {returnLabel}
         </Link>
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -753,5 +760,13 @@ export default function OpportunityDetailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OpportunityDetailPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-[#6f6b62]">Loading…</div>}>
+      <OpportunityDetailContent />
+    </Suspense>
   );
 }

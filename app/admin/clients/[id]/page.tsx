@@ -31,6 +31,7 @@ import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCar
 import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
+import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import type {
   EngagementContact,
@@ -125,7 +126,6 @@ function ClientDetailContent() {
   const [linkedQueue, setLinkedQueue] = useState<ProspectQueueEntry | null>(null);
   const [linkedPreps, setLinkedPreps] = useState<ProspectPrepClient[]>([]);
   const [expandedPrepCards, setExpandedPrepCards] = useState<Record<string, boolean>>({});
-  const [expandedActivityOppId, setExpandedActivityOppId] = useState<string | null>(null);
   const [updatingStage, setUpdatingStage] = useState(false);
   const [showCreateOppModal, setShowCreateOppModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -930,24 +930,22 @@ function ClientDetailContent() {
                   </div>
                 ))}
                 {opportunities.map((opp) => (
-                  <div key={opp.id} className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={() => setExpandedActivityOppId((cur) => (cur === opp.id ? null : opp.id))}
-                      className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 text-left hover:bg-amber-50"
-                    >
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#111111]">Opportunity</p>
-                        <p className="text-sm text-[#111111]">{opp.title}</p>
-                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] ?? "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
-                      </div>
-                      <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expandedActivityOppId === opp.id ? "rotate-180" : ""}`} />
-                    </button>
-                    {expandedActivityOppId === opp.id && (
-                      <OpportunityPreviewCard opportunity={opp} defaultExpanded hidePipelineLink editable clientContext onUpdated={handleOpportunityUpdated} />
-                    )}
-                  </div>
+                  <Link
+                    key={opp.id}
+                    href={opportunityDetailPath(opp.id, {
+                      returnTo: `/admin/clients/${id}?tab=activity`,
+                      returnLabel: "Client activity",
+                    })}
+                    className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50"
+                  >
+                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-[#111111]">Opportunity</p>
+                      <p className="text-sm text-[#111111]">{opp.title}</p>
+                      <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] ?? "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 shrink-0 -rotate-90 text-[#6f6b62]" />
+                  </Link>
                 ))}
               </div>
             </div>
@@ -1158,7 +1156,15 @@ function ClientDetailContent() {
               ) : (
                 <div className="space-y-2">
                   {opportunities.map((opp) => (
-                    <OpportunityPreviewCard key={opp.id} opportunity={opp} hidePipelineLink editable clientContext onUpdated={handleOpportunityUpdated} />
+                    <OpportunityPreviewCard
+                      key={opp.id}
+                      opportunity={opp}
+                      editable
+                      clientContext
+                      onUpdated={handleOpportunityUpdated}
+                      returnTo={`/admin/clients/${id}?tab=opportunities`}
+                      returnLabel="Client opportunities"
+                    />
                   ))}
                 </div>
               )}

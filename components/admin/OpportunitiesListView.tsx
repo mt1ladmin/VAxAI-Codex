@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { Building2, Plus, Users } from "lucide-react";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
+import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
 import {
   NEXT_ACTION_FILTER_OPTIONS,
   SOURCE_FILTER_OPTIONS,
@@ -200,9 +201,23 @@ export function OpportunitiesListView({
                     key={opp.id}
                     role="button"
                     tabIndex={0}
-                    onClick={() => router.push(`/admin/engagement/pipeline/opportunities/${opp.id}`)}
+                    onClick={() =>
+                      router.push(
+                        opportunityDetailPath(opp.id, {
+                          returnTo: "/admin/engagement/pipeline?tab=opportunities",
+                          returnLabel: "Opportunities",
+                        }),
+                      )
+                    }
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") router.push(`/admin/engagement/pipeline/opportunities/${opp.id}`);
+                      if (e.key === "Enter") {
+                        router.push(
+                          opportunityDetailPath(opp.id, {
+                            returnTo: "/admin/engagement/pipeline?tab=opportunities",
+                            returnLabel: "Opportunities",
+                          }),
+                        );
+                      }
                     }}
                     className={`${tableCols} min-w-[900px] px-5 py-3.5 cursor-pointer hover:bg-[#f7f4ea]/60 transition-colors`}
                   >
