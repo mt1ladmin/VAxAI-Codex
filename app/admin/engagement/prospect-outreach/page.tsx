@@ -6,20 +6,17 @@ import {
   ArrowRight,
   BookOpen,
   ChevronDown,
-  ExternalLink,
   Filter,
   Inbox,
   Loader2,
-  Mail,
-  MapPin,
-  Phone,
+  Save,
   Search,
   Send,
-  User,
 } from "lucide-react";
+import { AddToProspectQueueModal } from "@/components/admin/AddToProspectQueueModal";
+import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 import type { ProspectOutreachMeta, ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import {
-  CONFIDENCE_COLORS,
   NEED_SCORE_COLORS,
   OUTREACH_REGIONS,
 } from "@/lib/engagement/prospect-outreach/types";
@@ -65,23 +62,21 @@ function CustomSelect({
   );
 }
 
-function formatRevenue(n: number | null) {
-  if (!n) return "—";
-  if (n >= 1_000_000) return `£${(n / 1_000_000).toFixed(2)}M`;
-  return `£${n.toLocaleString("en-GB")}`;
-}
-
 export default function ProspectOutreachPage() {
   const [prospects, setProspects] = useState<ProspectOutreachRecord[]>([]);
   const [meta, setMeta] = useState<ProspectOutreachMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [queueing, setQueueing] = useState(false);
   const [search, setSearch] = useState("");
   const [region, setRegion] = useState("");
   const [needScore, setNeedScore] = useState("");
   const [confidence, setConfidence] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<ProspectOutreachRecord | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [queueModalOpen, setQueueModalOpen] = useState(false);
+  const [queueModalProspects, setQueueModalProspects] = useState<ProspectOutreachRecord[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -97,7 +92,7 @@ export default function ProspectOutreachPage() {
     setLoading(false);
   }, [region, needScore, confidence, search]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
   const selected = useMemo(
     () => prospects.find((p) => p.id === selectedId) ?? prospects[0] ?? null,
@@ -108,25 +103,37 @@ export default function ProspectOutreachPage() {
     if (prospects.length && !selectedId) setSelectedId(prospects[0].id);
   }, [prospects, selectedId]);
 
+  useEffect(() => {
+    if (selected) setDraft(selected);
+    setEditing(false);
+  }, [selected?.id]);
+
   const highNeedCount = useMemo(() => prospects.filter((p) => p.need_score >= 4).length, [prospects]);
 
-  async function addToQueue(ids: string[]) {
-    setQueueing(true);
+  async function saveEdits() {
+    if (!draft) return;
+    setSaving(true);
     try {
       const res = await fetch("/api/admin/engagement/prospect-outreach", {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids }),
+        body: JSON.stringify({ outreach_id: draft.id, overrides: draft }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed");
-      alert(`Added ${json.count} prospect(s) to the queue.`);
-      setSelectedIds(new Set());
+      if (!res.ok) throw new Error(json.error || "Failed to save");
+      setProspects((prev) => prev.map((p) => (p.id === draft.id ? json.data : p)));
+      setEditing(false);
     } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to add to queue");
+      alert(e instanceof Error ? e.message : "Failed to save");
     } finally {
-      setQueueing(false);
+      setSaving(false);
     }
+  }
+
+  function openQueueModal(ids: string[]) {
+    const items = prospects.filter((p) => ids.includes(p.id));
+    setQueueModalProspects(items);
+    setQueueModalOpen(true);
   }
 
   function toggleSelect(id: string) {
@@ -140,6 +147,17 @@ export default function ProspectOutreachPage() {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
+      <AddToProspectQueueModal
+        open={queueModalOpen}
+        prospects={queueModalProspects}
+        onClose={() => setQueueModalOpen(false)}
+        onAdded={() => {
+          setQueueModalOpen(false);
+          setSelectedIds(new Set());
+          void load();
+        }}
+      />
+
       <div className="shrink-0 border-b border-[#111111]/10 bg-white px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -147,7 +165,7 @@ export default function ProspectOutreachPage() {
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">Prospect outreach</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
               Researched prospects for VAxAI admin support and AI/automation training.
-              {meta ? ` ${meta.total_count} organisations · research date ${meta.research_date}.` : ""}
+              {meta ? ` ${meta.total_count} available · research date ${meta.research_date}.` : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -219,11 +237,10 @@ export default function ProspectOutreachPage() {
           {selectedIds.size > 0 && (
             <button
               type="button"
-              disabled={queueing}
-              onClick={() => addToQueue([...selectedIds])}
-              className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              onClick={() => openQueueModal([...selectedIds])}
+              className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
             >
-              {queueing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              <Send className="h-4 w-4" />
               Add {selectedIds.size} to queue
             </button>
           )}
@@ -274,122 +291,62 @@ export default function ProspectOutreachPage() {
         </div>
 
         <div className="flex-1 overflow-auto bg-white p-6">
-          {!selected ? (
+          {!draft ? (
             <p className="text-[#6f6b62]">Select a prospect to view details.</p>
           ) : (
             <div className="max-w-3xl space-y-6">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-serif text-xl text-[#111111]">{selected.organisation_name}</h2>
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${NEED_SCORE_COLORS[selected.need_score]}`}>
-                    Need {selected.need_score}/5
-                  </span>
-                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${CONFIDENCE_COLORS[selected.data_confidence]}`}>
-                    {selected.data_confidence}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm text-[#6f6b62]">
-                  {selected.organisation_type} · {selected.location}, {selected.region}
-                  {selected.priority_region === "secondary" && " · secondary focus"}
-                  {selected.priority_region === "deprioritized" && " · deprioritized"}
-                </p>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-xl border border-[#111111]/10 p-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Decision maker</p>
-                  <p className="mt-1 flex items-center gap-2 text-sm font-medium">
-                    <User className="h-4 w-4 text-[#063b32]" />
-                    {selected.decision_maker_name || "Not captured"}
-                    {selected.decision_maker_role && (
-                      <span className="font-normal text-[#6f6b62]">— {selected.decision_maker_role}</span>
-                    )}
-                  </p>
-                  {selected.email && (
-                    <a href={`mailto:${selected.email}`} className="mt-2 flex items-center gap-2 text-sm text-[#063b32] hover:underline">
-                      <Mail className="h-4 w-4" /> {selected.email}
-                    </a>
-                  )}
-                  {selected.phone && (
-                    <a href={`tel:${selected.phone.replace(/\s/g, "")}`} className="mt-1 flex items-center gap-2 text-sm text-[#063b32] hover:underline">
-                      <Phone className="h-4 w-4" /> {selected.phone}
-                    </a>
-                  )}
-                </div>
-                <div className="rounded-xl border border-[#111111]/10 p-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Organisation</p>
-                  <p className="mt-1 text-sm">Employees: {selected.employees ?? "—"}</p>
-                  <p className="text-sm">Revenue: {formatRevenue(selected.annual_revenue_gbp)}</p>
-                  {selected.revenue_basis && <p className="mt-1 text-xs text-[#6f6b62]">{selected.revenue_basis}</p>}
-                  {selected.website && (
-                    <a
-                      href={selected.website.startsWith("http") ? selected.website : `https://${selected.website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 inline-flex items-center gap-1 text-sm text-[#063b32] hover:underline"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" /> Website
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-[#111111]/10 bg-[#063b32]/5 p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Why high admin / AI need</p>
-                <p className="mt-2 text-sm leading-relaxed text-[#111111]">{selected.need_rationale}</p>
-              </div>
-
-              {selected.engagement_approach && (
-                <div className="rounded-xl border border-[#111111]/10 p-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">How to approach</p>
-                  <p className="mt-2 text-sm leading-relaxed">{selected.engagement_approach}</p>
-                </div>
-              )}
-
-              {(selected.sector_tags.length > 0 || selected.pain_point_tags.length > 0) && (
-                <div className="flex flex-wrap gap-2">
-                  {selected.sector_tags.map((t) => (
-                    <span key={t} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs text-[#063b32]">{t}</span>
-                  ))}
-                  {selected.pain_point_tags.map((t) => (
-                    <span key={t} className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs text-[#6f6b62]">{t}</span>
-                  ))}
-                </div>
-              )}
+              <ProspectResearchPanel
+                data={editing ? draft : selected!}
+                editable={editing}
+                onChange={setDraft}
+              />
 
               <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  disabled={queueing}
-                  onClick={() => addToQueue([selected.id])}
-                  className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
-                >
-                  <Send className="h-4 w-4" /> Add to Prospect Queue
-                </button>
-                <Link
-                  href={`/admin/engagement/knowledge?tab=sectors`}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#111111]/15 px-5 py-2.5 text-sm font-medium hover:bg-[#f7f4ea]"
-                >
-                  <BookOpen className="h-4 w-4" /> Sector guidance
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                {editing ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={() => void saveEdits()}
+                      className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                    >
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      Save changes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setDraft(selected!); setEditing(false); }}
+                      className="rounded-full border border-[#111111]/15 px-5 py-2.5 text-sm font-medium hover:bg-[#f7f4ea]"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(true)}
+                      className="rounded-full border border-[#111111]/15 px-5 py-2.5 text-sm font-medium hover:bg-[#f7f4ea]"
+                    >
+                      Edit details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openQueueModal([draft.id])}
+                      className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+                    >
+                      <Send className="h-4 w-4" /> Add to Prospect Queue
+                    </button>
+                    <Link
+                      href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(draft.sector_tags.join(","))}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-[#111111]/15 px-5 py-2.5 text-sm font-medium hover:bg-[#f7f4ea]"
+                    >
+                      <BookOpen className="h-4 w-4" /> Sector guidance
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </>
+                )}
               </div>
-
-              {(selected.financial_source_url || selected.contact_source_url) && (
-                <div className="text-xs text-[#6f6b62]">
-                  <p className="font-semibold uppercase tracking-wider">Sources</p>
-                  {selected.financial_source_url && (
-                    <a href={selected.financial_source_url} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-[#063b32] hover:underline">
-                      Financial: {selected.financial_source_url}
-                    </a>
-                  )}
-                  {selected.contact_source_url && (
-                    <a href={selected.contact_source_url} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-[#063b32] hover:underline">
-                      Contact: {selected.contact_source_url}
-                    </a>
-                  )}
-                </div>
-              )}
             </div>
           )}
         </div>

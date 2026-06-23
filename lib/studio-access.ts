@@ -12,6 +12,7 @@ const MEMBER_PAGE_PREFIXES = [
   "/admin/posts",
   "/admin/authors",
   "/admin/engagement/knowledge",
+  "/admin/engagement/prospect-queue",
 ] as const;
 
 const MEMBER_PAGE_EXACT = new Set(["/admin/forbidden"]);
@@ -30,6 +31,8 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/opportunities",
   "/api/admin/engagement/tasks",
   "/api/admin/engagement/contacts",
+  "/api/admin/engagement/prospect-queue",
+  "/api/admin/ai",
 ] as const;
 
 /** Knowledge browse APIs — members may only read */

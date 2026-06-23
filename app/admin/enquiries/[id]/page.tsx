@@ -21,16 +21,12 @@ import {
   User,
   X,
 } from "lucide-react";
-import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
-import { ChatActivityList } from "@/components/admin/ChatActivityList";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
-import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
-import { useStudioAccess } from "@/lib/studio-access-context";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
@@ -100,30 +96,7 @@ function EnquiryDetailContent() {
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
-  const [chatActivityKey, setChatActivityKey] = useState(0);
-  const { canUseAiAssistant } = useStudioAccess();
-  const hubTabs = getCrmHubTabs(canUseAiAssistant);
-
-  // Auto-set global AI assistant context when enquiry data is loaded
-  useSetAIContext(
-    canUseAiAssistant && enquiry
-      ? {
-          type: "enquiry",
-          id: enquiry.id,
-          label: enquiry.name,
-          summary: [
-            `Name: ${enquiry.name} | Email: ${enquiry.email}`,
-            `Support type: ${enquiry.support_type} | Status: ${enquiry.status}`,
-            enquiry.telephone ? `Phone: ${enquiry.telephone}` : null,
-            enquiry.last_action ? `Last action: ${enquiry.last_action}` : null,
-            enquiry.next_action ? `Next action: ${enquiry.next_action}` : null,
-            `Details: ${enquiry.details.slice(0, 400)}`,
-          ]
-            .filter(Boolean)
-            .join("\n"),
-        }
-      : null,
-  );
+  const hubTabs = getCrmHubTabs(false);
 
   const loadCrmData = useCallback(async (contactId?: string | null): Promise<EngagementOpportunity[]> => {
     setLoadingCrm(true);
@@ -190,11 +163,6 @@ function EnquiryDetailContent() {
     }
     setLoading(false);
   }, [id, loadCrmData, loadTasks, router]);
-
-  const refreshAfterChat = useCallback(() => {
-    void load();
-    setChatActivityKey((k) => k + 1);
-  }, [load]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -642,13 +610,6 @@ function EnquiryDetailContent() {
                       <p className="mt-1 text-sm text-[#6f6b62]">{enquiry.support_type} — {enquiry.details.slice(0, 120)}{enquiry.details.length > 120 ? "…" : ""}</p>
                     </div>
                   </div>
-                  {canUseAiAssistant && (
-                    <ChatActivityList
-                      contextType="enquiry"
-                      contextId={id}
-                      refreshKey={chatActivityKey}
-                    />
-                  )}
                   {opportunities.map((opp) => (
                     <Link
                       key={opp.id}
@@ -755,26 +716,7 @@ function EnquiryDetailContent() {
             </div>
           )}
 
-          {canUseAiAssistant && activeTab === "chat" && (
-            <div className="col-span-full">
-              <AIChatHistory
-                contextType="enquiry"
-                contextId={enquiry.id}
-                contextLabel={enquiry.name}
-                contextSummary={[
-                  `Name: ${enquiry.name} | Email: ${enquiry.email}`,
-                  `Support type: ${enquiry.support_type} | Status: ${enquiry.status}`,
-                  enquiry.telephone ? `Phone: ${enquiry.telephone}` : null,
-                  enquiry.last_action ? `Last action: ${enquiry.last_action}` : null,
-                  enquiry.next_action ? `Next action: ${enquiry.next_action}` : null,
-                  `Details: ${enquiry.details.slice(0, 400)}`,
-                ].filter(Boolean).join("\n")}
-                allowModelUpgrade={false}
-                onNotesSaved={refreshAfterChat}
-                onActivityRecorded={() => setChatActivityKey((k) => k + 1)}
-              />
-            </div>
-          )}
+
         </div>
       </div>
     </div>

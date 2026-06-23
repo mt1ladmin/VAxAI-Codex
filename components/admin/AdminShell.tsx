@@ -34,7 +34,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Opportunities tracker", href: "/admin/engagement/pipeline", icon: Users },
-      { label: "Clients", href: "/admin/clients", icon: Briefcase },
+      { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },
   {
@@ -57,7 +57,10 @@ const exactMatchRoutes = new Set(["/admin", "/admin/engagement"]);
 const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
   {
     section: "CLIENT ENGAGEMENT",
-    items: [{ label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare }],
+    items: [
+      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
+      { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
+    ],
   },
   {
     section: "KNOWLEDGE",

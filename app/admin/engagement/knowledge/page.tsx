@@ -83,6 +83,7 @@ function KnowledgePageInner() {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [vatPrompts, setVatPrompts] = useState<VatPrompt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [highlightIds, setHighlightIds] = useState<Set<string>>(new Set());
   const inputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(async () => {
@@ -127,6 +128,13 @@ function KnowledgePageInner() {
 
   useEffect(() => { inputRef.current?.focus(); }, [tab]);
 
+  useEffect(() => {
+    if (tab !== "sectors" || highlightIds.size === 0 || loading) return;
+    const first = [...highlightIds][0];
+    const el = document.getElementById(`sector-${first}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [tab, highlightIds, loading, sectors.length]);
+
   const visibleTabs = isPlatformAdmin
     ? TAB_KEYS
     : TAB_KEYS.filter((t) => t !== "knowledge_review");
@@ -135,6 +143,13 @@ function KnowledgePageInner() {
     const urlTab = searchParams.get("tab");
     if (urlTab && visibleTabs.includes(urlTab as Tab)) setTab(urlTab as Tab);
     else if (urlTab === "knowledge_review" && !isPlatformAdmin) setTab("sectors");
+
+    const highlight = searchParams.get("highlight");
+    if (highlight) {
+      setHighlightIds(new Set(highlight.split(",").map((s) => s.trim()).filter(Boolean)));
+    } else {
+      setHighlightIds(new Set());
+    }
   }, [searchParams, visibleTabs, isPlatformAdmin]);
 
   return (
@@ -279,12 +294,23 @@ function KnowledgePageInner() {
               sectors.length === 0 ? (
                 <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No sectors found.</div>
               ) : (
+                <>
+                  {highlightIds.size > 0 && (
+                    <p className="mb-4 rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-3 text-sm text-[#063b32]">
+                      Highlighted sectors may be relevant to this prospect based on their sector tags.
+                    </p>
+                  )}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {sectors.map((s) => (
                     <Link
                       key={s.id}
                       href={`/admin/engagement/knowledge/sectors/${s.id}`}
-                      className="rounded-xl border border-[#111111]/10 bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group"
+                      id={highlightIds.has(s.id) ? `sector-${s.id}` : undefined}
+                      className={`rounded-xl border bg-white p-5 hover:border-[#063b32]/30 hover:shadow-sm transition-all group ${
+                        highlightIds.has(s.id)
+                          ? "border-[#063b32] ring-2 ring-[#063b32]/25 bg-[#063b32]/5"
+                          : "border-[#111111]/10"
+                      }`}
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">{s.name}</p>
@@ -299,6 +325,7 @@ function KnowledgePageInner() {
                     </Link>
                   ))}
                 </div>
+                </>
               )
             )}
 

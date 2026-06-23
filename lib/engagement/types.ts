@@ -465,6 +465,8 @@ export type ProspectQueueEntry = {
   previous_contact_warning: string | null;
   owner_email: string | null;
   tags: string[] | null;
+  outreach_id: string | null;
+  outreach_snapshot: Record<string, unknown> | null;
   // joined
   organisation?: Pick<EngagementOrganisation, 'id' | 'name' | 'industry'> | null;
   contact?: Pick<EngagementContact, 'id' | 'first_name' | 'last_name' | 'professional_email'> | null;

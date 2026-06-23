@@ -111,8 +111,8 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Clients</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">All active clients — their services, tasks, and connected records.</p>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Prospect/Clients</h1>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">Converted prospects and active clients — services, tasks, and full outreach history.</p>
       </div>
 
       {/* Metrics */}

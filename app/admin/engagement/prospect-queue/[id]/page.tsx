@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   ArrowLeft,
+  BookOpen,
   Briefcase,
   Building2,
   Calendar,
@@ -26,12 +27,19 @@ import {
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ChatActivityList } from "@/components/admin/ChatActivityList";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
+import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
-import { CRM_HUB_TABS, CRM_HUB_TAB_IDS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { outreachSummaryForConversion, syncQueueFromSnapshot } from "@/lib/engagement/prospect-outreach/snapshot";
+import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
+import { sectorGuidancePath } from "@/lib/engagement/sector-guidance";
+import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
+import type { SectorProfile } from "@/lib/engagement/types";
+import { useStudioAccess } from "@/lib/studio-access-context";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
@@ -89,6 +97,28 @@ function ProspectDetailContent() {
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
+  const [editingResearch, setEditingResearch] = useState(false);
+  const [researchDraft, setResearchDraft] = useState<ProspectOutreachRecord | null>(null);
+  const [savingResearch, setSavingResearch] = useState(false);
+  const [sectors, setSectors] = useState<Pick<SectorProfile, "id" | "name">[]>([]);
+  const { canUseProspectQueueAi } = useStudioAccess();
+  const hubTabs = getCrmHubTabs(canUseProspectQueueAi);
+
+  const outreachData = entry ? outreachFromQueueEntry(entry) : null;
+
+  useEffect(() => {
+    if (outreachData) setResearchDraft(outreachData);
+    else setResearchDraft(null);
+    setEditingResearch(false);
+  }, [entry?.id, outreachData?.organisation_name]);
+
+  useEffect(() => {
+    void fetch("/api/admin/engagement/sectors?limit=50")
+      .then((r) => r.json())
+      .then((j: { data?: SectorProfile[] }) => {
+        setSectors((j.data || []).map((s) => ({ id: s.id, name: s.name })));
+      });
+  }, []);
 
   const prospectLabel = entry?.organisation?.name ?? entry?.raw_org_name ?? entry?.raw_contact_name ?? null;
   useSetAIContext(
@@ -105,11 +135,29 @@ function ProspectDetailContent() {
             `Status: ${entry.status}`,
             entry.last_action ? `Last action: ${entry.last_action}` : null,
             entry.next_action ? `Next action: ${entry.next_action}` : null,
+            outreachData?.need_rationale ? `Admin/AI need: ${outreachData.need_rationale.slice(0, 300)}` : null,
             entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
           ].filter(Boolean).join("\n"),
         }
       : null,
   );
+
+  const saveResearch = async () => {
+    if (!entry || !researchDraft) return;
+    setSavingResearch(true);
+    const fields = syncQueueFromSnapshot(researchDraft, { raw_notes: entry.raw_notes });
+    const res = await fetch(`/api/admin/engagement/prospect-queue/${entry.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fields),
+    });
+    const j = await res.json();
+    if (res.ok && j.data) {
+      setEntry(j.data);
+      setEditingResearch(false);
+    }
+    setSavingResearch(false);
+  };
 
   const loadCrmData = useCallback(async (
     contactId?: string | null,
@@ -391,7 +439,7 @@ function ProspectDetailContent() {
         contactEmail={email || ""}
         contactPhone={entry.raw_phone}
         supportType={entry.raw_industry || entry.organisation?.industry || "Prospect queue"}
-        sourceDetails={entry.raw_notes || ""}
+        sourceDetails={outreachData ? outreachSummaryForConversion(outreachData) : entry.raw_notes || ""}
         existingContactId={entry.contact_id}
         existingOrgId={entry.organisation_id}
       />
@@ -407,8 +455,8 @@ function ProspectDetailContent() {
         defaults={{
           title: `${orgName} — Prospect`.slice(0, 120),
           stage: createOppPresetStage ?? "Identified",
-          desired_outcomes: entry.raw_notes ?? "",
-          notes: entry.raw_notes ?? "",
+          desired_outcomes: outreachData?.need_rationale ?? entry.raw_notes ?? "",
+          notes: outreachData ? outreachSummaryForConversion(outreachData) : entry.raw_notes ?? "",
           next_action: entry.next_action ?? "",
           expected_decision_date: entry.next_action_date?.split("T")[0] ?? "",
           organisation_id: entry.organisation_id,
@@ -474,7 +522,7 @@ function ProspectDetailContent() {
 
       <div className="border-b border-[#111111]/10 px-8">
         <div className="flex gap-1 overflow-x-auto">
-          {CRM_HUB_TABS.map((tab) => (
+          {hubTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -716,6 +764,60 @@ function ProspectDetailContent() {
                 )}
               </div>
 
+              {researchDraft && (
+                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+                      Outreach research
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {researchDraft.sector_tags.length > 0 && (
+                        <Link
+                          href={sectorGuidancePath(researchDraft.sector_tags, sectors)}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#063b32] hover:bg-[#f7f4ea]"
+                        >
+                          <BookOpen className="h-3.5 w-3.5" /> Sector guidance
+                        </Link>
+                      )}
+                      {editingResearch ? (
+                        <>
+                          <button
+                            type="button"
+                            disabled={savingResearch}
+                            onClick={() => void saveResearch()}
+                            className="inline-flex items-center gap-1 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+                          >
+                            {savingResearch ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setResearchDraft(outreachData); setEditingResearch(false); }}
+                            className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62]"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditingResearch(true)}
+                          className="text-xs font-semibold text-[#063b32] hover:underline"
+                        >
+                          Edit research
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <ProspectResearchPanel
+                    data={researchDraft}
+                    editable={editingResearch}
+                    onChange={setResearchDraft}
+                    compact
+                  />
+                </div>
+              )}
+
               <div className="rounded-xl border border-[#111111]/10 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
                 {entry.last_action ? (
@@ -877,7 +979,7 @@ function ProspectDetailContent() {
             </div>
           )}
 
-          {activeTab === "chat" && (
+          {canUseProspectQueueAi && activeTab === "chat" && (
             <div className="col-span-full">
               <AIChatHistory
                 contextType="prospect"
@@ -888,6 +990,7 @@ function ProspectDetailContent() {
                   email ? `Email: ${email}` : null,
                   entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
                   `Status: ${entry.status}`,
+                  outreachData?.need_rationale ? `Admin/AI need: ${outreachData.need_rationale}` : null,
                   entry.last_action ? `Last action: ${entry.last_action}` : null,
                   entry.next_action ? `Next action: ${entry.next_action}` : null,
                   entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,

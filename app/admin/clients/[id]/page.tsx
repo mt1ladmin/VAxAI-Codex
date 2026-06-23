@@ -42,6 +42,8 @@ import type {
   SectorProfile,
 } from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
+import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
+import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
 
 type ClientTab = CrmHubTab | "submission";
 
@@ -666,59 +668,49 @@ function ClientDetailContent() {
                         <span className="text-sm font-semibold text-[#111111]">Prospect queue</span>
                         <span className="ml-auto text-xs text-[#6f6b62]">Archived on conversion</span>
                       </div>
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Organisation</p>
-                          <p className="text-sm font-semibold text-[#111111]">
-                            {linkedQueue.organisation?.name || linkedQueue.raw_org_name || "—"}
-                          </p>
-                          {linkedQueue.raw_industry && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Industry</p>
-                              <p className="text-sm text-[#111111]">{linkedQueue.raw_industry}</p>
+                      {(() => {
+                        const outreach = outreachFromQueueEntry(linkedQueue);
+                        if (outreach) {
+                          return (
+                            <div className="rounded-xl border border-[#111111]/10 p-5">
+                              <ProspectResearchPanel data={outreach} />
                             </div>
-                          )}
-                          {linkedQueue.raw_location && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Location</p>
-                              <p className="text-sm text-[#111111]">{linkedQueue.raw_location}</p>
+                          );
+                        }
+                        return (
+                          <div className="grid gap-4 lg:grid-cols-2">
+                            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Organisation</p>
+                              <p className="text-sm font-semibold text-[#111111]">
+                                {linkedQueue.organisation?.name || linkedQueue.raw_org_name || "—"}
+                              </p>
+                              {linkedQueue.raw_industry && (
+                                <div>
+                                  <p className="text-[10px] text-[#6f6b62]">Industry</p>
+                                  <p className="text-sm text-[#111111]">{linkedQueue.raw_industry}</p>
+                                </div>
+                              )}
+                              {linkedQueue.raw_location && (
+                                <div>
+                                  <p className="text-[10px] text-[#6f6b62]">Location</p>
+                                  <p className="text-sm text-[#111111]">{linkedQueue.raw_location}</p>
+                                </div>
+                              )}
                             </div>
-                          )}
-                          <div>
-                            <p className="text-[10px] text-[#6f6b62]">Added to queue</p>
-                            <p className="text-sm text-[#111111]">
-                              {new Date(linkedQueue.created_at).toLocaleString("en-GB")}
-                            </p>
+                            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact at submission</p>
+                              {linkedQueue.raw_contact_name && (
+                                <p className="text-sm font-semibold text-[#111111]">{linkedQueue.raw_contact_name}</p>
+                              )}
+                              {linkedQueue.raw_email && <p className="text-sm">{linkedQueue.raw_email}</p>}
+                              {linkedQueue.raw_phone && <p className="text-sm">{linkedQueue.raw_phone}</p>}
+                              {linkedQueue.raw_notes && (
+                                <p className="text-sm text-[#6f6b62] whitespace-pre-wrap">{linkedQueue.raw_notes}</p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact at submission</p>
-                          {linkedQueue.raw_contact_name && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Name</p>
-                              <p className="text-sm font-semibold text-[#111111]">{linkedQueue.raw_contact_name}</p>
-                            </div>
-                          )}
-                          {linkedQueue.raw_email && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Email</p>
-                              <p className="text-sm text-[#111111]">{linkedQueue.raw_email}</p>
-                            </div>
-                          )}
-                          {linkedQueue.raw_phone && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Phone</p>
-                              <p className="text-sm text-[#111111]">{linkedQueue.raw_phone}</p>
-                            </div>
-                          )}
-                          {linkedQueue.raw_notes && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Notes</p>
-                              <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedQueue.raw_notes}</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                        );
+                      })()}
                     </>
                   )}
                   <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 flex items-center gap-3">
