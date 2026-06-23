@@ -375,11 +375,6 @@ function EnquiryDetailContent() {
         contactEmail={enquiry.email}
         contactPhone={enquiry.telephone}
         supportType={enquiry.support_type}
-        sourceContextInfo={[
-          `Query type: ${enquiry.support_type}`,
-          enquiry.details ? `Enquiry details:\n${enquiry.details}` : null,
-          enquiry.admin_notes ? `Team notes:\n${enquiry.admin_notes}` : null,
-        ].filter(Boolean).join("\n\n")}
         defaultNextAction={enquiry.next_action}
         existingContactId={enquiry.contact_id}
         existingOrgId={enquiry.organisation_id}

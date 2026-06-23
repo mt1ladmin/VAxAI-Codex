@@ -24,8 +24,6 @@ type Props = {
   contactEmail: string;
   contactPhone: string | null;
   supportType?: string;
-  /** Read-only background context (enquiry text, outreach research) — not pre-filled into desired outcomes */
-  sourceContextInfo?: string;
   existingContactId: string | null;
   existingOrgId: string | null;
   defaultNextAction?: string | null;
@@ -46,7 +44,6 @@ export function ConvertToClientModal({
   contactEmail,
   contactPhone,
   supportType = "",
-  sourceContextInfo = "",
   existingContactId,
   existingOrgId,
   defaultNextAction = "",
@@ -190,11 +187,6 @@ export function ConvertToClientModal({
         }
       }
 
-      const notesParts = [serviceNotes.trim()];
-      if (sourceContextInfo.trim()) {
-        notesParts.push(`--- Source context ---\n${sourceContextInfo.trim()}`);
-      }
-
       const oppPayload: Record<string, unknown> = {
         title: serviceTitle.trim(),
         primary_contact_id: contactId,
@@ -204,7 +196,7 @@ export function ConvertToClientModal({
         recommended_pathway: agreedPathway.trim() || null,
         indicative_value_low: valueLow ? parseFloat(valueLow) : null,
         indicative_value_high: valueHigh ? parseFloat(valueHigh) : null,
-        notes: notesParts.filter(Boolean).join("\n\n") || null,
+        notes: serviceNotes.trim() || null,
         next_action: nextAction.trim() || null,
       };
       if (sourceType === "enquiry") oppPayload.enquiry_id = sourceId;
@@ -306,20 +298,6 @@ export function ConvertToClientModal({
               </div>
             </div>
           )}
-
-          {sourceContextInfo.trim() && (
-            <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/40 p-4 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Source information
-              </p>
-              <p className="text-xs text-[#6f6b62]">
-                Background from the original enquiry or outreach research — attached to service notes, not used as agreed outcomes.
-              </p>
-              <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{sourceContextInfo}</p>
-            </div>
-          )}
-
-          <div className="border-t border-[#111111]/8" />
 
           <div className="space-y-3">
             <div>

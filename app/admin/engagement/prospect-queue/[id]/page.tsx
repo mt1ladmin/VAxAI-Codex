@@ -448,10 +448,6 @@ function ProspectDetailContent() {
         contactEmail={email || ""}
         contactPhone={entry.raw_phone}
         supportType={entry.raw_industry || entry.organisation?.industry || "Prospect queue"}
-        sourceContextInfo={[
-          outreachData ? outreachSummaryForConversion(outreachData) : null,
-          entry.raw_notes ? `Team notes:\n${entry.raw_notes}` : null,
-        ].filter(Boolean).join("\n\n")}
         defaultNextAction={entry.next_action}
         existingContactId={entry.contact_id}
         existingOrgId={entry.organisation_id}
