@@ -28,3 +28,4 @@ tsconfig.tsbuildinfo
 work
 outputs
 __pycache__/
+scripts/.cache/

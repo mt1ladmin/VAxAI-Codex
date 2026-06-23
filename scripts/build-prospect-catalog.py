@@ -4,13 +4,19 @@ import csv
 import io
 import json
 import re
+import sys
 import uuid
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR))
+from prospect_filters import is_excluded_org
+
+ROOT = SCRIPT_DIR.parent
 CSV_PATH = Path.home() / "Downloads/VAxAi outreach spreadsheet - Sheet1.csv"
 OUT_PATH = ROOT / "lib/engagement/prospect-outreach/catalog.json"
 RESEARCH_DATE = "2026-06-23"
+TARGET_TOTAL = 500
 
 REGION_PRIORITY = {
     "Norfolk": "primary",
@@ -145,9 +151,19 @@ def supplemental() -> list[dict]:
     return []
 
 
+def cc_expansion() -> list[dict]:
+    """Charity Commission register expansion toward 500 total."""
+    path = ROOT / "scripts/data/expansion-prospects-cc.json"
+    if path.exists():
+        return json.loads(path.read_text())
+    return []
+
+
 def merge(prospects: list[dict]) -> list[dict]:
     seen: dict[str, dict] = {}
     for p in prospects:
+        if is_excluded_org(p.get("organisation_name", "")):
+            continue
         key = norm_name(p["organisation_name"])
         if not key:
             continue
@@ -167,8 +183,11 @@ def merge(prospects: list[dict]) -> list[dict]:
 
 
 def main():
-    all_rows = load_csv() + supplemental()
-    prospects = merge(all_rows)
+    curated = [p for p in load_csv() + supplemental() if not is_excluded_org(p.get("organisation_name", ""))]
+    expansion = [p for p in cc_expansion() if not is_excluded_org(p.get("organisation_name", ""))]
+    prospects = merge(curated + expansion)
+    if len(prospects) > TARGET_TOTAL:
+        prospects = prospects[:TARGET_TOTAL]
     by_region: dict[str, int] = {}
     by_score: dict[str, int] = {}
     for p in prospects:
@@ -180,10 +199,12 @@ def main():
             "total_count": len(prospects),
             "by_region": by_region,
             "by_need_score": by_score,
+            "target_total": TARGET_TOTAL,
             "methodology": (
                 "Charities and SMBs in Norfolk, Suffolk, Cambridgeshire (primary) and Greater Manchester (secondary). "
                 "Prioritised £500k+ income/turnover and <100 employees where data available. "
-                "Sources: Charity Commission register, organisation websites, annual reports. Research date 23 Jun 2026."
+                "Sources: Charity Commission register (open data + curated research), organisation websites, annual reports. "
+                f"Research date 23 Jun 2026; catalog target {TARGET_TOTAL} prospects."
             ),
         },
         "prospects": prospects,

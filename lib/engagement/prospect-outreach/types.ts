@@ -27,6 +27,7 @@ export type ProspectOutreachRecord = {
 export type ProspectOutreachMeta = {
   research_date: string;
   total_count: number;
+  target_total?: number;
   by_region: Record<string, number>;
   by_need_score: Record<string, number>;
   methodology: string;
