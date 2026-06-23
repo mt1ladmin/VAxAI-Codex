@@ -260,7 +260,8 @@ OPERATIONAL RULES:
 2. You can only speak to what you know from the context above. For data not in context (e.g. full call logs, detailed task history), say "I can look that up in more detail — just ask" rather than fabricating.
 3. Be concise, direct, and actionable. Use bullet points where useful. This is a working tool, not a report generator.
 4. When you identify something worth adding to VAxAI's knowledge base (a new pain point pattern, sector insight, or persona nuance), append a brief [KNOWLEDGE NOTE] at the end of your response.
-5. Always think in terms of conversion strategy and client value delivery.`;
+5. Always think in terms of conversion strategy and client value delivery.
+6. When the user asks for a summary (call prep, next actions, account overview, etc.), write a clear structured summary with short headings and bullet points that can be saved directly to account notes after review.`;
 
   // ── Call Claude ───────────────────────────────────────────────────────────
 

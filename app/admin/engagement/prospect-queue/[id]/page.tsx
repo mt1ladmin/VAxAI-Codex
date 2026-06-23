@@ -24,6 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
+import { ChatActivityList } from "@/components/admin/ChatActivityList";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
@@ -82,6 +83,7 @@ function ProspectDetailContent() {
   const [showDone, setShowDone] = useState(false);
   const [showCreateOppModal, setShowCreateOppModal] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
+  const [chatActivityKey, setChatActivityKey] = useState(0);
   const [createOppPresetStage, setCreateOppPresetStage] = useState<string | undefined>();
   const [linkingOpp, setLinkingOpp] = useState(false);
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
@@ -186,6 +188,11 @@ function ProspectDetailContent() {
     }
     setLoading(false);
   }, [id, loadCrmData, loadTasks, router]);
+
+  const refreshAfterChat = useCallback(() => {
+    void load();
+    setChatActivityKey((k) => k + 1);
+  }, [load]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -759,6 +766,11 @@ function ProspectDetailContent() {
                       <p className="mt-1 text-sm text-[#6f6b62]">{orgName}</p>
                     </div>
                   </div>
+                  <ChatActivityList
+                    contextType="prospect"
+                    contextId={id}
+                    refreshKey={chatActivityKey}
+                  />
                   {opportunities.map((opp) => (
                     <Link
                       key={opp.id}
@@ -881,6 +893,8 @@ function ProspectDetailContent() {
                   entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
                 ].filter(Boolean).join("\n")}
                 allowModelUpgrade={false}
+                onNotesSaved={refreshAfterChat}
+                onActivityRecorded={() => setChatActivityKey((k) => k + 1)}
               />
             </div>
           )}

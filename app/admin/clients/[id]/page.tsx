@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
+import { ChatActivityList } from "@/components/admin/ChatActivityList";
 import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
@@ -96,6 +97,7 @@ function ClientDetailContent() {
   const [linkedQueue, setLinkedQueue] = useState<ProspectQueueEntry | null>(null);
   const [updatingStage, setUpdatingStage] = useState(false);
   const [showCreateOppModal, setShowCreateOppModal] = useState(false);
+  const [chatActivityKey, setChatActivityKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ClientTab>("overview");
 
@@ -183,6 +185,11 @@ function ClientDetailContent() {
     await loadTasks(id, cData.data.organisation_id, opps);
     setLoading(false);
   }, [id, loadTasks]);
+
+  const refreshAfterChat = useCallback(() => {
+    void loadData();
+    setChatActivityKey((k) => k + 1);
+  }, [loadData]);
 
   useEffect(() => {
     void loadData();
@@ -760,6 +767,11 @@ function ClientDetailContent() {
                     </div>
                   </div>
                 )}
+                <ChatActivityList
+                  contextType="client"
+                  contextId={id}
+                  refreshKey={chatActivityKey}
+                />
                 {opportunities.map((opp) => (
                   <Link
                     key={opp.id}
@@ -918,6 +930,8 @@ function ClientDetailContent() {
               contextLabel={fullName}
               contextSummary={aiContextSummary}
               allowModelUpgrade={true}
+              onNotesSaved={refreshAfterChat}
+              onActivityRecorded={() => setChatActivityKey((k) => k + 1)}
             />
           )}
         </div>

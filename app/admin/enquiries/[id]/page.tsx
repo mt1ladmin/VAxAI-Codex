@@ -22,13 +22,15 @@ import {
   X,
 } from "lucide-react";
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
+import { ChatActivityList } from "@/components/admin/ChatActivityList";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { StatusSelect } from "@/components/admin/StatusSelect";
-import { CRM_HUB_TABS, CRM_HUB_TAB_IDS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { useStudioAccess } from "@/lib/studio-access-context";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
@@ -98,10 +100,13 @@ function EnquiryDetailContent() {
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
+  const [chatActivityKey, setChatActivityKey] = useState(0);
+  const { canUseAiAssistant } = useStudioAccess();
+  const hubTabs = getCrmHubTabs(canUseAiAssistant);
 
   // Auto-set global AI assistant context when enquiry data is loaded
   useSetAIContext(
-    enquiry
+    canUseAiAssistant && enquiry
       ? {
           type: "enquiry",
           id: enquiry.id,
@@ -185,6 +190,11 @@ function EnquiryDetailContent() {
     }
     setLoading(false);
   }, [id, loadCrmData, loadTasks, router]);
+
+  const refreshAfterChat = useCallback(() => {
+    void load();
+    setChatActivityKey((k) => k + 1);
+  }, [load]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -392,7 +402,7 @@ function EnquiryDetailContent() {
 
       <div className="border-b border-[#111111]/10 px-8">
         <div className="flex gap-1 overflow-x-auto">
-          {CRM_HUB_TABS.map((tab) => (
+          {hubTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -632,6 +642,13 @@ function EnquiryDetailContent() {
                       <p className="mt-1 text-sm text-[#6f6b62]">{enquiry.support_type} — {enquiry.details.slice(0, 120)}{enquiry.details.length > 120 ? "…" : ""}</p>
                     </div>
                   </div>
+                  {canUseAiAssistant && (
+                    <ChatActivityList
+                      contextType="enquiry"
+                      contextId={id}
+                      refreshKey={chatActivityKey}
+                    />
+                  )}
                   {opportunities.map((opp) => (
                     <Link
                       key={opp.id}
@@ -738,7 +755,7 @@ function EnquiryDetailContent() {
             </div>
           )}
 
-          {activeTab === "chat" && (
+          {canUseAiAssistant && activeTab === "chat" && (
             <div className="col-span-full">
               <AIChatHistory
                 contextType="enquiry"
@@ -753,6 +770,8 @@ function EnquiryDetailContent() {
                   `Details: ${enquiry.details.slice(0, 400)}`,
                 ].filter(Boolean).join("\n")}
                 allowModelUpgrade={false}
+                onNotesSaved={refreshAfterChat}
+                onActivityRecorded={() => setChatActivityKey((k) => k + 1)}
               />
             </div>
           )}

@@ -9,6 +9,7 @@ import {
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
 import { KnowledgeReviewContent } from "../knowledge-review/knowledge-review-content";
+import { useStudioAccess } from "@/lib/studio-access-context";
 
 type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review";
 
@@ -72,6 +73,7 @@ function CustomSelect({
 
 function KnowledgePageInner() {
   const searchParams = useSearchParams();
+  const { isPlatformAdmin } = useStudioAccess();
   const [tab, setTab] = useState<Tab>("sectors");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -125,10 +127,15 @@ function KnowledgePageInner() {
 
   useEffect(() => { inputRef.current?.focus(); }, [tab]);
 
+  const visibleTabs = isPlatformAdmin
+    ? TAB_KEYS
+    : TAB_KEYS.filter((t) => t !== "knowledge_review");
+
   useEffect(() => {
     const urlTab = searchParams.get("tab");
-    if (urlTab && TAB_KEYS.includes(urlTab as Tab)) setTab(urlTab as Tab);
-  }, [searchParams]);
+    if (urlTab && visibleTabs.includes(urlTab as Tab)) setTab(urlTab as Tab);
+    else if (urlTab === "knowledge_review" && !isPlatformAdmin) setTab("sectors");
+  }, [searchParams, visibleTabs, isPlatformAdmin]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -142,7 +149,7 @@ function KnowledgePageInner() {
               ["personas", "Personas"],
               ["pain_points", "Pain points"],
               ["vat_prompts", "VAT prompts"],
-              ["knowledge_review", "Knowledge Review"],
+              ...(isPlatformAdmin ? [["knowledge_review", "Knowledge Review"] as [Tab, string]] : []),
             ] as [Tab, string][]).map(([key, label]) => (
               <button
                 key={key}

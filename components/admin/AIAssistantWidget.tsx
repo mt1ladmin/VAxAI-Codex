@@ -3,16 +3,26 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Bot,
+  BookmarkPlus,
   ChevronDown,
   Loader2,
   Maximize2,
+  MessageSquarePlus,
   Minimize2,
   Search,
   Send,
   Sparkles,
   X,
 } from "lucide-react";
-import { useAIAssistantContext, type AIContextType } from "@/lib/ai-assistant-context";
+import { SaveSummaryModal } from "@/components/admin/SaveSummaryModal";
+import {
+  contextsEqual,
+  useAIAssistantContext,
+  usePersistWidgetOpen,
+  type AIContext,
+  type AIContextType,
+} from "@/lib/ai-assistant-context";
+import { recordChatSnapshot } from "@/lib/engagement/chat-activity";
 
 type AIMessage = {
   id: string;
@@ -74,22 +84,35 @@ const SUGGESTED: Record<string, string[]> = {
   enquiry: [
     "What are the key themes in this enquiry?",
     "What's the best strategy to convert them?",
-    "What questions should I prioritise?",
+    "Write me a summary to prepare for the prospect call",
+    "Write a next action summary based on this enquiry",
   ],
   client: [
     "What's the current status of this account?",
     "Are there any risks or opportunities I should know about?",
-    "How can we deliver more value to this client?",
+    "Write a summary of our conversation for the account notes",
+    "Write a next action summary for this client",
   ],
   prospect: [
     "What do we know about this prospect?",
     "What's the best approach to engage them?",
-    "Which pain points are most relevant?",
+    "Write me a summary to prepare for the prospect call",
+    "Write a next action summary based on what we know",
   ],
   default: [
     "Search for an account above to get started.",
   ],
 };
+
+function guessSummaryTitle(userMessage: string | undefined): string {
+  const lower = (userMessage ?? "").toLowerCase();
+  if (lower.includes("prospect call") || lower.includes("prepare for")) {
+    return "Prospect call prep summary";
+  }
+  if (lower.includes("next action")) return "Next action summary";
+  if (lower.includes("summary")) return "AI chat summary";
+  return "AI summary";
+}
 
 function buildContextSummary(
   type: AIContextType,
@@ -112,11 +135,17 @@ function TypingIndicator() {
   );
 }
 
-function ChatMessage({ msg }: { msg: AIMessage }) {
+function ChatMessage({
+  msg,
+  onSaveToNotes,
+}: {
+  msg: AIMessage;
+  onSaveToNotes?: (content: string) => void;
+}) {
   if (msg.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#063b32] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm whitespace-pre-wrap">
+        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#063b32] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm whitespace-pre-wrap break-words">
           {msg.content}
         </div>
       </div>
@@ -128,8 +157,20 @@ function ChatMessage({ msg }: { msg: AIMessage }) {
       <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#111111]/8 bg-white shadow-sm">
         <Sparkles className="h-3 w-3 text-[#063b32]" />
       </div>
-      <div className="min-w-0 flex-1 pt-0.5 text-[13px] leading-[1.65] text-[#111111] whitespace-pre-wrap">
-        {msg.content}
+      <div className="min-w-0 flex-1 space-y-2">
+        <div className="max-w-full overflow-hidden rounded-2xl rounded-bl-md border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-[13px] leading-[1.65] text-[#111111] whitespace-pre-wrap break-words">
+          {msg.content}
+        </div>
+        {onSaveToNotes && (
+          <button
+            type="button"
+            onClick={() => onSaveToNotes(msg.content)}
+            className="flex items-center gap-1.5 rounded-lg border border-[#063b32]/15 px-2.5 py-1 text-[11px] font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+          >
+            <BookmarkPlus className="h-3 w-3" />
+            Save to notes
+          </button>
+        )}
       </div>
     </div>
   );
@@ -145,6 +186,11 @@ function ChatPanel({
   allowModelUpgrade,
   onChangeContext,
   showContextSwitcher = true,
+  showNewChatButton = false,
+  onNewChat,
+  onChatStarted,
+  onNotesSaved,
+  onActivityRecorded,
 }: {
   contextType: string;
   contextId: string;
@@ -153,6 +199,11 @@ function ChatPanel({
   allowModelUpgrade: boolean;
   onChangeContext: () => void;
   showContextSwitcher?: boolean;
+  showNewChatButton?: boolean;
+  onNewChat?: () => void;
+  onChatStarted?: () => void;
+  onNotesSaved?: () => void;
+  onActivityRecorded?: () => void;
 }) {
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [session, setSession] = useState<AISession | null>(null);
@@ -164,9 +215,15 @@ function ChatPanel({
   const [model, setModel] = useState("claude-haiku-4-5-20251001");
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [error, setError] = useState("");
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [saveTitle, setSaveTitle] = useState("");
+  const [saveSummary, setSaveSummary] = useState("");
+  const [resetting, setResetting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const modelMenuRef = useRef<HTMLDivElement>(null);
+  const snapshotRef = useRef({ sessionId: "", messageCount: 0 });
+  const lastUserMessageRef = useRef("");
 
   const loadSession = useCallback(async () => {
     setSessionLoading(true);
@@ -198,10 +255,52 @@ function ChatPanel({
   }, [loadSession]);
 
   useEffect(() => {
+    if (session) {
+      snapshotRef.current = {
+        sessionId: session.id,
+        messageCount: session.message_count ?? messages.length,
+      };
+    }
+  }, [session, messages.length]);
+
+  useEffect(() => {
+    if (!sessionLoading && messages.length > 0) {
+      onChatStarted?.();
+    }
+  }, [sessionLoading, messages.length, onChatStarted]);
+
+  const takeSnapshot = useCallback(async () => {
+    const { sessionId, messageCount } = snapshotRef.current;
+    if (!sessionId || messageCount <= 0) return;
+    await recordChatSnapshot(contextType, contextId, sessionId, messageCount);
+    onActivityRecorded?.();
+  }, [contextType, contextId, onActivityRecorded]);
+
+  useEffect(() => {
+    return () => {
+      void takeSnapshot();
+    };
+  }, [takeSnapshot]);
+
+  useEffect(() => {
+    const onPageHide = () => {
+      void takeSnapshot();
+    };
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, [takeSnapshot]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (!inputRef.current) return;
+    inputRef.current.style.height = "auto";
+    inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 120)}px`;
+  }, [input]);
 
   useEffect(() => {
     if (!showModelMenu) return;
@@ -217,7 +316,9 @@ function ChatPanel({
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || sending) return;
+    lastUserMessageRef.current = text;
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     setError("");
     setSending(true);
 
@@ -261,6 +362,11 @@ function ChatPanel({
         json.data!.assistantMessage,
       ]);
       setSession(json.data.session);
+      snapshotRef.current = {
+        sessionId: json.data.session.id,
+        messageCount: json.data.session.message_count ?? messages.length + 2,
+      };
+      onChatStarted?.();
     } catch {
       setError("Network error — please try again.");
       setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
@@ -270,10 +376,53 @@ function ChatPanel({
     }
   };
 
+  const openSaveModal = (assistantContent: string) => {
+    setSaveTitle(guessSummaryTitle(lastUserMessageRef.current));
+    setSaveSummary(assistantContent);
+    setSaveModalOpen(true);
+  };
+
+  const confirmSaveToNotes = async (title: string, summary: string) => {
+    const res = await fetch("/api/admin/ai/chat/save-to-notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contextType, contextId, title, summary }),
+    });
+    const json = (await res.json()) as { error?: string };
+    if (!res.ok) throw new Error(json.error ?? "Failed to save to notes");
+    onNotesSaved?.();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       void sendMessage();
+    }
+  };
+
+  const startNewChat = async () => {
+    if (resetting) return;
+    setResetting(true);
+    setError("");
+    try {
+      if (messages.length > 0) {
+        await takeSnapshot();
+        await fetch("/api/admin/ai/chat/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ context_type: contextType, context_id: contextId }),
+        });
+      }
+      if (onNewChat) {
+        onNewChat();
+      } else {
+        setMessages([]);
+        await loadSession();
+      }
+    } catch {
+      setError("Could not start a new chat — please try again.");
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -283,7 +432,7 @@ function ChatPanel({
   const typeDot = TYPE_DOT[contextType] ?? "bg-gray-400";
 
   return (
-    <div className="flex h-full flex-col bg-white">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white">
       {/* Toolbar */}
       <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/6 px-3 py-2">
         {showContextSwitcher ? (
@@ -302,6 +451,23 @@ function ChatPanel({
             <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
             <span className="truncate text-xs font-medium text-[#111111]">{contextLabel}</span>
           </div>
+        )}
+
+        {showNewChatButton && (
+          <button
+            type="button"
+            onClick={() => void startNewChat()}
+            disabled={resetting || sessionLoading}
+            title="Start a new chat"
+            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[#6f6b62] hover:bg-[#111111]/[0.03] hover:text-[#111111] disabled:opacity-40"
+          >
+            {resetting ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <MessageSquarePlus className="h-3 w-3" />
+            )}
+            New chat
+          </button>
         )}
 
         <div className="relative shrink-0" ref={modelMenuRef}>
@@ -334,7 +500,7 @@ function ChatPanel({
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 space-y-5">
         {sessionLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-5 w-5 animate-spin text-[#6f6b62]" />
@@ -380,7 +546,13 @@ function ChatPanel({
             </div>
           </div>
         ) : (
-          messages.map((msg) => <ChatMessage key={msg.id} msg={msg} />)
+          messages.map((msg) => (
+            <ChatMessage
+              key={msg.id}
+              msg={msg}
+              onSaveToNotes={msg.role === "assistant" ? openSaveModal : undefined}
+            />
+          ))
         )}
 
         {sending && (
@@ -409,8 +581,8 @@ function ChatPanel({
             onKeyDown={handleKeyDown}
             placeholder="Message AI assistant…"
             rows={1}
-            className="flex-1 resize-none bg-transparent text-[13px] text-[#111111] placeholder-[#6f6b62] outline-none"
-            style={{ maxHeight: "120px" }}
+            className="flex-1 resize-none overflow-y-auto bg-transparent text-[13px] text-[#111111] placeholder-[#6f6b62] outline-none"
+            style={{ maxHeight: "120px", minHeight: "24px" }}
           />
           <button
             type="button"
@@ -423,6 +595,14 @@ function ChatPanel({
         </div>
         <p className="mt-1.5 text-center text-[10px] text-[#6f6b62]/80">Enter to send · Shift+Enter for new line</p>
       </div>
+
+      <SaveSummaryModal
+        open={saveModalOpen}
+        onClose={() => setSaveModalOpen(false)}
+        defaultTitle={saveTitle}
+        defaultSummary={saveSummary}
+        onConfirm={confirmSaveToNotes}
+      />
     </div>
   );
 }
@@ -508,36 +688,88 @@ function ContextPicker({
 
 // ── Main widget ───────────────────────────────────────────────────────────────
 
+function readWidgetOpen(): boolean {
+  if (typeof window === "undefined") return false;
+  return sessionStorage.getItem("vaxai-widget-open") === "1";
+}
+
+async function fetchContextDetail(type: string, id: string): Promise<AIContext | null> {
+  try {
+    const res = await fetch(`/api/admin/ai/context-detail?type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}`);
+    const json = (await res.json()) as { type?: AIContextType; id?: string; label?: string; summary?: string };
+    if (!res.ok || !json.type || !json.id) return null;
+    return {
+      type: json.type,
+      id: json.id,
+      label: json.label ?? "Account",
+      summary: json.summary,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export function AIAssistantWidget() {
-  const { context, setContext } = useAIAssistantContext();
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    context,
+    pageContext,
+    hasActiveChat,
+    setManualContext,
+    markChatActive,
+    resetToPageContext,
+    clearManualOverride,
+  } = useAIAssistantContext();
+  const [isOpen, setIsOpen] = useState(readWidgetOpen);
   const [panelSize, setPanelSize] = useState<PanelSize>("large");
   const [customSize, setCustomSize] = useState<{ width: number; height: number } | null>(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [chatNonce, setChatNonce] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
   const resizeDrag = useRef<{ startX: number; startY: number; startW: number; startH: number } | null>(null);
+
+  usePersistWidgetOpen(isOpen);
 
   const activeType = context.type;
   const activeId = context.id;
   const activeLabel = context.label;
   const activeSummary = context.summary ?? buildContextSummary(activeType, activeLabel);
 
-  const hasContext = !!(activeType && activeId);
+  const hasAccountContext = activeType !== "general";
+  const viewingDifferentAccount =
+    pageContext.type !== "general" && !contextsEqual(context, pageContext);
   const allowModelUpgrade = activeType === "client";
 
-  const handleSelectContext = (type: string, id: string, label: string) => {
-    setContext({
-      type: type as AIContextType,
-      id,
-      label,
-      summary: buildContextSummary(type as AIContextType, label),
-    });
+  const handleSelectContext = async (type: string, id: string, label: string) => {
+    const detail = await fetchContextDetail(type, id);
+    setManualContext(
+      detail ?? {
+        type: type as AIContextType,
+        id,
+        label,
+        summary: buildContextSummary(type as AIContextType, label),
+      },
+    );
     setShowPicker(false);
   };
 
   const handleChangeContext = () => {
     setShowPicker(true);
   };
+
+  const handleNewChat = () => {
+    resetToPageContext();
+    setChatNonce((n) => n + 1);
+    setShowPicker(pageContext.type === "general");
+  };
+
+  const handleReturnToPage = () => {
+    clearManualOverride();
+    setShowPicker(false);
+  };
+
+  const handleChatStarted = useCallback(() => {
+    markChatActive();
+  }, [markChatActive]);
 
   const openPanel = () => {
     setIsOpen(true);
@@ -641,17 +873,36 @@ export function AIAssistantWidget() {
           </div>
 
           {/* Body */}
-          <div className="flex flex-1 flex-col overflow-hidden">
-            {showPicker || !hasContext ? (
-              <ContextPicker onSelect={handleSelectContext} />
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            {viewingDifferentAccount && hasAccountContext && (
+              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-amber-200/80 bg-amber-50 px-3 py-2">
+                <p className="text-[11px] text-amber-900">
+                  Chatting about a different account than this page
+                </p>
+                <button
+                  type="button"
+                  onClick={handleReturnToPage}
+                  className="shrink-0 text-[11px] font-semibold text-[#063b32] hover:underline"
+                >
+                  Use current page
+                </button>
+              </div>
+            )}
+
+            {showPicker || (!hasAccountContext && !hasActiveChat) ? (
+              <ContextPicker onSelect={(type, id, label) => void handleSelectContext(type, id, label)} />
             ) : (
               <ChatPanel
-                contextType={activeType!}
-                contextId={activeId!}
-                contextLabel={activeLabel!}
+                key={`${activeType}-${activeId}-${chatNonce}`}
+                contextType={activeType}
+                contextId={activeId}
+                contextLabel={activeLabel}
                 contextSummary={activeSummary}
                 allowModelUpgrade={allowModelUpgrade}
                 onChangeContext={handleChangeContext}
+                showNewChatButton
+                onNewChat={handleNewChat}
+                onChatStarted={handleChatStarted}
               />
             )}
           </div>
@@ -669,20 +920,21 @@ export function AIChatHistory({
   contextLabel,
   contextSummary,
   allowModelUpgrade,
+  onNotesSaved,
+  onActivityRecorded,
 }: {
   contextType: string;
   contextId: string;
   contextLabel: string;
   contextSummary: string;
   allowModelUpgrade?: boolean;
+  onNotesSaved?: () => void;
+  onActivityRecorded?: () => void;
 }) {
   const typeDot = TYPE_DOT[contextType] ?? "bg-gray-400";
 
   return (
-    <div
-      className="flex flex-col rounded-xl border border-[#111111]/10 overflow-hidden shadow-sm"
-      style={{ minHeight: "500px" }}
-    >
+    <div className="flex h-[min(600px,calc(100vh-14rem))] max-h-[70vh] flex-col overflow-hidden rounded-xl border border-[#111111]/10 shadow-sm">
       <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
         <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
           <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
@@ -691,7 +943,7 @@ export function AIChatHistory({
         <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
         <span className="truncate text-xs text-white/70">{contextLabel}</span>
       </div>
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ChatPanel
           contextType={contextType}
           contextId={contextId}
@@ -700,6 +952,9 @@ export function AIChatHistory({
           allowModelUpgrade={allowModelUpgrade ?? false}
           onChangeContext={() => {}}
           showContextSwitcher={false}
+          showNewChatButton
+          onNotesSaved={onNotesSaved}
+          onActivityRecorded={onActivityRecorded}
         />
       </div>
     </div>

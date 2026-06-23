@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
+import { isPlatformAdmin, type StudioRole } from "@/lib/studio-access";
 
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 
@@ -51,12 +52,29 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
 // Routes that need exact-match active detection (startsWith would over-match)
 const exactMatchRoutes = new Set(["/admin", "/admin/engagement"]);
 
+const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
+  {
+    section: "CLIENT ENGAGEMENT",
+    items: [{ label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare }],
+  },
+  {
+    section: "KNOWLEDGE",
+    items: [{ label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen }],
+  },
+  {
+    section: "CONTENT",
+    items: [{ label: "Content Hub", href: "/admin/calendar", icon: CalendarDays }],
+  },
+];
+
 export default function AdminShell({
   children,
   userEmail,
+  studioRole,
 }: {
   children: React.ReactNode;
   userEmail: string | null;
+  studioRole?: StudioRole | null;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(true);
@@ -66,15 +84,18 @@ export default function AdminShell({
     setMounted(true);
   }, []);
 
-  if (pathname === "/admin/login") return <>{children}</>;
+  if (pathname === "/admin/login" || pathname === "/admin/forbidden") return <>{children}</>;
+
+  const platformAdmin = studioRole ? isPlatformAdmin(studioRole) : true;
+  const sections = platformAdmin ? navSections : memberNavSections;
+  const homeHref = platformAdmin ? "/admin/engagement" : "/admin/enquiries";
 
   const isActive = (href: string) =>
     exactMatchRoutes.has(href) ? pathname === href : pathname.startsWith(href);
 
   const isContentActive = pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/authors");
 
-  return (
-    <AIAssistantContextProvider>
+  const shell = (
     <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
       {/* Sidebar */}
       <aside
@@ -85,7 +106,7 @@ export default function AdminShell({
         {/* Logo */}
         <div className={`flex h-14 items-center border-b border-white/10 px-3 ${open ? "justify-between" : "justify-center"}`}>
           {open && (
-            <Link href="/admin" className="flex items-center gap-2.5">
+            <Link href={homeHref} className="flex items-center gap-2.5">
               <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
                 VA
               </span>
@@ -96,7 +117,7 @@ export default function AdminShell({
             </Link>
           )}
           {!open && (
-            <Link href="/admin">
+            <Link href={homeHref}>
               <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
                 VA
               </span>
@@ -114,22 +135,21 @@ export default function AdminShell({
 
         {/* Quick actions */}
         <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
-          <Link
-            href="/admin/posts/new"
-            className={`flex items-center gap-2 rounded-md bg-[#1a5c42] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1f6e4f] transition-colors ${
-              !open ? "h-8 w-8 justify-center p-0" : "w-full"
-            }`}
-            title={!open ? "New post" : undefined}
-          >
-            <Plus className="h-4 w-4 shrink-0" />
-            {open && "New post"}
-          </Link>
-
+            <Link
+              href="/admin/posts/new"
+              className={`flex items-center gap-2 rounded-md bg-[#1a5c42] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1f6e4f] transition-colors ${
+                !open ? "h-8 w-8 justify-center p-0" : "w-full"
+              }`}
+              title={!open ? "New post" : undefined}
+            >
+              <Plus className="h-4 w-4 shrink-0" />
+              {open && "New post"}
+            </Link>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-2 py-2">
-          {navSections.map((section) => (
+          {sections.map((section) => (
             <div key={section.section} className="mb-4">
               {open && (
                 <p className="mb-1 px-2 text-[9px] font-semibold uppercase tracking-[0.18em] text-white/30">
@@ -170,16 +190,18 @@ export default function AdminShell({
 
         {/* Bottom */}
         <div className="space-y-0.5 border-t border-white/10 px-2 py-3">
-          <Link
-            href="/admin/engagement/settings"
-            title={!open ? "Settings" : undefined}
-            className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
-              pathname.startsWith("/admin/engagement/settings") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
-            } ${!open ? "justify-center" : ""}`}
-          >
-            <Settings className="h-4 w-4 shrink-0" />
-            {open && "Settings"}
-          </Link>
+          {platformAdmin && (
+            <Link
+              href="/admin/engagement/settings"
+              title={!open ? "Settings" : undefined}
+              className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+                pathname.startsWith("/admin/engagement/settings") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
+              } ${!open ? "justify-center" : ""}`}
+            >
+              <Settings className="h-4 w-4 shrink-0" />
+              {open && "Settings"}
+            </Link>
+          )}
           <a
             href="/"
             target="_blank"
@@ -259,8 +281,13 @@ export default function AdminShell({
 
         {children}
       </main>
-      <AIAssistantWidget />
+      {platformAdmin && <AIAssistantWidget />}
     </div>
-    </AIAssistantContextProvider>
   );
+
+  if (platformAdmin) {
+    return <AIAssistantContextProvider>{shell}</AIAssistantContextProvider>;
+  }
+
+  return shell;
 }
