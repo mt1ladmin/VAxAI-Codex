@@ -478,6 +478,10 @@ function EnquiryDetailContent() {
           sourceType: "enquiry",
           sourceLabel: `Website enquiry — ${enquiry.name}`,
         }}
+        researchOrgName={enquiry.name}
+        researchContactName={enquiry.name}
+        researchEmail={enquiry.email}
+        researchIndustry={enquiry.support_type}
       />
 
       <ConvertToClientModal

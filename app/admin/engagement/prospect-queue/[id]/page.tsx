@@ -475,6 +475,11 @@ function ProspectDetailContent() {
           sourceType: "queue",
           sourceLabel: `Prospect queue — ${orgName}`,
         }}
+        researchOrgName={orgName}
+        researchContactName={contactName ?? undefined}
+        researchEmail={email ?? undefined}
+        researchIndustry={entry.raw_industry || entry.organisation?.industry || undefined}
+        researchLocation={entry.raw_location || undefined}
       />
 
       <ConvertToClientModal
