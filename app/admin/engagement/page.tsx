@@ -7,7 +7,7 @@ import {
   ArrowRight,
   BookOpen,
   Calendar,
-  CheckCircle2,
+  Inbox,
   Phone,
   Plus,
   Users,
@@ -389,7 +389,7 @@ export default function EngagementOverview() {
           {[
             { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
             { label: "Website Enquiries", href: "/admin/enquiries", icon: Users, desc: "Contact form submissions" },
-            { label: "Prospect Prep", href: "/admin/engagement/prospect-prep", icon: CheckCircle2, desc: "Build prospect briefings" },
+            { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox, desc: "Imported prospects awaiting review" },
           ].map((item) => (
             <Link
               key={item.href}

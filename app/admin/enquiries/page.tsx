@@ -8,10 +8,8 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
-  Clock,
   MessageSquare,
   Search,
-  Target,
   Trash2,
   X,
 } from "lucide-react";
@@ -39,17 +37,11 @@ type Enquiry = {
   next_action_date: string | null;
   last_action: string | null;
   last_action_date: string | null;
+  organisation?: { id: string; name: string } | null;
+  posts?: { id: string; title: string; slug: string } | null;
 };
 
 type TriFilter = "all" | "yes" | "no";
-
-function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-      {children}
-    </p>
-  );
-}
 
 function LabeledField({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -307,7 +299,7 @@ export default function EnquiriesPage() {
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-28 rounded-xl bg-[#f7f4ea] animate-pulse" />
+              <div key={i} className="h-20 rounded-xl bg-[#f7f4ea] animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -333,178 +325,132 @@ export default function EnquiriesPage() {
               <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Select all</span>
             </div>
 
-            {filtered.map((e) => (
-              <div
-                key={e.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => router.push(`/admin/enquiries/${e.id}`)}
-                onKeyDown={(ev) => { if (ev.key === "Enter") router.push(`/admin/enquiries/${e.id}`); }}
-                className="flex cursor-pointer items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
-              >
-                <button
-                  type="button"
-                  onClick={(ev) => { ev.stopPropagation(); toggleSelect(e.id); }}
-                  className={`mt-3 grid h-4 w-4 shrink-0 place-items-center rounded border ${
-                    selected.has(e.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25 bg-white"
-                  }`}
+            {filtered.map((e) => {
+              const postId = e.connected_post_id || e.posts?.id || null;
+              const postTitle = e.connected_post_title || e.posts?.title || null;
+
+              return (
+                <div
+                  key={e.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => router.push(`/admin/enquiries/${e.id}`)}
+                  onKeyDown={(ev) => { if (ev.key === "Enter") router.push(`/admin/enquiries/${e.id}`); }}
+                  className="flex cursor-pointer items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
                 >
-                  {selected.has(e.id) && <Check className="h-3 w-3 text-white" />}
-                </button>
+                  <button
+                    type="button"
+                    onClick={(ev) => { ev.stopPropagation(); toggleSelect(e.id); }}
+                    className={`mt-3 grid h-4 w-4 shrink-0 place-items-center rounded border ${
+                      selected.has(e.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25 bg-white"
+                    }`}
+                  >
+                    {selected.has(e.id) && <Check className="h-3 w-3 text-white" />}
+                  </button>
 
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32]/10">
-                  <MessageSquare className="h-4 w-4 text-[#063b32]" />
-                </div>
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32]/10">
+                    <MessageSquare className="h-4 w-4 text-[#063b32]" />
+                  </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="grid flex-1 gap-4 lg:grid-cols-4">
-                      {/* Metrics */}
-                      <div>
-                        <SectionLabel>Metrics</SectionLabel>
-                        <div className="space-y-2">
-                          <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${ENQUIRY_STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}>
-                            {enquiryStatusLabel(e.status)}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="grid flex-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <LabeledField label="Contact">
+                          <span className="font-semibold">{e.name}</span>
+                          <a
+                            href={`mailto:${e.email}`}
+                            onClick={(ev) => ev.stopPropagation()}
+                            className="mt-0.5 block text-xs text-[#063b32] hover:underline"
+                          >
+                            {e.email}
+                          </a>
+                        </LabeledField>
+                        <LabeledField label="Received">
+                          <span className="flex items-center gap-1 text-[#6f6b62]">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(e.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                           </span>
-                          <LabeledField label="Received">
-                            <span className="flex items-center gap-1 text-[#6f6b62]">
-                              <Calendar className="h-3 w-3" />
-                              {new Date(e.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                            </span>
-                          </LabeledField>
-                          <LabeledField label="Discovery call">
-                            {e.wants_discovery_call ? (
-                              <span className="inline-flex rounded-full bg-[#063b32] px-2 py-0.5 text-xs font-semibold text-[#f5f274]">Requested</span>
+                        </LabeledField>
+                        <LabeledField label="Discovery call">
+                          {e.wants_discovery_call ? (
+                            <span className="inline-flex rounded-full bg-[#063b32] px-2 py-0.5 text-xs font-semibold text-[#f5f274]">Yes</span>
+                          ) : (
+                            <span className="text-[#6f6b62]">No</span>
+                          )}
+                        </LabeledField>
+                        <LabeledField label="Organisation">{e.organisation?.name || "—"}</LabeledField>
+                        <LabeledField label="Support type">
+                          <span className="inline-block rounded-full bg-[#f5f274]/80 px-2 py-0.5 text-xs font-semibold text-[#111111]">
+                            {e.support_type}
+                          </span>
+                        </LabeledField>
+                        <LabeledField label="Related post">
+                          {postTitle ? (
+                            postId ? (
+                              <Link
+                                href={`/admin/posts/${postId}`}
+                                onClick={(ev) => ev.stopPropagation()}
+                                className="line-clamp-2 text-[#063b32] hover:underline"
+                              >
+                                {postTitle}
+                              </Link>
                             ) : (
-                              <span className="text-[#6f6b62]">No</span>
-                            )}
-                          </LabeledField>
-                        </div>
+                              <span className="line-clamp-2">{postTitle}</span>
+                            )
+                          ) : (
+                            "—"
+                          )}
+                        </LabeledField>
                       </div>
 
-                      {/* CATs: Contact, Activity, Type */}
-                      <div>
-                        <SectionLabel>CATs</SectionLabel>
-                        <div className="grid gap-2 sm:grid-cols-2">
-                          <LabeledField label="Contact">
-                            <span className="font-semibold">{e.name}</span>
-                          </LabeledField>
-                          <LabeledField label="Email">
-                            <a
-                              href={`mailto:${e.email}`}
-                              onClick={(ev) => ev.stopPropagation()}
-                              className="text-[#063b32] hover:underline"
-                            >
-                              {e.email}
-                            </a>
-                          </LabeledField>
-                          <LabeledField label="Telephone">{e.telephone || "—"}</LabeledField>
-                          <LabeledField label="Activity">
-                            <span className="line-clamp-2 text-[#6f6b62] leading-relaxed">{e.details || "—"}</span>
-                          </LabeledField>
-                          <LabeledField label="Type">
-                            <span className="inline-block rounded-full bg-[#f5f274]/80 px-2 py-0.5 text-xs font-semibold text-[#111111]">
-                              {e.support_type}
-                            </span>
-                          </LabeledField>
-                          <LabeledField label="Preferred contact">{e.preferred_contact || "—"}</LabeledField>
-                          {e.connected_post_title && (
-                            <div className="sm:col-span-2">
-                              <LabeledField label="Related post">
-                                {e.connected_post_id ? (
-                                  <Link
-                                    href={`/admin/posts/${e.connected_post_id}`}
-                                    onClick={(ev) => ev.stopPropagation()}
-                                    className="text-[#063b32] hover:underline"
-                                  >
-                                    {e.connected_post_title}
-                                  </Link>
-                                ) : (
-                                  e.connected_post_title
-                                )}
-                              </LabeledField>
+                      <div className="flex shrink-0 flex-col items-end gap-2" onClick={(ev) => ev.stopPropagation()}>
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setStatusMenuId(statusMenuId === e.id ? null : e.id)}
+                            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ENQUIRY_STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
+                          >
+                            {enquiryStatusLabel(e.status)}
+                            <ChevronDown className="h-3 w-3" />
+                          </button>
+                          {statusMenuId === e.id && (
+                            <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-[#111111]/10 bg-white shadow-lg">
+                              {ENQUIRY_STATUS_OPTIONS.map((s) => (
+                                <button
+                                  key={s.key}
+                                  type="button"
+                                  onClick={() => void updateStatus(e.id, s.key)}
+                                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea]"
+                                >
+                                  <span className={`h-2 w-2 rounded-full ${ENQUIRY_STATUS_COLORS[s.key]?.split(" ")[0]}`} />
+                                  {s.label}
+                                </button>
+                              ))}
                             </div>
                           )}
                         </div>
-                      </div>
-
-                      {/* Next action */}
-                      <div>
-                        <SectionLabel>Next action</SectionLabel>
-                        {e.next_action ? (
-                          <div>
-                            <p className="text-sm text-[#111111] line-clamp-3">{e.next_action}</p>
-                            {e.next_action_date && (
-                              <p className="mt-1 flex items-center gap-1 text-xs text-[#6f6b62]">
-                                <Target className="h-3 w-3" />
-                                {new Date(e.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-[#6f6b62]/50">—</p>
-                        )}
-                      </div>
-
-                      {/* Last activity */}
-                      <div>
-                        <SectionLabel>Last activity</SectionLabel>
-                        {e.last_action ? (
-                          <div>
-                            <p className="text-sm text-[#111111] line-clamp-3">{e.last_action}</p>
-                            {e.last_action_date && (
-                              <p className="mt-1 flex items-center gap-1 text-xs text-[#6f6b62]">
-                                <Clock className="h-3 w-3" />
-                                {new Date(e.last_action_date).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                              </p>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-[#6f6b62]/50">—</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 flex-col items-end gap-2" onClick={(ev) => ev.stopPropagation()}>
-                      <div className="relative">
                         <button
                           type="button"
-                          onClick={() => setStatusMenuId(statusMenuId === e.id ? null : e.id)}
-                          className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ENQUIRY_STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
+                          onClick={() => void deleteSingle(e.id)}
+                          className="rounded-md border border-[#111111]/15 p-2 text-[#6f6b62] hover:border-red-200 hover:text-red-600"
+                          title="Delete"
                         >
-                          {enquiryStatusLabel(e.status)}
-                          <ChevronDown className="h-3 w-3" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
-                        {statusMenuId === e.id && (
-                          <div className="absolute right-0 top-full z-20 mt-1 w-40 overflow-hidden rounded-md border border-[#111111]/10 bg-white shadow-lg">
-                            {ENQUIRY_STATUS_OPTIONS.map((s) => (
-                              <button
-                                key={s.key}
-                                type="button"
-                                onClick={() => void updateStatus(e.id, s.key)}
-                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea]"
-                              >
-                                <span className={`h-2 w-2 rounded-full ${ENQUIRY_STATUS_COLORS[s.key]?.split(" ")[0]}`} />
-                                {s.label}
-                              </button>
-                            ))}
-                          </div>
-                        )}
+                        <Link
+                          href={`/admin/enquiries/${e.id}`}
+                          onClick={(ev) => ev.stopPropagation()}
+                          className="rounded-md border border-[#111111]/15 p-2 text-[#6f6b62] hover:border-[#063b32]/30 hover:text-[#063b32]"
+                          title="View details"
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => void deleteSingle(e.id)}
-                        className="rounded-md border border-[#111111]/15 p-2 text-[#6f6b62] hover:border-red-200 hover:text-red-600"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                      <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

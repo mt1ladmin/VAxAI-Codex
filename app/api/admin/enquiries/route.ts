@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     const db = createServiceClient();
     let query = db
       .from("enquiries")
-      .select("*, posts(id, title, slug)")
+      .select("*, posts(id, title, slug), organisation:organisation_id(id, name)")
       .order("created_at", { ascending: false });
     if (status && status !== "all") query = query.eq("status", status);
     if (contactId) query = query.eq("contact_id", contactId);

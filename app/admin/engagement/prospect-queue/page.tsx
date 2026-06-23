@@ -755,7 +755,7 @@ export default function ProspectQueuePage() {
         {loading ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-24 rounded-xl bg-[#f7f4ea] animate-pulse" />
+              <div key={i} className="h-20 rounded-xl bg-[#f7f4ea] animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -791,7 +791,6 @@ export default function ProspectQueuePage() {
               const contactName = e.contact
                 ? `${e.contact.first_name} ${e.contact.last_name || ""}`.trim()
                 : e.raw_contact_name;
-              const email = e.contact?.professional_email || e.raw_email;
               const industry = e.raw_industry || e.organisation?.industry;
 
               return (
@@ -822,12 +821,7 @@ export default function ProspectQueuePage() {
                           </Link>
                         </LabeledField>
                         <LabeledField label="Contact">{contactName || "—"}</LabeledField>
-                        <LabeledField label="Email">
-                          {email ? <a href={`mailto:${email}`} className="text-[#063b32] hover:underline">{email}</a> : "—"}
-                        </LabeledField>
-                        <LabeledField label="Phone">{e.raw_phone || "—"}</LabeledField>
                         <LabeledField label="Industry">{industry || "—"}</LabeledField>
-                        <LabeledField label="Location">{e.raw_location || "—"}</LabeledField>
                         <LabeledField label="Status">
                           <div className={updatingId === e.id ? "opacity-50 pointer-events-none" : ""}>
                             <CustomSelect
@@ -839,25 +833,6 @@ export default function ProspectQueuePage() {
                             />
                           </div>
                         </LabeledField>
-                        <LabeledField label="Next action">
-                          {e.next_action ? (
-                            <>
-                              {e.next_action}
-                              {e.next_action_date && (
-                                <span className="block text-xs text-[#6f6b62]">
-                                  {new Date(e.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                                </span>
-                              )}
-                            </>
-                          ) : "—"}
-                        </LabeledField>
-                        {e.raw_notes && (
-                          <div className="sm:col-span-2 lg:col-span-4">
-                            <LabeledField label="Notes">
-                              <span className="line-clamp-2 text-[#6f6b62]">{e.raw_notes}</span>
-                            </LabeledField>
-                          </div>
-                        )}
                       </div>
 
                       <div className="flex shrink-0 flex-col items-end gap-2">
