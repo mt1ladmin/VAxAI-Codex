@@ -360,6 +360,10 @@ export default function ProspectDetailPage() {
     setShowCreateOppModal(true);
   };
 
+  const handleOpportunityUpdated = (updated: EngagementOpportunity) => {
+    setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+  };
+
   const handleOpportunityCreated = (opp: EngagementOpportunity) => {
     setOpportunities((prev) => [opp, ...prev.filter((o) => o.id !== opp.id)]);
     setActiveTab("opportunities");
@@ -858,7 +862,7 @@ export default function ProspectDetailPage() {
                         <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expandedActivityOppId === opp.id ? "rotate-180" : ""}`} />
                       </button>
                       {expandedActivityOppId === opp.id && (
-                        <OpportunityPreviewCard opportunity={opp} defaultExpanded />
+                        <OpportunityPreviewCard opportunity={opp} defaultExpanded editable onUpdated={handleOpportunityUpdated} />
                       )}
                     </div>
                   ))}
@@ -986,7 +990,7 @@ export default function ProspectDetailPage() {
               {opportunities.length > 0 ? (
                 <div className="space-y-2">
                   {opportunities.map((opp) => (
-                    <OpportunityPreviewCard key={opp.id} opportunity={opp} />
+                    <OpportunityPreviewCard key={opp.id} opportunity={opp} editable onUpdated={handleOpportunityUpdated} />
                   ))}
                 </div>
               ) : (

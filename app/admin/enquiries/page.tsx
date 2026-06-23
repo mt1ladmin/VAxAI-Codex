@@ -13,12 +13,13 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { FilterSelect } from "@/components/admin/FilterSelect";
 import {
   ENQUIRY_STATUS_COLORS,
   ENQUIRY_STATUS_OPTIONS,
+  ENQUIRY_STATUSES,
   enquiryStatusLabel,
 } from "@/lib/enquiries/constants";
-import { PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
 
 type Enquiry = {
   id: string;
@@ -42,6 +43,24 @@ type Enquiry = {
 };
 
 type TriFilter = "all" | "yes" | "no";
+
+const NEXT_ACTION_FILTER_OPTIONS = [
+  { value: "all" as const, label: "Next action: all" },
+  { value: "yes" as const, label: "With next action" },
+  { value: "no" as const, label: "No next action" },
+];
+
+const DISCOVERY_CALL_FILTER_OPTIONS = [
+  { value: "all" as const, label: "Discovery call: all" },
+  { value: "yes" as const, label: "Discovery call requested" },
+  { value: "no" as const, label: "No discovery call" },
+];
+
+const OPPORTUNITY_FILTER_OPTIONS = [
+  { value: "all" as const, label: "Opportunity: all" },
+  { value: "yes" as const, label: "Has opportunity" },
+  { value: "no" as const, label: "No opportunity" },
+];
 
 function LabeledField({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -220,43 +239,26 @@ export default function EnquiriesPage() {
               </button>
             )}
           </div>
-          <select
+          <FilterSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
-          >
-            <option value="all">All statuses</option>
-            {PROSPECT_QUEUE_STATUSES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          <select
+            onChange={setStatusFilter}
+            options={ENQUIRY_STATUSES.map((s) => ({ value: s.key, label: s.label }))}
+          />
+          <FilterSelect
             value={nextActionFilter}
-            onChange={(e) => setNextActionFilter(e.target.value as TriFilter)}
-            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
-          >
-            <option value="all">Next action: all</option>
-            <option value="yes">With next action</option>
-            <option value="no">No next action</option>
-          </select>
-          <select
+            onChange={setNextActionFilter}
+            options={NEXT_ACTION_FILTER_OPTIONS}
+          />
+          <FilterSelect
             value={discoveryCallFilter}
-            onChange={(e) => setDiscoveryCallFilter(e.target.value as TriFilter)}
-            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
-          >
-            <option value="all">Discovery call: all</option>
-            <option value="yes">Discovery call requested</option>
-            <option value="no">No discovery call</option>
-          </select>
-          <select
+            onChange={setDiscoveryCallFilter}
+            options={DISCOVERY_CALL_FILTER_OPTIONS}
+          />
+          <FilterSelect
             value={opportunityFilter}
-            onChange={(e) => setOpportunityFilter(e.target.value as TriFilter)}
-            className="rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-sm font-semibold text-[#111111] outline-none focus:border-[#063b32]"
-          >
-            <option value="all">Opportunity: all</option>
-            <option value="yes">Has opportunity</option>
-            <option value="no">No opportunity</option>
-          </select>
+            onChange={setOpportunityFilter}
+            options={OPPORTUNITY_FILTER_OPTIONS}
+          />
           {hasActiveFilters && (
             <button
               type="button"
