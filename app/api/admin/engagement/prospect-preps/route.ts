@@ -20,6 +20,12 @@ export async function GET(req: NextRequest) {
   if (contactId) query = query.eq("contact_id", contactId);
   if (queueId) query = query.eq("queue_id", queueId);
 
+  if (!enquiryId && !contactId && !queueId) {
+    query = query.or(
+      "enquiry_id.not.is.null,queue_id.not.is.null,contact_id.not.is.null,organisation_id.not.is.null",
+    );
+  }
+
   const { data, error } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -32,6 +38,16 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const supabase = createServiceClient();
   const body = await req.json();
+
+  const hasAccountLink = Boolean(
+    body.enquiryId || body.queueId || body.contactId || body.organisationId,
+  );
+  if (!hasAccountLink) {
+    return NextResponse.json(
+      { error: "Prospect prep must be linked to an enquiry, prospect queue item, contact, or organisation." },
+      { status: 400 },
+    );
+  }
 
   const payload = buildPrepInsertPayload(
     {

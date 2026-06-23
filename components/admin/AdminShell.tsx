@@ -17,7 +17,6 @@ import {
   Phone,
   Plus,
   Settings,
-  Target,
   Users,
 } from "lucide-react";
 
@@ -38,7 +37,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "LIVE TOOLS",
     items: [
       { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
-      { label: "Prospect Prep", href: "/admin/engagement/prospect-prep", icon: Target },
       { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen },
     ],
   },

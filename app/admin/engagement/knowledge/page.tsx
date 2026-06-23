@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight, BookOpen, ChevronDown, Search } from "lucide-react";
 import {
   PAIN_POINT_CATEGORIES,
@@ -71,7 +71,6 @@ function CustomSelect({
 }
 
 function KnowledgePageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("sectors");
   const [search, setSearch] = useState("");
@@ -128,13 +127,8 @@ function KnowledgePageInner() {
 
   useEffect(() => {
     const urlTab = searchParams.get("tab");
-    if (urlTab === "prospect_prep" || urlTab === "prospect_prep_history") {
-      const prep = searchParams.get("prep");
-      router.replace(`/admin/engagement/prospect-prep?tab=${urlTab}${prep ? `&prep=${prep}` : ""}`);
-      return;
-    }
     if (urlTab && TAB_KEYS.includes(urlTab as Tab)) setTab(urlTab as Tab);
-  }, [searchParams, router]);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-white">
