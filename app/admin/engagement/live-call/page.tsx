@@ -5,12 +5,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertTriangle,
   Bot,
+  Briefcase,
   CheckCircle2,
   ChevronDown,
   Clock,
   Copy,
   FileEdit,
+  Inbox,
+  Link2,
   Loader2,
+  MessageSquare,
   Phone,
   PhoneOff,
   Plus,
@@ -24,11 +28,20 @@ import {
 } from "lucide-react";
 import { CallAssistChat } from "@/components/admin/CallAssistChat";
 import type { CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
+import {
+  buildEnquiryCallContext,
+  buildOpportunityCallContext,
+  buildQueueCallContext,
+  clearPersistedCallContext,
+  persistCallContext,
+} from "@/lib/engagement/live-call-link";
 import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } from "@/lib/engagement/types";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import { CallRecordsContent } from "./call-records-content";
 
 type PageTab = "live_call" | "call_records";
+type LinkSourceTab = "enquiry" | "queue" | "opportunity";
+type LinkSearchResult = { id: string; label: string; sublabel: string; source: LinkSourceTab };
 
 type CallNote = { id: string; text: string; timestamp: Date; type: "note" | "pain_point" | "commitment" | "question" };
 type CallState = "pre" | "active" | "post";
@@ -215,6 +228,11 @@ function LiveCallAssistInner() {
   const [prepPickerList, setPrepPickerList] = useState<ProspectPrepClient[]>([]);
   const [prepPickerLoading, setPrepPickerLoading] = useState(false);
   const [pageTab, setPageTab] = useState<PageTab>("live_call");
+  const [linkSourceTab, setLinkSourceTab] = useState<LinkSourceTab>("enquiry");
+  const [linkSearch, setLinkSearch] = useState("");
+  const [linkResults, setLinkResults] = useState<LinkSearchResult[]>([]);
+  const [linkSearching, setLinkSearching] = useState(false);
+  const [linkLoadingId, setLinkLoadingId] = useState<string | null>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
   const toggleContextSection = (key: string) => {
@@ -260,7 +278,69 @@ function LiveCallAssistInner() {
   const initialOrgId = searchParams.get("org");
   const initialContactId = searchParams.get("contact");
   const initialEnquiryId = searchParams.get("enquiry");
+  const initialQueueId = searchParams.get("queue");
   const initialOpportunityId = searchParams.get("opportunity") || searchParams.get("opp");
+
+  const applyLinkedContext = useCallback(async (ctx: ProspectCallContext) => {
+    setQueueContext(ctx);
+    persistCallContext(ctx);
+    const expanded: Record<string, boolean> = { prospect: true };
+    ctx.customCards?.forEach((c) => { expanded[c.id] = true; });
+    ctx.prospectPreps?.forEach((p) => { expanded[`prep-${p.id}`] = true; });
+    setExpandedContext(expanded);
+    if (ctx.prospectPreps?.length) setLoadedPreps(ctx.prospectPreps);
+
+    if (ctx.organisationId) {
+      const orgRes = await fetch(`/api/admin/engagement/organisations/${ctx.organisationId}`);
+      const orgJson = await orgRes.json() as { data?: EngagementOrganisation };
+      if (orgJson.data) setSelectedOrg(orgJson.data);
+      else setSelectedOrg(null);
+    } else {
+      setSelectedOrg(null);
+    }
+
+    if (ctx.contactId) {
+      const contactRes = await fetch(`/api/admin/engagement/contacts/${ctx.contactId}`);
+      const contactJson = await contactRes.json() as { data?: EngagementContact };
+      if (contactJson.data) setSelectedContact(contactJson.data);
+      else setSelectedContact(null);
+    } else {
+      setSelectedContact(null);
+    }
+  }, []);
+
+  const clearLink = useCallback(() => {
+    setQueueContext(null);
+    clearPersistedCallContext();
+    setSelectedOrg(null);
+    setSelectedContact(null);
+    setLoadedPreps([]);
+    setLinkSearch("");
+    setLinkResults([]);
+  }, []);
+
+  const linkRecord = useCallback(async (source: LinkSourceTab, id: string) => {
+    setLinkLoadingId(id);
+    try {
+      let ctx: ProspectCallContext | null = null;
+      if (source === "enquiry") {
+        const res = await fetch(`/api/admin/enquiries/${id}`);
+        const j = await res.json() as { data?: Parameters<typeof buildEnquiryCallContext>[0] };
+        if (j.data) ctx = buildEnquiryCallContext(j.data, initialOpportunityId);
+      } else if (source === "queue") {
+        const res = await fetch(`/api/admin/engagement/prospect-queue/${id}`);
+        const j = await res.json() as { data?: Parameters<typeof buildQueueCallContext>[0] };
+        if (j.data) ctx = buildQueueCallContext(j.data, initialOpportunityId);
+      } else {
+        const res = await fetch(`/api/admin/engagement/opportunities/${id}`);
+        const j = await res.json() as { data?: Parameters<typeof buildOpportunityCallContext>[0] };
+        if (j.data) ctx = buildOpportunityCallContext(j.data);
+      }
+      if (ctx) await applyLinkedContext(ctx);
+    } finally {
+      setLinkLoadingId(null);
+    }
+  }, [applyLinkedContext, initialOpportunityId]);
 
   useEffect(() => {
     const urlTab = searchParams.get("tab");
@@ -290,13 +370,7 @@ function LiveCallAssistInner() {
           prospectPreps: raw.prospectPreps || [],
           customCards: raw.customCards || [],
         };
-        setQueueContext(ctx);
-        const expanded: Record<string, boolean> = { prospect: true };
-        ctx.aiPrepCards?.forEach((c) => { expanded[c.id] = true; });
-        ctx.prospectPreps?.forEach((p) => { expanded[`prep-${p.id}`] = true; });
-        ctx.customCards?.forEach((c) => { expanded[c.id] = true; });
-        setExpandedContext(expanded);
-        if (ctx.prospectPreps?.length) setLoadedPreps(ctx.prospectPreps);
+        void applyLinkedContext(ctx);
       } catch { /* ignore */ }
     }
     const prepsRaw = sessionStorage.getItem("currentProspectPreps") || sessionStorage.getItem("currentProspectPrep") || localStorage.getItem("currentProspectPrep");
@@ -338,132 +412,97 @@ function LiveCallAssistInner() {
 
   useEffect(() => {
     if (!initialEnquiryId || queueContext) return;
-    fetch(`/api/admin/enquiries/${initialEnquiryId}`)
-      .then((r) => r.json())
-      .then((j: { data?: {
-        id: string;
-        name: string;
-        email: string;
-        telephone: string | null;
-        support_type: string;
-        preferred_contact: string;
-        details: string;
-        wants_discovery_call: boolean;
-        admin_notes: string | null;
-        next_action: string | null;
-        next_action_date: string | null;
-        contact_id: string | null;
-        organisation_id: string | null;
-        sector_snapshot: ProspectCallContext["sector"];
-        persona_snapshot: ProspectCallContext["persona"];
-      } }) => {
-        const e = j.data;
-        if (!e) return;
-        const submissionCard: CustomCard = {
-          id: "enquiry-submission",
-          title: "Website submission",
-          content: [
-            `Query type: ${e.support_type}`,
-            `Preferred contact: ${e.preferred_contact || "—"}`,
-            `Discovery call requested: ${e.wants_discovery_call ? "Yes" : "No"}`,
-            "",
-            e.details,
-          ].join("\n"),
-        };
-        const ctx: ProspectCallContext = {
-          sourceType: "enquiry",
-          sourceId: e.id,
-          enquiryId: e.id,
-          contactId: e.contact_id,
-          organisationId: e.organisation_id,
-          queueId: `enquiry-${e.id}`,
-          orgName: e.name,
-          contactName: e.name,
-          email: e.email,
-          phone: e.telephone,
-          website: null,
-          industry: e.sector_snapshot?.name || null,
-          location: null,
-          linkedin: null,
-          notes: e.admin_notes || e.details,
-          nextAction: e.next_action,
-          nextActionDate: e.next_action_date,
-          sector: e.sector_snapshot,
-          persona: e.persona_snapshot,
-          aiPrepCards: [],
-          prospectPreps: [],
-          customCards: [submissionCard],
-        };
-        setQueueContext({
-          ...ctx,
-          opportunityId: initialOpportunityId || ctx.opportunityId || null,
-        });
-        setExpandedContext({ prospect: true, "enquiry-submission": true });
-      })
-      .catch(() => undefined);
-  }, [initialEnquiryId, initialOpportunityId, queueContext]);
+    void linkRecord("enquiry", initialEnquiryId);
+  }, [initialEnquiryId, queueContext, linkRecord]);
+
+  useEffect(() => {
+    if (!initialQueueId || queueContext) return;
+    void linkRecord("queue", initialQueueId);
+  }, [initialQueueId, queueContext, linkRecord]);
 
   useEffect(() => {
     if (!initialOpportunityId || queueContext) return;
-    fetch(`/api/admin/engagement/opportunities/${initialOpportunityId}`)
-      .then((r) => r.json())
-      .then((j: { data?: {
-        id: string;
-        title: string;
-        stage: string;
-        next_action: string | null;
-        expected_decision_date: string | null;
-        notes: string | null;
-        enquiry_id: string | null;
-        queue_id: string | null;
-        organisation_id: string | null;
-        primary_contact_id: string | null;
-        organisation?: { id: string; name: string } | null;
-        primary_contact?: { id: string; first_name: string; last_name: string | null } | null;
-      } }) => {
-        const opp = j.data;
-        if (!opp) return;
-        const contactName = opp.primary_contact
-          ? `${opp.primary_contact.first_name} ${opp.primary_contact.last_name || ""}`.trim()
-          : null;
-        const ctx: ProspectCallContext = {
-          sourceType: "opportunity",
-          sourceId: opp.id,
-          opportunityId: opp.id,
-          enquiryId: opp.enquiry_id,
-          queueId: opp.queue_id || `opportunity-${opp.id}`,
-          contactId: opp.primary_contact_id,
-          organisationId: opp.organisation_id,
-          orgName: opp.organisation?.name || opp.title,
-          contactName,
-          email: null,
-          phone: null,
-          website: null,
-          industry: null,
-          location: null,
-          linkedin: null,
-          notes: opp.notes,
-          nextAction: opp.next_action,
-          nextActionDate: opp.expected_decision_date,
-          aiPrepCards: [],
-          prospectPreps: [],
-          customCards: [{
-            id: "opportunity-summary",
-            title: "Opportunity",
-            content: [`Title: ${opp.title}`, `Stage: ${opp.stage}`, `Next action: ${opp.next_action || "—"}`].join("\n"),
-          }],
-        };
-        setQueueContext(ctx);
-        setExpandedContext({ prospect: true, "opportunity-summary": true });
-      })
-      .catch(() => undefined);
-  }, [initialOpportunityId, queueContext]);
+    void linkRecord("opportunity", initialOpportunityId);
+  }, [initialOpportunityId, queueContext, linkRecord]);
 
   useEffect(() => {
-    if (!initialOpportunityId || !queueContext) return;
-    if (queueContext.opportunityId === initialOpportunityId) return;
-    setQueueContext((prev) => prev ? { ...prev, opportunityId: initialOpportunityId } : prev);
-  }, [initialOpportunityId, queueContext]);
+    if (!linkSearch.trim() || queueContext) {
+      setLinkResults([]);
+      return;
+    }
+    const q = linkSearch.trim().toLowerCase();
+    const timer = setTimeout(() => {
+      void (async () => {
+        setLinkSearching(true);
+        try {
+          if (linkSourceTab === "enquiry") {
+            const res = await fetch("/api/admin/enquiries?status=all");
+            const j = await res.json() as { data?: Array<{ id: string; name: string; email: string; support_type: string }> };
+            setLinkResults(
+              (j.data || [])
+                .filter((e) =>
+                  e.name.toLowerCase().includes(q) ||
+                  e.email.toLowerCase().includes(q) ||
+                  e.support_type.toLowerCase().includes(q),
+                )
+                .slice(0, 8)
+                .map((e) => ({
+                  id: e.id,
+                  label: e.name,
+                  sublabel: `${e.email} · ${e.support_type}`,
+                  source: "enquiry" as const,
+                })),
+            );
+          } else if (linkSourceTab === "queue") {
+            const res = await fetch("/api/admin/engagement/prospect-queue?limit=200");
+            const j = await res.json() as { data?: Array<{
+              id: string;
+              raw_org_name: string | null;
+              raw_contact_name: string | null;
+              raw_email: string | null;
+              status: string;
+              organisation?: { name: string } | null;
+            }> };
+            setLinkResults(
+              (j.data || [])
+                .filter((e) => {
+                  const org = (e.organisation?.name || e.raw_org_name || "").toLowerCase();
+                  const contact = (e.raw_contact_name || "").toLowerCase();
+                  const email = (e.raw_email || "").toLowerCase();
+                  return org.includes(q) || contact.includes(q) || email.includes(q);
+                })
+                .slice(0, 8)
+                .map((e) => ({
+                  id: e.id,
+                  label: e.organisation?.name || e.raw_org_name || e.raw_contact_name || "Prospect",
+                  sublabel: [e.raw_contact_name, e.raw_email, e.status].filter(Boolean).join(" · "),
+                  source: "queue" as const,
+                })),
+            );
+          } else {
+            const res = await fetch(`/api/admin/engagement/opportunities?q=${encodeURIComponent(linkSearch.trim())}&limit=10`);
+            const j = await res.json() as { data?: Array<{
+              id: string;
+              title: string;
+              stage: string;
+              organisation?: { name: string } | null;
+            }> };
+            setLinkResults(
+              (j.data || []).map((o) => ({
+                id: o.id,
+                label: o.title,
+                sublabel: `${o.organisation?.name || "No org"} · ${o.stage}`,
+                source: "opportunity" as const,
+              })),
+            );
+          }
+        } finally {
+          setLinkSearching(false);
+        }
+      })();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [linkSearch, linkSourceTab, queueContext]);
 
   const loadPrepPicker = async () => {
     setPrepPickerLoading(true);
@@ -709,10 +748,16 @@ function LiveCallAssistInner() {
   };
 
   const startCall = () => {
+    if (!queueContext) return;
+    persistCallContext(queueContext);
+    setNotes([]);
+    setNoteText("");
+    setSelectedPainPoints([]);
+    setLiveDrafts([]);
+    setAiMatches([]);
     setPageTab("live_call");
     setCallState("active");
     setCallStartTime(new Date());
-    noteRef.current?.focus();
   };
 
   const endCall = () => {
@@ -816,12 +861,12 @@ function LiveCallAssistInner() {
   const inCall = callState === "active" || callState === "post";
 
   const hasRequiredConnection = Boolean(
-    queueContext?.enquiryId ||
-    (queueContext?.sourceType === "queue" && queueContext.sourceId && !queueContext.sourceId.startsWith("enquiry-")) ||
-    queueContext?.opportunityId ||
-    queueContext?.sourceType === "opportunity" ||
-    initialEnquiryId ||
-    initialOpportunityId,
+    queueContext && (
+      queueContext.enquiryId ||
+      queueContext.opportunityId ||
+      queueContext.sourceType === "opportunity" ||
+      (queueContext.sourceType === "queue" && queueContext.sourceId)
+    ),
   );
 
   const connectionLabel = queueContext?.sourceType === "enquiry"
@@ -830,11 +875,7 @@ function LiveCallAssistInner() {
       ? "Prospect queue"
       : queueContext?.sourceType === "opportunity"
         ? "Opportunity"
-        : initialEnquiryId
-          ? "Website enquiry"
-          : initialOpportunityId
-            ? "Opportunity"
-            : null;
+        : null;
 
   useEffect(() => {
     if (inCall && pageTab === "call_records") setPageTab("live_call");
@@ -939,10 +980,102 @@ function LiveCallAssistInner() {
             <div className="rounded-2xl border border-[#111111]/10 bg-white p-8 shadow-sm">
               <div className="text-center mb-6">
                 <h3 className="font-semibold text-xl text-[#111111]">Set up this call</h3>
-                <p className="mt-1 text-sm text-[#6f6b62]">Choose call type and link an organisation or contact, then start your assisted call.</p>
+                <p className="mt-1 text-sm text-[#6f6b62]">Link to a record, choose call type, then start your assisted call.</p>
               </div>
 
               <div className="space-y-5">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
+                    Link to record
+                  </label>
+                  {hasRequiredConnection && queueContext ? (
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-emerald-900">
+                            <Link2 className="inline h-3.5 w-3.5 mr-1" />
+                            {connectionLabel} — {queueContext.orgName}
+                          </p>
+                          {queueContext.contactName && (
+                            <p className="mt-0.5 text-xs text-emerald-800">{queueContext.contactName}</p>
+                          )}
+                          {queueContext.email && (
+                            <p className="mt-0.5 text-xs text-emerald-700">{queueContext.email}</p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={clearLink}
+                          className="shrink-0 text-xs font-semibold text-emerald-800 hover:underline"
+                        >
+                          Change
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/30 p-4">
+                      <div className="mb-3 flex overflow-hidden rounded-lg border border-[#111111]/15 bg-white">
+                        {([
+                          ["enquiry", "Enquiries", MessageSquare],
+                          ["queue", "Prospect queue", Inbox],
+                          ["opportunity", "Opportunities", Briefcase],
+                        ] as const).map(([key, label, Icon]) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => { setLinkSourceTab(key); setLinkResults([]); }}
+                            className={`flex flex-1 items-center justify-center gap-1.5 px-2 py-2 text-[10px] font-semibold transition-colors ${
+                              linkSourceTab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                            }`}
+                          >
+                            <Icon className="h-3.5 w-3.5" />
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                        <input
+                          value={linkSearch}
+                          onChange={(e) => setLinkSearch(e.target.value)}
+                          placeholder={
+                            linkSourceTab === "enquiry"
+                              ? "Search enquiries by name or email…"
+                              : linkSourceTab === "queue"
+                                ? "Search prospect queue by org or contact…"
+                                : "Search opportunities by title…"
+                          }
+                          className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+                        />
+                      </div>
+                      {linkSearching && (
+                        <p className="mt-2 flex items-center gap-1.5 text-xs text-[#6f6b62]">
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
+                        </p>
+                      )}
+                      {linkResults.length > 0 && (
+                        <div className="mt-2 max-h-48 overflow-y-auto rounded-lg border border-[#111111]/10 bg-white">
+                          {linkResults.map((r) => (
+                            <button
+                              key={r.id}
+                              type="button"
+                              disabled={linkLoadingId === r.id}
+                              onClick={() => void linkRecord(r.source, r.id)}
+                              className="flex w-full flex-col items-start px-3 py-2.5 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0 disabled:opacity-50"
+                            >
+                              <span className="text-sm font-semibold text-[#111111]">{r.label}</span>
+                              <span className="text-xs text-[#6f6b62]">{r.sublabel}</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {linkSearch.trim() && !linkSearching && linkResults.length === 0 && (
+                        <p className="mt-2 text-xs text-[#6f6b62]">No matches — try a different search.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-2">
                     Call type
@@ -1052,18 +1185,8 @@ function LiveCallAssistInner() {
                 </div>
               </div>
 
-              {connectionLabel && (
-                <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                  Connected to <span className="font-semibold">{connectionLabel}</span>
-                  {queueContext?.orgName && <> — {queueContext.orgName}</>}
-                </div>
-              )}
-              {!hasRequiredConnection && (
-                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                  Link this call to a <strong>website enquiry</strong>, <strong>prospect queue</strong> entry, or <strong>opportunity</strong> before starting. Open one of those records and use &ldquo;Start live call&rdquo;.
-                </div>
-              )}
               <button
+                type="button"
                 onClick={startCall}
                 disabled={!hasRequiredConnection}
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1a5c42] transition-colors disabled:cursor-not-allowed disabled:opacity-40"

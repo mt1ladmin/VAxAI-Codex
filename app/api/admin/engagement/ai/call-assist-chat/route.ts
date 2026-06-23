@@ -8,8 +8,7 @@ const MODEL = "claude-haiku-4-5-20251001";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-function compactContext(ctx: ProspectCallContext | null | undefined): string {
-  if (!ctx) return "No prospect context loaded.";
+function compactContext(ctx: ProspectCallContext): string {
   const source =
     ctx.sourceType === "enquiry"
       ? "Website enquiry"
@@ -36,8 +35,8 @@ function compactContext(ctx: ProspectCallContext | null | undefined): string {
   return lines.join("\n");
 }
 
-function formatPreps(ctx: ProspectCallContext | null | undefined): string {
-  if (!ctx?.prospectPreps?.length) return "No prospect preps attached.";
+function formatPreps(ctx: ProspectCallContext): string {
+  if (!ctx.prospectPreps?.length) return "No prospect preps attached.";
   return ctx.prospectPreps
     .map((p) => {
       const pains = p.relevantPains?.map((pp) => pp.title).join(", ") || "none";
@@ -46,28 +45,40 @@ function formatPreps(ctx: ProspectCallContext | null | undefined): string {
     .join("\n");
 }
 
-function formatCustomCards(ctx: ProspectCallContext | null | undefined): string {
-  if (!ctx?.customCards?.length) return "";
+function formatCustomCards(ctx: ProspectCallContext): string {
+  if (!ctx.customCards?.length) return "";
   return ctx.customCards.map((c) => `[${c.title}]\n${c.content}`).join("\n\n");
 }
 
-async function loadLinkedRecordContext(db: ReturnType<typeof createServiceClient>, ctx: ProspectCallContext | null | undefined): Promise<string> {
-  if (!ctx) return "";
+async function loadAccountContext(db: ReturnType<typeof createServiceClient>, ctx: ProspectCallContext): Promise<string> {
   const blocks: string[] = [];
 
-  if (ctx.enquiryId) {
-    const { data: e } = await db.from("enquiries").select("name, email, support_type, details, wants_discovery_call, status, next_action, admin_notes").eq("id", ctx.enquiryId).single();
+  if (ctx.sourceType === "enquiry" && ctx.enquiryId) {
+    const { data: e } = await db
+      .from("enquiries")
+      .select("name, email, support_type, details, wants_discovery_call, status, next_action, admin_notes, preferred_contact, telephone")
+      .eq("id", ctx.enquiryId)
+      .single();
     if (e) {
       blocks.push(
-        `WEBSITE ENQUIRY:\nName: ${e.name}\nEmail: ${e.email}\nSupport type: ${e.support_type}\nStatus: ${e.status}\nDiscovery call: ${e.wants_discovery_call ? "Yes" : "No"}\nNext action: ${e.next_action || "—"}\nDetails: ${(e.details as string || "").slice(0, 400)}\nAdmin notes: ${(e.admin_notes as string || "").slice(0, 300)}`,
+        `WEBSITE ENQUIRY:\nName: ${e.name}\nEmail: ${e.email}\nPhone: ${e.telephone || "—"}\nSupport type: ${e.support_type}\nStatus: ${e.status}\nDiscovery call: ${e.wants_discovery_call ? "Yes" : "No"}\nNext action: ${e.next_action || "—"}\nDetails: ${(e.details as string || "").slice(0, 500)}\nAdmin notes: ${(e.admin_notes as string || "").slice(0, 400)}`,
       );
     }
-  }
-
-  if (ctx.opportunityId) {
+  } else if (ctx.sourceType === "queue" && ctx.sourceId) {
+    const { data: q } = await db
+      .from("prospect_queue")
+      .select("raw_org_name, raw_contact_name, raw_email, raw_phone, raw_website, raw_industry, raw_location, status, next_action, raw_notes")
+      .eq("id", ctx.sourceId)
+      .single();
+    if (q) {
+      blocks.push(
+        `PROSPECT QUEUE:\nOrg: ${q.raw_org_name}\nContact: ${q.raw_contact_name}\nEmail: ${q.raw_email}\nPhone: ${q.raw_phone || "—"}\nIndustry: ${q.raw_industry}\nStatus: ${q.status}\nNext action: ${q.next_action || "—"}\nNotes: ${(q.raw_notes as string || "").slice(0, 500)}`,
+      );
+    }
+  } else if (ctx.sourceType === "opportunity" && ctx.opportunityId) {
     const { data: opp } = await db
       .from("engagement_opportunities")
-      .select("title, stage, next_action, expected_decision_date, indicative_value_low, indicative_value_high, notes, enquiry_id, queue_id")
+      .select("title, stage, next_action, expected_decision_date, indicative_value_low, indicative_value_high, notes")
       .eq("id", ctx.opportunityId)
       .single();
     if (opp) {
@@ -76,38 +87,65 @@ async function loadLinkedRecordContext(db: ReturnType<typeof createServiceClient
           ? `£${opp.indicative_value_low ?? 0}–${opp.indicative_value_high ?? opp.indicative_value_low}`
           : "—";
       blocks.push(
-        `OPPORTUNITY:\nTitle: ${opp.title}\nStage: ${opp.stage}\nValue: ${value}\nNext action: ${opp.next_action || "—"}\nExpected decision: ${opp.expected_decision_date || "—"}\nNotes: ${(opp.notes as string || "").slice(0, 400)}`,
+        `OPPORTUNITY:\nTitle: ${opp.title}\nStage: ${opp.stage}\nValue: ${value}\nNext action: ${opp.next_action || "—"}\nExpected decision: ${opp.expected_decision_date || "—"}\nNotes: ${(opp.notes as string || "").slice(0, 500)}`,
       );
     }
   }
 
-  if (ctx.sourceType === "queue" && ctx.sourceId && !ctx.sourceId.startsWith("enquiry-")) {
-    const { data: q } = await db
-      .from("engagement_prospect_queue")
-      .select("raw_org_name, raw_contact_name, raw_email, raw_industry, raw_location, status, next_action, raw_notes")
-      .eq("id", ctx.sourceId)
+  if (ctx.organisationId) {
+    const { data: org } = await db
+      .from("engagement_organisations")
+      .select("name, industry, size, website, notes")
+      .eq("id", ctx.organisationId)
       .single();
-    if (q) {
+    if (org) {
       blocks.push(
-        `PROSPECT QUEUE:\nOrg: ${q.raw_org_name}\nContact: ${q.raw_contact_name}\nEmail: ${q.raw_email}\nIndustry: ${q.raw_industry}\nStatus: ${q.status}\nNext action: ${q.next_action || "—"}\nNotes: ${(q.raw_notes as string || "").slice(0, 400)}`,
+        `ORGANISATION:\nName: ${org.name}\nIndustry: ${org.industry || "—"}\nSize: ${org.size || "—"}\nWebsite: ${org.website || "—"}\nNotes: ${(org.notes as string || "").slice(0, 300)}`,
       );
     }
   }
 
-  const orgId = ctx.organisationId;
-  const contactId = ctx.contactId;
-  if (orgId || contactId) {
-    const interactionQuery = db
-      .from("engagement_interactions")
-      .select("interaction_date, interaction_type, summary")
-      .order("interaction_date", { ascending: false })
-      .limit(5);
-    if (contactId) interactionQuery.eq("contact_id", contactId);
-    else if (orgId) interactionQuery.eq("organisation_id", orgId);
-    const { data: interactions } = await interactionQuery;
-    if (interactions?.length) {
+  if (ctx.contactId) {
+    const { data: contact } = await db
+      .from("engagement_contacts")
+      .select("first_name, last_name, role, professional_email, phone, notes")
+      .eq("id", ctx.contactId)
+      .single();
+    if (contact) {
       blocks.push(
-        `RECENT INTERACTIONS:\n${interactions.map((i) => `- ${i.interaction_date}: ${i.interaction_type} — ${(i.summary as string || "").slice(0, 120)}`).join("\n")}`,
+        `CONTACT:\nName: ${contact.first_name} ${contact.last_name || ""}\nRole: ${contact.role || "—"}\nEmail: ${contact.professional_email || "—"}\nPhone: ${contact.phone || "—"}\nNotes: ${(contact.notes as string || "").slice(0, 300)}`,
+      );
+    }
+  }
+
+  let interactionQuery = db
+    .from("engagement_interactions")
+    .select("interaction_date, interaction_type, summary, channel")
+    .order("interaction_date", { ascending: false })
+    .limit(8);
+
+  if (ctx.enquiryId) interactionQuery = interactionQuery.eq("enquiry_id", ctx.enquiryId);
+  else if (ctx.opportunityId) interactionQuery = interactionQuery.eq("opportunity_id", ctx.opportunityId);
+  else if (ctx.contactId) interactionQuery = interactionQuery.eq("contact_id", ctx.contactId);
+  else if (ctx.organisationId) interactionQuery = interactionQuery.eq("organisation_id", ctx.organisationId);
+
+  const { data: interactions } = await interactionQuery;
+  if (interactions?.length) {
+    blocks.push(
+      `RECENT INTERACTIONS (this account only):\n${interactions.map((i) => `- ${i.interaction_date}: ${i.interaction_type} (${i.channel}) — ${(i.summary as string || "").slice(0, 150)}`).join("\n")}`,
+    );
+  }
+
+  if (ctx.opportunityId) {
+    const { data: tasks } = await db
+      .from("engagement_tasks")
+      .select("title, status, due_date, priority")
+      .eq("opportunity_id", ctx.opportunityId)
+      .neq("status", "done")
+      .limit(10);
+    if (tasks?.length) {
+      blocks.push(
+        `OPEN TASKS (this opportunity):\n${tasks.map((t) => `- ${t.title} (${t.status}, due ${t.due_date || "—"})`).join("\n")}`,
       );
     }
   }
@@ -136,84 +174,96 @@ export async function POST(req: NextRequest) {
   if (!messages?.length) {
     return NextResponse.json({ error: "No messages provided" }, { status: 400 });
   }
+  if (!callContext?.sourceId) {
+    return NextResponse.json({ error: "Call must be linked to a record before using the assistant." }, { status: 400 });
+  }
 
   const db = createServiceClient();
+  const sectorHint = callContext.sector?.name || callContext.industry || "";
+  const personaHint = callContext.persona?.persona_name || "";
 
-  const [painRes, sectorRes, personaRes, vatRes, linkedContext] = await Promise.all([
-    db.from("engagement_pain_points").select("title, category, plain_english_definition, natural_questions, what_not_assume, relevant_sectors").limit(40),
-    db.from("engagement_sector_profiles").select("name, description, typical_pressures, engagement_approach").limit(20),
-    db.from("engagement_personas").select("persona_name, role_context, motivations, concerns, communication_style").limit(15),
-    db.from("engagement_vat_prompts").select("dimension, prompt, context_tags").limit(30),
-    loadLinkedRecordContext(db, callContext),
+  const painQuery = db.from("engagement_pain_points").select("title, category, plain_english_definition, natural_questions, what_not_assume, relevant_sectors").limit(40);
+  const sectorQuery = sectorHint
+    ? db.from("engagement_sector_profiles").select("name, description, typical_pressures, engagement_approach").ilike("name", `%${sectorHint}%`).limit(3)
+    : db.from("engagement_sector_profiles").select("name, description, typical_pressures, engagement_approach").limit(0);
+  const personaQuery = personaHint
+    ? db.from("engagement_personas").select("persona_name, role_context, motivations, concerns, communication_style").ilike("persona_name", `%${personaHint}%`).limit(2)
+    : db.from("engagement_personas").select("persona_name, role_context, motivations, concerns, communication_style").limit(0);
+
+  const [painRes, sectorRes, personaRes, vatRes, accountContext] = await Promise.all([
+    painQuery,
+    sectorQuery,
+    personaQuery,
+    db.from("engagement_vat_prompts").select("dimension, prompt, context_tags").limit(20),
+    loadAccountContext(db, callContext),
   ]);
 
-  const sectorHint = callContext?.sector?.name || callContext?.industry || "";
   const relevantPains = (painRes.data || []).filter((pp) => {
-    if (!sectorHint) return true;
+    if (!sectorHint) return false;
     const sectors = (pp.relevant_sectors as string[] | null) || [];
     return sectors.some((s) => s.toLowerCase().includes(sectorHint.toLowerCase())) ||
       (pp.title as string).toLowerCase().includes(sectorHint.toLowerCase());
-  }).slice(0, 15);
+  }).slice(0, 12);
 
   const painBlock = relevantPains.length
     ? relevantPains.map((pp) =>
         `• ${pp.title} (${pp.category}): ${(pp.plain_english_definition as string || "").slice(0, 200)}` +
         (pp.natural_questions?.[0] ? ` | Ask: "${pp.natural_questions[0]}"` : ""),
       ).join("\n")
-    : (painRes.data || []).slice(0, 10).map((pp) => `• ${pp.title}: ${(pp.plain_english_definition as string || "").slice(0, 150)}`).join("\n");
+    : "No sector-specific pain points loaded — use general knowledge hub guidance only if asked.";
 
   const sectorBlock = (sectorRes.data || []).map((s) =>
-    `• ${s.name}: ${(s.description as string || "").slice(0, 150)}`,
-  ).join("\n");
+    `• ${s.name}: ${(s.description as string || "").slice(0, 200)}`,
+  ).join("\n") || "No sector profile for this account.";
 
   const personaBlock = (personaRes.data || []).map((p) =>
-    `• ${p.persona_name}: ${(p.role_context as string || "").slice(0, 120)} | Motivations: ${(p.motivations as string[] || []).slice(0, 2).join("; ")}`,
-  ).join("\n");
+    `• ${p.persona_name}: ${(p.role_context as string || "").slice(0, 150)}`,
+  ).join("\n") || "No persona profile for this account.";
 
   const vatBlock = (vatRes.data || []).map((v) =>
     `• [${v.dimension}] ${(v.prompt as string).slice(0, 120)}`,
   ).join("\n");
 
-  const systemPrompt = `You are VAxAI's live call assistant — a knowledgeable, conversational guide during an active ${callType || "discovery"} call${orgName ? ` with ${orgName}` : ""}${contactName ? ` (${contactName})` : ""}.
+  const accountName = orgName || callContext.orgName;
 
-This call is linked to a CRM record (website enquiry, prospect queue entry, or opportunity). When asked for "context", summarise everything you know from the connected record, prospect preps, and recent interactions below. Never invent client-specific facts beyond what's provided.
+  const systemPrompt = `You are VAxAI's live call assistant during an active ${callType || "discovery"} call with ${accountName}${contactName || callContext.contactName ? ` (${contactName || callContext.contactName})` : ""}.
 
-You have access to the VAxAI knowledge base. Answer naturally and concisely — like a skilled colleague during a call. Draw on pain points, sectors, personas, and VAT prompts.
+CRITICAL: This call is linked to ONE specific account only. You must ONLY discuss information about ${accountName} from the context below. Never reference, infer, or discuss other clients, enquiries, prospects, or opportunities. If asked about another account, say you only have context for the linked record.
+
+When asked for "context", summarise everything below about this linked account.
 
 PROSPECT CONTEXT:
 ${compactContext(callContext)}
 
-LINKED RECORD (from database):
-${linkedContext || "No additional linked record data."}
+ACCOUNT DATA (this linked record only):
+${accountContext}
 
-PROSPECT PREPS:
+PROSPECT PREPS (attached to this call):
 ${formatPreps(callContext)}
 
-SUBMISSION / CARDS:
+CARDS:
 ${formatCustomCards(callContext) || "None"}
 
 RECENT CALL NOTES (this session):
 ${recentNotes?.length ? recentNotes.join("\n") : "None yet"}
 
-KNOWLEDGE — PAIN POINTS (relevant subset):
+KNOWLEDGE HUB — PAIN POINTS (sector-relevant for this account):
 ${painBlock}
 
-KNOWLEDGE — SECTORS:
+KNOWLEDGE HUB — SECTOR (this account):
 ${sectorBlock}
 
-KNOWLEDGE — PERSONAS:
+KNOWLEDGE HUB — PERSONA (this account):
 ${personaBlock}
 
-KNOWLEDGE — VAT PROMPTS:
+KNOWLEDGE HUB — VAT PROMPTS:
 ${vatBlock}
 
 GUIDELINES:
 - Be direct and actionable — suggest exact phrases when helpful
-- When asked about pain points for a sector, pull from the knowledge above
-- Help draft new pain point descriptions when the consultant describes what they heard
-- Reference VAT dimensions (value, alignment, trust) when discussing positioning
-- Keep responses focused — mid-call brevity, not long reports
-- Never invent facts about this specific client beyond what's in context`;
+- Help draft pain points from what the consultant heard about THIS account only
+- Keep responses focused — mid-call brevity
+- Never invent facts about this client beyond what's in context`;
 
   try {
     const message = await client.messages.create({
