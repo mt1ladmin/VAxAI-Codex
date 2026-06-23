@@ -24,6 +24,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
@@ -31,6 +32,7 @@ import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCar
 import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
+import { useSetAIContext } from "@/lib/ai-assistant-context";
 import type { CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import type {
@@ -75,6 +77,29 @@ export default function ProspectDetailPage() {
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [editingContact, setEditingContact] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "chat">("overview");
+
+  // AI context — auto-set once entry loads
+  const prospectLabel = entry?.organisation?.name ?? entry?.raw_org_name ?? entry?.raw_contact_name ?? null;
+  useSetAIContext(
+    entry && prospectLabel
+      ? {
+          type: "prospect",
+          id: entry.id,
+          label: prospectLabel,
+          summary: [
+            `Organisation: ${entry.raw_org_name || "—"} | Contact: ${entry.raw_contact_name || "—"}`,
+            entry.raw_email ? `Email: ${entry.raw_email}` : null,
+            entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
+            entry.raw_location ? `Location: ${entry.raw_location}` : null,
+            `Status: ${entry.status}`,
+            entry.last_action ? `Last action: ${entry.last_action}` : null,
+            entry.next_action ? `Next action: ${entry.next_action}` : null,
+            entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
+          ].filter(Boolean).join("\n"),
+        }
+      : null,
+  );
   const [contactForm, setContactForm] = useState({
     raw_contact_name: "",
     raw_email: "",
@@ -564,6 +589,46 @@ export default function ProspectDetailPage() {
         </div>
       </div>
 
+      {/* Tab row */}
+      <div className="border-b border-[#111111]/10 px-8">
+        <div className="flex gap-1">
+          {(["overview", "chat"] as const).map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setActiveTab(tab)}
+              className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
+                activeTab === tab
+                  ? "border-[#063b32] text-[#063b32]"
+                  : "border-transparent text-[#6f6b62] hover:text-[#111111]"
+              }`}
+            >
+              {tab === "overview" ? "Overview" : "AI Chat"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeTab === "chat" ? (
+        <div className="px-8 py-6">
+          <AIChatHistory
+            contextType="prospect"
+            contextId={entry.id}
+            contextLabel={orgName}
+            contextSummary={[
+              `Organisation: ${entry.raw_org_name || "—"} | Contact: ${contactName || "—"}`,
+              email ? `Email: ${email}` : null,
+              entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
+              `Status: ${entry.status}`,
+              entry.last_action ? `Last action: ${entry.last_action}` : null,
+              entry.next_action ? `Next action: ${entry.next_action}` : null,
+              entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
+            ].filter(Boolean).join("\n")}
+            allowModelUpgrade={false}
+          />
+        </div>
+      ) : (
+
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
@@ -1033,6 +1098,7 @@ export default function ProspectDetailPage() {
           )}
         </div>
       </div>
+      )} {/* end activeTab === "chat" ternary */}
     </div>
   );
 }

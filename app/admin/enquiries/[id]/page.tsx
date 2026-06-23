@@ -23,12 +23,14 @@ import {
   User,
   X,
 } from "lucide-react";
+import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
+import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 
 import type { CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
@@ -42,7 +44,7 @@ import type {
 } from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
-type HubTab = "overview" | "preps" | "calls" | "opportunities" | "notes" | "activity";
+type HubTab = "overview" | "preps" | "calls" | "opportunities" | "notes" | "activity" | "chat";
 
 const HUB_TABS: Array<{ id: HubTab; label: string }> = [
   { id: "overview", label: "Overview" },
@@ -51,6 +53,7 @@ const HUB_TABS: Array<{ id: HubTab; label: string }> = [
   { id: "opportunities", label: "Opportunities" },
   { id: "notes", label: "Notes" },
   { id: "activity", label: "Activity" },
+  { id: "chat", label: "AI Chat" },
 ];
 
 type Enquiry = {
@@ -120,6 +123,27 @@ export default function EnquiryDetailPage() {
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [expandedActivityOppId, setExpandedActivityOppId] = useState<string | null>(null);
+
+  // Auto-set global AI assistant context when enquiry data is loaded
+  useSetAIContext(
+    enquiry
+      ? {
+          type: "enquiry",
+          id: enquiry.id,
+          label: enquiry.name,
+          summary: [
+            `Name: ${enquiry.name} | Email: ${enquiry.email}`,
+            `Support type: ${enquiry.support_type} | Status: ${enquiry.status}`,
+            enquiry.telephone ? `Phone: ${enquiry.telephone}` : null,
+            enquiry.last_action ? `Last action: ${enquiry.last_action}` : null,
+            enquiry.next_action ? `Next action: ${enquiry.next_action}` : null,
+            `Details: ${enquiry.details.slice(0, 400)}`,
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        }
+      : null,
+  );
 
   const loadLinkedPreps = useCallback(async () => {
     const res = await fetch(`/api/admin/engagement/prospect-preps?enquiry_id=${id}&limit=20`);
@@ -927,6 +951,25 @@ export default function EnquiryDetailPage() {
               ) : (
                 <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No notes yet.</p>
               )}
+            </div>
+          )}
+
+          {activeTab === "chat" && (
+            <div className="col-span-full">
+              <AIChatHistory
+                contextType="enquiry"
+                contextId={enquiry.id}
+                contextLabel={enquiry.name}
+                contextSummary={[
+                  `Name: ${enquiry.name} | Email: ${enquiry.email}`,
+                  `Support type: ${enquiry.support_type} | Status: ${enquiry.status}`,
+                  enquiry.telephone ? `Phone: ${enquiry.telephone}` : null,
+                  enquiry.last_action ? `Last action: ${enquiry.last_action}` : null,
+                  enquiry.next_action ? `Next action: ${enquiry.next_action}` : null,
+                  `Details: ${enquiry.details.slice(0, 400)}`,
+                ].filter(Boolean).join("\n")}
+                allowModelUpgrade={false}
+              />
             </div>
           )}
         </div>

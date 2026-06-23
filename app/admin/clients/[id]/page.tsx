@@ -23,11 +23,13 @@ import {
   Target,
   X,
 } from "lucide-react";
+import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
+import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import type {
@@ -49,7 +51,8 @@ type ClientTab =
   | "tasks"
   | "calls"
   | "notes"
-  | "activity";
+  | "activity"
+  | "chat";
 
 const CLIENT_TABS: Array<{ id: ClientTab; label: string }> = [
   { id: "overview", label: "Overview" },
@@ -60,6 +63,7 @@ const CLIENT_TABS: Array<{ id: ClientTab; label: string }> = [
   { id: "calls", label: "Calls" },
   { id: "notes", label: "Notes" },
   { id: "activity", label: "Activity" },
+  { id: "chat", label: "AI Chat" },
 ];
 
 const VALID_TABS = new Set<string>(CLIENT_TABS.map((t) => t.id));
@@ -137,6 +141,25 @@ function ClientDetailContent() {
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [showAddNote, setShowAddNote] = useState(false);
+
+  // AI context — set once contact data is loaded
+  const contactFullName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}` : null;
+  useSetAIContext(
+    contact && contactFullName
+      ? {
+          type: "client",
+          id: contact.id,
+          label: contactFullName,
+          summary: [
+            `Name: ${contactFullName} | Email: ${contact.professional_email ?? "—"}`,
+            contact.role ? `Role: ${contact.role}` : null,
+            contact.organisation ? `Organisation: ${(contact.organisation as { name: string }).name}` : null,
+            opportunities[0] ? `Primary service: ${opportunities[0].title} | Stage: ${opportunities[0].stage}` : null,
+            contact.notes ? `Notes: ${(contact.notes as string).slice(0, 300)}` : null,
+          ].filter(Boolean).join("\n"),
+        }
+      : null,
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -312,6 +335,16 @@ function ClientDetailContent() {
     enquiry_id: sourceOpp.enquiry_id ?? null,
     queue_id: sourceOpp.queue_id ?? null,
   } : undefined;
+
+  const aiContextSummary = [
+    `Name: ${fullName} | Email: ${contact.professional_email ?? "—"}`,
+    contact.role ? `Role: ${contact.role}` : null,
+    contact.organisation ? `Organisation: ${(contact.organisation as { name: string }).name}` : null,
+    primaryOpp ? `Primary service: ${primaryOpp.title} | Stage: ${primaryOpp.stage}` : null,
+    primaryOpp?.desired_outcomes ? `Desired outcomes: ${(primaryOpp.desired_outcomes as string).slice(0, 200)}` : null,
+    openTasks.length ? `Open tasks: ${openTasks.length}` : null,
+    contact.notes ? `Notes: ${(contact.notes as string).slice(0, 300)}` : null,
+  ].filter(Boolean).join("\n");
 
   return (
     <div className="min-h-screen bg-white">
@@ -1199,6 +1232,16 @@ function ClientDetailContent() {
                 )
               )}
             </>
+          )}
+
+          {activeTab === "chat" && (
+            <AIChatHistory
+              contextType="client"
+              contextId={contact.id}
+              contextLabel={fullName}
+              contextSummary={aiContextSummary}
+              allowModelUpgrade={true}
+            />
           )}
         </div>
       </div>

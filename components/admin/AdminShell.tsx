@@ -19,6 +19,8 @@ import {
   Settings,
   Users,
 } from "lucide-react";
+import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
+import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
 
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 
@@ -74,6 +76,7 @@ export default function AdminShell({
   const isContentActive = pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/authors");
 
   return (
+    <AIAssistantContextProvider>
     <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
       {/* Sidebar */}
       <aside
@@ -267,6 +270,8 @@ export default function AdminShell({
 
         {children}
       </main>
+      <AIAssistantWidget />
     </div>
+    </AIAssistantContextProvider>
   );
 }

@@ -1,0 +1,557 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Bot,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Search,
+  Send,
+  Sparkles,
+  X,
+} from "lucide-react";
+import { useAIAssistantContext, type AIContextType } from "@/lib/ai-assistant-context";
+
+type AIMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  model?: string | null;
+  created_at: string;
+};
+
+type AISession = {
+  id: string;
+  summary: string | null;
+  message_count: number;
+};
+
+type SearchResult = {
+  type: "enquiry" | "client" | "prospect";
+  id: string;
+  label: string;
+  sublabel: string | null;
+  status: string | null;
+};
+
+const MODEL_OPTIONS = [
+  { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5", note: "Fastest" },
+  { id: "claude-sonnet-4-6", label: "Sonnet 4.6", note: "Balanced" },
+  { id: "claude-opus-4-8", label: "Opus 4.8", note: "Most capable" },
+];
+
+const TYPE_BADGE: Record<string, string> = {
+  enquiry: "bg-violet-100 text-violet-700",
+  client: "bg-[#063b32]/10 text-[#063b32]",
+  prospect: "bg-amber-100 text-amber-700",
+};
+
+const TYPE_LABEL: Record<string, string> = {
+  enquiry: "Enquiry",
+  client: "Client",
+  prospect: "Prospect",
+};
+
+const SUGGESTED: Record<string, string[]> = {
+  enquiry: [
+    "What are the key themes in this enquiry?",
+    "What's the best strategy to convert them?",
+    "What questions should I prioritise?",
+  ],
+  client: [
+    "What's the current status of this account?",
+    "Are there any risks or opportunities I should know about?",
+    "How can we deliver more value to this client?",
+  ],
+  prospect: [
+    "What do we know about this prospect?",
+    "What's the best approach to engage them?",
+    "Which pain points are most relevant?",
+  ],
+  default: [
+    "Search for an account above to get started.",
+  ],
+};
+
+function buildContextSummary(
+  type: AIContextType,
+  label: string | null,
+): string {
+  return `Context type: ${type ?? "unknown"} | Name: ${label ?? "unknown"}`;
+}
+
+// ── Inner chat panel ──────────────────────────────────────────────────────────
+
+function ChatPanel({
+  contextType,
+  contextId,
+  contextLabel,
+  contextSummary,
+  allowModelUpgrade,
+  onChangeContext,
+}: {
+  contextType: string;
+  contextId: string;
+  contextLabel: string;
+  contextSummary: string;
+  allowModelUpgrade: boolean;
+  onChangeContext: () => void;
+}) {
+  const [messages, setMessages] = useState<AIMessage[]>([]);
+  const [session, setSession] = useState<AISession | null>(null);
+  const [linkedSummary, setLinkedSummary] = useState<string | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const [model, setModel] = useState("claude-haiku-4-5-20251001");
+  const [showModelMenu, setShowModelMenu] = useState(false);
+  const [error, setError] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const loadSession = useCallback(async () => {
+    setSessionLoading(true);
+    try {
+      const res = await fetch(
+        `/api/admin/ai/chat/session?context_type=${contextType}&context_id=${contextId}`,
+      );
+      const json = (await res.json()) as {
+        data: { session: AISession; messages: AIMessage[]; linkedSummary: string | null };
+      };
+      setSession(json.data.session);
+      setMessages(json.data.messages);
+      setLinkedSummary(json.data.linkedSummary);
+    } finally {
+      setSessionLoading(false);
+    }
+  }, [contextType, contextId]);
+
+  useEffect(() => {
+    void loadSession();
+  }, [loadSession]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const sendMessage = async () => {
+    const text = input.trim();
+    if (!text || sending) return;
+    setInput("");
+    setError("");
+    setSending(true);
+
+    const optimistic: AIMessage = {
+      id: `opt-${Date.now()}`,
+      role: "user",
+      content: text,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimistic]);
+
+    try {
+      const res = await fetch("/api/admin/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contextType,
+          contextId,
+          message: text,
+          model,
+          contextSummary,
+          linkedSummary,
+        }),
+      });
+      const json = (await res.json()) as {
+        data?: {
+          userMessage: AIMessage;
+          assistantMessage: AIMessage;
+          session: AISession;
+        };
+        error?: string;
+      };
+      if (!res.ok || !json.data) {
+        setError(json.error ?? "Something went wrong — please try again.");
+        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+        return;
+      }
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== optimistic.id),
+        json.data!.userMessage,
+        json.data!.assistantMessage,
+      ]);
+      setSession(json.data.session);
+    } catch {
+      setError("Network error — please try again.");
+      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+    } finally {
+      setSending(false);
+      inputRef.current?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void sendMessage();
+    }
+  };
+
+  const suggestedList = SUGGESTED[contextType] ?? SUGGESTED.default;
+  const selectedModel = MODEL_OPTIONS.find((m) => m.id === model) ?? MODEL_OPTIONS[0];
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* Sub-header: context + model */}
+      <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-3 py-2 gap-2">
+        <button
+          type="button"
+          onClick={onChangeContext}
+          className="flex min-w-0 items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-2.5 py-1 text-xs font-semibold text-[#111111] hover:bg-[#f0ede0] max-w-[180px]"
+          title="Change context"
+        >
+          <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
+            {TYPE_LABEL[contextType] ?? contextType}
+          </span>
+          <span className="truncate">{contextLabel}</span>
+          <ChevronDown className="h-3 w-3 shrink-0 text-[#6f6b62]" />
+        </button>
+
+        {/* Model selector */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowModelMenu((v) => !v)}
+            className="flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2 py-1 text-[10px] font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+          >
+            {selectedModel.label}
+            <ChevronDown className="h-3 w-3" />
+          </button>
+          {showModelMenu && (
+            <div className="absolute right-0 top-8 z-10 w-44 rounded-xl border border-[#111111]/10 bg-white shadow-xl">
+              {MODEL_OPTIONS.filter((o) => allowModelUpgrade || o.id === "claude-haiku-4-5-20251001").map((o) => (
+                <button
+                  key={o.id}
+                  type="button"
+                  onClick={() => { setModel(o.id); setShowModelMenu(false); }}
+                  className="flex w-full items-center justify-between px-3 py-2 text-xs hover:bg-[#f7f4ea] first:rounded-t-xl last:rounded-b-xl"
+                >
+                  <span className="font-semibold text-[#111111]">{o.label}</span>
+                  <span className="text-[#6f6b62]">{o.note}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+        {sessionLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-5 w-5 animate-spin text-[#6f6b62]" />
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-center">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-[#063b32]">
+                <Bot className="h-5 w-5 text-[#f5f274]" />
+              </div>
+            </div>
+            <p className="text-center text-xs font-semibold text-[#111111]">Ask me anything about this account</p>
+            <p className="text-center text-[11px] text-[#6f6b62]">
+              I know the account details, knowledge base, and our conversation history.
+            </p>
+            <div className="space-y-1.5 pt-2">
+              {suggestedList.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => { setInput(s); inputRef.current?.focus(); }}
+                  className="w-full rounded-xl border border-[#111111]/10 px-3 py-2 text-left text-xs text-[#6f6b62] hover:border-[#063b32]/20 hover:bg-[#f7f4ea] transition-colors"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
+                  msg.role === "user"
+                    ? "bg-[#063b32] text-white"
+                    : "bg-[#f7f4ea] text-[#111111]"
+                }`}
+              >
+                {msg.content}
+              </div>
+            </div>
+          ))
+        )}
+
+        {sending && (
+          <div className="flex justify-start">
+            <div className="rounded-2xl bg-[#f7f4ea] px-3 py-2">
+              <Loader2 className="h-4 w-4 animate-spin text-[#6f6b62]" />
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+            {error}
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="shrink-0 border-t border-[#111111]/10 px-3 py-3">
+        <div className="flex items-end gap-2 rounded-xl border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 focus-within:border-[#063b32] transition-colors">
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask anything about this account…"
+            rows={1}
+            className="flex-1 resize-none bg-transparent text-xs text-[#111111] placeholder-[#6f6b62] outline-none"
+            style={{ maxHeight: "80px" }}
+          />
+          <button
+            type="button"
+            onClick={() => void sendMessage()}
+            disabled={!input.trim() || sending}
+            className="shrink-0 grid h-6 w-6 place-items-center rounded-lg bg-[#063b32] text-white disabled:opacity-40"
+          >
+            <Send className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <p className="mt-1 text-[10px] text-[#6f6b62]">Shift+Enter for new line · Enter to send</p>
+      </div>
+    </div>
+  );
+}
+
+// ── Context picker ────────────────────────────────────────────────────────────
+
+function ContextPicker({
+  onSelect,
+}: {
+  onSelect: (type: string, id: string, label: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  useEffect(() => {
+    if (query.length < 2) { setResults([]); return; }
+    const t = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/admin/ai/context-search?q=${encodeURIComponent(query)}`);
+        const json = (await res.json()) as { data: SearchResult[] };
+        setResults(json.data);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  return (
+    <div className="flex flex-col gap-3 px-4 py-4">
+      <div>
+        <p className="text-sm font-semibold text-[#111111]">Select an account</p>
+        <p className="mt-0.5 text-xs text-[#6f6b62]">
+          Search for a client, enquiry, or prospect to start a conversation.
+        </p>
+      </div>
+      <div className="flex items-center gap-2 rounded-xl border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 focus-within:border-[#063b32]">
+        <Search className="h-4 w-4 shrink-0 text-[#6f6b62]" />
+        <input
+          autoFocus
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Name, email, or organisation…"
+          className="flex-1 bg-transparent text-sm text-[#111111] placeholder-[#6f6b62] outline-none"
+        />
+        {searching && <Loader2 className="h-4 w-4 animate-spin text-[#6f6b62]" />}
+      </div>
+
+      {results.length > 0 && (
+        <div className="max-h-72 overflow-y-auto space-y-1">
+          {results.map((r) => (
+            <button
+              key={`${r.type}-${r.id}`}
+              type="button"
+              onClick={() => onSelect(r.type, r.id, r.label)}
+              className="flex w-full items-center gap-3 rounded-xl border border-[#111111]/10 px-3 py-2.5 text-left hover:border-[#063b32]/20 hover:bg-[#f7f4ea] transition-colors"
+            >
+              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[r.type] ?? "bg-gray-100 text-gray-600"}`}>
+                {TYPE_LABEL[r.type]}
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-[#111111]">{r.label}</p>
+                {r.sublabel && (
+                  <p className="truncate text-xs text-[#6f6b62]">{r.sublabel}</p>
+                )}
+              </div>
+              {r.status && (
+                <span className="ml-auto shrink-0 text-[10px] text-[#6f6b62]">{r.status}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {query.length >= 2 && !searching && results.length === 0 && (
+        <p className="text-center text-xs text-[#6f6b62] py-4">No accounts found matching "{query}"</p>
+      )}
+    </div>
+  );
+}
+
+// ── Main widget ───────────────────────────────────────────────────────────────
+
+export function AIAssistantWidget() {
+  const { context, setContext } = useAIAssistantContext();
+  const [isOpen, setIsOpen] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [manualContext, setManualContext] = useState<{
+    type: string;
+    id: string;
+    label: string;
+  } | null>(null);
+
+  // Resolve active context (manual override takes precedence)
+  const activeType = manualContext?.type ?? context.type ?? null;
+  const activeId = manualContext?.id ?? context.id ?? null;
+  const activeLabel = manualContext?.label ?? context.label ?? null;
+  const activeSummary = context.summary ?? buildContextSummary(activeType as AIContextType, activeLabel);
+
+  const hasContext = !!(activeType && activeId);
+  const allowModelUpgrade = activeType === "client";
+
+  const handleSelectContext = (type: string, id: string, label: string) => {
+    setManualContext({ type, id, label });
+    setShowPicker(false);
+  };
+
+  const handleChangeContext = () => {
+    setManualContext(null);
+    setShowPicker(true);
+  };
+
+  return (
+    <>
+      {/* Floating trigger button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen((v) => !v)}
+        className="fixed bottom-6 right-6 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#063b32] shadow-lg hover:bg-[#1a5c42] transition-colors"
+        title="AI Assistant"
+      >
+        {isOpen ? (
+          <ChevronDown className="h-5 w-5 text-[#f5f274]" />
+        ) : (
+          <Sparkles className="h-5 w-5 text-[#f5f274]" />
+        )}
+      </button>
+
+      {/* Panel */}
+      {isOpen && (
+        <div className="fixed bottom-20 right-6 z-40 flex w-[400px] flex-col rounded-2xl border border-[#111111]/10 bg-white shadow-2xl overflow-hidden"
+          style={{ height: "520px" }}>
+          {/* Header */}
+          <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
+            <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
+              <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
+            </div>
+            <span className="flex-1 text-sm font-semibold text-white">AI Assistant</span>
+            {hasContext && !showPicker && (
+              <button
+                type="button"
+                onClick={handleChangeContext}
+                className="text-[10px] text-white/50 hover:text-white/80 underline"
+              >
+                change
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              className="grid h-6 w-6 place-items-center rounded-md text-white/50 hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Body */}
+          <div className="flex flex-1 flex-col overflow-hidden">
+            {showPicker || !hasContext ? (
+              <ContextPicker onSelect={handleSelectContext} />
+            ) : (
+              <ChatPanel
+                contextType={activeType!}
+                contextId={activeId!}
+                contextLabel={activeLabel!}
+                contextSummary={activeSummary}
+                allowModelUpgrade={allowModelUpgrade}
+                onChangeContext={handleChangeContext}
+              />
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── Inline chat history (for the "Chat" tab on detail pages) ─────────────────
+
+export function AIChatHistory({
+  contextType,
+  contextId,
+  contextLabel,
+  contextSummary,
+  allowModelUpgrade,
+}: {
+  contextType: string;
+  contextId: string;
+  contextLabel: string;
+  contextSummary: string;
+  allowModelUpgrade?: boolean;
+}) {
+  return (
+    <div className="flex flex-col rounded-xl border border-[#111111]/10 overflow-hidden" style={{ minHeight: "500px" }}>
+      <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
+        <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
+          <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
+        </div>
+        <span className="flex-1 text-sm font-semibold text-white">AI conversation history</span>
+        <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
+          {TYPE_LABEL[contextType] ?? contextType}
+        </span>
+        <span className="text-xs text-white/60">{contextLabel}</span>
+      </div>
+      <div className="flex flex-1 flex-col bg-white">
+        <ChatPanel
+          contextType={contextType}
+          contextId={contextId}
+          contextLabel={contextLabel}
+          contextSummary={contextSummary}
+          allowModelUpgrade={allowModelUpgrade ?? false}
+          onChangeContext={() => {}}
+        />
+      </div>
+    </div>
+  );
+}
