@@ -44,7 +44,7 @@ import type {
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
-type HubTab = "overview" | "preps" | "calls" | "opportunities" | "notes" | "activity";
+type HubTab = "overview" | "preps" | "calls" | "opportunities" | "notes" | "activity" | "chat";
 
 const HUB_TABS: Array<{ id: HubTab; label: string }> = [
   { id: "overview", label: "Overview" },
@@ -53,6 +53,7 @@ const HUB_TABS: Array<{ id: HubTab; label: string }> = [
   { id: "opportunities", label: "Opportunities" },
   { id: "notes", label: "Notes" },
   { id: "activity", label: "Activity" },
+  { id: "chat", label: "AI Chat" },
 ];
 
 const VALID_HUB_TABS = new Set<string>(HUB_TABS.map((t) => t.id));
@@ -81,7 +82,6 @@ function ProspectDetailContent() {
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [editingContact, setEditingContact] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "chat">("overview");
 
   // AI context — auto-set once entry loads
   const prospectLabel = entry?.organisation?.name ?? entry?.raw_org_name ?? entry?.raw_contact_name ?? null;
@@ -600,27 +600,7 @@ function ProspectDetailContent() {
         </div>
       </div>
 
-      {/* Tab row */}
-      <div className="border-b border-[#111111]/10 px-8">
-        <div className="flex gap-1">
-          {(["overview", "chat"] as const).map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
-                activeTab === tab
-                  ? "border-[#063b32] text-[#063b32]"
-                  : "border-transparent text-[#6f6b62] hover:text-[#111111]"
-              }`}
-            >
-              {tab === "overview" ? "Overview" : "AI Chat"}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {activeTab === "chat" ? (
+      {activeTab === "chat" && (
         <div className="px-8 py-6">
           <AIChatHistory
             contextType="prospect"
@@ -638,8 +618,9 @@ function ProspectDetailContent() {
             allowModelUpgrade={false}
           />
         </div>
-      ) : (
+      )}
 
+      {activeTab !== "chat" && (
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
@@ -1114,7 +1095,7 @@ function ProspectDetailContent() {
           )}
         </div>
       </div>
-      )} {/* end activeTab === "chat" ternary */}
+      )}
     </div>
   );
 }
