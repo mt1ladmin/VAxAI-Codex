@@ -26,7 +26,9 @@ import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
+import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { buildClientContextSummary } from "@/lib/ai/context-builders";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
@@ -121,13 +123,7 @@ function ClientDetailContent() {
           type: "client",
           id: contact.id,
           label: contactFullName,
-          summary: [
-            `Name: ${contactFullName} | Email: ${contact.professional_email ?? "—"}`,
-            contact.role ? `Role: ${contact.role}` : null,
-            contact.organisation ? `Organisation: ${(contact.organisation as { name: string }).name}` : null,
-            opportunities[0] ? `Primary service: ${opportunities[0].title} | Stage: ${opportunities[0].stage}` : null,
-            contact.notes ? `Notes: ${(contact.notes as string).slice(0, 300)}` : null,
-          ].filter(Boolean).join("\n"),
+          summary: buildClientContextSummary(contact, opportunities, linkedQueue),
         }
       : null,
   );
@@ -460,6 +456,11 @@ function ClientDetailContent() {
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <>
+              <JourneyStageBanner
+                currentStage="client"
+                hint="Use VAxAI Assistant to summarize the journey, draft proposals, and connect to Knowledge Hub."
+              />
+
               <div className="grid gap-3 sm:grid-cols-3">
                 <button
                   type="button"

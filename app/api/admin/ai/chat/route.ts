@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { extractKnowledgeKeywords } from "@/lib/ai/context-builders";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -24,11 +25,16 @@ const COMPRESS_AT = 20;      // trigger compression after this many total messag
 async function loadKnowledgeBase(
   supabase: ReturnType<typeof import("@/lib/supabase").createServiceClient>,
   userMessage: string,
+  contextSummary?: string,
 ) {
-  const words = userMessage
-    .toLowerCase()
-    .split(/\W+/)
-    .filter((w) => w.length > 4);
+  const contextKeywords = contextSummary ? extractKnowledgeKeywords(contextSummary) : [];
+  const words = [
+    ...contextKeywords,
+    ...userMessage
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((w) => w.length > 3),
+  ];
 
   const [painRes, sectorRes, personaRes, vatRes] = await Promise.all([
     supabase
@@ -212,12 +218,33 @@ export async function POST(req: NextRequest) {
   const historyForModel = (recentMessages ?? []).reverse();
 
   // Load knowledge base (keyword-matched)
-  const { painBlock, sectorBlock, personaBlock, vatBlock } = await loadKnowledgeBase(supabase, message);
+  const { painBlock, sectorBlock, personaBlock, vatBlock } = await loadKnowledgeBase(
+    supabase,
+    message,
+    contextSummary,
+  );
 
   // ── System prompt ─────────────────────────────────────────────────────────
 
-  const contextTypeLabel =
-    contextType === "enquiry" ? "website enquiry" : contextType === "client" ? "client" : "prospect queue entry";
+  const contextTypeLabel: Record<string, string> = {
+    outreach: "prospect outreach (pre-queue review)",
+    enquiry: "website enquiry",
+    prospect: "prospect queue (active outreach)",
+    client: "prospect/client (strategic delivery)",
+  };
+  const stageLabel = contextTypeLabel[contextType] ?? contextType;
+
+  const stageGuidance: Record<string, string> = {
+    outreach:
+      "STAGE GOAL: Help the reviewer validate fit, suggest checks, draft review notes, and prepare a clean handoff to the prospect queue. Do not discuss closing deals yet.",
+    prospect:
+      "STAGE GOAL: Help with contact strategy, meeting prep, follow-ups, and judging when to advance to Prospect/Client work. Positive signals include agreed meetings, requested proposals, or explicit interest.",
+    client:
+      "STAGE GOAL: Help with journey summary, proposals, onboarding planning, Knowledge Hub connections, and strategic next steps. Delivery happens offline once agreed.",
+    enquiry:
+      "STAGE GOAL: Understand the inbound enquiry and plan qualification — similar to early prospect queue work.",
+  };
+  const stageRules = stageGuidance[contextType] ?? "";
 
   const summarySection = session.summary
     ? `\nCONVERSATION HISTORY SUMMARY (previous turns, compressed):\n${session.summary}\n`
@@ -240,9 +267,9 @@ VAT FRAMEWORK (VAxAI's positioning approach):
 • Alignment — show deep understanding of their industry, role, and specific challenges
 • Trust — build credibility through expertise, consistency, and reliability
 
-CURRENT ACCOUNT CONTEXT (${contextTypeLabel}):
+CURRENT ACCOUNT CONTEXT (${stageLabel}):
 ${contextSummary}
-${summarySection}${linkedSection}
+${stageRules ? `\n${stageRules}\n` : ""}${summarySection}${linkedSection}
 RELEVANT KNOWLEDGE BASE — PAIN POINTS:
 ${painBlock}
 

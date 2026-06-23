@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { Briefcase, Check, Loader2, X } from "lucide-react";
-import { CONVERTED_SOURCE_STATUS } from "@/lib/engagement/client-stages";
-import { CLIENT_SERVICE_STAGES } from "@/lib/engagement/client-stages";
+import { CONVERTED_SOURCE_STATUS, CLIENT_SERVICE_STAGES } from "@/lib/engagement/client-stages";
+import {
+  ADVANCE_MODAL_SUBTITLE,
+  ADVANCE_MODAL_TITLE,
+  ADVANCE_ACTION_LABEL,
+  canAdvanceToClientWork,
+} from "@/lib/engagement/journey";
 
 type Props = {
   open: boolean;
@@ -12,6 +17,7 @@ type Props = {
   sourceType: "enquiry" | "queue";
   sourceId: string;
   sourceLabel: string;
+  sourceStatus?: string;
   contactName: string;
   contactEmail: string;
   contactPhone: string | null;
@@ -31,6 +37,7 @@ export function ConvertToClientModal({
   sourceType,
   sourceId,
   sourceLabel,
+  sourceStatus = "",
   contactName,
   contactEmail,
   contactPhone,
@@ -53,7 +60,7 @@ export function ConvertToClientModal({
   const [serviceTitle, setServiceTitle] = useState(
     `${supportType || "Client services"} — ${defaultFirst}${defaultLast ? ` ${defaultLast}` : ""}`.slice(0, 120),
   );
-  const [stage, setStage] = useState("Won");
+  const [stage, setStage] = useState("Onboarding planned");
   const [valueLow, setValueLow] = useState("");
   const [valueHigh, setValueHigh] = useState("");
   const [desiredOutcomes, setDesiredOutcomes] = useState(sourceDetails);
@@ -71,7 +78,7 @@ export function ConvertToClientModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: CONVERTED_SOURCE_STATUS,
-          last_action: "Converted to client",
+          last_action: "Advanced to client work",
           last_action_date: new Date().toISOString(),
         }),
       });
@@ -81,7 +88,7 @@ export function ConvertToClientModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           status: CONVERTED_SOURCE_STATUS,
-          last_action: "Converted to client",
+          last_action: "Advanced to client work",
           last_action_date: new Date().toISOString(),
         }),
       });
@@ -174,6 +181,18 @@ export function ConvertToClientModal({
       if (!oppRes.ok || !oppJson.data) throw new Error(oppJson.error ?? "Failed to create service record");
 
       await closeSourceRecord();
+
+      await fetch("/api/admin/ai/chat/link-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contextType: "client",
+          contextId: contactId,
+          linkedContextType: sourceType === "enquiry" ? "enquiry" : "prospect",
+          linkedContextId: sourceId,
+        }),
+      });
+
       onConverted(contactId!);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Conversion failed — please try again.");
@@ -185,6 +204,7 @@ export function ConvertToClientModal({
   if (!open) return null;
 
   const sourceName = sourceType === "enquiry" ? "enquiry" : "prospect queue item";
+  const advanceAllowed = !sourceStatus || canAdvanceToClientWork(sourceStatus);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/60 backdrop-blur-sm p-4">
@@ -195,9 +215,9 @@ export function ConvertToClientModal({
               <Briefcase className="h-4 w-4 text-[#f5f274]" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-[#111111]">Convert to client</h2>
+              <h2 className="text-base font-semibold text-[#111111]">{ADVANCE_MODAL_TITLE}</h2>
               <p className="text-xs text-[#6f6b62]">
-                Linked to {sourceName}: <span className="font-semibold">{sourceLabel}</span>
+                {ADVANCE_MODAL_SUBTITLE} Linked to {sourceName}: <span className="font-semibold">{sourceLabel}</span>
               </p>
             </div>
           </div>
@@ -253,8 +273,8 @@ export function ConvertToClientModal({
 
           <div className="space-y-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client service record</p>
-              <p className="mt-0.5 text-xs text-[#6f6b62]">Defaults to Won — update as onboarding progresses.</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Prospect/Client service record</p>
+              <p className="mt-0.5 text-xs text-[#6f6b62]">Defaults to Onboarding planned — update as delivery progresses.</p>
             </div>
 
             <div>
@@ -306,6 +326,12 @@ export function ConvertToClientModal({
             </div>
           </div>
 
+          {!advanceAllowed && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              Set status to Conversation held, Follow-up required, or Opportunity before advancing — there should be a positive signal (meeting agreed, interest confirmed, or follow-up requested).
+            </div>
+          )}
+
           {error && (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
           )}
@@ -322,11 +348,11 @@ export function ConvertToClientModal({
             <button
               type="button"
               onClick={() => void handleSubmit()}
-              disabled={submitting || !serviceTitle.trim()}
+              disabled={submitting || !serviceTitle.trim() || !advanceAllowed}
               className="flex items-center gap-2 rounded-lg bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
             >
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Briefcase className="h-4 w-4" />}
-              {submitting ? "Converting…" : "Convert to client"}
+              {submitting ? "Advancing…" : ADVANCE_ACTION_LABEL}
             </button>
           </div>
         </div>

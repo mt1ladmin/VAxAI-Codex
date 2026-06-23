@@ -13,7 +13,10 @@ export function mergeProspectRecord(
   return merged;
 }
 
-export function snapshotToQueueFields(snapshot: ProspectOutreachRecord) {
+export function snapshotToQueueFields(
+  snapshot: ProspectOutreachRecord,
+  reviewNotes?: string | null,
+) {
   const contactName = [snapshot.decision_maker_name, snapshot.decision_maker_role]
     .filter(Boolean)
     .join(" — ");
@@ -28,7 +31,7 @@ export function snapshotToQueueFields(snapshot: ProspectOutreachRecord) {
     raw_website: snapshot.website || null,
     raw_industry: snapshot.sector_tags[0] || snapshot.organisation_type,
     raw_location: `${snapshot.location}, ${snapshot.region}`,
-    raw_notes: null,
+    raw_notes: reviewNotes?.trim() || null,
     status: "Ready to contact",
     tags: [
       "prospect-outreach",

@@ -3,17 +3,19 @@
 import { Loader2, Send, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
+
+type ProspectPayload = ProspectOutreachRecord & { review_notes?: string | null };
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 
 type Props = {
   open: boolean;
-  prospects: ProspectOutreachRecord[];
+  prospects: ProspectPayload[];
   onClose: () => void;
   onAdded: (queueIds: string[]) => void;
 };
 
 export function AddToProspectQueueModal({ open, prospects, onClose, onAdded }: Props) {
-  const [drafts, setDrafts] = useState<ProspectOutreachRecord[]>(prospects);
+  const [drafts, setDrafts] = useState<ProspectPayload[]>(prospects);
   const [activeIndex, setActiveIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -30,8 +32,12 @@ export function AddToProspectQueueModal({ open, prospects, onClose, onAdded }: P
 
   const active = drafts[activeIndex];
 
-  const updateDraft = (next: ProspectOutreachRecord) => {
-    setDrafts((prev) => prev.map((p, i) => (i === activeIndex ? next : p)));
+  const updateDraft = (next: ProspectPayload) => {
+    setDrafts((prev) => prev.map((p, i) => (i === activeIndex ? { ...next, review_notes: p.review_notes } : p)));
+  };
+
+  const updateReviewNotes = (notes: string) => {
+    setDrafts((prev) => prev.map((p, i) => (i === activeIndex ? { ...p, review_notes: notes } : p)));
   };
 
   const submit = async () => {
@@ -88,7 +94,21 @@ export function AddToProspectQueueModal({ open, prospects, onClose, onAdded }: P
 
         <div className="flex-1 overflow-auto px-6 py-5">
           {active && (
-            <ProspectResearchPanel data={active} editable onChange={updateDraft} />
+            <>
+              <ProspectResearchPanel data={active} editable onChange={updateDraft} />
+              <div className="mt-4 rounded-xl border border-[#111111]/10 p-4 space-y-2">
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                  Reviewer notes for prospect queue
+                </label>
+                <textarea
+                  value={active.review_notes || ""}
+                  onChange={(e) => updateReviewNotes(e.target.value)}
+                  rows={3}
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                  placeholder="Handoff notes — visible on the prospect queue as team notes"
+                />
+              </div>
+            </>
           )}
         </div>
 

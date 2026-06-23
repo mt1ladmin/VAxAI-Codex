@@ -80,6 +80,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data: { saved: true } });
   }
 
+  if (contextType === "outreach") {
+    const { data: row, error: fetchErr } = await supabase
+      .from("prospect_outreach_overrides")
+      .select("review_notes")
+      .eq("outreach_id", contextId)
+      .maybeSingle();
+
+    if (fetchErr) {
+      return NextResponse.json({ error: fetchErr.message }, { status: 500 });
+    }
+
+    const combined = row?.review_notes ? `${row.review_notes}\n\n${entry}` : entry;
+    const { error } = await supabase
+      .from("prospect_outreach_overrides")
+      .upsert({
+        outreach_id: contextId,
+        overrides: {},
+        review_notes: combined,
+        updated_at: new Date().toISOString(),
+      });
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ data: { saved: true } });
+  }
+
   if (contextType === "client") {
     const { data: contact, error: fetchErr } = await supabase
       .from("engagement_contacts")

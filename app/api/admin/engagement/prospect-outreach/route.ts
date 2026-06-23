@@ -15,19 +15,25 @@ async function loadQueuedOutreachIds(supabase: ReturnType<typeof createServiceCl
   return new Set((data || []).map((r) => r.outreach_id as string));
 }
 
-async function loadOverrides(supabase: ReturnType<typeof createServiceClient>) {
-  const { data } = await supabase.from("prospect_outreach_overrides").select("outreach_id, overrides");
-  const map = new Map<string, Record<string, unknown>>();
+async function loadOverrideData(supabase: ReturnType<typeof createServiceClient>) {
+  const { data } = await supabase
+    .from("prospect_outreach_overrides")
+    .select("outreach_id, overrides, review_notes");
+  const overrides = new Map<string, Record<string, unknown>>();
+  const reviewNotes = new Map<string, string>();
   for (const row of data || []) {
-    map.set(row.outreach_id, (row.overrides as Record<string, unknown>) || {});
+    overrides.set(row.outreach_id, (row.overrides as Record<string, unknown>) || {});
+    if (row.review_notes) reviewNotes.set(row.outreach_id, row.review_notes as string);
   }
-  return map;
+  return { overrides, reviewNotes };
 }
 
+type OutreachWithNotes = ProspectOutreachRecord & { review_notes?: string | null };
+
 function applyFilters(
-  data: ProspectOutreachRecord[],
+  data: OutreachWithNotes[],
   searchParams: URLSearchParams,
-) {
+): OutreachWithNotes[] {
   const region = searchParams.get("region");
   const needScore = searchParams.get("need_score");
   const confidence = searchParams.get("confidence");
@@ -54,14 +60,17 @@ function applyFilters(
 
 export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
-  const [queuedIds, overrides] = await Promise.all([
+  const [queuedIds, { overrides, reviewNotes }] = await Promise.all([
     loadQueuedOutreachIds(supabase),
-    loadOverrides(supabase),
+    loadOverrideData(supabase),
   ]);
 
-  let data = prospectOutreachCatalog.prospects
+  let data: OutreachWithNotes[] = prospectOutreachCatalog.prospects
     .filter((p) => !queuedIds.has(p.id))
-    .map((p) => mergeProspectRecord(p, overrides.get(p.id)));
+    .map((p) => ({
+      ...mergeProspectRecord(p, overrides.get(p.id)),
+      review_notes: reviewNotes.get(p.id) ?? null,
+    }));
 
   data = applyFilters(data, new URL(req.url).searchParams);
 
@@ -84,13 +93,14 @@ export async function GET(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json();
-  const { outreach_id, overrides } = body as {
+  const { outreach_id, overrides, review_notes } = body as {
     outreach_id?: string;
     overrides?: Partial<ProspectOutreachRecord>;
+    review_notes?: string | null;
   };
 
-  if (!outreach_id || !overrides) {
-    return NextResponse.json({ error: "outreach_id and overrides required" }, { status: 400 });
+  if (!outreach_id) {
+    return NextResponse.json({ error: "outreach_id required" }, { status: 400 });
   }
 
   const base = prospectOutreachCatalog.prospects.find((p) => p.id === outreach_id);
@@ -107,39 +117,47 @@ export async function PATCH(req: NextRequest) {
 
   const mergedOverrides = {
     ...((existing?.overrides as Record<string, unknown>) || {}),
-    ...overrides,
+    ...(overrides || {}),
   };
 
-  const { error } = await supabase
-    .from("prospect_outreach_overrides")
-    .upsert({
-      outreach_id,
-      overrides: mergedOverrides,
-      updated_at: new Date().toISOString(),
-    });
+  const upsertPayload: Record<string, unknown> = {
+    outreach_id,
+    overrides: mergedOverrides,
+    updated_at: new Date().toISOString(),
+  };
+  if (review_notes !== undefined) upsertPayload.review_notes = review_notes;
+
+  const { error } = await supabase.from("prospect_outreach_overrides").upsert(upsertPayload);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
   return NextResponse.json({
-    data: mergeProspectRecord(base, mergedOverrides),
+    data: {
+      ...mergeProspectRecord(base, mergedOverrides),
+      review_notes: review_notes ?? null,
+    },
   });
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const prospects = (body.prospects || []) as ProspectOutreachRecord[];
+  type ProspectPayload = ProspectOutreachRecord & { review_notes?: string | null };
+  const prospects = (body.prospects || []) as ProspectPayload[];
   const ids = (body.ids || []) as string[];
 
-  let selected: ProspectOutreachRecord[] = prospects;
+  let selected: ProspectPayload[] = prospects;
 
   if (!selected.length && ids.length) {
     const supabase = createServiceClient();
-    const overrides = await loadOverrides(supabase);
+    const { overrides, reviewNotes } = await loadOverrideData(supabase);
     selected = prospectOutreachCatalog.prospects
       .filter((p) => ids.includes(p.id))
-      .map((p) => mergeProspectRecord(p, overrides.get(p.id)));
+      .map((p) => ({
+        ...mergeProspectRecord(p, overrides.get(p.id)),
+        review_notes: reviewNotes.get(p.id) ?? null,
+      }));
   }
 
   if (!selected.length) {
@@ -154,7 +172,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "All selected prospects are already in the queue" }, { status: 409 });
   }
 
-  const payloads = toInsert.map(snapshotToQueueFields);
+  const payloads = toInsert.map((p) => snapshotToQueueFields(p, p.review_notes));
   const { data, error } = await supabase
     .from("prospect_queue")
     .insert(payloads)

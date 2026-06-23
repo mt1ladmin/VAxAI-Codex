@@ -75,12 +75,19 @@ const PANEL_MIN = { width: 380, height: 420 };
 const PANEL_MAX = { width: 920, height: 900 };
 
 const TYPE_LABEL: Record<string, string> = {
+  outreach: "Outreach review",
   enquiry: "Enquiry",
-  client: "Client",
-  prospect: "Prospect",
+  client: "Prospect/Client",
+  prospect: "Prospect queue",
 };
 
 const SUGGESTED: Record<string, string[]> = {
+  outreach: [
+    "Is this prospect a good fit for VAxAI? What should I verify?",
+    "Draft review notes for the team before I add to queue",
+    "Which Knowledge Hub sectors and pain points apply?",
+    "Summarize the admin/AI need in plain language for outreach",
+  ],
   enquiry: [
     "What are the key themes in this enquiry?",
     "What's the best strategy to convert them?",
@@ -88,16 +95,16 @@ const SUGGESTED: Record<string, string[]> = {
     "Write a next action summary based on this enquiry",
   ],
   client: [
-    "What's the current status of this account?",
-    "Are there any risks or opportunities I should know about?",
-    "Write a summary of our conversation for the account notes",
-    "Write a next action summary for this client",
+    "Summarize the full journey from first contact to now",
+    "What Knowledge Hub content applies to this client?",
+    "Draft a proposal outline from our notes and agreed scope",
+    "What are the risks and next strategic actions?",
   ],
   prospect: [
-    "What do we know about this prospect?",
-    "What's the best approach to engage them?",
-    "Write me a summary to prepare for the prospect call",
-    "Write a next action summary based on what we know",
+    "What's the best approach for first contact?",
+    "They showed interest — what should the next step be?",
+    "Draft a follow-up email based on our research",
+    "Are they ready to advance to client work? What's missing?",
   ],
   default: [
     "Search for an account above to get started.",

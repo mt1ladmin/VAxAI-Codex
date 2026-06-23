@@ -14,7 +14,10 @@ import {
   Send,
 } from "lucide-react";
 import { AddToProspectQueueModal } from "@/components/admin/AddToProspectQueueModal";
+import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
+import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
 import type { ProspectOutreachMeta, ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import {
   NEED_SCORE_COLORS,
@@ -62,8 +65,10 @@ function CustomSelect({
   );
 }
 
+type OutreachRecord = ProspectOutreachRecord & { review_notes?: string | null };
+
 export default function ProspectOutreachPage() {
-  const [prospects, setProspects] = useState<ProspectOutreachRecord[]>([]);
+  const [prospects, setProspects] = useState<OutreachRecord[]>([]);
   const [meta, setMeta] = useState<ProspectOutreachMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -73,7 +78,8 @@ export default function ProspectOutreachPage() {
   const [needScore, setNeedScore] = useState("");
   const [confidence, setConfidence] = useState("");
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<ProspectOutreachRecord | null>(null);
+  const [draft, setDraft] = useState<OutreachRecord | null>(null);
+  const [reviewNotes, setReviewNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [queueModalOpen, setQueueModalOpen] = useState(false);
   const [queueModalProspects, setQueueModalProspects] = useState<ProspectOutreachRecord[]>([]);
@@ -104,20 +110,59 @@ export default function ProspectOutreachPage() {
   }, [prospects, selectedId]);
 
   useEffect(() => {
-    if (selected) setDraft(selected);
+    if (selected) {
+      setDraft(selected);
+      setReviewNotes(selected.review_notes || "");
+    }
     setEditing(false);
   }, [selected?.id]);
 
+  useSetAIContext(
+    draft
+      ? {
+          type: "outreach",
+          id: draft.id,
+          label: draft.organisation_name,
+          summary: buildOutreachContextSummary(draft, reviewNotes),
+        }
+      : null,
+  );
+
   const highNeedCount = useMemo(() => prospects.filter((p) => p.need_score >= 4).length, [prospects]);
 
-  async function saveEdits() {
+  async function saveReviewNotes() {
     if (!draft) return;
     setSaving(true);
     try {
       const res = await fetch("/api/admin/engagement/prospect-outreach", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outreach_id: draft.id, overrides: draft }),
+        body: JSON.stringify({ outreach_id: draft.id, review_notes: reviewNotes }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed");
+      setProspects((prev) =>
+        prev.map((p) => (p.id === draft.id ? { ...p, review_notes: reviewNotes } : p)),
+      );
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to save notes");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function saveEdits() {
+    if (!draft) return;
+    setSaving(true);
+    try {
+      const { review_notes: _rn, ...overrides } = draft;
+      const res = await fetch("/api/admin/engagement/prospect-outreach", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          outreach_id: draft.id,
+          overrides,
+          review_notes: reviewNotes,
+        }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to save");
@@ -131,7 +176,12 @@ export default function ProspectOutreachPage() {
   }
 
   function openQueueModal(ids: string[]) {
-    const items = prospects.filter((p) => ids.includes(p.id));
+    const items = prospects
+      .filter((p) => ids.includes(p.id))
+      .map((p) => ({
+        ...p,
+        review_notes: p.id === draft?.id ? reviewNotes : p.review_notes,
+      }));
     setQueueModalProspects(items);
     setQueueModalOpen(true);
   }
@@ -295,11 +345,37 @@ export default function ProspectOutreachPage() {
             <p className="text-[#6f6b62]">Select a prospect to view details.</p>
           ) : (
             <div className="max-w-3xl space-y-6">
+              <JourneyStageBanner
+                currentStage="outreach"
+                hint="Use the VAxAI Assistant (floating widget) to review fit and draft notes before adding to queue."
+              />
+
               <ProspectResearchPanel
                 data={editing ? draft : selected!}
                 editable={editing}
                 onChange={setDraft}
               />
+
+              <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                  Reviewer notes (passed to prospect queue)
+                </label>
+                <textarea
+                  value={reviewNotes}
+                  onChange={(e) => setReviewNotes(e.target.value)}
+                  rows={4}
+                  placeholder="Your verification checks, AI summary, or handoff notes for the outreach team…"
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                />
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => void saveReviewNotes()}
+                  className="text-xs font-semibold text-[#063b32] hover:underline disabled:opacity-50"
+                >
+                  Save review notes
+                </button>
+              </div>
 
               <div className="flex flex-wrap gap-3">
                 {editing ? (

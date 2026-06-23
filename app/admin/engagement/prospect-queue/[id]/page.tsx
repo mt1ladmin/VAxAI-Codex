@@ -32,7 +32,10 @@ import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModa
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { StatusSelect } from "@/components/admin/StatusSelect";
+import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { buildProspectContextSummary } from "@/lib/ai/context-builders";
+import { ADVANCE_ACTION_LABEL } from "@/lib/engagement/journey";
 import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import { outreachSummaryForConversion, syncQueueFromSnapshot } from "@/lib/engagement/prospect-outreach/snapshot";
 import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
@@ -127,17 +130,7 @@ function ProspectDetailContent() {
           type: "prospect",
           id: entry.id,
           label: prospectLabel,
-          summary: [
-            `Organisation: ${entry.raw_org_name || "—"} | Contact: ${entry.raw_contact_name || "—"}`,
-            entry.raw_email ? `Email: ${entry.raw_email}` : null,
-            entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
-            entry.raw_location ? `Location: ${entry.raw_location}` : null,
-            `Status: ${entry.status}`,
-            entry.last_action ? `Last action: ${entry.last_action}` : null,
-            entry.next_action ? `Next action: ${entry.next_action}` : null,
-            outreachData?.need_rationale ? `Admin/AI need: ${outreachData.need_rationale.slice(0, 300)}` : null,
-            entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
-          ].filter(Boolean).join("\n"),
+          summary: buildProspectContextSummary(entry),
         }
       : null,
   );
@@ -434,6 +427,7 @@ function ProspectDetailContent() {
         }}
         sourceType="queue"
         sourceId={entry.id}
+        sourceStatus={entry.status}
         sourceLabel={orgName}
         contactName={contactName || orgName}
         contactEmail={email || ""}
@@ -696,7 +690,7 @@ function ProspectDetailContent() {
                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10"
               >
                 <Briefcase className="h-4 w-4" />
-                Convert to client
+                {ADVANCE_ACTION_LABEL}
               </button>
             )}
           </div>
@@ -705,6 +699,8 @@ function ProspectDetailContent() {
         <div className="lg:col-span-2 space-y-4">
           {activeTab === "overview" && (
             <>
+              <JourneyStageBanner currentStage="queue" status={entry.status} />
+
               <div className="grid gap-3 sm:grid-cols-3">
                 <button type="button" onClick={() => setActiveTab("tasks")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{openTasks.length}</p>
