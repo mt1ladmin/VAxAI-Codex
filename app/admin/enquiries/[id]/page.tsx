@@ -175,6 +175,11 @@ export default function EnquiryDetailPage() {
     const res = await fetch(`/api/admin/enquiries/${id}`);
     const j = await res.json() as { data: Enquiry };
     if (j.data) {
+      if (j.data.status === "Closed" && j.data.contact_id) {
+        router.replace(`/admin/clients/${j.data.contact_id}?tab=submission`);
+        setLoading(false);
+        return;
+      }
       setEnquiry(j.data);
       setNextAction(j.data.next_action || "");
       setNextActionDate(j.data.next_action_date?.split("T")[0] || "");
@@ -439,7 +444,10 @@ export default function EnquiryDetailPage() {
       <ConvertToClientModal
         open={showConvertModal}
         onClose={() => setShowConvertModal(false)}
-        onConverted={() => { setShowConvertModal(false); void load(); }}
+        onConverted={(contactId) => {
+          setShowConvertModal(false);
+          router.push(`/admin/clients/${contactId}`);
+        }}
         sourceType="enquiry"
         sourceId={enquiry.id}
         sourceLabel={enquiry.name}

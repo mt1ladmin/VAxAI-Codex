@@ -163,6 +163,11 @@ export default function ProspectDetailPage() {
     const res = await fetch(`/api/admin/engagement/prospect-queue/${id}`);
     const j = await res.json() as { data: ProspectQueueEntry };
     if (j.data) {
+      if (j.data.status === "Closed" && j.data.contact_id) {
+        router.replace(`/admin/clients/${j.data.contact_id}?tab=submission`);
+        setLoading(false);
+        return;
+      }
       setEntry(j.data);
       setNextAction(j.data.next_action || "");
       setNextActionDate(j.data.next_action_date?.split("T")[0] || "");
@@ -435,7 +440,10 @@ export default function ProspectDetailPage() {
       <ConvertToClientModal
         open={showConvertModal}
         onClose={() => setShowConvertModal(false)}
-        onConverted={() => { setShowConvertModal(false); void load(); }}
+        onConverted={(contactId) => {
+          setShowConvertModal(false);
+          router.push(`/admin/clients/${contactId}`);
+        }}
         sourceType="queue"
         sourceId={entry.id}
         sourceLabel={orgName}

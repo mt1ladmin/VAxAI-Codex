@@ -1,39 +1,91 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Briefcase,
   Building2,
   Calendar,
   Check,
+  CheckCircle,
   ChevronDown,
+  ExternalLink,
+  Inbox,
   Loader2,
   Mail,
+  MessageSquare,
   Phone,
   Plus,
   Save,
+  Sparkles,
   Target,
   X,
 } from "lucide-react";
 import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
+import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
+import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
-import type { EngagementContact, EngagementInteraction, EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
+import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
+import type {
+  EngagementContact,
+  EngagementInteraction,
+  EngagementOpportunity,
+  EngagementTask,
+  Persona,
+  ProspectQueueEntry,
+  SectorProfile,
+} from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
-type ClientTab = "overview" | "tasks" | "calls" | "opportunities" | "notes";
+type ClientTab =
+  | "overview"
+  | "submission"
+  | "preps"
+  | "opportunities"
+  | "tasks"
+  | "calls"
+  | "notes"
+  | "activity";
 
 const CLIENT_TABS: Array<{ id: ClientTab; label: string }> = [
   { id: "overview", label: "Overview" },
+  { id: "submission", label: "Original submission" },
+  { id: "preps", label: "Preps" },
+  { id: "opportunities", label: "Opportunities" },
   { id: "tasks", label: "Tasks" },
   { id: "calls", label: "Calls" },
-  { id: "opportunities", label: "Opportunities" },
   { id: "notes", label: "Notes" },
+  { id: "activity", label: "Activity" },
 ];
+
+const VALID_TABS = new Set<string>(CLIENT_TABS.map((t) => t.id));
+
+type EnquiryArchive = {
+  id: string;
+  created_at: string;
+  name: string;
+  email: string;
+  support_type: string;
+  preferred_contact: string;
+  telephone: string | null;
+  details: string;
+  wants_discovery_call: boolean;
+  status: string;
+  connected_post_id: string | null;
+  connected_post_title: string | null;
+  next_action: string | null;
+  next_action_date: string | null;
+  admin_notes: string | null;
+  last_action: string | null;
+  last_action_date: string | null;
+  sector_snapshot: SectorProfile | null;
+  persona_snapshot: Persona | null;
+  posts?: { id: string; title: string; slug: string } | null;
+};
 
 const PRIORITY_DOT: Record<string, string> = {
   high: "bg-red-500",
@@ -57,30 +109,19 @@ function formatValue(low: number | null, high: number | null) {
   return null;
 }
 
-export default function ClientDetailPage() {
+function ClientDetailContent() {
   const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const [contact, setContact] = useState<EngagementContact | null>(null);
   const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [doneTasks, setDoneTasks] = useState<EngagementTask[]>([]);
-  const [linkedEnquiry, setLinkedEnquiry] = useState<{
-    id: string;
-    name: string;
-    email: string;
-    support_type: string;
-    details: string;
-    telephone: string | null;
-    created_at: string;
-    status: string;
-  } | null>(null);
-  const [linkedQueue, setLinkedQueue] = useState<{
-    id: string;
-    raw_org_name: string | null;
-    raw_notes: string | null;
-    raw_industry: string | null;
-    organisation?: { name: string } | null;
-  } | null>(null);
+  const [linkedEnquiry, setLinkedEnquiry] = useState<EnquiryArchive | null>(null);
+  const [linkedQueue, setLinkedQueue] = useState<ProspectQueueEntry | null>(null);
+  const [linkedPreps, setLinkedPreps] = useState<ProspectPrepClient[]>([]);
+  const [expandedPrepCards, setExpandedPrepCards] = useState<Record<string, boolean>>({});
+  const [expandedActivityOppId, setExpandedActivityOppId] = useState<string | null>(null);
   const [updatingStage, setUpdatingStage] = useState(false);
   const [showCreateOppModal, setShowCreateOppModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -111,33 +152,46 @@ export default function ClientDetailPage() {
       cRes.json() as Promise<{ data: EngagementContact }>,
       iRes.json() as Promise<{ data: EngagementInteraction[] }>,
       oRes.json() as Promise<{ data: EngagementOpportunity[] }>,
-      eRes.json() as Promise<{ data: Array<{
-        id: string;
-        name: string;
-        email: string;
-        support_type: string;
-        details: string;
-        telephone: string | null;
-        created_at: string;
-        status: string;
-      }> }>,
+      eRes.json() as Promise<{ data: EnquiryArchive[] }>,
       tRes.json() as Promise<{ data: EngagementTask[] }>,
       tdRes.json() as Promise<{ data: EngagementTask[] }>,
     ]);
     setContact(cData.data);
     setInteractions(iData.data || []);
     setOpportunities(oData.data || []);
-    const enquiry = eData.data?.[0] || null;
-    setLinkedEnquiry(enquiry);
     const opps = oData.data || [];
-    const queueOpp = opps.find((o) => o.queue_id);
-    if (queueOpp?.queue_id) {
-      const qRes = await fetch(`/api/admin/engagement/prospect-queue/${queueOpp.queue_id}`);
-      const qData = await qRes.json() as { data?: typeof linkedQueue };
+
+    let enquiry: EnquiryArchive | null = eData.data?.[0] || null;
+    if (enquiry?.id) {
+      const eDetailRes = await fetch(`/api/admin/enquiries/${enquiry.id}`);
+      if (eDetailRes.ok) {
+        const eDetail = await eDetailRes.json() as { data?: EnquiryArchive };
+        if (eDetail.data) enquiry = eDetail.data;
+      }
+    }
+    setLinkedEnquiry(enquiry);
+
+    const queueId = opps.find((o) => o.queue_id)?.queue_id ?? null;
+    if (queueId) {
+      const qRes = await fetch(`/api/admin/engagement/prospect-queue/${queueId}`);
+      const qData = await qRes.json() as { data?: ProspectQueueEntry };
       setLinkedQueue(qData.data || null);
     } else {
       setLinkedQueue(null);
     }
+
+    const prepQueries = [
+      fetch(`/api/admin/engagement/prospect-preps?contact_id=${id}&limit=30`),
+    ];
+    if (enquiry?.id) prepQueries.push(fetch(`/api/admin/engagement/prospect-preps?enquiry_id=${enquiry.id}&limit=30`));
+    if (queueId) prepQueries.push(fetch(`/api/admin/engagement/prospect-preps?queue_id=${queueId}&limit=30`));
+    const prepResults = await Promise.all(prepQueries.map((q) => q.then((r) => r.json())));
+    const prepMap = new Map<string, ProspectPrepClient>();
+    for (const j of prepResults as Array<{ data?: ProspectPrepClient[] }>) {
+      for (const p of j.data || []) prepMap.set(p.id, p);
+    }
+    setLinkedPreps([...prepMap.values()]);
+
     setTasks(tData.data || []);
     setDoneTasks(tdData.data || []);
     setLoading(false);
@@ -146,6 +200,13 @@ export default function ClientDetailPage() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && VALID_TABS.has(tab)) {
+      setActiveTab(tab as ClientTab);
+    }
+  }, [searchParams]);
 
   const createTask = async () => {
     if (!taskForm.title.trim()) return;
@@ -285,10 +346,18 @@ export default function ClientDetailPage() {
                   {interactions.length}
                 </span>
               )}
+              {tab.id === "preps" && linkedPreps.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] text-violet-700">
+                  {linkedPreps.length}
+                </span>
+              )}
               {tab.id === "opportunities" && opportunities.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
                   {opportunities.length}
                 </span>
+              )}
+              {tab.id === "submission" && (linkedEnquiry || linkedQueue) && (
+                <span className="ml-1.5 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-700">1</span>
               )}
             </button>
           ))}
@@ -350,157 +419,33 @@ export default function ClientDetailPage() {
             )}
           </div>
 
-          {/* Client record */}
+          {/* Client status */}
           {primaryOpp && (
             <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
-                Client record
+                Client status
               </p>
               <ClientStatusSelect
                 value={primaryOpp.stage}
                 onChange={(stage) => void updatePrimaryStage(stage)}
                 disabled={updatingStage}
               />
-              <div>
-                <p className="text-sm font-semibold text-[#111111]">{primaryOpp.title}</p>
-                {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high) && (
-                  <p className="mt-1 text-sm font-semibold text-[#063b32]">
-                    {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high)}
-                  </p>
-                )}
-              </div>
-              {primaryOpp.next_action && (
-                <div>
-                  <p className="text-[10px] text-[#6f6b62]">Follow-up / next action</p>
-                  <p className="text-sm text-[#111111]">{primaryOpp.next_action}</p>
-                </div>
-              )}
-              {primaryOpp.desired_outcomes && (
-                <div>
-                  <p className="text-[10px] text-[#6f6b62]">Desired outcomes</p>
-                  <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{primaryOpp.desired_outcomes}</p>
-                </div>
-              )}
-              {primaryOpp.recommended_pathway && (
-                <div>
-                  <p className="text-[10px] text-[#6f6b62]">Agreed pathway</p>
-                  <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{primaryOpp.recommended_pathway}</p>
-                </div>
-              )}
-              {primaryOpp.notes && (
-                <div>
-                  <p className="text-[10px] text-[#6f6b62]">Service notes</p>
-                  <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{primaryOpp.notes}</p>
-                </div>
-              )}
-              <Link
-                href={`/admin/engagement/pipeline/opportunities/${primaryOpp.id}`}
-                className="text-xs text-[#063b32] hover:underline"
-              >
-                Open full record →
-              </Link>
+              <p className="text-sm font-semibold text-[#111111]">{primaryOpp.title}</p>
             </div>
           )}
 
-          {/* Original submission */}
           {(linkedEnquiry || linkedQueue) && (
-            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Original submission
+            <button
+              type="button"
+              onClick={() => setActiveTab("submission")}
+              className="w-full rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Original submission</p>
+              <p className="mt-1 text-sm font-semibold text-[#111111]">
+                {linkedEnquiry ? "Website enquiry" : "Prospect queue"}
               </p>
-              {linkedEnquiry && (
-                <div className="space-y-2 text-sm">
-                  <Link
-                    href={`/admin/enquiries/${linkedEnquiry.id}`}
-                    className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 hover:bg-blue-100 font-semibold text-[#111111]"
-                  >
-                    Website enquiry — {linkedEnquiry.name}
-                    <span className="ml-auto text-xs text-[#6f6b62]">{linkedEnquiry.support_type}</span>
-                  </Link>
-                  {linkedEnquiry.email && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Submitted email</p>
-                      <p className="text-[#111111]">{linkedEnquiry.email}</p>
-                    </div>
-                  )}
-                  {linkedEnquiry.telephone && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Telephone</p>
-                      <p className="text-[#111111]">{linkedEnquiry.telephone}</p>
-                    </div>
-                  )}
-                  {linkedEnquiry.details && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Message</p>
-                      <p className="text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedEnquiry.details}</p>
-                    </div>
-                  )}
-                  {linkedEnquiry.created_at && (
-                    <p className="text-xs text-[#6f6b62]/70">
-                      Submitted {new Date(linkedEnquiry.created_at).toLocaleString("en-GB")}
-                    </p>
-                  )}
-                </div>
-              )}
-              {linkedQueue && (
-                <div className="space-y-2 text-sm">
-                  <Link
-                    href={`/admin/engagement/prospect-queue/${linkedQueue.id}`}
-                    className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 hover:bg-amber-100 font-semibold text-[#111111]"
-                  >
-                    Prospect queue
-                    {linkedQueue.organisation?.name || linkedQueue.raw_org_name
-                      ? ` — ${linkedQueue.organisation?.name || linkedQueue.raw_org_name}`
-                      : ""}
-                  </Link>
-                  {linkedQueue.raw_industry && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Industry</p>
-                      <p className="text-[#111111]">{linkedQueue.raw_industry}</p>
-                    </div>
-                  )}
-                  {linkedQueue.raw_notes && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Notes</p>
-                      <p className="text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedQueue.raw_notes}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Opportunity history */}
-          {opportunities.length > 0 && (
-            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Opportunity history
-              </p>
-              <ul className="space-y-2">
-                {opportunities.map((opp) => (
-                  <li key={opp.id}>
-                    <Link
-                      href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
-                      className="text-sm font-semibold text-[#063b32] hover:underline"
-                    >
-                      {opp.title}
-                    </Link>
-                    <div className="mt-0.5 flex items-center gap-2">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] ?? "bg-gray-100 text-gray-600"}`}
-                      >
-                        {opp.stage}
-                      </span>
-                      {opp.created_at && (
-                        <span className="text-[10px] text-[#6f6b62]">
-                          {new Date(opp.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              <p className="text-xs text-[#063b32] mt-0.5">View full submission →</p>
+            </button>
           )}
         </div>
 
@@ -549,8 +494,42 @@ export default function ClientDetailPage() {
                 </div>
               )}
 
+              {primaryOpp && (
+                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
+                    Service record
+                  </p>
+                  <div>
+                    <p className="text-base font-semibold text-[#111111]">{primaryOpp.title}</p>
+                    {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high) && (
+                      <p className="mt-1 text-sm font-semibold text-[#063b32]">
+                        {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high)}
+                      </p>
+                    )}
+                  </div>
+                  {primaryOpp.desired_outcomes && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Desired outcomes</p>
+                      <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{primaryOpp.desired_outcomes}</p>
+                    </div>
+                  )}
+                  {primaryOpp.recommended_pathway && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Agreed pathway</p>
+                      <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{primaryOpp.recommended_pathway}</p>
+                    </div>
+                  )}
+                  {primaryOpp.notes && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Service notes</p>
+                      <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{primaryOpp.notes}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Stats */}
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-4">
                 <button
                   type="button"
                   onClick={() => setActiveTab("tasks")}
@@ -573,8 +552,18 @@ export default function ClientDetailPage() {
                   className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
                 >
                   <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Service records</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
                 </button>
+                {(linkedEnquiry || linkedQueue) && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("submission")}
+                    className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
+                  >
+                    <p className="text-2xl font-bold text-[#111111]">1</p>
+                    <p className="text-xs font-semibold text-[#6f6b62]">Original submission</p>
+                  </button>
+                )}
               </div>
 
               {/* Recent tasks preview */}
@@ -639,6 +628,292 @@ export default function ClientDetailPage() {
                 </div>
               )}
             </>
+          )}
+
+          {/* ORIGINAL SUBMISSION TAB */}
+          {activeTab === "submission" && (
+            <>
+              {!linkedEnquiry && !linkedQueue ? (
+                <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+                  <p className="text-sm text-[#6f6b62]">No original submission linked to this client.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {linkedEnquiry && (
+                    <>
+                      <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
+                        <MessageSquare className="h-4 w-4 text-blue-700" />
+                        <span className="text-sm font-semibold text-[#111111]">Website enquiry</span>
+                        <span className="ml-auto text-xs text-[#6f6b62]">Archived on conversion</span>
+                      </div>
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact at submission</p>
+                          <div>
+                            <p className="text-[10px] text-[#6f6b62]">Name</p>
+                            <p className="text-sm font-semibold text-[#111111]">{linkedEnquiry.name}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-[#6f6b62]">Email</p>
+                            <p className="text-sm text-[#111111]">{linkedEnquiry.email}</p>
+                          </div>
+                          {linkedEnquiry.telephone && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Telephone</p>
+                              <p className="text-sm text-[#111111]">{linkedEnquiry.telephone}</p>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-[10px] text-[#6f6b62]">Received</p>
+                            <p className="text-sm text-[#111111]">
+                              {new Date(linkedEnquiry.created_at).toLocaleString("en-GB")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Submission details</p>
+                          <div>
+                            <p className="text-[10px] text-[#6f6b62]">Query type</p>
+                            <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">
+                              {linkedEnquiry.support_type}
+                            </span>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-[#6f6b62]">Preferred contact</p>
+                            <p className="text-sm text-[#111111]">{linkedEnquiry.preferred_contact}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-[#6f6b62]">Description</p>
+                            <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedEnquiry.details}</p>
+                          </div>
+                          {(linkedEnquiry.posts?.title || linkedEnquiry.connected_post_title) && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Related post</p>
+                              {linkedEnquiry.connected_post_id ? (
+                                <Link href={`/admin/posts/${linkedEnquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                  {linkedEnquiry.posts?.title || linkedEnquiry.connected_post_title}
+                                </Link>
+                              ) : (
+                                <p className="text-sm text-[#111111]">{linkedEnquiry.connected_post_title}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {(linkedEnquiry.sector_snapshot || linkedEnquiry.persona_snapshot) && (
+                        <div className="rounded-xl border border-[#111111]/10 p-5">
+                          <PrepKnowledgeSummary
+                            sector={linkedEnquiry.sector_snapshot}
+                            persona={linkedEnquiry.persona_snapshot}
+                            relevantPains={[]}
+                          />
+                        </div>
+                      )}
+                      {linkedEnquiry.admin_notes && (
+                        <div className="rounded-xl border border-[#111111]/10 p-5">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Admin notes from enquiry</p>
+                          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{linkedEnquiry.admin_notes}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {linkedQueue && (
+                    <>
+                      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+                        <Inbox className="h-4 w-4 text-amber-700" />
+                        <span className="text-sm font-semibold text-[#111111]">Prospect queue</span>
+                        <span className="ml-auto text-xs text-[#6f6b62]">Archived on conversion</span>
+                      </div>
+                      <div className="grid gap-4 lg:grid-cols-2">
+                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Organisation</p>
+                          <p className="text-sm font-semibold text-[#111111]">
+                            {linkedQueue.organisation?.name || linkedQueue.raw_org_name || "—"}
+                          </p>
+                          {linkedQueue.raw_industry && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Industry</p>
+                              <p className="text-sm text-[#111111]">{linkedQueue.raw_industry}</p>
+                            </div>
+                          )}
+                          {linkedQueue.raw_location && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Location</p>
+                              <p className="text-sm text-[#111111]">{linkedQueue.raw_location}</p>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-[10px] text-[#6f6b62]">Added to queue</p>
+                            <p className="text-sm text-[#111111]">
+                              {new Date(linkedQueue.created_at).toLocaleString("en-GB")}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact at submission</p>
+                          {linkedQueue.raw_contact_name && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Name</p>
+                              <p className="text-sm font-semibold text-[#111111]">{linkedQueue.raw_contact_name}</p>
+                            </div>
+                          )}
+                          {linkedQueue.raw_email && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Email</p>
+                              <p className="text-sm text-[#111111]">{linkedQueue.raw_email}</p>
+                            </div>
+                          )}
+                          {linkedQueue.raw_phone && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Phone</p>
+                              <p className="text-sm text-[#111111]">{linkedQueue.raw_phone}</p>
+                            </div>
+                          )}
+                          {linkedQueue.raw_notes && (
+                            <div>
+                              <p className="text-[10px] text-[#6f6b62]">Notes</p>
+                              <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedQueue.raw_notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 flex items-center gap-3">
+                    <CheckCircle className="h-5 w-5 shrink-0 text-[#063b32]" />
+                    <p className="text-sm text-[#111111]">
+                      This submission was converted to a client record. All enquiry and queue history lives on this page.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* PREPS TAB */}
+          {activeTab === "preps" && (
+            <>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+                Prospect preps from before conversion
+              </p>
+              {linkedPreps.length > 0 ? (
+                <div className="space-y-2">
+                  {linkedPreps.map((prep) => {
+                    const expanded = !!expandedPrepCards[prep.id];
+                    return (
+                      <div key={prep.id} className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedPrepCards((prev) => ({ ...prev, [prep.id]: !prev[prep.id] }))}
+                          className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-[#f7f4ea]/50"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
+                            {prep.sourceLabel && <p className="text-[10px] text-[#6f6b62]">{prep.sourceLabel}</p>}
+                          </div>
+                          <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expanded ? "rotate-180" : ""}`} />
+                        </button>
+                        {expanded && (
+                          <div className="border-t border-[#111111]/10 bg-[#f7f4ea]/30 px-4 py-3 space-y-2">
+                            <PrepKnowledgeSummary
+                              sector={prep.sector}
+                              persona={prep.persona}
+                              relevantPains={prep.relevantPains}
+                              compact
+                            />
+                            {prep.prepNotes && <p className="text-sm text-[#6f6b62] whitespace-pre-wrap">{prep.prepNotes}</p>}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+                  <Sparkles className="mx-auto mb-2 h-8 w-8 text-[#6f6b62]/30" />
+                  <p className="text-sm text-[#6f6b62]">No prospect preps linked to this client.</p>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ACTIVITY TAB */}
+          {activeTab === "activity" && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
+              <div className="space-y-3">
+                {linkedEnquiry && (
+                  <div className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
+                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#063b32]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#111111]">Website enquiry received</p>
+                      <p className="text-xs text-[#6f6b62]">{new Date(linkedEnquiry.created_at).toLocaleString("en-GB")}</p>
+                      <p className="mt-1 text-sm text-[#6f6b62]">{linkedEnquiry.support_type} — {linkedEnquiry.details.slice(0, 120)}{linkedEnquiry.details.length > 120 ? "…" : ""}</p>
+                    </div>
+                  </div>
+                )}
+                {linkedQueue && !linkedEnquiry && (
+                  <div className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
+                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#063b32]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#111111]">Added to prospect queue</p>
+                      <p className="text-xs text-[#6f6b62]">{new Date(linkedQueue.created_at).toLocaleString("en-GB")}</p>
+                    </div>
+                  </div>
+                )}
+                {(linkedEnquiry?.last_action?.includes("Converted") || linkedQueue?.last_action?.includes("Converted")) && (
+                  <div className="flex gap-3 rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-3">
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#063b32]" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#063b32]">Converted to client</p>
+                      <p className="text-xs text-[#6f6b62]">
+                        {new Date(linkedEnquiry?.last_action_date || linkedQueue?.last_action_date || primaryOpp?.created_at || "").toLocaleString("en-GB")}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {interactions.map((i) => (
+                  <div key={i.id} className="flex gap-3 rounded-lg border border-[#111111]/10 px-4 py-3">
+                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-[#111111] capitalize">Call — {i.interaction_type}</p>
+                      <p className="text-xs text-[#6f6b62]">{new Date(i.interaction_date).toLocaleString("en-GB")}</p>
+                      {i.summary && <p className="mt-1 text-sm text-[#6f6b62] line-clamp-2">{i.summary}</p>}
+                    </div>
+                  </div>
+                ))}
+                {linkedPreps.map((prep) => (
+                  <div key={prep.id} className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
+                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
+                    <div>
+                      <p className="text-sm font-semibold text-[#111111]">Prospect prep linked</p>
+                      <p className="text-sm text-[#111111]">{prep.name}</p>
+                    </div>
+                  </div>
+                ))}
+                {opportunities.map((opp) => (
+                  <div key={opp.id} className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => setExpandedActivityOppId((cur) => (cur === opp.id ? null : opp.id))}
+                      className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 text-left hover:bg-amber-50"
+                    >
+                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-[#111111]">Opportunity</p>
+                        <p className="text-sm text-[#111111]">{opp.title}</p>
+                        <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] ?? "bg-gray-100 text-gray-600"}`}>{opp.stage}</span>
+                      </div>
+                      <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expandedActivityOppId === opp.id ? "rotate-180" : ""}`} />
+                    </button>
+                    {expandedActivityOppId === opp.id && (
+                      <OpportunityPreviewCard opportunity={opp} defaultExpanded hidePipelineLink />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* TASKS TAB */}
@@ -841,49 +1116,13 @@ export default function ClientDetailPage() {
               {opportunities.length === 0 ? (
                 <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
                   <Target className="mx-auto mb-2 h-8 w-8 text-[#6f6b62]/30" />
-                  <p className="text-sm text-[#6f6b62]">No service records yet.</p>
+                  <p className="text-sm text-[#6f6b62]">No opportunities yet.</p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {opportunities.map((opp) => {
-                    const value = formatValue(opp.indicative_value_low, opp.indicative_value_high);
-                    return (
-                      <Link
-                        key={opp.id}
-                        href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
-                        className="flex items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/40 transition-colors group"
-                      >
-                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-50">
-                          <Target className="h-4 w-4 text-amber-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="font-semibold text-[#111111]">{opp.title}</p>
-                              {value && (
-                                <p className="text-sm font-semibold text-[#063b32]">{value}</p>
-                              )}
-                              {opp.desired_outcomes && (
-                                <p className="mt-1 text-sm text-[#6f6b62] line-clamp-2">
-                                  {opp.desired_outcomes}
-                                </p>
-                              )}
-                              {opp.recommended_pathway && (
-                                <p className="mt-1 text-xs text-[#6f6b62]">
-                                  <span className="font-semibold">Pathway:</span> {opp.recommended_pathway}
-                                </p>
-                              )}
-                            </div>
-                            <span
-                              className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] ?? "bg-gray-100 text-gray-600"}`}
-                            >
-                              {opp.stage}
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
+                  {opportunities.map((opp) => (
+                    <OpportunityPreviewCard key={opp.id} opportunity={opp} hidePipelineLink />
+                  ))}
                 </div>
               )}
             </>
@@ -972,5 +1211,13 @@ export default function ClientDetailPage() {
         pipelineOnly
       />
     </div>
+  );
+}
+
+export default function ClientDetailPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-[#6f6b62]">Loading…</div>}>
+      <ClientDetailContent />
+    </Suspense>
   );
 }

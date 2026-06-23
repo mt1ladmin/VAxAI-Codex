@@ -495,27 +495,7 @@ export default function OpportunityDetailPage() {
             </div>
           )}
 
-          {!isClientStage && (opp.enquiry_id || opp.queue_id) && (
-            <div className="rounded-xl border border-dashed border-[#063b32]/30 bg-[#063b32]/5 p-5 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">Convert to client</p>
-              <p className="text-sm text-[#6f6b62]">
-                Convert from the linked website enquiry or prospect queue record to create the client service record and close the source item.
-              </p>
-              <Link
-                href={
-                  opp.enquiry_id
-                    ? `/admin/enquiries/${opp.enquiry_id}`
-                    : `/admin/engagement/prospect-queue/${opp.queue_id}`
-                }
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-              >
-                <Briefcase className="h-4 w-4" />
-                Open source record
-              </Link>
-            </div>
-          )}
-
-          {isClientStage && (
+          {isClientStage && opp.primary_contact_id && (
             <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
               <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
                 <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
@@ -527,15 +507,13 @@ export default function OpportunityDetailPage() {
                   {opp.organisation?.name && <p className="text-sm text-[#6f6b62]">{opp.organisation.name}</p>}
                 </div>
               )}
-              {opp.primary_contact_id && (
-                <Link
-                  href={`/admin/clients/${opp.primary_contact_id}`}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  View client record
-                </Link>
-              )}
+              <Link
+                href={`/admin/clients/${opp.primary_contact_id}`}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 bg-white px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+              >
+                <Briefcase className="h-4 w-4" />
+                View client record
+              </Link>
             </div>
           )}
 

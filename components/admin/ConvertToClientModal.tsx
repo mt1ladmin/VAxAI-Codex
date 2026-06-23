@@ -8,7 +8,7 @@ import { CLIENT_SERVICE_STAGES } from "@/lib/engagement/client-stages";
 type Props = {
   open: boolean;
   onClose: () => void;
-  onConverted: () => void;
+  onConverted: (contactId: string) => void;
   sourceType: "enquiry" | "queue";
   sourceId: string;
   sourceLabel: string;
@@ -174,7 +174,7 @@ export function ConvertToClientModal({
       if (!oppRes.ok || !oppJson.data) throw new Error(oppJson.error ?? "Failed to create service record");
 
       await closeSourceRecord();
-      onConverted();
+      onConverted(contactId!);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Conversion failed — please try again.");
     } finally {

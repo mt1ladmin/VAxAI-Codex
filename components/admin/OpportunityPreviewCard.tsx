@@ -29,9 +29,12 @@ function DetailField({
 export function OpportunityPreviewCard({
   opportunity,
   defaultExpanded = false,
+  hidePipelineLink = false,
 }: {
   opportunity: EngagementOpportunity;
   defaultExpanded?: boolean;
+  /** Hide link to standalone opportunity detail (e.g. on client page). */
+  hidePipelineLink?: boolean;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const stageColor = STAGE_COLORS[opportunity.stage] || "bg-gray-100 text-gray-600";
@@ -120,12 +123,14 @@ export function OpportunityPreviewCard({
             <span className="text-[#6f6b62]">
               Updated {new Date(opportunity.updated_at).toLocaleDateString("en-GB")}
             </span>
-            <Link
-              href={`/admin/engagement/pipeline/opportunities/${opportunity.id}`}
-              className="inline-flex items-center gap-1 font-semibold text-[#063b32] hover:underline"
-            >
-              Open in pipeline <ExternalLink className="h-3 w-3" />
-            </Link>
+            {!hidePipelineLink && (
+              <Link
+                href={`/admin/engagement/pipeline/opportunities/${opportunity.id}`}
+                className="inline-flex items-center gap-1 font-semibold text-[#063b32] hover:underline"
+              >
+                Open in pipeline <ExternalLink className="h-3 w-3" />
+              </Link>
+            )}
           </div>
         </div>
       )}
