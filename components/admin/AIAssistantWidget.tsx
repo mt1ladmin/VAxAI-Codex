@@ -102,6 +102,7 @@ function ChatPanel({
   const [session, setSession] = useState<AISession | null>(null);
   const [linkedSummary, setLinkedSummary] = useState<string | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
+  const [sessionError, setSessionError] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [model, setModel] = useState("claude-haiku-4-5-20251001");
@@ -112,16 +113,24 @@ function ChatPanel({
 
   const loadSession = useCallback(async () => {
     setSessionLoading(true);
+    setSessionError(null);
     try {
       const res = await fetch(
         `/api/admin/ai/chat/session?context_type=${contextType}&context_id=${contextId}`,
       );
       const json = (await res.json()) as {
-        data: { session: AISession; messages: AIMessage[]; linkedSummary: string | null };
+        data?: { session: AISession; messages: AIMessage[]; linkedSummary: string | null };
+        error?: string;
       };
+      if (!res.ok || !json.data) {
+        setSessionError(json.error ?? "Failed to load chat session.");
+        return;
+      }
       setSession(json.data.session);
       setMessages(json.data.messages);
       setLinkedSummary(json.data.linkedSummary);
+    } catch {
+      setSessionError("Could not connect to the chat service.");
     } finally {
       setSessionLoading(false);
     }
@@ -254,6 +263,20 @@ function ChatPanel({
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-5 w-5 animate-spin text-[#6f6b62]" />
           </div>
+        ) : sessionError ? (
+          <div className="flex flex-col items-center gap-3 py-8 text-center">
+            <p className="text-xs font-semibold text-red-600">Chat unavailable</p>
+            <p className="text-[11px] text-[#6f6b62] leading-relaxed max-w-[220px]">
+              {sessionError}
+            </p>
+            <button
+              type="button"
+              onClick={() => void loadSession()}
+              className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+            >
+              Retry
+            </button>
+          </div>
         ) : messages.length === 0 ? (
           <div className="space-y-3 pt-2">
             <div className="flex items-center justify-center">
@@ -328,7 +351,7 @@ function ChatPanel({
           <button
             type="button"
             onClick={() => void sendMessage()}
-            disabled={!input.trim() || sending}
+            disabled={!input.trim() || sending || !!sessionError}
             className="shrink-0 grid h-6 w-6 place-items-center rounded-lg bg-[#063b32] text-white disabled:opacity-40"
           >
             <Send className="h-3.5 w-3.5" />
