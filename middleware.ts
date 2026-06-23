@@ -46,11 +46,22 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (pathname.startsWith("/admin/logout")) {
+    return response;
+  }
+
   if (pathname.startsWith("/admin/login")) {
     if (user) {
       const role = await resolveStudioRole(supabase, user.id);
       const dest = role ? defaultAdminHome(role) : "/admin/forbidden";
       return NextResponse.redirect(new URL(dest, request.url));
+    }
+    return response;
+  }
+
+  if (pathname.startsWith("/admin/forbidden")) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
     }
     return response;
   }
@@ -75,10 +86,6 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/admin")) {
     if (!user) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
-    }
-
-    if (pathname.startsWith("/admin/forbidden")) {
-      return response;
     }
 
     const role = await resolveStudioRole(supabase, user.id);
