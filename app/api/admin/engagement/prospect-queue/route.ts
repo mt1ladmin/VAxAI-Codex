@@ -7,6 +7,7 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "100");
   const status = searchParams.get("status");
   const batchId = searchParams.get("batch_id");
+  const includeClosed = searchParams.get("include_closed") === "true";
 
   let query = supabase
     .from("prospect_queue")
@@ -19,6 +20,7 @@ export async function GET(req: NextRequest) {
     .limit(limit);
 
   if (status) query = query.eq("status", status);
+  else if (!includeClosed) query = query.neq("status", "Closed");
   if (batchId) query = query.eq("import_batch_id", batchId);
 
   const { data, error } = await query;

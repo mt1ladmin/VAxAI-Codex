@@ -1,125 +1,240 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { OPPORTUNITY_STAGES } from "@/lib/engagement/types";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  Briefcase,
+  Inbox,
+  Loader2,
+  MessageSquare,
+  Plus,
+  Search,
+} from "lucide-react";
+import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
+import type { EngagementOpportunity } from "@/lib/engagement/types";
 
-const inputClass = "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] transition-colors";
+type SourceTab = "enquiry" | "queue";
+type LinkResult = { id: string; label: string; sublabel: string; source: SourceTab };
 
-function NewOpportunityForm() {
+function NewOpportunityLinker() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const orgId = searchParams.get("org") ?? "";
+  const [sourceTab, setSourceTab] = useState<SourceTab>("enquiry");
+  const [search, setSearch] = useState("");
+  const [results, setResults] = useState<LinkResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [selected, setSelected] = useState<LinkResult | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [defaults, setDefaults] = useState<{
+    title?: string;
+    enquiry_id?: string | null;
+    queue_id?: string | null;
+    organisation_id?: string | null;
+    primary_contact_id?: string | null;
+  }>({});
 
-  const [form, setForm] = useState({
-    title: "",
-    organisation_id: orgId,
-    stage: "Identified" as string,
-    desired_outcomes: "",
-    recommended_pathway: "",
-    indicative_value_low: "",
-    indicative_value_high: "",
-    probability: "",
-    next_action: "",
-    expected_decision_date: "",
-    notes: "",
-  });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-
-  const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
-
-  const save = async () => {
-    if (!form.title.trim()) { setError("Opportunity title is required."); return; }
-    setSaving(true);
-    setError("");
-    const payload = {
-      ...form,
-      indicative_value_low: form.indicative_value_low ? parseFloat(form.indicative_value_low) : null,
-      indicative_value_high: form.indicative_value_high ? parseFloat(form.indicative_value_high) : null,
-      probability: form.probability ? parseInt(form.probability) : null,
-      organisation_id: form.organisation_id || null,
-    };
-    const res = await fetch("/api/admin/engagement/opportunities", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      const j = await res.json().catch(() => ({})) as { error?: string };
-      setError(j.error ?? "Failed to save.");
-      setSaving(false);
+  useEffect(() => {
+    if (!search.trim()) {
+      setResults([]);
       return;
     }
-    const j = await res.json() as { data: { id: string } };
-    router.push(`/admin/engagement/pipeline/opportunities/${j.data.id}`);
+    const q = search.trim().toLowerCase();
+    const t = setTimeout(() => {
+      void (async () => {
+        setSearching(true);
+        try {
+          if (sourceTab === "enquiry") {
+            const res = await fetch("/api/admin/enquiries");
+            const j = await res.json() as { data?: Array<{ id: string; name: string; email: string; support_type: string }> };
+            setResults(
+              (j.data || [])
+                .filter((e) =>
+                  e.name.toLowerCase().includes(q) ||
+                  e.email.toLowerCase().includes(q) ||
+                  e.support_type.toLowerCase().includes(q),
+                )
+                .slice(0, 8)
+                .map((e) => ({
+                  id: e.id,
+                  label: e.name,
+                  sublabel: `${e.email} · ${e.support_type}`,
+                  source: "enquiry" as const,
+                })),
+            );
+          } else {
+            const res = await fetch("/api/admin/engagement/prospect-queue?limit=200");
+            const j = await res.json() as { data?: Array<{
+              id: string;
+              raw_org_name: string | null;
+              raw_contact_name: string | null;
+              raw_email: string | null;
+              organisation?: { name: string } | null;
+            }> };
+            setResults(
+              (j.data || [])
+                .filter((e) => {
+                  const org = (e.organisation?.name || e.raw_org_name || "").toLowerCase();
+                  const contact = (e.raw_contact_name || "").toLowerCase();
+                  const email = (e.raw_email || "").toLowerCase();
+                  return org.includes(q) || contact.includes(q) || email.includes(q);
+                })
+                .slice(0, 8)
+                .map((e) => ({
+                  id: e.id,
+                  label: e.organisation?.name || e.raw_org_name || "Unknown org",
+                  sublabel: [e.raw_contact_name, e.raw_email].filter(Boolean).join(" · ") || "Prospect queue",
+                  source: "queue" as const,
+                })),
+            );
+          }
+        } finally {
+          setSearching(false);
+        }
+      })();
+    }, 250);
+    return () => clearTimeout(t);
+  }, [search, sourceTab]);
+
+  const openModalFor = async (result: LinkResult) => {
+    setSelected(result);
+    if (result.source === "enquiry") {
+      const res = await fetch(`/api/admin/enquiries/${result.id}`);
+      const j = await res.json() as { data?: { name: string; support_type: string; contact_id: string | null; organisation_id: string | null } };
+      const e = j.data;
+      setDefaults({
+        title: e ? `${e.name} — ${e.support_type}`.slice(0, 120) : result.label,
+        enquiry_id: result.id,
+        organisation_id: e?.organisation_id ?? null,
+        primary_contact_id: e?.contact_id ?? null,
+      });
+    } else {
+      const res = await fetch(`/api/admin/engagement/prospect-queue/${result.id}`);
+      const j = await res.json() as { data?: { organisation_id: string | null; contact_id: string | null; raw_org_name: string | null; organisation?: { name: string } | null } };
+      const q = j.data;
+      const org = q?.organisation?.name || q?.raw_org_name || result.label;
+      setDefaults({
+        title: `${org} — opportunity`.slice(0, 120),
+        queue_id: result.id,
+        organisation_id: q?.organisation_id ?? null,
+        primary_contact_id: q?.contact_id ?? null,
+      });
+    }
+    setShowModal(true);
+  };
+
+  const onCreated = (opp: EngagementOpportunity) => {
+    router.push(`/admin/engagement/pipeline/opportunities/${opp.id}`);
   };
 
   return (
     <div className="mx-auto max-w-2xl px-8 py-8">
-      {error && <div className="mb-5 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{error}</div>}
-
-      <div className="space-y-5">
+      <div className="rounded-2xl border border-[#111111]/10 bg-white p-8 shadow-sm space-y-6">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Title <span className="text-red-500">*</span></label>
-          <input type="text" value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. Greenways Trust — workflow review" className={inputClass} />
+          <h2 className="text-lg font-semibold text-[#111111]">Link to a record</h2>
+          <p className="mt-1 text-sm text-[#6f6b62]">
+            Every opportunity must be connected to a website enquiry or prospect queue item.
+          </p>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Stage</label>
-          <select value={form.stage} onChange={(e) => set("stage", e.target.value)} className={inputClass}>
-            {OPPORTUNITY_STAGES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+        <div className="flex overflow-hidden rounded-lg border border-[#111111]/15">
+          {([
+            ["enquiry", "Website enquiries", MessageSquare],
+            ["queue", "Prospect queue", Inbox],
+          ] as const).map(([key, label, Icon]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => { setSourceTab(key); setResults([]); setSearch(""); }}
+              className={`flex flex-1 items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-semibold transition-colors ${
+                sourceTab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+              }`}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Desired outcomes</label>
-          <textarea rows={3} value={form.desired_outcomes} onChange={(e) => set("desired_outcomes", e.target.value)} placeholder="What does the prospect want to achieve?" className={inputClass} />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={sourceTab === "enquiry" ? "Search enquiries by name or email…" : "Search prospect queue by org or contact…"}
+            className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Value low (£)</label>
-            <input type="number" value={form.indicative_value_low} onChange={(e) => set("indicative_value_low", e.target.value)} placeholder="e.g. 1500" className={inputClass} />
+        {searching && (
+          <p className="flex items-center gap-1.5 text-xs text-[#6f6b62]">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Searching…
+          </p>
+        )}
+
+        {results.length > 0 && (
+          <div className="rounded-lg border border-[#111111]/10 overflow-hidden">
+            {results.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                onClick={() => void openModalFor(r)}
+                className="flex w-full flex-col items-start px-4 py-3 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
+              >
+                <span className="text-sm font-semibold text-[#111111]">{r.label}</span>
+                <span className="text-xs text-[#6f6b62]">{r.sublabel}</span>
+              </button>
+            ))}
           </div>
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Value high (£)</label>
-            <input type="number" value={form.indicative_value_high} onChange={(e) => set("indicative_value_high", e.target.value)} placeholder="e.g. 3000" className={inputClass} />
-          </div>
-        </div>
+        )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Probability (%)</label>
-            <input type="number" min="0" max="100" value={form.probability} onChange={(e) => set("probability", e.target.value)} placeholder="e.g. 50" className={inputClass} />
+        {search.trim() && !searching && results.length === 0 && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 space-y-3">
+            <p className="text-sm font-semibold text-amber-900">No matching records found</p>
+            <p className="text-xs text-amber-800">
+              Create a {sourceTab === "enquiry" ? "website enquiry" : "prospect queue item"} first, then return here to link your opportunity.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {sourceTab === "enquiry" ? (
+                <Link
+                  href="/admin/enquiries"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Go to website enquiries
+                </Link>
+              ) : (
+                <Link
+                  href="/admin/engagement/prospect-queue"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Go to prospect queue
+                </Link>
+              )}
+            </div>
           </div>
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Expected decision date</label>
-            <input type="date" value={form.expected_decision_date} onChange={(e) => set("expected_decision_date", e.target.value)} className={inputClass} />
+        )}
+
+        {!search.trim() && (
+          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/40 p-5">
+            <p className="text-xs text-[#6f6b62]">
+              Don&apos;t have a record yet?{" "}
+              <Link href="/admin/enquiries" className="font-semibold text-[#063b32] hover:underline">Add an enquiry</Link>
+              {" or "}
+              <Link href="/admin/engagement/prospect-queue" className="font-semibold text-[#063b32] hover:underline">add to prospect queue</Link>
+              , then search above to connect.
+            </p>
           </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Next action</label>
-          <input type="text" value={form.next_action} onChange={(e) => set("next_action", e.target.value)} placeholder="e.g. Send discovery questions" className={inputClass} />
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">Notes</label>
-          <textarea rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Additional context…" className={inputClass} />
-        </div>
+        )}
       </div>
 
-      <div className="mt-8 flex gap-3">
-        <button onClick={save} disabled={saving} className="flex-1 rounded-lg bg-[#063b32] py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60">
-          {saving ? "Saving…" : "Save opportunity"}
-        </button>
-        <Link href="/admin/engagement/pipeline?tab=opportunities" className="rounded-lg border border-[#111111]/15 px-5 py-2.5 text-sm font-semibold text-[#6f6b62] hover:text-[#111111]">
-          Cancel
-        </Link>
-      </div>
+      <CreateOpportunityModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onCreated={onCreated}
+        contextLabel={selected ? `${selected.source === "enquiry" ? "Website enquiry" : "Prospect queue"} — ${selected.label}` : undefined}
+        defaults={defaults}
+        pipelineOnly
+      />
     </div>
   );
 }
@@ -129,13 +244,13 @@ export default function NewOpportunityPage() {
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <Link href="/admin/engagement/pipeline?tab=opportunities" className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]">
-          <ArrowLeft className="h-3.5 w-3.5" /> Pipeline
+          <ArrowLeft className="h-3.5 w-3.5" /> Opportunities tracker
         </Link>
         <h1 className="text-2xl font-semibold text-[#111111]">New opportunity</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">Track a prospect through your engagement pipeline.</p>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">Connect to an enquiry or prospect queue record before creating the opportunity.</p>
       </div>
       <Suspense fallback={<div className="p-8 text-sm text-[#6f6b62]">Loading…</div>}>
-        <NewOpportunityForm />
+        <NewOpportunityLinker />
       </Suspense>
     </div>
   );

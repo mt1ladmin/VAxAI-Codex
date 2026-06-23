@@ -18,7 +18,10 @@ import {
   Target,
   X,
 } from "lucide-react";
+import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
+import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
+import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import type { EngagementContact, EngagementInteraction, EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
@@ -54,10 +57,6 @@ function formatValue(low: number | null, high: number | null) {
   return null;
 }
 
-function gmailUrl(email: string) {
-  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
-}
-
 export default function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [contact, setContact] = useState<EngagementContact | null>(null);
@@ -65,7 +64,25 @@ export default function ClientDetailPage() {
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [doneTasks, setDoneTasks] = useState<EngagementTask[]>([]);
-  const [linkedEnquiry, setLinkedEnquiry] = useState<{ id: string; name: string; support_type: string } | null>(null);
+  const [linkedEnquiry, setLinkedEnquiry] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    support_type: string;
+    details: string;
+    telephone: string | null;
+    created_at: string;
+    status: string;
+  } | null>(null);
+  const [linkedQueue, setLinkedQueue] = useState<{
+    id: string;
+    raw_org_name: string | null;
+    raw_notes: string | null;
+    raw_industry: string | null;
+    organisation?: { name: string } | null;
+  } | null>(null);
+  const [updatingStage, setUpdatingStage] = useState(false);
+  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ClientTab>("overview");
 
@@ -80,16 +97,13 @@ export default function ClientDetailPage() {
   const [savingNote, setSavingNote] = useState(false);
   const [showAddNote, setShowAddNote] = useState(false);
 
-  // Opportunity creation
-  const [creatingOpp, setCreatingOpp] = useState(false);
-
   const loadData = useCallback(async () => {
     setLoading(true);
     const [cRes, iRes, oRes, eRes, tRes, tdRes] = await Promise.all([
       fetch(`/api/admin/engagement/contacts/${id}`),
       fetch(`/api/admin/engagement/interactions?contact_id=${id}&limit=50`),
       fetch(`/api/admin/engagement/opportunities?contact_id=${id}&limit=30`),
-      fetch(`/api/admin/enquiries?contact_id=${id}`),
+      fetch(`/api/admin/enquiries?contact_id=${id}&include_closed=true`),
       fetch(`/api/admin/engagement/tasks?contact_id=${id}&limit=100`),
       fetch(`/api/admin/engagement/tasks?contact_id=${id}&status=done&limit=50`),
     ]);
@@ -97,14 +111,33 @@ export default function ClientDetailPage() {
       cRes.json() as Promise<{ data: EngagementContact }>,
       iRes.json() as Promise<{ data: EngagementInteraction[] }>,
       oRes.json() as Promise<{ data: EngagementOpportunity[] }>,
-      eRes.json() as Promise<{ data: Array<{ id: string; name: string; support_type: string }> }>,
+      eRes.json() as Promise<{ data: Array<{
+        id: string;
+        name: string;
+        email: string;
+        support_type: string;
+        details: string;
+        telephone: string | null;
+        created_at: string;
+        status: string;
+      }> }>,
       tRes.json() as Promise<{ data: EngagementTask[] }>,
       tdRes.json() as Promise<{ data: EngagementTask[] }>,
     ]);
     setContact(cData.data);
     setInteractions(iData.data || []);
     setOpportunities(oData.data || []);
-    setLinkedEnquiry(eData.data?.[0] || null);
+    const enquiry = eData.data?.[0] || null;
+    setLinkedEnquiry(enquiry);
+    const opps = oData.data || [];
+    const queueOpp = opps.find((o) => o.queue_id);
+    if (queueOpp?.queue_id) {
+      const qRes = await fetch(`/api/admin/engagement/prospect-queue/${queueOpp.queue_id}`);
+      const qData = await qRes.json() as { data?: typeof linkedQueue };
+      setLinkedQueue(qData.data || null);
+    } else {
+      setLinkedQueue(null);
+    }
     setTasks(tData.data || []);
     setDoneTasks(tdData.data || []);
     setLoading(false);
@@ -168,25 +201,33 @@ export default function ClientDetailPage() {
     setSavingNote(false);
   };
 
-  const createOpportunity = async () => {
-    if (!contact) return;
-    setCreatingOpp(true);
-    const res = await fetch("/api/admin/engagement/opportunities", {
-      method: "POST",
+  const updatePrimaryStage = async (stage: string) => {
+    const clientOpp = opportunities.find((o) => isClientServiceStage(o.stage));
+    if (!clientOpp) return;
+    setUpdatingStage(true);
+    const res = await fetch(`/api/admin/engagement/opportunities/${clientOpp.id}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""} — New opportunity`,
-        primary_contact_id: id,
-        organisation_id: contact.organisation_id ?? null,
-        stage: "Won",
-      }),
+      body: JSON.stringify({ stage }),
     });
     if (res.ok) {
       const j = await res.json() as { data: EngagementOpportunity };
-      setOpportunities((prev) => [j.data, ...prev]);
-      setActiveTab("opportunities");
+      setOpportunities((prev) => prev.map((o) => (o.id === j.data.id ? j.data : o)));
     }
-    setCreatingOpp(false);
+    setUpdatingStage(false);
+  };
+
+  const sourceOpp = opportunities.find((o) => o.enquiry_id || o.queue_id);
+
+  const openCreateOpportunity = () => {
+    if (!sourceOpp?.enquiry_id && !sourceOpp?.queue_id) {
+      const go = window.confirm(
+        "New opportunities must be linked to a website enquiry or prospect queue item.\n\nCreate one of those first, then add the opportunity from that page.\n\nOpen the new opportunity linker now?",
+      );
+      if (go) window.location.href = "/admin/engagement/pipeline/opportunities/new";
+      return;
+    }
+    setShowCreateOppModal(true);
   };
 
   if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
@@ -195,11 +236,17 @@ export default function ClientDetailPage() {
   const fullName = `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`;
   const initials = `${contact.first_name[0] ?? ""}${contact.last_name?.[0] ?? ""}`.toUpperCase();
 
-  const clientOpps = opportunities.filter((o) =>
-    ["Won", "Onboarding", "Active client"].includes(o.stage)
-  );
+  const clientOpps = opportunities.filter((o) => isClientServiceStage(o.stage));
   const primaryOpp = clientOpps[0] ?? null;
   const openTasks = tasks.filter((t) => t.status !== "done");
+  const createOppDefaults = contact && sourceOpp ? {
+    title: `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""} — New opportunity`.slice(0, 120),
+    stage: "Identified",
+    primary_contact_id: id,
+    organisation_id: contact.organisation_id ?? null,
+    enquiry_id: sourceOpp.enquiry_id ?? null,
+    queue_id: sourceOpp.queue_id ?? null,
+  } : undefined;
 
   return (
     <div className="min-h-screen bg-white">
@@ -303,19 +350,17 @@ export default function ClientDetailPage() {
             )}
           </div>
 
-          {/* Primary service card */}
+          {/* Client record */}
           {primaryOpp && (
             <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
-                  Current service
-                </p>
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[primaryOpp.stage] ?? "bg-gray-100 text-gray-600"}`}
-                >
-                  {primaryOpp.stage}
-                </span>
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
+                Client record
+              </p>
+              <ClientStatusSelect
+                value={primaryOpp.stage}
+                onChange={(stage) => void updatePrimaryStage(stage)}
+                disabled={updatingStage}
+              />
               <div>
                 <p className="text-sm font-semibold text-[#111111]">{primaryOpp.title}</p>
                 {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high) && (
@@ -324,6 +369,12 @@ export default function ClientDetailPage() {
                   </p>
                 )}
               </div>
+              {primaryOpp.next_action && (
+                <div>
+                  <p className="text-[10px] text-[#6f6b62]">Follow-up / next action</p>
+                  <p className="text-sm text-[#111111]">{primaryOpp.next_action}</p>
+                </div>
+              )}
               {primaryOpp.desired_outcomes && (
                 <div>
                   <p className="text-[10px] text-[#6f6b62]">Desired outcomes</p>
@@ -351,19 +402,104 @@ export default function ClientDetailPage() {
             </div>
           )}
 
-          {/* Linked enquiry */}
-          {linkedEnquiry && (
-            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-2">
+          {/* Original submission */}
+          {(linkedEnquiry || linkedQueue) && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Original enquiry
+                Original submission
               </p>
-              <Link
-                href={`/admin/enquiries/${linkedEnquiry.id}`}
-                className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 hover:bg-blue-100 text-sm font-semibold text-[#111111]"
-              >
-                {linkedEnquiry.name}
-                <span className="ml-auto text-xs text-[#6f6b62]">{linkedEnquiry.support_type}</span>
-              </Link>
+              {linkedEnquiry && (
+                <div className="space-y-2 text-sm">
+                  <Link
+                    href={`/admin/enquiries/${linkedEnquiry.id}`}
+                    className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 hover:bg-blue-100 font-semibold text-[#111111]"
+                  >
+                    Website enquiry — {linkedEnquiry.name}
+                    <span className="ml-auto text-xs text-[#6f6b62]">{linkedEnquiry.support_type}</span>
+                  </Link>
+                  {linkedEnquiry.email && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Submitted email</p>
+                      <p className="text-[#111111]">{linkedEnquiry.email}</p>
+                    </div>
+                  )}
+                  {linkedEnquiry.telephone && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Telephone</p>
+                      <p className="text-[#111111]">{linkedEnquiry.telephone}</p>
+                    </div>
+                  )}
+                  {linkedEnquiry.details && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Message</p>
+                      <p className="text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedEnquiry.details}</p>
+                    </div>
+                  )}
+                  {linkedEnquiry.created_at && (
+                    <p className="text-xs text-[#6f6b62]/70">
+                      Submitted {new Date(linkedEnquiry.created_at).toLocaleString("en-GB")}
+                    </p>
+                  )}
+                </div>
+              )}
+              {linkedQueue && (
+                <div className="space-y-2 text-sm">
+                  <Link
+                    href={`/admin/engagement/prospect-queue/${linkedQueue.id}`}
+                    className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 hover:bg-amber-100 font-semibold text-[#111111]"
+                  >
+                    Prospect queue
+                    {linkedQueue.organisation?.name || linkedQueue.raw_org_name
+                      ? ` — ${linkedQueue.organisation?.name || linkedQueue.raw_org_name}`
+                      : ""}
+                  </Link>
+                  {linkedQueue.raw_industry && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Industry</p>
+                      <p className="text-[#111111]">{linkedQueue.raw_industry}</p>
+                    </div>
+                  )}
+                  {linkedQueue.raw_notes && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Notes</p>
+                      <p className="text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedQueue.raw_notes}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Opportunity history */}
+          {opportunities.length > 0 && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+                Opportunity history
+              </p>
+              <ul className="space-y-2">
+                {opportunities.map((opp) => (
+                  <li key={opp.id}>
+                    <Link
+                      href={`/admin/engagement/pipeline/opportunities/${opp.id}`}
+                      className="text-sm font-semibold text-[#063b32] hover:underline"
+                    >
+                      {opp.title}
+                    </Link>
+                    <div className="mt-0.5 flex items-center gap-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[opp.stage] ?? "bg-gray-100 text-gray-600"}`}
+                      >
+                        {opp.stage}
+                      </span>
+                      {opp.created_at && (
+                        <span className="text-[10px] text-[#6f6b62]">
+                          {new Date(opp.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
@@ -375,24 +511,6 @@ export default function ClientDetailPage() {
             <>
               {/* Quick actions */}
               <div className="flex flex-wrap gap-2">
-                {contact.professional_email && (
-                  <a
-                    href={gmailUrl(contact.professional_email)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-                  >
-                    <Mail className="h-4 w-4" /> Send email
-                  </a>
-                )}
-                {contact.phone && (
-                  <a
-                    href={`tel:${contact.phone}`}
-                    className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-                  >
-                    <Phone className="h-4 w-4" /> Call
-                  </a>
-                )}
                 <button
                   type="button"
                   onClick={() => { setActiveTab("tasks"); setAddingTask(true); }}
@@ -409,18 +527,27 @@ export default function ClientDetailPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => void createOpportunity()}
-                  disabled={creatingOpp}
-                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                  onClick={openCreateOpportunity}
+                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100"
                 >
-                  {creatingOpp ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Target className="h-4 w-4" />
-                  )}
-                  New opportunity
+                  <Target className="h-4 w-4" />
+                  Create opportunity
                 </button>
               </div>
+
+              {primaryOpp?.next_action && (
+                <div className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-800">
+                    Follow-up / next action
+                  </p>
+                  <p className="mt-1 text-sm text-[#111111]">{primaryOpp.next_action}</p>
+                  {primaryOpp.expected_decision_date && (
+                    <p className="mt-1 text-xs text-[#6f6b62]">
+                      By {new Date(primaryOpp.expected_decision_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Stats */}
               <div className="grid gap-3 sm:grid-cols-3">
@@ -684,19 +811,9 @@ export default function ClientDetailPage() {
           {/* CALLS TAB */}
           {activeTab === "calls" && (
             <>
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                  Call & interaction history
-                </p>
-                {contact.phone && (
-                  <a
-                    href={`/admin/engagement/live-call?contact=${id}`}
-                    className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
-                  >
-                    <Phone className="h-3.5 w-3.5" /> Start call
-                  </a>
-                )}
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+                Call & interaction history
+              </p>
               <InteractionList
                 interactions={interactions}
                 emptyMessage="No call records yet for this client."
@@ -713,16 +830,11 @@ export default function ClientDetailPage() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => void createOpportunity()}
-                  disabled={creatingOpp}
-                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+                  onClick={openCreateOpportunity}
+                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100"
                 >
-                  {creatingOpp ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Target className="h-3.5 w-3.5" />
-                  )}
-                  New opportunity
+                  <Target className="h-3.5 w-3.5" />
+                  Create opportunity
                 </button>
               </div>
 
@@ -847,6 +959,18 @@ export default function ClientDetailPage() {
           )}
         </div>
       </div>
+
+      <CreateOpportunityModal
+        open={showCreateOppModal}
+        onClose={() => setShowCreateOppModal(false)}
+        onCreated={() => {
+          setShowCreateOppModal(false);
+          void loadData();
+        }}
+        defaults={createOppDefaults}
+        contextLabel={fullName}
+        pipelineOnly
+      />
     </div>
   );
 }

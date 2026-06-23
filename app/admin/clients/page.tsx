@@ -55,7 +55,9 @@ function LabeledField({ label, children }: { label: string; children: ReactNode 
 const STAGE_FILTERS = [
   { value: "", label: "All clients" },
   { value: "Won", label: "Won" },
-  { value: "Onboarding", label: "Onboarding" },
+  { value: "Onboarding planned", label: "Onboarding planned" },
+  { value: "Invoices sent", label: "Invoices sent" },
+  { value: "Onboarding in progress", label: "Onboarding" },
   { value: "Active client", label: "Active clients" },
 ];
 
@@ -193,7 +195,7 @@ export default function ClientsPage() {
             <Briefcase className="mx-auto mb-3 h-10 w-10 text-[#6f6b62]/30" />
             <p className="text-sm font-semibold text-[#111111]">No clients yet</p>
             <p className="mt-1 text-xs text-[#6f6b62]">
-              Contacts with Won, Onboarding, or Active client opportunities will appear here.
+              Contacts converted from enquiries or prospect queue will appear here.
             </p>
           </div>
         ) : (

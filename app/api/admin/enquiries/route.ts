@@ -12,12 +12,14 @@ export async function GET(req: NextRequest) {
     await assertAuth();
     const status = req.nextUrl.searchParams.get("status");
     const contactId = req.nextUrl.searchParams.get("contact_id");
+    const includeClosed = req.nextUrl.searchParams.get("include_closed") === "true";
     const db = createServiceClient();
     let query = db
       .from("enquiries")
       .select("*, posts(id, title, slug), organisation:organisation_id(id, name)")
       .order("created_at", { ascending: false });
     if (status && status !== "all") query = query.eq("status", status);
+    else if (!contactId && !includeClosed) query = query.neq("status", "Closed");
     if (contactId) query = query.eq("contact_id", contactId);
     const { data, error } = await query;
     if (error) throw error;

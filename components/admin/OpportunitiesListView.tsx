@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Plus, Users } from "lucide-react";
+import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
 import {
   NEXT_ACTION_FILTER_OPTIONS,
@@ -57,8 +58,8 @@ export function OpportunitiesListView({
   const stats = useMemo(() => computePipelineStats(opps), [opps]);
   const showStageColumn = !stageFilter;
   const tableCols = showStageColumn
-    ? "grid grid-cols-[minmax(160px,1.4fr)_minmax(120px,1fr)_minmax(100px,0.8fr)_minmax(90px,0.7fr)_minmax(100px,0.8fr)_56px_minmax(160px,1.2fr)] gap-3 items-center"
-    : "grid grid-cols-[minmax(160px,1.4fr)_minmax(120px,1fr)_minmax(100px,0.8fr)_minmax(100px,0.8fr)_56px_minmax(160px,1.2fr)] gap-3 items-center";
+    ? "grid grid-cols-[minmax(150px,1.3fr)_minmax(110px,0.9fr)_minmax(90px,0.7fr)_minmax(80px,0.6fr)_minmax(90px,0.7fr)_minmax(90px,0.7fr)_48px_minmax(140px,1.1fr)] gap-3 items-center"
+    : "grid grid-cols-[minmax(150px,1.3fr)_minmax(110px,0.9fr)_minmax(90px,0.7fr)_minmax(80px,0.6fr)_minmax(90px,0.7fr)_48px_minmax(140px,1.1fr)] gap-3 items-center";
 
   const filteredOpps = useMemo(() => {
     return opps
@@ -168,7 +169,7 @@ export function OpportunitiesListView({
                 <>
                   No opportunities yet.{" "}
                   <Link href="/admin/engagement/pipeline/opportunities/new" className="text-[#063b32] hover:underline">
-                    Add one
+                    Link to an enquiry or queue item
                   </Link>
                 </>
               ) : (
@@ -184,6 +185,7 @@ export function OpportunitiesListView({
               <span>Opportunity</span>
               <span>Contact / org</span>
               <span>Source</span>
+              <span>Client</span>
               {showStageColumn && <span>Stage</span>}
               <span>Value</span>
               <span>Tasks</span>
@@ -209,6 +211,19 @@ export function OpportunitiesListView({
                     <span onClick={(e) => e.stopPropagation()}>
                       {opp.enquiry_id || opp.queue_id ? (
                         <OpportunitySourceBadge opportunity={opp} compact />
+                      ) : (
+                        <span className="text-xs text-amber-700">Unlinked</span>
+                      )}
+                    </span>
+                    <span onClick={(e) => e.stopPropagation()}>
+                      {isClientServiceStage(opp.stage) && opp.primary_contact_id ? (
+                        <Link
+                          href={`/admin/clients/${opp.primary_contact_id}`}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
+                        >
+                          <Users className="h-3 w-3" />
+                          Client
+                        </Link>
                       ) : (
                         <span className="text-xs text-[#6f6b62]/50">—</span>
                       )}

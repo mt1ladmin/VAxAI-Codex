@@ -24,6 +24,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { InteractionList } from "@/components/admin/InteractionList";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
@@ -91,6 +92,7 @@ export default function ProspectDetailPage() {
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
   const [loadingCrm, setLoadingCrm] = useState(false);
   const [showCreateOppModal, setShowCreateOppModal] = useState(false);
+  const [showConvertModal, setShowConvertModal] = useState(false);
   const [createOppPresetStage, setCreateOppPresetStage] = useState<string | undefined>();
   const [linkingOpp, setLinkingOpp] = useState(false);
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
@@ -382,6 +384,7 @@ export default function ProspectDetailPage() {
         body: JSON.stringify({
           organisation_id: entry.organisation_id || undefined,
           primary_contact_id: entry.contact_id || undefined,
+          queue_id: entry.id,
         }),
       });
       const j = await res.json() as { data?: EngagementOpportunity };
@@ -408,7 +411,7 @@ export default function ProspectDetailPage() {
     : entry.raw_contact_name || null;
   const email = entry.contact?.professional_email || entry.raw_email;
   const clientOpportunity = opportunities.find((o) =>
-    ["Won", "Onboarding", "Active client"].includes(o.stage)
+    ["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"].includes(o.stage)
   ) ?? null;
 
   return (
@@ -427,6 +430,22 @@ export default function ProspectDetailPage() {
           sourceType: "queue",
           sourceLabel: `Prospect queue — ${orgName}`,
         }}
+      />
+
+      <ConvertToClientModal
+        open={showConvertModal}
+        onClose={() => setShowConvertModal(false)}
+        onConverted={() => { setShowConvertModal(false); void load(); }}
+        sourceType="queue"
+        sourceId={entry.id}
+        sourceLabel={orgName}
+        contactName={contactName || orgName}
+        contactEmail={email || ""}
+        contactPhone={entry.raw_phone}
+        supportType={entry.raw_industry || entry.organisation?.industry || "Prospect queue"}
+        sourceDetails={entry.raw_notes || ""}
+        existingContactId={entry.contact_id}
+        existingOrgId={entry.organisation_id}
       />
 
       <CreateOpportunityModal
@@ -448,6 +467,7 @@ export default function ProspectDetailPage() {
           primary_contact_id: entry.contact_id,
           queue_id: entry.id,
         }}
+        pipelineOnly
       />
 
       {editingContact && (
@@ -679,7 +699,7 @@ export default function ProspectDetailPage() {
             ) : (
               <button
                 type="button"
-                onClick={() => openCreateOpportunity("Active client")}
+                onClick={() => setShowConvertModal(true)}
                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10"
               >
                 <Briefcase className="h-4 w-4" />

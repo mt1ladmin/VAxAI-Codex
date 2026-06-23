@@ -35,6 +35,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const supabase = createServiceClient();
   const body = await req.json();
+
+  if (!body.enquiry_id && !body.queue_id) {
+    return NextResponse.json(
+      { error: "Opportunities must be linked to a website enquiry or prospect queue record." },
+      { status: 400 },
+    );
+  }
+
   const { data, error } = await supabase
     .from("engagement_opportunities")
     .insert(body)

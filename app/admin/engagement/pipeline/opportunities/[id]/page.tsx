@@ -14,7 +14,7 @@ import {
   Save,
   X,
 } from "lucide-react";
-import { ConvertOpportunityToClientModal } from "@/components/admin/ConvertOpportunityToClientModal";
+import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { OpportunityCreatedFrom } from "@/components/admin/OpportunityCreatedFrom";
 import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
 import {
@@ -58,8 +58,6 @@ export default function OpportunityDetailPage() {
   const [showAddNote, setShowAddNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
-  const [showConvertModal, setShowConvertModal] = useState(false);
-  const [convertingClient, setConvertingClient] = useState(false);
   const [sourceContactName, setSourceContactName] = useState<string | null>(null);
   const [sourceOrgName, setSourceOrgName] = useState<string | null>(null);
 
@@ -229,26 +227,6 @@ export default function OpportunityDetailPage() {
     void load();
   };
 
-  const convertToClient = async () => {
-    if (!opp) return;
-    if (!opp.primary_contact_id) {
-      setShowConvertModal(true);
-      return;
-    }
-    setConvertingClient(true);
-    try {
-      const res = await fetch(`/api/admin/engagement/opportunities/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stage: "Won" }),
-      });
-      const j = (await res.json()) as { data?: EngagementOpportunity };
-      if (j.data) setOpp(j.data);
-    } finally {
-      setConvertingClient(false);
-    }
-  };
-
   const goToLiveCall = () => {
     const params = new URLSearchParams();
     if (opp?.organisation_id) params.set("org", opp.organisation_id);
@@ -269,20 +247,10 @@ export default function OpportunityDetailPage() {
     opp.indicative_value_low || opp.indicative_value_high
       ? `£${(opp.indicative_value_low ?? 0).toLocaleString()} – £${(opp.indicative_value_high ?? 0).toLocaleString()}`
       : null;
-  const isClientStage = ["Won", "Onboarding", "Active client"].includes(opp.stage);
-  const isPipelineOnly = !opp.enquiry_id && !opp.queue_id;
+  const isClientStage = isClientServiceStage(opp.stage);
 
   return (
     <div className="min-h-screen bg-white">
-      <ConvertOpportunityToClientModal
-        open={showConvertModal}
-        onClose={() => setShowConvertModal(false)}
-        onConverted={(updated) => {
-          setOpp(updated);
-          setShowConvertModal(false);
-        }}
-        opportunity={opp}
-      />
       {editing && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
           <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl">
@@ -527,21 +495,23 @@ export default function OpportunityDetailPage() {
             </div>
           )}
 
-          {isPipelineOnly && !isClientStage && (
+          {!isClientStage && (opp.enquiry_id || opp.queue_id) && (
             <div className="rounded-xl border border-dashed border-[#063b32]/30 bg-[#063b32]/5 p-5 space-y-3">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">Convert to client</p>
               <p className="text-sm text-[#6f6b62]">
-                Link this opportunity as the client service record on their profile.
+                Convert from the linked website enquiry or prospect queue record to create the client service record and close the source item.
               </p>
-              <button
-                type="button"
-                onClick={() => void convertToClient()}
-                disabled={convertingClient}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              <Link
+                href={
+                  opp.enquiry_id
+                    ? `/admin/enquiries/${opp.enquiry_id}`
+                    : `/admin/engagement/prospect-queue/${opp.queue_id}`
+                }
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
               >
-                {convertingClient ? <Loader2 className="h-4 w-4 animate-spin" /> : <Briefcase className="h-4 w-4" />}
-                Convert to client
-              </button>
+                <Briefcase className="h-4 w-4" />
+                Open source record
+              </Link>
             </div>
           )}
 

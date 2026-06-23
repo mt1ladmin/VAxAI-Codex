@@ -1,6 +1,7 @@
+import { CLIENT_SERVICE_STAGES } from "@/lib/engagement/client-stages";
 import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 
-export const CLOSED_WON = ["Won", "Onboarding", "Active client"] as const;
+export const CLOSED_WON = CLIENT_SERVICE_STAGES;
 export const CLOSED_OTHER = ["Lost", "Not suitable"] as const;
 
 export type TaskFilter =
@@ -16,13 +17,12 @@ export type NextActionFilter = "all" | "has_next_action" | "no_next_action";
 
 export type DueDateFilter = "all" | "overdue" | "due_7d" | "due_30d" | "no_due_date" | "due_today";
 
-export type SourceFilter = "all" | "website_enquiry" | "prospect_queue" | "direct";
+export type SourceFilter = "all" | "website_enquiry" | "prospect_queue";
 
 export const SOURCE_FILTER_OPTIONS: { value: SourceFilter; label: string }[] = [
   { value: "all", label: "All sources" },
   { value: "website_enquiry", label: "Website enquiry" },
   { value: "prospect_queue", label: "Prospect queue" },
-  { value: "direct", label: "Created directly" },
 ];
 
 export const TASK_FILTER_OPTIONS: { value: TaskFilter; label: string }[] = [
@@ -143,9 +143,7 @@ export function formatOpportunityValue(opp: EngagementOpportunity): string | nul
 }
 
 export function computePipelineStats(opps: EngagementOpportunity[]) {
-  const open = opps.filter(
-    (o) => !["Lost", "Not suitable", "Won", "Onboarding", "Active client"].includes(o.stage),
-  );
+  const open = opps.filter((o) => !["Lost", "Not suitable", ...CLIENT_SERVICE_STAGES].includes(o.stage));
   const won = opps.filter((o) => CLOSED_WON.includes(o.stage as (typeof CLOSED_WON)[number]));
   const pipelineValue = open.reduce(
     (s, o) => s + (o.indicative_value_high ?? o.indicative_value_low ?? 0),
@@ -155,15 +153,15 @@ export function computePipelineStats(opps: EngagementOpportunity[]) {
 }
 
 export function isOpenOpportunity(opp: EngagementOpportunity): boolean {
-  return !["Lost", "Not suitable", "Won", "Onboarding", "Active client"].includes(opp.stage);
+  return !["Lost", "Not suitable", ...CLIENT_SERVICE_STAGES].includes(opp.stage);
 }
 
 export function getOpportunitySource(
   opp: Pick<EngagementOpportunity, "enquiry_id" | "queue_id">,
-): Exclude<SourceFilter, "all"> {
+): Exclude<SourceFilter, "all"> | null {
   if (opp.enquiry_id) return "website_enquiry";
   if (opp.queue_id) return "prospect_queue";
-  return "direct";
+  return null;
 }
 
 export function matchesSourceFilter(
@@ -179,7 +177,7 @@ export function matchesTaskSourceFilter(
   filter: SourceFilter,
 ): boolean {
   if (filter === "all") return true;
-  if (!task.opportunity_id || !task.opportunity) return filter === "direct";
+  if (!task.opportunity_id || !task.opportunity) return false;
   return matchesSourceFilter(task.opportunity, filter);
 }
 

@@ -415,7 +415,7 @@ export default function EnquiryDetailPage() {
 
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
   const clientOpportunity = opportunities.find((o) =>
-    ["Won", "Onboarding", "Active client"].includes(o.stage)
+    ["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"].includes(o.stage)
   ) ?? null;
 
   return (
@@ -440,12 +440,14 @@ export default function EnquiryDetailPage() {
         open={showConvertModal}
         onClose={() => setShowConvertModal(false)}
         onConverted={() => { setShowConvertModal(false); void load(); }}
-        enquiryId={enquiry.id}
-        enquiryName={enquiry.name}
-        enquiryEmail={enquiry.email}
-        enquiryPhone={enquiry.telephone}
-        enquirySupportType={enquiry.support_type}
-        enquiryDetails={enquiry.details}
+        sourceType="enquiry"
+        sourceId={enquiry.id}
+        sourceLabel={enquiry.name}
+        contactName={enquiry.name}
+        contactEmail={enquiry.email}
+        contactPhone={enquiry.telephone}
+        supportType={enquiry.support_type}
+        sourceDetails={enquiry.details}
         existingContactId={enquiry.contact_id}
         existingOrgId={enquiry.organisation_id}
       />
@@ -466,6 +468,7 @@ export default function EnquiryDetailPage() {
           primary_contact_id: enquiry.contact_id,
           enquiry_id: enquiry.id,
         }}
+        pipelineOnly
       />
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-3">

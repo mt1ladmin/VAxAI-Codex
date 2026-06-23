@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Target, X } from "lucide-react";
+import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { OPPORTUNITY_STAGES, type EngagementOpportunity } from "@/lib/engagement/types";
 
 const inputClass =
@@ -58,12 +59,15 @@ export function CreateOpportunityModal({
   onCreated,
   defaults,
   contextLabel,
+  pipelineOnly = false,
 }: {
   open: boolean;
   onClose: () => void;
   onCreated: (opportunity: EngagementOpportunity) => void;
   defaults?: CreateOpportunityDefaults;
   contextLabel?: string;
+  /** Exclude client service stages (Won, onboarding, etc.) from the stage dropdown. */
+  pipelineOnly?: boolean;
 }) {
   const [form, setForm] = useState<FormState>(() => defaultsToForm(defaults));
   const [saving, setSaving] = useState(false);
@@ -76,6 +80,10 @@ export function CreateOpportunityModal({
   }, [open]);
 
   if (!open) return null;
+
+  const stageOptions = pipelineOnly
+    ? OPPORTUNITY_STAGES.filter((s) => !isClientServiceStage(s))
+    : OPPORTUNITY_STAGES;
 
   const set = (key: keyof FormState, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -163,7 +171,7 @@ export function CreateOpportunityModal({
               Stage
             </label>
             <select value={form.stage} onChange={(e) => set("stage", e.target.value)} className={inputClass}>
-              {OPPORTUNITY_STAGES.map((s) => (
+              {stageOptions.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>

@@ -1,14 +1,16 @@
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
-const CLIENT_STAGES = ["Won", "Onboarding", "Active client"];
+import { CLIENT_SERVICE_STAGES, isClientServiceStage } from "@/lib/engagement/client-stages";
+
+const CLIENT_STAGES = [...CLIENT_SERVICE_STAGES];
 
 export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);
   const stage = searchParams.get("stage") || "";
 
-  const stages = stage && CLIENT_STAGES.includes(stage) ? [stage] : CLIENT_STAGES;
+  const stages = stage && isClientServiceStage(stage) ? [stage] : CLIENT_STAGES;
 
   // Find all opportunities in client stages
   const { data: opps, error: oppError } = await supabase
