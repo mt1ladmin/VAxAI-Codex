@@ -66,25 +66,26 @@ export async function GET(req: NextRequest) {
     loadOverrideData(supabase),
   ]);
 
-  let data: OutreachWithNotes[] = prospectOutreachCatalog.prospects
+  const available: OutreachWithNotes[] = prospectOutreachCatalog.prospects
     .filter((p) => !queuedIds.has(p.id))
     .map((p) => ({
       ...mergeProspectRecord(p, overrides.get(p.id)),
       review_notes: reviewNotes.get(p.id) ?? null,
     }));
 
-  data = applyFilters(data, new URL(req.url).searchParams);
+  const data = applyFilters(available, new URL(req.url).searchParams);
 
-  const byRegion: Record<string, number> = {};
+  const filteredByRegion: Record<string, number> = {};
   for (const row of data) {
-    byRegion[row.region] = (byRegion[row.region] || 0) + 1;
+    filteredByRegion[row.region] = (filteredByRegion[row.region] || 0) + 1;
   }
 
   return NextResponse.json({
     meta: {
       ...prospectOutreachCatalog.meta,
-      total_count: data.length,
-      by_region: byRegion,
+      available_count: available.length,
+      filtered_count: data.length,
+      filtered_by_region: filteredByRegion,
       queued_count: queuedIds.size,
     },
     data,

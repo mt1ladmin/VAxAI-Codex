@@ -132,6 +132,12 @@ export default function ProspectOutreachPage() {
 
   const highNeedCount = useMemo(() => prospects.filter((p) => p.need_score >= 4).length, [prospects]);
 
+  const hasActiveFilters = Boolean(region || needScore || confidence || orgType || search.trim());
+  const regionCounts = useMemo(() => {
+    if (!meta) return {};
+    return hasActiveFilters ? meta.filtered_by_region ?? {} : meta.by_region;
+  }, [meta, hasActiveFilters]);
+
   async function saveReviewNotes() {
     if (!draft) return;
     setSaving(true);
@@ -215,15 +221,31 @@ export default function ProspectOutreachPage() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">Prospect outreach</h1>
+            {meta && (
+              <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p className="font-serif text-3xl tabular-nums text-[#063b32]">
+                  {meta.total_count.toLocaleString()}
+                </p>
+                <p className="text-sm font-medium text-[#111111]">researched prospects</p>
+              </div>
+            )}
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
               Researched charities and SMBs for admin reduction, AI training, automation, and virtual assistance.
-              {meta
-                ? ` ${meta.total_count} available`
-                  + (meta.charity_count != null && meta.business_count != null
-                    ? ` (${meta.charity_count} charities · ${meta.business_count} businesses)`
-                    : "")
-                  + ` · research date ${meta.research_date}.`
-                : ""}
+              {meta && (
+                <>
+                  {meta.charity_count != null && meta.business_count != null && (
+                    <> · {meta.charity_count} charities · {meta.business_count} businesses</>
+                  )}
+                  {meta.available_count != null && <> · {meta.available_count.toLocaleString()} available</>}
+                  {meta.queued_count != null && meta.queued_count > 0 && (
+                    <> · {meta.queued_count.toLocaleString()} in queue</>
+                  )}
+                  {hasActiveFilters && meta.filtered_count != null && (
+                    <> · showing {meta.filtered_count.toLocaleString()} (filtered)</>
+                  )}
+                  <> · research date {meta.research_date}</>
+                </>
+              )}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -254,9 +276,10 @@ export default function ProspectOutreachPage() {
                 Businesses: {meta.business_count}
               </span>
             )}
-            {Object.entries(meta.by_region).map(([r, n]) => (
+            {Object.entries(regionCounts).map(([r, n]) => (
               <span key={r} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs font-medium text-[#063b32]">
                 {r}: {n}
+                {hasActiveFilters ? " shown" : ""}
               </span>
             ))}
             <span className="rounded-full bg-[#063b32]/10 px-3 py-1 text-xs font-medium text-[#063b32]">

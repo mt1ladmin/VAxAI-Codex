@@ -32,7 +32,11 @@ export type ProspectOutreachMeta = {
   target_business_total?: number;
   charity_count?: number;
   business_count?: number;
+  available_count?: number;
+  filtered_count?: number;
+  queued_count?: number;
   by_region: Record<string, number>;
+  filtered_by_region?: Record<string, number>;
   by_need_score: Record<string, number>;
   by_organisation_type?: Record<string, number>;
   methodology: string;
