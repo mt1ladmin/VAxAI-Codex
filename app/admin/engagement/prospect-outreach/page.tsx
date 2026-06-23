@@ -77,6 +77,7 @@ export default function ProspectOutreachPage() {
   const [region, setRegion] = useState("");
   const [needScore, setNeedScore] = useState("");
   const [confidence, setConfidence] = useState("");
+  const [orgType, setOrgType] = useState("");
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<OutreachRecord | null>(null);
   const [reviewNotes, setReviewNotes] = useState("");
@@ -90,13 +91,14 @@ export default function ProspectOutreachPage() {
     if (region) params.set("region", region);
     if (needScore) params.set("need_score", needScore);
     if (confidence) params.set("confidence", confidence);
+    if (orgType) params.set("type", orgType);
     if (search) params.set("q", search);
     const res = await fetch(`/api/admin/engagement/prospect-outreach?${params}`);
     const json = await res.json();
     setProspects(json.data || []);
     setMeta(json.meta || null);
     setLoading(false);
-  }, [region, needScore, confidence, search]);
+  }, [region, needScore, confidence, orgType, search]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -214,8 +216,14 @@ export default function ProspectOutreachPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">Prospect outreach</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
-              Researched prospects for VAxAI admin support and AI/automation training.
-              {meta ? ` ${meta.total_count} available · research date ${meta.research_date}.` : ""}
+              Researched charities and SMBs for admin reduction, AI training, automation, and virtual assistance.
+              {meta
+                ? ` ${meta.total_count} available`
+                  + (meta.charity_count != null && meta.business_count != null
+                    ? ` (${meta.charity_count} charities · ${meta.business_count} businesses)`
+                    : "")
+                  + ` · research date ${meta.research_date}.`
+                : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -236,6 +244,16 @@ export default function ProspectOutreachPage() {
 
         {meta && (
           <div className="mt-4 flex flex-wrap gap-2">
+            {meta.charity_count != null && (
+              <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-800">
+                Charities: {meta.charity_count}
+              </span>
+            )}
+            {meta.business_count != null && (
+              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-900">
+                Businesses: {meta.business_count}
+              </span>
+            )}
             {Object.entries(meta.by_region).map(([r, n]) => (
               <span key={r} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs font-medium text-[#063b32]">
                 {r}: {n}
@@ -282,6 +300,16 @@ export default function ProspectOutreachPage() {
               { value: "High", label: "High" },
               { value: "Medium", label: "Medium" },
               { value: "Low", label: "Low" },
+            ]}
+          />
+          <CustomSelect
+            value={orgType}
+            onChange={setOrgType}
+            placeholder="All types"
+            options={[
+              { value: "", label: "All types" },
+              { value: "Charity", label: "Charities" },
+              { value: "Business", label: "Businesses (SMB)" },
             ]}
           />
           {selectedIds.size > 0 && (

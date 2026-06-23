@@ -188,7 +188,7 @@ export function ProspectResearchPanel({ data, editable, onChange, compact }: Pro
       {(data.engagement_approach || editable) && (
         <div className="rounded-xl border border-[#111111]/10 p-4">
           <Field
-            label="How to approach"
+            label="Meeting prep notes"
             value={data.engagement_approach}
             editable={editable}
             multiline

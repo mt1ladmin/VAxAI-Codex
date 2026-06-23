@@ -16,8 +16,8 @@ CACHE = SCRIPT_DIR / ".cache/cc-data"
 OUT_PATH = SCRIPT_DIR / "data/expansion-prospects-cc.json"
 CATALOG_PATH = ROOT / "lib/engagement/prospect-outreach/catalog.json"
 TARGET_TOTAL = 500
-# Slight quota buffer — merge dedupes a few CC rows against curated names
-REGION_QUOTA_BUFFER = 4
+# Buffer for merge dedupes and non-charity rows in curated CSV/supplemental
+REGION_QUOTA_BUFFER = 20
 RESEARCH_DATE = "2026-06-23"
 
 _spec = importlib.util.spec_from_file_location(

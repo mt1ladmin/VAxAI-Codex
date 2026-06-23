@@ -28,8 +28,13 @@ export type ProspectOutreachMeta = {
   research_date: string;
   total_count: number;
   target_total?: number;
+  target_charity_total?: number;
+  target_business_total?: number;
+  charity_count?: number;
+  business_count?: number;
   by_region: Record<string, number>;
   by_need_score: Record<string, number>;
+  by_organisation_type?: Record<string, number>;
   methodology: string;
 };
 

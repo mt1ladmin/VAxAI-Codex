@@ -174,7 +174,7 @@ export default function EngagementOverview() {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            { label: "Prospect outreach", desc: "500 researched targets · 23 Jun 2026", href: "/admin/engagement/prospect-outreach", icon: Send },
+            { label: "Prospect outreach", desc: "1,000 targets (500 charities + 500 SMBs) · 23 Jun 2026", href: "/admin/engagement/prospect-outreach", icon: Send },
             { label: "Prepare for a prospect", desc: "Sector, profile and guidance", href: "/admin/engagement/knowledge", icon: Users },
             { label: "Help with a pain point", desc: "Phrase-led conversation support", href: "/admin/engagement/pain-points", icon: Zap },
           ].map(({ label, desc, href, icon: Icon }) => (

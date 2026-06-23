@@ -1,0 +1,5731 @@
+[
+  {
+    "sector_key": "recruitment",
+    "sector_label": "Recruitment agencies",
+    "admin_burden": "High-volume CV screening, multi-board vacancy posting, compliance checks (RTW, DBS, GLAA), timesheet chasing, client/candidate CRM updates, interview scheduling, and monthly KPI reporting.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Recruitment SMBs use basic ATS but lack AI for sourcing, screening, and compliance doc extraction.",
+    "vaxai_fit": {
+      "primary": "blend",
+      "va_less_suitable_when": "VA alone is weak for 24/7 candidate matching or compliance parsing\u2014automation/training first.",
+      "meeting_hooks": [
+        "AI CV parsing tied to ATS",
+        "Automate RTW/DBS chase",
+        "Train Boolean sourcing prompts"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Core Recruiter Ltd",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.corerecruiter.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "KSR Resources",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.ksrresources.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Keeler Recruitment",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.keelerrecruitment.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Technique Recruitment Solutions",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.techniquerecruitment.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "GCB Recruitment",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.gcbrecruitment.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Select Recruitment",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.select.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Buttons Recruitment Ltd",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.buttonsrecruitment.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Alexandrite Recruitment",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.alexandriterecruitment.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Skipper Recruit",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.skipperrecruit.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1800000
+      },
+      {
+        "name": "Leadsearch Ltd",
+        "town": "Thetford",
+        "region": "Norfolk",
+        "website": "https://www.leadsearch.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Compass Point Recruitment",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.compasspointrecruitment.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Tennial Personnel Ltd",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.tennial.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Jackson Barnes Recruitment",
+        "town": "Woodbridge",
+        "region": "Suffolk",
+        "website": "https://www.jacksonbarnes.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "MacKenzie King",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.mackenzieking.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Bristow Holland",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.bristowholland.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Finstech Recruitment",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.finstechrecruitment.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Switch Recruitment Services",
+        "town": "Hadleigh",
+        "region": "Suffolk",
+        "website": "https://www.switchrecruitment.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Opus People Solutions",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.opuspeople.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Red 12 Recruitment Ltd",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.red12recruitment.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Find a Job",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.findajob.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Clarity Appointments",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.clarityappointments.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Polytec Personnel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.polytec.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Zetter Recruitment",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.zetterrecruitment.com",
+        "employees_est": 12,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Law Staff Legal Recruitment",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lawstaff.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Mana Resourcing Ltd",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.manaresourcing.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Cavill Robinson Financial Recruitment",
+        "town": "Cambourne",
+        "region": "Cambridgeshire",
+        "website": "https://www.cavillrobinson.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Apple Technical Recruitment",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.appletechnical.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Rosslyn David",
+        "town": "Ely",
+        "region": "Cambridgeshire",
+        "website": "https://www.rosslyndavid.com",
+        "employees_est": 8,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Abbeville Recruitment",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.abbeville-recruitment.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Herring Partners",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.herringpartners.com",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Deerfoot Technology Recruitment",
+        "town": "Salford",
+        "region": "Greater Manchester",
+        "website": "https://www.deerfoot.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Duval Associates",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.duvalassociates.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Flexible Solutionz Limited",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.flexiblesolutionz.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Innova Search",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.innovasearch.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Premier Group Recruitment",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.premiergroupuk.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Socium Recruitment",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.sociumrecruitment.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Twist IT Recruitment",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.twistit.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Lucas McLean",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lucasmclean.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Re Legal Limited",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.relegal.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Specialist Recruitment Solutions",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.specialistrecruitmentsolutions.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2500000
+      }
+    ]
+  },
+  {
+    "sector_key": "estate_agents",
+    "sector_label": "Estate agents / property management",
+    "admin_burden": "Portal uploads, tenancy referencing, deposit protection, maintenance triage, inventory scheduling, rent arrears chasing, EPC/gas safety compliance, and landlord reporting.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Property SMBs lag in AI for enquiry triage and automated compliance reminders.",
+    "vaxai_fit": {
+      "primary": "automation",
+      "va_less_suitable_when": "Pure VA poor when enquiries need instant 24/7 response\u2014automate first.",
+      "meeting_hooks": [
+        "Auto-triage Rightmove enquiries",
+        "Automate gas/EPC renewals",
+        "AI listing descriptions"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Aldreds Estate Agents",
+        "town": "Diss",
+        "region": "Norfolk",
+        "website": "https://www.aldreds.co.uk",
+        "employees_est": 45,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Arnolds Keys",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.arnoldskeys.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Sowerbys",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.sowerbys.com",
+        "employees_est": 35,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Cooke Curtis",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.cookecurtis.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Howards Estate Agents",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.howards.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Duffield Morgan",
+        "town": "Diss",
+        "region": "Norfolk",
+        "website": "https://www.duffieldmorgan.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Ellis Winters",
+        "town": "Fakenham",
+        "region": "Norfolk",
+        "website": "https://www.elliswinters.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Totally Norfolk",
+        "town": "Cromer",
+        "region": "Norfolk",
+        "website": "https://www.totallynorfolk.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 900000
+      },
+      {
+        "name": "William H Brown",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.williamhbrown.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Belvoir Lettings Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.belvoir.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Flick & Son",
+        "town": "Southwold",
+        "region": "Suffolk",
+        "website": "https://www.flickandson.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Boydens Estate Agents",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.boydens.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "David Burr Estate Agents",
+        "town": "Newmarket",
+        "region": "Suffolk",
+        "website": "https://www.davidburr.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Fenn Wright",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.fennwright.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Jackson-Stops Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.jackson-stops.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Leaders Romans Group",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.leaders.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Pymm & Co",
+        "town": "Norwich",
+        "region": "Suffolk",
+        "website": "https://www.pymmand.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Savills Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.savills.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Connells Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.connells.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "William H Brown Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.williamhbrown.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Cheffins",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cheffins.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Tucker Gardner",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.tuckergardner.com",
+        "employees_est": 35,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Pure Living",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.pureliving.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Cambridge Property Lettings",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridgepropertylettings.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Pym & Wildsmith",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.pymandwildsmith.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Hockeys Estate Agents",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hockeys.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Tucker Gardner Ely",
+        "town": "Ely",
+        "region": "Cambridgeshire",
+        "website": "https://www.tuckergardner.com",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "William H Brown Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.williamhbrown.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Leaders Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.leaders.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Abbey Properties",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.abbeyproperties.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Thornley Groves",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.thornleygroves.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Julie Twist Properties",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.julietwist.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "The Estate Agent Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.theestateagentmanchester.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Bridgfords",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.bridgfords.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Reeds Rains",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.reedsrains.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Hunters Estate Agents",
+        "town": "Stockport",
+        "region": "Greater Manchester",
+        "website": "https://www.hunters.com",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "O'Connor Co",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.oconnorco.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Kaytons Estate Agents",
+        "town": "Salford",
+        "region": "Greater Manchester",
+        "website": "https://www.kaytons.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Philip James Estate Agents",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.philipjames.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Purplebricks Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.purplebricks.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      }
+    ]
+  },
+  {
+    "sector_key": "accountancy",
+    "sector_label": "Accountancy practices (SME, not Big 4)",
+    "admin_burden": "Client onboarding (AML/KYC), bookkeeping data entry, VAT/CT return prep, payroll runs, year-end workpapers, client chase for records, practice management time recording, and MTD compliance admin.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. ICAEW surveys show practices experimenting with AI for bookkeeping categorisation but lack firm-wide training.",
+    "vaxai_fit": {
+      "primary": "ai_training",
+      "va_less_suitable_when": "VA is not the lead when receipt/invoice extraction or MTD filing prep can be automated\u2014train staff on AI-assisted review.",
+      "meeting_hooks": [
+        "AI-assisted bookkeeping review",
+        "Automate client document chase",
+        "Copilot training for management letters"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Larking Gowen",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.larking-gowen.co.uk",
+        "employees_est": 120,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Lovewell Blake",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.lovewell-blake.co.uk",
+        "employees_est": 100,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Ensors",
+        "town": "Bury St Edmunds",
+        "region": "Norfolk",
+        "website": "https://www.ensors.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Jacobs Allen",
+        "town": "Bury St Edmunds",
+        "region": "Norfolk",
+        "website": "https://www.jacobsallen.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Whiting & Partners",
+        "town": "Dereham",
+        "region": "Norfolk",
+        "website": "https://www.whitingandpartners.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Baker Watkin",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.bakerwatkin.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Goddards Accountants",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.goddardsaccountants.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Morgan Randall",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.morganrandall.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "SG Accounting",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.sgaccounting.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "MHA Moore and Smalley",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.mooreandsmalley.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Bishop Fleming",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.bishopfleming.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Ensors Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.ensors.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Larking Gowen Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.larking-gowen.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Jacobs Allen Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.jacobsallen.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Whiting & Partners Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.whitingandpartners.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "MHA Moore and Smalley Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.mooreandsmalley.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Lovewell Blake Lowestoft",
+        "town": "Lowestoft",
+        "region": "Suffolk",
+        "website": "https://www.lovewell-blake.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Baker Watkin Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.bakerwatkin.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "SG Accounting Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.sgaccounting.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Morgan Randall Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.morganrandall.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "BKL Faulkner",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.bkl.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Ensors Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.ensors.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "HWB Chartered Accountants",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hwbaccountants.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Larking Gowen Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.larking-gowen.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Whiting & Partners Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.whitingandpartners.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Jacobs Allen Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.jacobsallen.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "SG Accounting Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.sgaccounting.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Baker Watkin Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.bakerwatkin.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Morgan Randall Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.morganrandall.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Lovewell Blake Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lovewell-blake.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Beever and Struthers",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.beeverstruthers.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 20000000
+      },
+      {
+        "name": "MHA Moore and Smalley Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.mooreandsmalley.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Alexander & Co",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.alexander.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Dains Accountants",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.dains.com",
+        "employees_est": 70,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "Hallidays",
+        "town": "Stockport",
+        "region": "Greater Manchester",
+        "website": "https://www.hallidays.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Cowgills",
+        "town": "Bolton",
+        "region": "Greater Manchester",
+        "website": "https://www.cowgills.co.uk",
+        "employees_est": 45,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "MHA MacIntyre Hudson",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.macintyrehudson.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Sedulo Group",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.sedulo.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "BKL Faulkner Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.bkl.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "RSM UK Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.rsmuk.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 15000000
+      }
+    ]
+  },
+  {
+    "sector_key": "legal",
+    "sector_label": "Legal firms (SME)",
+    "admin_burden": "Matter opening/file setup, AML checks, document bundling, court deadline tracking, client intake forms, billing narrative writing, land registry searches, and post-completion filing.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. SRA-regulated firms cautious on AI; SME firms rarely deploy AI for doc summarisation or client intake.",
+    "vaxai_fit": {
+      "primary": "ai_training",
+      "va_less_suitable_when": "VA wrong lead for privileged client work\u2014needs AI training with governance plus deadline automation.",
+      "meeting_hooks": [
+        "AI doc summarisation with SRA-safe workflows",
+        "Automate conveyancing chase",
+        "Train billing narrative drafts"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Ashtons Legal",
+        "town": "Bury St Edmunds",
+        "region": "Norfolk",
+        "website": "https://www.ashtonslegal.co.uk",
+        "employees_est": 120,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Hayes and Storr",
+        "town": "Wells-next-the-Sea",
+        "region": "Norfolk",
+        "website": "https://www.hayesandstorr.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Hatch Brenner",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.hatchbrenner.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Clapham & Collinge",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.clapham-collinge.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Hansells Solicitors",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.hansells.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Spire Solicitors",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.spiresolicitors.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Leathes Prior",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.leathesprior.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Fosters Solicitors",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.fosters-solicitors.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Steeles Law",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.steeleslaw.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Birketts Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.birketts.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Gotelee Solicitors",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.gotelee.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Prettys Solicitors",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.prettys.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Birketts Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.birketts.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Fosters Solicitors Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.fosters-solicitors.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Leathes Prior Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.leathesprior.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Hatch Brenner Diss",
+        "town": "Diss",
+        "region": "Suffolk",
+        "website": "https://www.hatchbrenner.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Spire Solicitors Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.spiresolicitors.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Hansells Solicitors Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.hansells.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Ashtons Legal Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.ashtonslegal.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Holland & Knight Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.hollandandknight.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Birketts Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.birketts.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Mills & Reeve",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.mills-reeve.com",
+        "employees_est": 500,
+        "revenue_est_gbp": 80000000
+      },
+      {
+        "name": "Taylor Vinters",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.taylorvinters.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "HCR Hewitsons",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hcr.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Steeles Law Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.steeleslaw.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Fosters Solicitors Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.fosters-solicitors.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Prettys Solicitors Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.prettys.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Gotelee Solicitors Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.gotelee.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Leathes Prior Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.leathesprior.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Hansells Solicitors Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hansells.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "JMW Solicitors",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.jmw.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Slater Heelis",
+        "town": "Sale",
+        "region": "Greater Manchester",
+        "website": "https://www.slaterheelis.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Gorvins Solicitors",
+        "town": "Stockport",
+        "region": "Greater Manchester",
+        "website": "https://www.gorvins.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Pannone Corporate",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.pannonecorporate.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Kuits Solicitors",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.kuits.com",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Glaisyers ETL",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.glaisyers.com",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Halliwells",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.halliwells.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Bromleys Solicitors",
+        "town": "Ashton-under-Lyne",
+        "region": "Greater Manchester",
+        "website": "https://www.bromleys.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "AFG LAW",
+        "town": "Bolton",
+        "region": "Greater Manchester",
+        "website": "https://www.afglaw.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Pannone LLP",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.pannone.com",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      }
+    ]
+  },
+  {
+    "sector_key": "veterinary",
+    "sector_label": "Veterinary practices",
+    "admin_burden": "Appointment scheduling, insurance claim forms, lab result filing, repeat prescription processing, referral letter drafting, stock ordering, vaccination reminders, and end-of-day clinical note completion.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Vet practices use PMS but rarely AI for clinical note scribing or inventory forecasting.",
+    "vaxai_fit": {
+      "primary": "automation",
+      "va_less_suitable_when": "VA poor for clinical-adjacent PMS tasks\u2014prioritise AI scribing and automated reminders.",
+      "meeting_hooks": [
+        "Automate vaccination recalls",
+        "AI clinical note drafting",
+        "AI client query triage"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Taverham Vets",
+        "town": "Taverham",
+        "region": "Norfolk",
+        "website": "https://www.taverhamvets.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Westover Veterinary Centre",
+        "town": "Costessey",
+        "region": "Norfolk",
+        "website": "https://www.westover-vets.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Norwich Veterinary Surgery",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.threeriversvetgroup.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Eaton Veterinary Practice",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.eatonvets.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Bridge Veterinary Centre",
+        "town": "Wroxham",
+        "region": "Norfolk",
+        "website": "https://www.bridgevets.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Aylsham Vets",
+        "town": "Aylsham",
+        "region": "Norfolk",
+        "website": "https://www.aylshamvets.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Caister Vets",
+        "town": "Great Yarmouth",
+        "region": "Norfolk",
+        "website": "https://www.caistervets.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Broadland House Veterinary Surgery",
+        "town": "Wroxham",
+        "region": "Norfolk",
+        "website": "https://www.broadlandhousevets.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Anchorage Veterinary Centre",
+        "town": "Blofield",
+        "region": "Norfolk",
+        "website": "https://www.anchoragevets.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Rackheath Vets",
+        "town": "Rackheath",
+        "region": "Norfolk",
+        "website": "https://www.rackheathvets.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Orwell Veterinary Group",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.orwellvets.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Tudor House Veterinary Centre",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.tudorhousevet.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Cedars Veterinary Centre",
+        "town": "Stowmarket",
+        "region": "Suffolk",
+        "website": "https://www.cedarsvets.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Deben Veterinary Group",
+        "town": "Woodbridge",
+        "region": "Suffolk",
+        "website": "https://www.debenvets.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Chantry Vets",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.chantryvets.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Blythwood Vets",
+        "town": "Felixstowe",
+        "region": "Suffolk",
+        "website": "https://www.blythwoodvets.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Mill House Veterinary Surgery",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.millhousevets.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Hadleigh Veterinary Centre",
+        "town": "Hadleigh",
+        "region": "Suffolk",
+        "website": "https://www.hadleighvets.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Clarendon Veterinary Centre",
+        "town": "Newmarket",
+        "region": "Suffolk",
+        "website": "https://www.clarendonvets.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Westover Veterinary Centre Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.westover-vets.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Cambridge Veterinary Group",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridgevets.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Chestnut Veterinary Group",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.chestnutvets.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Milton Veterinary Group",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.miltonvets.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Huntingdon Veterinary Centre",
+        "town": "Huntingdon",
+        "region": "Cambridgeshire",
+        "website": "https://www.huntingdonvets.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Ely Veterinary Centre",
+        "town": "Ely",
+        "region": "Cambridgeshire",
+        "website": "https://www.elyvets.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Peterborough Vets4Pets",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.vets4pets.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "St Ives Veterinary Centre",
+        "town": "St Ives",
+        "region": "Cambridgeshire",
+        "website": "https://www.stivesvets.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Chesterton Veterinary Practice",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.chestertonvets.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Wisbech Veterinary Practice",
+        "town": "Wisbech",
+        "region": "Cambridgeshire",
+        "website": "https://www.wisbechvets.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Orwell Veterinary Group Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.orwellvets.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "White Cross Vets Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.whitecrossvets.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Vets4Pets Manchester Fort",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.vets4pets.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Medivet Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.medivet.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Beech House Veterinary Centre",
+        "town": "Stockport",
+        "region": "Greater Manchester",
+        "website": "https://www.beechhousevets.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Wilmslow Veterinary Surgery",
+        "town": "Wilmslow",
+        "region": "Greater Manchester",
+        "website": "https://www.wilmslowvets.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Altrincham Veterinary Practice",
+        "town": "Altrincham",
+        "region": "Greater Manchester",
+        "website": "https://www.altrinchamvets.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Cheadle Hulme Veterinary Surgery",
+        "town": "Cheadle Hulme",
+        "region": "Greater Manchester",
+        "website": "https://www.cheadlevets.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Moss Veterinary Practice",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.mossvets.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Companion Care Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.companioncare.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Village Vet Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.villagevet.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      }
+    ]
+  },
+  {
+    "sector_key": "dental",
+    "sector_label": "Dental practice groups",
+    "admin_burden": "NHS/UoA claim submissions, treatment plan documentation, recall scheduling, lab ticket tracking, CQC compliance records, referral letters, and insurance paperwork.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Dental groups digitised records but AI for note-taking and recall optimisation remains early-stage.",
+    "vaxai_fit": {
+      "primary": "blend",
+      "va_less_suitable_when": "VA not right for NHS claims or clinical notes\u2014automate recalls plus AI training for comms.",
+      "meeting_hooks": [
+        "Automate recall campaigns",
+        "AI clinical note templates",
+        "AI NHS contract reporting"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Norwich Dental Specialists",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.norwichdentalspecialists.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "John G Plummer Associates",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.jgplummer.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Damira Dental Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.damira.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Riverside Dental Practice",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.riversidedentalnorwich.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "St Ann's Dental Practice",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.stannsdental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "The Dental Surgery Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.thedentalsurgery.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Churchill Dental Practice",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.churchilldental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Norfolk Dental Centre",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.norfolkdentalcentre.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Gayton Road Dental Practice",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.gaytonroaddental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Damira Dental King's Lynn",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.damira.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Damira Dental Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.damira.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Rushmere Dental Care",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.rushmeredental.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "St Joseph's Dental Practice",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.stjosephsdental.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Bridge Dental Practice Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.bridgedental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Bury St Edmunds Dental Centre",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.bsedc.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Damira Dental Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.burydentist.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Woodbridge Dental Practice",
+        "town": "Woodbridge",
+        "region": "Suffolk",
+        "website": "https://www.woodbridgedental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Felixstowe Dental Practice",
+        "town": "Felixstowe",
+        "region": "Suffolk",
+        "website": "https://www.felixstowedental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Lowestoft Dental Practice",
+        "town": "Lowestoft",
+        "region": "Suffolk",
+        "website": "https://www.lowestoftdental.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Damira Dental Lowestoft",
+        "town": "Lowestoft",
+        "region": "Suffolk",
+        "website": "https://www.damira.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Cambridge Dental Group",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridgedental.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Damira Dental Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.damira.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Peartree Dental Practice",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.peartreedental.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Bridge Dental Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.bridgedentalcambridge.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Huntingdon Dental Care",
+        "town": "Huntingdon",
+        "region": "Cambridgeshire",
+        "website": "https://www.huntingdondental.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Peterborough Dental Practice",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.peterboroughdental.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Damira Dental Peterborough",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.damira.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Ely Dental Practice",
+        "town": "Ely",
+        "region": "Cambridgeshire",
+        "website": "https://www.elydental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "St Neots Dental Practice",
+        "town": "St Neots",
+        "region": "Cambridgeshire",
+        "website": "https://www.stneotsdental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Chesterton Dental Practice",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.chestertondental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Damira Dental Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.damira.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Manchester Dental Practice",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.manchesterdental.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Carisbrook Dental",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.carisbrookdental.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Oak Mount Dental Practice",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.oakmountdental.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Smile Chic Dental",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.smilechic.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Bupa Dental Care Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.bupa.co.uk/dental",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Dentistry on the Square",
+        "town": "Stockport",
+        "region": "Greater Manchester",
+        "website": "https://www.dentistryonthesquare.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Altrincham Dental Practice",
+        "town": "Altrincham",
+        "region": "Greater Manchester",
+        "website": "https://www.altrinchamdental.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Wilmslow Dental Practice",
+        "town": "Wilmslow",
+        "region": "Greater Manchester",
+        "website": "https://www.wilmslowdental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Cheadle Dental Practice",
+        "town": "Cheadle",
+        "region": "Greater Manchester",
+        "website": "https://www.cheadledental.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      }
+    ]
+  },
+  {
+    "sector_key": "construction",
+    "sector_label": "Construction / building firms (10-100 employees)",
+    "admin_burden": "CIS subcontractor verification, RAMS paperwork, site diary entries, variation order admin, tender document assembly, H&S induction records, material delivery scheduling, and invoice matching against POs.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Construction SMEs use project tools inconsistently; AI for tender analysis and site report dictation is nascent outside top contractors.",
+    "vaxai_fit": {
+      "primary": "automation",
+      "va_less_suitable_when": "VA weak for site H&S documentation and CIS verification\u2014automate compliance workflows first.",
+      "meeting_hooks": [
+        "Automate subcontractor compliance chasing",
+        "AI site diary drafting",
+        "AI tender review support"
+      ]
+    },
+    "companies": [
+      {
+        "name": "R G Carter",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.rgcarter.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 50000000
+      },
+      {
+        "name": "Watton Construction",
+        "town": "Watton",
+        "region": "Norfolk",
+        "website": "https://www.wattonconstruction.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "W M Donald",
+        "town": "Swaffham",
+        "region": "Norfolk",
+        "website": "https://www.wmdonald.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Furnitura Building Contractors",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.furnitura.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "LSJ Construction",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.lsjconstruction.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Hewitt & Co Builders",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.hewittbuilders.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Cooks Building Services",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.cooksbuilding.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "P Chapman Construction",
+        "town": "Dereham",
+        "region": "Norfolk",
+        "website": "https://www.pchapmanconstruction.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Riverside Construction",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.riversideconstruction.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Morgan Sindall Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.morgansindall.com",
+        "employees_est": 150,
+        "revenue_est_gbp": 40000000
+      },
+      {
+        "name": "Barnes Construction",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.barnesconstruction.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Haymills Contracting",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.haymills.co.uk",
+        "employees_est": 45,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "Cocksedge Building Contractors",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.cocksedge.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Breheny Civil Engineering",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.breheny.co.uk",
+        "employees_est": 70,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "R G Carter Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.rgcarter.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "W M Donald Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.wmdonald.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Morgan Sindall Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.morgansindall.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Furnitura Building Contractors Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.furnitura.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "LSJ Construction Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.lsjconstruction.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Hewitt & Co Builders Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.hewittbuilders.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Hill",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hill.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 20000000
+      },
+      {
+        "name": "Morgan Sindall Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.morgansindall.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "R G Carter Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.rgcarter.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "SDC Builders",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.sdcbuilders.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "W M Donald Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.wmdonald.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Cooks Building Services Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cooksbuilding.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "LSJ Construction Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lsjconstruction.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Hewitt & Co Builders Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hewittbuilders.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "P Chapman Construction Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.pchapmanconstruction.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Breheny Civil Engineering Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.breheny.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Renaker Build",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.renaker.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 25000000
+      },
+      {
+        "name": "Russell WBHO",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.russellwbho.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Morgan Sindall Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.morgansindall.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Bowmer & Kirkland Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.bowmerkirkland.co.uk",
+        "employees_est": 70,
+        "revenue_est_gbp": 20000000
+      },
+      {
+        "name": "Kier Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.kier.co.uk",
+        "employees_est": 90,
+        "revenue_est_gbp": 25000000
+      },
+      {
+        "name": "Wates Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.wates.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 22000000
+      },
+      {
+        "name": "ISG Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.isgplc.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "McGoff Construction",
+        "town": "Bury",
+        "region": "Greater Manchester",
+        "website": "https://www.mcgoffconstruction.com",
+        "employees_est": 40,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "P Casey & Co",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.pcasey.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Lendlease Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lendlease.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 15000000
+      }
+    ]
+  },
+  {
+    "sector_key": "haulage",
+    "sector_label": "Haulage / logistics",
+    "admin_burden": "POD collection and filing, driver hours compliance, vehicle MOT/service scheduling, fuel card reconciliation, customs documentation, customer ETA updates, and invoice disputes.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Haulage SMBs use tachograph/telematics but rarely AI for POD extraction or predictive maintenance.",
+    "vaxai_fit": {
+      "primary": "automation",
+      "va_less_suitable_when": "VA wrong for real-time driver compliance and POD digitisation\u2014automate doc capture first.",
+      "meeting_hooks": [
+        "Automate POD upload and invoice matching",
+        "AI route disruption notifications",
+        "AI load planning training"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Jack Richards & Son",
+        "town": "Dereham",
+        "region": "Norfolk",
+        "website": "https://www.jackrichards.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Roy Humphrey Transport",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.royhumphrey.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Foulger Transport",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.foulgertransport.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Fridlington Transport",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.fridlington.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Jack Richards King's Lynn",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.jackrichards.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Roy Humphrey King's Lynn",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.royhumphrey.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Foulger Transport Great Yarmouth",
+        "town": "Great Yarmouth",
+        "region": "Norfolk",
+        "website": "https://www.foulgertransport.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Fridlington Transport Dereham",
+        "town": "Dereham",
+        "region": "Norfolk",
+        "website": "https://www.fridlington.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Turners Soham",
+        "town": "Soham",
+        "region": "Norfolk",
+        "website": "https://www.turners-distribution.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 40000000
+      },
+      {
+        "name": "Delamode Group",
+        "town": "Great Blakenham",
+        "region": "Suffolk",
+        "website": "https://www.delamode-group.com",
+        "employees_est": 150,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Jack Richards Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.jackrichards.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Roy Humphrey Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.royhumphrey.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Foulger Transport Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.foulgertransport.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Fridlington Transport Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.fridlington.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Chancery Transport",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.chancerytransport.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Knights of Old",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.knightsofold.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Jack Richards Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.jackrichards.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Roy Humphrey Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.royhumphrey.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Foulger Transport Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.foulgertransport.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Fridlington Transport Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.fridlington.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Turners Soham Cambridge",
+        "town": "Soham",
+        "region": "Cambridgeshire",
+        "website": "https://www.turners-distribution.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 40000000
+      },
+      {
+        "name": "Delamode Peterborough",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.delamode-group.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Mick George",
+        "town": "Huntingdon",
+        "region": "Cambridgeshire",
+        "website": "https://www.mickgeorge.co.uk",
+        "employees_est": 500,
+        "revenue_est_gbp": 100000000
+      },
+      {
+        "name": "Jack Richards Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.jackrichards.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Roy Humphrey Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.royhumphrey.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Foulger Transport Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.foulgertransport.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Fridlington Transport Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.fridlington.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Jack Richards Peterborough",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.jackrichards.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Roy Humphrey Peterborough",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.royhumphrey.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Foulger Transport Peterborough",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.foulgertransport.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "Kinaxia Logistics",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.kinaxia.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "John Raymond Transport",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.johnraymond.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "H Parkinson Haulage",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.hparkinson.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "JMD Haulage Contractors",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.jmdhaulage.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "EV Cargo",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.evcargo.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Wincanton",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.wincanton.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 40000000
+      },
+      {
+        "name": "Eddie Stobart",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.eddiestobart.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 50000000
+      },
+      {
+        "name": "Hoyer Transport",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.hoyer-group.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Palletline Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.palletline.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Turners Distribution Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.turners-distribution.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      }
+    ]
+  },
+  {
+    "sector_key": "manufacturing_engineering",
+    "sector_label": "Manufacturing engineering",
+    "admin_burden": "Production scheduling, quality inspection records, supplier PO chasing, NCR/CAPA documentation, ISO audit prep, job costing reconciliation, and engineering drawing version control.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. UK manufacturing SMBs invest in automation faster than office AI; back-office AI for QC data and supplier comms remains underused.",
+    "vaxai_fit": {
+      "primary": "blend",
+      "va_less_suitable_when": "VA poor for engineering drawing queries or QC data\u2014prioritise AI training plus supplier automation.",
+      "meeting_hooks": [
+        "Automate supplier delivery chase",
+        "AI job costing review",
+        "AI scheduling scenarios"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Lotus Cars",
+        "town": "Hethel",
+        "region": "Norfolk",
+        "website": "https://www.lotuscars.com",
+        "employees_est": 2000,
+        "revenue_est_gbp": 500000000
+      },
+      {
+        "name": "British Sugar Cantley",
+        "town": "Cantley",
+        "region": "Norfolk",
+        "website": "https://www.britishsugar.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 80000000
+      },
+      {
+        "name": "Crisp Maltings Group",
+        "town": "Great Ryburgh",
+        "region": "Norfolk",
+        "website": "https://www.crispmaltings.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Banham Poultry Ltd",
+        "town": "Attleborough",
+        "region": "Norfolk",
+        "website": "https://www.banhamgroup.co.uk",
+        "employees_est": 400,
+        "revenue_est_gbp": 80000000
+      },
+      {
+        "name": "Kinnerton Confectionery",
+        "town": "Fakenham",
+        "region": "Norfolk",
+        "website": "https://www.kinnerton.com",
+        "employees_est": 500,
+        "revenue_est_gbp": 100000000
+      },
+      {
+        "name": "Gardline Limited",
+        "town": "Great Yarmouth",
+        "region": "Norfolk",
+        "website": "https://www.gardline.co.uk",
+        "employees_est": 300,
+        "revenue_est_gbp": 60000000
+      },
+      {
+        "name": "NE Engineering Ltd",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.neengineeringltd.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "KM Engineering",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://kmengineering.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Corri Doors Ltd",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.corridoor.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Fraser Offshore",
+        "town": "Great Yarmouth",
+        "region": "Norfolk",
+        "website": "https://www.fraseroffshore.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Greene King",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.greeneking.co.uk",
+        "employees_est": 3000,
+        "revenue_est_gbp": 2000000000
+      },
+      {
+        "name": "British Sugar Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.britishsugar.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 60000000
+      },
+      {
+        "name": "Muntons plc",
+        "town": "Stowmarket",
+        "region": "Suffolk",
+        "website": "https://www.muntons.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 50000000
+      },
+      {
+        "name": "Warren Services",
+        "town": "Beccles",
+        "region": "Suffolk",
+        "website": "https://www.warrenservices.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Hadleigh Maid",
+        "town": "Hadleigh",
+        "region": "Suffolk",
+        "website": "https://www.hadleighmaid.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Bury Pressings Ltd",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.burypressings.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Treatt",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.treatt.com",
+        "employees_est": 300,
+        "revenue_est_gbp": 80000000
+      },
+      {
+        "name": "Cedarbuilt",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.cedarbuilt.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Hadleigh Maid",
+        "town": "Hadleigh",
+        "region": "Suffolk",
+        "website": "https://www.hadleighmaid.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Delphi Diesel Systems",
+        "town": "Sudbury",
+        "region": "Suffolk",
+        "website": "https://www.delphiautomotive.com",
+        "employees_est": 500,
+        "revenue_est_gbp": 100000000
+      },
+      {
+        "name": "Marshall Aerospace",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.marshallgroup.co.uk",
+        "employees_est": 4000,
+        "revenue_est_gbp": 800000000
+      },
+      {
+        "name": "Metalcraft",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.metalcraft.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Caterpillar Perkins",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.perkins.com",
+        "employees_est": 2000,
+        "revenue_est_gbp": 500000000
+      },
+      {
+        "name": "Scientific Instrument Services",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.scientific-instruments.com",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Cambridge Precision Ltd",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridge-precision.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Treatt Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.treatt.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Huntingdon Engineering Ltd",
+        "town": "Huntingdon",
+        "region": "Cambridgeshire",
+        "website": "https://www.huntingdonengineering.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "BGL Group Peterborough",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.bglgroup.co.uk",
+        "employees_est": 3000,
+        "revenue_est_gbp": 800000000
+      },
+      {
+        "name": "Jigsaw Medical",
+        "town": "Ely",
+        "region": "Cambridgeshire",
+        "website": "https://www.jigsawmedical.com",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Domino Printing Sciences",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.domino-printing.com",
+        "employees_est": 3000,
+        "revenue_est_gbp": 500000000
+      },
+      {
+        "name": "James Halstead plc",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.halstead.co.uk",
+        "employees_est": 500,
+        "revenue_est_gbp": 150000000
+      },
+      {
+        "name": "McBride plc",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.mcbride.co.uk",
+        "employees_est": 3000,
+        "revenue_est_gbp": 800000000
+      },
+      {
+        "name": "PZ Cussons",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.pzcussons.com",
+        "employees_est": 2000,
+        "revenue_est_gbp": 500000000
+      },
+      {
+        "name": "Senior Aerospace Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.senioraerospace.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 40000000
+      },
+      {
+        "name": "Bright Engineering Oldham",
+        "town": "Oldham",
+        "region": "Greater Manchester",
+        "website": "https://www.brightengineering.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "NWF Group",
+        "town": "Winsford",
+        "region": "Greater Manchester",
+        "website": "https://www.nwf.co.uk",
+        "employees_est": 500,
+        "revenue_est_gbp": 200000000
+      },
+      {
+        "name": "Bury Precision Engineering",
+        "town": "Bury",
+        "region": "Greater Manchester",
+        "website": "https://www.buryprecision.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Renold plc",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.renold.com",
+        "employees_est": 900,
+        "revenue_est_gbp": 200000000
+      },
+      {
+        "name": "Senior plc",
+        "town": "Stockport",
+        "region": "Greater Manchester",
+        "website": "https://www.seniorplc.com",
+        "employees_est": 7000,
+        "revenue_est_gbp": 1000000000
+      },
+      {
+        "name": "Oldham Engineering Ltd",
+        "town": "Oldham",
+        "region": "Greater Manchester",
+        "website": "https://www.oldhamengineering.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      }
+    ]
+  },
+  {
+    "sector_key": "marketing_creative",
+    "sector_label": "Marketing / creative agencies",
+    "admin_burden": "Client reporting, social content calendars, campaign asset versioning, media booking reconciliation, influencer contract admin, pitch deck production, and time-tracking across retainers.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Creative agencies lead in tool adoption but lack workflow automation between PM, design, and client reporting.",
+    "vaxai_fit": {
+      "primary": "ai_training",
+      "va_less_suitable_when": "VA poor for brand voice content creation\u2014train teams on AI creative workflows instead of outsourcing copy.",
+      "meeting_hooks": [
+        "AI client report generation",
+        "Automate social scheduling",
+        "Train pitch deck AI workflows"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Selesti",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.selesti.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Kerb",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.kerb.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Fine & Dandy",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.fineanddandy.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Eloquentia",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.eloquentia.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Media Junction",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.mediajunction.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Epix Media",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.epixmedia.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Media Junction",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.mediajunction.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Made By Shape",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.madebyshape.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Grapevine Marketing",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.grapevinemarketing.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Empire Agency",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.empireagency.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Pretty Pragmatic",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.prettypragmatic.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Munro Marketing",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.munromarketing.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "S2 Advertising",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.s2advertising.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Brand Recruitment",
+        "town": "Newmarket",
+        "region": "Suffolk",
+        "website": "https://www.brandrecruitment.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Mackman",
+        "town": "Colchester",
+        "region": "Suffolk",
+        "website": "https://www.mackman.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Pretty Pragmatic Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.prettypragmatic.com",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Destination Digital",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.destinationdigital.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Prominent",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.prominent.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Red Dot Marketing",
+        "town": "Woodbridge",
+        "region": "Suffolk",
+        "website": "https://www.reddotmarketing.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Media Jems",
+        "town": "Lowestoft",
+        "region": "Suffolk",
+        "website": "https://www.mediajems.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Urban Agent",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.urbanagent.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Spring Agency",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.springagency.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Ident Creative",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.identcreative.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "HB Lateral",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hblateral.com",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Mackman Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.mackman.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Cambridge Design Partnership",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridge-design.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "The Good Marketing Agency",
+        "town": "Ely",
+        "region": "Cambridgeshire",
+        "website": "https://www.thegoodmarketingagency.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Media Matters",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.mediamatters.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Huntingdonshire Marketing",
+        "town": "Huntingdon",
+        "region": "Cambridgeshire",
+        "website": "https://www.huntsmarketing.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Cambridge Digital Agency",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridgedigitalagency.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "BJL Group",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.bjlgroup.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "LMG",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lmg.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "Creative Nerds",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.creativenerds.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Red Cow Media",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.redcowmedia.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Foundation",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.foundationagency.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Tangerine Communications",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.tangerine.net",
+        "employees_est": 50,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Boomerang",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.boomerang.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Dentsu Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.dentsu.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Havas Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.havas.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "McCann Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.mccannmanchester.com",
+        "employees_est": 120,
+        "revenue_est_gbp": 18000000
+      }
+    ]
+  },
+  {
+    "sector_key": "insurance_brokers",
+    "sector_label": "Insurance brokers",
+    "admin_burden": "Policy renewal chasing, claims FNOL intake, insurer correspondence, MTA processing, client fact-finds, compliance file reviews, and commission reconciliation across multiple insurers.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Insurance brokers digitised policy admin but AI for claims triage and renewal risk analysis is early among regional brokers.",
+    "vaxai_fit": {
+      "primary": "blend",
+      "va_less_suitable_when": "VA not lead for regulated advice or claims FNOL needing structured data capture\u2014automate intake forms first.",
+      "meeting_hooks": [
+        "AI renewal risk summaries",
+        "Automate MTA paperwork",
+        "Train brokers on AI market comparisons"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Alan Boswell Group",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.alanboswell.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Lark Insurance",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.larkinsurance.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "A-Plan Insurance Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.aplan.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Marsh Commercial Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.marshcommercial.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "Swinton Insurance Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.swinton.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Towergate Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.towergate.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Brown & Brown Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.bbrown.com",
+        "employees_est": 35,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Jelf Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.jelf.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Gallagher Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.ajg.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 7500000
+      },
+      {
+        "name": "Lockton Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.lockton.com",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Alan Boswell Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.alanboswell.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Lark Insurance Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.larkinsurance.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "A-Plan Insurance Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.aplan.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Marsh Commercial Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.marshcommercial.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Swinton Insurance Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.swinton.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Towergate Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.towergate.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Brown & Brown Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.bbrown.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Gallagher Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.ajg.com",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Lockton Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.lockton.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Jelf Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.jelf.com",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Alan Boswell Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.alanboswell.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "Lark Insurance Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.larkinsurance.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "A-Plan Insurance Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.aplan.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Lockton Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lockton.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Marsh Commercial Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.marshcommercial.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Swinton Insurance Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.swinton.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Towergate Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.towergate.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Brown & Brown Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.bbrown.com",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Gallagher Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.ajg.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Jelf Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.jelf.com",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Lovat Partners",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lovatpartners.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Lockton Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lockton.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Gallagher Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.ajg.com",
+        "employees_est": 150,
+        "revenue_est_gbp": 22000000
+      },
+      {
+        "name": "Marsh Commercial Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.marshcommercial.co.uk",
+        "employees_est": 120,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Aon Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.aon.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Brown & Brown Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.bbrown.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Towergate Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.towergate.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7500000
+      },
+      {
+        "name": "Swinton Insurance Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.swinton.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "A-Plan Insurance Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.aplan.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Alan Boswell Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.alanboswell.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 7500000
+      }
+    ]
+  },
+  {
+    "sector_key": "financial_advisers",
+    "sector_label": "Financial advisers / wealth management",
+    "admin_burden": "Client annual review prep, suitability letter drafting, platform switch admin, ISA/pension application paperwork, compliance file checks, and client meeting scheduling.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Wealth firms face FCA scrutiny on AI; SMB advisers lack training on AI-assisted suitability and client review prep.",
+    "vaxai_fit": {
+      "primary": "ai_training",
+      "va_less_suitable_when": "VA cannot handle regulated suitability advice\u2014train advisers on AI research and draft review packs with compliance oversight.",
+      "meeting_hooks": [
+        "AI annual review pack prep",
+        "Automate platform application paperwork",
+        "Train paraplanners on AI research memos"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Fairstone Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.fairstone.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Yellowtail Financial Planning",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.yellowtail.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Lovewell Blake Financial Planning",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.lovewell-blake.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "St James's Place Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.sjp.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Foster Denovo Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.fosterdenovo.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Smith & Pinching Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.smith-pinching.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Tilney Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.tilney.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Quilter Financial Planning Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.quilter.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Lighthouse Financial Advice Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.lighthousefa.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "2plan Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.2plan.com",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Fairstone Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.fairstone.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Smith & Pinching Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.smith-pinching.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "St James's Place Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.sjp.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Foster Denovo Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.fosterdenovo.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Quilter Financial Planning Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.quilter.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Lighthouse Financial Advice Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.lighthousefa.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Tilney Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.tilney.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Yellowtail Financial Planning Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.yellowtail.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "2plan Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.2plan.com",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Lovewell Blake Financial Planning Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.lovewell-blake.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Fairstone Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.fairstone.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Foster Denovo Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.fosterdenovo.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Smith & Pinching Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.smith-pinching.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "St James's Place Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.sjp.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Quilter Financial Planning Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.quilter.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Tilney Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.tilney.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Lighthouse Financial Advice Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lighthousefa.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Yellowtail Financial Planning Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.yellowtail.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "2plan Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.2plan.com",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Lovewell Blake Financial Planning Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lovewell-blake.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Mattioli Woods Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.mattioliwoods.com",
+        "employees_est": 400,
+        "revenue_est_gbp": 60000000
+      },
+      {
+        "name": "Fairstone Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.fairstone.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Tilney Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.tilney.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "St James's Place Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.sjp.co.uk",
+        "employees_est": 100,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Foster Denovo Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.fosterdenovo.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7500000
+      },
+      {
+        "name": "Quilter Financial Planning Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.quilter.com",
+        "employees_est": 70,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Lighthouse Financial Advice Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lighthousefa.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "2plan Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.2plan.com",
+        "employees_est": 30,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Smith & Pinching Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.smith-pinching.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Yellowtail Financial Planning Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.yellowtail.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      }
+    ]
+  },
+  {
+    "sector_key": "care_homes",
+    "sector_label": "Care homes (private, for-profit)",
+    "admin_burden": "CQC evidence gathering, staff rota management, medication audit trails, family enquiry responses, admission paperwork, invoicing to local authorities, and recruitment/onboarding for carers.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Care home groups face severe staffing admin; AI for roster optimisation and family comms is emerging but rarely deployed in regional operators.",
+    "vaxai_fit": {
+      "primary": "blend",
+      "va_less_suitable_when": "VA cannot replace regulated care coordination\u2014automate family updates and roster alerts; VA only for enquiry overflow.",
+      "meeting_hooks": [
+        "Automate family update comms",
+        "AI roster gap alerts",
+        "Train managers on CQC evidence AI collation"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Kingsley Healthcare",
+        "town": "Sheringham",
+        "region": "Norfolk",
+        "website": "https://www.kingsleyhealthcare.co.uk",
+        "employees_est": 500,
+        "revenue_est_gbp": 40000000
+      },
+      {
+        "name": "Athena Care Homes",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.athenacarehomes.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Castlemeadow Care",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.castlemeadowcare.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Black Swan Care Group",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.blackswan.co.uk",
+        "employees_est": 300,
+        "revenue_est_gbp": 25000000
+      },
+      {
+        "name": "Care UK Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.careuk.com",
+        "employees_est": 400,
+        "revenue_est_gbp": 35000000
+      },
+      {
+        "name": "Avery Healthcare Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.averyhealthcare.co.uk",
+        "employees_est": 250,
+        "revenue_est_gbp": 20000000
+      },
+      {
+        "name": "HC-One Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.hc-one.co.uk",
+        "employees_est": 300,
+        "revenue_est_gbp": 25000000
+      },
+      {
+        "name": "Barchester Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.barchester.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "MHA Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.mha.org.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Sanctuary Care Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.sanctuary-care.co.uk",
+        "employees_est": 180,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Kingsley Healthcare Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.kingsleyhealthcare.co.uk",
+        "employees_est": 300,
+        "revenue_est_gbp": 25000000
+      },
+      {
+        "name": "Care UK Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.careuk.com",
+        "employees_est": 350,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Avery Healthcare Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.averyhealthcare.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "HC-One Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.hc-one.co.uk",
+        "employees_est": 250,
+        "revenue_est_gbp": 20000000
+      },
+      {
+        "name": "Barchester Suffolk",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.barchester.com",
+        "employees_est": 180,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Black Swan Care Group Suffolk",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.blackswan.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Athena Care Homes Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.athenacarehomes.co.uk",
+        "employees_est": 120,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Castlemeadow Care Suffolk",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.castlemeadowcare.co.uk",
+        "employees_est": 100,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "MHA Suffolk",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.mha.org.uk",
+        "employees_est": 120,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Sanctuary Care Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.sanctuary-care.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Care UK Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.careuk.com",
+        "employees_est": 300,
+        "revenue_est_gbp": 28000000
+      },
+      {
+        "name": "Kingsley Healthcare Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.kingsleyhealthcare.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Avery Healthcare Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.averyhealthcare.co.uk",
+        "employees_est": 180,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "HC-One Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hc-one.co.uk",
+        "employees_est": 220,
+        "revenue_est_gbp": 20000000
+      },
+      {
+        "name": "Barchester Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.barchester.com",
+        "employees_est": 150,
+        "revenue_est_gbp": 13000000
+      },
+      {
+        "name": "Black Swan Care Group Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.blackswan.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 13000000
+      },
+      {
+        "name": "Athena Care Homes Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.athenacarehomes.co.uk",
+        "employees_est": 100,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Castlemeadow Care Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.castlemeadowcare.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "MHA Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.mha.org.uk",
+        "employees_est": 100,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Sanctuary Care Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.sanctuary-care.co.uk",
+        "employees_est": 120,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Care UK Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.careuk.com",
+        "employees_est": 500,
+        "revenue_est_gbp": 45000000
+      },
+      {
+        "name": "HC-One Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.hc-one.co.uk",
+        "employees_est": 600,
+        "revenue_est_gbp": 50000000
+      },
+      {
+        "name": "Avery Healthcare Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.averyhealthcare.co.uk",
+        "employees_est": 400,
+        "revenue_est_gbp": 35000000
+      },
+      {
+        "name": "Barchester Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.barchester.com",
+        "employees_est": 350,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Black Swan Care Group Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.blackswan.co.uk",
+        "employees_est": 250,
+        "revenue_est_gbp": 22000000
+      },
+      {
+        "name": "Athena Care Homes Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.athenacarehomes.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 13000000
+      },
+      {
+        "name": "Castlemeadow Care Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.castlemeadowcare.co.uk",
+        "employees_est": 120,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "MHA Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.mha.org.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Sanctuary Care Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.sanctuary-care.co.uk",
+        "employees_est": 250,
+        "revenue_est_gbp": 22000000
+      },
+      {
+        "name": "Kingsley Healthcare Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.kingsleyhealthcare.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 18000000
+      }
+    ]
+  },
+  {
+    "sector_key": "nurseries",
+    "sector_label": "Nursery / early years groups (private)",
+    "admin_burden": "Parent enquiry follow-up, occupancy tracking, EYFS observation logging, staff ratio compliance, Ofsted evidence prep, invoicing/funding claims, and recruitment DBS/onboarding.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Nursery groups digitised registers but AI for parent comms, staffing forecasts, and observation drafting is rare outside national chains.",
+    "vaxai_fit": {
+      "primary": "automation",
+      "va_less_suitable_when": "VA not lead for safeguarding-sensitive parent comms\u2014automate enquiries and funding admin; train managers on AI observation drafts.",
+      "meeting_hooks": [
+        "Automate parent enquiry nurture",
+        "AI occupancy and staffing forecasts",
+        "Ofsted evidence collation training"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Scribbles Day Nursery Group",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.scribblesdaynurserygroup.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Kindred Nurseries Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://kindrednurseries.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Natural Nurseries",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://naturalnurseryschools.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Golden Apples Day Nursery",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.goldenapples.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 1800000
+      },
+      {
+        "name": "Chestnut Nursery School",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://chestnut-nursery.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Grandir UK Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.grandiruk.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 7000000
+      },
+      {
+        "name": "Family First Nurseries Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://familyfirstnurseries.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Busy Bees Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.busybeeschildcare.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Kids Planet Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.kidsplanetdaynurseries.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 4200000
+      },
+      {
+        "name": "Snapdragons Nursery",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.snapdragonsnursery.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 4200000
+      },
+      {
+        "name": "Scribbles Day Nursery Group Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.scribblesdaynurserygroup.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Kindred Nurseries Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://kindrednurseries.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Natural Nurseries Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://naturalnurseryschools.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 2200000
+      },
+      {
+        "name": "Golden Apples Day Nursery Suffolk",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.goldenapples.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Grandir UK Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.grandiruk.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Family First Nurseries Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://familyfirstnurseries.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Busy Bees Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.busybeeschildcare.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 4200000
+      },
+      {
+        "name": "Kids Planet Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.kidsplanetdaynurseries.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Chestnut Nursery School Suffolk",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://chestnut-nursery.com",
+        "employees_est": 15,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Rosedene Nurseries",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.rosedenenurseries.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Kindred Nurseries Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://kindrednurseries.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Grandir UK Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.grandiruk.com",
+        "employees_est": 70,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Natural Nurseries Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://naturalnurseryschools.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 1800000
+      },
+      {
+        "name": "Golden Apples Day Nursery Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.goldenapples.co.uk",
+        "employees_est": 18,
+        "revenue_est_gbp": 1300000
+      },
+      {
+        "name": "Busy Bees Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.busybeeschildcare.co.uk",
+        "employees_est": 55,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Kids Planet Cambridgeshire",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.kidsplanetdaynurseries.co.uk",
+        "employees_est": 45,
+        "revenue_est_gbp": 3200000
+      },
+      {
+        "name": "Family First Nurseries Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://familyfirstnurseries.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Scribbles Day Nursery Group Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.scribblesdaynurserygroup.com",
+        "employees_est": 30,
+        "revenue_est_gbp": 2200000
+      },
+      {
+        "name": "Chestnut Nursery School Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://chestnut-nursery.com",
+        "employees_est": 12,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Monkey Puzzle Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.monkeypuzzle.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 1800000
+      },
+      {
+        "name": "Kids Planet Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.kidsplanetdaynurseries.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 14000000
+      },
+      {
+        "name": "Busy Bees Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.busybeeschildcare.co.uk",
+        "employees_est": 250,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Grandir UK Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.grandiruk.com",
+        "employees_est": 150,
+        "revenue_est_gbp": 10500000
+      },
+      {
+        "name": "Kindred Nurseries Greater Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://kindrednurseries.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 5600000
+      },
+      {
+        "name": "Family First Nurseries Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://familyfirstnurseries.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 4200000
+      },
+      {
+        "name": "Natural Nurseries Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://naturalnurseryschools.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Golden Apples Day Nursery Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.goldenapples.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 1800000
+      },
+      {
+        "name": "Scribbles Day Nursery Group Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.scribblesdaynurserygroup.com",
+        "employees_est": 35,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "Chestnut Nursery School Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://chestnut-nursery.com",
+        "employees_est": 15,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Kids Allowed",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.kidsallowed.com",
+        "employees_est": 150,
+        "revenue_est_gbp": 10500000
+      }
+    ]
+  },
+  {
+    "sector_key": "hospitality",
+    "sector_label": "Hospitality / hotel groups (regional)",
+    "admin_burden": "OTA booking reconciliation, roster management, event enquiry coordination, supplier invoice matching, guest review responses, health & safety audit records, and payroll across multiple sites.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. Hospitality groups adopted booking tech but AI for roster optimisation, guest comms, and revenue management remains chain-led, not regional SMBs.",
+    "vaxai_fit": {
+      "primary": "blend",
+      "va_less_suitable_when": "VA poor for real-time guest complaints needing manager authority\u2014automate booking admin and review responses; VA for event enquiry overflow only.",
+      "meeting_hooks": [
+        "Automate OTA reconciliation",
+        "AI guest review response drafts",
+        "Train GMs on AI roster and revenue tips"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Maids Head Hotel",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.maidsheadhotel.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Dunston Hall Hotel",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.dunstonhall.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Sprowston Manor Marriott",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.marriott.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "The George Hotel",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.thegeorgehotel.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "The Feathers Hotel",
+        "town": "Holt",
+        "region": "Norfolk",
+        "website": "https://www.feathershotel.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "The Hoste",
+        "town": "Burnham Market",
+        "region": "Norfolk",
+        "website": "https://www.thehoste.com",
+        "employees_est": 50,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Weddington Inn",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.weddingtoninn.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "The Assembly House",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.assemblyhousenorwich.co.uk",
+        "employees_est": 45,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "The Norfolk Mead Hotel",
+        "town": "Coltishall",
+        "region": "Norfolk",
+        "website": "https://www.norfolkmead.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "The Brancaster Arms",
+        "town": "Brancaster",
+        "region": "Norfolk",
+        "website": "https://www.brancasterarms.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Ickworth Hotel",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.ickworthhotel.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Seckford Hall",
+        "town": "Woodbridge",
+        "region": "Suffolk",
+        "website": "https://www.seckford.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Salthouse Harbour Hotel",
+        "town": "Southwold",
+        "region": "Suffolk",
+        "website": "https://www.salthouseharbour.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "The Angel Hotel",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.theangel.co.uk",
+        "employees_est": 45,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Hintlesham Hall",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.hintleshamhall.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "The Swan Hotel",
+        "town": "Southwold",
+        "region": "Suffolk",
+        "website": "https://www.theswanhotelsouthwold.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "The Westleton Arms",
+        "town": "Westleton",
+        "region": "Suffolk",
+        "website": "https://www.westletonarms.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "The Crown Hotel",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.thecrownhotel.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 2500000
+      },
+      {
+        "name": "The Great House",
+        "town": "Lavenham",
+        "region": "Suffolk",
+        "website": "https://www.thegreathouse.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 3000000
+      },
+      {
+        "name": "The Swan at Lavenham",
+        "town": "Lavenham",
+        "region": "Suffolk",
+        "website": "https://www.theswanatlavenham.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "University Arms Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.universityarms.cam.ac.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "The Felix Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.thefelixhotel.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "Tamburlaine Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.tamburlaine-hotel.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Hotel du Vin Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.hotelduvin.com",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "The Gonville Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.gonvillehotel.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "The Varsity Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.varsityhotel.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "The Royal Cambridge Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.royalcambridgehotel.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "The Arundel House Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.arundelhouse.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "The Lensfield Hotel",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lensfieldhotel.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "The Cambridge Belfry",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.qhotels.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Hotel Football",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.hotelfootball.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Malmaison Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.malmaison.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Motel One Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.motel-one.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "Britannia Hotel Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.britanniahotels.com",
+        "employees_est": 120,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "The Edwardian Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.edwardian.com",
+        "employees_est": 150,
+        "revenue_est_gbp": 22000000
+      },
+      {
+        "name": "King Street Townhouse",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.eclectichotels.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 7500000
+      },
+      {
+        "name": "Stock Exchange Hotel",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.stockexchangehotel.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "The Lowry Hotel",
+        "town": "Salford",
+        "region": "Greater Manchester",
+        "website": "https://www.thelowryhotel.com",
+        "employees_est": 100,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "INNSiDE Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.melia.com",
+        "employees_est": 70,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Clayton Hotel Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.claytonhotels.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      }
+    ]
+  },
+  {
+    "sector_key": "it_msp",
+    "sector_label": "IT managed service providers (SMB)",
+    "admin_burden": "Ticket triage, patch management reporting, client onboarding documentation, SLA breach tracking, licence reconciliation, backup verification logs, and QBR report generation.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. IT MSPs sell AI but rarely use it internally for ticket summarisation, client QBR drafting, or automated onboarding\u2014ironic skills gap.",
+    "vaxai_fit": {
+      "primary": "ai_training",
+      "va_less_suitable_when": "VA cannot replace L1 technical triage\u2014train engineers on AI ticket summarisation and automate client onboarding docs instead.",
+      "meeting_hooks": [
+        "AI ticket summarisation for engineers",
+        "Automate client onboarding packs",
+        "Train account managers on AI QBR drafts"
+      ]
+    },
+    "companies": [
+      {
+        "name": "Netmatters",
+        "town": "Wymondham",
+        "region": "Norfolk",
+        "website": "https://www.netmatters.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "Anglia IT Solutions",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.angliait.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Corbel Solutions",
+        "town": "Ipswich",
+        "region": "Norfolk",
+        "website": "https://www.corbelsolutions.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "IT Managed Services Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.itmanagednorwich.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Systemagic",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Your IT Department",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.your-itdepartment.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Systemagic King's Lynn",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Smart IT",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.smartit.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Systemagic King's Lynn",
+        "town": "King's Lynn",
+        "region": "Norfolk",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Systemagic Great Yarmouth",
+        "town": "Great Yarmouth",
+        "region": "Norfolk",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Netmatters Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.netmatters.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Corbel Solutions Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.corbelsolutions.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Anglia IT Solutions Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.angliait.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Your IT Department Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.your-itdepartment.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Bristow Holland IT",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.bristowholland.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Smart IT Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.smartit.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Systemagic Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Systemagic Bury St Edmunds",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Systemagic Lowestoft",
+        "town": "Lowestoft",
+        "region": "Suffolk",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Smart IT Woodbridge",
+        "town": "Woodbridge",
+        "region": "Suffolk",
+        "website": "https://www.smartit.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Anglia IT Solutions Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.angliait.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Q2Q IT",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.q2q.it",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Netmatters Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.netmatters.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 4500000
+      },
+      {
+        "name": "Softcat Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.softcat.com",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Q2Q IT Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.q2q.it",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Your IT Department Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.your-itdepartment.co.uk",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "Softcat Peterborough",
+        "town": "Peterborough",
+        "region": "Cambridgeshire",
+        "website": "https://www.softcat.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Systemagic Huntingdon",
+        "town": "Huntingdon",
+        "region": "Cambridgeshire",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Systemagic Ely",
+        "town": "Ely",
+        "region": "Cambridgeshire",
+        "website": "https://www.systemagic.co.uk",
+        "employees_est": 8,
+        "revenue_est_gbp": 1000000
+      },
+      {
+        "name": "Softcat Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.softcat.com",
+        "employees_est": 12,
+        "revenue_est_gbp": 1500000
+      },
+      {
+        "name": "ANS Group",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.ans.co.uk",
+        "employees_est": 400,
+        "revenue_est_gbp": 80000000
+      },
+      {
+        "name": "UKFast",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.ukfast.co.uk",
+        "employees_est": 400,
+        "revenue_est_gbp": 60000000
+      },
+      {
+        "name": "Six Degrees",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.6dg.co.uk",
+        "employees_est": 200,
+        "revenue_est_gbp": 40000000
+      },
+      {
+        "name": "Advania Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.advania.co.uk",
+        "employees_est": 150,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "Apex Computing",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.apexcomputing.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Sapphire Systems",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.sapphiresystems.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 35000000
+      },
+      {
+        "name": "Atlas Cloud",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.atlascloud.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "Cloud Solutions Provider",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.cloudsolutionsprovider.co.uk",
+        "employees_est": 50,
+        "revenue_est_gbp": 10000000
+      },
+      {
+        "name": "PC Support Group",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.pcsupportgroup.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Virtuoso IT",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.virtuosoit.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 6000000
+      }
+    ]
+  },
+  {
+    "sector_key": "architecture_surveying",
+    "sector_label": "Architecture / surveying practices",
+    "admin_burden": "Planning submission assembly, drawing revision registers, fee proposal production, site inspection reports, RIBA stage reporting, tender analysis, and client meeting minutes.",
+    "ai_adoption_notes": "Barclays Business Prosperity Index (Aug 2025): 89% of UK businesses plan AI use within two years; SMEs (10\u201349 staff) averaged \u00a3125k AI investment vs \u00a3400k for 250+ employee firms. Lloyds Business Barometer (Mar 2026): 66% have invested in AI, mostly under \u00a325k\u201439% cite AI/digital skills shortage. AEC firms use BIM but office AI for report drafting, planning doc review, and fee proposals is barely adopted in regional SMB practices.",
+    "vaxai_fit": {
+      "primary": "ai_training",
+      "va_less_suitable_when": "VA cannot produce regulated surveyor reports\u2014train staff on AI drafting with professional review; automate doc registers.",
+      "meeting_hooks": [
+        "AI fee proposal and report drafting",
+        "Automate drawing revision registers",
+        "Train architects on AI planning doc review"
+      ]
+    },
+    "companies": [
+      {
+        "name": "LSI Architects",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.lsiarchitects.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 8000000
+      },
+      {
+        "name": "Hudson Architects",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.hudsonarchitects.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Norwich Surveyors",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.norwichsurveyors.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Feilden+Mawson Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.feildenmawson.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Concertus Norfolk",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.concertus.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Ingleton Wood Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.ingletonwood.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Hopkins Architects Norwich",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.hopkins.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "East Anglia Surveyors",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.eastangliasurveyors.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Norwich Building Surveyors",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.norwichbuildingsurveyors.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Lanpro",
+        "town": "Norwich",
+        "region": "Norfolk",
+        "website": "https://www.lanpro.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "Ingleton Wood",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.ingletonwood.co.uk",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Concertus Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.concertus.co.uk",
+        "employees_est": 40,
+        "revenue_est_gbp": 5500000
+      },
+      {
+        "name": "LSI Architects Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.lsiarchitects.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Suffolk Surveyors",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.suffolksurveyors.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Walters & Cohen Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.waltersandcohen.com",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Bury St Edmunds Surveyors",
+        "town": "Bury St Edmunds",
+        "region": "Suffolk",
+        "website": "https://www.burystedmundssurveyors.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Feilden+Mawson Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.feildenmawson.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "East Anglia Surveyors Suffolk",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.eastangliasurveyors.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Suffolk Building Surveyors",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.suffolkbuildingsurveyors.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Lanpro Ipswich",
+        "town": "Ipswich",
+        "region": "Suffolk",
+        "website": "https://www.lanpro.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Feilden+Mawson",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.feildenmawson.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "BDP Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.bdp.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "Concertus Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.concertus.co.uk",
+        "employees_est": 35,
+        "revenue_est_gbp": 5000000
+      },
+      {
+        "name": "Ingleton Wood Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.ingletonwood.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "LSI Architects Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lsiarchitects.co.uk",
+        "employees_est": 25,
+        "revenue_est_gbp": 3500000
+      },
+      {
+        "name": "Cambridge Surveyors",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridgesurveyors.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "AC Architects",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.acarchitects.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Cambridge Building Surveyors",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.cambridgebuildingsurveyors.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Lanpro Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.lanpro.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "East Anglia Surveyors Cambridge",
+        "town": "Cambridge",
+        "region": "Cambridgeshire",
+        "website": "https://www.eastangliasurveyors.co.uk",
+        "employees_est": 10,
+        "revenue_est_gbp": 1200000
+      },
+      {
+        "name": "Sheppard Robson",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.sheppardrobson.com",
+        "employees_est": 200,
+        "revenue_est_gbp": 30000000
+      },
+      {
+        "name": "5plus Architects",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.5plusarchitects.com",
+        "employees_est": 40,
+        "revenue_est_gbp": 6000000
+      },
+      {
+        "name": "SimpsonHaugh",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.simpsonhaugh.com",
+        "employees_est": 80,
+        "revenue_est_gbp": 12000000
+      },
+      {
+        "name": "AHR Architects",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.ahr.co.uk",
+        "employees_est": 100,
+        "revenue_est_gbp": 15000000
+      },
+      {
+        "name": "BDP Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.bdp.com",
+        "employees_est": 120,
+        "revenue_est_gbp": 18000000
+      },
+      {
+        "name": "Feilden+Clegg Bradley Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.fcbstudios.com",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      },
+      {
+        "name": "Manchester Surveyors",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.manchestersurveyors.co.uk",
+        "employees_est": 20,
+        "revenue_est_gbp": 2800000
+      },
+      {
+        "name": "Manchester Building Surveyors",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.manchesterbuildingsurveyors.co.uk",
+        "employees_est": 15,
+        "revenue_est_gbp": 2000000
+      },
+      {
+        "name": "Lanpro Manchester",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lanpro.co.uk",
+        "employees_est": 30,
+        "revenue_est_gbp": 4000000
+      },
+      {
+        "name": "Leach Rhodes Walker",
+        "town": "Manchester",
+        "region": "Greater Manchester",
+        "website": "https://www.lrw.co.uk",
+        "employees_est": 60,
+        "revenue_est_gbp": 9000000
+      }
+    ]
+  }
+]

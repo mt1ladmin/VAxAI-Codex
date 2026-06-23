@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build prospect outreach catalog from CSV + regional research (23 Jun 2026)."""
+"""Build prospect outreach catalog: 500 charities + 500 SMBs (23 Jun 2026)."""
 import csv
 import io
 import json
@@ -16,7 +16,9 @@ ROOT = SCRIPT_DIR.parent
 CSV_PATH = Path.home() / "Downloads/VAxAi outreach spreadsheet - Sheet1.csv"
 OUT_PATH = ROOT / "lib/engagement/prospect-outreach/catalog.json"
 RESEARCH_DATE = "2026-06-23"
-TARGET_TOTAL = 500
+TARGET_CHARITY = 500
+TARGET_BUSINESS = 500
+TARGET_TOTAL = TARGET_CHARITY + TARGET_BUSINESS
 
 REGION_PRIORITY = {
     "Norfolk": "primary",
@@ -144,7 +146,6 @@ def load_csv() -> list[dict]:
 
 
 def supplemental() -> list[dict]:
-    """Regional research batch — Norfolk, Suffolk, Cambridgeshire, Manchester."""
     path = ROOT / "scripts/data/supplemental-prospects.json"
     if path.exists():
         return json.loads(path.read_text())
@@ -152,8 +153,14 @@ def supplemental() -> list[dict]:
 
 
 def cc_expansion() -> list[dict]:
-    """Charity Commission register expansion toward 500 total."""
     path = ROOT / "scripts/data/expansion-prospects-cc.json"
+    if path.exists():
+        return json.loads(path.read_text())
+    return []
+
+
+def smb_batch() -> list[dict]:
+    path = ROOT / "scripts/data/smb-prospects-batch.json"
     if path.exists():
         return json.loads(path.read_text())
     return []
@@ -176,43 +183,106 @@ def merge(prospects: list[dict]) -> list[dict]:
                 continue
             if not cur.get(field) and p.get(field):
                 cur[field] = p[field]
-            elif field in ("need_score", "data_confidence") and p.get(field):
-                if field == "need_score" and (p[field] or 0) > (cur.get(field) or 0):
-                    cur[field] = p[field]
+            elif field == "need_score" and (p.get(field) or 0) > (cur.get(field) or 0):
+                cur[field] = p[field]
     return sorted(seen.values(), key=lambda x: (-x.get("need_score", 0), x.get("region", ""), x.get("organisation_name", "")))
 
 
-def main():
+def is_charity_segment(prospect: dict) -> bool:
+    org_type = prospect.get("organisation_type", "Charity")
+    return (
+        org_type == "Charity"
+        or str(org_type).startswith("Charity")
+        or org_type == "Social enterprise"
+    )
+
+
+def build_charity_batch() -> list[dict]:
     curated = [p for p in load_csv() + supplemental() if not is_excluded_org(p.get("organisation_name", ""))]
     expansion = [p for p in cc_expansion() if not is_excluded_org(p.get("organisation_name", ""))]
-    prospects = merge(curated + expansion)
-    if len(prospects) > TARGET_TOTAL:
-        prospects = prospects[:TARGET_TOTAL]
+    charity: list[dict] = []
+    seen: set[str] = set()
+
+    for p in merge(curated + expansion):
+        if not is_charity_segment(p):
+            continue
+        key = norm_name(p["organisation_name"])
+        if key in seen:
+            continue
+        charity.append(p)
+        seen.add(key)
+
+    if len(charity) < TARGET_CHARITY:
+        for p in sorted(expansion, key=lambda x: (-x.get("need_score", 0), x.get("organisation_name", ""))):
+            if len(charity) >= TARGET_CHARITY:
+                break
+            key = norm_name(p["organisation_name"])
+            if key in seen:
+                continue
+            charity.append(p)
+            seen.add(key)
+
+    return charity[:TARGET_CHARITY]
+
+
+def build_business_batch(charity_names: set[str]) -> list[dict]:
+    business: list[dict] = []
+    seen: set[str] = set()
+    for p in merge([p for p in smb_batch() if not is_excluded_org(p.get("organisation_name", ""))]):
+        key = norm_name(p["organisation_name"])
+        if key in charity_names or key in seen:
+            continue
+        business.append(p)
+        seen.add(key)
+    return business[:TARGET_BUSINESS]
+
+
+def stats(prospects: list[dict]) -> tuple[dict[str, int], dict[str, int], dict[str, int]]:
     by_region: dict[str, int] = {}
     by_score: dict[str, int] = {}
+    by_type: dict[str, int] = {}
     for p in prospects:
         by_region[p["region"]] = by_region.get(p["region"], 0) + 1
         by_score[str(p["need_score"])] = by_score.get(str(p["need_score"]), 0) + 1
+        org_type = p.get("organisation_type", "Other")
+        by_type[org_type] = by_type.get(org_type, 0) + 1
+    return by_region, by_score, by_type
+
+
+def main():
+    charity = build_charity_batch()
+    charity_names = {norm_name(p["organisation_name"]) for p in charity}
+    business = build_business_batch(charity_names)
+    prospects = charity + business
+    by_region, by_score, by_type = stats(prospects)
+
     catalog = {
         "meta": {
             "research_date": RESEARCH_DATE,
             "total_count": len(prospects),
+            "target_total": TARGET_TOTAL,
+            "target_charity_total": TARGET_CHARITY,
+            "target_business_total": TARGET_BUSINESS,
+            "charity_count": len(charity),
+            "business_count": len(business),
             "by_region": by_region,
             "by_need_score": by_score,
-            "target_total": TARGET_TOTAL,
+            "by_organisation_type": by_type,
             "methodology": (
-                "Charities and SMBs in Norfolk, Suffolk, Cambridgeshire (primary) and Greater Manchester (secondary). "
-                "Prioritised £500k+ income/turnover and <100 employees where data available. "
-                "Sources: Charity Commission register (open data + curated research), organisation websites, annual reports. "
-                f"Research date 23 Jun 2026; catalog target {TARGET_TOTAL} prospects."
+                "Two segments: (1) 500 charities from Charity Commission open data and curated regional research; "
+                "(2) 500 SMBs/non-charities across 17 sectors with admin-burden and AI-adoption intelligence for meeting prep. "
+                "Regions: Norfolk, Suffolk, Cambridgeshire (primary), Greater Manchester (secondary). "
+                "SMB scoring weights automation/AI training fit, sector admin pressure, and notes where VA alone is not the right entry. "
+                f"Research date 23 Jun 2026."
             ),
         },
         "prospects": prospects,
     }
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(catalog, indent=2, ensure_ascii=False) + "\n")
-    print(f"Wrote {len(prospects)} prospects to {OUT_PATH}")
+    print(f"Wrote {len(prospects)} prospects ({len(charity)} charity + {len(business)} business) to {OUT_PATH}")
     print("By region:", by_region)
+    print("By type:", by_type)
 
 
 if __name__ == "__main__":
