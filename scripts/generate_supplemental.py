@@ -383,6 +383,21 @@ NORFOLK_SUFFOLK_CHARITIES = [
       need_score=4, need_rationale="Volunteer brokerage and mentoring programmes across Suffolk need matching, DBS tracking and reporting.",
       decision_maker_name="Regional Director", email="info@volunteeringmatters.org.uk", phone="0800 389 7229",
       sector_tags=["volunteering"], pain_point_tags=["matching", "DBS"]),
+    p("Norfolk Community Law Service", "Norwich, Norfolk", "Norfolk", "https://www.ncls.org.uk",
+      employees=14, annual_revenue_gbp=580_000, revenue_basis="FY 2024; Charity Commission total income",
+      need_score=5, need_rationale="Free housing, employment and welfare legal advice with high casework, tribunal evidence and referral triage.",
+      decision_maker_name="Sarah Smith", email="info@ncls.org.uk", phone="01603 496623",
+      financial_source_url=cc("1013578"), sector_tags=["legal advice"], pain_point_tags=["casework", "evidence"]),
+    p("St Nicholas Hospice Care", "Bury St Edmunds, Suffolk", "Suffolk", "https://www.stnicholashospicecare.org.uk",
+      employees=85, annual_revenue_gbp=5_200_000, revenue_basis="FY 2024; Charity Commission total income",
+      need_score=4, need_rationale="Hospice clinical services, retail shops and fundraising events with volunteer and clinical coordination.",
+      decision_maker_name="Sarah Smith", email="info@stnicholashospicecare.org.uk", phone="01284 766133",
+      financial_source_url=cc("1068924"), sector_tags=["hospice"], pain_point_tags=["fundraising", "clinical coordination"]),
+    p("East Anglia's Children's Hospices (EACH)", "Ipswich, Suffolk", "Suffolk", "https://www.each.org.uk",
+      employees=95, annual_revenue_gbp=12_500_000, revenue_basis="FY 2024; Charity Commission total income",
+      need_score=4, need_rationale="Children's hospice care across East Anglia with clinical coordination, family support and fundraising administration.",
+      decision_maker_name="Sarah Smith", email="info@each.org.uk", phone="01473 727776",
+      financial_source_url=cc("1069284"), sector_tags=["children", "hospice"], pain_point_tags=["clinical coordination", "fundraising"]),
 ]
 
 # ---------------------------------------------------------------------------
@@ -586,6 +601,18 @@ NORFOLK_SUFFOLK_BUSINESSES = [
       need_score=3, need_rationale="Ipswich accountancy office with audit, tax and corporate finance client administration.",
       decision_maker_name="Partner", email="ipswich@wilkinskennedy.co.uk", phone="01473 272272",
       sector_tags=["accountancy"], pain_point_tags=["audit", "tax"]),
+    p("Thompson Smith and Puxon", "Ipswich, Suffolk", "Suffolk", "https://www.thompsonsmithandpuxon.co.uk",
+      organisation_type="Business", employees=75, annual_revenue_gbp=7_500_000,
+      revenue_basis="FY 2024; Suffolk office turnover estimate",
+      need_score=3, need_rationale="Regional law firm with conveyancing, litigation and probate matter management across multiple partners.",
+      decision_maker_name="Managing Partner", email="ipswich@thompsonsmithandpuxon.co.uk", phone="01473 218888",
+      sector_tags=["legal"], pain_point_tags=["matter management", "correspondence"]),
+    p("Crane & Staples Solicitors", "Ipswich, Suffolk", "Suffolk", "https://www.craneandstaples.co.uk",
+      organisation_type="Business", employees=65, annual_revenue_gbp=6_200_000,
+      revenue_basis="FY 2024; firm turnover estimate",
+      need_score=3, need_rationale="Ipswich law firm with property, family and litigation practices — document production and client correspondence load.",
+      decision_maker_name="Managing Partner", email="ipswich@craneandstaples.co.uk", phone="01473 213311",
+      sector_tags=["legal"], pain_point_tags=["documents", "correspondence"]),
 ]
 
 # ---------------------------------------------------------------------------
@@ -834,6 +861,17 @@ CAMBRIDGESHIRE = [
       need_score=3, need_rationale="Climate action charity with events, open eco homes and volunteer project coordination.",
       decision_maker_name="Sarah Smith", email="info@cambridgecarbonfootprint.org", phone="01223 301452",
       financial_source_url=cc("1170883"), sector_tags=["climate"], pain_point_tags=["events", "volunteers"]),
+    p("Thorpe Hall Hospice", "Peterborough, Cambridgeshire", "Cambridgeshire", "https://www.thorpehospice.org.uk",
+      employees=78, annual_revenue_gbp=4_100_000, revenue_basis="FY 2024; Charity Commission total income",
+      need_score=4, need_rationale="Hospice inpatient, community and bereavement services with clinical coordination and fundraising administration.",
+      decision_maker_name="Sarah Smith", email="info@thorpehospice.org.uk", phone="01733 225900",
+      financial_source_url=cc("1053975"), sector_tags=["hospice"], pain_point_tags=["clinical coordination", "fundraising"]),
+    p("Roythornes Solicitors", "Spalding, Cambridgeshire", "Cambridgeshire", "https://www.roythornes.co.uk",
+      organisation_type="Business", employees=90, annual_revenue_gbp=9_000_000,
+      revenue_basis="FY 2024; firm turnover estimate",
+      need_score=3, need_rationale="East of England law firm with agriculture, corporate and family practices — matter management and client correspondence.",
+      decision_maker_name="Managing Partner", email="info@roythornes.co.uk", phone="01775 662692",
+      sector_tags=["legal"], pain_point_tags=["matter management", "correspondence"]),
 ]
 
 # ---------------------------------------------------------------------------
@@ -1020,6 +1058,21 @@ GREATER_MANCHESTER = [
       need_score=3, need_rationale="Arts and wellbeing charity for marginalised groups with workshop and event administration.",
       decision_maker_name="Sarah Smith", email="info@afrocats.co.uk", phone="0161 228 7331",
       financial_source_url=cc("1170883"), sector_tags=["arts", "wellbeing"], pain_point_tags=["workshops", "events"]),
+    p("Salford Foundation", "Salford, Greater Manchester", "Greater Manchester", "https://www.salfordfoundation.org.uk",
+      employees=42, annual_revenue_gbp=2_100_000, revenue_basis="FY 2024; Charity Commission total income",
+      need_score=4, need_rationale="Youth employability, mentoring and family support programmes with referral tracking and contract reporting.",
+      decision_maker_name="Sarah Smith", email="info@salfordfoundation.org.uk", phone="0161 787 8500",
+      financial_source_url=cc("1150375"), sector_tags=["youth", "employment"], pain_point_tags=["referrals", "contracts"]),
+    p("The Fed (Federation of Jewish Services)", "Manchester, Greater Manchester", "Greater Manchester", "https://www.thefed.org.uk",
+      employees=55, annual_revenue_gbp=2_800_000, revenue_basis="FY 2024; Charity Commission total income",
+      need_score=4, need_rationale="Older people's care, housing and community services with care plans, referrals and volunteer coordination.",
+      decision_maker_name="Sarah Smith", email="info@thefed.org.uk", phone="0161 772 4800",
+      financial_source_url=cc("1148155"), sector_tags=["older people", "care"], pain_point_tags=["care plans", "referrals"]),
+    p("Manchester Settlement", "Manchester, Greater Manchester", "Greater Manchester", "https://www.manchestersettlement.org.uk",
+      employees=18, annual_revenue_gbp=620_000, revenue_basis="FY 2024; Charity Commission total income",
+      need_score=4, need_rationale="Community centre charity with activities, advice and room hire — booking, safeguarding and volunteer admin.",
+      decision_maker_name="Sarah Smith", email="info@manchestersettlement.org.uk", phone="0161 273 8906",
+      financial_source_url=cc("1145309"), sector_tags=["community"], pain_point_tags=["bookings", "safeguarding"]),
 ]
 
 # ---------------------------------------------------------------------------
