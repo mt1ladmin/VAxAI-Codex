@@ -32,7 +32,13 @@ import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
 import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
-import { journeyStageForEnquiryStatus } from "@/lib/engagement/journey";
+import {
+  ADVANCE_ACTION_LABEL,
+  ADVANCE_STATUS_HINT,
+  PRE_SALES_STATUS,
+  canAdvanceToClientWork,
+  journeyStageForEnquiryStatus,
+} from "@/lib/engagement/journey";
 import { useStudioAccess } from "@/lib/studio-access-context";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
@@ -363,12 +369,18 @@ function EnquiryDetailContent() {
         }}
         sourceType="enquiry"
         sourceId={enquiry.id}
+        sourceStatus={enquiry.status}
         sourceLabel={enquiry.name}
         contactName={enquiry.name}
         contactEmail={enquiry.email}
         contactPhone={enquiry.telephone}
         supportType={enquiry.support_type}
-        sourceDetails={enquiry.details}
+        sourceContextInfo={[
+          `Query type: ${enquiry.support_type}`,
+          enquiry.details ? `Enquiry details:\n${enquiry.details}` : null,
+          enquiry.admin_notes ? `Team notes:\n${enquiry.admin_notes}` : null,
+        ].filter(Boolean).join("\n\n")}
+        defaultNextAction={enquiry.next_action}
         existingContactId={enquiry.contact_id}
         existingOrgId={enquiry.organisation_id}
       />
@@ -519,14 +531,22 @@ function EnquiryDetailContent() {
                 </Link>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setShowConvertModal(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10"
-              >
-                <Briefcase className="h-4 w-4" />
-                Convert to client
-              </button>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => canAdvanceToClientWork(enquiry.status) && setShowConvertModal(true)}
+                  disabled={!canAdvanceToClientWork(enquiry.status)}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#063b32]/5"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  {ADVANCE_ACTION_LABEL}
+                </button>
+                {!canAdvanceToClientWork(enquiry.status) && (
+                  <p className="text-xs text-[#6f6b62] leading-relaxed">
+                    Set status to <span className="font-semibold">{PRE_SALES_STATUS}</span> first. {ADVANCE_STATUS_HINT}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>

@@ -72,7 +72,7 @@ export function buildProspectContextSummary(entry: ProspectQueueEntry): string {
 
   return [
     `JOURNEY STAGE: Prospect queue (active outreach & conversion)`,
-    `Status: ${entry.status}${advanceReady ? " — ready to advance to client work when appropriate" : ""}`,
+    `Status: ${entry.status}${advanceReady ? " — pre-sales active, ready to advance to client work when agreed" : ""}`,
     `Organisation: ${entry.raw_org_name || "—"}`,
     `Contact: ${entry.raw_contact_name || "—"}`,
     entry.raw_email ? `Email: ${entry.raw_email}` : null,

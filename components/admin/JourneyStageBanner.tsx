@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import {
-  ADVANCE_READY_STATUSES,
+  ADVANCE_STATUS_HINT,
   JOURNEY_STAGES,
+  PRE_SALES_SIGNAL_HINT,
+  PRE_SALES_STATUS,
   canAdvanceToClientWork,
+  canMoveToPreSales,
   type JourneyStageId,
 } from "@/lib/engagement/journey";
 
@@ -50,15 +53,19 @@ export function JourneyStageBanner({ currentStage, status, hint }: Props) {
         {JOURNEY_STAGES[currentIndex]?.description}
         {hint ? ` ${hint}` : ""}
       </p>
-      {currentStage === "queue" && status && !canAdvanceToClientWork(status) && (
+      {currentStage === "queue" && status && canMoveToPreSales(status) && (
         <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          Advance to client work when status is{" "}
-          {ADVANCE_READY_STATUSES.map((s) => `"${s}"`).join(", ")} — e.g. after a positive meeting or agreed follow-up.
+          {PRE_SALES_SIGNAL_HINT}
+        </p>
+      )}
+      {currentStage === "queue" && status && !canAdvanceToClientWork(status) && !canMoveToPreSales(status) && (
+        <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          Make contact and record progress. {ADVANCE_STATUS_HINT}
         </p>
       )}
       {currentStage === "pre_sales" && (
-        <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          Pre-sales pipeline is active — track discovery, proposals, and decision here. Advance to client work once there is agreement to proceed.
+        <p className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+          Pre-sales pipeline is active (status: {PRE_SALES_STATUS}). Track discovery and proposals on the Opportunities tab, then advance to client work once there is agreement to proceed.
         </p>
       )}
       {currentStage === "outreach" && (

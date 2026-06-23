@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Briefcase, Check, Loader2, X } from "lucide-react";
 import { CONVERTED_SOURCE_STATUS, CLIENT_SERVICE_STAGES } from "@/lib/engagement/client-stages";
 import {
+  ADVANCE_ACTION_LABEL,
   ADVANCE_MODAL_SUBTITLE,
   ADVANCE_MODAL_TITLE,
-  ADVANCE_ACTION_LABEL,
+  ADVANCE_STATUS_HINT,
+  PRE_SALES_STATUS,
   canAdvanceToClientWork,
 } from "@/lib/engagement/journey";
 
@@ -17,14 +19,16 @@ type Props = {
   sourceType: "enquiry" | "queue";
   sourceId: string;
   sourceLabel: string;
-  sourceStatus?: string;
+  sourceStatus: string;
   contactName: string;
   contactEmail: string;
   contactPhone: string | null;
   supportType?: string;
-  sourceDetails?: string;
+  /** Read-only background context (enquiry text, outreach research) — not pre-filled into desired outcomes */
+  sourceContextInfo?: string;
   existingContactId: string | null;
   existingOrgId: string | null;
+  defaultNextAction?: string | null;
 };
 
 const inputClass =
@@ -37,14 +41,15 @@ export function ConvertToClientModal({
   sourceType,
   sourceId,
   sourceLabel,
-  sourceStatus = "",
+  sourceStatus,
   contactName,
   contactEmail,
   contactPhone,
   supportType = "",
-  sourceDetails = "",
+  sourceContextInfo = "",
   existingContactId,
   existingOrgId,
+  defaultNextAction = "",
 }: Props) {
   const nameParts = contactName.trim().split(/\s+/);
   const defaultFirst = nameParts[0] ?? contactName;
@@ -56,20 +61,48 @@ export function ConvertToClientModal({
   const [phone, setPhone] = useState(contactPhone ?? "");
   const [role, setRole] = useState("");
   const [orgName, setOrgName] = useState(contactName);
-
-  const [serviceTitle, setServiceTitle] = useState(
-    `${supportType || "Client services"} — ${defaultFirst}${defaultLast ? ` ${defaultLast}` : ""}`.slice(0, 120),
-  );
+  const [serviceTitle, setServiceTitle] = useState("");
   const [stage, setStage] = useState("Onboarding planned");
   const [valueLow, setValueLow] = useState("");
   const [valueHigh, setValueHigh] = useState("");
-  const [desiredOutcomes, setDesiredOutcomes] = useState(sourceDetails);
+  const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [agreedPathway, setAgreedPathway] = useState("");
   const [serviceNotes, setServiceNotes] = useState("");
   const [nextAction, setNextAction] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!open) return;
+    const parts = contactName.trim().split(/\s+/);
+    const first = parts[0] ?? contactName;
+    const last = parts.length > 1 ? parts.slice(1).join(" ") : "";
+    setFirstName(first);
+    setLastName(last);
+    setEmail(contactEmail);
+    setPhone(contactPhone ?? "");
+    setRole("");
+    setOrgName(contactName);
+    setServiceTitle(
+      `${supportType || "Client services"} — ${first}${last ? ` ${last}` : ""}`.slice(0, 120),
+    );
+    setStage("Onboarding planned");
+    setValueLow("");
+    setValueHigh("");
+    setDesiredOutcomes("");
+    setAgreedPathway("");
+    setServiceNotes("");
+    setNextAction(defaultNextAction?.trim() || "");
+    setError("");
+  }, [
+    open,
+    contactName,
+    contactEmail,
+    contactPhone,
+    supportType,
+    defaultNextAction,
+  ]);
 
   const closeSourceRecord = async () => {
     if (sourceType === "enquiry") {
@@ -157,6 +190,11 @@ export function ConvertToClientModal({
         }
       }
 
+      const notesParts = [serviceNotes.trim()];
+      if (sourceContextInfo.trim()) {
+        notesParts.push(`--- Source context ---\n${sourceContextInfo.trim()}`);
+      }
+
       const oppPayload: Record<string, unknown> = {
         title: serviceTitle.trim(),
         primary_contact_id: contactId,
@@ -166,7 +204,7 @@ export function ConvertToClientModal({
         recommended_pathway: agreedPathway.trim() || null,
         indicative_value_low: valueLow ? parseFloat(valueLow) : null,
         indicative_value_high: valueHigh ? parseFloat(valueHigh) : null,
-        notes: serviceNotes.trim() || null,
+        notes: notesParts.filter(Boolean).join("\n\n") || null,
         next_action: nextAction.trim() || null,
       };
       if (sourceType === "enquiry") oppPayload.enquiry_id = sourceId;
@@ -204,7 +242,7 @@ export function ConvertToClientModal({
   if (!open) return null;
 
   const sourceName = sourceType === "enquiry" ? "enquiry" : "prospect queue item";
-  const advanceAllowed = !sourceStatus || canAdvanceToClientWork(sourceStatus);
+  const advanceAllowed = canAdvanceToClientWork(sourceStatus);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#111111]/60 backdrop-blur-sm p-4">
@@ -269,12 +307,24 @@ export function ConvertToClientModal({
             </div>
           )}
 
+          {sourceContextInfo.trim() && (
+            <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/40 p-4 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+                Source information
+              </p>
+              <p className="text-xs text-[#6f6b62]">
+                Background from the original enquiry or outreach research — attached to service notes, not used as agreed outcomes.
+              </p>
+              <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{sourceContextInfo}</p>
+            </div>
+          )}
+
           <div className="border-t border-[#111111]/8" />
 
           <div className="space-y-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Prospect/Client service record</p>
-              <p className="mt-0.5 text-xs text-[#6f6b62]">Defaults to Onboarding planned — update as delivery progresses.</p>
+              <p className="mt-0.5 text-xs text-[#6f6b62]">Record what has been agreed — defaults to Onboarding planned.</p>
             </div>
 
             <div>
@@ -312,12 +362,19 @@ export function ConvertToClientModal({
 
             <div>
               <label className="block text-[10px] text-[#6f6b62] mb-1">What they need / desired outcomes</label>
-              <textarea value={desiredOutcomes} onChange={(e) => setDesiredOutcomes(e.target.value)} rows={3} className={`${inputClass} resize-none`} />
+              <p className="mb-1 text-[10px] text-[#6f6b62]">What has been agreed with the client — leave blank if not yet confirmed.</p>
+              <textarea
+                value={desiredOutcomes}
+                onChange={(e) => setDesiredOutcomes(e.target.value)}
+                rows={3}
+                placeholder="e.g. Weekly admin support, invoice chasing, CRM setup…"
+                className={`${inputClass} resize-none`}
+              />
             </div>
 
             <div>
               <label className="block text-[10px] text-[#6f6b62] mb-1">Agreed scope / pathway</label>
-              <textarea value={agreedPathway} onChange={(e) => setAgreedPathway(e.target.value)} rows={3} className={`${inputClass} resize-none`} />
+              <textarea value={agreedPathway} onChange={(e) => setAgreedPathway(e.target.value)} rows={3} placeholder="e.g. Discovery → proposal → onboarding" className={`${inputClass} resize-none`} />
             </div>
 
             <div>
@@ -328,7 +385,8 @@ export function ConvertToClientModal({
 
           {!advanceAllowed && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              Set status to Conversation held, Follow-up required, or Opportunity before advancing — there should be a positive signal (meeting agreed, interest confirmed, or follow-up requested).
+              Current status: <span className="font-semibold">{sourceStatus || "—"}</span>.
+              {" "}{ADVANCE_STATUS_HINT}
             </div>
           )}
 
@@ -339,7 +397,7 @@ export function ConvertToClientModal({
 
         <div className="shrink-0 border-t border-[#111111]/10 bg-[#f7f4ea]/60 px-6 py-4 flex items-center justify-between gap-3">
           <p className="text-xs text-[#6f6b62]">
-            The {sourceName} will be marked Closed and removed from active lists.
+            Requires status <span className="font-semibold">{PRE_SALES_STATUS}</span>. The {sourceName} will be marked Closed after advancing.
           </p>
           <div className="flex shrink-0 gap-2">
             <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">

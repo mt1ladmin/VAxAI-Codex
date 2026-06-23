@@ -33,16 +33,31 @@ export const JOURNEY_STAGES = [
 
 export type JourneyStageId = (typeof JOURNEY_STAGES)[number]["id"];
 
-/** Statuses indicating a warm lead ready to advance to Prospect/Client work */
-export const ADVANCE_READY_STATUSES = [
+/** Positive signals during outreach — move to Opportunity to open pre-sales */
+export const PRE_SALES_SIGNAL_STATUSES = [
   "Conversation held",
   "Follow-up required",
-  "Opportunity",
 ] as const;
 
+/** Queue/enquiry status that opens the pre-sales pipeline */
+export const PRE_SALES_STATUS = "Opportunity" as const;
+
+/** Only advance to Prospect/Client work once pre-sales is active */
+export const ADVANCE_READY_STATUSES = [PRE_SALES_STATUS] as const;
+
 export function canAdvanceToClientWork(status: string): boolean {
-  return (ADVANCE_READY_STATUSES as readonly string[]).includes(status);
+  return status === PRE_SALES_STATUS;
 }
+
+export function canMoveToPreSales(status: string): boolean {
+  return (PRE_SALES_SIGNAL_STATUSES as readonly string[]).includes(status);
+}
+
+export const ADVANCE_STATUS_HINT =
+  "Set status to Opportunity when there is a confirmed sales opportunity (meeting held, interest confirmed, or proposal in progress). Advance to client work once you have agreement to proceed.";
+
+export const PRE_SALES_SIGNAL_HINT =
+  "Positive signal recorded — set status to Opportunity to open the pre-sales pipeline when ready.";
 
 export function journeyStageForQueueStatus(status: string): JourneyStageId {
   if (status === "Closed") return "client";

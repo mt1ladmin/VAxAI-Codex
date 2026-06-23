@@ -35,7 +35,13 @@ import { StatusSelect } from "@/components/admin/StatusSelect";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildProspectContextSummary } from "@/lib/ai/context-builders";
-import { ADVANCE_ACTION_LABEL, journeyStageForQueueStatus } from "@/lib/engagement/journey";
+import {
+  ADVANCE_ACTION_LABEL,
+  ADVANCE_STATUS_HINT,
+  PRE_SALES_STATUS,
+  canAdvanceToClientWork,
+  journeyStageForQueueStatus,
+} from "@/lib/engagement/journey";
 import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import { outreachSummaryForConversion, syncQueueFromSnapshot } from "@/lib/engagement/prospect-outreach/snapshot";
 import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
@@ -442,7 +448,11 @@ function ProspectDetailContent() {
         contactEmail={email || ""}
         contactPhone={entry.raw_phone}
         supportType={entry.raw_industry || entry.organisation?.industry || "Prospect queue"}
-        sourceDetails={outreachData ? outreachSummaryForConversion(outreachData) : entry.raw_notes || ""}
+        sourceContextInfo={[
+          outreachData ? outreachSummaryForConversion(outreachData) : null,
+          entry.raw_notes ? `Team notes:\n${entry.raw_notes}` : null,
+        ].filter(Boolean).join("\n\n")}
+        defaultNextAction={entry.next_action}
         existingContactId={entry.contact_id}
         existingOrgId={entry.organisation_id}
       />
@@ -693,14 +703,22 @@ function ProspectDetailContent() {
                 </Link>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setShowConvertModal(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10"
-              >
-                <Briefcase className="h-4 w-4" />
-                {ADVANCE_ACTION_LABEL}
-              </button>
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => canAdvanceToClientWork(entry.status) && setShowConvertModal(true)}
+                  disabled={!canAdvanceToClientWork(entry.status)}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#063b32]/5"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  {ADVANCE_ACTION_LABEL}
+                </button>
+                {!canAdvanceToClientWork(entry.status) && (
+                  <p className="text-xs text-[#6f6b62] leading-relaxed">
+                    Set status to <span className="font-semibold">{PRE_SALES_STATUS}</span> first. {ADVANCE_STATUS_HINT}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>
