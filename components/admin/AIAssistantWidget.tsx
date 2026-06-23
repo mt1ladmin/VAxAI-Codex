@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Bot,
   ChevronDown,
-  ChevronUp,
   Loader2,
+  Maximize2,
+  Minimize2,
   Search,
   Send,
   Sparkles,
@@ -47,6 +48,22 @@ const TYPE_BADGE: Record<string, string> = {
   prospect: "bg-amber-100 text-amber-700",
 };
 
+const TYPE_BORDER: Record<string, string> = {
+  enquiry: "border-l-violet-400",
+  client: "border-l-[#063b32]",
+  prospect: "border-l-amber-400",
+};
+
+type PanelSize = "default" | "large" | "xl";
+
+const PANEL_SIZES: Record<PanelSize, { width: number; height: number }> = {
+  default: { width: 400, height: 520 },
+  large: { width: 500, height: 640 },
+  xl: { width: 620, height: 760 },
+};
+
+const PANEL_SIZE_ORDER: PanelSize[] = ["default", "large", "xl"];
+
 const TYPE_LABEL: Record<string, string> = {
   enquiry: "Enquiry",
   client: "Client",
@@ -79,6 +96,43 @@ function buildContextSummary(
   label: string | null,
 ): string {
   return `Context type: ${type ?? "unknown"} | Name: ${label ?? "unknown"}`;
+}
+
+function TypingIndicator() {
+  return (
+    <div className="flex items-center gap-1 py-1">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-1.5 w-1.5 rounded-full bg-[#6f6b62]/50 animate-pulse"
+          style={{ animationDelay: `${i * 150}ms` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function ChatMessage({ msg }: { msg: AIMessage }) {
+  if (msg.role === "user") {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#063b32] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm whitespace-pre-wrap">
+          {msg.content}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-2.5 pr-2">
+      <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#111111]/8 bg-white shadow-sm">
+        <Sparkles className="h-3 w-3 text-[#063b32]" />
+      </div>
+      <div className="min-w-0 flex-1 pt-0.5 text-[13px] leading-[1.65] text-[#111111] whitespace-pre-wrap">
+        {msg.content}
+      </div>
+    </div>
+  );
 }
 
 // ── Inner chat panel ──────────────────────────────────────────────────────────
@@ -213,16 +267,16 @@ function ChatPanel({
   const selectedModel = MODEL_OPTIONS.find((m) => m.id === model) ?? MODEL_OPTIONS[0];
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-white">
       {/* Sub-header: context + model */}
-      <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-3 py-2 gap-2">
+      <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/8 bg-[#faf9f6] px-3 py-2 gap-2">
         <button
           type="button"
           onClick={onChangeContext}
-          className="flex min-w-0 items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-2.5 py-1 text-xs font-semibold text-[#111111] hover:bg-[#f0ede0] max-w-[180px]"
+          className="flex min-w-0 items-center gap-1.5 rounded-full border border-[#111111]/10 bg-white px-2.5 py-1 text-xs font-semibold text-[#111111] shadow-sm hover:border-[#063b32]/25 max-w-[200px]"
           title="Change context"
         >
-          <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
+          <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
             {TYPE_LABEL[contextType] ?? contextType}
           </span>
           <span className="truncate">{contextLabel}</span>
@@ -234,7 +288,7 @@ function ChatPanel({
           <button
             type="button"
             onClick={() => setShowModelMenu((v) => !v)}
-            className="flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2 py-1 text-[10px] font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+            className="flex items-center gap-1 rounded-full border border-[#111111]/10 bg-white px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62] shadow-sm hover:border-[#063b32]/25"
           >
             {selectedModel.label}
             <ChevronDown className="h-3 w-3" />
@@ -258,9 +312,9 @@ function ChatPanel({
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
         {sessionLoading ? (
-          <div className="flex items-center justify-center py-8">
+          <div className="flex items-center justify-center py-12">
             <Loader2 className="h-5 w-5 animate-spin text-[#6f6b62]" />
           </div>
         ) : sessionError ? (
@@ -278,23 +332,25 @@ function ChatPanel({
             </button>
           </div>
         ) : messages.length === 0 ? (
-          <div className="space-y-3 pt-2">
+          <div className="space-y-4 pt-4">
             <div className="flex items-center justify-center">
-              <div className="grid h-10 w-10 place-items-center rounded-full bg-[#063b32]">
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#063b32] shadow-md">
                 <Bot className="h-5 w-5 text-[#f5f274]" />
               </div>
             </div>
-            <p className="text-center text-xs font-semibold text-[#111111]">Ask me anything about this account</p>
-            <p className="text-center text-[11px] text-[#6f6b62]">
-              I know the account details, knowledge base, and our conversation history.
-            </p>
-            <div className="space-y-1.5 pt-2">
+            <div className="text-center">
+              <p className="text-sm font-semibold text-[#111111]">Ask me anything about this account</p>
+              <p className="mt-1 text-xs text-[#6f6b62]">
+                I know the account details, knowledge base, and our conversation history.
+              </p>
+            </div>
+            <div className="space-y-2 pt-1">
               {suggestedList.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                  className="w-full rounded-xl border border-[#111111]/10 px-3 py-2 text-left text-xs text-[#6f6b62] hover:border-[#063b32]/20 hover:bg-[#f7f4ea] transition-colors"
+                  className="w-full rounded-xl border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-left text-xs text-[#6f6b62] hover:border-[#063b32]/20 hover:bg-white transition-colors"
                 >
                   {s}
                 </button>
@@ -302,29 +358,15 @@ function ChatPanel({
             </div>
           </div>
         ) : (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[85%] rounded-2xl px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
-                  msg.role === "user"
-                    ? "bg-[#063b32] text-white"
-                    : "bg-[#f7f4ea] text-[#111111]"
-                }`}
-              >
-                {msg.content}
-              </div>
-            </div>
-          ))
+          messages.map((msg) => <ChatMessage key={msg.id} msg={msg} />)
         )}
 
         {sending && (
-          <div className="flex justify-start">
-            <div className="rounded-2xl bg-[#f7f4ea] px-3 py-2">
-              <Loader2 className="h-4 w-4 animate-spin text-[#6f6b62]" />
+          <div className="flex gap-2.5 pr-2">
+            <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#111111]/8 bg-white shadow-sm">
+              <Sparkles className="h-3 w-3 text-[#063b32]" />
             </div>
+            <TypingIndicator />
           </div>
         )}
 
@@ -336,28 +378,28 @@ function ChatPanel({
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t border-[#111111]/10 px-3 py-3">
-        <div className="flex items-end gap-2 rounded-xl border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 focus-within:border-[#063b32] transition-colors">
+      <div className="shrink-0 border-t border-[#111111]/8 bg-[#faf9f6] px-4 py-3">
+        <div className="flex items-end gap-2 rounded-2xl border border-[#111111]/12 bg-white px-3 py-2.5 shadow-sm focus-within:border-[#063b32]/40 focus-within:ring-2 focus-within:ring-[#063b32]/10 transition-all">
           <textarea
             ref={inputRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask anything about this account…"
+            placeholder="Message AI assistant…"
             rows={1}
-            className="flex-1 resize-none bg-transparent text-xs text-[#111111] placeholder-[#6f6b62] outline-none"
-            style={{ maxHeight: "80px" }}
+            className="flex-1 resize-none bg-transparent text-[13px] text-[#111111] placeholder-[#6f6b62] outline-none"
+            style={{ maxHeight: "120px" }}
           />
           <button
             type="button"
             onClick={() => void sendMessage()}
             disabled={!input.trim() || sending || !!sessionError}
-            className="shrink-0 grid h-6 w-6 place-items-center rounded-lg bg-[#063b32] text-white disabled:opacity-40"
+            className="shrink-0 grid h-8 w-8 place-items-center rounded-xl bg-[#063b32] text-white shadow-sm hover:bg-[#1a5c42] disabled:opacity-40 transition-colors"
           >
             <Send className="h-3.5 w-3.5" />
           </button>
         </div>
-        <p className="mt-1 text-[10px] text-[#6f6b62]">Shift+Enter for new line · Enter to send</p>
+        <p className="mt-1.5 text-center text-[10px] text-[#6f6b62]/80">Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   );
@@ -447,6 +489,7 @@ function ContextPicker({
 export function AIAssistantWidget() {
   const { context, setContext } = useAIAssistantContext();
   const [isOpen, setIsOpen] = useState(false);
+  const [panelSize, setPanelSize] = useState<PanelSize>("default");
   const [showPicker, setShowPicker] = useState(false);
   const [manualContext, setManualContext] = useState<{
     type: string;
@@ -473,6 +516,14 @@ export function AIAssistantWidget() {
     setShowPicker(true);
   };
 
+  const cyclePanelSize = () => {
+    const idx = PANEL_SIZE_ORDER.indexOf(panelSize);
+    setPanelSize(PANEL_SIZE_ORDER[(idx + 1) % PANEL_SIZE_ORDER.length]);
+  };
+
+  const panelDimensions = PANEL_SIZES[panelSize];
+  const contextBorder = activeType ? TYPE_BORDER[activeType] ?? "border-l-[#063b32]" : "border-l-[#063b32]";
+
   return (
     <>
       {/* Floating trigger button */}
@@ -491,8 +542,10 @@ export function AIAssistantWidget() {
 
       {/* Panel */}
       {isOpen && (
-        <div className="fixed bottom-20 right-6 z-40 flex w-[400px] flex-col rounded-2xl border border-[#111111]/10 bg-white shadow-2xl overflow-hidden"
-          style={{ height: "520px" }}>
+        <div
+          className={`fixed bottom-20 right-6 z-40 flex flex-col rounded-2xl border border-[#111111]/10 border-l-4 ${contextBorder} bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden transition-[width,height] duration-200 ease-out`}
+          style={{ width: panelDimensions.width, height: panelDimensions.height }}
+        >
           {/* Header */}
           <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
             <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
@@ -510,8 +563,20 @@ export function AIAssistantWidget() {
             )}
             <button
               type="button"
+              onClick={cyclePanelSize}
+              className="grid h-7 w-7 place-items-center rounded-md text-white/50 hover:bg-white/10 hover:text-white"
+              title={`Panel size: ${panelSize === "default" ? "Standard" : panelSize === "large" ? "Large" : "Extra large"} — click to resize`}
+            >
+              {panelSize === "xl" ? (
+                <Minimize2 className="h-3.5 w-3.5" />
+              ) : (
+                <Maximize2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+            <button
+              type="button"
               onClick={() => setIsOpen(false)}
-              className="grid h-6 w-6 place-items-center rounded-md text-white/50 hover:bg-white/10 hover:text-white"
+              className="grid h-7 w-7 place-items-center rounded-md text-white/50 hover:bg-white/10 hover:text-white"
             >
               <X className="h-4 w-4" />
             </button>
@@ -553,19 +618,24 @@ export function AIChatHistory({
   contextSummary: string;
   allowModelUpgrade?: boolean;
 }) {
+  const contextBorder = TYPE_BORDER[contextType] ?? "border-l-[#063b32]";
+
   return (
-    <div className="flex flex-col rounded-xl border border-[#111111]/10 overflow-hidden" style={{ minHeight: "500px" }}>
+    <div
+      className={`flex flex-col rounded-xl border border-[#111111]/10 border-l-4 ${contextBorder} overflow-hidden shadow-sm`}
+      style={{ minHeight: "500px" }}
+    >
       <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
         <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
           <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
         </div>
         <span className="flex-1 text-sm font-semibold text-white">AI conversation history</span>
-        <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
+        <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[contextType] ?? "bg-gray-100 text-gray-600"}`}>
           {TYPE_LABEL[contextType] ?? contextType}
         </span>
         <span className="text-xs text-white/60">{contextLabel}</span>
       </div>
-      <div className="flex flex-1 flex-col bg-white">
+      <div className="flex flex-1 flex-col">
         <ChatPanel
           contextType={contextType}
           contextId={contextId}
