@@ -19,7 +19,6 @@ import {
   Phone,
   Plus,
   Save,
-  Sparkles,
   Target,
   User,
   X,
@@ -27,36 +26,22 @@ import {
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
-import { InteractionList } from "@/components/admin/InteractionList";
+import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
-import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
-import { ProspectPrepModal } from "@/components/admin/ProspectPrepModal";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
-import type { CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
-import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
+import { CRM_HUB_TABS, CRM_HUB_TAB_IDS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
+import { countNotes } from "@/lib/engagement/note-count";
+import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
+import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type {
   EngagementContact,
-  EngagementInteraction,
   EngagementOpportunity,
+  EngagementTask,
   ProspectQueueEntry,
 } from "@/lib/engagement/types";
-import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
 import { STAGE_COLORS } from "@/lib/engagement/types";
-
-type HubTab = "overview" | "preps" | "calls" | "opportunities" | "notes" | "activity" | "chat";
-
-const HUB_TABS: Array<{ id: HubTab; label: string }> = [
-  { id: "overview", label: "Overview" },
-  { id: "preps", label: "Preps" },
-  { id: "calls", label: "Calls" },
-  { id: "opportunities", label: "Opportunities" },
-  { id: "notes", label: "Notes" },
-  { id: "activity", label: "Activity" },
-  { id: "chat", label: "AI Chat" },
-];
-
-const VALID_HUB_TABS = new Set<string>(HUB_TABS.map((t) => t.id));
 
 function gmailComposeUrl(email: string) {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
@@ -75,15 +60,34 @@ function ProspectDetailContent() {
   const [nextAction, setNextAction] = useState("");
   const [nextActionDate, setNextActionDate] = useState("");
   const [savingAction, setSavingAction] = useState(false);
-  const [prospectPreps, setProspectPreps] = useState<ProspectPrepClient[]>([]);
-  const [linkedPreps, setLinkedPreps] = useState<ProspectPrepClient[]>([]);
-  const [customCards] = useState<CustomCard[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
   const [editingContact, setEditingContact] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    raw_contact_name: "",
+    raw_email: "",
+    raw_phone: "",
+    raw_linkedin: "",
+  });
+  const [savingContact, setSavingContact] = useState(false);
+  const [activeTab, setActiveTab] = useState<CrmHubTab>("overview");
+  const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
+  const [loadingCrm, setLoadingCrm] = useState(false);
+  const [openTasks, setOpenTasks] = useState<EngagementTask[]>([]);
+  const [doneTasks, setDoneTasks] = useState<EngagementTask[]>([]);
+  const [addingTask, setAddingTask] = useState(false);
+  const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
+  const [savingTask, setSavingTask] = useState(false);
+  const [showDone, setShowDone] = useState(false);
+  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
+  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [createOppPresetStage, setCreateOppPresetStage] = useState<string | undefined>();
+  const [linkingOpp, setLinkingOpp] = useState(false);
+  const [oppPickerOpen, setOppPickerOpen] = useState(false);
+  const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
+  const [oppPickerLoading, setOppPickerLoading] = useState(false);
 
-  // AI context — auto-set once entry loads
   const prospectLabel = entry?.organisation?.name ?? entry?.raw_org_name ?? entry?.raw_contact_name ?? null;
   useSetAIContext(
     entry && prospectLabel
@@ -104,50 +108,12 @@ function ProspectDetailContent() {
         }
       : null,
   );
-  const [contactForm, setContactForm] = useState({
-    raw_contact_name: "",
-    raw_email: "",
-    raw_phone: "",
-    raw_linkedin: "",
-  });
-  const [savingContact, setSavingContact] = useState(false);
-  const [showPrepPicker, setShowPrepPicker] = useState(false);
-  const [showPrepModal, setShowPrepModal] = useState(false);
-  const [prepPickerList, setPrepPickerList] = useState<ProspectPrepClient[]>([]);
-  const [prepPickerLoading, setPrepPickerLoading] = useState(false);
-  const [expandedPrepCards, setExpandedPrepCards] = useState<Record<string, boolean>>({});
-  const [activeTab, setActiveTab] = useState<HubTab>("overview");
-  const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
-  const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
-  const [loadingCrm, setLoadingCrm] = useState(false);
-  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
-  const [showConvertModal, setShowConvertModal] = useState(false);
-  const [createOppPresetStage, setCreateOppPresetStage] = useState<string | undefined>();
-  const [linkingOpp, setLinkingOpp] = useState(false);
-  const [oppPickerOpen, setOppPickerOpen] = useState(false);
-  const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
-  const [oppPickerLoading, setOppPickerLoading] = useState(false);
 
-
-  const loadLinkedPreps = useCallback(async () => {
-    const res = await fetch(`/api/admin/engagement/prospect-preps?queue_id=${id}&limit=20`);
-    const json = await res.json() as { data?: ProspectPrepClient[] };
-    setLinkedPreps(json.data || []);
-  }, [id]);
-
-  const loadCrmData = useCallback(async (contactId?: string | null, organisationId?: string | null) => {
+  const loadCrmData = useCallback(async (
+    contactId?: string | null,
+    organisationId?: string | null,
+  ): Promise<EngagementOpportunity[]> => {
     setLoadingCrm(true);
-    const interactionQueries: Promise<Response>[] = [];
-    if (contactId) {
-      interactionQueries.push(
-        fetch(`/api/admin/engagement/interactions?contact_id=${contactId}&limit=50`),
-      );
-    }
-    if (organisationId) {
-      interactionQueries.push(
-        fetch(`/api/admin/engagement/interactions?organisation_id=${organisationId}&limit=50`),
-      );
-    }
     const oppQueries: Promise<Response>[] = [];
     if (contactId) {
       oppQueries.push(
@@ -159,33 +125,35 @@ function ProspectDetailContent() {
         fetch(`/api/admin/engagement/opportunities?organisation_id=${organisationId}&limit=20`),
       );
     }
-
-    const [interactionResults, oppResults] = await Promise.all([
-      Promise.all(interactionQueries.map((q) => q.then((r) => r.json()))),
-      Promise.all(oppQueries.map((q) => q.then((r) => r.json()))),
-    ]);
-
-    const allInteractions = new Map<string, EngagementInteraction>();
-    for (const j of interactionResults as Array<{ data?: EngagementInteraction[] }>) {
-      for (const row of j.data || []) allInteractions.set(row.id, row);
-    }
+    const oppResults = await Promise.all(oppQueries.map((q) => q.then((r) => r.json())));
     const allOpps = new Map<string, EngagementOpportunity>();
     for (const j of oppResults as Array<{ data?: EngagementOpportunity[] }>) {
       for (const row of j.data || []) allOpps.set(row.id, row);
     }
-
-    setInteractions(
-      [...allInteractions.values()].sort(
-        (a, b) => new Date(b.interaction_date).getTime() - new Date(a.interaction_date).getTime(),
-      ),
+    const sorted = [...allOpps.values()].sort(
+      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
     );
-    setOpportunities(
-      [...allOpps.values()].sort(
-        (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-      ),
-    );
+    setOpportunities(sorted);
     setLoadingCrm(false);
+    return sorted;
   }, []);
+
+  const loadTasks = useCallback(
+    async (
+      contactId?: string | null,
+      organisationId?: string | null,
+      opps?: EngagementOpportunity[],
+    ) => {
+      const { open, done } = await fetchHubTasks({
+        contactId,
+        organisationId,
+        opportunities: opps,
+      });
+      setOpenTasks(open);
+      setDoneTasks(done);
+    },
+    [],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -213,18 +181,18 @@ function ProspectDetailContent() {
       } else {
         setLinkedContact(null);
       }
+      const opps = await loadCrmData(j.data.contact_id, j.data.organisation_id);
+      await loadTasks(j.data.contact_id, j.data.organisation_id, opps);
     }
-    await loadLinkedPreps();
-    await loadCrmData(j.data?.contact_id, j.data?.organisation_id);
     setLoading(false);
-  }, [id, loadLinkedPreps, loadCrmData]);
+  }, [id, loadCrmData, loadTasks, router]);
 
   useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && VALID_HUB_TABS.has(tab)) {
-      setActiveTab(tab as HubTab);
+    if (tab && CRM_HUB_TAB_IDS.has(tab)) {
+      setActiveTab(tab as CrmHubTab);
     }
   }, [searchParams]);
 
@@ -288,107 +256,43 @@ function ProspectDetailContent() {
     setNoteText("");
     setShowAddNote(false);
     setSavingNote(false);
-    void loadCrmData(entry.contact_id, entry.organisation_id);
   };
 
-  const loadPrepPicker = async () => {
-    setPrepPickerLoading(true);
-    try {
-      const res = await fetch("/api/admin/engagement/prospect-preps?limit=50");
-      const json = await res.json() as { data?: ProspectPrepClient[] };
-      setPrepPickerList(json.data || []);
-      setShowPrepPicker(true);
-    } finally {
-      setPrepPickerLoading(false);
+  const createTask = async () => {
+    if (!taskForm.title.trim() || !entry) return;
+    setSavingTask(true);
+    const res = await fetch("/api/admin/engagement/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: taskForm.title.trim(),
+        priority: taskForm.priority,
+        due_date: taskForm.due_date || null,
+        notes: taskForm.notes.trim() || null,
+        task_type: taskForm.task_type,
+        status: "todo",
+        contact_id: entry.contact_id,
+        organisation_id: entry.organisation_id,
+        opportunity_id: opportunities[0]?.id ?? null,
+      }),
+    });
+    if (res.ok) {
+      setTaskForm(DEFAULT_TASK_FORM);
+      setAddingTask(false);
+      void loadTasks(entry.contact_id, entry.organisation_id, opportunities);
     }
+    setSavingTask(false);
   };
 
-  const addProspectPrep = async (prep: ProspectPrepClient) => {
-    if (prospectPreps.some((p) => p.id === prep.id)) return;
-    setProspectPreps((prev) => [...prev, prep]);
-    setExpandedPrepCards((prev) => ({ ...prev, [prep.id]: false }));
-    if (prep.id && !linkedPreps.some((lp) => lp.id === prep.id)) {
-      const labelOrg = entry?.organisation?.name || entry?.raw_org_name || "Unknown organisation";
-      await fetch(`/api/admin/engagement/prospect-preps/${prep.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          queueId: id,
-          contactId: entry?.contact_id || null,
-          organisationId: entry?.organisation_id || null,
-          sourceType: "queue",
-          sourceLabel: entry ? `Prospect queue — ${labelOrg}` : "Prospect queue",
-        }),
-      });
-      void loadLinkedPreps();
+  const markTaskDone = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "done" }),
+    });
+    if (entry) {
+      void loadTasks(entry.contact_id, entry.organisation_id, opportunities);
     }
-  };
-
-  const onPrepSaved = (prep: ProspectPrepClient) => {
-    addProspectPrep(prep);
-    void loadLinkedPreps();
-  };
-
-  const buildCallContext = (): ProspectCallContext | null => {
-    if (!entry) return null;
-    const ctxOrgName = entry.organisation?.name || entry.raw_org_name || "Unknown organisation";
-    const ctxContactName = entry.contact
-      ? `${entry.contact.first_name} ${entry.contact.last_name || ""}`.trim()
-      : entry.raw_contact_name || null;
-    const ctxEmail = entry.contact?.professional_email || entry.raw_email;
-    const prospectCard: CustomCard = {
-      id: "queue-prospect",
-      title: "Prospect details",
-      content: [
-        `Organisation: ${ctxOrgName}`,
-        entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
-        entry.raw_location ? `Location: ${entry.raw_location}` : null,
-        entry.raw_website ? `Website: ${entry.raw_website}` : null,
-        "",
-        entry.raw_notes || "",
-      ].filter((line) => line !== null).join("\n"),
-    };
-    const allPreps = [...linkedPreps, ...prospectPreps.filter((p) => !linkedPreps.some((lp) => lp.id === p.id))];
-    return {
-      sourceType: "queue",
-      sourceId: entry.id,
-      contactId: entry.contact_id,
-      organisationId: entry.organisation_id,
-      queueId: entry.id,
-      opportunityId: opportunities[0]?.id || null,
-      orgName: ctxOrgName,
-      contactName: ctxContactName,
-      email: ctxEmail || null,
-      phone: entry.raw_phone || null,
-      website: entry.raw_website || null,
-      industry: entry.raw_industry || entry.organisation?.industry || null,
-      location: entry.raw_location || null,
-      linkedin: entry.raw_linkedin || null,
-      notes: entry.raw_notes || null,
-      nextAction: entry.next_action,
-      nextActionDate: entry.next_action_date,
-      aiPrepCards: [],
-      prospectPreps: allPreps,
-      customCards: [prospectCard, ...customCards],
-    };
-  };
-
-  const goToLiveCall = () => {
-    const context = buildCallContext();
-    if (!context || !entry) return;
-    sessionStorage.setItem("prospectCallContext", JSON.stringify(context));
-    const allPreps = context.prospectPreps;
-    if (allPreps.length > 0) {
-      sessionStorage.setItem("currentProspectPreps", JSON.stringify(allPreps));
-    } else {
-      sessionStorage.removeItem("currentProspectPreps");
-    }
-    const params = new URLSearchParams();
-    params.set("queue", entry.id);
-    if (entry.contact_id) params.set("contact", entry.contact_id);
-    if (entry.organisation_id) params.set("org", entry.organisation_id);
-    if (opportunities[0]?.id) params.set("opportunity", opportunities[0].id);
-    router.push(`/admin/engagement/live-call?${params}`);
   };
 
   const openCreateOpportunity = (presetStage?: string) => {
@@ -401,9 +305,13 @@ function ProspectDetailContent() {
   };
 
   const handleOpportunityCreated = (opp: EngagementOpportunity) => {
-    setOpportunities((prev) => [opp, ...prev.filter((o) => o.id !== opp.id)]);
+    const next = [opp, ...opportunities.filter((o) => o.id !== opp.id)];
+    setOpportunities(next);
     setActiveTab("opportunities");
     setCreateOppPresetStage(undefined);
+    if (entry) {
+      void loadTasks(entry.contact_id, entry.organisation_id, next);
+    }
   };
 
   const loadOppPicker = async () => {
@@ -434,17 +342,17 @@ function ProspectDetailContent() {
       });
       const j = await res.json() as { data?: EngagementOpportunity };
       if (j.data) {
-        setOpportunities((prev) => [j.data!, ...prev.filter((o) => o.id !== j.data!.id)]);
+        const next = [j.data, ...opportunities.filter((o) => o.id !== j.data!.id)];
+        setOpportunities(next);
         setOppPickerOpen(false);
         setActiveTab("opportunities");
+        if (entry) {
+          void loadTasks(entry.contact_id, entry.organisation_id, next);
+        }
       }
     } finally {
       setLinkingOpp(false);
     }
-  };
-
-  const togglePrepCard = (prepId: string) => {
-    setExpandedPrepCards((prev) => ({ ...prev, [prepId]: !prev[prepId] }));
   };
 
   if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
@@ -455,33 +363,13 @@ function ProspectDetailContent() {
     ? `${entry.contact.first_name} ${entry.contact.last_name || ""}`.trim()
     : entry.raw_contact_name || null;
   const email = entry.contact?.professional_email || entry.raw_email;
+  const notesCount = countNotes(entry.raw_notes);
   const clientOpportunity = opportunities.find((o) =>
     ["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"].includes(o.stage)
   ) ?? null;
 
   return (
     <div className="min-h-screen bg-white">
-      <ProspectPrepModal
-        open={showPrepModal}
-        onClose={() => setShowPrepModal(false)}
-        onSaved={onPrepSaved}
-        defaultClientType={entry.raw_industry || entry.organisation?.industry || ""}
-        defaultPrepNotes={entry.raw_notes || ""}
-        defaultName={`${orgName}`.slice(0, 70)}
-        source={{
-          queueId: entry.id,
-          contactId: entry.contact_id,
-          organisationId: entry.organisation_id,
-          sourceType: "queue",
-          sourceLabel: `Prospect queue — ${orgName}`,
-        }}
-        researchOrgName={orgName}
-        researchContactName={contactName ?? undefined}
-        researchEmail={email ?? undefined}
-        researchIndustry={entry.raw_industry || entry.organisation?.industry || undefined}
-        researchLocation={entry.raw_location || undefined}
-      />
-
       <ConvertToClientModal
         open={showConvertModal}
         onClose={() => setShowConvertModal(false)}
@@ -579,7 +467,7 @@ function ProspectDetailContent() {
 
       <div className="border-b border-[#111111]/10 px-8">
         <div className="flex gap-1 overflow-x-auto">
-          {HUB_TABS.map((tab) => (
+          {CRM_HUB_TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -591,11 +479,8 @@ function ProspectDetailContent() {
               }`}
             >
               {tab.label}
-              {tab.id === "calls" && interactions.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{interactions.length}</span>
-              )}
-              {tab.id === "preps" && linkedPreps.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] text-violet-700">{linkedPreps.length}</span>
+              {tab.id === "tasks" && openTasks.length > 0 && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openTasks.length}</span>
               )}
               {tab.id === "opportunities" && opportunities.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">{opportunities.length}</span>
@@ -766,41 +651,29 @@ function ProspectDetailContent() {
           {activeTab === "overview" && (
             <>
               <div className="grid gap-3 sm:grid-cols-3">
-                <button type="button" onClick={() => setActiveTab("calls")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{interactions.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Call records</p>
-                </button>
-                <button type="button" onClick={() => setActiveTab("preps")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{linkedPreps.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Prospect preps</p>
+                <button type="button" onClick={() => setActiveTab("tasks")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{openTasks.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks</p>
                 </button>
                 <button type="button" onClick={() => setActiveTab("opportunities")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
                   <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
                 </button>
+                <button type="button" onClick={() => setActiveTab("notes")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                  <p className="text-2xl font-bold text-[#111111]">{notesCount}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Notes</p>
+                </button>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
-                  <Phone className="h-4 w-4" /> Start call assist
-                </button>
-                {email ? (
-                  <a href={gmailComposeUrl(email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
-                    <Mail className="h-4 w-4" /> Send email
-                  </a>
-                ) : (
-                  <span className="flex items-center gap-1.5 rounded-lg border border-[#111111]/10 px-4 py-2 text-sm font-semibold text-[#6f6b62]/40 cursor-not-allowed">
-                    <Mail className="h-4 w-4" /> Send email
-                  </span>
-                )}
-                <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
-                  <Sparkles className="h-4 w-4" /> New prospect prep
-                </button>
                 <button type="button" onClick={() => openCreateOpportunity()} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100">
                   <Target className="h-4 w-4" /> Create opportunity
                 </button>
                 <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
                   <Plus className="h-4 w-4" /> Add note
+                </button>
+                <button type="button" onClick={() => { setActiveTab("tasks"); setAddingTask(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
+                  <Plus className="h-4 w-4" /> Add task
                 </button>
               </div>
 
@@ -852,6 +725,25 @@ function ProspectDetailContent() {
             </>
           )}
 
+          {activeTab === "tasks" && (
+            <div className="space-y-4">
+              <HubTasksTab
+                entityLabel={orgName}
+                openTasks={openTasks}
+                doneTasks={doneTasks}
+                addingTask={addingTask}
+                setAddingTask={setAddingTask}
+                taskForm={taskForm}
+                setTaskForm={setTaskForm}
+                savingTask={savingTask}
+                onCreateTask={createTask}
+                onMarkDone={markTaskDone}
+                showDone={showDone}
+                setShowDone={setShowDone}
+              />
+            </div>
+          )}
+
           {activeTab === "activity" && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
@@ -867,26 +759,6 @@ function ProspectDetailContent() {
                       <p className="mt-1 text-sm text-[#6f6b62]">{orgName}</p>
                     </div>
                   </div>
-                  {interactions.map((i) => (
-                    <Link key={i.id} href={`/admin/engagement/interactions/${i.id}`} className="flex gap-3 rounded-lg border border-[#111111]/10 px-4 py-3 hover:bg-[#f7f4ea]/40">
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[#111111] capitalize">Call — {i.interaction_type}</p>
-                        <p className="text-xs text-[#6f6b62]">{new Date(i.interaction_date).toLocaleString("en-GB")}</p>
-                        {i.summary && <p className="mt-1 text-sm text-[#6f6b62] line-clamp-2">{i.summary}</p>}
-                      </div>
-                    </Link>
-                  ))}
-                  {linkedPreps.map((prep) => (
-                    <div key={prep.id} className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
-                      <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
-                      <div>
-                        <p className="text-sm font-semibold text-[#111111]">Prospect prep linked</p>
-                        <p className="text-sm text-[#111111]">{prep.name}</p>
-                        {prep.createdAt && <p className="text-xs text-[#6f6b62]">{new Date(prep.createdAt).toLocaleString("en-GB")}</p>}
-                      </div>
-                    </div>
-                  ))}
                   {opportunities.map((opp) => (
                     <Link
                       key={opp.id}
@@ -905,95 +777,10 @@ function ProspectDetailContent() {
                       <ChevronDown className="h-4 w-4 shrink-0 -rotate-90 text-[#6f6b62]" />
                     </Link>
                   ))}
-                  {interactions.length === 0 && linkedPreps.length === 0 && opportunities.length === 0 && !entry.last_action && (
-                    <p className="text-sm text-[#6f6b62]/60 py-4 text-center">No activity yet. Start a call or add a note to begin tracking.</p>
+                  {opportunities.length === 0 && !entry.last_action && (
+                    <p className="text-sm text-[#6f6b62]/60 py-4 text-center">No activity yet. Create an opportunity or add a note to begin tracking.</p>
                   )}
                 </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === "calls" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Call records attached to this prospect</p>
-                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
-                  <Phone className="h-4 w-4" /> Start call assist
-                </button>
-              </div>
-              <InteractionList
-                interactions={interactions}
-                loading={loadingCrm}
-                emptyMessage="No calls recorded for this prospect yet. Start a call from here — it will be linked automatically and also appear in Live Call Assist history."
-              />
-            </div>
-          )}
-
-          {activeTab === "preps" && (
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => setShowPrepModal(true)} className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 hover:bg-violet-100">
-                  <Sparkles className="h-4 w-4" /> New prospect prep
-                </button>
-                <button type="button" onClick={() => void loadPrepPicker()} disabled={prepPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
-                  <History className="h-4 w-4" /> Attach existing prep
-                </button>
-                <button type="button" onClick={goToLiveCall} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]">
-                  <Phone className="h-4 w-4" /> Start call assist
-                </button>
-              </div>
-
-              {showPrepPicker && (
-                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Attach from history</p>
-                    <button type="button" onClick={() => setShowPrepPicker(false)} className="text-[#6f6b62] hover:text-[#111111]"><X className="h-4 w-4" /></button>
-                  </div>
-                  <div className="space-y-1 max-h-48 overflow-auto">
-                    {prepPickerList.map((p) => (
-                      <button key={p.id} type="button" onClick={() => void addProspectPrep(p)} disabled={linkedPreps.some((x) => x.id === p.id)} className="w-full rounded-lg border border-[#111111]/10 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40">
-                        <span className="font-semibold text-[#111111]">{p.name}</span>
-                        {p.sourceLabel && <span className="block text-[10px] text-[#6f6b62]">{p.sourceLabel}</span>}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {linkedPreps.length > 0 ? (
-                <div className="space-y-2">
-                  {linkedPreps.map((prep) => {
-                    const expanded = !!expandedPrepCards[prep.id];
-                    return (
-                      <div key={prep.id} className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => togglePrepCard(prep.id)}
-                          className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-[#f7f4ea]/50"
-                        >
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
-                            {prep.sourceLabel && <p className="text-[10px] text-[#6f6b62]">{prep.sourceLabel}</p>}
-                          </div>
-                          <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expanded ? "rotate-180" : ""}`} />
-                        </button>
-                        {expanded && (
-                          <div className="border-t border-[#111111]/10 bg-[#f7f4ea]/30 px-4 py-3 space-y-2">
-                            <PrepKnowledgeSummary
-                              sector={prep.sector}
-                              persona={prep.persona}
-                              relevantPains={prep.relevantPains}
-                              compact
-                            />
-                            {prep.prepNotes && <p className="text-sm text-[#6f6b62] whitespace-pre-wrap">{prep.prepNotes}</p>}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No prospect preps linked yet.</p>
               )}
             </div>
           )}

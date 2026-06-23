@@ -12,8 +12,6 @@ import {
   ChevronRight,
   Lightbulb,
   MessageSquare,
-  Phone,
-  Plus,
   Shield,
   Target,
   Users,
@@ -32,9 +30,6 @@ export default function PainPointDetailPage() {
   const [pp, setPp] = useState<PainPointDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
-  const [showAddInteraction, setShowAddInteraction] = useState(false);
-  const [interactionNote, setInteractionNote] = useState("");
-
   const load = useCallback(async () => {
     setLoading(true);
     const res = await fetch(`/api/admin/engagement/pain-points/${id}`);
@@ -112,29 +107,15 @@ export default function PainPointDetailPage() {
               <p className="mt-1.5 max-w-2xl text-sm text-[#6f6b62]">{pp.plain_english_definition}</p>
             )}
           </div>
-          <div className="flex shrink-0 gap-2">
-            <Link
-              href={`/admin/engagement/live-call?pain_point=${pp.id}`}
-              className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-            >
-              <Phone className="h-4 w-4" /> Use in call
-            </Link>
-            <button
-              onClick={() => setShowAddInteraction(true)}
-              className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-            >
-              <Plus className="h-4 w-4" /> Add to contact
-            </button>
-          </div>
+
         </div>
       </div>
 
       <div className="px-8 py-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {/* Left: concise live-call panel */}
         <div className="lg:col-span-1 space-y-4">
           <div className="rounded-xl border border-[#f5f274] bg-[#f5f274]/10 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#111111] mb-3">
-              Live call — key prompts
+              Key prompts
             </p>
             {pp.natural_questions?.slice(0, 1).map((q, i) => (
               <div key={i} className="mb-3">
@@ -363,42 +344,7 @@ export default function PainPointDetailPage() {
         </div>
       </div>
 
-      {/* Add to call/contact modal */}
-      {showAddInteraction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-semibold text-[#111111]">Add &ldquo;{pp.title}&rdquo; to a contact</h2>
-            <p className="mt-1 text-sm text-[#6f6b62]">Record this pain point against an interaction or log it as a note.</p>
-            <textarea
-              value={interactionNote}
-              onChange={(e) => setInteractionNote(e.target.value)}
-              placeholder="Optional notes about how this came up…"
-              rows={3}
-              className="mt-4 w-full rounded-lg border border-[#111111]/15 p-3 text-sm outline-none focus:border-[#063b32] resize-none"
-            />
-            <div className="mt-4 flex gap-3">
-              <Link
-                href={`/admin/engagement/live-call?pain_point=${pp.id}&note=${encodeURIComponent(interactionNote)}`}
-                className="flex-1 rounded-lg bg-[#063b32] px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#1a5c42]"
-              >
-                Add to active call
-              </Link>
-              <Link
-                href={`/admin/engagement/pipeline/interactions?pain_point=${pp.id}&note=${encodeURIComponent(interactionNote)}`}
-                className="flex-1 rounded-lg border border-[#111111]/15 px-4 py-2.5 text-center text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-              >
-                Log new interaction
-              </Link>
-            </div>
-            <button
-              onClick={() => setShowAddInteraction(false)}
-              className="mt-3 w-full text-center text-sm text-[#6f6b62] hover:text-[#111111]"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

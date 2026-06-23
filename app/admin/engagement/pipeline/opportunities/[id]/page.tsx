@@ -9,7 +9,6 @@ import {
   Check,
   CheckCircle,
   Loader2,
-  Phone,
   Plus,
   Save,
   X,
@@ -22,7 +21,6 @@ import {
   OPPORTUNITY_STAGES,
   STAGE_COLORS,
   type EngagementOpportunity,
-  type EngagementInteraction,
   type EngagementTask,
 } from "@/lib/engagement/types";
 
@@ -39,7 +37,6 @@ function OpportunityDetailContent() {
     searchParams.get("returnLabel"),
   );
   const [opp, setOpp] = useState<EngagementOpportunity | null>(null);
-  const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -73,21 +70,18 @@ function OpportunityDetailContent() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [oRes, iRes, tRes] = await Promise.all([
+    const [oRes, tRes] = await Promise.all([
       fetch(`/api/admin/engagement/opportunities/${id}`),
-      fetch(`/api/admin/engagement/interactions?opportunity_id=${id}&limit=30`),
       fetch(`/api/admin/engagement/tasks?opportunity_id=${id}&limit=20`),
     ]);
-    const [oData, iData, tData] = await Promise.all([
+    const [oData, tData] = await Promise.all([
       oRes.json() as Promise<{ data: EngagementOpportunity }>,
-      iRes.json() as Promise<{ data: EngagementInteraction[] }>,
       tRes.json() as Promise<{ data: EngagementTask[] }>,
     ]);
     setOpp(oData.data);
     setForm(oData.data);
     setNextAction(oData.data?.next_action || "");
     setNextActionDate(oData.data?.expected_decision_date?.split("T")[0] || "");
-    setInteractions(iData.data || []);
     setTasks(tData.data || []);
 
     setSourceContactName(null);
@@ -204,19 +198,14 @@ function OpportunityDetailContent() {
   };
 
   const saveNote = async () => {
-    if (!noteText.trim()) return;
+    if (!noteText.trim() || !opp) return;
     setSavingNote(true);
-    await fetch("/api/admin/engagement/interactions", {
-      method: "POST",
+    const stamped = `[${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}] ${noteText.trim()}`;
+    const combined = opp.notes ? `${opp.notes}\n\n${stamped}` : stamped;
+    await fetch(`/api/admin/engagement/opportunities/${id}`, {
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        interaction_type: "note",
-        interaction_date: new Date().toISOString(),
-        summary: noteText.trim(),
-        opportunity_id: id,
-        organisation_id: opp?.organisation_id ?? null,
-        contact_id: opp?.primary_contact_id ?? null,
-      }),
+      body: JSON.stringify({ notes: combined }),
     });
     setNoteText("");
     setShowAddNote(false);
@@ -232,15 +221,6 @@ function OpportunityDetailContent() {
       body: JSON.stringify({ status: newStatus }),
     });
     void load();
-  };
-
-  const goToLiveCall = () => {
-    const params = new URLSearchParams();
-    if (opp?.organisation_id) params.set("org", opp.organisation_id);
-    if (opp?.primary_contact_id) params.set("contact", opp.primary_contact_id);
-    if (opp?.enquiry_id) params.set("enquiry", opp.enquiry_id);
-    params.set("opportunity", id);
-    router.push(`/admin/engagement/live-call?${params}`);
   };
 
   if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
@@ -428,13 +408,7 @@ function OpportunityDetailContent() {
               {showAddTask ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {showAddTask ? "Cancel task" : "Add task"}
             </button>
-            <button
-              type="button"
-              onClick={goToLiveCall}
-              className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-            >
-              <Phone className="h-4 w-4" /> Start call
-            </button>
+
           </div>
         </div>
       </div>
@@ -721,42 +695,18 @@ function OpportunityDetailContent() {
             )}
           </div>
 
-          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/20 overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#111111]/10 bg-[#f7f4ea]/40">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Activity ({interactions.length})
-              </p>
-            </div>
-            {interactions.length === 0 ? (
-              <div className="py-8 text-center text-sm text-[#6f6b62]">No interactions yet.</div>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {interactions.map((i) => (
-                  <div key={i.id} className="px-5 py-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-[#111111] capitalize">{i.interaction_type}</span>
-                      <span className="text-xs text-[#6f6b62]">
-                        {new Date(i.interaction_date).toLocaleDateString("en-GB", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
-                      {i.outcome && (
-                        <span className="rounded-full bg-[#f7f4ea] px-2 py-0.5 text-[10px] font-semibold text-[#6f6b62]">
-                          {i.outcome}
-                        </span>
-                      )}
-                    </div>
-                    {i.summary && <p className="text-sm text-[#111111]">{i.summary}</p>}
-                    {i.commitments && (
-                      <p className="mt-1 text-xs text-[#6f6b62]">Commitments: {i.commitments}</p>
-                    )}
-                  </div>
-                ))}
+          {opp.notes && (
+            <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/20 overflow-hidden">
+              <div className="px-5 py-4 border-b border-[#111111]/10 bg-[#f7f4ea]/40">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+                  Notes log
+                </p>
               </div>
-            )}
-          </div>
+              <div className="px-5 py-4">
+                <p className="text-sm text-[#111111] whitespace-pre-wrap">{opp.notes}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

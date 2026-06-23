@@ -588,7 +588,7 @@ export function AIAssistantWidget() {
         type="button"
         onClick={() => (isOpen ? setIsOpen(false) : openPanel())}
         className="fixed bottom-6 right-6 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#063b32] shadow-lg hover:bg-[#1a5c42] transition-colors"
-        title="AI Assistant"
+        title="VAxAI Assistant"
       >
         {isOpen ? (
           <ChevronDown className="h-5 w-5 text-[#f5f274]" />
@@ -618,7 +618,7 @@ export function AIAssistantWidget() {
             <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
               <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
             </div>
-            <span className="flex-1 text-sm font-semibold text-white">AI Assistant</span>
+            <span className="flex-1 text-sm font-semibold text-white">VAxAI Assistant</span>
             <button
               type="button"
               onClick={cyclePanelSize}
@@ -687,7 +687,7 @@ export function AIChatHistory({
         <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
           <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
         </div>
-        <span className="flex-1 text-sm font-semibold text-white">AI Chat</span>
+        <span className="flex-1 text-sm font-semibold text-white">VAxAI Assistant</span>
         <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
         <span className="truncate text-xs text-white/70">{contextLabel}</span>
       </div>

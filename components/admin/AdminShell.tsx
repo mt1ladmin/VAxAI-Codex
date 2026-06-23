@@ -14,7 +14,6 @@ import {
   MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
-  Phone,
   Plus,
   Settings,
   Users,
@@ -36,9 +35,8 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     ],
   },
   {
-    section: "LIVE TOOLS",
+    section: "KNOWLEDGE",
     items: [
-      { label: "Live Call Assist", href: "/admin/engagement/live-call", icon: Phone },
       { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen },
     ],
   },
@@ -126,16 +124,7 @@ export default function AdminShell({
             <Plus className="h-4 w-4 shrink-0" />
             {open && "New post"}
           </Link>
-          <Link
-            href="/admin/engagement/live-call"
-            className={`flex items-center gap-2 rounded-md border border-white/15 px-3 py-2 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-colors ${
-              !open ? "h-8 w-8 justify-center p-0" : "w-full"
-            }`}
-            title={!open ? "Start live call" : undefined}
-          >
-            <Phone className="h-4 w-4 shrink-0" />
-            {open && "Start live call"}
-          </Link>
+
         </div>
 
         {/* Nav */}

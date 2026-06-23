@@ -7,8 +7,6 @@ import {
   ArrowLeft,
   Briefcase,
   Building2,
-  Calendar,
-  Check,
   CheckCircle,
   ChevronDown,
   ExternalLink,
@@ -19,23 +17,23 @@ import {
   Phone,
   Plus,
   Save,
-  Sparkles,
   Target,
   X,
 } from "lucide-react";
 import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
 import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
-import { InteractionList } from "@/components/admin/InteractionList";
+import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
-import { PrepKnowledgeSummary } from "@/components/admin/PrepKnowledgeSummary";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
+import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
+import { countNotes } from "@/lib/engagement/note-count";
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
-import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
+import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type {
   EngagementContact,
-  EngagementInteraction,
   EngagementOpportunity,
   EngagementTask,
   Persona,
@@ -44,27 +42,12 @@ import type {
 } from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
-type ClientTab =
-  | "overview"
-  | "submission"
-  | "preps"
-  | "opportunities"
-  | "tasks"
-  | "calls"
-  | "notes"
-  | "activity"
-  | "chat";
+type ClientTab = CrmHubTab | "submission";
 
 const CLIENT_TABS: Array<{ id: ClientTab; label: string }> = [
   { id: "overview", label: "Overview" },
   { id: "submission", label: "Original submission" },
-  { id: "preps", label: "Preps" },
-  { id: "opportunities", label: "Opportunities" },
-  { id: "tasks", label: "Tasks" },
-  { id: "calls", label: "Calls" },
-  { id: "notes", label: "Notes" },
-  { id: "activity", label: "Activity" },
-  { id: "chat", label: "AI Chat" },
+  ...CRM_HUB_TABS.filter((t) => t.id !== "overview"),
 ];
 
 const VALID_TABS = new Set<string>(CLIENT_TABS.map((t) => t.id));
@@ -92,18 +75,6 @@ type EnquiryArchive = {
   posts?: { id: string; title: string; slug: string } | null;
 };
 
-const PRIORITY_DOT: Record<string, string> = {
-  high: "bg-red-500",
-  medium: "bg-amber-400",
-  low: "bg-gray-300",
-};
-
-const STATUS_BADGE: Record<string, string> = {
-  todo: "bg-gray-100 text-gray-600",
-  in_progress: "bg-blue-100 text-blue-700",
-  done: "bg-emerald-100 text-emerald-700",
-};
-
 function formatValue(low: number | null, high: number | null) {
   if (!low && !high) return null;
   const fmt = (n: number) =>
@@ -118,22 +89,18 @@ function ClientDetailContent() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const [contact, setContact] = useState<EngagementContact | null>(null);
-  const [interactions, setInteractions] = useState<EngagementInteraction[]>([]);
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
-  const [tasks, setTasks] = useState<EngagementTask[]>([]);
+  const [openTasks, setOpenTasks] = useState<EngagementTask[]>([]);
   const [doneTasks, setDoneTasks] = useState<EngagementTask[]>([]);
   const [linkedEnquiry, setLinkedEnquiry] = useState<EnquiryArchive | null>(null);
   const [linkedQueue, setLinkedQueue] = useState<ProspectQueueEntry | null>(null);
-  const [linkedPreps, setLinkedPreps] = useState<ProspectPrepClient[]>([]);
-  const [expandedPrepCards, setExpandedPrepCards] = useState<Record<string, boolean>>({});
   const [updatingStage, setUpdatingStage] = useState(false);
   const [showCreateOppModal, setShowCreateOppModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ClientTab>("overview");
 
-  // Task creation
   const [addingTask, setAddingTask] = useState(false);
-  const [taskForm, setTaskForm] = useState({ title: "", priority: "medium", due_date: "", task_type: "follow_up", notes: "" });
+  const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
 
@@ -161,28 +128,38 @@ function ClientDetailContent() {
       : null,
   );
 
+  const loadTasks = useCallback(
+    async (
+      contactId: string,
+      organisationId?: string | null,
+      opps?: EngagementOpportunity[],
+    ) => {
+      const { open, done } = await fetchHubTasks({
+        contactId,
+        organisationId,
+        opportunities: opps,
+      });
+      setOpenTasks(open);
+      setDoneTasks(done);
+    },
+    [],
+  );
+
   const loadData = useCallback(async () => {
     setLoading(true);
-    const [cRes, iRes, oRes, eRes, tRes, tdRes] = await Promise.all([
+    const [cRes, oRes, eRes] = await Promise.all([
       fetch(`/api/admin/engagement/contacts/${id}`),
-      fetch(`/api/admin/engagement/interactions?contact_id=${id}&limit=50`),
       fetch(`/api/admin/engagement/opportunities?contact_id=${id}&limit=30`),
       fetch(`/api/admin/enquiries?contact_id=${id}&include_closed=true`),
-      fetch(`/api/admin/engagement/tasks?contact_id=${id}&limit=100`),
-      fetch(`/api/admin/engagement/tasks?contact_id=${id}&status=done&limit=50`),
     ]);
-    const [cData, iData, oData, eData, tData, tdData] = await Promise.all([
+    const [cData, oData, eData] = await Promise.all([
       cRes.json() as Promise<{ data: EngagementContact }>,
-      iRes.json() as Promise<{ data: EngagementInteraction[] }>,
       oRes.json() as Promise<{ data: EngagementOpportunity[] }>,
       eRes.json() as Promise<{ data: EnquiryArchive[] }>,
-      tRes.json() as Promise<{ data: EngagementTask[] }>,
-      tdRes.json() as Promise<{ data: EngagementTask[] }>,
     ]);
     setContact(cData.data);
-    setInteractions(iData.data || []);
-    setOpportunities(oData.data || []);
     const opps = oData.data || [];
+    setOpportunities(opps);
 
     let enquiry: EnquiryArchive | null = eData.data?.[0] || null;
     if (enquiry?.id) {
@@ -203,22 +180,9 @@ function ClientDetailContent() {
       setLinkedQueue(null);
     }
 
-    const prepQueries = [
-      fetch(`/api/admin/engagement/prospect-preps?contact_id=${id}&limit=30`),
-    ];
-    if (enquiry?.id) prepQueries.push(fetch(`/api/admin/engagement/prospect-preps?enquiry_id=${enquiry.id}&limit=30`));
-    if (queueId) prepQueries.push(fetch(`/api/admin/engagement/prospect-preps?queue_id=${queueId}&limit=30`));
-    const prepResults = await Promise.all(prepQueries.map((q) => q.then((r) => r.json())));
-    const prepMap = new Map<string, ProspectPrepClient>();
-    for (const j of prepResults as Array<{ data?: ProspectPrepClient[] }>) {
-      for (const p of j.data || []) prepMap.set(p.id, p);
-    }
-    setLinkedPreps([...prepMap.values()]);
-
-    setTasks(tData.data || []);
-    setDoneTasks(tdData.data || []);
+    await loadTasks(id, cData.data.organisation_id, opps);
     setLoading(false);
-  }, [id]);
+  }, [id, loadTasks]);
 
   useEffect(() => {
     void loadData();
@@ -249,9 +213,9 @@ function ClientDetailContent() {
       }),
     });
     if (res.ok) {
-      setTaskForm({ title: "", priority: "medium", due_date: "", task_type: "follow_up", notes: "" });
+      setTaskForm(DEFAULT_TASK_FORM);
       setAddingTask(false);
-      void loadData();
+      void loadTasks(id, contact?.organisation_id, opportunities);
     }
     setSavingTask(false);
   };
@@ -262,7 +226,7 @@ function ClientDetailContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" }),
     });
-    void loadData();
+    void loadTasks(id, contact?.organisation_id, opportunities);
   };
 
   const saveNote = async () => {
@@ -326,7 +290,13 @@ function ClientDetailContent() {
 
   const clientOpps = opportunities.filter((o) => isClientServiceStage(o.stage));
   const primaryOpp = clientOpps[0] ?? null;
-  const openTasks = tasks.filter((t) => t.status !== "done");
+  const notesCount = countNotes(contact.notes);
+  const lastActivity = linkedEnquiry?.last_action || linkedQueue?.last_action || null;
+  const lastActivityDate =
+    linkedEnquiry?.last_action_date ||
+    linkedQueue?.last_action_date ||
+    primaryOpp?.updated_at ||
+    null;
   const createOppDefaults = contact && sourceOpp ? {
     title: `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""} — New opportunity`.slice(0, 120),
     stage: "Identified",
@@ -376,16 +346,6 @@ function ClientDetailContent() {
               {tab.id === "tasks" && openTasks.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
                   {openTasks.length}
-                </span>
-              )}
-              {tab.id === "calls" && interactions.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
-                  {interactions.length}
-                </span>
-              )}
-              {tab.id === "preps" && linkedPreps.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] text-violet-700">
-                  {linkedPreps.length}
                 </span>
               )}
               {tab.id === "opportunities" && opportunities.length > 0 && (
@@ -491,14 +451,41 @@ function ClientDetailContent() {
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <>
-              {/* Quick actions */}
+              <div className="grid gap-3 sm:grid-cols-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("tasks")}
+                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
+                >
+                  <p className="text-2xl font-bold text-[#111111]">{openTasks.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("opportunities")}
+                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
+                >
+                  <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("notes")}
+                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
+                >
+                  <p className="text-2xl font-bold text-[#111111]">{notesCount}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Notes</p>
+                </button>
+              </div>
+
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => { setActiveTab("tasks"); setAddingTask(true); }}
-                  className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+                  onClick={openCreateOpportunity}
+                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100"
                 >
-                  <Plus className="h-4 w-4" /> Add task
+                  <Target className="h-4 w-4" />
+                  Create opportunity
                 </button>
                 <button
                   type="button"
@@ -509,27 +496,30 @@ function ClientDetailContent() {
                 </button>
                 <button
                   type="button"
-                  onClick={openCreateOpportunity}
-                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100"
+                  onClick={() => { setActiveTab("tasks"); setAddingTask(true); }}
+                  className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
                 >
-                  <Target className="h-4 w-4" />
-                  Create opportunity
+                  <Plus className="h-4 w-4" /> Add task
                 </button>
               </div>
 
-              {primaryOpp?.next_action && (
-                <div className="rounded-xl border border-amber-200/60 bg-amber-50/50 p-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-800">
-                    Follow-up / next action
-                  </p>
-                  <p className="mt-1 text-sm text-[#111111]">{primaryOpp.next_action}</p>
-                  {primaryOpp.expected_decision_date && (
-                    <p className="mt-1 text-xs text-[#6f6b62]">
-                      By {new Date(primaryOpp.expected_decision_date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                    </p>
-                  )}
-                </div>
-              )}
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">
+                  Next action
+                </p>
+                {primaryOpp?.next_action ? (
+                  <div>
+                    <p className="text-sm text-[#111111]">{primaryOpp.next_action}</p>
+                    {primaryOpp.expected_decision_date && (
+                      <p className="mt-1 text-xs text-[#6f6b62]">
+                        By {new Date(primaryOpp.expected_decision_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#6f6b62]/50">No next action set.</p>
+                )}
+              </div>
 
               {primaryOpp && (
                 <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-4">
@@ -565,105 +555,21 @@ function ClientDetailContent() {
                 </div>
               )}
 
-              {/* Stats */}
-              <div className="grid gap-3 sm:grid-cols-4">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("tasks")}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-                >
-                  <p className="text-2xl font-bold text-[#111111]">{openTasks.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("calls")}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-                >
-                  <p className="text-2xl font-bold text-[#111111]">{interactions.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Call records</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("opportunities")}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-                >
-                  <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
-                </button>
-                {(linkedEnquiry || linkedQueue) && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("submission")}
-                    className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-                  >
-                    <p className="text-2xl font-bold text-[#111111]">1</p>
-                    <p className="text-xs font-semibold text-[#6f6b62]">Original submission</p>
-                  </button>
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
+                {lastActivity ? (
+                  <>
+                    <p className="text-sm text-[#111111]">{lastActivity}</p>
+                    {lastActivityDate && (
+                      <p className="mt-1 text-xs text-[#6f6b62]">
+                        {new Date(lastActivityDate).toLocaleString("en-GB")}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-[#6f6b62]/50">No activity recorded yet.</p>
                 )}
               </div>
-
-              {/* Recent tasks preview */}
-              {openTasks.length > 0 && (
-                <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                      Open tasks
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("tasks")}
-                      className="text-xs text-[#063b32] hover:underline"
-                    >
-                      See all
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {openTasks.slice(0, 4).map((t) => (
-                      <div key={t.id} className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => void markTaskDone(t.id)}
-                          className="grid h-4 w-4 shrink-0 place-items-center rounded border border-[#111111]/25 bg-white hover:border-[#063b32]"
-                          title="Mark done"
-                        />
-                        <span
-                          className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_DOT[t.priority] ?? "bg-gray-300"}`}
-                        />
-                        <span className="flex-1 text-sm text-[#111111]">{t.title}</span>
-                        {t.due_date && (
-                          <span className="shrink-0 flex items-center gap-1 text-xs text-[#6f6b62]">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(t.due_date).toLocaleDateString("en-GB", {
-                              day: "numeric",
-                              month: "short",
-                            })}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Recent calls preview */}
-              {interactions.length > 0 && (
-                <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                      Recent calls
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab("calls")}
-                      className="text-xs text-[#063b32] hover:underline"
-                    >
-                      See all
-                    </button>
-                  </div>
-                  <InteractionList interactions={interactions.slice(0, 3)} />
-                </div>
-              )}
             </>
           )}
 
@@ -738,15 +644,6 @@ function ClientDetailContent() {
                           )}
                         </div>
                       </div>
-                      {(linkedEnquiry.sector_snapshot || linkedEnquiry.persona_snapshot) && (
-                        <div className="rounded-xl border border-[#111111]/10 p-5">
-                          <PrepKnowledgeSummary
-                            sector={linkedEnquiry.sector_snapshot}
-                            persona={linkedEnquiry.persona_snapshot}
-                            relevantPains={[]}
-                          />
-                        </div>
-                      )}
                       {linkedEnquiry.admin_notes && (
                         <div className="rounded-xl border border-[#111111]/10 p-5">
                           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Admin notes from enquiry</p>
@@ -828,53 +725,6 @@ function ClientDetailContent() {
             </>
           )}
 
-          {/* PREPS TAB */}
-          {activeTab === "preps" && (
-            <>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Prospect preps from before conversion
-              </p>
-              {linkedPreps.length > 0 ? (
-                <div className="space-y-2">
-                  {linkedPreps.map((prep) => {
-                    const expanded = !!expandedPrepCards[prep.id];
-                    return (
-                      <div key={prep.id} className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => setExpandedPrepCards((prev) => ({ ...prev, [prep.id]: !prev[prep.id] }))}
-                          className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-[#f7f4ea]/50"
-                        >
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-[#111111]">{prep.name}</p>
-                            {prep.sourceLabel && <p className="text-[10px] text-[#6f6b62]">{prep.sourceLabel}</p>}
-                          </div>
-                          <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expanded ? "rotate-180" : ""}`} />
-                        </button>
-                        {expanded && (
-                          <div className="border-t border-[#111111]/10 bg-[#f7f4ea]/30 px-4 py-3 space-y-2">
-                            <PrepKnowledgeSummary
-                              sector={prep.sector}
-                              persona={prep.persona}
-                              relevantPains={prep.relevantPains}
-                              compact
-                            />
-                            {prep.prepNotes && <p className="text-sm text-[#6f6b62] whitespace-pre-wrap">{prep.prepNotes}</p>}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
-                  <Sparkles className="mx-auto mb-2 h-8 w-8 text-[#6f6b62]/30" />
-                  <p className="text-sm text-[#6f6b62]">No prospect preps linked to this client.</p>
-                </div>
-              )}
-            </>
-          )}
-
           {/* ACTIVITY TAB */}
           {activeTab === "activity" && (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
@@ -910,25 +760,6 @@ function ClientDetailContent() {
                     </div>
                   </div>
                 )}
-                {interactions.map((i) => (
-                  <div key={i.id} className="flex gap-3 rounded-lg border border-[#111111]/10 px-4 py-3">
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-[#111111] capitalize">Call — {i.interaction_type}</p>
-                      <p className="text-xs text-[#6f6b62]">{new Date(i.interaction_date).toLocaleString("en-GB")}</p>
-                      {i.summary && <p className="mt-1 text-sm text-[#6f6b62] line-clamp-2">{i.summary}</p>}
-                    </div>
-                  </div>
-                ))}
-                {linkedPreps.map((prep) => (
-                  <div key={prep.id} className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3">
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-violet-500" />
-                    <div>
-                      <p className="text-sm font-semibold text-[#111111]">Prospect prep linked</p>
-                      <p className="text-sm text-[#111111]">{prep.name}</p>
-                    </div>
-                  </div>
-                ))}
                 {opportunities.map((opp) => (
                   <Link
                     key={opp.id}
@@ -953,182 +784,22 @@ function ClientDetailContent() {
 
           {/* TASKS TAB */}
           {activeTab === "tasks" && (
-            <>
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                  Tasks for {contact.first_name}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setAddingTask((v) => !v)}
-                  className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
-                >
-                  <Plus className="h-3.5 w-3.5" /> New task
-                </button>
-              </div>
-
-              {addingTask && (
-                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
-                  <input
-                    value={taskForm.title}
-                    onChange={(e) => setTaskForm((f) => ({ ...f, title: e.target.value }))}
-                    placeholder="Task title…"
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  />
-                  <div className="grid grid-cols-3 gap-2">
-                    <select
-                      value={taskForm.priority}
-                      onChange={(e) => setTaskForm((f) => ({ ...f, priority: e.target.value }))}
-                      className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    >
-                      <option value="high">High priority</option>
-                      <option value="medium">Medium priority</option>
-                      <option value="low">Low priority</option>
-                    </select>
-                    <select
-                      value={taskForm.task_type}
-                      onChange={(e) => setTaskForm((f) => ({ ...f, task_type: e.target.value }))}
-                      className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    >
-                      <option value="follow_up">Follow-up</option>
-                      <option value="call">Call</option>
-                      <option value="email">Email</option>
-                      <option value="meeting">Meeting</option>
-                      <option value="admin">Admin</option>
-                      <option value="other">Other</option>
-                    </select>
-                    <input
-                      type="date"
-                      value={taskForm.due_date}
-                      onChange={(e) => setTaskForm((f) => ({ ...f, due_date: e.target.value }))}
-                      className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    />
-                  </div>
-                  <textarea
-                    value={taskForm.notes}
-                    onChange={(e) => setTaskForm((f) => ({ ...f, notes: e.target.value }))}
-                    placeholder="Notes (optional)…"
-                    rows={2}
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none"
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void createTask()}
-                      disabled={savingTask || !taskForm.title.trim()}
-                      className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-                    >
-                      {savingTask ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                      Save task
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAddingTask(false)}
-                      className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {openTasks.length === 0 && !addingTask ? (
-                <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
-                  <Check className="mx-auto mb-2 h-8 w-8 text-emerald-400" />
-                  <p className="text-sm text-[#6f6b62]">No open tasks. All caught up!</p>
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  {openTasks.map((t) => {
-                    const isOverdue =
-                      t.due_date && new Date(t.due_date) < new Date() && t.status !== "done";
-                    return (
-                      <div
-                        key={t.id}
-                        className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3"
-                      >
-                        <button
-                          type="button"
-                          onClick={() => void markTaskDone(t.id)}
-                          className="grid h-4 w-4 shrink-0 place-items-center rounded border border-[#111111]/25 bg-white hover:border-[#063b32] hover:bg-[#063b32]/5"
-                          title="Mark done"
-                        />
-                        <span
-                          className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_DOT[t.priority] ?? "bg-gray-300"}`}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-[#111111]">{t.title}</p>
-                          {t.notes && (
-                            <p className="text-xs text-[#6f6b62] truncate">{t.notes}</p>
-                          )}
-                        </div>
-                        <span
-                          className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_BADGE[t.status] ?? "bg-gray-100 text-gray-600"}`}
-                        >
-                          {t.status.replace("_", " ")}
-                        </span>
-                        {t.due_date && (
-                          <span
-                            className={`shrink-0 flex items-center gap-1 text-xs ${isOverdue ? "text-red-600 font-semibold" : "text-[#6f6b62]"}`}
-                          >
-                            <Calendar className="h-3 w-3" />
-                            {new Date(t.due_date).toLocaleDateString("en-GB", {
-                              day: "numeric",
-                              month: "short",
-                            })}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Done tasks toggle */}
-              {doneTasks.length > 0 && (
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setShowDone((v) => !v)}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-[#6f6b62] hover:text-[#111111]"
-                  >
-                    <ChevronDown
-                      className={`h-3.5 w-3.5 transition-transform ${showDone ? "rotate-180" : ""}`}
-                    />
-                    {showDone ? "Hide" : "Show"} {doneTasks.length} completed task
-                    {doneTasks.length === 1 ? "" : "s"}
-                  </button>
-                  {showDone && (
-                    <div className="mt-2 space-y-1.5">
-                      {doneTasks.map((t) => (
-                        <div
-                          key={t.id}
-                          className="flex items-center gap-3 rounded-xl border border-[#111111]/8 bg-[#f7f4ea]/50 px-4 py-3"
-                        >
-                          <div className="grid h-4 w-4 shrink-0 place-items-center rounded border border-emerald-300 bg-emerald-50">
-                            <Check className="h-3 w-3 text-emerald-600" />
-                          </div>
-                          <span className="flex-1 text-sm text-[#6f6b62] line-through">{t.title}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* CALLS TAB */}
-          {activeTab === "calls" && (
-            <>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                Call & interaction history
-              </p>
-              <InteractionList
-                interactions={interactions}
-                emptyMessage="No call records yet for this client."
+            <div className="space-y-4">
+              <HubTasksTab
+                entityLabel={contact.first_name}
+                openTasks={openTasks}
+                doneTasks={doneTasks}
+                addingTask={addingTask}
+                setAddingTask={setAddingTask}
+                taskForm={taskForm}
+                setTaskForm={setTaskForm}
+                savingTask={savingTask}
+                onCreateTask={createTask}
+                onMarkDone={markTaskDone}
+                showDone={showDone}
+                setShowDone={setShowDone}
               />
-            </>
+            </div>
           )}
 
           {/* OPPORTUNITIES TAB */}

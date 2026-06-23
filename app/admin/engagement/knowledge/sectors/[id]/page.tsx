@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Phone } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { type SectorProfile } from "@/lib/engagement/types";
 
 function List({ items }: { items: string[] }) {
@@ -70,12 +70,7 @@ export default function SectorDetailPage() {
               </div>
             )}
           </div>
-          <Link
-            href={`/admin/engagement/live-call?sector=${sector.name}`}
-            className="flex items-center gap-2 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:border-[#063b32] hover:text-[#063b32] transition-colors shrink-0"
-          >
-            <Phone className="h-4 w-4" /> Use in call
-          </Link>
+
         </div>
       </div>
 

@@ -8,7 +8,6 @@ import {
   BookOpen,
   Calendar,
   Inbox,
-  Phone,
   Plus,
   Users,
   Zap,
@@ -144,12 +143,7 @@ export default function EngagementOverview() {
             <h1 className="text-xl font-semibold text-[#111111]">Overview</h1>
             <p className="mt-0.5 text-sm text-[#6f6b62]">Your engagement hub at a glance.</p>
           </div>
-          <Link
-            href="/admin/engagement/live-call"
-            className="shrink-0 flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0a4f3f] transition-colors"
-          >
-            <Phone className="h-4 w-4" /> Start call
-          </Link>
+
         </div>
         {!stats.loading && (stats.overdueTasks > 0 || stats.pendingQueue > 0 || stats.newEnquiries > 0) && (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -177,11 +171,10 @@ export default function EngagementOverview() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {[
             { label: "Prepare for a prospect", desc: "Sector, profile and guidance", href: "/admin/engagement/knowledge", icon: Users },
             { label: "Help with a pain point", desc: "Phrase-led conversation support", href: "/admin/engagement/pain-points", icon: Zap },
-            { label: "Start live call mode", desc: "Notes, guidance and chips", href: "/admin/engagement/live-call", icon: Phone },
           ].map(({ label, desc, href, icon: Icon }) => (
             <Link key={href} href={href} className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3.5 hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/40 transition-colors">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#063b32]/8 text-[#063b32]">
