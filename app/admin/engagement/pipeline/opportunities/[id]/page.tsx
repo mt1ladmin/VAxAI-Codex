@@ -13,8 +13,15 @@ import {
   Save,
   X,
 } from "lucide-react";
+import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
+import {
+  clearLinkedNextAction,
+  collectLinkedNextActions,
+  patchLinkedNextAction,
+} from "@/lib/engagement/linked-next-actions";
 import { opportunityReturnLabel, safeReturnTo } from "@/lib/engagement/opportunity-nav";
+import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import { OpportunityCreatedFrom } from "@/components/admin/OpportunityCreatedFrom";
 import { OpportunitySourceBadge } from "@/components/admin/OpportunitySourceBadge";
 import {
@@ -37,7 +44,8 @@ function OpportunityDetailContent() {
     searchParams.get("returnLabel"),
   );
   const [opp, setOpp] = useState<EngagementOpportunity | null>(null);
-  const [tasks, setTasks] = useState<EngagementTask[]>([]);
+  const [openTasks, setOpenTasks] = useState<EngagementTask[]>([]);
+  const [doneTasks, setDoneTasks] = useState<EngagementTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<
@@ -52,13 +60,10 @@ function OpportunityDetailContent() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [updatingStage, setUpdatingStage] = useState(false);
-  const [editingNextAction, setEditingNextAction] = useState(false);
-  const [nextAction, setNextAction] = useState("");
-  const [nextActionDate, setNextActionDate] = useState("");
-  const [savingAction, setSavingAction] = useState(false);
-  const [showAddTask, setShowAddTask] = useState(false);
-  const [taskForm, setTaskForm] = useState({ title: "", priority: "medium", due_date: "" });
+  const [addingTask, setAddingTask] = useState(false);
+  const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
   const [savingTask, setSavingTask] = useState(false);
+  const [showDone, setShowDone] = useState(false);
   const [showAddNote, setShowAddNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
@@ -80,9 +85,9 @@ function OpportunityDetailContent() {
     ]);
     setOpp(oData.data);
     setForm(oData.data);
-    setNextAction(oData.data?.next_action || "");
-    setNextActionDate(oData.data?.expected_decision_date?.split("T")[0] || "");
-    setTasks(tData.data || []);
+    const allTasks = tData.data || [];
+    setOpenTasks(allTasks.filter((t) => t.status !== "done"));
+    setDoneTasks(allTasks.filter((t) => t.status === "done"));
 
     setSourceContactName(null);
     setSourceOrgName(null);
@@ -140,8 +145,6 @@ function OpportunityDetailContent() {
     }
     const j = (await res.json()) as { data: EngagementOpportunity };
     setOpp(j.data);
-    setNextAction(j.data.next_action || "");
-    setNextActionDate(j.data.expected_decision_date?.split("T")[0] || "");
     setEditing(false);
     setSaving(false);
   };
@@ -159,41 +162,36 @@ function OpportunityDetailContent() {
     setUpdatingStage(false);
   };
 
-  const saveNextAction = async () => {
-    setSavingAction(true);
-    const res = await fetch(`/api/admin/engagement/opportunities/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        next_action: nextAction,
-        expected_decision_date: nextActionDate || null,
-      }),
-    });
-    const j = (await res.json()) as { data: EngagementOpportunity };
-    if (j.data) setOpp(j.data);
-    setEditingNextAction(false);
-    setSavingAction(false);
-  };
-
-  const saveTask = async () => {
+  const createTask = async () => {
     if (!taskForm.title.trim()) return;
     setSavingTask(true);
     await fetch("/api/admin/engagement/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: taskForm.title,
+        title: taskForm.title.trim(),
         priority: taskForm.priority,
         due_date: taskForm.due_date || null,
+        notes: taskForm.notes.trim() || null,
+        task_type: taskForm.task_type,
         opportunity_id: id,
         organisation_id: opp?.organisation_id ?? null,
+        primary_contact_id: opp?.primary_contact_id ?? null,
         status: "todo",
-        task_type: "follow_up",
       }),
     });
-    setTaskForm({ title: "", priority: "medium", due_date: "" });
-    setShowAddTask(false);
+    setTaskForm(DEFAULT_TASK_FORM);
+    setAddingTask(false);
     setSavingTask(false);
+    void load();
+  };
+
+  const markTaskDone = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "done" }),
+    });
     void load();
   };
 
@@ -213,16 +211,6 @@ function OpportunityDetailContent() {
     void load();
   };
 
-  const toggleTaskDone = async (task: EngagementTask) => {
-    const newStatus = task.status === "done" ? "todo" : "done";
-    await fetch(`/api/admin/engagement/tasks/${task.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
-    });
-    void load();
-  };
-
   if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
   if (!opp) return <div className="p-8 text-sm text-red-600">Opportunity not found.</div>;
 
@@ -235,6 +223,20 @@ function OpportunityDetailContent() {
       ? `£${(opp.indicative_value_low ?? 0).toLocaleString()} – £${(opp.indicative_value_high ?? 0).toLocaleString()}`
       : null;
   const isClientStage = isClientServiceStage(opp.stage);
+  const linkedNextActions = collectLinkedNextActions({ opportunities: [opp] });
+
+  const handleSaveLinkedNextAction = async (
+    item: (typeof linkedNextActions)[number],
+    payload: { title: string; dueDate: string | null },
+  ) => {
+    await patchLinkedNextAction(item, payload);
+    await load();
+  };
+
+  const handleCompleteLinkedNextAction = async (item: (typeof linkedNextActions)[number]) => {
+    await clearLinkedNextAction(item);
+    await load();
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -371,42 +373,13 @@ function OpportunityDetailContent() {
             <button
               type="button"
               onClick={() => {
-                setEditingNextAction((v) => !v);
-                setShowAddNote(false);
-                setShowAddTask(false);
-              }}
-              className={headerBtn}
-            >
-              {editingNextAction ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              {editingNextAction
-                ? "Cancel next action"
-                : opp.next_action
-                  ? "Edit next action"
-                  : "Set next action"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
                 setShowAddNote((v) => !v);
-                setShowAddTask(false);
-                setEditingNextAction(false);
+                setAddingTask(false);
               }}
               className={headerBtn}
             >
               {showAddNote ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {showAddNote ? "Cancel note" : "Add note"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowAddTask((v) => !v);
-                setShowAddNote(false);
-                setEditingNextAction(false);
-              }}
-              className={headerBtn}
-            >
-              {showAddTask ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              {showAddTask ? "Cancel task" : "Add task"}
             </button>
 
           </div>
@@ -508,104 +481,23 @@ function OpportunityDetailContent() {
         </div>
 
         <div className="lg:col-span-2 space-y-6">
-          <div className="rounded-xl border border-[#111111]/10 p-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Next action</p>
-            {editingNextAction ? (
-              <div className="space-y-2">
-                <input
-                  value={nextAction}
-                  onChange={(e) => setNextAction(e.target.value)}
-                  placeholder="What needs to happen next?"
-                  className={inputClass}
-                />
-                <input
-                  type="date"
-                  value={nextActionDate}
-                  onChange={(e) => setNextActionDate(e.target.value)}
-                  className={inputClass}
-                />
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void saveNextAction()}
-                    disabled={savingAction}
-                    className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-                  >
-                    {savingAction ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                    Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingNextAction(false);
-                      setNextAction(opp.next_action || "");
-                      setNextActionDate(opp.expected_decision_date?.split("T")[0] || "");
-                    }}
-                    className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : opp.next_action ? (
-              <div>
-                <p className="text-sm text-[#111111]">{opp.next_action}</p>
-                {opp.expected_decision_date && (
-                  <p className="mt-1 text-xs text-[#6f6b62]">
-                    By{" "}
-                    {new Date(opp.expected_decision_date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-[#6f6b62]/50">No next action set.</p>
-            )}
-          </div>
-
-          {showAddTask && (
-            <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">New task</p>
-              <div className="flex flex-wrap gap-2">
-                <input
-                  type="text"
-                  value={taskForm.title}
-                  onChange={(e) => setTaskForm((f) => ({ ...f, title: e.target.value }))}
-                  onKeyDown={(e) => e.key === "Enter" && void saveTask()}
-                  placeholder="Task title…"
-                  autoFocus
-                  className="flex-1 min-w-48 rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                />
-                <select
-                  value={taskForm.priority}
-                  onChange={(e) => setTaskForm((f) => ({ ...f, priority: e.target.value }))}
-                  className="rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                >
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-                <input
-                  type="date"
-                  value={taskForm.due_date}
-                  onChange={(e) => setTaskForm((f) => ({ ...f, due_date: e.target.value }))}
-                  className="rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                />
-                <button
-                  type="button"
-                  onClick={() => void saveTask()}
-                  disabled={savingTask || !taskForm.title.trim()}
-                  className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60"
-                >
-                  {savingTask ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                  Save task
-                </button>
-              </div>
-            </div>
-          )}
+          <HubTasksTab
+            entityLabel={opp.title}
+            openTasks={openTasks}
+            doneTasks={doneTasks}
+            linkedNextActions={linkedNextActions}
+            addingTask={addingTask}
+            setAddingTask={setAddingTask}
+            taskForm={taskForm}
+            setTaskForm={setTaskForm}
+            savingTask={savingTask}
+            onCreateTask={createTask}
+            onMarkDone={markTaskDone}
+            onSaveLinkedNextAction={handleSaveLinkedNextAction}
+            onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
+            showDone={showDone}
+            setShowDone={setShowDone}
+          />
 
           {showAddNote && (
             <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
@@ -640,60 +532,6 @@ function OpportunityDetailContent() {
               </div>
             </div>
           )}
-
-          <div className="rounded-xl border border-amber-200/80 bg-amber-50/20 overflow-hidden">
-            <div className="px-5 py-4 border-b border-amber-200/60 bg-amber-50/50">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-800">
-                Tasks ({tasks.filter((t) => t.status !== "done").length} open)
-              </p>
-            </div>
-            {tasks.length === 0 ? (
-              <div className="py-8 text-center text-sm text-[#6f6b62]">No tasks yet.</div>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {tasks.map((t) => (
-                  <div key={t.id} className="flex items-center gap-3 px-5 py-3.5">
-                    <button
-                      type="button"
-                      onClick={() => void toggleTaskDone(t)}
-                      className={`h-5 w-5 shrink-0 rounded border flex items-center justify-center transition-colors ${
-                        t.status === "done"
-                          ? "border-[#063b32] bg-[#063b32] text-white"
-                          : "border-[#111111]/20 hover:border-[#063b32]"
-                      }`}
-                    >
-                      {t.status === "done" && <Check className="h-3 w-3" />}
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-semibold ${
-                          t.status === "done" ? "text-[#6f6b62] line-through" : "text-[#111111]"
-                        }`}
-                      >
-                        {t.title}
-                      </p>
-                      {t.due_date && (
-                        <p className="text-xs text-[#6f6b62]">
-                          Due {new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                        </p>
-                      )}
-                    </div>
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                        t.priority === "high"
-                          ? "bg-red-100 text-red-700"
-                          : t.priority === "medium"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {t.priority}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {opp.notes && (
             <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/20 overflow-hidden">

@@ -26,7 +26,6 @@ type Props = {
   supportType?: string;
   existingContactId: string | null;
   existingOrgId: string | null;
-  defaultNextAction?: string | null;
 };
 
 const inputClass =
@@ -46,7 +45,6 @@ export function ConvertToClientModal({
   supportType = "",
   existingContactId,
   existingOrgId,
-  defaultNextAction = "",
 }: Props) {
   const nameParts = contactName.trim().split(/\s+/);
   const defaultFirst = nameParts[0] ?? contactName;
@@ -65,7 +63,6 @@ export function ConvertToClientModal({
   const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [agreedPathway, setAgreedPathway] = useState("");
   const [serviceNotes, setServiceNotes] = useState("");
-  const [nextAction, setNextAction] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -90,7 +87,6 @@ export function ConvertToClientModal({
     setDesiredOutcomes("");
     setAgreedPathway("");
     setServiceNotes("");
-    setNextAction(defaultNextAction?.trim() || "");
     setError("");
   }, [
     open,
@@ -98,7 +94,6 @@ export function ConvertToClientModal({
     contactEmail,
     contactPhone,
     supportType,
-    defaultNextAction,
   ]);
 
   const closeSourceRecord = async () => {
@@ -197,7 +192,6 @@ export function ConvertToClientModal({
         indicative_value_low: valueLow ? parseFloat(valueLow) : null,
         indicative_value_high: valueHigh ? parseFloat(valueHigh) : null,
         notes: serviceNotes.trim() || null,
-        next_action: nextAction.trim() || null,
       };
       if (sourceType === "enquiry") oppPayload.enquiry_id = sourceId;
       else oppPayload.queue_id = sourceId;
@@ -331,11 +325,6 @@ export function ConvertToClientModal({
                   <input type="number" min="0" value={valueHigh} onChange={(e) => setValueHigh(e.target.value)} className={inputClass} />
                 </div>
               </div>
-            </div>
-
-            <div>
-              <label className="block text-[10px] text-[#6f6b62] mb-1">Next action / follow-up</label>
-              <input value={nextAction} onChange={(e) => setNextAction(e.target.value)} placeholder="e.g. Send onboarding pack" className={inputClass} />
             </div>
 
             <div>

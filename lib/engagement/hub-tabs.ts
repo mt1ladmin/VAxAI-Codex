@@ -1,6 +1,6 @@
 export const CRM_HUB_TABS = [
   { id: "overview", label: "Overview" },
-  { id: "tasks", label: "Tasks" },
+  { id: "tasks", label: "Tasks & next actions" },
   { id: "opportunities", label: "Opportunities" },
   { id: "notes", label: "Notes" },
   { id: "activity", label: "Activity" },

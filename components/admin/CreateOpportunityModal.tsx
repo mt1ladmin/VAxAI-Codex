@@ -16,7 +16,6 @@ export type CreateOpportunityDefaults = {
   indicative_value_low?: string;
   indicative_value_high?: string;
   probability?: string;
-  next_action?: string;
   expected_decision_date?: string;
   notes?: string;
   organisation_id?: string | null;
@@ -33,7 +32,6 @@ type FormState = {
   indicative_value_low: string;
   indicative_value_high: string;
   probability: string;
-  next_action: string;
   expected_decision_date: string;
   notes: string;
 };
@@ -47,7 +45,6 @@ function defaultsToForm(defaults?: CreateOpportunityDefaults): FormState {
     indicative_value_low: defaults?.indicative_value_low ?? "",
     indicative_value_high: defaults?.indicative_value_high ?? "",
     probability: defaults?.probability ?? "",
-    next_action: defaults?.next_action ?? "",
     expected_decision_date: defaults?.expected_decision_date ?? "",
     notes: defaults?.notes ?? "",
   };
@@ -103,7 +100,6 @@ export function CreateOpportunityModal({
         indicative_value_low: form.indicative_value_low ? parseFloat(form.indicative_value_low) : null,
         indicative_value_high: form.indicative_value_high ? parseFloat(form.indicative_value_high) : null,
         probability: form.probability ? parseInt(form.probability, 10) : null,
-        next_action: form.next_action.trim() || null,
         expected_decision_date: form.expected_decision_date || null,
         notes: form.notes.trim() || null,
         organisation_id: defaults?.organisation_id ?? null,
@@ -256,19 +252,6 @@ export function CreateOpportunityModal({
                 className={inputClass}
               />
             </div>
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
-              Next action
-            </label>
-            <input
-              type="text"
-              value={form.next_action}
-              onChange={(e) => set("next_action", e.target.value)}
-              placeholder="e.g. Send discovery questions"
-              className={inputClass}
-            />
           </div>
 
           <div>

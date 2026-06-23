@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Calendar, ChevronRight, ExternalLink, Pencil, Target } from "lucide-react";
+import { ChevronRight, ExternalLink, Pencil } from "lucide-react";
 import { EditOpportunityModal } from "@/components/admin/EditOpportunityModal";
 import { OpportunityStageSelect } from "@/components/admin/OpportunityStageSelect";
 import { CLIENT_SERVICE_STAGES, isClientServiceStage } from "@/lib/engagement/client-stages";
@@ -93,12 +93,6 @@ export function OpportunityPreviewCard({
           >
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-[#111111] group-hover:text-[#063b32]">{opportunity.title}</p>
-              {opportunity.next_action && (
-                <p className="mt-0.5 text-xs text-[#6f6b62] line-clamp-1">
-                  <Target className="mr-1 inline h-3 w-3" />
-                  {opportunity.next_action}
-                </p>
-              )}
               {openTaskCount != null && openTaskCount > 0 && (
                 <p className="mt-0.5 text-xs text-amber-700">{openTaskCount} open task{openTaskCount === 1 ? "" : "s"}</p>
               )}
@@ -150,23 +144,6 @@ export function OpportunityPreviewCard({
 
         {expanded && !returnTo && (
           <div className="border-t border-[#111111]/10 bg-[#f7f4ea]/30 px-4 py-4 space-y-3">
-            {opportunity.next_action && (
-              <div className="rounded-lg border border-[#111111]/10 bg-white px-3 py-2.5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Next action</p>
-                <p className="mt-1 text-sm text-[#111111]">{opportunity.next_action}</p>
-                {opportunity.expected_decision_date && (
-                  <p className="mt-1 flex items-center gap-1 text-xs text-[#6f6b62]">
-                    <Calendar className="h-3 w-3" />
-                    By{" "}
-                    {new Date(opportunity.expected_decision_date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </p>
-                )}
-              </div>
-            )}
             <div className="flex flex-wrap items-center gap-3 text-xs">
               <span className="text-[#6f6b62]">
                 Updated {new Date(opportunity.updated_at).toLocaleDateString("en-GB")}

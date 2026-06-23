@@ -32,6 +32,12 @@ import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildClientContextSummary } from "@/lib/ai/context-builders";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import {
+  clearLinkedNextAction,
+  collectLinkedNextActions,
+  countOpenWorkItems,
+  patchLinkedNextAction,
+} from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
@@ -297,6 +303,27 @@ function ClientDetailContent() {
   const clientOpps = opportunities.filter((o) => isClientServiceStage(o.stage));
   const primaryOpp = clientOpps[0] ?? null;
   const notesCount = countNotes(contact.notes);
+  const linkedNextActions = collectLinkedNextActions({
+    enquiry: linkedEnquiry,
+    queue: linkedQueue,
+    opportunities,
+  });
+  const openWorkCount = countOpenWorkItems(openTasks, linkedNextActions);
+
+  const handleSaveLinkedNextAction = async (
+    item: (typeof linkedNextActions)[number],
+    payload: { title: string; dueDate: string | null },
+  ) => {
+    await patchLinkedNextAction(item, payload);
+    await loadData();
+    setChatActivityKey((k) => k + 1);
+  };
+
+  const handleCompleteLinkedNextAction = async (item: (typeof linkedNextActions)[number]) => {
+    await clearLinkedNextAction(item);
+    await loadData();
+    setChatActivityKey((k) => k + 1);
+  };
   const lastActivity = linkedEnquiry?.last_action || linkedQueue?.last_action || null;
   const lastActivityDate =
     linkedEnquiry?.last_action_date ||
@@ -318,7 +345,7 @@ function ClientDetailContent() {
     contact.organisation ? `Organisation: ${(contact.organisation as { name: string }).name}` : null,
     primaryOpp ? `Primary service: ${primaryOpp.title} | Stage: ${primaryOpp.stage}` : null,
     primaryOpp?.desired_outcomes ? `Desired outcomes: ${(primaryOpp.desired_outcomes as string).slice(0, 200)}` : null,
-    openTasks.length ? `Open tasks: ${openTasks.length}` : null,
+    openWorkCount ? `Open tasks & actions: ${openWorkCount}` : null,
     contact.notes ? `Notes: ${(contact.notes as string).slice(0, 300)}` : null,
   ].filter(Boolean).join("\n");
 
@@ -349,9 +376,9 @@ function ClientDetailContent() {
               }`}
             >
               {tab.label}
-              {tab.id === "tasks" && openTasks.length > 0 && (
+              {tab.id === "tasks" && openWorkCount > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
-                  {openTasks.length}
+                  {openWorkCount}
                 </span>
               )}
               {tab.id === "opportunities" && opportunities.length > 0 && (
@@ -468,8 +495,8 @@ function ClientDetailContent() {
                   onClick={() => setActiveTab("tasks")}
                   className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
                 >
-                  <p className="text-2xl font-bold text-[#111111]">{openTasks.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks</p>
+                  <p className="text-2xl font-bold text-[#111111]">{openWorkCount}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks &amp; actions</p>
                 </button>
                 <button
                   type="button"
@@ -519,24 +546,6 @@ function ClientDetailContent() {
                 >
                   <Plus className="h-4 w-4" /> Add task
                 </button>
-              </div>
-
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">
-                  Next action
-                </p>
-                {primaryOpp?.next_action ? (
-                  <div>
-                    <p className="text-sm text-[#111111]">{primaryOpp.next_action}</p>
-                    {primaryOpp.expected_decision_date && (
-                      <p className="mt-1 text-xs text-[#6f6b62]">
-                        By {new Date(primaryOpp.expected_decision_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
-                      </p>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm text-[#6f6b62]/50">No next action set.</p>
-                )}
               </div>
 
               {primaryOpp && (
@@ -778,6 +787,7 @@ function ClientDetailContent() {
                 entityLabel={contact.first_name}
                 openTasks={openTasks}
                 doneTasks={doneTasks}
+                linkedNextActions={linkedNextActions}
                 addingTask={addingTask}
                 setAddingTask={setAddingTask}
                 taskForm={taskForm}
@@ -785,6 +795,8 @@ function ClientDetailContent() {
                 savingTask={savingTask}
                 onCreateTask={createTask}
                 onMarkDone={markTaskDone}
+                onSaveLinkedNextAction={handleSaveLinkedNextAction}
+                onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
                 showDone={showDone}
                 setShowDone={setShowDone}
               />

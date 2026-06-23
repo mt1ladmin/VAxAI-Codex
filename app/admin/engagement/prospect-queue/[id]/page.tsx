@@ -49,6 +49,12 @@ import { sectorGuidancePath } from "@/lib/engagement/sector-guidance";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import type { SectorProfile } from "@/lib/engagement/types";
 import { useStudioAccess } from "@/lib/studio-access-context";
+import {
+  clearLinkedNextAction,
+  collectLinkedNextActions,
+  countOpenWorkItems,
+  patchLinkedNextAction,
+} from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
 import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
@@ -74,10 +80,6 @@ function ProspectDetailContent() {
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [statusError, setStatusError] = useState<string | null>(null);
-  const [editingNextAction, setEditingNextAction] = useState(false);
-  const [nextAction, setNextAction] = useState("");
-  const [nextActionDate, setNextActionDate] = useState("");
-  const [savingAction, setSavingAction] = useState(false);
   const [showAddNote, setShowAddNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
@@ -215,8 +217,6 @@ function ProspectDetailContent() {
         return;
       }
       setEntry(j.data);
-      setNextAction(j.data.next_action || "");
-      setNextActionDate(j.data.next_action_date?.split("T")[0] || "");
       setContactForm({
         raw_contact_name: j.data.raw_contact_name || (j.data.contact ? `${j.data.contact.first_name} ${j.data.contact.last_name || ""}`.trim() : ""),
         raw_email: j.data.raw_email || j.data.contact?.professional_email || "",
@@ -282,17 +282,6 @@ function ProspectDetailContent() {
     } finally {
       setUpdatingStatus(false);
     }
-  };
-
-  const saveNextAction = async () => {
-    setSavingAction(true);
-    await patchEntry({
-      next_action: nextAction,
-      next_action_date: nextActionDate || null,
-    });
-    setEditingNextAction(false);
-    setSavingAction(false);
-    bumpTimeline();
   };
 
   const saveContact = async () => {
@@ -427,6 +416,24 @@ function ProspectDetailContent() {
     : entry.raw_contact_name || null;
   const email = entry.contact?.professional_email || entry.raw_email;
   const notesCount = countNotes(entry.raw_notes);
+  const linkedNextActions = collectLinkedNextActions({ queue: entry, opportunities });
+  const openWorkCount = countOpenWorkItems(openTasks, linkedNextActions);
+
+  const handleSaveLinkedNextAction = async (
+    item: (typeof linkedNextActions)[number],
+    payload: { title: string; dueDate: string | null },
+  ) => {
+    await patchLinkedNextAction(item, payload);
+    await load();
+    bumpTimeline();
+  };
+
+  const handleCompleteLinkedNextAction = async (item: (typeof linkedNextActions)[number]) => {
+    await clearLinkedNextAction(item);
+    await load();
+    bumpTimeline();
+  };
+
   const clientOpportunity = opportunities.find((o) =>
     ["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"].includes(o.stage)
   ) ?? null;
@@ -448,7 +455,6 @@ function ProspectDetailContent() {
         contactEmail={email || ""}
         contactPhone={entry.raw_phone}
         supportType={entry.raw_industry || entry.organisation?.industry || "Prospect queue"}
-        defaultNextAction={entry.next_action}
         existingContactId={entry.contact_id}
         existingOrgId={entry.organisation_id}
       />
@@ -466,8 +472,6 @@ function ProspectDetailContent() {
           stage: createOppPresetStage ?? "Identified",
           desired_outcomes: outreachData?.need_rationale ?? entry.raw_notes ?? "",
           notes: outreachData ? outreachSummaryForConversion(outreachData) : entry.raw_notes ?? "",
-          next_action: entry.next_action ?? "",
-          expected_decision_date: entry.next_action_date?.split("T")[0] ?? "",
           organisation_id: entry.organisation_id,
           primary_contact_id: entry.contact_id,
           queue_id: entry.id,
@@ -543,8 +547,8 @@ function ProspectDetailContent() {
               }`}
             >
               {tab.label}
-              {tab.id === "tasks" && openTasks.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openTasks.length}</span>
+              {tab.id === "tasks" && openWorkCount > 0 && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openWorkCount}</span>
               )}
               {tab.id === "opportunities" && opportunities.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">{opportunities.length}</span>
@@ -729,8 +733,8 @@ function ProspectDetailContent() {
 
               <div className="grid gap-3 sm:grid-cols-3">
                 <button type="button" onClick={() => setActiveTab("tasks")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{openTasks.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks</p>
+                  <p className="text-2xl font-bold text-[#111111]">{openWorkCount}</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks &amp; actions</p>
                 </button>
                 <button type="button" onClick={() => setActiveTab("opportunities")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
@@ -752,38 +756,6 @@ function ProspectDetailContent() {
                 <button type="button" onClick={() => { setActiveTab("tasks"); setAddingTask(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
                   <Plus className="h-4 w-4" /> Add task
                 </button>
-              </div>
-
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
-                  {!editingNextAction && (
-                    <button type="button" onClick={() => setEditingNextAction(true)} className="text-xs text-[#063b32] hover:underline">
-                      {entry.next_action ? "Edit" : "Add"}
-                    </button>
-                  )}
-                </div>
-                {editingNextAction ? (
-                  <div className="space-y-2">
-                    <input value={nextAction} onChange={(e) => setNextAction(e.target.value)} placeholder="What needs to happen next?" className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
-                    <input type="date" value={nextActionDate} onChange={(e) => setNextActionDate(e.target.value)} className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
-                    <div className="flex gap-2">
-                      <button type="button" onClick={() => void saveNextAction()} disabled={savingAction} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
-                        {savingAction ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
-                      </button>
-                      <button type="button" onClick={() => { setEditingNextAction(false); setNextAction(entry.next_action || ""); setNextActionDate(entry.next_action_date?.split("T")[0] || ""); }} className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
-                    </div>
-                  </div>
-                ) : entry.next_action ? (
-                  <div>
-                    <p className="text-sm text-[#111111]">{entry.next_action}</p>
-                    {entry.next_action_date && (
-                      <p className="mt-1 text-xs text-[#6f6b62]">By {new Date(entry.next_action_date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
-                    )}
-                  </div>
-                ) : (
-                  <p className="text-sm text-[#6f6b62]/50">No next action set.</p>
-                )}
               </div>
 
               {researchDraft && (
@@ -862,6 +834,7 @@ function ProspectDetailContent() {
                 entityLabel={orgName}
                 openTasks={openTasks}
                 doneTasks={doneTasks}
+                linkedNextActions={linkedNextActions}
                 addingTask={addingTask}
                 setAddingTask={setAddingTask}
                 taskForm={taskForm}
@@ -869,6 +842,8 @@ function ProspectDetailContent() {
                 savingTask={savingTask}
                 onCreateTask={createTask}
                 onMarkDone={markTaskDone}
+                onSaveLinkedNextAction={handleSaveLinkedNextAction}
+                onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
                 showDone={showDone}
                 setShowDone={setShowDone}
               />
