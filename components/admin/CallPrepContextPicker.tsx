@@ -5,11 +5,11 @@ import { Loader2, Search, X, Zap } from "lucide-react";
 import type { PainPoint, Persona, SectorProfile } from "@/lib/engagement/types";
 
 type CallPrepContextPickerProps = {
-  sector: SectorProfile | null;
-  persona: Persona | null;
+  sectors: SectorProfile[];
+  personas: Persona[];
   painPoints: PainPoint[];
-  onSectorChange: (sector: SectorProfile | null) => void;
-  onPersonaChange: (persona: Persona | null) => void;
+  onSectorsChange: (sectors: SectorProfile[]) => void;
+  onPersonasChange: (personas: Persona[]) => void;
   onPainPointsChange: (painPoints: PainPoint[]) => void;
 };
 
@@ -25,11 +25,11 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
 }
 
 export function CallPrepContextPicker({
-  sector,
-  persona,
+  sectors,
+  personas,
   painPoints,
-  onSectorChange,
-  onPersonaChange,
+  onSectorsChange,
+  onPersonasChange,
   onPainPointsChange,
 }: CallPrepContextPickerProps) {
   const [sectorSearch, setSectorSearch] = useState("");
@@ -47,12 +47,16 @@ export function CallPrepContextPicker({
         setLoading("sector");
         const res = await fetch(`/api/admin/engagement/sectors?q=${encodeURIComponent(sectorSearch.trim())}`);
         const j = await res.json() as { data?: SectorProfile[] };
-        setSectorResults((j.data || []).slice(0, 6));
+        setSectorResults(
+          (j.data || [])
+            .filter((s) => !sectors.some((x) => x.id === s.id))
+            .slice(0, 6),
+        );
         setLoading(null);
       })();
     }, 250);
     return () => clearTimeout(t);
-  }, [sectorSearch]);
+  }, [sectorSearch, sectors]);
 
   useEffect(() => {
     if (!personaSearch.trim()) { setPersonaResults([]); return; }
@@ -61,12 +65,16 @@ export function CallPrepContextPicker({
         setLoading("persona");
         const res = await fetch(`/api/admin/engagement/personas?q=${encodeURIComponent(personaSearch.trim())}`);
         const j = await res.json() as { data?: Persona[] };
-        setPersonaResults((j.data || []).slice(0, 6));
+        setPersonaResults(
+          (j.data || [])
+            .filter((p) => !personas.some((x) => x.id === p.id))
+            .slice(0, 6),
+        );
         setLoading(null);
       })();
     }, 250);
     return () => clearTimeout(t);
-  }, [personaSearch]);
+  }, [personaSearch, personas]);
 
   useEffect(() => {
     if (!painSearch.trim()) { setPainResults([]); return; }
@@ -74,7 +82,6 @@ export function CallPrepContextPicker({
       void (async () => {
         setLoading("pain");
         const params = new URLSearchParams({ q: painSearch.trim() });
-        if (sector?.name) params.set("sector", sector.name);
         const res = await fetch(`/api/admin/engagement/pain-points?${params}`);
         const j = await res.json() as { data?: PainPoint[] };
         setPainResults((j.data || []).filter((p) => !painPoints.some((x) => x.id === p.id)).slice(0, 6));
@@ -82,7 +89,7 @@ export function CallPrepContextPicker({
       })();
     }, 250);
     return () => clearTimeout(t);
-  }, [painSearch, sector, painPoints]);
+  }, [painSearch, painPoints]);
 
   const SearchField = ({
     label,
@@ -122,20 +129,29 @@ export function CallPrepContextPicker({
       <div>
         <p className="text-xs font-semibold text-[#111111]">Call context</p>
         <p className="mt-0.5 text-xs text-[#6f6b62]">
-          Add sector, persona, and pain points to help the assistant understand this call.
+          Add sectors, personas, and pain points to help the assistant understand this call.
         </p>
       </div>
 
-      <SearchField id="sector" label="Sector" value={sectorSearch} onChange={setSectorSearch} placeholder="Search sectors…" />
-      {sector ? (
-        <Chip label={sector.name} onRemove={() => onSectorChange(null)} />
-      ) : sectorResults.length > 0 && (
+      <SearchField id="sector" label="Sectors" value={sectorSearch} onChange={setSectorSearch} placeholder="Search and add sectors…" />
+      {sectors.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {sectors.map((s) => (
+            <Chip
+              key={s.id}
+              label={s.name}
+              onRemove={() => onSectorsChange(sectors.filter((x) => x.id !== s.id))}
+            />
+          ))}
+        </div>
+      )}
+      {sectorResults.length > 0 && (
         <div className="rounded-lg border border-[#111111]/10 bg-white overflow-hidden">
           {sectorResults.map((s) => (
             <button
               key={s.id}
               type="button"
-              onClick={() => { onSectorChange(s); setSectorSearch(""); setSectorResults([]); }}
+              onClick={() => { onSectorsChange([...sectors, s]); setSectorSearch(""); setSectorResults([]); }}
               className="w-full px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
             >
               {s.name}
@@ -144,16 +160,25 @@ export function CallPrepContextPicker({
         </div>
       )}
 
-      <SearchField id="persona" label="Persona" value={personaSearch} onChange={setPersonaSearch} placeholder="Search personas…" />
-      {persona ? (
-        <Chip label={persona.persona_name} onRemove={() => onPersonaChange(null)} />
-      ) : personaResults.length > 0 && (
+      <SearchField id="persona" label="Personas" value={personaSearch} onChange={setPersonaSearch} placeholder="Search and add personas…" />
+      {personas.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {personas.map((p) => (
+            <Chip
+              key={p.id}
+              label={p.persona_name}
+              onRemove={() => onPersonasChange(personas.filter((x) => x.id !== p.id))}
+            />
+          ))}
+        </div>
+      )}
+      {personaResults.length > 0 && (
         <div className="rounded-lg border border-[#111111]/10 bg-white overflow-hidden">
           {personaResults.map((p) => (
             <button
               key={p.id}
               type="button"
-              onClick={() => { onPersonaChange(p); setPersonaSearch(""); setPersonaResults([]); }}
+              onClick={() => { onPersonasChange([...personas, p]); setPersonaSearch(""); setPersonaResults([]); }}
               className="w-full px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
             >
               {p.persona_name}
@@ -162,7 +187,7 @@ export function CallPrepContextPicker({
         </div>
       )}
 
-      <SearchField id="pain" label="Pain points" value={painSearch} onChange={setPainSearch} placeholder="Search pain points…" />
+      <SearchField id="pain" label="Pain points" value={painSearch} onChange={setPainSearch} placeholder="Search and add pain points…" />
       {painPoints.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {painPoints.map((pp) => (

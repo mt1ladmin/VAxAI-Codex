@@ -239,8 +239,8 @@ function LiveCallAssistInner() {
   const [linkLoadingId, setLinkLoadingId] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<CallAssistChatMessage[]>([]);
   const [callSessionKey, setCallSessionKey] = useState(0);
-  const [prepSector, setPrepSector] = useState<SectorProfile | null>(null);
-  const [prepPersona, setPrepPersona] = useState<Persona | null>(null);
+  const [prepSectors, setPrepSectors] = useState<SectorProfile[]>([]);
+  const [prepPersonas, setPrepPersonas] = useState<Persona[]>([]);
   const [prepPainPoints, setPrepPainPoints] = useState<PainPoint[]>([]);
   const [showTranscriptModal, setShowTranscriptModal] = useState(false);
   const noteRef = useRef<HTMLTextAreaElement>(null);
@@ -256,12 +256,14 @@ function LiveCallAssistInner() {
       : [];
     return {
       ...queueContext,
-      sector: prepSector || queueContext.sector,
-      persona: prepPersona || queueContext.persona,
+      sector: prepSectors[0] || queueContext.sector,
+      persona: prepPersonas[0] || queueContext.persona,
+      sectors: prepSectors,
+      personas: prepPersonas,
       customCards: [...(queueContext.customCards || []), ...painCards],
       prospectPreps: loadedPreps,
     };
-  }, [queueContext, prepSector, prepPersona, prepPainPoints, loadedPreps]);
+  }, [queueContext, prepSectors, prepPersonas, prepPainPoints, loadedPreps]);
 
   const formatChatTranscript = useCallback((msgs: CallAssistChatMessage[]) => {
     return msgs
@@ -356,8 +358,8 @@ function LiveCallAssistInner() {
     setSelectedOrg(null);
     setSelectedContact(null);
     setLoadedPreps([]);
-    setPrepSector(null);
-    setPrepPersona(null);
+    setPrepSectors([]);
+    setPrepPersonas([]);
     setPrepPainPoints([]);
     setLinkSearch("");
     setLinkResults([]);
@@ -1128,11 +1130,11 @@ function LiveCallAssistInner() {
 
                 {hasRequiredConnection && (
                   <CallPrepContextPicker
-                    sector={prepSector}
-                    persona={prepPersona}
+                    sectors={prepSectors}
+                    personas={prepPersonas}
                     painPoints={prepPainPoints}
-                    onSectorChange={setPrepSector}
-                    onPersonaChange={setPrepPersona}
+                    onSectorsChange={setPrepSectors}
+                    onPersonasChange={setPrepPersonas}
                     onPainPointsChange={setPrepPainPoints}
                   />
                 )}
@@ -1212,18 +1214,18 @@ function LiveCallAssistInner() {
                     <p className="mt-0.5 text-[#111111]">{elapsed}</p>
                   </div>
                 </div>
-                {(prepSector || prepPersona || prepPainPoints.length > 0) && (
+                {(prepSectors.length > 0 || prepPersonas.length > 0 || prepPainPoints.length > 0) && (
                   <div className="mt-4 pt-4 border-t border-[#111111]/10 flex flex-wrap gap-2">
-                    {prepSector && (
-                      <span className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62]">
-                        {prepSector.name}
+                    {prepSectors.map((s) => (
+                      <span key={s.id} className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62]">
+                        {s.name}
                       </span>
-                    )}
-                    {prepPersona && (
-                      <span className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62]">
-                        {prepPersona.persona_name}
+                    ))}
+                    {prepPersonas.map((p) => (
+                      <span key={p.id} className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62]">
+                        {p.persona_name}
                       </span>
-                    )}
+                    ))}
                     {prepPainPoints.map((pp) => (
                       <span key={pp.id} className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-[10px] font-semibold text-amber-700">
                         {pp.title}

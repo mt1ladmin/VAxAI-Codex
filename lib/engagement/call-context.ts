@@ -36,6 +36,8 @@ export type ProspectCallContext = {
   nextActionDate: string | null;
   sector?: SectorProfile | null;
   persona?: Persona | null;
+  sectors?: SectorProfile[];
+  personas?: Persona[];
   aiPrepCards: PrepCard[];
   prospectPreps: ProspectPrepClient[];
   customCards: CustomCard[];

@@ -28,8 +28,16 @@ function compactContext(ctx: ProspectCallContext): string {
     ctx.industry ? `Industry: ${ctx.industry}` : null,
     ctx.nextAction ? `Next action: ${ctx.nextAction}` : null,
     ctx.nextActionDate ? `Next action date: ${ctx.nextActionDate}` : null,
-    ctx.sector ? `Sector: ${ctx.sector.name}` : null,
-    ctx.persona ? `Persona: ${ctx.persona.persona_name}` : null,
+    ctx.sectors?.length
+      ? `Sectors: ${ctx.sectors.map((s) => s.name).join(", ")}`
+      : ctx.sector
+        ? `Sector: ${ctx.sector.name}`
+        : null,
+    ctx.personas?.length
+      ? `Personas: ${ctx.personas.map((p) => p.persona_name).join(", ")}`
+      : ctx.persona
+        ? `Persona: ${ctx.persona.persona_name}`
+        : null,
     ctx.notes ? `Notes: ${ctx.notes.slice(0, 500)}` : null,
   ].filter(Boolean);
   return lines.join("\n");
@@ -179,15 +187,26 @@ export async function POST(req: NextRequest) {
   }
 
   const db = createServiceClient();
-  const sectorHint = callContext.sector?.name || callContext.industry || "";
-  const personaHint = callContext.persona?.persona_name || "";
+  const sectorIds = [
+    ...(callContext.sectors?.map((s) => s.id) || []),
+    ...(callContext.sector?.id ? [callContext.sector.id] : []),
+  ].filter((id, i, arr) => arr.indexOf(id) === i);
+  const personaIds = [
+    ...(callContext.personas?.map((p) => p.id) || []),
+    ...(callContext.persona?.id ? [callContext.persona.id] : []),
+  ].filter((id, i, arr) => arr.indexOf(id) === i);
+  const sectorHints = [
+    ...(callContext.sectors?.map((s) => s.name) || []),
+    ...(callContext.sector?.name ? [callContext.sector.name] : []),
+    ...(callContext.industry ? [callContext.industry] : []),
+  ].filter((name, i, arr) => arr.indexOf(name) === i);
 
   const painQuery = db.from("engagement_pain_points").select("title, category, plain_english_definition, natural_questions, what_not_assume, relevant_sectors").limit(40);
-  const sectorQuery = sectorHint
-    ? db.from("engagement_sector_profiles").select("name, description, typical_pressures, engagement_approach").ilike("name", `%${sectorHint}%`).limit(3)
+  const sectorQuery = sectorIds.length
+    ? db.from("engagement_sector_profiles").select("name, description, typical_pressures, engagement_approach").in("id", sectorIds).limit(10)
     : db.from("engagement_sector_profiles").select("name, description, typical_pressures, engagement_approach").limit(0);
-  const personaQuery = personaHint
-    ? db.from("engagement_personas").select("persona_name, role_context, motivations, concerns, communication_style").ilike("persona_name", `%${personaHint}%`).limit(2)
+  const personaQuery = personaIds.length
+    ? db.from("engagement_personas").select("persona_name, role_context, motivations, concerns, communication_style").in("id", personaIds).limit(10)
     : db.from("engagement_personas").select("persona_name, role_context, motivations, concerns, communication_style").limit(0);
 
   const [painRes, sectorRes, personaRes, vatRes, accountContext] = await Promise.all([
@@ -199,10 +218,13 @@ export async function POST(req: NextRequest) {
   ]);
 
   const relevantPains = (painRes.data || []).filter((pp) => {
-    if (!sectorHint) return false;
+    if (!sectorHints.length) return false;
     const sectors = (pp.relevant_sectors as string[] | null) || [];
-    return sectors.some((s) => s.toLowerCase().includes(sectorHint.toLowerCase())) ||
-      (pp.title as string).toLowerCase().includes(sectorHint.toLowerCase());
+    const title = (pp.title as string).toLowerCase();
+    return sectorHints.some((hint) => {
+      const h = hint.toLowerCase();
+      return sectors.some((s) => s.toLowerCase().includes(h)) || title.includes(h);
+    });
   }).slice(0, 12);
 
   const painBlock = relevantPains.length
