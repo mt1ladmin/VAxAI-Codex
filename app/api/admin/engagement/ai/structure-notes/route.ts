@@ -4,8 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 const client = new Anthropic();
 
 export async function POST(req: NextRequest) {
-  const { rawNotes, callContext } = await req.json() as {
-    rawNotes: string;
+  const { rawNotes, chatMessages, callContext } = await req.json() as {
+    rawNotes?: string;
+    chatMessages?: Array<{ role: string; content: string }>;
     callContext?: {
       contactName?: string;
       orgName?: string;
@@ -14,13 +15,21 @@ export async function POST(req: NextRequest) {
     };
   };
 
-  if (!rawNotes?.trim()) return NextResponse.json({ error: "No notes provided" }, { status: 400 });
+  const transcript = chatMessages?.length
+    ? chatMessages
+        .map((m) => `${m.role === "user" ? "Consultant" : "Assistant"}: ${m.content}`)
+        .join("\n\n")
+    : rawNotes?.trim() || "";
 
-  // Usefulness gate + efficiency for "structure-notes" AI area (used mid/post live call)
-  const noteLen = rawNotes.trim().length;
+  if (!transcript) return NextResponse.json({ error: "No conversation or notes provided" }, { status: 400 });
+
+  const noteLen = transcript.length;
   if (noteLen < 30) {
     return NextResponse.json({ data: {
-      call_summary: rawNotes.trim(),
+      call_summary: transcript,
+      captured_notes: [],
+      client_commitments: [],
+      open_questions: [],
       confirmed_pain_points: [],
       possible_pain_points: [],
       current_tools_mentioned: [],
@@ -30,7 +39,7 @@ export async function POST(req: NextRequest) {
       follow_up_tasks: [],
       possible_vaxai_support: [],
       trust_concerns: [],
-      questions_raised: []
+      questions_raised: [],
     }});
   }
 
@@ -41,14 +50,14 @@ export async function POST(req: NextRequest) {
     max_tokens: 800,
     messages: [{
       role: "user",
-      content: `You are helping a Virtual Assistant consultant structure rough notes taken during a call.
+      content: `You are helping a Virtual Assistant consultant structure a live call conversation into an accurate record.
 
 CRITICAL RULES:
-- Original notes are ALWAYS preserved (the user keeps them)
-- Never convert uncertain or possible things into confirmed facts
-- Clearly mark anything as "possible" or "mentioned, not confirmed" unless it was explicitly stated as fact
-- Do not invent, assume, or extrapolate beyond what the notes say
-- Use hedged language: "they mentioned...", "it sounds like...", "worth confirming whether..."
+- The full conversation transcript is preserved separately — your job is to extract and organise
+- Never convert uncertain things into confirmed facts
+- Distinguish clearly between: general notes, commitments the client/prospect made, and open questions
+- Consultant messages often contain live notes — treat those as primary source for commitments and questions
+- Do not invent facts beyond the transcript
 
 Call context:
 Contact: ${callContext?.contactName || "not recorded"}
@@ -56,24 +65,27 @@ Organisation: ${callContext?.orgName || "not recorded"}
 Call type: ${callContext?.callType || "not specified"}
 Duration: ${callContext?.duration || "not recorded"}
 
-Raw notes from the call:
+Call conversation:
 """
-${rawNotes}
+${transcript}
 """
 
-Structure these notes into a useful call summary. Return as JSON:
+Return as JSON:
 {
-  "call_summary": "2-3 sentence plain summary of what was discussed",
-  "confirmed_pain_points": ["pain points explicitly discussed and acknowledged"],
-  "possible_pain_points": [{"topic": "...", "note": "worth exploring — they mentioned..."}],
-  "current_tools_mentioned": ["tools or systems they mentioned"],
-  "admin_pressures_mentioned": ["admin pressures they mentioned"],
-  "desired_outcomes": ["outcomes or goals they expressed"],
-  "agreed_next_steps": ["steps explicitly agreed during the call"],
-  "follow_up_tasks": ["tasks to do after this call"],
-  "possible_vaxai_support": ["areas where VA/AI support might help — NOT confirmed, worth discussing"],
-  "trust_concerns": ["any concerns about data, privacy, or AI they expressed"],
-  "questions_raised": ["questions they asked or things left unanswered"]
+  "call_summary": "2-4 sentence summary of the call",
+  "captured_notes": ["factual notes and observations from the call"],
+  "client_commitments": ["commitments or agreements made by the client/prospect"],
+  "open_questions": ["questions raised that remain unanswered"],
+  "confirmed_pain_points": ["pain points explicitly discussed"],
+  "possible_pain_points": [{"topic": "...", "note": "worth exploring"}],
+  "current_tools_mentioned": [],
+  "admin_pressures_mentioned": [],
+  "desired_outcomes": [],
+  "agreed_next_steps": ["next steps agreed during the call"],
+  "follow_up_tasks": ["tasks for the consultant after the call"],
+  "possible_vaxai_support": [],
+  "trust_concerns": [],
+  "questions_raised": []
 }`
     }],
   });

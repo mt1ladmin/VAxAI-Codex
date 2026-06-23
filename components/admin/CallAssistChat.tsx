@@ -1,27 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bot, ClipboardList, HelpCircle, Loader2, MessageSquarePlus, Send, Sparkles } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import type { ProspectCallContext, CallAssistChatMessage } from "@/lib/engagement/call-context";
-
-const SUGGESTED_PROMPTS = [
-  "What context do we have on this contact?",
-  "What pain points should I explore for this sector?",
-  "Suggest an opening line for this call",
-  "What VAT questions should I ask?",
-  "Help me draft a new pain point from what they said",
-];
-
-type NoteType = "note" | "commitment" | "question";
 
 type CallAssistChatProps = {
   callContext: ProspectCallContext | null;
   callType: string;
   orgName?: string;
   contactName?: string;
-  recentNotes?: string[];
-  onAddNote?: (text: string, type?: NoteType) => void;
+  messages: CallAssistChatMessage[];
+  onMessagesChange: (messages: CallAssistChatMessage[]) => void;
   className?: string;
+  placeholder?: string;
 };
 
 export function CallAssistChat({
@@ -29,42 +20,37 @@ export function CallAssistChat({
   callType,
   orgName,
   contactName,
-  recentNotes = [],
-  onAddNote,
+  messages,
+  onMessagesChange,
   className = "",
+  placeholder = "Message…",
 }: CallAssistChatProps) {
-  const [messages, setMessages] = useState<CallAssistChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const bootstrapped = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
 
   useEffect(() => {
-    if (callContext && messages.length === 0) {
-      const sourceLabel =
-        callContext.sourceType === "enquiry"
-          ? "website enquiry"
-          : callContext.sourceType === "queue"
-            ? "prospect queue"
-            : callContext.sourceType === "opportunity"
-              ? "opportunity"
-              : "connected record";
-      const greeting: CallAssistChatMessage = {
-        id: "welcome",
-        role: "assistant",
-        content: callContext.orgName
-          ? `Ready for your ${callType} call with **${callContext.orgName}**${callContext.contactName ? ` (${callContext.contactName})` : ""}. Linked to a ${sourceLabel} — ask me for context, pain points, personas, VAT prompts, or what to say next. I pull from the knowledge hub and this record.`
-          : "Ready to assist. Ask about context, pain points, sectors, personas, or call guidance.",
-        timestamp: new Date(),
-      };
-      setMessages([greeting]);
-    }
-  }, [callContext, callType]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!callContext || bootstrapped.current || messages.length > 0) return;
+    bootstrapped.current = true;
+    const label = orgName || callContext.orgName;
+    const contact = contactName || callContext.contactName;
+    const greeting: CallAssistChatMessage = {
+      id: "welcome",
+      role: "assistant",
+      content: label
+        ? `You're on a ${callType} call with ${label}${contact ? ` (${contact})` : ""}. Ask for context, talking points, or type anything you want to capture — I'll help throughout the call.`
+        : "Ask for context or guidance whenever you need it.",
+      timestamp: new Date(),
+    };
+    onMessagesChange([greeting]);
+  }, [callContext, callType, orgName, contactName, messages.length, onMessagesChange]);
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -76,8 +62,8 @@ export function CallAssistChat({
       content: trimmed,
       timestamp: new Date(),
     };
-    const nextMessages = [...messages.filter((m) => m.id !== "welcome"), userMsg];
-    setMessages((prev) => [...prev.filter((m) => m.id !== "welcome"), userMsg]);
+    const history = [...messages.filter((m) => m.id !== "welcome"), userMsg];
+    onMessagesChange([...messages.filter((m) => m.id !== "welcome"), userMsg]);
     setInput("");
     setLoading(true);
     setError(null);
@@ -87,12 +73,11 @@ export function CallAssistChat({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: nextMessages.map((m) => ({ role: m.role, content: m.content })),
+          messages: history.map((m) => ({ role: m.role, content: m.content })),
           callContext,
           callType,
           orgName: orgName || callContext?.orgName,
           contactName: contactName || callContext?.contactName,
-          recentNotes,
         }),
       });
       const json = await res.json() as { data?: { content: string }; error?: string };
@@ -104,7 +89,7 @@ export function CallAssistChat({
         content: json.data?.content || "No response.",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, assistantMsg]);
+      onMessagesChange([...history, assistantMsg]);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Chat failed");
     } finally {
@@ -113,146 +98,68 @@ export function CallAssistChat({
     }
   };
 
-  const saveInputAs = (type: NoteType) => {
-    if (!input.trim() || !onAddNote) return;
-    onAddNote(input.trim(), type);
-    setInput("");
-  };
-
   return (
-    <div className={`flex flex-col h-full ${className}`}>
-      <div className="flex items-center gap-2 border-b border-[#111111]/10 px-5 py-3 shrink-0 bg-white">
-        <div className="grid h-8 w-8 place-items-center rounded-full bg-violet-100">
-          <Bot className="h-4 w-4 text-violet-600" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-[#111111]">Call assistant</p>
-          <p className="text-[10px] text-[#6f6b62]">Knowledge hub + connected record context</p>
-        </div>
-      </div>
-
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-3 min-h-0 bg-[#faf9f6]">
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`rounded-xl px-4 py-3 text-sm ${
-              msg.role === "user"
-                ? "ml-8 bg-[#063b32] text-white"
-                : "mr-4 bg-white border border-[#111111]/10 text-[#111111] shadow-sm"
-            }`}
-          >
-            <p className="whitespace-pre-wrap leading-relaxed">{msg.content.replace(/\*\*(.*?)\*\*/g, "$1")}</p>
-            {msg.role === "assistant" && onAddNote && msg.id !== "welcome" && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => onAddNote(msg.content.slice(0, 500), "note")}
-                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
-                >
-                  <MessageSquarePlus className="h-3 w-3" /> Note
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onAddNote(msg.content.slice(0, 500), "commitment")}
-                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 hover:underline"
-                >
-                  <ClipboardList className="h-3 w-3" /> Commitment
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onAddNote(msg.content.slice(0, 500), "question")}
-                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700 hover:underline"
-                >
-                  <HelpCircle className="h-3 w-3" /> Question
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
-        {loading && (
-          <div className="flex items-center gap-2 rounded-xl bg-violet-50 border border-violet-200 px-4 py-3 text-xs text-violet-700">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" /> Thinking…
-          </div>
-        )}
-        {error && (
-          <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
-        )}
-      </div>
-
-      {messages.length <= 1 && (
-        <div className="px-5 pb-2 flex flex-wrap gap-1.5 shrink-0 bg-[#faf9f6]">
-          {SUGGESTED_PROMPTS.map((prompt) => (
-            <button
-              key={prompt}
-              type="button"
-              onClick={() => void sendMessage(prompt)}
-              className="rounded-full border border-violet-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-violet-700 hover:bg-violet-50"
+    <div className={`flex flex-col h-full bg-white ${className}`}>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0">
+        <div className="mx-auto max-w-3xl px-6 py-8 space-y-6">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {prompt}
-            </button>
+              <div
+                className={`max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
+                  msg.role === "user"
+                    ? "bg-[#063b32] text-white"
+                    : "bg-[#f7f4ea] text-[#111111]"
+                }`}
+              >
+                <p className="whitespace-pre-wrap">{msg.content}</p>
+              </div>
+            </div>
           ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="flex items-center gap-2 rounded-2xl bg-[#f7f4ea] px-4 py-3 text-sm text-[#6f6b62]">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Thinking…
+              </div>
+            </div>
+          )}
+          {error && (
+            <p className="text-sm text-red-600 text-center">{error}</p>
+          )}
         </div>
-      )}
+      </div>
 
-      <div className="border-t border-[#111111]/10 p-4 shrink-0 bg-white">
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              void sendMessage(input);
-            }
-          }}
-          placeholder="Ask about context, pain points, what to say, or help drafting…"
-          rows={3}
-          className="w-full resize-none rounded-lg border border-[#111111]/15 px-3 py-2.5 text-sm outline-none focus:border-[#063b32]"
-        />
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5">
-            {onAddNote && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => saveInputAs("note")}
-                  disabled={!input.trim()}
-                  className="rounded-full border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62] hover:border-[#063b32]/30 disabled:opacity-40"
-                >
-                  Save as note
-                </button>
-                <button
-                  type="button"
-                  onClick={() => saveInputAs("commitment")}
-                  disabled={!input.trim()}
-                  className="rounded-full border border-emerald-200 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-40"
-                >
-                  Save commitment
-                </button>
-                <button
-                  type="button"
-                  onClick={() => saveInputAs("question")}
-                  disabled={!input.trim()}
-                  className="rounded-full border border-blue-200 px-2.5 py-1 text-[10px] font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-40"
-                >
-                  Save question
-                </button>
-              </>
-            )}
+      <div className="shrink-0 border-t border-[#111111]/10 bg-white">
+        <div className="mx-auto max-w-3xl px-6 py-4">
+          <div className="flex items-end gap-3 rounded-2xl border border-[#111111]/15 bg-white px-4 py-3 shadow-sm focus-within:border-[#063b32]/40 transition-colors">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void sendMessage(input);
+                }
+              }}
+              placeholder={placeholder}
+              rows={1}
+              className="flex-1 resize-none bg-transparent text-[15px] text-[#111111] outline-none placeholder:text-[#6f6b62]/60 min-h-[24px] max-h-32"
+              style={{ fieldSizing: "content" } as React.CSSProperties}
+            />
+            <button
+              type="button"
+              onClick={() => void sendMessage(input)}
+              disabled={!input.trim() || loading}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#063b32] text-white hover:bg-[#1a5c42] disabled:opacity-30 transition-colors"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => void sendMessage(input)}
-            disabled={!input.trim() || loading}
-            className="flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-40"
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            Send
-          </button>
         </div>
-        <p className="mt-2 flex items-center gap-1 text-[9px] text-[#6f6b62]">
-          <Sparkles className="h-3 w-3" /> Haiku · knowledge hub + DB context
-        </p>
       </div>
     </div>
   );

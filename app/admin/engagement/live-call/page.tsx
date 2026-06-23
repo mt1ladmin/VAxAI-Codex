@@ -27,7 +27,8 @@ import {
   Zap,
 } from "lucide-react";
 import { CallAssistChat } from "@/components/admin/CallAssistChat";
-import type { CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
+import { CallPrepContextPicker } from "@/components/admin/CallPrepContextPicker";
+import type { CallAssistChatMessage, CustomCard, ProspectCallContext } from "@/lib/engagement/call-context";
 import {
   buildEnquiryCallContext,
   buildOpportunityCallContext,
@@ -35,7 +36,7 @@ import {
   clearPersistedCallContext,
   persistCallContext,
 } from "@/lib/engagement/live-call-link";
-import type { EngagementContact, EngagementOrganisation, PainPoint, VatPrompt } from "@/lib/engagement/types";
+import type { EngagementContact, EngagementOrganisation, PainPoint, Persona, SectorProfile, VatPrompt } from "@/lib/engagement/types";
 import type { ProspectPrepClient } from "@/lib/engagement/prospect-prep";
 import { CallRecordsContent } from "./call-records-content";
 
@@ -56,6 +57,9 @@ type QuickGuidance = {
 type LiveDraft = { id: string; phrase: string; guidance: QuickGuidance; kept: boolean };
 type StructuredNotes = {
   call_summary: string;
+  captured_notes?: string[];
+  client_commitments?: string[];
+  open_questions?: string[];
   confirmed_pain_points: string[];
   possible_pain_points: Array<{ topic: string; note: string }>;
   current_tools_mentioned: string[];
@@ -233,7 +237,44 @@ function LiveCallAssistInner() {
   const [linkResults, setLinkResults] = useState<LinkSearchResult[]>([]);
   const [linkSearching, setLinkSearching] = useState(false);
   const [linkLoadingId, setLinkLoadingId] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<CallAssistChatMessage[]>([]);
+  const [callSessionKey, setCallSessionKey] = useState(0);
+  const [prepSector, setPrepSector] = useState<SectorProfile | null>(null);
+  const [prepPersona, setPrepPersona] = useState<Persona | null>(null);
+  const [prepPainPoints, setPrepPainPoints] = useState<PainPoint[]>([]);
+  const [showTranscriptModal, setShowTranscriptModal] = useState(false);
   const noteRef = useRef<HTMLTextAreaElement>(null);
+
+  const getSessionCallContext = useCallback((): ProspectCallContext | null => {
+    if (!queueContext) return null;
+    const painCards: CustomCard[] = prepPainPoints.length > 0
+      ? [{
+          id: "prep-pain-points",
+          title: "Pain points to explore",
+          content: prepPainPoints.map((p) => `• ${p.title}`).join("\n"),
+        }]
+      : [];
+    return {
+      ...queueContext,
+      sector: prepSector || queueContext.sector,
+      persona: prepPersona || queueContext.persona,
+      customCards: [...(queueContext.customCards || []), ...painCards],
+      prospectPreps: loadedPreps,
+    };
+  }, [queueContext, prepSector, prepPersona, prepPainPoints, loadedPreps]);
+
+  const formatChatTranscript = useCallback((msgs: CallAssistChatMessage[]) => {
+    return msgs
+      .filter((m) => m.id !== "welcome")
+      .map((m) => {
+        const who = m.role === "user" ? "You" : "Assistant";
+        const time = m.timestamp instanceof Date
+          ? m.timestamp.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+          : "";
+        return `[${time}] ${who}: ${m.content}`;
+      })
+      .join("\n\n");
+  }, []);
 
   const toggleContextSection = (key: string) => {
     setExpandedContext((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -315,6 +356,9 @@ function LiveCallAssistInner() {
     setSelectedOrg(null);
     setSelectedContact(null);
     setLoadedPreps([]);
+    setPrepSector(null);
+    setPrepPersona(null);
+    setPrepPainPoints([]);
     setLinkSearch("");
     setLinkResults([]);
   }, []);
@@ -682,20 +726,20 @@ function LiveCallAssistInner() {
   };
 
   const structureNotes = async () => {
-    if (!notes.length) return;
+    const conversation = chatMessages.filter((m) => m.id !== "welcome");
+    if (!conversation.length) return;
     setStructuring(true);
     setStructureError(null);
     try {
-      const rawNotes = notes.map(n => `[${noteTypeLabel[n.type]}] ${n.text}`).join("\n");
-      setRawNotesSnapshot(rawNotes);
+      setRawNotesSnapshot(formatChatTranscript(chatMessages));
       const res = await fetch("/api/admin/engagement/ai/structure-notes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rawNotes,
+          chatMessages: conversation.map((m) => ({ role: m.role, content: m.content })),
           callContext: {
-            contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : undefined,
-            orgName: selectedOrg?.name,
+            contactName: selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : queueContext?.contactName || undefined,
+            orgName: selectedOrg?.name || queueContext?.orgName,
             callType,
             duration: elapsed,
           },
@@ -720,7 +764,8 @@ function LiveCallAssistInner() {
     setFollowUpError(null);
     try {
       const summary = structuredNotes?.call_summary ||
-        notes.map(n => n.text).join(". ");
+        editedSummary ||
+        formatChatTranscript(chatMessages);
       const nextSteps = structuredNotes?.agreed_next_steps || [];
       const res = await fetch("/api/admin/engagement/ai/follow-up-draft", {
         method: "POST",
@@ -748,13 +793,15 @@ function LiveCallAssistInner() {
   };
 
   const startCall = () => {
-    if (!queueContext) return;
-    persistCallContext(queueContext);
-    setNotes([]);
-    setNoteText("");
-    setSelectedPainPoints([]);
-    setLiveDrafts([]);
-    setAiMatches([]);
+    const ctx = getSessionCallContext();
+    if (!ctx) return;
+    setQueueContext(ctx);
+    persistCallContext(ctx);
+    setChatMessages([]);
+    setCallSessionKey((k) => k + 1);
+    setStructuredNotes(null);
+    setShowSummary(false);
+    setSummaryApproved(false);
     setPageTab("live_call");
     setCallState("active");
     setCallStartTime(new Date());
@@ -769,13 +816,21 @@ function LiveCallAssistInner() {
     if (!summaryApproved) return;
     setSaving(true);
     try {
-      const fullNotes = notes.map((n) => `[${n.timestamp.toLocaleTimeString()}] ${n.text}`).join("\n");
+      const fullNotes = formatChatTranscript(chatMessages);
+      const painIds = [
+        ...prepPainPoints.map((p) => p.id),
+        ...(structuredNotes?.confirmed_pain_points?.length ? [] : []),
+      ];
       const finalSummary = editedSummary ||
         structuredNotes?.call_summary ||
-        `Call with ${selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : "unknown contact"} (${callType}). Duration: ${elapsed}. Pain points: ${selectedPainPoints.map((p) => p.title).join(", ") || "none identified"}.`;
+        `Call with ${queueContext?.contactName || "contact"} at ${queueContext?.orgName || "organisation"} (${callType}). Duration: ${elapsed}.`;
 
       const aiData = structuredNotes ? {
         call_summary: finalSummary,
+        captured_notes: structuredApproved.has("captured_notes") ? structuredNotes.captured_notes : [],
+        client_commitments: structuredApproved.has("client_commitments") ? structuredNotes.client_commitments : [],
+        open_questions: structuredApproved.has("open_questions") ? structuredNotes.open_questions : [],
+        chat_transcript: chatMessages.filter((m) => m.id !== "welcome").map((m) => ({ role: m.role, content: m.content, timestamp: m.timestamp })),
         confirmed_pain_points: structuredApproved.has("confirmed_pain_points") ? structuredNotes.confirmed_pain_points : [],
         possible_pain_points: structuredApproved.has("possible_pain_points") ? structuredNotes.possible_pain_points : [],
         agreed_next_steps: structuredApproved.has("agreed_next_steps") ? structuredNotes.agreed_next_steps : [],
@@ -784,7 +839,7 @@ function LiveCallAssistInner() {
         possible_vaxai_support: structuredApproved.has("possible_vaxai_support") ? structuredNotes.possible_vaxai_support : [],
         trust_concerns: structuredApproved.has("trust_concerns") ? structuredNotes.trust_concerns : [],
         follow_up_draft: followUpDraft?.draft || null,
-      } : null;
+      } : { chat_transcript: chatMessages.filter((m) => m.id !== "welcome").map((m) => ({ role: m.role, content: m.content })) };
 
       const res = await fetch("/api/admin/engagement/interactions", {
         method: "POST",
@@ -800,8 +855,8 @@ function LiveCallAssistInner() {
           direction: "outbound",
           summary: finalSummary,
           full_notes: fullNotes,
-          pain_point_ids: selectedPainPoints.map((p) => p.id),
-          commitments: structuredNotes?.agreed_next_steps?.join("; ") || null,
+          pain_point_ids: painIds,
+          commitments: structuredNotes?.client_commitments?.join("; ") || structuredNotes?.agreed_next_steps?.join("; ") || null,
           outcome: "completed",
           ...(aiData ? { ai_structured_data: aiData } : {}),
         }),
@@ -911,15 +966,24 @@ function LiveCallAssistInner() {
             </div>
           </div>
           {callState === "active" && (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1.5">
+            <div className="flex items-center gap-3 min-w-0">
+              {queueContext && (
+                <span className="hidden md:inline truncate max-w-[240px] text-xs text-[#6f6b62]">
+                  {queueContext.orgName}
+                  {queueContext.contactName ? ` · ${queueContext.contactName}` : ""}
+                </span>
+              )}
+              <span className="rounded-full bg-[#f7f4ea] border border-[#111111]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62] capitalize shrink-0">
+                {callType}
+              </span>
+              <div className="flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1.5 shrink-0">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 <Clock className="h-3.5 w-3.5 text-emerald-600" />
                 <span className="text-xs font-semibold text-emerald-700">{elapsed}</span>
               </div>
               <button
                 onClick={endCall}
-                className="flex items-center gap-2 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-600"
+                className="flex items-center gap-2 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-600 shrink-0"
               >
                 <PhoneOff className="h-3.5 w-3.5" /> End call
               </button>
@@ -941,42 +1005,7 @@ function LiveCallAssistInner() {
 
       {pageTab === "live_call" && callState === "pre" && (
         <div className="px-8 py-6">
-          <div className={`mx-auto ${queueContext || loadedPreps.length > 0 ? "max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-6" : "max-w-2xl"}`}>
-            {(queueContext || loadedPreps.length > 0) && (
-              <div className="rounded-2xl border border-[#111111]/10 bg-[#f7f4ea]/40 p-5 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Prospect context</p>
-                <ProspectContextSections
-                  context={queueContext}
-                  loadedPreps={loadedPreps}
-                  expanded={expandedContext}
-                  onToggle={toggleContextSection}
-                />
-                <button
-                  type="button"
-                  onClick={() => void loadPrepPicker()}
-                  disabled={prepPickerLoading}
-                  className="mt-3 text-xs text-[#063b32] hover:underline disabled:opacity-50"
-                >
-                  {prepPickerLoading ? "Loading…" : "+ Add prospect prep from history"}
-                </button>
-                {showPrepPicker && (
-                  <div className="mt-2 rounded-lg border border-[#111111]/15 bg-white p-2 max-h-40 overflow-auto space-y-1">
-                    {prepPickerList.map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => selectPrepFromPicker(p)}
-                        disabled={loadedPreps.some((x) => x.id === p.id)}
-                        className="w-full text-left rounded px-2 py-1.5 text-xs hover:bg-[#f7f4ea] disabled:opacity-40"
-                      >
-                        {p.name}
-                      </button>
-                    ))}
-                    <button type="button" onClick={() => setShowPrepPicker(false)} className="w-full text-center text-[10px] text-[#6f6b62] hover:underline pt-1">Close</button>
-                  </div>
-                )}
-              </div>
-            )}
+          <div className="mx-auto max-w-2xl">
             <div className="rounded-2xl border border-[#111111]/10 bg-white p-8 shadow-sm">
               <div className="text-center mb-6">
                 <h3 className="font-semibold text-xl text-[#111111]">Set up this call</h3>
@@ -1097,92 +1126,16 @@ function LiveCallAssistInner() {
                   </div>
                 </div>
 
-                <div className="relative">
-                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">
-                    Organisation (optional)
-                  </label>
-                  {selectedOrg ? (
-                    <div className="flex items-center gap-2 rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-2.5">
-                      <span className="flex-1 text-sm font-semibold text-[#063b32]">{selectedOrg.name}</span>
-                      <button onClick={() => setSelectedOrg(null)}>
-                        <X className="h-4 w-4 text-[#6f6b62]" />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-                        <input
-                          value={orgSearch}
-                          onChange={(e) => setOrgSearch(e.target.value)}
-                          placeholder="Search organisations…"
-                          className="w-full rounded-xl border border-[#111111]/15 bg-white py-3 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
-                        />
-                      </div>
-                      {orgs.length > 0 && (
-                        <div className="absolute z-10 left-0 right-0 mt-1 rounded-xl border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
-                          {orgs.map((o) => (
-                            <button
-                              key={o.id}
-                              onClick={() => { setSelectedOrg(o); setOrgSearch(""); setOrgs([]); }}
-                              className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
-                            >
-                              <span className="text-sm font-semibold text-[#111111]">{o.name}</span>
-                              {o.industry && <span className="text-xs text-[#6f6b62]">{o.industry}</span>}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-
-                <div className="relative">
-                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1.5">
-                    Contact (optional)
-                  </label>
-                  {selectedContact ? (
-                    <div className="flex items-center gap-2 rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-2.5">
-                      <span className="flex-1 text-sm font-semibold text-[#063b32]">
-                        {selectedContact.first_name} {selectedContact.last_name || ""}
-                      </span>
-                      <button onClick={() => setSelectedContact(null)}>
-                        <X className="h-4 w-4 text-[#6f6b62]" />
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-                        <input
-                          value={contactSearch}
-                          onChange={(e) => setContactSearch(e.target.value)}
-                          placeholder="Search contacts…"
-                          className="w-full rounded-xl border border-[#111111]/15 bg-white py-3 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
-                        />
-                      </div>
-                      {contacts.length > 0 && (
-                        <div className="absolute z-10 left-0 right-0 mt-1 rounded-xl border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
-                          {contacts.map((c) => (
-                            <button
-                              key={c.id}
-                              onClick={() => { setSelectedContact(c); setContactSearch(""); setContacts([]); }}
-                              className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-[#f7f4ea] transition-colors border-b border-[#111111]/5 last:border-0"
-                            >
-                              <span className="text-sm font-semibold text-[#111111]">
-                                {c.first_name} {c.last_name || ""}
-                              </span>
-                              {c.role && <span className="text-xs text-[#6f6b62]">{c.role}</span>}
-                            </button>
-                          ))}
-                          <button className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-[#063b32] hover:bg-[#f7f4ea] border-t border-[#111111]/5">
-                            <Plus className="h-3.5 w-3.5" /> Start without selecting a contact
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
+                {hasRequiredConnection && (
+                  <CallPrepContextPicker
+                    sector={prepSector}
+                    persona={prepPersona}
+                    painPoints={prepPainPoints}
+                    onSectorChange={setPrepSector}
+                    onPersonaChange={setPrepPersona}
+                    onPainPointsChange={setPrepPainPoints}
+                  />
+                )}
               </div>
 
               <button
@@ -1199,586 +1152,408 @@ function LiveCallAssistInner() {
       )}
 
       {pageTab === "live_call" && callState === "active" && (
-        <div className="flex h-[calc(100vh-57px)] overflow-hidden">
-          {/* Left: pain points & tools */}
-          <div className="w-72 shrink-0 border-r border-[#111111]/10 overflow-y-auto bg-[#f7f4ea] p-4">
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-[#063b32] px-2 py-0.5 text-[10px] font-semibold text-white capitalize">{callType}</span>
-              {connectionLabel && (
-                <span className="rounded-full bg-white border border-[#111111]/10 px-2 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{connectionLabel}</span>
-              )}
-            </div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Pain point search</p>
-            <div className="mb-3">
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b62]" />
-                <input
-                  value={painPointSearch}
-                  onChange={(e) => { setPainPointSearch(e.target.value); setAiMatches([]); setAiMatchError(null); }}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void runAiSearch(); }}}
-                  placeholder="Keyword or phrase…"
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-8 pr-2 text-xs outline-none focus:border-[#063b32]"
-                />
-                {painPoints.length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
-                    {painPoints.map((pp) => (
-                      <button
-                        key={pp.id}
-                        onClick={() => addPainPoint(pp)}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
-                      >
-                        <Zap className="h-3 w-3 text-amber-500 shrink-0" />
-                        <span className="text-xs font-semibold text-[#111111] truncate">{pp.title}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-              <button
-                onClick={() => void runAiSearch()}
-                disabled={!painPointSearch.trim() || aiSearching}
-                className="mt-1.5 flex w-full items-center justify-center gap-1 rounded-lg border border-violet-200 bg-violet-50 px-2 py-1.5 text-[10px] font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-40"
-              >
-                {aiSearching ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                AI match
-              </button>
-              {aiMatchError && (
-                <p className="mt-1.5 text-[10px] text-amber-700">{aiMatchError}</p>
-              )}
-              {aiMatches.length > 0 && (
-                <div className="mt-2 rounded-lg border border-violet-200 bg-white overflow-hidden">
-                  {aiMatches.map((match) => (
-                    <div key={match.id} className="border-b border-violet-100 px-2 py-2 last:border-0">
-                      <p className="text-[10px] font-semibold text-[#111111]">{match.pain_point?.title || match.id}</p>
-                      {match.pain_point && (
-                        <button
-                          onClick={() => { addPainPoint(match.pain_point!); setAiMatches((prev) => prev.filter((m) => m.id !== match.id)); }}
-                          className="mt-1 text-[10px] font-semibold text-[#063b32] hover:underline"
-                        >
-                          Add
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            {selectedPainPoints.length > 0 && (
-              <div className="mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">
-                  Pain points ({selectedPainPoints.length})
-                </p>
-                <div className="space-y-1">
-                  {selectedPainPoints.map((pp) => (
-                    <button
-                      key={pp.id}
-                      onClick={() => { loadVatPrompts(pp); setActiveLiveDraft(null); }}
-                      className={`w-full text-left rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
-                        activePainPoint?.id === pp.id && !activeLiveDraft
-                          ? "border-[#063b32] bg-[#063b32]/10 text-[#063b32]"
-                          : "border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300"
-                      }`}
-                    >
-                      <Zap className="inline h-3 w-3 mr-1" />
-                      {pp.title}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            <div className="mb-1">
-              <button
-                onClick={() => void loadPrepPicker()}
-                disabled={prepPickerLoading}
-                className="text-[10px] text-[#063b32] hover:underline disabled:opacity-50"
-              >
-                {prepPickerLoading ? "Loading preps…" : "+ Add prospect prep"}
-              </button>
-              {showPrepPicker && (
-                <div className="mt-2 rounded-lg border border-[#111111]/15 bg-white p-2 max-h-48 overflow-auto space-y-1">
-                  {prepPickerList.length === 0 ? (
-                    <p className="text-[10px] text-[#6f6b62] px-1 py-2">No saved preps yet.</p>
-                  ) : (
-                    prepPickerList.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => selectPrepFromPicker(p)}
-                        disabled={loadedPreps.some((x) => x.id === p.id)}
-                        className="w-full text-left rounded px-2 py-1.5 text-[10px] hover:bg-[#f7f4ea] border border-transparent hover:border-[#111111]/10 disabled:opacity-40"
-                      >
-                        <span className="font-semibold text-[#111111]">{p.name}</span>
-                        {p.clientType && <span className="block text-[#6f6b62] line-clamp-1">{p.clientType}</span>}
-                      </button>
-                    ))
-                  )}
-                  <button
-                    onClick={() => setShowPrepPicker(false)}
-                    className="w-full text-center text-[9px] text-[#6f6b62] hover:underline pt-1"
-                  >
-                    Close
-                  </button>
-                </div>
-              )}
-            </div>
-            {liveDrafts.length > 0 && (
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-violet-500 mb-2">
-                  New this call ({liveDrafts.length})
-                </p>
-                <div className="space-y-1">
-                  {liveDrafts.map((d) => (
-                    <button
-                      key={d.id}
-                      onClick={() => { setActiveLiveDraft(d); setActivePainPoint(null); }}
-                      className={`w-full text-left rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
-                        activeLiveDraft?.id === d.id
-                          ? "border-violet-400 bg-violet-100 text-violet-800"
-                          : "border-violet-200 bg-violet-50 text-violet-700 hover:border-violet-300"
-                      }`}
-                    >
-                      <Sparkles className="inline h-3 w-3 mr-1" />
-                      {d.guidance.title}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Centre: AI assistant */}
-          <div className="flex-1 flex flex-col min-h-0 min-w-0 border-r border-[#111111]/10">
-            <CallAssistChat
-              callContext={queueContext ? { ...queueContext, prospectPreps: loadedPreps } : null}
-              callType={callType}
-              orgName={selectedOrg?.name || queueContext?.orgName}
-              contactName={
-                selectedContact
-                  ? `${selectedContact.first_name} ${selectedContact.last_name || ""}`
-                  : queueContext?.contactName || undefined
-              }
-              recentNotes={notes.slice(-8).map((n) => `[${noteTypeLabel[n.type]}] ${n.text}`)}
-              onAddNote={(text, type = "note") => addNoteFromText(text, type)}
-              className="h-full"
-            />
-          </div>
-
-          {/* Right: call notes */}
-          <div className="w-96 shrink-0 overflow-y-auto bg-white p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Call notes</p>
-
-            {/* Note type selector */}
-            <div className="flex gap-2 mb-3 flex-wrap">
-              {(["note", "commitment", "question"] as CallNote["type"][]).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setNoteType(type)}
-                  className={`rounded-full border px-2.5 py-1 text-xs font-semibold transition-colors ${
-                    noteType === type
-                      ? type === "commitment"
-                        ? "bg-emerald-600 text-white border-emerald-600"
-                        : type === "question"
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-[#063b32] text-white border-[#063b32]"
-                      : noteTypeColor[type]
-                  }`}
-                >
-                  {noteTypeLabel[type]}
-                </button>
-              ))}
-            </div>
-
-            {/* Note input */}
-            <div className="mb-4">
-              <textarea
-                ref={noteRef}
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addNote(noteType); }}}
-                placeholder="Type a note… (Enter to save)"
-                rows={3}
-                className={`w-full rounded-lg border p-3 text-sm outline-none resize-none transition-colors ${
-                  noteType === "commitment"
-                    ? "border-emerald-200 focus:border-emerald-400 bg-emerald-50/40"
-                    : noteType === "question"
-                    ? "border-blue-200 focus:border-blue-400 bg-blue-50/40"
-                    : "border-[#111111]/15 focus:border-[#063b32] bg-white"
-                }`}
-              />
-              <div className="mt-2 flex justify-end">
-                <button
-                  onClick={() => addNote(noteType)}
-                  disabled={!noteText.trim()}
-                  className="rounded-md bg-[#063b32] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
-                >
-                  Add {noteTypeLabel[noteType].toLowerCase()}
-                </button>
-              </div>
-            </div>
-
-            {/* Notes list */}
-            <div className="space-y-2">
-              {notes.map((note) => (
-                <div key={note.id} className={`rounded-lg border p-3 ${noteTypeColor[note.type]}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm text-[#111111] flex-1">{note.text}</p>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
-                        {noteTypeLabel[note.type]}
-                      </span>
-                      <span className="text-[10px] text-[#6f6b62]">
-                        {note.timestamp.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                      <button onClick={() => setNotes((n) => n.filter((x) => x.id !== note.id))}>
-                        <X className="h-3.5 w-3.5 text-[#6f6b62] hover:text-red-500" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {notes.length === 0 && (
-                <p className="text-sm text-[#6f6b62] text-center py-8">
-                  Notes appear here — type manually or save from the AI assistant.
-                </p>
-              )}
-            </div>
-          </div>
+        <div className="h-[calc(100vh-57px)] overflow-hidden">
+          <CallAssistChat
+            key={callSessionKey}
+            messages={chatMessages}
+            onMessagesChange={setChatMessages}
+            callContext={getSessionCallContext()}
+            callType={callType}
+            orgName={selectedOrg?.name || queueContext?.orgName}
+            contactName={
+              selectedContact
+                ? `${selectedContact.first_name} ${selectedContact.last_name || ""}`
+                : queueContext?.contactName || undefined
+            }
+            className="h-full"
+            placeholder="Ask for guidance, capture notes, or type anything from the call…"
+          />
         </div>
       )}
 
       {/* Post-call summary */}
       {pageTab === "live_call" && callState === "post" && showSummary && (
-        <div className="px-8 py-8 max-w-2xl">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-100">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-[#111111]">Call ended — review before saving</h2>
-              <p className="text-sm text-[#6f6b62]">Nothing is saved as a confirmed fact until you approve it.</p>
-            </div>
-          </div>
-
-          <div className="space-y-4 mb-6">
-            <div className="rounded-xl border border-[#111111]/10 p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">Summary</p>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Contact</p>
-                  <p className="mt-0.5 text-[#111111]">
-                    {selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : "Not recorded"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Organisation</p>
-                  <p className="mt-0.5 text-[#111111]">{selectedOrg?.name || "Not recorded"}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Call type</p>
-                  <p className="mt-0.5 text-[#111111] capitalize">{callType}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Duration</p>
-                  <p className="mt-0.5 text-[#111111]">{elapsed}</p>
-                </div>
+        <div className="px-8 py-8">
+          <div className="mx-auto max-w-3xl">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-100">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-[#111111]">Call ended — review before saving</h2>
+                <p className="text-sm text-[#6f6b62]">Structure your conversation, review the summary, then save to the linked record.</p>
               </div>
             </div>
 
-            {selectedPainPoints.length > 0 && (
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">
-                  Confirmed pain points ({selectedPainPoints.length})
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedPainPoints.map((pp) => (
-                    <span key={pp.id} className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700">
-                      <Zap className="h-3 w-3" /> {pp.title}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {notes.length > 0 && (
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">
-                  Notes ({notes.length})
-                </p>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {notes.map((n) => (
-                    <div key={n.id} className={`rounded-lg border p-2.5 text-xs ${noteTypeColor[n.type]}`}>
-                      <span className="font-semibold text-[#6f6b62] uppercase tracking-[0.08em] mr-2">
-                        {noteTypeLabel[n.type]}
-                      </span>
-                      {n.text}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Live drafts from this call */}
-            {liveDrafts.length > 0 && (
-              <div className="rounded-xl border border-violet-200 bg-violet-50 p-5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="h-4 w-4 text-violet-600" />
-                  <p className="text-sm font-semibold text-violet-800">New pain point insights from this call</p>
-                </div>
-                <p className="text-xs text-violet-700 mb-3">
-                  These phrases came up during the call but weren&apos;t in the knowledge base. Mark which ones to submit for review.
-                </p>
-                <div className="space-y-2">
-                  {liveDrafts.map(draft => (
-                    <div key={draft.id} className="rounded-lg border border-violet-200 bg-white p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#111111]">{draft.guidance.title}</p>
-                          <p className="text-[10px] text-[#6f6b62] mt-0.5 italic">&ldquo;{draft.phrase}&rdquo;</p>
-                        </div>
-                        <button
-                          onClick={() => setLiveDrafts(prev => prev.map(d => d.id === draft.id ? { ...d, kept: !d.kept } : d))}
-                          className={`shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold border transition-colors ${
-                            draft.kept
-                              ? "bg-violet-600 border-violet-600 text-white"
-                              : "border-violet-300 text-violet-700 hover:bg-violet-100"
-                          }`}
-                        >
-                          {draft.kept ? "✓ Save to library" : "Save to library"}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {liveDrafts.some(d => d.kept) && (
-                  <p className="mt-2 text-[10px] text-violet-600">
-                    Marked drafts will be submitted for human review when you save this call record.
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* AI note structuring */}
-            <div className="rounded-xl border border-violet-200 bg-violet-50 p-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <Bot className="h-5 w-5 shrink-0 text-violet-600 mt-0.5" />
+            <div className="space-y-4 mb-6">
+              <div className="rounded-xl border border-[#111111]/10 bg-white p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-3">Call details</p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-sm font-semibold text-violet-800">Help me structure these notes</p>
-                    <p className="mt-0.5 text-xs text-violet-700">
-                      AI will suggest a structured summary. You can compare with your raw notes and edit the final version.
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Linked record</p>
+                    <p className="mt-0.5 text-[#111111]">
+                      {connectionLabel || "Record"} — {queueContext?.orgName || "Unknown"}
                     </p>
                   </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Contact</p>
+                    <p className="mt-0.5 text-[#111111]">
+                      {selectedContact
+                        ? `${selectedContact.first_name} ${selectedContact.last_name || ""}`
+                        : queueContext?.contactName || "Not recorded"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Call type</p>
+                    <p className="mt-0.5 text-[#111111] capitalize">{callType}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Duration</p>
+                    <p className="mt-0.5 text-[#111111]">{elapsed}</p>
+                  </div>
                 </div>
-                {!structuredNotes && (
-                  <button
-                    onClick={() => void structureNotes()}
-                    disabled={structuring || notes.length === 0}
-                    className="flex shrink-0 items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-40"
-                  >
-                    {structuring ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                    {structuring ? "Structuring…" : "Structure notes"}
-                  </button>
+                {(prepSector || prepPersona || prepPainPoints.length > 0) && (
+                  <div className="mt-4 pt-4 border-t border-[#111111]/10 flex flex-wrap gap-2">
+                    {prepSector && (
+                      <span className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62]">
+                        {prepSector.name}
+                      </span>
+                    )}
+                    {prepPersona && (
+                      <span className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62]">
+                        {prepPersona.persona_name}
+                      </span>
+                    )}
+                    {prepPainPoints.map((pp) => (
+                      <span key={pp.id} className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-1 text-[10px] font-semibold text-amber-700">
+                        {pp.title}
+                      </span>
+                    ))}
+                  </div>
                 )}
               </div>
 
-              {structureError && (
-                <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
-                  {structureError}
-                  <button onClick={() => void structureNotes()} className="ml-2 underline hover:no-underline">Retry</button>
-                </div>
-              )}
-
-              {structuredNotes && (
-                <div className="mt-4 space-y-3">
-                  {/* Before/after toggle */}
-                  {rawNotesSnapshot && (
-                    <details className="rounded-lg border border-violet-200 bg-white">
-                      <summary className="cursor-pointer px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] hover:text-[#111111]">
-                        View raw notes (before)
-                      </summary>
-                      <div className="px-3 pb-3 pt-1">
-                        <pre className="whitespace-pre-wrap text-xs text-[#6f6b62] font-sans">{rawNotesSnapshot}</pre>
-                      </div>
-                    </details>
-                  )}
-
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-violet-600">
-                    AI-structured summary — review, edit, then approve to save
-                  </p>
-
-                  {/* Editable call summary */}
-                  <div className="flex items-start gap-2.5">
-                    <input
-                      type="checkbox"
-                      checked={structuredApproved.has("call_summary")}
-                      onChange={e => setStructuredApproved(prev => { const n = new Set(prev); if (e.target.checked) n.add("call_summary"); else n.delete("call_summary"); return n; })}
-                      className="mt-1 h-3.5 w-3.5 accent-violet-600 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-violet-700">Call summary</p>
-                        <button
-                          onClick={() => { setEditingSummary(!editingSummary); setEditedSummary(editedSummary || structuredNotes.call_summary); }}
-                          className="text-[10px] text-violet-600 hover:underline"
-                        >
-                          {editingSummary ? "Done editing" : "Edit"}
-                        </button>
-                      </div>
-                      {editingSummary ? (
-                        <textarea
-                          value={editedSummary}
-                          onChange={e => setEditedSummary(e.target.value)}
-                          rows={3}
-                          className="w-full rounded border border-violet-300 bg-white px-2 py-1.5 text-xs outline-none focus:border-violet-500 resize-none"
-                        />
-                      ) : (
-                        <p className="text-xs text-[#111111]">{editedSummary || structuredNotes.call_summary}</p>
-                      )}
-                    </div>
+              <div className="rounded-xl border border-[#111111]/10 bg-white p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Call conversation</p>
+                    <p className="mt-1 text-sm text-[#111111]">
+                      {chatMessages.filter((m) => m.id !== "welcome").length} messages captured during the call
+                    </p>
                   </div>
-
-                  {[
-                    { key: "confirmed_pain_points", label: "Confirmed pain points", value: structuredNotes.confirmed_pain_points },
-                    { key: "possible_pain_points", label: "Possible pain points (unconfirmed)", value: structuredNotes.possible_pain_points?.map((p: { topic: string; note: string }) => `${p.topic}: ${p.note}`) },
-                    { key: "agreed_next_steps", label: "Agreed next steps", value: structuredNotes.agreed_next_steps },
-                    { key: "desired_outcomes", label: "Desired outcomes", value: structuredNotes.desired_outcomes },
-                    { key: "follow_up_tasks", label: "Follow-up tasks", value: structuredNotes.follow_up_tasks },
-                    { key: "possible_vaxai_support", label: "Possible VAxAI support (to explore)", value: structuredNotes.possible_vaxai_support },
-                    { key: "trust_concerns", label: "Trust / AI concerns raised", value: structuredNotes.trust_concerns },
-                  ].filter(s => Array.isArray(s.value) ? (s.value as unknown[]).length > 0 : !!s.value).map(section => (
-                    <div key={section.key} className="flex items-start gap-2.5">
-                      <input
-                        type="checkbox"
-                        checked={structuredApproved.has(section.key)}
-                        onChange={e => {
-                          setStructuredApproved(prev => {
-                            const next = new Set(prev);
-                            if (e.target.checked) next.add(section.key); else next.delete(section.key);
-                            return next;
-                          });
-                        }}
-                        className="mt-0.5 h-3.5 w-3.5 accent-violet-600"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-violet-700">{section.label}</p>
-                        {Array.isArray(section.value) ? (
-                          <ul className="mt-0.5 space-y-0.5">
-                            {(section.value as string[]).map((v, i) => (
-                              <li key={i} className="text-xs text-[#111111]">· {v}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="mt-0.5 text-xs text-[#111111]">{section.value as string}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setShowTranscriptModal(true)}
+                    disabled={chatMessages.filter((m) => m.id !== "welcome").length === 0}
+                    className="shrink-0 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#063b32] hover:bg-[#f7f4ea] disabled:opacity-40"
+                  >
+                    View full transcript
+                  </button>
                 </div>
-              )}
-            </div>
+                {chatMessages.filter((m) => m.id !== "welcome").length > 0 && (
+                  <div className="mt-4 max-h-40 overflow-y-auto space-y-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/30 p-3">
+                    {chatMessages
+                      .filter((m) => m.id !== "welcome")
+                      .slice(-4)
+                      .map((msg) => (
+                        <div key={msg.id} className={`text-xs ${msg.role === "user" ? "text-[#063b32]" : "text-[#6f6b62]"}`}>
+                          <span className="font-semibold">{msg.role === "user" ? "You" : "Assistant"}:</span>{" "}
+                          <span className="line-clamp-2">{msg.content}</span>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
 
-            {/* AI follow-up draft */}
-            {structuredNotes && (
-              <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5">
+              <div className="rounded-xl border border-[#111111]/10 bg-white p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <FileEdit className="h-5 w-5 shrink-0 text-[#063b32] mt-0.5" />
+                    <Bot className="h-5 w-5 shrink-0 text-[#063b32] mt-0.5" />
                     <div>
-                      <p className="text-sm font-semibold text-[#063b32]">Draft a follow-up</p>
-                      <p className="mt-0.5 text-xs text-[#6f6b62]">AI will draft a follow-up email based on this call. Edit before sending.</p>
+                      <p className="text-sm font-semibold text-[#111111]">Help me structure these notes</p>
+                      <p className="mt-0.5 text-xs text-[#6f6b62]">
+                        AI reads your full conversation and separates notes, client commitments, and open questions.
+                      </p>
                     </div>
                   </div>
-                  {!followUpDraft && (
+                  {!structuredNotes && (
                     <button
-                      onClick={() => void generateFollowUp()}
-                      disabled={draftingFollowUp}
+                      type="button"
+                      onClick={() => void structureNotes()}
+                      disabled={structuring || chatMessages.filter((m) => m.id !== "welcome").length === 0}
                       className="flex shrink-0 items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
                     >
-                      {draftingFollowUp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                      {draftingFollowUp ? "Drafting…" : "Draft follow-up"}
+                      {structuring ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      {structuring ? "Structuring…" : "Structure notes"}
                     </button>
                   )}
                 </div>
-                {followUpError && (
+
+                {structureError && (
                   <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
-                    {followUpError}
-                    <button onClick={() => void generateFollowUp()} className="ml-2 underline hover:no-underline">Retry</button>
+                    {structureError}
+                    <button type="button" onClick={() => void structureNotes()} className="ml-2 underline hover:no-underline">Retry</button>
                   </div>
                 )}
-                {followUpDraft && (
+
+                {structuredNotes && (
                   <div className="mt-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Draft — edit before sending</p>
-                      <button
-                        onClick={() => {
-                          void navigator.clipboard.writeText(followUpDraft.draft);
-                          setFollowUpCopied(true);
-                          setTimeout(() => setFollowUpCopied(false), 2000);
-                        }}
-                        className="flex items-center gap-1 text-xs text-[#063b32] hover:underline"
-                      >
-                        <Copy className="h-3 w-3" />
-                        {followUpCopied ? "Copied!" : "Copy"}
-                      </button>
-                    </div>
-                    {followUpDraft.suggested_subject && (
-                      <p className="text-xs text-[#6f6b62]">
-                        <span className="font-semibold">Subject:</span> {followUpDraft.suggested_subject}
-                      </p>
-                    )}
-                    <textarea
-                      value={followUpDraft.draft}
-                      onChange={e => setFollowUpDraft(prev => prev ? { ...prev, draft: e.target.value } : null)}
-                      rows={8}
-                      className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#063b32] resize-none"
-                    />
-                    <p className="text-[10px] text-[#6f6b62]">
-                      This is a draft only. Review carefully and do not send automatically. Copy and paste into your email client.
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                      Review each section — uncheck anything you don&apos;t want saved
                     </p>
+
+                    <div className="flex items-start gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={structuredApproved.has("call_summary")}
+                        onChange={(e) => setStructuredApproved((prev) => {
+                          const n = new Set(prev);
+                          if (e.target.checked) n.add("call_summary");
+                          else n.delete("call_summary");
+                          return n;
+                        })}
+                        className="mt-1 h-3.5 w-3.5 accent-[#063b32] shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">Call summary</p>
+                          <button
+                            type="button"
+                            onClick={() => { setEditingSummary(!editingSummary); setEditedSummary(editedSummary || structuredNotes.call_summary); }}
+                            className="text-[10px] text-[#063b32] hover:underline"
+                          >
+                            {editingSummary ? "Done editing" : "Edit"}
+                          </button>
+                        </div>
+                        {editingSummary ? (
+                          <textarea
+                            value={editedSummary}
+                            onChange={(e) => setEditedSummary(e.target.value)}
+                            rows={3}
+                            className="w-full rounded-lg border border-[#111111]/15 bg-white px-2 py-1.5 text-xs outline-none focus:border-[#063b32] resize-none"
+                          />
+                        ) : (
+                          <p className="text-xs text-[#111111]">{editedSummary || structuredNotes.call_summary}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {[
+                      { key: "captured_notes", label: "Notes captured", value: structuredNotes.captured_notes },
+                      { key: "client_commitments", label: "Client commitments", value: structuredNotes.client_commitments },
+                      { key: "open_questions", label: "Open questions", value: structuredNotes.open_questions },
+                      { key: "confirmed_pain_points", label: "Confirmed pain points", value: structuredNotes.confirmed_pain_points },
+                      { key: "possible_pain_points", label: "Possible pain points (unconfirmed)", value: structuredNotes.possible_pain_points?.map((p: { topic: string; note: string }) => `${p.topic}: ${p.note}`) },
+                      { key: "agreed_next_steps", label: "Agreed next steps", value: structuredNotes.agreed_next_steps },
+                      { key: "desired_outcomes", label: "Desired outcomes", value: structuredNotes.desired_outcomes },
+                      { key: "follow_up_tasks", label: "Follow-up tasks", value: structuredNotes.follow_up_tasks },
+                      { key: "possible_vaxai_support", label: "Possible VAxAI support (to explore)", value: structuredNotes.possible_vaxai_support },
+                      { key: "trust_concerns", label: "Trust / AI concerns raised", value: structuredNotes.trust_concerns },
+                    ].filter((s) => Array.isArray(s.value) ? (s.value as unknown[]).length > 0 : !!s.value).map((section) => (
+                      <div key={section.key} className="flex items-start gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={structuredApproved.has(section.key)}
+                          onChange={(e) => {
+                            setStructuredApproved((prev) => {
+                              const next = new Set(prev);
+                              if (e.target.checked) next.add(section.key);
+                              else next.delete(section.key);
+                              return next;
+                            });
+                          }}
+                          className="mt-0.5 h-3.5 w-3.5 accent-[#063b32]"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">{section.label}</p>
+                          {Array.isArray(section.value) ? (
+                            <ul className="mt-0.5 space-y-0.5">
+                              {(section.value as string[]).map((v, i) => (
+                                <li key={i} className="text-xs text-[#111111]">· {v}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="mt-0.5 text-xs text-[#111111]">{String(section.value ?? "")}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={() => setShowTranscriptModal(true)}
+                      className="text-xs font-semibold text-[#063b32] hover:underline"
+                    >
+                      Compare with full transcript
+                    </button>
                   </div>
                 )}
               </div>
-            )}
 
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-              <div className="flex items-start gap-3">
-                <Shield className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-amber-800">Review before saving</p>
-                  <p className="mt-1 text-xs text-amber-700">
-                    Please review the notes above. Once saved, this will create an interaction record. AI-generated summaries are labelled as such.
-                  </p>
+              {structuredNotes && (
+                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <FileEdit className="h-5 w-5 shrink-0 text-[#063b32] mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-[#063b32]">Draft a follow-up</p>
+                        <p className="mt-0.5 text-xs text-[#6f6b62]">Optional — draft a follow-up email based on this call.</p>
+                      </div>
+                    </div>
+                    {!followUpDraft && (
+                      <button
+                        type="button"
+                        onClick={() => void generateFollowUp()}
+                        disabled={draftingFollowUp}
+                        className="flex shrink-0 items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
+                      >
+                        {draftingFollowUp ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                        {draftingFollowUp ? "Drafting…" : "Draft follow-up"}
+                      </button>
+                    )}
+                  </div>
+                  {followUpError && (
+                    <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
+                      {followUpError}
+                      <button type="button" onClick={() => void generateFollowUp()} className="ml-2 underline hover:no-underline">Retry</button>
+                    </div>
+                  )}
+                  {followUpDraft && (
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Draft — edit before sending</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void navigator.clipboard.writeText(followUpDraft.draft);
+                            setFollowUpCopied(true);
+                            setTimeout(() => setFollowUpCopied(false), 2000);
+                          }}
+                          className="flex items-center gap-1 text-xs text-[#063b32] hover:underline"
+                        >
+                          <Copy className="h-3 w-3" />
+                          {followUpCopied ? "Copied!" : "Copy"}
+                        </button>
+                      </div>
+                      {followUpDraft.suggested_subject && (
+                        <p className="text-xs text-[#6f6b62]">
+                          <span className="font-semibold">Subject:</span> {followUpDraft.suggested_subject}
+                        </p>
+                      )}
+                      <textarea
+                        value={followUpDraft.draft}
+                        onChange={(e) => setFollowUpDraft((prev) => prev ? { ...prev, draft: e.target.value } : null)}
+                        rows={8}
+                        className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#063b32] resize-none"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                <div className="flex items-start gap-3">
+                  <Shield className="h-5 w-5 shrink-0 text-amber-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800">Review before saving</p>
+                    <p className="mt-1 text-xs text-amber-700">
+                      Once saved, this creates an interaction record attached to your linked {connectionLabel?.toLowerCase() || "record"}.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-3 mb-4">
-            <input
-              type="checkbox"
-              id="approve"
-              checked={summaryApproved}
-              onChange={(e) => setSummaryApproved(e.target.checked)}
-              className="h-4 w-4 rounded border-[#111111]/20 accent-[#063b32]"
-            />
-            <label htmlFor="approve" className="text-sm font-semibold text-[#111111]">
-              I have reviewed the notes and they are accurate
-            </label>
-          </div>
+            <div className="flex items-center gap-3 mb-4">
+              <input
+                type="checkbox"
+                id="approve"
+                checked={summaryApproved}
+                onChange={(e) => setSummaryApproved(e.target.checked)}
+                className="h-4 w-4 rounded border-[#111111]/20 accent-[#063b32]"
+              />
+              <label htmlFor="approve" className="text-sm font-semibold text-[#111111]">
+                I have reviewed the notes and they are accurate
+              </label>
+            </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={saveCallRecord}
-              disabled={!summaryApproved || saving}
-              className="flex items-center gap-2 rounded-lg bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-            >
-              <Save className="h-4 w-4" /> {saving ? "Saving…" : "Save interaction record"}
-            </button>
-            <button
-              onClick={() => router.push("/admin/engagement")}
-              className="rounded-lg border border-[#111111]/15 px-5 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-            >
-              Discard and go to overview
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={saveCallRecord}
+                disabled={!summaryApproved || saving || !structuredNotes}
+                className="flex items-center gap-2 rounded-lg bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                <Save className="h-4 w-4" /> {saving ? "Saving…" : "Save interaction record"}
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push("/admin/engagement")}
+                className="rounded-lg border border-[#111111]/15 px-5 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                Discard and go to overview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTranscriptModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setShowTranscriptModal(false)}
+          role="presentation"
+        >
+          <div
+            className="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-2xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="transcript-title"
+          >
+            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4 shrink-0">
+              <div>
+                <h2 id="transcript-title" className="text-base font-semibold text-[#111111]">Call transcript</h2>
+                <p className="text-xs text-[#6f6b62] mt-0.5">
+                  {queueContext?.orgName}
+                  {queueContext?.contactName ? ` · ${queueContext.contactName}` : ""} · {elapsed}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowTranscriptModal(false)}
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#f7f4ea]"
+                aria-label="Close transcript"
+              >
+                <X className="h-4 w-4 text-[#6f6b62]" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 min-h-0">
+              {chatMessages.filter((m) => m.id !== "welcome").length === 0 ? (
+                <p className="text-sm text-[#6f6b62] text-center py-8">No messages in this call.</p>
+              ) : (
+                chatMessages
+                  .filter((m) => m.id !== "welcome")
+                  .map((msg) => (
+                    <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                          msg.role === "user"
+                            ? "bg-[#063b32] text-white"
+                            : "bg-[#f7f4ea] text-[#111111]"
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap">{msg.content}</p>
+                        {msg.timestamp instanceof Date && (
+                          <p className={`mt-1 text-[10px] ${msg.role === "user" ? "text-white/60" : "text-[#6f6b62]"}`}>
+                            {msg.timestamp.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))
+              )}
+            </div>
           </div>
         </div>
       )}
