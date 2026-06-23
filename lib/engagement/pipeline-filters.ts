@@ -132,10 +132,14 @@ export function matchesDueDateFilter(task: EngagementTask, filter: DueDateFilter
 
 export function formatOpportunityValue(opp: EngagementOpportunity): string | null {
   if (!opp.indicative_value_low && !opp.indicative_value_high) return null;
-  const low = opp.indicative_value_low ?? 0;
+  const fmt = (n: number) =>
+    n >= 1000 ? `£${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : `£${n.toLocaleString()}`;
+  const low = opp.indicative_value_low;
   const high = opp.indicative_value_high;
-  if (high && high !== low) return `£${low.toLocaleString()}–£${high.toLocaleString()}`;
-  return `£${low.toLocaleString()}`;
+  if (low && high && low !== high) return `${fmt(low)}–${fmt(high)}`;
+  if (low) return fmt(low);
+  if (high) return fmt(high);
+  return null;
 }
 
 export function computePipelineStats(opps: EngagementOpportunity[]) {

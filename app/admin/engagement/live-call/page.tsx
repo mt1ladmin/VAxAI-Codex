@@ -404,9 +404,66 @@ function LiveCallAssistInner() {
   }, [initialEnquiryId, initialOpportunityId, queueContext]);
 
   useEffect(() => {
-    if (!initialOpportunityId || queueContext?.opportunityId) return;
+    if (!initialOpportunityId || queueContext) return;
+    fetch(`/api/admin/engagement/opportunities/${initialOpportunityId}`)
+      .then((r) => r.json())
+      .then((j: { data?: {
+        id: string;
+        title: string;
+        stage: string;
+        next_action: string | null;
+        expected_decision_date: string | null;
+        notes: string | null;
+        enquiry_id: string | null;
+        queue_id: string | null;
+        organisation_id: string | null;
+        primary_contact_id: string | null;
+        organisation?: { id: string; name: string } | null;
+        primary_contact?: { id: string; first_name: string; last_name: string | null } | null;
+      } }) => {
+        const opp = j.data;
+        if (!opp) return;
+        const contactName = opp.primary_contact
+          ? `${opp.primary_contact.first_name} ${opp.primary_contact.last_name || ""}`.trim()
+          : null;
+        const ctx: ProspectCallContext = {
+          sourceType: "opportunity",
+          sourceId: opp.id,
+          opportunityId: opp.id,
+          enquiryId: opp.enquiry_id,
+          queueId: opp.queue_id || `opportunity-${opp.id}`,
+          contactId: opp.primary_contact_id,
+          organisationId: opp.organisation_id,
+          orgName: opp.organisation?.name || opp.title,
+          contactName,
+          email: null,
+          phone: null,
+          website: null,
+          industry: null,
+          location: null,
+          linkedin: null,
+          notes: opp.notes,
+          nextAction: opp.next_action,
+          nextActionDate: opp.expected_decision_date,
+          aiPrepCards: [],
+          prospectPreps: [],
+          customCards: [{
+            id: "opportunity-summary",
+            title: "Opportunity",
+            content: [`Title: ${opp.title}`, `Stage: ${opp.stage}`, `Next action: ${opp.next_action || "—"}`].join("\n"),
+          }],
+        };
+        setQueueContext(ctx);
+        setExpandedContext({ prospect: true, "opportunity-summary": true });
+      })
+      .catch(() => undefined);
+  }, [initialOpportunityId, queueContext]);
+
+  useEffect(() => {
+    if (!initialOpportunityId || !queueContext) return;
+    if (queueContext.opportunityId === initialOpportunityId) return;
     setQueueContext((prev) => prev ? { ...prev, opportunityId: initialOpportunityId } : prev);
-  }, [initialOpportunityId, queueContext?.opportunityId]);
+  }, [initialOpportunityId, queueContext]);
 
   const loadPrepPicker = async () => {
     setPrepPickerLoading(true);
@@ -508,6 +565,14 @@ function LiveCallAssistInner() {
     ]);
     setNoteText("");
     noteRef.current?.focus();
+  };
+
+  const addNoteFromText = (text: string, type: CallNote["type"] = "note") => {
+    if (!text.trim()) return;
+    setNotes((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text: text.trim(), timestamp: new Date(), type },
+    ]);
   };
 
   const addPainPoint = (pp: PainPoint) => {
@@ -750,6 +815,27 @@ function LiveCallAssistInner() {
 
   const inCall = callState === "active" || callState === "post";
 
+  const hasRequiredConnection = Boolean(
+    queueContext?.enquiryId ||
+    (queueContext?.sourceType === "queue" && queueContext.sourceId && !queueContext.sourceId.startsWith("enquiry-")) ||
+    queueContext?.opportunityId ||
+    queueContext?.sourceType === "opportunity" ||
+    initialEnquiryId ||
+    initialOpportunityId,
+  );
+
+  const connectionLabel = queueContext?.sourceType === "enquiry"
+    ? "Website enquiry"
+    : queueContext?.sourceType === "queue"
+      ? "Prospect queue"
+      : queueContext?.sourceType === "opportunity"
+        ? "Opportunity"
+        : initialEnquiryId
+          ? "Website enquiry"
+          : initialOpportunityId
+            ? "Opportunity"
+            : null;
+
   useEffect(() => {
     if (inCall && pageTab === "call_records") setPageTab("live_call");
   }, [inCall, pageTab]);
@@ -966,9 +1052,21 @@ function LiveCallAssistInner() {
                 </div>
               </div>
 
+              {connectionLabel && (
+                <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                  Connected to <span className="font-semibold">{connectionLabel}</span>
+                  {queueContext?.orgName && <> — {queueContext.orgName}</>}
+                </div>
+              )}
+              {!hasRequiredConnection && (
+                <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  Link this call to a <strong>website enquiry</strong>, <strong>prospect queue</strong> entry, or <strong>opportunity</strong> before starting. Open one of those records and use &ldquo;Start live call&rdquo;.
+                </div>
+              )}
               <button
                 onClick={startCall}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1a5c42] transition-colors"
+                disabled={!hasRequiredConnection}
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1a5c42] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Phone className="h-5 w-5" /> Start call
               </button>
@@ -979,43 +1077,69 @@ function LiveCallAssistInner() {
 
       {pageTab === "live_call" && callState === "active" && (
         <div className="flex h-[calc(100vh-57px)] overflow-hidden">
-          {/* Left: context */}
+          {/* Left: pain points & tools */}
           <div className="w-72 shrink-0 border-r border-[#111111]/10 overflow-y-auto bg-[#f7f4ea] p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Call context</p>
-            {selectedOrg && (
-              <div className="mb-3 rounded-lg bg-white border border-[#111111]/10 p-3">
-                <p className="text-xs font-semibold text-[#111111]">{selectedOrg.name}</p>
-                {selectedOrg.industry && <p className="text-xs text-[#6f6b62]">{selectedOrg.industry}</p>}
-                {selectedOrg.size && selectedOrg.size !== "Unknown" && (
-                  <p className="text-xs text-[#6f6b62]">{selectedOrg.size}</p>
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-[#063b32] px-2 py-0.5 text-[10px] font-semibold text-white capitalize">{callType}</span>
+              {connectionLabel && (
+                <span className="rounded-full bg-white border border-[#111111]/10 px-2 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{connectionLabel}</span>
+              )}
+            </div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Pain point search</p>
+            <div className="mb-3">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6f6b62]" />
+                <input
+                  value={painPointSearch}
+                  onChange={(e) => { setPainPointSearch(e.target.value); setAiMatches([]); setAiMatchError(null); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void runAiSearch(); }}}
+                  placeholder="Keyword or phrase…"
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-8 pr-2 text-xs outline-none focus:border-[#063b32]"
+                />
+                {painPoints.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
+                    {painPoints.map((pp) => (
+                      <button
+                        key={pp.id}
+                        onClick={() => addPainPoint(pp)}
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
+                      >
+                        <Zap className="h-3 w-3 text-amber-500 shrink-0" />
+                        <span className="text-xs font-semibold text-[#111111] truncate">{pp.title}</span>
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
-            )}
-            {selectedContact && (
-              <div className="mb-3 rounded-lg bg-white border border-[#111111]/10 p-3">
-                <p className="text-xs font-semibold text-[#111111]">
-                  {selectedContact.first_name} {selectedContact.last_name || ""}
-                </p>
-                {selectedContact.role && <p className="text-xs text-[#6f6b62]">{selectedContact.role}</p>}
-              </div>
-            )}
-            <div className="mb-3">
-              <p className="text-xs text-[#6f6b62] mb-1">Call type</p>
-              <span className="rounded-full bg-[#063b32] px-2 py-0.5 text-[10px] font-semibold text-white capitalize">
-                {callType}
-              </span>
+              <button
+                onClick={() => void runAiSearch()}
+                disabled={!painPointSearch.trim() || aiSearching}
+                className="mt-1.5 flex w-full items-center justify-center gap-1 rounded-lg border border-violet-200 bg-violet-50 px-2 py-1.5 text-[10px] font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-40"
+              >
+                {aiSearching ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                AI match
+              </button>
+              {aiMatchError && (
+                <p className="mt-1.5 text-[10px] text-amber-700">{aiMatchError}</p>
+              )}
+              {aiMatches.length > 0 && (
+                <div className="mt-2 rounded-lg border border-violet-200 bg-white overflow-hidden">
+                  {aiMatches.map((match) => (
+                    <div key={match.id} className="border-b border-violet-100 px-2 py-2 last:border-0">
+                      <p className="text-[10px] font-semibold text-[#111111]">{match.pain_point?.title || match.id}</p>
+                      {match.pain_point && (
+                        <button
+                          onClick={() => { addPainPoint(match.pain_point!); setAiMatches((prev) => prev.filter((m) => m.id !== match.id)); }}
+                          className="mt-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                        >
+                          Add
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            {(queueContext || loadedPreps.length > 0) && (
-              <div className="mb-3">
-                <ProspectContextSections
-                  context={queueContext}
-                  loadedPreps={loadedPreps}
-                  expanded={expandedContext}
-                  onToggle={toggleContextSection}
-                  compact
-                />
-              </div>
-            )}
             {selectedPainPoints.length > 0 && (
               <div className="mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">
@@ -1098,129 +1222,26 @@ function LiveCallAssistInner() {
             )}
           </div>
 
-          {/* Centre: notes */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Notes and pain points</p>
+          {/* Centre: AI assistant */}
+          <div className="flex-1 flex flex-col min-h-0 min-w-0 border-r border-[#111111]/10">
+            <CallAssistChat
+              callContext={queueContext ? { ...queueContext, prospectPreps: loadedPreps } : null}
+              callType={callType}
+              orgName={selectedOrg?.name || queueContext?.orgName}
+              contactName={
+                selectedContact
+                  ? `${selectedContact.first_name} ${selectedContact.last_name || ""}`
+                  : queueContext?.contactName || undefined
+              }
+              recentNotes={notes.slice(-8).map((n) => `[${noteTypeLabel[n.type]}] ${n.text}`)}
+              onAddNote={(text, type = "note") => addNoteFromText(text, type)}
+              className="h-full"
+            />
+          </div>
 
-            {/* Pain point search */}
-            <div className="mb-4">
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-                  <input
-                    value={painPointSearch}
-                    onChange={(e) => { setPainPointSearch(e.target.value); setAiMatches([]); setAiMatchError(null); }}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void runAiSearch(); }}}
-                    placeholder="Describe what they said or search by keyword…"
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white py-2.5 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]"
-                  />
-                  {painPoints.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-lg border border-[#111111]/10 bg-white shadow-lg overflow-hidden">
-                      {painPoints.map((pp) => (
-                        <button
-                          key={pp.id}
-                          onClick={() => addPainPoint(pp)}
-                          className="flex w-full items-center gap-2 px-4 py-2.5 text-left hover:bg-[#f7f4ea] border-b border-[#111111]/5 last:border-0"
-                        >
-                          <Zap className="h-3.5 w-3.5 text-amber-500" />
-                          <div>
-                            <p className="text-sm font-semibold text-[#111111]">{pp.title}</p>
-                            <p className="text-xs text-[#6f6b62]">{pp.category}</p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={() => void runAiSearch()}
-                  disabled={!painPointSearch.trim() || aiSearching}
-                  title="AI semantic match — describe what you heard"
-                  className="flex items-center gap-1.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-40 transition-colors"
-                >
-                  {aiSearching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-                  AI match
-                </button>
-              </div>
-
-              {/* AI semantic match results */}
-              {aiMatchError && (
-                <div className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded flex items-center gap-2">
-                  {generatingGuidance && <Loader2 className="h-3 w-3 animate-spin shrink-0" />}
-                  {aiMatchError}
-                </div>
-              )}
-              {aiMatches.length > 0 && (
-                <div className="mt-2 rounded-lg border border-violet-200 bg-violet-50 overflow-hidden">
-                  <div className="flex items-center gap-2 px-3 py-2 border-b border-violet-200">
-                    <Bot className="h-3.5 w-3.5 text-violet-600" />
-                    <p className="text-xs font-semibold text-violet-700">AI semantic matches — review before adding</p>
-                    <button onClick={() => setAiMatches([])} className="ml-auto text-violet-500 hover:text-violet-700">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                  {aiMatches.map((match) => (
-                    <div key={match.id} className="px-3 py-2.5 border-b border-violet-200/60 last:border-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-semibold text-[#111111]">
-                              {match.pain_point?.title || match.id}
-                            </p>
-                            <span className="text-[10px] font-semibold text-violet-600 bg-violet-100 rounded-full px-1.5 py-0.5">
-                              {match.score}%
-                            </span>
-                          </div>
-                          <p className="text-xs text-[#6f6b62] mt-0.5">{match.why}</p>
-                          {match.discovery_question && (
-                            <p className="mt-1 text-xs text-[#111111] italic">
-                              &ldquo;{match.discovery_question}&rdquo;
-                            </p>
-                          )}
-                        </div>
-                        {match.pain_point && (
-                          <button
-                            onClick={() => { addPainPoint(match.pain_point!); setAiMatches(prev => prev.filter(m => m.id !== match.id)); }}
-                            className="shrink-0 rounded-md bg-[#063b32] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42]"
-                          >
-                            Add
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {painPointSearch.trim() && (
-                    <div className="px-3 py-2 border-t border-violet-200">
-                      <button
-                        onClick={async () => {
-                          const res = await fetch("/api/admin/engagement/ai/draft-pain-point", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              phrase: painPointSearch,
-                              orgContext: selectedOrg ? `${selectedOrg.name}, ${selectedOrg.industry || ""}` : undefined,
-                            }),
-                          });
-                          const j = await res.json() as { data?: unknown };
-                          if (j.data) {
-                            setNotes(prev => [...prev, {
-                              id: crypto.randomUUID(),
-                              text: `Draft pain point created for review: "${painPointSearch}"`,
-                              timestamp: new Date(),
-                              type: "note",
-                            }]);
-                            setAiMatches([]);
-                          }
-                        }}
-                        className="text-xs text-violet-700 hover:underline"
-                      >
-                        None match? Create a draft pain point for review →
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+          {/* Right: call notes */}
+          <div className="w-96 shrink-0 overflow-y-auto bg-white p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Call notes</p>
 
             {/* Note type selector */}
             <div className="flex gap-2 mb-3 flex-wrap">
@@ -1293,31 +1314,10 @@ function LiveCallAssistInner() {
               ))}
               {notes.length === 0 && (
                 <p className="text-sm text-[#6f6b62] text-center py-8">
-                  Notes will appear here. Use the search above to add pain points.
+                  Notes appear here — type manually or save from the AI assistant.
                 </p>
               )}
             </div>
-          </div>
-
-          {/* Right: AI call assistant */}
-          <div className="w-96 shrink-0 border-l border-[#111111]/10 bg-white flex flex-col min-h-0">
-            <CallAssistChat
-              callContext={queueContext}
-              callType={callType}
-              orgName={selectedOrg?.name || queueContext?.orgName}
-              contactName={
-                selectedContact
-                  ? `${selectedContact.first_name} ${selectedContact.last_name || ""}`
-                  : queueContext?.contactName || undefined
-              }
-              recentNotes={notes.slice(-5).map((n) => n.text)}
-              onAddNote={(text) => {
-                setNotes((prev) => [
-                  ...prev,
-                  { id: crypto.randomUUID(), text: `[AI assist] ${text}`, timestamp: new Date(), type: "note" },
-                ]);
-              }}
-            />
           </div>
         </div>
       )}

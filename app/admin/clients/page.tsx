@@ -54,9 +54,9 @@ function LabeledField({ label, children }: { label: string; children: ReactNode 
 
 const STAGE_FILTERS = [
   { value: "", label: "All clients" },
-  { value: "Active client", label: "Active clients" },
-  { value: "Onboarding", label: "Onboarding" },
   { value: "Won", label: "Won" },
+  { value: "Onboarding", label: "Onboarding" },
+  { value: "Active client", label: "Active clients" },
 ];
 
 function formatValue(low: number | null, high: number | null) {
@@ -151,6 +151,15 @@ export default function ClientsPage() {
       <div className="px-8 py-6">
         {/* Toolbar */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, email, org…"
+              className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
+            />
+          </div>
           <div className="flex overflow-hidden rounded-xl border border-[#111111]/15">
             {STAGE_FILTERS.map((f) => (
               <button
@@ -166,15 +175,6 @@ export default function ClientsPage() {
                 {f.label}
               </button>
             ))}
-          </div>
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, email, org…"
-              className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
-            />
           </div>
           <p className="ml-auto text-sm text-[#6f6b62]">
             {filtered.length} client{filtered.length === 1 ? "" : "s"}

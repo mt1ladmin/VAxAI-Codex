@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bot, Loader2, Send, Sparkles } from "lucide-react";
+import { Bot, ClipboardList, HelpCircle, Loader2, MessageSquarePlus, Send, Sparkles } from "lucide-react";
 import type { ProspectCallContext, CallAssistChatMessage } from "@/lib/engagement/call-context";
 
 const SUGGESTED_PROMPTS = [
+  "What context do we have on this contact?",
   "What pain points should I explore for this sector?",
-  "Describe the likely persona for this contact",
   "Suggest an opening line for this call",
   "What VAT questions should I ask?",
-  "Summarise what we know about this client",
+  "Help me draft a new pain point from what they said",
 ];
+
+type NoteType = "note" | "commitment" | "question";
 
 type CallAssistChatProps = {
   callContext: ProspectCallContext | null;
@@ -18,7 +20,7 @@ type CallAssistChatProps = {
   orgName?: string;
   contactName?: string;
   recentNotes?: string[];
-  onAddNote?: (text: string) => void;
+  onAddNote?: (text: string, type?: NoteType) => void;
   className?: string;
 };
 
@@ -44,17 +46,25 @@ export function CallAssistChat({
 
   useEffect(() => {
     if (callContext && messages.length === 0) {
+      const sourceLabel =
+        callContext.sourceType === "enquiry"
+          ? "website enquiry"
+          : callContext.sourceType === "queue"
+            ? "prospect queue"
+            : callContext.sourceType === "opportunity"
+              ? "opportunity"
+              : "connected record";
       const greeting: CallAssistChatMessage = {
         id: "welcome",
         role: "assistant",
         content: callContext.orgName
-          ? `Ready to assist on your call with **${callContext.orgName}**. Ask me about pain points, sectors, personas, VAT prompts, or what to say next — I'll pull from the knowledge hub and this client's context.`
-          : "Ready to assist. Ask me anything about pain points, sectors, personas, or call guidance.",
+          ? `Ready for your ${callType} call with **${callContext.orgName}**${callContext.contactName ? ` (${callContext.contactName})` : ""}. Linked to a ${sourceLabel} — ask me for context, pain points, personas, VAT prompts, or what to say next. I pull from the knowledge hub and this record.`
+          : "Ready to assist. Ask about context, pain points, sectors, personas, or call guidance.",
         timestamp: new Date(),
       };
       setMessages([greeting]);
     }
-  }, [callContext]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [callContext, callType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sendMessage = async (text: string) => {
     const trimmed = text.trim();
@@ -103,42 +113,64 @@ export function CallAssistChat({
     }
   };
 
+  const saveInputAs = (type: NoteType) => {
+    if (!input.trim() || !onAddNote) return;
+    onAddNote(input.trim(), type);
+    setInput("");
+  };
+
   return (
     <div className={`flex flex-col h-full ${className}`}>
-      <div className="flex items-center gap-2 border-b border-[#111111]/10 px-4 py-3 shrink-0">
-        <div className="grid h-7 w-7 place-items-center rounded-full bg-violet-100">
+      <div className="flex items-center gap-2 border-b border-[#111111]/10 px-5 py-3 shrink-0 bg-white">
+        <div className="grid h-8 w-8 place-items-center rounded-full bg-violet-100">
           <Bot className="h-4 w-4 text-violet-600" />
         </div>
         <div>
-          <p className="text-xs font-semibold text-[#111111]">Call assistant</p>
-          <p className="text-[10px] text-[#6f6b62]">Ask anything — pulls from knowledge hub &amp; client context</p>
+          <p className="text-sm font-semibold text-[#111111]">Call assistant</p>
+          <p className="text-[10px] text-[#6f6b62]">Knowledge hub + connected record context</p>
         </div>
       </div>
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-5 space-y-3 min-h-0 bg-[#faf9f6]">
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`rounded-xl px-3 py-2.5 text-sm ${
+            className={`rounded-xl px-4 py-3 text-sm ${
               msg.role === "user"
-                ? "ml-6 bg-[#063b32] text-white"
-                : "mr-2 bg-[#f7f4ea] border border-[#111111]/10 text-[#111111]"
+                ? "ml-8 bg-[#063b32] text-white"
+                : "mr-4 bg-white border border-[#111111]/10 text-[#111111] shadow-sm"
             }`}
           >
             <p className="whitespace-pre-wrap leading-relaxed">{msg.content.replace(/\*\*(.*?)\*\*/g, "$1")}</p>
             {msg.role === "assistant" && onAddNote && msg.id !== "welcome" && (
-              <button
-                type="button"
-                onClick={() => onAddNote(msg.content.slice(0, 500))}
-                className="mt-2 text-[10px] font-semibold text-[#063b32] hover:underline"
-              >
-                + Add to call notes
-              </button>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => onAddNote(msg.content.slice(0, 500), "note")}
+                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                >
+                  <MessageSquarePlus className="h-3 w-3" /> Note
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAddNote(msg.content.slice(0, 500), "commitment")}
+                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 hover:underline"
+                >
+                  <ClipboardList className="h-3 w-3" /> Commitment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAddNote(msg.content.slice(0, 500), "question")}
+                  className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700 hover:underline"
+                >
+                  <HelpCircle className="h-3 w-3" /> Question
+                </button>
+              </div>
             )}
           </div>
         ))}
         {loading && (
-          <div className="flex items-center gap-2 rounded-xl bg-violet-50 border border-violet-200 px-3 py-2.5 text-xs text-violet-700">
+          <div className="flex items-center gap-2 rounded-xl bg-violet-50 border border-violet-200 px-4 py-3 text-xs text-violet-700">
             <Loader2 className="h-3.5 w-3.5 animate-spin" /> Thinking…
           </div>
         )}
@@ -148,13 +180,13 @@ export function CallAssistChat({
       </div>
 
       {messages.length <= 1 && (
-        <div className="px-4 pb-2 flex flex-wrap gap-1.5 shrink-0">
+        <div className="px-5 pb-2 flex flex-wrap gap-1.5 shrink-0 bg-[#faf9f6]">
           {SUGGESTED_PROMPTS.map((prompt) => (
             <button
               key={prompt}
               type="button"
               onClick={() => void sendMessage(prompt)}
-              className="rounded-full border border-violet-200 bg-violet-50 px-2.5 py-1 text-[10px] font-semibold text-violet-700 hover:bg-violet-100"
+              className="rounded-full border border-violet-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-violet-700 hover:bg-violet-50"
             >
               {prompt}
             </button>
@@ -162,33 +194,64 @@ export function CallAssistChat({
         </div>
       )}
 
-      <div className="border-t border-[#111111]/10 p-3 shrink-0">
-        <div className="flex gap-2">
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                void sendMessage(input);
-              }
-            }}
-            placeholder="Ask about pain points, persona, VAT, what to say…"
-            rows={2}
-            className="flex-1 resize-none rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-          />
+      <div className="border-t border-[#111111]/10 p-4 shrink-0 bg-white">
+        <textarea
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              void sendMessage(input);
+            }
+          }}
+          placeholder="Ask about context, pain points, what to say, or help drafting…"
+          rows={3}
+          className="w-full resize-none rounded-lg border border-[#111111]/15 px-3 py-2.5 text-sm outline-none focus:border-[#063b32]"
+        />
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            {onAddNote && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => saveInputAs("note")}
+                  disabled={!input.trim()}
+                  className="rounded-full border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62] hover:border-[#063b32]/30 disabled:opacity-40"
+                >
+                  Save as note
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveInputAs("commitment")}
+                  disabled={!input.trim()}
+                  className="rounded-full border border-emerald-200 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-40"
+                >
+                  Save commitment
+                </button>
+                <button
+                  type="button"
+                  onClick={() => saveInputAs("question")}
+                  disabled={!input.trim()}
+                  className="rounded-full border border-blue-200 px-2.5 py-1 text-[10px] font-semibold text-blue-700 hover:bg-blue-50 disabled:opacity-40"
+                >
+                  Save question
+                </button>
+              </>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => void sendMessage(input)}
             disabled={!input.trim() || loading}
-            className="self-end rounded-lg bg-violet-600 px-3 py-2 text-white hover:bg-violet-700 disabled:opacity-40"
+            className="flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-40"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            Send
           </button>
         </div>
-        <p className="mt-1.5 flex items-center gap-1 text-[9px] text-[#6f6b62]">
-          <Sparkles className="h-3 w-3" /> Powered by knowledge hub — sector, persona, pain points, VAT
+        <p className="mt-2 flex items-center gap-1 text-[9px] text-[#6f6b62]">
+          <Sparkles className="h-3 w-3" /> Haiku · knowledge hub + DB context
         </p>
       </div>
     </div>

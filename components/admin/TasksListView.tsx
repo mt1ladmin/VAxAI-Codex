@@ -120,9 +120,21 @@ function TaskRow({
   );
 }
 
-function TaskBoardCard({ task, onMarkDone }: { task: EngagementTask; onMarkDone: (id: string) => void }) {
+function TaskBoardCard({
+  task,
+  onMarkDone,
+  onDragStart,
+}: {
+  task: EngagementTask;
+  onMarkDone: (id: string) => void;
+  onDragStart: (taskId: string) => void;
+}) {
   return (
-    <div className="rounded-lg border border-[#111111]/10 bg-white p-3 shadow-sm">
+    <div
+      draggable
+      onDragStart={() => onDragStart(task.id)}
+      className="cursor-grab rounded-lg border border-[#111111]/10 bg-white p-3 shadow-sm active:cursor-grabbing"
+    >
       <div className="flex items-start gap-2">
         <button
           type="button"
@@ -173,17 +185,19 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ title: "", priority: "medium", due_date: "", notes: "", task_type: "follow_up" });
   const [saveError, setSaveError] = useState("");
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
-    if (status) params.set("status", status);
+    if (view === "list" && status) params.set("status", status);
     params.set("limit", "200");
     const res = await fetch(`/api/admin/engagement/tasks?${params}`);
     const json = (await res.json()) as { data: EngagementTask[] };
     setTasks(json.data || []);
     setLoading(false);
-  }, [status]);
+  }, [status, view]);
 
   useEffect(() => {
     void load();
@@ -213,13 +227,31 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
     return groups;
   }, [filteredTasks]);
 
-  const markDone = async (taskId: string) => {
+  const updateStatus = async (taskId: string, newStatus: string) => {
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)));
     await fetch(`/api/admin/engagement/tasks/${taskId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "done" }),
+      body: JSON.stringify({ status: newStatus }),
     });
     void load();
+  };
+
+  const markDone = async (taskId: string) => {
+    await updateStatus(taskId, "done");
+  };
+
+  const handleDrop = async (columnId: string) => {
+    if (!draggingId) return;
+    const task = tasks.find((t) => t.id === draggingId);
+    if (!task || task.status === columnId) {
+      setDraggingId(null);
+      setDropTarget(null);
+      return;
+    }
+    await updateStatus(draggingId, columnId);
+    setDraggingId(null);
+    setDropTarget(null);
   };
 
   const saveTask = async () => {
@@ -347,6 +379,7 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
         )}
 
         <div className="mb-5 flex flex-wrap items-center gap-3">
+          {view === "list" && (
           <div className="flex rounded-lg border border-[#111111]/15 overflow-hidden">
             {[
               { val: "todo", label: "To do" },
@@ -366,6 +399,7 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
               </button>
             ))}
           </div>
+          )}
           <select value={dueDateFilter} onChange={(e) => setDueDateFilter(e.target.value as DueDateFilter)} className={selectClass}>
             {DUE_DATE_FILTER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -403,14 +437,22 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
             {BOARD_COLUMNS.map((col) => {
               const items = boardGroups[col.id] ?? [];
               return (
-                <div key={col.id} className="flex w-[260px] shrink-0 flex-col rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/30 overflow-hidden">
+                <div
+                  key={col.id}
+                  onDragOver={(e) => { e.preventDefault(); setDropTarget(col.id); }}
+                  onDragLeave={() => setDropTarget((prev) => (prev === col.id ? null : prev))}
+                  onDrop={(e) => { e.preventDefault(); void handleDrop(col.id); }}
+                  className={`flex min-w-[280px] flex-1 flex-col rounded-xl border overflow-hidden transition-colors ${
+                    dropTarget === col.id ? "border-[#063b32]/40 bg-[#063b32]/5" : "border-[#111111]/10 bg-[#f7f4ea]/30"
+                  }`}
+                >
                   <div className="border-b border-[#111111]/10 bg-[#f7f4ea] px-3.5 py-3 flex items-center justify-between">
                     <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${col.color}`}>{col.label}</span>
                     <span className="text-[10px] font-bold text-[#6f6b62] tabular-nums">{items.length}</span>
                   </div>
                   <div className="min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto p-2 space-y-2 scrollbar-subtle">
                     {items.map((t) => (
-                      <TaskBoardCard key={t.id} task={t} onMarkDone={markDone} />
+                      <TaskBoardCard key={t.id} task={t} onMarkDone={markDone} onDragStart={setDraggingId} />
                     ))}
                     {items.length === 0 && (
                       <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-[#111111]/10 text-[11px] text-[#6f6b62]/50">

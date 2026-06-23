@@ -57,8 +57,8 @@ export function OpportunitiesListView({
   const stats = useMemo(() => computePipelineStats(opps), [opps]);
   const showStageColumn = !stageFilter;
   const tableCols = showStageColumn
-    ? "grid grid-cols-[minmax(160px,1.5fr)_minmax(120px,1fr)_minmax(110px,0.9fr)_minmax(88px,0.7fr)_88px_64px_minmax(120px,1fr)] gap-3 items-center"
-    : "grid grid-cols-[minmax(160px,1.5fr)_minmax(120px,1fr)_minmax(110px,0.9fr)_88px_64px_minmax(120px,1fr)] gap-3 items-center";
+    ? "grid grid-cols-[minmax(160px,1.4fr)_minmax(120px,1fr)_minmax(100px,0.8fr)_minmax(90px,0.7fr)_minmax(100px,0.8fr)_56px_minmax(160px,1.2fr)] gap-3 items-center"
+    : "grid grid-cols-[minmax(160px,1.4fr)_minmax(120px,1fr)_minmax(100px,0.8fr)_minmax(100px,0.8fr)_56px_minmax(160px,1.2fr)] gap-3 items-center";
 
   const filteredOpps = useMemo(() => {
     return opps
@@ -177,9 +177,9 @@ export function OpportunitiesListView({
             </p>
           </div>
         ) : (
-          <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden shadow-sm">
+          <div className="overflow-x-auto rounded-xl border border-[#111111]/10 bg-white shadow-sm">
             <div
-              className={`${tableCols} bg-[#ebe8df] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]`}
+              className={`${tableCols} min-w-[900px] bg-[#ebe8df] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]`}
             >
               <span>Opportunity</span>
               <span>Contact / org</span>
@@ -202,10 +202,10 @@ export function OpportunitiesListView({
                     onKeyDown={(e) => {
                       if (e.key === "Enter") router.push(`/admin/engagement/pipeline/opportunities/${opp.id}`);
                     }}
-                    className={`${tableCols} px-5 py-3.5 cursor-pointer hover:bg-[#f7f4ea]/60 transition-colors`}
+                    className={`${tableCols} min-w-[900px] px-5 py-3.5 cursor-pointer hover:bg-[#f7f4ea]/60 transition-colors`}
                   >
-                    <span className="text-sm font-semibold text-[#111111] truncate">{opp.title}</span>
-                    <span className="text-xs text-[#6f6b62] truncate">{opportunityPartyLabel(opp)}</span>
+                    <span className="text-sm font-semibold text-[#111111] line-clamp-2">{opp.title}</span>
+                    <span className="text-xs text-[#6f6b62] line-clamp-2">{opportunityPartyLabel(opp)}</span>
                     <span onClick={(e) => e.stopPropagation()}>
                       {opp.enquiry_id || opp.queue_id ? (
                         <OpportunitySourceBadge opportunity={opp} compact />
@@ -222,9 +222,16 @@ export function OpportunitiesListView({
                         </span>
                       </span>
                     )}
-                    <span className="text-xs font-semibold text-[#063b32] tabular-nums">{value ?? "—"}</span>
-                    <span className="text-xs text-[#6f6b62] tabular-nums">{tasksOpen || "—"}</span>
-                    <span className="text-xs text-[#6f6b62] truncate">{opp.next_action ?? "—"}</span>
+                    <span className="text-xs font-semibold text-[#063b32] tabular-nums whitespace-nowrap" title={value ?? undefined}>{value ?? "—"}</span>
+                    <span className="text-xs text-[#6f6b62] tabular-nums text-center">{tasksOpen || "—"}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs text-[#111111] line-clamp-2" title={opp.next_action ?? undefined}>{opp.next_action ?? "—"}</p>
+                      {opp.expected_decision_date && (
+                        <p className="mt-0.5 text-[10px] text-[#6f6b62]">
+                          By {new Date(opp.expected_decision_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 );
               })}

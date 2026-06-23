@@ -16,7 +16,7 @@ export type PrepCard = {
 export type CustomCard = { id: string; title: string; content: string };
 
 export type ProspectCallContext = {
-  sourceType: "enquiry" | "queue" | "contact";
+  sourceType: "enquiry" | "queue" | "contact" | "opportunity";
   sourceId: string;
   enquiryId?: string | null;
   opportunityId?: string | null;
