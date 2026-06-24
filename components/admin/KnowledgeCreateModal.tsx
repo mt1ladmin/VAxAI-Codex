@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Loader2, Plus, Sparkles, X } from "lucide-react";
+import { type ReactNode, useEffect, useState } from "react";
+import { ArrowLeft, Loader2, Plus, Sparkles, X } from "lucide-react";
 
 type ItemType = "persona" | "sector" | "pain_point";
 
@@ -26,6 +26,8 @@ export function KnowledgeCreateModal({
   const [mode, setMode] = useState<"manual" | "ai">("manual");
   const [aiBrief, setAiBrief] = useState("");
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [previewData, setPreviewData] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState("");
 
   const [personaName, setPersonaName] = useState("");
@@ -47,8 +49,16 @@ export function KnowledgeCreateModal({
       setItemType(defaultType);
       setError("");
       setMode("manual");
+      setPreviewData(null);
+      setAiBrief("");
     }
   }, [open, defaultType]);
+
+  useEffect(() => {
+    setPreviewData(null);
+    setAiBrief("");
+    setError("");
+  }, [itemType, mode]);
 
   if (!open) return null;
 
@@ -86,22 +96,30 @@ export function KnowledgeCreateModal({
     };
   };
 
+  const generatePreview = async () => {
+    setGenerating(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/engagement/knowledge-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item_type: itemType, brief: aiBrief }),
+      });
+      const json = (await res.json()) as { data?: Record<string, unknown>; error?: string };
+      if (!res.ok || !json.data) throw new Error(json.error ?? "AI generation failed");
+      setPreviewData(json.data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Generation failed");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError("");
     try {
-      let payload: Record<string, unknown> = buildPayload();
-      if (mode === "ai") {
-        const genRes = await fetch("/api/admin/engagement/knowledge-generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ item_type: itemType, brief: aiBrief }),
-        });
-        const genJson = (await genRes.json()) as { data?: Record<string, unknown>; error?: string };
-        if (!genRes.ok || !genJson.data) throw new Error(genJson.error ?? "AI generation failed");
-        payload = buildPayload(genJson.data);
-      }
-
+      const payload = previewData ? buildPayload(previewData) : buildPayload();
       const res = await fetch(ENDPOINTS[itemType], {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -116,6 +134,19 @@ export function KnowledgeCreateModal({
     } finally {
       setSaving(false);
     }
+  };
+
+  const renderPreviewValue = (value: unknown): ReactNode => {
+    if (Array.isArray(value)) {
+      return (
+        <ul className="mt-1 space-y-0.5">
+          {(value as string[]).map((item, i) => (
+            <li key={i} className="text-sm text-[#111111] before:mr-1.5 before:content-['·'] before:text-[#6f6b62]">{item}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p className="mt-1 text-sm text-[#111111]">{String(value)}</p>;
   };
 
   return (
@@ -153,12 +184,29 @@ export function KnowledgeCreateModal({
             </button>
           </div>
 
-          {mode === "ai" ? (
+          {mode === "ai" && previewData ? (
+            <div className="space-y-3">
+              <div className="rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 px-3 py-2 text-xs font-semibold text-[#063b32]">
+                Preview — review before saving
+              </div>
+              {Object.entries(previewData)
+                .filter(([k]) => k !== "status")
+                .map(([key, value]) => {
+                  if (!value || (Array.isArray(value) && value.length === 0)) return null;
+                  return (
+                    <div key={key}>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{key.replace(/_/g, " ")}</p>
+                      {renderPreviewValue(value)}
+                    </div>
+                  );
+                })}
+            </div>
+          ) : mode === "ai" ? (
             <textarea
               value={aiBrief}
               onChange={(e) => setAiBrief(e.target.value)}
               rows={5}
-              placeholder="Describe what to create — the AI will follow Knowledge Hub templates and publish when saved."
+              placeholder="Describe what to create — the AI will follow Knowledge Hub templates and you can review before saving."
               className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
             />
           ) : itemType === "persona" ? (
@@ -187,16 +235,52 @@ export function KnowledgeCreateModal({
         </div>
 
         <div className="flex justify-end gap-2 border-t px-5 py-4">
-          <button type="button" onClick={onClose} className="rounded-lg border px-4 py-2 text-sm font-semibold text-[#6f6b62]">Cancel</button>
-          <button
-            type="button"
-            onClick={() => void handleSave()}
-            disabled={saving}
-            className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            Save &amp; publish
-          </button>
+          {mode === "ai" && previewData ? (
+            <>
+              <button
+                type="button"
+                onClick={() => { setPreviewData(null); setError(""); }}
+                className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleSave()}
+                disabled={saving}
+                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                Approve &amp; save
+              </button>
+            </>
+          ) : mode === "ai" && !previewData ? (
+            <>
+              <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]">Cancel</button>
+              <button
+                type="button"
+                onClick={() => void generatePreview()}
+                disabled={generating || aiBrief.trim().length === 0}
+                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Generate preview
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]">Cancel</button>
+              <button
+                type="button"
+                onClick={() => void handleSave()}
+                disabled={saving}
+                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                Save &amp; publish
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
