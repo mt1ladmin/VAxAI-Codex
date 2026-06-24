@@ -72,8 +72,6 @@ export function isMemberPathAllowed(pathname: string): boolean {
 }
 
 export function isMemberApiAllowed(pathname: string, method: string): boolean {
-  if (pathname.includes("/promote")) return false;
-
   const allowed = MEMBER_API_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
