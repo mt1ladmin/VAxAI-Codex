@@ -34,12 +34,7 @@ export async function GET(req: NextRequest) {
     engagement_status: searchParams.get("engagement_status") || undefined,
     my_prospects: searchParams.get("my_prospects") === "true",
     unassigned: searchParams.get("unassigned") === "true",
-    in_queue:
-      searchParams.get("in_queue") === "true"
-        ? true
-        : searchParams.get("in_queue") === "false"
-          ? false
-          : undefined,
+
     userEmail: searchParams.get("user_email") || undefined,
     members,
   });

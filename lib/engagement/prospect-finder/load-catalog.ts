@@ -72,7 +72,7 @@ export type FinderListFilters = {
   engagement_status?: string;
   my_prospects?: boolean;
   unassigned?: boolean;
-  in_queue?: boolean;
+
   userEmail?: string | null;
   members: StudioTeamMember[];
 };
@@ -99,11 +99,8 @@ export function filterFinderList(
   if (filters.unassigned) {
     filtered = filtered.filter((p) => !p.assigned_team_member_id);
   }
-  if (filters.in_queue === true) {
-    filtered = filtered.filter((p) => p.in_prospect_queue);
-  } else if (filters.in_queue === false) {
-    filtered = filtered.filter((p) => !p.in_prospect_queue);
-  }
+  // Promoted prospects live in Prospect Queue only — never duplicate in Finder.
+  filtered = filtered.filter((p) => !p.in_prospect_queue);
   if (filters.my_prospects) {
     const me = teamMemberForUserEmail(filters.members, filters.userEmail);
     if (me) filtered = filtered.filter((p) => p.assigned_team_member_id === me.id);

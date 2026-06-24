@@ -29,8 +29,8 @@ import { buildClientContextSummary } from "@/lib/ai/context-builders";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import { emailComposeUrl } from "@/lib/engagement/email-links";
-import { queueStageLabel } from "@/lib/engagement/queue-stage-hints";
-import { PROSPECT_FINDER_PATH, PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
+import { queueStageHint, queueStageLabel } from "@/lib/engagement/queue-stage-hints";
+import { PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import {
   clearLinkedNextAction,
@@ -132,6 +132,7 @@ function ClientDetailContent() {
   const [savingNote, setSavingNote] = useState(false);
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
+  const [handoffNoteOpen, setHandoffNoteOpen] = useState(false);
 
   // AI context — set once contact data is loaded
   const contactFullName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}` : null;
@@ -346,6 +347,10 @@ function ClientDetailContent() {
     linkedEnquiry?.last_action_date ||
     primaryOpp?.updated_at ||
     null;
+  const handoffNote =
+    primaryOpp?.desired_outcomes?.trim() ||
+    outreachRecord?.opportunity_description?.trim() ||
+    null;
   return (
     <div className="min-h-screen bg-white">
       <RecordBackNav
@@ -445,9 +450,47 @@ function ClientDetailContent() {
 
           {primaryOpp && (
             <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
-                {queueStageLabel(primaryOpp.stage)}
-              </p>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
+                    {queueStageLabel(primaryOpp.stage)}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[#111111]">{primaryOpp.stage}</p>
+                  <p className="mt-1 text-xs text-[#6f6b62] leading-relaxed">
+                    {queueStageHint(primaryOpp.stage)}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                    STAGE_COLORS[primaryOpp.stage] || "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  {primaryOpp.stage}
+                </span>
+              </div>
+
+              {handoffNote && (
+                <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setHandoffNoteOpen((v) => !v)}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                      Move to queue note
+                    </span>
+                    <ChevronDown
+                      className={`h-4 w-4 text-[#6f6b62] transition-transform ${handoffNoteOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {handoffNoteOpen && (
+                    <div className="border-t border-[#111111]/10 px-4 py-3">
+                      <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{handoffNote}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <OpportunityPreviewCard
                 opportunity={primaryOpp}
                 editable
@@ -460,27 +503,16 @@ function ClientDetailContent() {
             </div>
           )}
 
-          {(linkedEnquiry || outreachRecord) && (
+          {linkedEnquiry && (
             <button
               type="button"
               onClick={() => setActiveTab("submission")}
               className="w-full rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
             >
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Source</p>
-              <p className="mt-1 text-sm font-semibold text-[#111111]">
-                {linkedEnquiry ? "Website enquiry" : "Prospect Finder"}
-              </p>
-              <p className="text-xs text-[#063b32] mt-0.5">View source record →</p>
+              <p className="mt-1 text-sm font-semibold text-[#111111]">Website enquiry</p>
+              <p className="text-xs text-[#063b32] mt-0.5">View submission details →</p>
             </button>
-          )}
-
-          {outreachRecord?.id && (
-            <Link
-              href={`${PROSPECT_FINDER_PATH}/${outreachRecord.id}`}
-              className="block w-full rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors text-sm font-semibold text-[#063b32]"
-            >
-              Open in Prospect Finder →
-            </Link>
           )}
         </div>
 
@@ -654,11 +686,17 @@ function ClientDetailContent() {
                         <span className="text-sm font-semibold text-[#111111]">Moved from Prospect Finder</span>
                       </div>
                       <p className="text-sm text-[#6f6b62]">
-                        Client journey and engagement guide are retained on this record. Open Prospect Finder for the original catalog entry.
+                        Research, client journey, and engagement guide from Prospect Finder are retained on this record.
+                        {handoffNote ? " The move-to-queue note is in the pipeline panel on the left." : ""}
                       </p>
-                      <Link href={`${PROSPECT_FINDER_PATH}/${outreachRecord.id}`} className="text-sm font-semibold text-[#063b32] hover:underline">
-                        Open in Prospect Finder →
-                      </Link>
+                      {handoffNote && (
+                        <div className="rounded-lg border border-amber-200/80 bg-white/80 p-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                            Move to queue note
+                          </p>
+                          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{handoffNote}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                   <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 flex items-center gap-3">

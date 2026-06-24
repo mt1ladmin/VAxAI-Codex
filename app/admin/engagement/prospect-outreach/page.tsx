@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
 import { BulkArchiveProspectsModal } from "@/components/admin/BulkArchiveProspectsModal";
-import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL, prospectQueueDetailPath } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { ProspectOutreachMeta } from "@/lib/engagement/prospect-outreach/types";
@@ -227,7 +227,12 @@ export default function ProspectFinderPage() {
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">In Prospect Queue</p>
-              <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#063b32]">{(meta.in_queue_count ?? 0).toLocaleString()}</p>
+              <Link
+                href="/admin/engagement/prospect-queue"
+                className="mt-0.5 block text-xl font-semibold tabular-nums text-[#063b32] hover:underline"
+              >
+                {(meta.in_queue_count ?? 0).toLocaleString()}
+              </Link>
             </div>
           </div>
         ) : null}
@@ -237,7 +242,6 @@ export default function ProspectFinderPage() {
             { label: "My prospects", params: { my_prospects: "true", unassigned: null, engagement_status: null } },
             { label: "Unassigned", params: { unassigned: "true", my_prospects: null, engagement_status: null } },
             { label: "Ready to move", params: { engagement_status: "Opportunity identified", unassigned: null, my_prospects: null } },
-            { label: `In ${PROSPECT_QUEUE_LABEL}`, params: { engagement_status: "In prospect queue", unassigned: null, my_prospects: null } },
           ].map((view) => (
             <button
               key={view.label}
@@ -248,6 +252,12 @@ export default function ProspectFinderPage() {
               {view.label}
             </button>
           ))}
+          <Link
+            href="/admin/engagement/prospect-queue"
+            className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+          >
+            Open {PROSPECT_QUEUE_LABEL}
+          </Link>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -400,17 +410,7 @@ export default function ProspectFinderPage() {
                       {p.engagement_status}
                     </td>
                     <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#6f6b62]">
-                      {p.in_prospect_queue && p.pipeline_contact_id ? (
-                        <Link
-                          href={prospectQueueDetailPath(p.pipeline_contact_id)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="font-semibold text-[#063b32] hover:underline"
-                        >
-                          Open in {PROSPECT_QUEUE_LABEL}
-                        </Link>
-                      ) : (
-                        <span className="truncate block">{p.next_action || "—"}</span>
-                      )}
+                      <span className="truncate block">{p.next_action || "—"}</span>
                     </td>
                   </tr>
                 );

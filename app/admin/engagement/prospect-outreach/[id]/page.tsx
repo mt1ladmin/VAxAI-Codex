@@ -31,7 +31,6 @@ import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
 import {
   MOVE_TO_PROSPECT_QUEUE_LABEL,
   PROSPECT_FINDER_LABEL,
-  PROSPECT_QUEUE_LABEL,
   prospectQueueDetailPath,
 } from "@/lib/engagement/journey";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
@@ -96,6 +95,12 @@ function ProspectFinderDetailContent() {
   }, [id]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    if (!loading && record?.in_prospect_queue && record.pipeline_contact_id) {
+      router.replace(prospectQueueDetailPath(record.pipeline_contact_id));
+    }
+  }, [loading, record, router]);
 
   useEffect(
     () =>
@@ -296,11 +301,7 @@ function ProspectFinderDetailContent() {
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Pipeline</p>
-            {record.in_prospect_queue && record.pipeline_contact_id ? (
-              <Link href={prospectQueueDetailPath(record.pipeline_contact_id)} className="text-sm font-semibold text-[#063b32] hover:underline">
-                View in {PROSPECT_QUEUE_LABEL}
-              </Link>
-            ) : record.engagement_status === "Opportunity identified" ? (
+            {record.engagement_status === "Opportunity identified" ? (
               <button
                 type="button"
                 onClick={() => setShowMoveModal(true)}

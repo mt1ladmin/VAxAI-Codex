@@ -115,7 +115,7 @@ export async function GET(req: NextRequest) {
     members,
     assigned_to: resolvedMemberId || undefined,
     unassigned: !resolvedMemberId,
-    in_queue: false,
+
   });
 
   const finderItems = finderFiltered
