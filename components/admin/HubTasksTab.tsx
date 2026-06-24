@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Calendar, Check, ChevronDown, Loader2, Plus, Save, Target } from "lucide-react";
+import { Calendar, Check, ChevronDown, Loader2, Plus, Save, Target, Trash2 } from "lucide-react";
 import type { LinkedNextAction } from "@/lib/engagement/linked-next-actions";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import type { EngagementTask } from "@/lib/engagement/types";
@@ -33,6 +33,7 @@ type HubTasksTabProps = {
     taskId: string,
     payload: { title: string; due_date: string | null; notes: string | null },
   ) => Promise<void>;
+  onDeleteTask?: (taskId: string) => Promise<void>;
   onSaveLinkedNextAction?: (item: LinkedNextAction, payload: { title: string; dueDate: string | null }) => Promise<void>;
   onCompleteLinkedNextAction?: (item: LinkedNextAction) => Promise<void>;
   showDone: boolean;
@@ -67,6 +68,7 @@ export function HubTasksTab({
   onMarkDone,
   onMarkUndone,
   onUpdateTask,
+  onDeleteTask,
   onSaveLinkedNextAction,
   onCompleteLinkedNextAction,
   showDone,
@@ -80,6 +82,7 @@ export function HubTasksTab({
   const [completingKey, setCompletingKey] = useState<string | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [savingTaskEdit, setSavingTaskEdit] = useState(false);
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
   const visibleLinked = tasksOnly ? [] : linkedNextActions;
   const sortedLinked = sortByDue(visibleLinked);
@@ -122,6 +125,16 @@ export function HubTasksTab({
       setEditingTaskId(null);
     } finally {
       setSavingTaskEdit(false);
+    }
+  };
+
+  const deleteTask = async (taskId: string) => {
+    if (!onDeleteTask) return;
+    setDeletingTaskId(taskId);
+    try {
+      await onDeleteTask(taskId);
+    } finally {
+      setDeletingTaskId(null);
     }
   };
 
@@ -408,6 +421,17 @@ export function HubTasksTab({
                         className="shrink-0 text-[10px] font-semibold text-[#063b32] hover:underline"
                       >
                         Edit
+                      </button>
+                    )}
+                    {onDeleteTask && (
+                      <button
+                        type="button"
+                        onClick={() => void deleteTask(t.id)}
+                        disabled={deletingTaskId === t.id}
+                        className="shrink-0 text-[10px] font-semibold text-red-600 hover:underline disabled:opacity-50"
+                        title="Delete task"
+                      >
+                        {deletingTaskId === t.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                       </button>
                     )}
                   </div>

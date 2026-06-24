@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, Pencil, Save, X } from "lucide-react";
 import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { COMPLEXITY_COLORS } from "@/lib/engagement/prospect-outreach/types";
@@ -38,6 +38,7 @@ function EditableTextField({
   rows = 4,
   placeholder,
   multiline = true,
+  flat,
 }: {
   label: string;
   value: string;
@@ -46,6 +47,7 @@ function EditableTextField({
   rows?: number;
   placeholder?: string;
   multiline?: boolean;
+  flat?: boolean;
 }) {
   return (
     <EditableFieldCard
@@ -54,6 +56,7 @@ function EditableTextField({
       rows={rows}
       multiline={multiline}
       placeholder={placeholder}
+      flat={flat}
       onSave={(next) => onSaveField(field, next)}
     />
   );
@@ -65,12 +68,14 @@ function EditableListField({
   field,
   onSaveField,
   placeholder,
+  flat,
 }: {
   label: string;
   items: string[] | undefined;
   field: string;
   onSaveField: (field: string, value: SaveFieldValue) => Promise<void>;
   placeholder?: string;
+  flat?: boolean;
 }) {
   return (
     <EditableFieldCard
@@ -78,6 +83,7 @@ function EditableListField({
       value={linesFromItems(items)}
       rows={5}
       placeholder={placeholder ?? "One item per line"}
+      flat={flat}
       onSave={(next) => onSaveField(field, itemsFromLines(next))}
     />
   );
@@ -165,114 +171,65 @@ function EvidenceAndAssessment({
   editable?: boolean;
   onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
 }) {
-  const content = editable && onSaveField ? (
-    <div className="space-y-3">
-      <EditableTextField
-        label="Evidence summary"
-        value={data.evidence_summary || ""}
-        field="evidence_summary"
-        onSaveField={onSaveField}
-        rows={5}
-      />
-      <EditableTextField
-        label="Need rationale"
-        value={data.need_rationale || ""}
-        field="need_rationale"
-        onSaveField={onSaveField}
-        rows={5}
-      />
-      <EditableTextField
-        label="Complexity"
-        value={data.complexity_rationale || ""}
-        field="complexity_rationale"
-        onSaveField={onSaveField}
-      />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <EditableTextField
-          label="Admin capacity"
-          value={data.admin_capacity || ""}
-          field="admin_capacity"
-          onSaveField={onSaveField}
-          multiline={false}
-        />
-        <EditableTextField
-          label="AI / automation use"
-          value={data.ai_automation_use || ""}
-          field="ai_automation_use"
-          onSaveField={onSaveField}
-          multiline={false}
-        />
-        <EditableTextField
-          label="Data sensitivity"
-          value={data.data_sensitivity || ""}
-          field="data_sensitivity"
-          onSaveField={onSaveField}
-          multiline={false}
-        />
-        <EditableTextField
-          label="Systems landscape"
-          value={data.systems_landscape || ""}
-          field="systems_landscape"
-          onSaveField={onSaveField}
-          rows={4}
-        />
-      </div>
-    </div>
-  ) : (
-    <>
-      <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence</p>
-        <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">
-          {data.evidence_summary || data.need_rationale || "—"}
-        </p>
-      </div>
-      {data.complexity_rationale && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity</p>
-          <p className="mt-1 text-sm text-[#111111]">{data.complexity_rationale}</p>
-        </div>
-      )}
-      <div className="grid gap-3 sm:grid-cols-2">
-        {data.admin_capacity && (
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Admin capacity</p>
-            <p className="mt-1 text-sm">{data.admin_capacity}</p>
-          </div>
-        )}
-        {data.ai_automation_use && (
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">AI / automation use</p>
-            <p className="mt-1 text-sm">{data.ai_automation_use}</p>
-          </div>
-        )}
-        {data.data_sensitivity && (
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Data sensitivity</p>
-            <p className="mt-1 text-sm">{data.data_sensitivity}</p>
-          </div>
-        )}
-        {data.systems_landscape && (
-          <div className="sm:col-span-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Systems landscape</p>
-            <p className="mt-1 text-sm">{data.systems_landscape}</p>
-          </div>
-        )}
-      </div>
-    </>
-  );
-
-  if (editable) {
+  if (editable && onSaveField) {
     return (
-      <div className="space-y-3">
+      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-3">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence and assessment</p>
-        {content}
+        <EditableTextField label="Evidence summary" value={data.evidence_summary || ""} field="evidence_summary" onSaveField={onSaveField} rows={5} flat />
+        <EditableTextField label="Need rationale" value={data.need_rationale || ""} field="need_rationale" onSaveField={onSaveField} rows={5} flat />
+        <EditableTextField label="Complexity" value={data.complexity_rationale || ""} field="complexity_rationale" onSaveField={onSaveField} flat />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <EditableTextField label="Admin capacity" value={data.admin_capacity || ""} field="admin_capacity" onSaveField={onSaveField} multiline={false} flat />
+          <EditableTextField label="AI / automation use" value={data.ai_automation_use || ""} field="ai_automation_use" onSaveField={onSaveField} multiline={false} flat />
+          <EditableTextField label="Data sensitivity" value={data.data_sensitivity || ""} field="data_sensitivity" onSaveField={onSaveField} multiline={false} flat />
+          <EditableTextField label="Systems landscape" value={data.systems_landscape || ""} field="systems_landscape" onSaveField={onSaveField} rows={4} flat />
+        </div>
       </div>
     );
   }
 
   return (
     <CollapsibleSection title="Evidence and assessment" defaultOpen>
-      {content}
+      <>
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence</p>
+          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">
+            {data.evidence_summary || data.need_rationale || "—"}
+          </p>
+        </div>
+        {data.complexity_rationale && (
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.complexity_rationale}</p>
+          </div>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {data.admin_capacity && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Admin capacity</p>
+              <p className="mt-1 text-sm">{data.admin_capacity}</p>
+            </div>
+          )}
+          {data.ai_automation_use && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">AI / automation use</p>
+              <p className="mt-1 text-sm">{data.ai_automation_use}</p>
+            </div>
+          )}
+          {data.data_sensitivity && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Data sensitivity</p>
+              <p className="mt-1 text-sm">{data.data_sensitivity}</p>
+            </div>
+          )}
+          {data.systems_landscape && (
+            <div className="sm:col-span-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Systems landscape</p>
+              <p className="mt-1 text-sm">{data.systems_landscape}</p>
+            </div>
+          )}
+        </div>
+      </>
     </CollapsibleSection>
   );
 }
@@ -289,36 +246,11 @@ function VaxaiSupportContent({
   if (editable && onSaveField) {
     return (
       <div className="space-y-3">
-        <EditableListField
-          label="Best-fit VAxAI support"
-          items={data.vaxai_direct_support}
-          field="vaxai_direct_support"
-          onSaveField={onSaveField}
-        />
-        <EditableListField
-          label="Partial VAxAI role"
-          items={data.vaxai_partial_support}
-          field="vaxai_partial_support"
-          onSaveField={onSaveField}
-        />
-        <EditableListField
-          label="Specialist / partner may be needed"
-          items={data.partner_support}
-          field="partner_support"
-          onSaveField={onSaveField}
-        />
-        <EditableTextField
-          label="Capability boundaries"
-          value={data.capability_boundaries || ""}
-          field="capability_boundaries"
-          onSaveField={onSaveField}
-        />
-        <EditableTextField
-          label="Build vs improve"
-          value={data.bespoke_build_note || ""}
-          field="bespoke_build_note"
-          onSaveField={onSaveField}
-        />
+        <EditableListField label="Best-fit VAxAI support" items={data.vaxai_direct_support} field="vaxai_direct_support" onSaveField={onSaveField} flat />
+        <EditableListField label="Partial VAxAI role" items={data.vaxai_partial_support} field="vaxai_partial_support" onSaveField={onSaveField} flat />
+        <EditableListField label="Specialist / partner may be needed" items={data.partner_support} field="partner_support" onSaveField={onSaveField} flat />
+        <EditableTextField label="Capability boundaries" value={data.capability_boundaries || ""} field="capability_boundaries" onSaveField={onSaveField} flat />
+        <EditableTextField label="Build vs improve" value={data.bespoke_build_note || ""} field="bespoke_build_note" onSaveField={onSaveField} flat />
       </div>
     );
   }
@@ -394,21 +326,11 @@ function RecommendedEngagement({
 }) {
   if (editable && onSaveField) {
     return (
-      <div className="space-y-3">
-        <EditableTextField
-          label="Recommended engagement"
-          value={data.recommended_engagement || ""}
-          field="recommended_engagement"
-          onSaveField={onSaveField}
-          rows={6}
-        />
-        <EditableTextField
-          label="Accessibility note"
-          value={data.accessibility_considerations || ""}
-          field="accessibility_considerations"
-          onSaveField={onSaveField}
-          rows={4}
-        />
+      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement guide</p>
+        <EditableTextField label="Engagement guide" value={data.engagement_approach || ""} field="engagement_approach" onSaveField={onSaveField} rows={18} placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…" flat />
+        <EditableTextField label="Recommended engagement" value={data.recommended_engagement || ""} field="recommended_engagement" onSaveField={onSaveField} rows={6} flat />
+        <EditableTextField label="Accessibility note" value={data.accessibility_considerations || ""} field="accessibility_considerations" onSaveField={onSaveField} rows={4} flat />
       </div>
     );
   }
@@ -440,13 +362,10 @@ function StillToConfirm({
 }) {
   if (editable && onSaveField) {
     return (
-      <EditableListField
-        label="Still to confirm"
-        items={data.open_questions}
-        field="open_questions"
-        onSaveField={onSaveField}
-        placeholder="One question per line"
-      />
+      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Still to confirm</p>
+        <EditableListField label="Open questions" items={data.open_questions} field="open_questions" onSaveField={onSaveField} placeholder="One question per line" flat />
+      </div>
     );
   }
 
@@ -469,6 +388,39 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: 
   const showSupport = resolvedMode === "support" || resolvedMode === "full";
   const showRecommended = resolvedMode === "recommended_engagement" || resolvedMode === "full";
   const showOpenQuestions = resolvedMode === "research" || resolvedMode === "full";
+
+  const [editingSummary, setEditingSummary] = useState(false);
+  const [summaryForm, setSummaryForm] = useState({
+    service_fit_summary: data.service_fit_summary || "",
+    likely_need: data.likely_need || "",
+    complexity_level: data.complexity_level || "",
+    engagement_basis: data.engagement_basis || "",
+  });
+  const [savingSummary, setSavingSummary] = useState(false);
+
+  const startSummaryEdit = () => {
+    setSummaryForm({
+      service_fit_summary: data.service_fit_summary || "",
+      likely_need: data.likely_need || "",
+      complexity_level: data.complexity_level || "",
+      engagement_basis: data.engagement_basis || "",
+    });
+    setEditingSummary(true);
+  };
+
+  const saveSummary = async () => {
+    if (!onSaveField) return;
+    setSavingSummary(true);
+    try {
+      await onSaveField("service_fit_summary", summaryForm.service_fit_summary.trim());
+      await onSaveField("likely_need", summaryForm.likely_need.trim());
+      await onSaveField("complexity_level", summaryForm.complexity_level.trim());
+      await onSaveField("engagement_basis", summaryForm.engagement_basis.trim());
+      setEditingSummary(false);
+    } finally {
+      setSavingSummary(false);
+    }
+  };
 
   if (resolvedMode === "overview" && !data.service_fit_summary && !data.likely_need) {
     return (
@@ -506,33 +458,107 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: 
     <div className="space-y-4">
       {showSummary && (
         <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
-            {data.complexity_level && (
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                  COMPLEXITY_COLORS[data.complexity_level] || "bg-slate-100 text-slate-600"
-                }`}
-              >
-                {data.complexity_level} complexity
-              </span>
-            )}
-            {data.engagement_basis && data.engagement_basis !== "unknown" && (
-              <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62] capitalize">
-                {data.engagement_basis.replace("_", " ")} support
-              </span>
-            )}
-            {data.bespoke_build_fit === false && (
-              <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
-                Improve existing first
-              </span>
-            )}
-          </div>
-          <p className="mt-2 text-sm font-medium text-[#111111]">
-            {data.service_fit_summary || data.likely_need}
-          </p>
-          {resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary && (
-            <p className="mt-2 text-sm text-[#6f6b62]">{data.likely_need}</p>
+          {editingSummary ? (
+            <div className="space-y-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Service fit summary</label>
+                <textarea
+                  value={summaryForm.service_fit_summary}
+                  onChange={(e) => setSummaryForm((f) => ({ ...f, service_fit_summary: e.target.value }))}
+                  rows={3}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Likely need</label>
+                <textarea
+                  value={summaryForm.likely_need}
+                  onChange={(e) => setSummaryForm((f) => ({ ...f, likely_need: e.target.value }))}
+                  rows={2}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Complexity level</label>
+                  <input
+                    value={summaryForm.complexity_level}
+                    onChange={(e) => setSummaryForm((f) => ({ ...f, complexity_level: e.target.value }))}
+                    placeholder="e.g. low, medium, high"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement basis</label>
+                  <input
+                    value={summaryForm.engagement_basis}
+                    onChange={(e) => setSummaryForm((f) => ({ ...f, engagement_basis: e.target.value }))}
+                    placeholder="e.g. retainer, project"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => void saveSummary()}
+                  disabled={savingSummary}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                >
+                  {savingSummary ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingSummary(false)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-white/50"
+                >
+                  <X className="h-3.5 w-3.5" /> Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
+                {data.complexity_level && (
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                      COMPLEXITY_COLORS[data.complexity_level] || "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {data.complexity_level} complexity
+                  </span>
+                )}
+                {data.engagement_basis && data.engagement_basis !== "unknown" && (
+                  <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62] capitalize">
+                    {data.engagement_basis.replace("_", " ")} support
+                  </span>
+                )}
+                {data.bespoke_build_fit === false && (
+                  <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                    Improve existing first
+                  </span>
+                )}
+                {editable && onSaveField && (
+                  <button
+                    type="button"
+                    onClick={startSummaryEdit}
+                    className="ml-auto inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                  >
+                    <Pencil className="h-3 w-3" /> Edit
+                  </button>
+                )}
+              </div>
+              <p className="mt-2 text-sm font-medium text-[#111111]">
+                {data.service_fit_summary || data.likely_need}
+              </p>
+              {resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary && (
+                <p className="mt-2 text-sm text-[#6f6b62]">{data.likely_need}</p>
+              )}
+            </>
           )}
         </div>
       )}

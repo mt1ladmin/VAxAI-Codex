@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Pencil, Save, X } from "lucide-react";
+import { Loader2, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import { parseNoteEntries, serializeNoteEntries } from "@/lib/engagement/parse-notes";
 
 type Props = {
   notes: string | null;
   showAddNote: boolean;
   onHideAddNote: () => void;
+  onShowAddNote?: () => void;
   noteText: string;
   onNoteTextChange: (value: string) => void;
   saving: boolean;
@@ -26,6 +27,7 @@ export function HubNotesTab({
   notes,
   showAddNote,
   onHideAddNote,
+  onShowAddNote,
   noteText,
   onNoteTextChange,
   saving,
@@ -38,6 +40,7 @@ export function HubNotesTab({
   const [editingInModal, setEditingInModal] = useState(false);
   const [editDraft, setEditDraft] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [deletingNote, setDeletingNote] = useState(false);
   const entries = parseNoteEntries(notes);
 
   const closeModal = () => {
@@ -74,11 +77,35 @@ export function HubNotesTab({
     }
   };
 
+  const deleteNote = async () => {
+    if (!onReplaceNotes || viewingIndex === null) return;
+    const nextEntries = entries.filter((_, i) => i !== viewingIndex);
+    setDeletingNote(true);
+    try {
+      await onReplaceNotes(serializeNoteEntries(nextEntries));
+      closeModal();
+    } finally {
+      setDeletingNote(false);
+    }
+  };
+
   const viewingEntry = viewingIndex !== null ? entries[viewingIndex] : null;
 
   return (
     <>
       {header}
+
+      {onShowAddNote && !showAddNote && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={onShowAddNote}
+            className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
+          >
+            <Plus className="h-3.5 w-3.5" /> New note
+          </button>
+        </div>
+      )}
 
       {showAddNote && (
         <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
@@ -180,38 +207,51 @@ export function HubNotesTab({
               ) : (
                 <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{viewingEntry.body}</p>
               )}
-              <div className="flex gap-2">
-                {editingInModal ? (
-                  <>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex gap-2">
+                  {editingInModal ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => void saveEdit()}
+                        disabled={savingEdit || !editDraft.trim()}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                      >
+                        {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingInModal(false);
+                          setEditDraft(viewingEntry.body);
+                        }}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : onReplaceNotes ? (
                     <button
                       type="button"
-                      onClick={() => void saveEdit()}
-                      disabled={savingEdit || !editDraft.trim()}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                      onClick={startEdit}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
                     >
-                      {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                      Save
+                      <Pencil className="h-3 w-3" /> Edit
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingInModal(false);
-                        setEditDraft(viewingEntry.body);
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : onReplaceNotes ? (
+                  ) : null}
+                </div>
+                {!editingInModal && onReplaceNotes && (
                   <button
                     type="button"
-                    onClick={startEdit}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
+                    onClick={() => void deleteNote()}
+                    disabled={deletingNote}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
                   >
-                    <Pencil className="h-3 w-3" /> Edit
+                    {deletingNote ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                    Delete
                   </button>
-                ) : null}
+                )}
               </div>
             </div>
           </div>

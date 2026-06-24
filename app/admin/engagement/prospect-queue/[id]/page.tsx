@@ -40,10 +40,8 @@ import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
-import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
-import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { appendSimpleNote } from "@/lib/engagement/append-note";
@@ -408,6 +406,11 @@ function ClientDetailContent() {
     setChatActivityKey((k) => k + 1);
   };
 
+  const deleteTask = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, { method: "DELETE" });
+    await loadTasks(id, contact?.organisation_id, opportunities);
+  };
+
   const openTab = (
     tab: ClientTab,
     opts?: { addNote?: boolean; addTask?: boolean },
@@ -417,56 +420,6 @@ function ClientDetailContent() {
     if (opts?.addTask) setAddingTask(true);
   };
 
-  const editShortcuts: HubEditShortcut[] = [
-    ...(outreachRecord
-      ? [
-          {
-            id: "research",
-            label: "Research",
-            description: "Assessment, evidence, and open questions from discovery.",
-            actionLabel: "View research",
-            hasContent: hasResearchAssessmentContent(outreachRecord),
-            onClick: () => openTab("research"),
-          },
-          {
-            id: "vaxai_support",
-            label: "VAxAI support",
-            description: "What VAxAI can support directly, partially, or via partners.",
-            actionLabel: "View support map",
-            hasContent: hasVaxaiSupportContent(outreachRecord),
-            onClick: () => openTab("vaxai_support"),
-          },
-          {
-            id: "engagement_guide",
-            label: "Engagement guide",
-            description: "Meeting prep, discovery hooks, and conversation guidance.",
-            actionLabel: "Edit guide",
-            hasContent: !!(
-              outreachRecord.engagement_approach ||
-              hasRecommendedEngagementContent(outreachRecord) ||
-              primaryOpp?.recommended_pathway
-            ),
-            onClick: () => openTab("engagement_guide"),
-          },
-        ]
-      : []),
-    {
-      id: "tasks",
-      label: "Tasks",
-      description: "Follow-ups, calls, and actions for this engagement.",
-      actionLabel: "Add task",
-      hasContent: openWorkCount > 0,
-      onClick: () => openTab("tasks", { addTask: true }),
-    },
-    {
-      id: "notes",
-      label: "Notes",
-      description: "Client notes, call outcomes, and handoff context.",
-      actionLabel: "Add note",
-      hasContent: notesCount > 0,
-      onClick: () => openTab("notes", { addNote: true }),
-    },
-  ];
 
   const hubQuickActions = (
     <HubQuickActions
@@ -577,6 +530,7 @@ function ClientDetailContent() {
                   stages={stageOptionsFor(primaryOpp)}
                   onChange={(stage) => void updateOpportunityStage(primaryOpp.id, stage)}
                   loading={updatingStage}
+                  dropUp
                 />
               </div>
               <p className="text-xs text-[#6f6b62] leading-relaxed">{queueStageHint(primaryOpp.stage)}</p>
@@ -631,8 +585,6 @@ function ClientDetailContent() {
                   <ProspectTagList data={outreachRecord} />
                 </div>
               )}
-
-              <HubEditShortcuts shortcuts={editShortcuts} />
 
               {deliveryOpp && deliveryOpp.id !== primaryOpp?.id && (
                 <OpportunityPreviewCard
@@ -766,6 +718,7 @@ function ClientDetailContent() {
                 onMarkDone={markTaskDone}
                 onMarkUndone={markTaskUndone}
                 onUpdateTask={updateTask}
+                onDeleteTask={deleteTask}
                 onSaveLinkedNextAction={handleSaveLinkedNextAction}
                 onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
                 showDone={showDone}
@@ -816,19 +769,11 @@ function ClientDetailContent() {
           {activeTab === "engagement_guide" && (
             outreachRecord ? (
               <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Engagement guide</p>
                 <ServiceFitPanel
                   data={outreachRecord}
                   mode="recommended_engagement"
                   editable
                   onSaveField={saveOutreachField}
-                />
-                <EditableFieldCard
-                  label="Engagement guide"
-                  value={outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || ""}
-                  rows={18}
-                  placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
-                  onSave={(value) => saveOutreachField("engagement_approach", value)}
                 />
               </div>
             ) : (
@@ -848,6 +793,7 @@ function ClientDetailContent() {
                   setShowAddNote(false);
                   setNoteText("");
                 }}
+                onShowAddNote={() => setShowAddNote(true)}
                 noteText={noteText}
                 onNoteTextChange={setNoteText}
                 saving={savingNote}

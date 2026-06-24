@@ -6,7 +6,7 @@ import { TasksListSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { useUserEmail } from "@/lib/user-email-context";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
-import { Check, CheckSquare, Plus, X } from "lucide-react";
+import { Check, CheckSquare, Loader2, Pencil, Plus, Save, X } from "lucide-react";
 import {
   DUE_DATE_FILTER_OPTIONS,
   SOURCE_FILTER_OPTIONS,
@@ -61,11 +61,13 @@ function TaskBoardCard({
   task,
   onToggleStatus,
   onDragStart,
+  onEdit,
   allowClientLinks,
 }: {
   task: EngagementTask;
   onToggleStatus: (id: string, currentStatus: string) => void;
   onDragStart: (taskId: string) => void;
+  onEdit: (task: EngagementTask) => void;
   allowClientLinks: boolean;
 }) {
   const recordHref = taskRecordHref(task, allowClientLinks);
@@ -91,7 +93,11 @@ function TaskBoardCard({
             </svg>
           )}
         </button>
-        <div className="flex-1 min-w-0">
+        <button
+          type="button"
+          onClick={() => onEdit(task)}
+          className="flex-1 min-w-0 text-left"
+        >
           <p className={`text-sm font-semibold leading-snug ${task.status === "done" ? "text-[#6f6b62] line-through" : "text-[#111111]"}`}>
             {task.title}
           </p>
@@ -103,12 +109,13 @@ function TaskBoardCard({
           {recordHref && (
             <Link
               href={recordHref}
+              onClick={(e) => e.stopPropagation()}
               className="mt-1 block text-[10px] font-semibold text-[#063b32] hover:underline truncate"
             >
               {taskRecordLabel(task)}
             </Link>
           )}
-        </div>
+        </button>
         <div className={`h-2 w-2 rounded-full shrink-0 ${PRIORITY_DOT[task.priority] || "bg-gray-300"}`} />
       </div>
     </div>
@@ -137,6 +144,9 @@ export function TasksListView({
   const [saveError, setSaveError] = useState("");
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const [editingTask, setEditingTask] = useState<EngagementTask | null>(null);
+  const [editForm, setEditForm] = useState({ title: "", due_date: "", notes: "", priority: "medium", status: "todo" });
+  const [savingEdit, setSavingEdit] = useState(false);
   const studioAccess = useStudioAccessOptional();
   const allowClientLinks = true;
 
@@ -234,6 +244,39 @@ export function TasksListView({
     setAdding(false);
     setSaving(false);
     void load();
+  };
+
+  const openEdit = (task: EngagementTask) => {
+    setEditingTask(task);
+    setEditForm({
+      title: task.title,
+      due_date: task.due_date ?? "",
+      notes: task.notes ?? "",
+      priority: task.priority,
+      status: task.status,
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editingTask || !editForm.title.trim()) return;
+    setSavingEdit(true);
+    try {
+      await fetch(`/api/admin/engagement/tasks/${editingTask.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editForm.title.trim(),
+          due_date: editForm.due_date || null,
+          notes: editForm.notes.trim() || null,
+          priority: editForm.priority,
+          status: editForm.status,
+        }),
+      });
+      setEditingTask(null);
+      void load();
+    } finally {
+      setSavingEdit(false);
+    }
   };
 
   return (
@@ -405,7 +448,7 @@ export function TasksListView({
                   </div>
                   <div className="min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto p-2 space-y-2 scrollbar-subtle">
                     {items.map((t) => (
-                      <TaskBoardCard key={t.id} task={t} onToggleStatus={toggleTaskStatus} onDragStart={setDraggingId} allowClientLinks={allowClientLinks} />
+                      <TaskBoardCard key={t.id} task={t} onToggleStatus={toggleTaskStatus} onDragStart={setDraggingId} onEdit={openEdit} allowClientLinks={allowClientLinks} />
                     ))}
                     {items.length === 0 && (
                       <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-[#111111]/10 text-[11px] text-[#6f6b62]/50">
@@ -420,6 +463,106 @@ export function TasksListView({
         )}
       </div>
         </>
+      )}
+
+      {editingTask && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setEditingTask(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+              <div className="flex items-center gap-2">
+                <Pencil className="h-4 w-4 text-[#6f6b62]" />
+                <p className="text-sm font-semibold text-[#111111]">Edit task</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingTask(null)}
+                className="rounded-lg p-1 text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-3 px-5 py-4">
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Title</label>
+                <input
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                  className={inputClass}
+                  autoFocus
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Priority</label>
+                  <select
+                    value={editForm.priority}
+                    onChange={(e) => setEditForm((f) => ({ ...f, priority: e.target.value }))}
+                    className={inputClass}
+                  >
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Status</label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}
+                    className={inputClass}
+                  >
+                    <option value="todo">To do</option>
+                    <option value="in_progress">In progress</option>
+                    <option value="done">Done</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Due date</label>
+                <input
+                  type="date"
+                  value={editForm.due_date}
+                  onChange={(e) => setEditForm((f) => ({ ...f, due_date: e.target.value }))}
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Notes</label>
+                <textarea
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))}
+                  rows={3}
+                  placeholder="Optional context…"
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => void saveEdit()}
+                  disabled={savingEdit || !editForm.title.trim()}
+                  className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60"
+                >
+                  {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {savingEdit ? "Saving…" : "Save"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingTask(null)}
+                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

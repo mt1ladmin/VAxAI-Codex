@@ -6,10 +6,8 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { BookOpen, Send } from "lucide-react";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
-import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
-import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStagePills } from "@/components/admin/JourneyStageBanner";
@@ -218,6 +216,11 @@ function ProspectFinderDetailContent() {
     await load({ silent: true });
   };
 
+  const deleteTask = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, { method: "DELETE" });
+    await load({ silent: true });
+  };
+
   if (loading && !record) return <HubDetailSkeleton />;
   if (!record) return <div className="p-8 text-sm text-[#6f6b62]">Prospect not found.</div>;
 
@@ -226,40 +229,6 @@ function ProspectFinderDetailContent() {
   const memberOptions = activeTeamMemberOptions(teamMembers);
   const notesCount = countNotes(reviewNotes);
 
-  const editShortcuts: HubEditShortcut[] = [
-    {
-      id: "research",
-      label: "Research",
-      description: "Assessment, evidence, and open questions from discovery.",
-      actionLabel: "View research",
-      hasContent: hasResearchAssessmentContent(record),
-      onClick: () => openTab("research"),
-    },
-    {
-      id: "vaxai_support",
-      label: "VAxAI support",
-      description: "What VAxAI can support directly, partially, or via partners.",
-      actionLabel: "View support map",
-      hasContent: hasVaxaiSupportContent(record),
-      onClick: () => openTab("vaxai_support"),
-    },
-    {
-      id: "engagement_guide",
-      label: "Engagement guide",
-      description: "Meeting prep, discovery hooks, and conversation guidance.",
-      actionLabel: "Edit guide",
-      hasContent: !!(hasRecommendedEngagementContent(record) || record.engagement_approach),
-      onClick: () => openTab("engagement_guide"),
-    },
-    {
-      id: "notes",
-      label: "Notes",
-      description: "Reviewer notes, call outcomes, and handoff context.",
-      actionLabel: "Add note",
-      hasContent: notesCount > 0,
-      onClick: () => openTab("notes", { addNote: true }),
-    },
-  ];
 
   const hubQuickActions = (
     <HubQuickActions
@@ -426,8 +395,6 @@ function ProspectFinderDetailContent() {
                 <ProspectTagList data={record} />
               </div>
 
-              <HubEditShortcuts shortcuts={editShortcuts} />
-
               <Link
                 href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
                 target="_blank"
@@ -465,19 +432,11 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "engagement_guide" && (
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Engagement guide</p>
               <ServiceFitPanel
                 data={record}
                 mode="recommended_engagement"
                 editable
                 onSaveField={saveOutreachField}
-              />
-              <EditableFieldCard
-                label="Engagement guide"
-                value={record.engagement_approach || ""}
-                rows={18}
-                placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
-                onSave={(value) => saveOutreachField("engagement_approach", value)}
               />
             </div>
           )}
@@ -491,6 +450,7 @@ function ProspectFinderDetailContent() {
                   setShowAddNote(false);
                   setNoteText("");
                 }}
+                onShowAddNote={() => setShowAddNote(true)}
                 noteText={noteText}
                 onNoteTextChange={setNoteText}
                 saving={saving}
@@ -520,6 +480,7 @@ function ProspectFinderDetailContent() {
                 onMarkDone={(taskId) => void markTaskDone(taskId)}
                 onMarkUndone={(taskId) => void markTaskUndone(taskId)}
                 onUpdateTask={updateTask}
+                onDeleteTask={deleteTask}
                 showDone={showDone}
                 setShowDone={setShowDone}
               />
