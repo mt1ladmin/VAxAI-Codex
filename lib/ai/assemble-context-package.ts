@@ -1,3 +1,4 @@
+import { formatAccountStateForContext, loadAccountState } from "@/lib/ai/account-state";
 import {
   buildClientContextSummary,
   buildEnquiryContextSummary,
@@ -133,11 +134,27 @@ function appendSupplement(
   if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
 }
 
+async function finalizeWithAccountState(
+  supabase: Supabase,
+  contextType: string,
+  contextId: string,
+  result: AssembledContext,
+  includeWorkingState: boolean,
+): Promise<AssembledContext> {
+  if (!includeWorkingState) return result;
+  const state = await loadAccountState(supabase, contextType, contextId);
+  const block = formatAccountStateForContext(state);
+  if (!block) return result;
+  return { ...result, package: `${result.package}\n\n${block}` };
+}
+
 export async function assembleContextPackage(
   supabase: Supabase,
   contextType: string,
   contextId: string,
+  options?: { includeWorkingState?: boolean },
 ): Promise<AssembledContext> {
+  const includeWorkingState = options?.includeWorkingState !== false;
   const gaps: string[] = [];
 
   if (contextType === "enquiry") {
@@ -154,12 +171,12 @@ export async function assembleContextPackage(
 
     const enquiry = enquiryRes.data;
     if (!enquiry) {
-      return {
+      return finalizeWithAccountState(supabase, contextType, contextId, {
         label: "Unknown enquiry",
         package: "Account not found.",
         keywords: [],
         attachments: EMPTY_KNOWLEDGE_LINKS,
-      };
+      }, includeWorkingState);
     }
 
     const opportunities = (oppRes.data ?? []) as EngagementOpportunity[];
@@ -180,12 +197,12 @@ export async function assembleContextPackage(
     const parts = [core];
     appendSupplement(parts, tasks, activity, notes, fees, gaps);
 
-    return {
+    return finalizeWithAccountState(supabase, contextType, contextId, {
       label: enquiry.name || enquiry.email || "Enquiry",
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
       attachments,
-    };
+    }, includeWorkingState);
   }
 
   if (contextType === "prospect") {
@@ -196,12 +213,12 @@ export async function assembleContextPackage(
       .maybeSingle();
 
     if (!entry) {
-      return {
+      return finalizeWithAccountState(supabase, contextType, contextId, {
         label: "Unknown prospect",
         package: "Account not found.",
         keywords: [],
         attachments: EMPTY_KNOWLEDGE_LINKS,
-      };
+      }, includeWorkingState);
     }
 
     const queueEntry = entry as ProspectQueueEntry;
@@ -216,12 +233,12 @@ export async function assembleContextPackage(
     const parts = [core];
     appendSupplement(parts, tasks, activity, notes, null, gaps);
 
-    return {
+    return finalizeWithAccountState(supabase, contextType, contextId, {
       label: queueEntry.raw_org_name || queueEntry.raw_contact_name || "Prospect",
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
       attachments,
-    };
+    }, includeWorkingState);
   }
 
   if (contextType === "client") {
@@ -241,12 +258,12 @@ export async function assembleContextPackage(
 
     const contact = contactRes.data;
     if (!contact) {
-      return {
+      return finalizeWithAccountState(supabase, contextType, contextId, {
         label: "Unknown client",
         package: "Account not found.",
         keywords: [],
         attachments: EMPTY_KNOWLEDGE_LINKS,
-      };
+      }, includeWorkingState);
     }
 
     const opportunities = (oppRes.data ?? []) as EngagementOpportunity[];
@@ -283,23 +300,23 @@ export async function assembleContextPackage(
     appendSupplement(parts, tasks, activity, notes, fees, gaps);
 
     const fullName = `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`.trim();
-    return {
+    return finalizeWithAccountState(supabase, contextType, contextId, {
       label: fullName || "Client",
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
       attachments,
-    };
+    }, includeWorkingState);
   }
 
   if (contextType === "outreach") {
     const base = getProspectById(contextId);
     if (!base) {
-      return {
+      return finalizeWithAccountState(supabase, contextType, contextId, {
         label: "Unknown outreach",
         package: "Outreach record not found.",
         keywords: [],
         attachments: EMPTY_KNOWLEDGE_LINKS,
-      };
+      }, includeWorkingState);
     }
 
     const { data: overrideRow } = await supabase
@@ -323,20 +340,20 @@ export async function assembleContextPackage(
     if (notes.length) parts.push("REVIEWER NOTES:", ...notes.map((n) => `• ${n}`));
     if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
 
-    return {
+    return finalizeWithAccountState(supabase, contextType, contextId, {
       label: record.organisation_name,
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
       attachments,
-    };
+    }, includeWorkingState);
   }
 
-  return {
+  return finalizeWithAccountState(supabase, contextType, contextId, {
     label: contextType,
     package: `Context type: ${contextType} | ID: ${contextId}`,
     keywords: [],
     attachments: EMPTY_KNOWLEDGE_LINKS,
-  };
+  }, includeWorkingState);
 }
 
 /** Keywords from outreach snapshot on queue entries when assembling linked history. */

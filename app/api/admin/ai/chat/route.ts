@@ -4,6 +4,7 @@ import { assembleContextPackage } from "@/lib/ai/assemble-context-package";
 import { detectIntent, resolveModelAndTokens } from "@/lib/ai/intent";
 import { loadKnowledgeSnippets } from "@/lib/ai/knowledge-snippets";
 import { buildSystemBlocks } from "@/lib/ai/system-prompt";
+import { logChatUsage } from "@/lib/ai/usage-log";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -148,6 +149,13 @@ export async function POST(req: NextRequest) {
   });
 
   let assistantContent = "";
+  let usageStats: {
+    input_tokens?: number | null;
+    output_tokens?: number | null;
+    cache_read_input_tokens?: number | null;
+    cache_creation_input_tokens?: number | null;
+  } | null = null;
+
   try {
     const response = await anthropic.messages.create({
       model,
@@ -166,6 +174,7 @@ export async function POST(req: NextRequest) {
       .filter((b) => b.type === "text")
       .map((b) => (b as { type: "text"; text: string }).text)
       .join("\n");
+    usageStats = response.usage ?? null;
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return NextResponse.json({ error: msg.slice(0, 200) }, { status: 500 });
@@ -196,6 +205,19 @@ export async function POST(req: NextRequest) {
   const sessionId = session.id;
   const priorSummary = session.summary as string | null;
   after(async () => {
+    if (usageStats) {
+      await logChatUsage(supabase, {
+        sessionId,
+        contextType,
+        contextId,
+        intent,
+        model,
+        input_tokens: usageStats.input_tokens,
+        output_tokens: usageStats.output_tokens,
+        cache_read_input_tokens: usageStats.cache_read_input_tokens,
+        cache_creation_input_tokens: usageStats.cache_creation_input_tokens,
+      });
+    }
     await maybeCompress(supabase, sessionId, priorSummary, newCount);
   });
 

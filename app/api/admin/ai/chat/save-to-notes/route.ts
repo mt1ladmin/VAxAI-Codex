@@ -1,3 +1,4 @@
+import { scheduleAccountStateRefresh } from "@/lib/ai/account-state";
 import { logActivity } from "@/lib/engagement/activity-log";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       detail: summary.trim().slice(0, 300),
       enquiry_id: contextId,
     });
+    scheduleAccountStateRefresh(contextType, contextId, summary.trim());
     return NextResponse.json({ data: { saved: true } });
   }
 
@@ -90,6 +92,7 @@ export async function POST(req: NextRequest) {
       detail: summary.trim().slice(0, 300),
       queue_id: contextId,
     });
+    scheduleAccountStateRefresh(contextType, contextId, summary.trim());
     return NextResponse.json({ data: { saved: true } });
   }
 
@@ -115,6 +118,7 @@ export async function POST(req: NextRequest) {
       });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    scheduleAccountStateRefresh(contextType, contextId, summary.trim());
     return NextResponse.json({ data: { saved: true } });
   }
 
@@ -142,6 +146,7 @@ export async function POST(req: NextRequest) {
       detail: summary.trim().slice(0, 300),
       contact_id: contextId,
     });
+    scheduleAccountStateRefresh(contextType, contextId, summary.trim());
     return NextResponse.json({ data: { saved: true } });
   }
 
