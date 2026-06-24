@@ -24,8 +24,7 @@ import { HubTabNav } from "@/components/admin/HubTabNav";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { MoveEnquiryToProspectQueueModal } from "@/components/admin/MoveEnquiryToProspectQueueModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
-import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
-import { RecentNotesPreview } from "@/components/admin/RecentNotesPreview";
+
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
@@ -41,7 +40,6 @@ import {
   ADVANCE_STATUS_HINT,
   PRE_SALES_STATUS,
   canAdvanceToClientWork,
-  journeyStageForEnquiryStatus,
 } from "@/lib/engagement/journey";
 
 import {
@@ -566,17 +564,7 @@ function EnquiryDetailContent() {
                 />
               </div>
 
-              <JourneyStageBanner
-                currentStage={journeyStageForEnquiryStatus(enquiry.status)}
-                status={enquiry.status}
-              />
-
               <HubEditShortcuts shortcuts={editShortcuts} />
-
-              <RecentNotesPreview
-                notes={enquiry.admin_notes}
-                onViewAll={() => openTab("notes")}
-              />
             </>
           )}
 

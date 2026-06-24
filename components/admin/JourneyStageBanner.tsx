@@ -18,6 +18,27 @@ type Props = {
   status?: string;
 };
 
+export function JourneyStagePills({ currentStage }: { currentStage: JourneyStageId }) {
+  return (
+    <div className="flex items-center gap-2">
+      {JOURNEY_STAGES.map((stage, i) => (
+        <div key={stage.id} className="flex items-center gap-2">
+          {i > 0 && <ArrowRight className="h-3.5 w-3.5 text-[#6f6b62]/50" />}
+          <span
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              stage.id === currentStage
+                ? "bg-[#063b32] text-white"
+                : "bg-white border border-[#111111]/15 text-[#6f6b62]"
+            }`}
+          >
+            {stage.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function JourneyStageBanner({ currentStage, status }: Props) {
   const currentIndex = JOURNEY_STAGES.findIndex((s) => s.id === currentStage);
 

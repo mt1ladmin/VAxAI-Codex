@@ -12,7 +12,7 @@ import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
-import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
+import { JourneyStagePills } from "@/components/admin/JourneyStageBanner";
 import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { MoveToProspectQueueModal } from "@/components/admin/MoveToProspectQueueModal";
@@ -329,6 +329,7 @@ function ProspectFinderDetailContent() {
             <ProspectProfileHeader data={record} />
             <ProspectOrganisationCard data={record} />
             <ProspectDecisionMakerCard data={record} />
+            <JourneyStagePills currentStage="finder" />
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
@@ -406,16 +407,19 @@ function ProspectFinderDetailContent() {
         <div className="lg:col-span-2 space-y-6">
           {activeTab === "overview" && (
             <>
-              <div className="grid gap-3 sm:max-w-xs">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
                   value={notesCount}
                   label="Notes"
                   tone="notes"
                   onClick={() => openTab("notes")}
                 />
+                <HubMetricCard
+                  value={openTasks.length}
+                  label="Tasks"
+                  onClick={() => openTab("tasks")}
+                />
               </div>
-
-              <JourneyStageBanner currentStage="finder" status={record.engagement_status} />
 
               <div className="space-y-4">
                 <ServiceFitPanel data={record} mode="overview" />
@@ -425,8 +429,6 @@ function ProspectFinderDetailContent() {
               <JourneySummaryButton
                 outreachId={record.id}
                 contactId={record.pipeline_contact_id ?? undefined}
-                notes={reviewNotes}
-                onViewAllNotes={() => openTab("notes")}
                 onSaved={() => {
                   void load({ silent: true });
                   setChatActivityKey((k) => k + 1);

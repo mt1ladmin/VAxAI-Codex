@@ -19,7 +19,7 @@ import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { OpportunityStageSelect } from "@/components/admin/OpportunityStageSelect";
-import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
+import { JourneyStagePills } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { buildClientContextSummary } from "@/lib/ai/context-builders";
@@ -534,6 +534,7 @@ function ClientDetailContent() {
               <ProspectProfileHeader data={outreachRecord} />
               <ProspectOrganisationCard data={outreachRecord} />
               <ProspectDecisionMakerCard data={outreachRecord} />
+              <JourneyStagePills currentStage="queue" />
             </div>
           ) : (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
@@ -602,18 +603,17 @@ function ClientDetailContent() {
             <>
               <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
-                  value={openWorkCount}
-                  label="Open tasks"
-                  onClick={() => openTab("tasks")}
-                />
-                <HubMetricCard
                   value={notesCount}
                   label="Notes"
+                  tone="notes"
                   onClick={() => openTab("notes")}
                 />
+                <HubMetricCard
+                  value={openWorkCount}
+                  label="Tasks"
+                  onClick={() => openTab("tasks")}
+                />
               </div>
-
-              <JourneyStageBanner currentStage="queue" />
 
               {outreachRecord && (
                 <div className="space-y-4">
@@ -634,8 +634,6 @@ function ClientDetailContent() {
 
               <JourneySummaryButton
                 contactId={id}
-                notes={contact.notes}
-                onViewAllNotes={() => openTab("notes")}
                 onSaved={() => {
                   void loadData({ silent: true });
                   setChatActivityKey((k) => k + 1);
