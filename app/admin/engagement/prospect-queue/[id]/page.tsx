@@ -25,6 +25,7 @@ import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { buildClientContextSummary } from "@/lib/ai/context-builders";
 import { CLIENT_SERVICE_STAGES, isClientServiceStage } from "@/lib/engagement/client-stages";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import type { HubTabItem } from "@/components/admin/HubTabNav";
 import { emailComposeUrl } from "@/lib/engagement/email-links";
 import { queueStageHint, queueStageLabel } from "@/lib/engagement/queue-stage-hints";
 import { PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
@@ -39,8 +40,11 @@ import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
+import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
+import { HubSectionHeader } from "@/components/admin/HubSectionHeader";
+import { HubTabNav } from "@/components/admin/HubTabNav";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { appendSimpleNote } from "@/lib/engagement/append-note";
 import { countNotes } from "@/lib/engagement/note-count";
@@ -71,9 +75,9 @@ import type { StudioTeamMember } from "@/lib/engagement/team-members";
 
 type ClientTab = CrmHubTab | "submission";
 
-const CLIENT_TABS: Array<{ id: ClientTab; label: string }> = [
-  { id: "overview", label: "Overview" },
-  { id: "submission", label: "Source" },
+const CLIENT_TABS: HubTabItem[] = [
+  { id: "overview", label: "Overview", editable: false },
+  { id: "submission", label: "Source", editable: false },
   ...CRM_HUB_TABS.filter((t) => t.id !== "overview"),
 ];
 
@@ -136,6 +140,9 @@ function ClientDetailContent() {
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
   const [updatingStage, setUpdatingStage] = useState(false);
+  const [editingEngagementGuide, setEditingEngagementGuide] = useState(false);
+  const [engagementGuideDraft, setEngagementGuideDraft] = useState("");
+  const [savingGuide, setSavingGuide] = useState(false);
 
   // AI context — set once contact data is loaded
   const contactFullName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}` : null;
@@ -358,67 +365,148 @@ function ClientDetailContent() {
     primaryOpp?.desired_outcomes?.trim() ||
     outreachRecord?.opportunity_description?.trim() ||
     null;
+
+  const saveEngagementGuide = async () => {
+    if (!outreachRecord) return;
+    setSavingGuide(true);
+    try {
+      const res = await fetch("/api/admin/engagement/prospect-outreach", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          outreach_id: outreachRecord.id,
+          overrides: { engagement_approach: engagementGuideDraft.trim() },
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json() as { data?: ProspectFinderListItem };
+        if (json.data) setOutreachRecord(json.data);
+        setEditingEngagementGuide(false);
+      }
+    } finally {
+      setSavingGuide(false);
+    }
+  };
+
+  const openTab = (
+    tab: ClientTab,
+    opts?: { addNote?: boolean; addTask?: boolean; editGuide?: boolean },
+  ) => {
+    setActiveTab(tab);
+    if (opts?.addNote) setShowAddNote(true);
+    if (opts?.addTask) setAddingTask(true);
+    if (opts?.editGuide) {
+      setEngagementGuideDraft(outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway || "");
+      setEditingEngagementGuide(true);
+    }
+  };
+
+  const editShortcuts: HubEditShortcut[] = [
+    ...(outreachRecord
+      ? [
+          {
+            id: "research",
+            label: "Research",
+            description: "Assessment, evidence, and open questions from discovery.",
+            actionLabel: "View research",
+            hasContent: hasResearchAssessmentContent(outreachRecord),
+            onClick: () => openTab("research"),
+          },
+          {
+            id: "vaxai_support",
+            label: "VAxAI support",
+            description: "What VAxAI can support directly, partially, or via partners.",
+            actionLabel: "View support map",
+            hasContent: hasVaxaiSupportContent(outreachRecord),
+            onClick: () => openTab("vaxai_support"),
+          },
+          {
+            id: "engagement_guide",
+            label: "Engagement guide",
+            description: "Meeting prep, discovery hooks, and conversation guidance.",
+            actionLabel: "Edit guide",
+            hasContent: !!(
+              outreachRecord.engagement_approach ||
+              hasRecommendedEngagementContent(outreachRecord) ||
+              primaryOpp?.recommended_pathway
+            ),
+            onClick: () => openTab("engagement_guide", { editGuide: true }),
+          },
+        ]
+      : []),
+    {
+      id: "tasks",
+      label: "Tasks",
+      description: "Follow-ups, calls, and actions for this engagement.",
+      actionLabel: "Add task",
+      hasContent: openWorkCount > 0,
+      onClick: () => openTab("tasks", { addTask: true }),
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      description: "Client notes, call outcomes, and handoff context.",
+      actionLabel: "Add note",
+      hasContent: notesCount > 0,
+      onClick: () => openTab("notes", { addNote: true }),
+    },
+  ];
+
+  const hubQuickActions = (
+    <HubQuickActions
+      onAddNote={() => openTab("notes", { addNote: true })}
+      onAddTask={() => openTab("tasks", { addTask: true })}
+    />
+  );
+
   return (
     <div className="min-h-screen bg-white">
       <RecordBackNav
         href={PROSPECT_QUEUE_PATH}
         backLabel="Prospect Queue"
         title={fullName}
-        actions={
-          activeTab === "overview" ? (
-            <HubQuickActions
-              onAddNote={() => {
-                setActiveTab("notes");
-                setShowAddNote(true);
-              }}
-              onAddTask={() => {
-                setActiveTab("tasks");
-                setAddingTask(true);
-              }}
-            />
-          ) : undefined
-        }
+        actions={hubQuickActions}
       />
 
-      {/* Tabs */}
-      <div className="border-b border-[#111111]/10 px-8">
-        <div className="flex gap-1 overflow-x-auto">
-          {CLIENT_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
-                activeTab === tab.id
-                  ? "border-[#063b32] text-[#063b32]"
-                  : "border-transparent text-[#6f6b62] hover:text-[#111111]"
-              }`}
-            >
-              {tab.label}
-              {tab.id === "tasks" && openWorkCount > 0 && (
-                <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
-                  {openWorkCount}
-                </span>
-              )}
-              {tab.id === "research" && outreachRecord && hasResearchAssessmentContent(outreachRecord) && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
-              )}
-              {tab.id === "vaxai_support" && outreachRecord && hasVaxaiSupportContent(outreachRecord) && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
-              )}
-              {tab.id === "engagement_guide" &&
-                (outreachRecord?.engagement_approach ||
-                  (outreachRecord && hasRecommendedEngagementContent(outreachRecord)) ||
-                  primaryOpp?.recommended_pathway) && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
-              )}
-              {tab.id === "submission" && (linkedEnquiry || outreachRecord) && (
-                <span className="ml-1.5 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-700">1</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+      <HubTabNav
+        tabs={CLIENT_TABS}
+        activeTab={activeTab}
+        onChange={(tabId) => setActiveTab(tabId as ClientTab)}
+        badge={(tabId) => {
+          if (tabId === "tasks" && openWorkCount > 0) {
+            return (
+              <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
+                {openWorkCount}
+              </span>
+            );
+          }
+          if (tabId === "notes" && notesCount > 0) {
+            return (
+              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">
+                {notesCount}
+              </span>
+            );
+          }
+          if (tabId === "research" && outreachRecord && hasResearchAssessmentContent(outreachRecord)) {
+            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>;
+          }
+          if (tabId === "vaxai_support" && outreachRecord && hasVaxaiSupportContent(outreachRecord)) {
+            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>;
+          }
+          if (
+            tabId === "engagement_guide" &&
+            (outreachRecord?.engagement_approach ||
+              (outreachRecord && hasRecommendedEngagementContent(outreachRecord)) ||
+              primaryOpp?.recommended_pathway)
+          ) {
+            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>;
+          }
+          if (tabId === "submission" && (linkedEnquiry || outreachRecord)) {
+            return <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-700">1</span>;
+          }
+          return null;
+        }}
+      />
 
       {/* Body */}
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -500,12 +588,12 @@ function ClientDetailContent() {
                 <HubMetricCard
                   value={openWorkCount}
                   label="Open tasks"
-                  onClick={() => setActiveTab("tasks")}
+                  onClick={() => openTab("tasks")}
                 />
                 <HubMetricCard
                   value={notesCount}
                   label="Notes"
-                  onClick={() => setActiveTab("notes")}
+                  onClick={() => openTab("notes")}
                 />
               </div>
 
@@ -521,12 +609,14 @@ function ClientDetailContent() {
               <JourneySummaryButton
                 contactId={id}
                 notes={contact.notes}
-                onViewAllNotes={() => setActiveTab("notes")}
+                onViewAllNotes={() => openTab("notes")}
                 onSaved={() => {
                   void loadData({ silent: true });
                   setChatActivityKey((k) => k + 1);
                 }}
               />
+
+              <HubEditShortcuts shortcuts={editShortcuts} />
 
               {deliveryOpp && deliveryOpp.id !== primaryOpp?.id && (
                 <OpportunityPreviewCard
@@ -652,6 +742,14 @@ function ClientDetailContent() {
           {/* TASKS TAB */}
           {activeTab === "tasks" && (
             <div className="space-y-4">
+              <HubSectionHeader
+                title="Tasks"
+                description="Follow-ups, calls, and actions for this engagement."
+                action={{
+                  label: "New task",
+                  onClick: () => setAddingTask(true),
+                }}
+              />
               <HubTasksTab
                 entityLabel={contact.first_name}
                 openTasks={openTasks}
@@ -679,7 +777,17 @@ function ClientDetailContent() {
           {activeTab === "research" && (
             outreachRecord ? (
               <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Research assessment</p>
+                <HubSectionHeader
+                  title="Research assessment"
+                  description="Assessment, evidence, and open questions retained from Prospect Finder."
+                  action={{
+                    label: "Open in Finder",
+                    onClick: () => {
+                      window.open(`/admin/engagement/prospect-outreach/${outreachRecord.id}?tab=research`, "_blank");
+                    },
+                    variant: "secondary",
+                  }}
+                />
                 <ServiceFitPanel data={outreachRecord} mode="research" />
                 <ProspectResearchEvidenceCard data={outreachRecord} />
               </div>
@@ -694,7 +802,10 @@ function ClientDetailContent() {
           {activeTab === "vaxai_support" && (
             outreachRecord ? (
               <div className="space-y-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">VAxAI support and boundaries</p>
+                <HubSectionHeader
+                  title="VAxAI support and boundaries"
+                  description="What VAxAI can support directly, partially, or through partners."
+                />
                 <ServiceFitPanel data={outreachRecord} mode="support" />
               </div>
             ) : (
@@ -706,22 +817,69 @@ function ClientDetailContent() {
 
           {/* ENGAGEMENT GUIDE TAB */}
           {activeTab === "engagement_guide" && (
-            outreachRecord?.engagement_approach ||
-            (outreachRecord && hasRecommendedEngagementContent(outreachRecord)) ||
-            primaryOpp?.recommended_pathway ? (
+            outreachRecord ? (
               <div className="space-y-4">
-                {outreachRecord && hasRecommendedEngagementContent(outreachRecord) ? (
+                <HubSectionHeader
+                  title="Engagement guide"
+                  description="Meeting prep, discovery hooks, and recommended conversation approach."
+                  action={
+                    editingEngagementGuide
+                      ? {
+                          label: "Save guide",
+                          onClick: () => void saveEngagementGuide(),
+                          loading: savingGuide,
+                        }
+                      : {
+                          label:
+                            outreachRecord.engagement_approach || primaryOpp?.recommended_pathway
+                              ? "Edit guide"
+                              : "Add guide",
+                          onClick: () => {
+                            setEngagementGuideDraft(
+                              outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || "",
+                            );
+                            setEditingEngagementGuide(true);
+                          },
+                        }
+                  }
+                  secondaryAction={
+                    editingEngagementGuide
+                      ? {
+                          label: "Cancel",
+                          onClick: () => {
+                            setEngagementGuideDraft(
+                              outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || "",
+                            );
+                            setEditingEngagementGuide(false);
+                          },
+                          variant: "secondary",
+                        }
+                      : undefined
+                  }
+                />
+                {hasRecommendedEngagementContent(outreachRecord) ? (
                   <ServiceFitPanel data={outreachRecord} mode="recommended_engagement" />
                 ) : null}
-                {outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway ? (
-                  <div className="rounded-xl border border-[#111111]/10 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>
+                <div className="rounded-xl border border-[#111111]/10 p-5">
+                  {editingEngagementGuide ? (
+                    <textarea
+                      value={engagementGuideDraft}
+                      onChange={(e) => setEngagementGuideDraft(e.target.value)}
+                      rows={18}
+                      placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
+                      className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm leading-relaxed outline-none focus:border-[#063b32] resize-y"
+                    />
+                  ) : outreachRecord.engagement_approach || primaryOpp?.recommended_pathway ? (
                     <CollapsibleNote
-                      content={outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway || ""}
+                      content={outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || ""}
                       textClassName="text-sm text-[#111111] leading-relaxed"
                     />
-                  </div>
-                ) : null}
+                  ) : (
+                    <p className="text-sm text-[#6f6b62]">
+                      No engagement guide yet. Use Edit guide above to add meeting prep and conversation guidance.
+                    </p>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
@@ -733,6 +891,14 @@ function ClientDetailContent() {
           {/* NOTES TAB */}
           {activeTab === "notes" && (
             <div className="space-y-4">
+              <HubSectionHeader
+                title="Client notes"
+                description="Notes, call outcomes, and handoff context for this engagement."
+                action={{
+                  label: "Add note",
+                  onClick: () => setShowAddNote(true),
+                }}
+              />
               <HubNotesTab
                 title="Client notes"
                 notes={contact.notes}

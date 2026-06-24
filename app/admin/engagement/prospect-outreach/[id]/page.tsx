@@ -3,11 +3,15 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Loader2, Save, Send } from "lucide-react";
+import { BookOpen, Send } from "lucide-react";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
+import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
+import { HubQuickActions } from "@/components/admin/HubQuickActions";
+import { HubSectionHeader } from "@/components/admin/HubSectionHeader";
+import { HubTabNav } from "@/components/admin/HubTabNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
@@ -42,17 +46,8 @@ import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/ty
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
+import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import type { EngagementTask } from "@/lib/engagement/types";
-
-type Tab = "overview" | "research" | "vaxai_support" | "engagement_guide" | "notes" | "tasks";
-const TAB_LABELS: Record<Tab, string> = {
-  overview: "Overview",
-  research: "Research",
-  vaxai_support: "VAxAI support",
-  engagement_guide: "Engagement guide",
-  notes: "Notes",
-  tasks: "Tasks",
-};
 
 function ProspectFinderDetailContent() {
   const { id } = useParams<{ id: string }>();
@@ -65,9 +60,11 @@ function ProspectFinderDetailContent() {
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [activeTab, setActiveTab] = useState<CrmHubTab>("overview");
   const [editingEngagementGuide, setEditingEngagementGuide] = useState(false);
   const [engagementGuideDraft, setEngagementGuideDraft] = useState("");
+  const [editingResearchEvidence, setEditingResearchEvidence] = useState(false);
+  const [researchEvidenceDraft, setResearchEvidenceDraft] = useState("");
   const [reviewNotes, setReviewNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [noteText, setNoteText] = useState("");
@@ -150,6 +147,35 @@ function ProspectFinderDetailContent() {
     }
   };
 
+  const saveResearchEvidence = async () => {
+    setSaving(true);
+    try {
+      await patchWorkflow({
+        overrides: { need_rationale: researchEvidenceDraft.trim() },
+      });
+      setEditingResearchEvidence(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openTab = (
+    tab: CrmHubTab,
+    opts?: { addNote?: boolean; addTask?: boolean; editGuide?: boolean; editResearch?: boolean },
+  ) => {
+    setActiveTab(tab);
+    if (opts?.addNote) setShowAddNote(true);
+    if (opts?.addTask) setAddingTask(true);
+    if (opts?.editGuide) {
+      setEngagementGuideDraft(record?.engagement_approach || "");
+      setEditingEngagementGuide(true);
+    }
+    if (opts?.editResearch) {
+      setResearchEvidenceDraft(record?.need_rationale || "");
+      setEditingResearchEvidence(true);
+    }
+  };
+
   const saveNote = async () => {
     if (!noteText.trim() || !record) return;
     setSaving(true);
@@ -215,6 +241,56 @@ function ProspectFinderDetailContent() {
   const memberOptions = activeTeamMemberOptions(teamMembers);
   const notesCount = countNotes(reviewNotes);
 
+  const editShortcuts: HubEditShortcut[] = [
+    {
+      id: "research",
+      label: "Research",
+      description: "Assessment, evidence, and open questions from discovery.",
+      actionLabel: "View research",
+      hasContent: hasResearchAssessmentContent(record),
+      onClick: () => openTab("research"),
+    },
+    {
+      id: "vaxai_support",
+      label: "VAxAI support",
+      description: "What VAxAI can support directly, partially, or via partners.",
+      actionLabel: "View support map",
+      hasContent: hasVaxaiSupportContent(record),
+      onClick: () => openTab("vaxai_support"),
+    },
+    {
+      id: "engagement_guide",
+      label: "Engagement guide",
+      description: "Meeting prep, discovery hooks, and conversation guidance.",
+      actionLabel: "Edit guide",
+      hasContent: !!(hasRecommendedEngagementContent(record) || record.engagement_approach),
+      onClick: () => openTab("engagement_guide", { editGuide: true }),
+    },
+    {
+      id: "tasks",
+      label: "Tasks",
+      description: "Follow-ups, calls, and actions for this prospect.",
+      actionLabel: "Add task",
+      hasContent: openTasks.length > 0,
+      onClick: () => openTab("tasks", { addTask: true }),
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      description: "Reviewer notes, call outcomes, and handoff context.",
+      actionLabel: "Add note",
+      hasContent: notesCount > 0,
+      onClick: () => openTab("notes", { addNote: true }),
+    },
+  ];
+
+  const hubQuickActions = (
+    <HubQuickActions
+      onAddNote={() => openTab("notes", { addNote: true })}
+      onAddTask={() => openTab("tasks", { addTask: true })}
+    />
+  );
+
   return (
     <div className="min-h-screen bg-white">
       <MoveToProspectQueueModal
@@ -227,39 +303,47 @@ function ProspectFinderDetailContent() {
         }}
       />
 
-      <RecordBackNav href={backHref} backLabel={PROSPECT_FINDER_LABEL} title={record.organisation_name} />
+      <RecordBackNav
+        href={backHref}
+        backLabel={PROSPECT_FINDER_LABEL}
+        title={record.organisation_name}
+        actions={hubQuickActions}
+      />
 
-      <div className="border-b border-[#111111]/10 px-8">
-        <div className="flex gap-1 overflow-x-auto">
-          {(Object.entries(TAB_LABELS) as [Tab, string][]).map(([tabId, label]) => (
-            <button
-              key={tabId}
-              type="button"
-              onClick={() => setActiveTab(tabId)}
-              className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold ${
-                activeTab === tabId ? "border-[#063b32] text-[#063b32]" : "border-transparent text-[#6f6b62]"
-              }`}
-            >
-              {label}
-              {tabId === "tasks" && openTasks.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openTasks.length}</span>
-              )}
-              {tabId === "research" && hasResearchAssessmentContent(record) && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>
-              )}
-              {tabId === "vaxai_support" && hasVaxaiSupportContent(record) && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>
-              )}
-              {tabId === "engagement_guide" && (hasRecommendedEngagementContent(record) || record.engagement_approach) && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>
-              )}
-              {tabId === "notes" && notesCount > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{notesCount}</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+      <HubTabNav
+        tabs={CRM_HUB_TABS}
+        activeTab={activeTab}
+        onChange={(tabId) => setActiveTab(tabId as CrmHubTab)}
+        badge={(tabId) => {
+          if (tabId === "tasks" && openTasks.length > 0) {
+            return (
+              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+                {openTasks.length}
+              </span>
+            );
+          }
+          if (tabId === "research" && hasResearchAssessmentContent(record)) {
+            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
+          }
+          if (tabId === "vaxai_support" && hasVaxaiSupportContent(record)) {
+            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
+          }
+          if (
+            tabId === "engagement_guide" &&
+            (hasRecommendedEngagementContent(record) || record.engagement_approach)
+          ) {
+            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
+          }
+          if (tabId === "notes" && notesCount > 0) {
+            return (
+              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+                {notesCount}
+              </span>
+            );
+          }
+          return null;
+        }}
+      />
 
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
@@ -349,13 +433,13 @@ function ProspectFinderDetailContent() {
                 <HubMetricCard
                   value={openTasks.length}
                   label="Open tasks"
-                  onClick={() => setActiveTab("tasks")}
+                  onClick={() => openTab("tasks")}
                 />
                 <HubMetricCard
                   value={notesCount}
                   label="Notes"
                   tone="notes"
-                  onClick={() => setActiveTab("notes")}
+                  onClick={() => openTab("notes")}
                 />
               </div>
 
@@ -370,12 +454,14 @@ function ProspectFinderDetailContent() {
                 outreachId={record.id}
                 contactId={record.pipeline_contact_id ?? undefined}
                 notes={reviewNotes}
-                onViewAllNotes={() => setActiveTab("notes")}
+                onViewAllNotes={() => openTab("notes")}
                 onSaved={() => {
                   void load({ silent: true });
                   setChatActivityKey((k) => k + 1);
                 }}
               />
+
+              <HubEditShortcuts shortcuts={editShortcuts} />
 
               <Link
                 href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
@@ -390,26 +476,99 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "research" && (
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Research assessment</p>
+              <HubSectionHeader
+                title="Research assessment"
+                description="Review AI-generated fit analysis and update evidence notes for this prospect."
+                action={
+                  editingResearchEvidence
+                    ? {
+                        label: "Save evidence",
+                        onClick: () => void saveResearchEvidence(),
+                        loading: saving,
+                      }
+                    : {
+                        label: "Edit evidence",
+                        onClick: () => {
+                          setResearchEvidenceDraft(record.need_rationale || "");
+                          setEditingResearchEvidence(true);
+                        },
+                      }
+                }
+                secondaryAction={
+                  editingResearchEvidence
+                    ? {
+                        label: "Cancel",
+                        onClick: () => {
+                          setResearchEvidenceDraft(record.need_rationale || "");
+                          setEditingResearchEvidence(false);
+                        },
+                        variant: "secondary",
+                      }
+                    : undefined
+                }
+              />
               <ServiceFitPanel data={record} mode="research" />
-              <ProspectResearchEvidenceCard data={record} />
+              {editingResearchEvidence ? (
+                <textarea
+                  value={researchEvidenceDraft}
+                  onChange={(e) => setResearchEvidenceDraft(e.target.value)}
+                  rows={8}
+                  placeholder="Summarise why this prospect needs support and what evidence backs the assessment…"
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm leading-relaxed outline-none focus:border-[#063b32] resize-y"
+                />
+              ) : (
+                <ProspectResearchEvidenceCard data={record} />
+              )}
             </div>
           )}
 
           {activeTab === "vaxai_support" && (
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">VAxAI support and boundaries</p>
+              <HubSectionHeader
+                title="VAxAI support and boundaries"
+                description="What VAxAI can support directly, partially, or through partners — sourced from research."
+              />
               <ServiceFitPanel data={record} mode="support" />
             </div>
           )}
 
           {activeTab === "engagement_guide" && (
             <div className="space-y-4">
+              <HubSectionHeader
+                title="Engagement guide"
+                description="Meeting prep, discovery hooks, and recommended conversation approach."
+                action={
+                  editingEngagementGuide
+                    ? {
+                        label: "Save guide",
+                        onClick: () => void saveEngagementGuide(),
+                        loading: saving,
+                      }
+                    : {
+                        label: record.engagement_approach ? "Edit guide" : "Add guide",
+                        onClick: () => {
+                          setEngagementGuideDraft(record.engagement_approach || "");
+                          setEditingEngagementGuide(true);
+                        },
+                      }
+                }
+                secondaryAction={
+                  editingEngagementGuide
+                    ? {
+                        label: "Cancel",
+                        onClick: () => {
+                          setEngagementGuideDraft(record.engagement_approach || "");
+                          setEditingEngagementGuide(false);
+                        },
+                        variant: "secondary",
+                      }
+                    : undefined
+                }
+              />
               {hasRecommendedEngagementContent(record) ? (
                 <ServiceFitPanel data={record} mode="recommended_engagement" />
               ) : null}
               <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>
                 {editingEngagementGuide ? (
                   <textarea
                     value={engagementGuideDraft}
@@ -421,37 +580,7 @@ function ProspectFinderDetailContent() {
                 ) : record.engagement_approach ? (
                   <CollapsibleNote content={record.engagement_approach} textClassName="text-sm text-[#111111] leading-relaxed" />
                 ) : (
-                  <p className="text-sm text-[#6f6b62]">No engagement guide yet. Add meeting prep and conversation guidance for this prospect.</p>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {editingEngagementGuide ? (
-                  <>
-                    <button type="button" disabled={saving} onClick={() => void saveEngagementGuide()} className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save engagement guide
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEngagementGuideDraft(record.engagement_approach || "");
-                        setEditingEngagementGuide(false);
-                      }}
-                      className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEngagementGuideDraft(record.engagement_approach || "");
-                      setEditingEngagementGuide(true);
-                    }}
-                    className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm"
-                  >
-                    Edit engagement guide
-                  </button>
+                  <p className="text-sm text-[#6f6b62]">No engagement guide yet. Use Edit guide above to add meeting prep and conversation guidance.</p>
                 )}
               </div>
             </div>
@@ -459,6 +588,14 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "notes" && (
             <div className="space-y-4">
+              <HubSectionHeader
+                title="Prospect notes"
+                description="Reviewer notes, call outcomes, and handoff context."
+                action={{
+                  label: "Add note",
+                  onClick: () => setShowAddNote(true),
+                }}
+              />
               <HubNotesTab
                 title="Prospect notes"
                 notes={reviewNotes || null}
@@ -480,6 +617,14 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "tasks" && (
             <div className="space-y-4">
+              <HubSectionHeader
+                title="Tasks"
+                description="Follow-ups, calls, and actions for this prospect."
+                action={{
+                  label: "New task",
+                  onClick: () => setAddingTask(true),
+                }}
+              />
               <HubTasksTab
                 entityLabel={record.organisation_name}
                 openTasks={openTasks}

@@ -17,8 +17,11 @@ import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePane
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
+import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
+import { HubSectionHeader } from "@/components/admin/HubSectionHeader";
+import { HubTabNav } from "@/components/admin/HubTabNav";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { MoveEnquiryToProspectQueueModal } from "@/components/admin/MoveEnquiryToProspectQueueModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
@@ -333,6 +336,41 @@ function EnquiryDetailContent() {
   };
   const queueOpportunity = opportunities.find((o) => o.enquiry_id === enquiry.id) ?? null;
 
+  const openTab = (
+    tab: PreClientHubTab,
+    opts?: { addNote?: boolean; addTask?: boolean },
+  ) => {
+    setActiveTab(tab);
+    if (opts?.addNote) setShowAddNote(true);
+    if (opts?.addTask) setAddingTask(true);
+  };
+
+  const editShortcuts: HubEditShortcut[] = [
+    {
+      id: "tasks",
+      label: "Tasks",
+      description: "Follow-ups, calls, and actions for this enquiry.",
+      actionLabel: "Add task",
+      hasContent: openWorkCount > 0,
+      onClick: () => openTab("tasks", { addTask: true }),
+    },
+    {
+      id: "notes",
+      label: "Notes",
+      description: "Enquiry notes, call outcomes, and qualification context.",
+      actionLabel: "Add note",
+      hasContent: notesCount > 0,
+      onClick: () => openTab("notes", { addNote: true }),
+    },
+  ];
+
+  const hubQuickActions = (
+    <HubQuickActions
+      onAddNote={() => openTab("notes", { addNote: true })}
+      onAddTask={() => openTab("tasks", { addTask: true })}
+    />
+  );
+
   return (
     <div className="min-h-screen bg-white">
       <MoveEnquiryToProspectQueueModal
@@ -350,43 +388,31 @@ function EnquiryDetailContent() {
         href="/admin/enquiries"
         backLabel="Website Enquiries"
         title={enquiry.name}
-        actions={
-          activeTab === "overview" ? (
-            <HubQuickActions
-              onAddNote={() => {
-                setActiveTab("notes");
-                setShowAddNote(true);
-              }}
-              onAddTask={() => {
-                setActiveTab("tasks");
-                setAddingTask(true);
-              }}
-            />
-          ) : undefined
-        }
+        actions={hubQuickActions}
       />
 
-      <div className="border-b border-[#111111]/10 px-8">
-        <div className="flex gap-1 overflow-x-auto">
-          {hubTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
-                activeTab === tab.id
-                  ? "border-[#063b32] text-[#063b32]"
-                  : "border-transparent text-[#6f6b62] hover:text-[#111111]"
-              }`}
-            >
-              {tab.label}
-              {tab.id === "tasks" && openWorkCount > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openWorkCount}</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+      <HubTabNav
+        tabs={hubTabs}
+        activeTab={activeTab}
+        onChange={(tabId) => setActiveTab(tabId as PreClientHubTab)}
+        badge={(tabId) => {
+          if (tabId === "tasks" && openWorkCount > 0) {
+            return (
+              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+                {openWorkCount}
+              </span>
+            );
+          }
+          if (tabId === "notes" && notesCount > 0) {
+            return (
+              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+                {notesCount}
+              </span>
+            );
+          }
+          return null;
+        }}
+      />
 
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
@@ -508,12 +534,12 @@ function EnquiryDetailContent() {
                 <HubMetricCard
                   value={openWorkCount}
                   label="Open tasks & actions"
-                  onClick={() => setActiveTab("tasks")}
+                  onClick={() => openTab("tasks")}
                 />
                 <HubMetricCard
                   value={notesCount}
                   label="Notes"
-                  onClick={() => setActiveTab("notes")}
+                  onClick={() => openTab("notes")}
                 />
               </div>
 
@@ -522,15 +548,25 @@ function EnquiryDetailContent() {
                 status={enquiry.status}
               />
 
+              <HubEditShortcuts shortcuts={editShortcuts} />
+
               <RecentNotesPreview
                 notes={enquiry.admin_notes}
-                onViewAll={() => setActiveTab("notes")}
+                onViewAll={() => openTab("notes")}
               />
             </>
           )}
 
           {activeTab === "tasks" && (
             <div className="space-y-4">
+              <HubSectionHeader
+                title="Tasks"
+                description="Follow-ups, calls, and actions for this enquiry."
+                action={{
+                  label: "New task",
+                  onClick: () => setAddingTask(true),
+                }}
+              />
               <HubTasksTab
                 entityLabel={enquiry.name}
                 openTasks={openTasks}
@@ -554,6 +590,14 @@ function EnquiryDetailContent() {
 
           {activeTab === "notes" && (
             <div className="space-y-4">
+              <HubSectionHeader
+                title="Enquiry notes"
+                description="Notes, call outcomes, and qualification context."
+                action={{
+                  label: "Add note",
+                  onClick: () => setShowAddNote(true),
+                }}
+              />
               <HubNotesTab
                 title="Enquiry notes"
                 notes={enquiry.admin_notes}
