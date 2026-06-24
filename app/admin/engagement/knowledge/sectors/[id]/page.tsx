@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { type SectorProfile } from "@/lib/engagement/types";
 
 function List({ items }: { items: string[] }) {
@@ -51,27 +50,23 @@ export default function SectorDetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <Link href="/admin/engagement/knowledge" className="mb-3 inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]">
-          <ArrowLeft className="h-3.5 w-3.5" /> Knowledge library
-        </Link>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Sector profile</p>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{sector.name}</h1>
-            {sector.description && (
-              <p className="mt-1 text-sm text-[#6f6b62] max-w-2xl">{sector.description}</p>
-            )}
-            {sector.audience_types && sector.audience_types.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {sector.audience_types.map((a) => (
-                  <span key={a} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{a}</span>
-                ))}
-              </div>
-            )}
+      <RecordBackNav
+        href="/admin/engagement/knowledge"
+        backLabel="Knowledge library"
+        title={sector.name}
+      />
+      <div className="border-b border-[#111111]/8 bg-white px-8 pb-6 pt-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Sector profile</p>
+        {sector.description ? (
+          <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">{sector.description}</p>
+        ) : null}
+        {sector.audience_types && sector.audience_types.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {sector.audience_types.map((a) => (
+              <span key={a} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{a}</span>
+            ))}
           </div>
-
-        </div>
+        ) : null}
       </div>
 
       <div className="mx-auto max-w-4xl px-8 py-6 space-y-4">

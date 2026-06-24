@@ -4,7 +4,6 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import {
-  ArrowLeft,
   Briefcase,
   Building2,
   CheckCircle,
@@ -38,6 +37,10 @@ import {
 } from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
+import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
+import { HubMetricCard } from "@/components/admin/HubMetricCard";
+import { HubQuickActions } from "@/components/admin/HubQuickActions";
+import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { countNotes } from "@/lib/engagement/note-count";
 
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
@@ -314,15 +317,25 @@ function ClientDetailContent() {
     null;
   return (
     <div className="min-h-screen bg-white">
-      {/* Back link */}
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
-        <Link
-          href="/admin/clients"
-          className="inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Clients
-        </Link>
-      </div>
+      <RecordBackNav
+        href="/admin/clients"
+        backLabel="Clients"
+        title={fullName}
+        actions={
+          activeTab === "overview" ? (
+            <HubQuickActions
+              onAddNote={() => {
+                setActiveTab("notes");
+                setShowAddNote(true);
+              }}
+              onAddTask={() => {
+                setActiveTab("tasks");
+                setAddingTask(true);
+              }}
+            />
+          ) : undefined
+        }
+      />
 
       {/* Tabs */}
       <div className="border-b border-[#111111]/10 px-8">
@@ -453,55 +466,30 @@ function ClientDetailContent() {
               />
 
               <div className="grid gap-3 sm:grid-cols-3">
-                <button
-                  type="button"
+                <HubMetricCard
+                  value={openWorkCount}
+                  label="Open tasks & actions"
                   onClick={() => setActiveTab("tasks")}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-                >
-                  <p className="text-2xl font-bold text-[#111111]">{openWorkCount}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks &amp; actions</p>
-                </button>
-                <button
-                  type="button"
+                />
+                <HubMetricCard
+                  value={opportunities.length}
+                  label="Client work"
                   onClick={() => setActiveTab("client_work")}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-                >
-                  <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Client work</p>
-                </button>
-                <button
-                  type="button"
+                />
+                <HubMetricCard
+                  value={notesCount}
+                  label="Notes"
                   onClick={() => setActiveTab("notes")}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-                >
-                  <p className="text-2xl font-bold text-[#111111]">{notesCount}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Notes</p>
-                </button>
+                />
               </div>
 
-              <div className="flex flex-wrap items-start gap-3">
-                <JourneySummaryButton
-                  contactId={id}
-                  onSaved={() => {
-                    void loadData();
-                    setChatActivityKey((k) => k + 1);
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => { setActiveTab("notes"); setShowAddNote(true); }}
-                  className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-                >
-                  <Plus className="h-4 w-4" /> Add note
-                </button>
-                <button
-                  type="button"
-                  onClick={() => { setActiveTab("tasks"); setAddingTask(true); }}
-                  className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-                >
-                  <Plus className="h-4 w-4" /> Add task
-                </button>
-              </div>
+              <JourneySummaryButton
+                contactId={id}
+                onSaved={() => {
+                  void loadData();
+                  setChatActivityKey((k) => k + 1);
+                }}
+              />
 
               {primaryOpp && (
                 <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-4">
@@ -519,19 +507,19 @@ function ClientDetailContent() {
                   {primaryOpp.desired_outcomes && (
                     <div>
                       <p className="text-[10px] text-[#6f6b62]">Desired outcomes</p>
-                      <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{primaryOpp.desired_outcomes}</p>
+                      <CollapsibleNote content={primaryOpp.desired_outcomes} />
                     </div>
                   )}
                   {primaryOpp.recommended_pathway && (
                     <div>
                       <p className="text-[10px] text-[#6f6b62]">Agreed pathway</p>
-                      <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{primaryOpp.recommended_pathway}</p>
+                      <CollapsibleNote content={primaryOpp.recommended_pathway} />
                     </div>
                   )}
                   {primaryOpp.notes && (
                     <div>
                       <p className="text-[10px] text-[#6f6b62]">Service notes</p>
-                      <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{primaryOpp.notes}</p>
+                      <CollapsibleNote content={primaryOpp.notes} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
                     </div>
                   )}
                 </div>
@@ -609,7 +597,7 @@ function ClientDetailContent() {
                           </div>
                           <div>
                             <p className="text-[10px] text-[#6f6b62]">Description</p>
-                            <p className="text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{linkedEnquiry.details}</p>
+                            <CollapsibleNote content={linkedEnquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
                           </div>
                           {(linkedEnquiry.posts?.title || linkedEnquiry.connected_post_title) && (
                             <div>
@@ -629,7 +617,7 @@ function ClientDetailContent() {
                       {linkedEnquiry.admin_notes && (
                         <div className="rounded-xl border border-[#111111]/10 p-5">
                           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Admin notes from enquiry</p>
-                          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{linkedEnquiry.admin_notes}</p>
+                          <CollapsibleNote content={linkedEnquiry.admin_notes} />
                         </div>
                       )}
                     </>
@@ -678,7 +666,7 @@ function ClientDetailContent() {
                               {linkedQueue.raw_email && <p className="text-sm">{linkedQueue.raw_email}</p>}
                               {linkedQueue.raw_phone && <p className="text-sm">{linkedQueue.raw_phone}</p>}
                               {linkedQueue.raw_notes && (
-                                <p className="text-sm text-[#6f6b62] whitespace-pre-wrap">{linkedQueue.raw_notes}</p>
+                                <CollapsibleNote content={linkedQueue.raw_notes} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
                               )}
                             </div>
                           </div>
@@ -843,9 +831,7 @@ function ClientDetailContent() {
 
               {contact.notes ? (
                 <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <p className="whitespace-pre-wrap text-sm text-[#111111] leading-relaxed">
-                    {contact.notes}
-                  </p>
+                  <CollapsibleNote content={contact.notes} />
                 </div>
               ) : (
                 !showAddNote && (

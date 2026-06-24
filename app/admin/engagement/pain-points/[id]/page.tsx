@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
-  ArrowLeft,
   BookOpen,
   CheckCircle2,
   ChevronDown,
@@ -17,6 +16,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import type { PainPoint, VatPrompt } from "@/lib/engagement/types";
 
 type PainPointDetail = Omit<PainPoint, "synonyms"> & {
@@ -26,7 +26,6 @@ type PainPointDetail = Omit<PainPoint, "synonyms"> & {
 
 export default function PainPointDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [pp, setPp] = useState<PainPointDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
@@ -87,28 +86,18 @@ export default function PainPointDetailPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-5">
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-1.5 text-sm text-[#6f6b62] hover:text-[#111111]"
-          >
-            <ArrowLeft className="h-4 w-4" /> Pain points
-          </button>
-        </div>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
-              {pp.category}
-            </span>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{pp.title}</h1>
-            {pp.plain_english_definition && (
-              <p className="mt-1.5 max-w-2xl text-sm text-[#6f6b62]">{pp.plain_english_definition}</p>
-            )}
-          </div>
-
-        </div>
+      <RecordBackNav
+        href="/admin/engagement/pain-points"
+        backLabel="Pain points"
+        title={pp.title}
+      />
+      <div className="border-b border-[#111111]/8 bg-white px-8 pb-5 pt-4">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
+          {pp.category}
+        </span>
+        {pp.plain_english_definition ? (
+          <p className="mt-1.5 max-w-2xl text-sm text-[#6f6b62]">{pp.plain_english_definition}</p>
+        ) : null}
       </div>
 
       <div className="px-8 py-6 grid grid-cols-1 gap-4 lg:grid-cols-3">

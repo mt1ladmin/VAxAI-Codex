@@ -22,7 +22,7 @@ export function JourneyStageBanner({ currentStage, status, hint }: Props) {
   const currentIndex = JOURNEY_STAGES.findIndex((s) => s.id === currentStage);
 
   return (
-    <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 p-4 space-y-3">
+    <div className="rounded-xl border border-[#111111]/8 bg-white p-4 shadow-sm space-y-3">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">
         Client journey
       </p>

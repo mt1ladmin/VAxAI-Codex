@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CalendarItemPreviewModal } from "@/components/admin/CalendarItemPreviewModal";
 import {
   ChevronLeft,
   ChevronRight,
@@ -18,8 +18,10 @@ import {
 type Post = {
   id: string;
   title: string;
+  description?: string | null;
   content_type: string;
   status: "draft" | "published" | "scheduled";
+  cover_image_url?: string | null;
   published_at: string | null;
   scheduled_at: string | null;
   updated_at: string;
@@ -355,6 +357,7 @@ export default function CalendarPage() {
   const [panelMode, setPanelMode] = useState<"none" | "new-social" | "edit-social" | "view-social">("none");
   const [panelDate, setPanelDate] = useState("");
   const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
+  const [previewPost, setPreviewPost] = useState<Post | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -429,17 +432,20 @@ export default function CalendarPage() {
   function PostChip({ post }: { post: Post }) {
     const isScheduled = post.status === "scheduled";
     return (
-      <Link href={`/admin/posts/${post.id}`}
-        className={`flex items-center gap-1 truncate rounded px-1.5 py-0.5 text-[10px] font-semibold leading-tight ${
+      <button
+        type="button"
+        onClick={() => setPreviewPost(post)}
+        className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight ${
           post.status === "published"
             ? "bg-[#063b32]/10 text-[#063b32] hover:bg-[#063b32]/20"
             : isScheduled
             ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
             : "bg-[#f5f274]/60 text-[#6f6b62] hover:bg-[#f5f274]"
-        }`}>
+        }`}
+      >
         {isScheduled && <span className="shrink-0">⏰</span>}
         <span className="truncate">{post.title || "Untitled"}</span>
-      </Link>
+      </button>
     );
   }
 
@@ -463,7 +469,7 @@ export default function CalendarPage() {
     const ds = toDateStr(day);
 
     return (
-      <div className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[110px]"} p-2`}>
+      <div className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[120px]"} p-2.5`}>
         <div className="flex items-center justify-between">
           <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-[#063b32] text-white" : "text-gray-500"}`}>
             {day.getDate()}
@@ -476,7 +482,7 @@ export default function CalendarPage() {
             <Plus className="h-3 w-3" />
           </button>
         </div>
-        <div className="mt-1 space-y-0.5">
+        <div className="mt-1.5 space-y-1">
           {dayPosts.map((p) => <PostChip key={p.id} post={p} />)}
           {daySocial.map((s) => <SocialChip key={s.id} sp={s} />)}
         </div>
@@ -601,6 +607,13 @@ export default function CalendarPage() {
           ) : null}
         </div>
       )}
+
+      {previewPost ? (
+        <CalendarItemPreviewModal
+          post={previewPost}
+          onClose={() => setPreviewPost(null)}
+        />
+      ) : null}
     </div>
   );
 }

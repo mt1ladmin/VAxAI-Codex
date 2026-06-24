@@ -4,7 +4,6 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowLeft,
   Briefcase,
   Building2,
   Calendar,
@@ -22,6 +21,10 @@ import {
 } from "lucide-react";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
+import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
+import { HubMetricCard } from "@/components/admin/HubMetricCard";
+import { HubQuickActions } from "@/components/admin/HubQuickActions";
+import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
@@ -370,14 +373,25 @@ function EnquiryDetailContent() {
         existingOrgId={enquiry.organisation_id}
       />
 
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
-        <Link
-          href="/admin/enquiries"
-          className="inline-flex items-center gap-1.5 text-xs text-[#6f6b62] hover:text-[#111111]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Website Enquiries
-        </Link>
-      </div>
+      <RecordBackNav
+        href="/admin/enquiries"
+        backLabel="Website Enquiries"
+        title={enquiry.name}
+        actions={
+          activeTab === "overview" ? (
+            <HubQuickActions
+              onAddNote={() => {
+                setActiveTab("notes");
+                setShowAddNote(true);
+              }}
+              onAddTask={() => {
+                setActiveTab("tasks");
+                setAddingTask(true);
+              }}
+            />
+          ) : undefined
+        }
+      />
 
       <div className="border-b border-[#111111]/10 px-8">
         <div className="flex gap-1 overflow-x-auto">
@@ -443,7 +457,7 @@ function EnquiryDetailContent() {
             </div>
             <div>
               <p className="text-[10px] text-[#6f6b62]">Description</p>
-              <p className="mt-0.5 text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{enquiry.details}</p>
+              <CollapsibleNote content={enquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
             </div>
             {postTitle && (
               <div>
@@ -527,27 +541,21 @@ function EnquiryDetailContent() {
               />
 
               <div className="grid gap-3 sm:grid-cols-3">
-                <button type="button" onClick={() => setActiveTab("tasks")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{openWorkCount}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Open tasks &amp; actions</p>
-                </button>
-                <button type="button" onClick={() => setActiveTab("client_work")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Client work</p>
-                </button>
-                <button type="button" onClick={() => setActiveTab("notes")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
-                  <p className="text-2xl font-bold text-[#111111]">{notesCount}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Notes</p>
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
-                  <Plus className="h-4 w-4" /> Add note
-                </button>
-                <button type="button" onClick={() => { setActiveTab("tasks"); setAddingTask(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
-                  <Plus className="h-4 w-4" /> Add task
-                </button>
+                <HubMetricCard
+                  value={openWorkCount}
+                  label="Open tasks & actions"
+                  onClick={() => setActiveTab("tasks")}
+                />
+                <HubMetricCard
+                  value={opportunities.length}
+                  label="Client work"
+                  onClick={() => setActiveTab("client_work")}
+                />
+                <HubMetricCard
+                  value={notesCount}
+                  label="Notes"
+                  onClick={() => setActiveTab("notes")}
+                />
               </div>
 
               <div className="rounded-xl border border-[#111111]/10 p-5">
@@ -676,7 +684,7 @@ function EnquiryDetailContent() {
               )}
               {enquiry.admin_notes ? (
                 <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <p className="text-sm text-[#111111] whitespace-pre-wrap">{enquiry.admin_notes}</p>
+                  <CollapsibleNote content={enquiry.admin_notes} />
                 </div>
               ) : (
                 <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No notes yet.</p>
