@@ -148,6 +148,8 @@ export type EngagementTask = {
   opportunity_id: string | null;
   enquiry_id: string | null;
   queue_id: string | null;
+  outreach_id: string | null;
+  assigned_team_member_id: string | null;
   owner_email: string | null;
   due_date: string | null;
   priority: string;
@@ -158,6 +160,7 @@ export type EngagementTask = {
   organisation?: Pick<EngagementOrganisation, 'id' | 'name'> | null;
   contact?: Pick<EngagementContact, 'id' | 'first_name' | 'last_name'> | null;
   opportunity?: Pick<EngagementOpportunity, 'id' | 'title' | 'stage' | 'enquiry_id' | 'queue_id'> | null;
+  assignee?: Pick<{ id: string; display_name: string }, 'id' | 'display_name'> | null;
 };
 
 export type PainPoint = {

@@ -23,8 +23,9 @@ import {
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
 import {
-  PROSPECT_CATALOG_PAGE_LABEL,
-  PROSPECT_WORKFLOW_PAGE_LABEL,
+  CLIENT_WORK_LABEL,
+  PROSPECT_FINDER_LABEL,
+  PROSPECT_QUEUE_LABEL,
 } from "@/lib/engagement/journey";
 import { isPlatformAdmin, type StudioRole } from "@/lib/studio-access";
 
@@ -35,11 +36,11 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: PROSPECT_CATALOG_PAGE_LABEL, href: "/admin/engagement/prospect-outreach", icon: Send },
-      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Search },
+      { label: PROSPECT_FINDER_LABEL, href: "/admin/engagement/prospect-outreach", icon: Search },
+      { label: PROSPECT_QUEUE_LABEL, href: "/admin/clients", icon: Inbox },
+      { label: CLIENT_WORK_LABEL, href: "/admin/client-work", icon: Briefcase },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
-      { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },
   {
@@ -64,11 +65,11 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: PROSPECT_CATALOG_PAGE_LABEL, href: "/admin/engagement/prospect-outreach", icon: Send },
-      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Search },
+      { label: PROSPECT_FINDER_LABEL, href: "/admin/engagement/prospect-outreach", icon: Search },
+      { label: PROSPECT_QUEUE_LABEL, href: "/admin/clients", icon: Inbox },
+      { label: CLIENT_WORK_LABEL, href: "/admin/client-work", icon: Briefcase },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
-      { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },
   {

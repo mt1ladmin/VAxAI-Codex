@@ -2,6 +2,7 @@ import AdminShell from "@/components/admin/AdminShell";
 import { StudioAccessProvider } from "@/lib/studio-access-context";
 import { getStudioMembership } from "@/lib/studio-auth";
 import type { StudioRole } from "@/lib/studio-access";
+import { UserEmailProvider } from "@/lib/user-email-context";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   let userEmail: string | null = null;
@@ -23,14 +24,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   } catch {}
 
   if (!studioRole) {
-    return <AdminShell userEmail={userEmail}>{children}</AdminShell>;
+    return (
+      <UserEmailProvider email={userEmail}>
+        <AdminShell userEmail={userEmail}>{children}</AdminShell>
+      </UserEmailProvider>
+    );
   }
 
   return (
-    <StudioAccessProvider role={studioRole}>
-      <AdminShell userEmail={userEmail} studioRole={studioRole}>
-        {children}
-      </AdminShell>
-    </StudioAccessProvider>
+    <UserEmailProvider email={userEmail}>
+      <StudioAccessProvider role={studioRole}>
+        <AdminShell userEmail={userEmail} studioRole={studioRole}>
+          {children}
+        </AdminShell>
+      </StudioAccessProvider>
+    </UserEmailProvider>
   );
 }

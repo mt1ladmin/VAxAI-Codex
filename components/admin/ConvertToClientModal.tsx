@@ -319,7 +319,7 @@ export function ConvertToClientModal({
 
           <div className="space-y-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Prospect/Client service record</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client work service record</p>
               <p className="mt-0.5 text-xs text-[#6f6b62]">Record what has been agreed — defaults to Onboarding planned.</p>
             </div>
 

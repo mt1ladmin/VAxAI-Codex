@@ -58,14 +58,12 @@ function LabeledField({ label, children }: { label: string; children: ReactNode 
 }
 
 const STAGE_FILTERS = [
-  { value: "", label: "All opportunities" },
-  { value: "Identified", label: "Identified" },
-  { value: "Ready to contact", label: "Ready to contact" },
-  { value: "Contacted", label: "Contacted" },
-  { value: "Discovery booked", label: "Discovery booked" },
-  { value: "Proposal sent", label: "Proposal sent" },
-  { value: "Decision pending", label: "Decision pending" },
+  { value: "", label: "All clients" },
   { value: "Won", label: "Won" },
+  { value: "Onboarding planned", label: "Onboarding planned" },
+  { value: "Invoices sent", label: "Invoices sent" },
+  { value: "Onboarding in progress", label: "Onboarding" },
+  { value: "Active client", label: "Active clients" },
 ];
 
 function formatValue(low: number | null, high: number | null) {
@@ -96,7 +94,7 @@ export default function ClientsPage() {
     setLoading(true);
     const params = new URLSearchParams();
     if (stageFilter) params.set("stage", stageFilter);
-    const res = await fetch(`/api/admin/clients?${params.toString()}`);
+    const res = await fetch(`/api/admin/client-work?${params.toString()}`);
     const json = (await res.json()) as { data: Client[]; metrics: Metrics };
     setClients(json.data || []);
     setMetrics(
@@ -132,8 +130,8 @@ export default function ClientsPage() {
       {/* Header */}
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Prospect Queue</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">Active opportunities the team is engaging — track stage, ownership, tasks, and readiness for client work.</p>
+        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Client Work</h1>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">Converted prospects and active clients — services, tasks, and full engagement history.</p>
       </div>
 
       {/* Metrics */}
@@ -145,7 +143,7 @@ export default function ClientsPage() {
             </div>
             <div>
               <p className="text-xl font-bold text-[#111111]">{metrics.total}</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Active opportunities</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total clients</p>
             </div>
           </div>
           <div className="flex items-center gap-2.5">
@@ -222,7 +220,7 @@ export default function ClientsPage() {
             ))}
           </div>
           <p className="ml-auto text-sm text-[#6f6b62]">
-            {filtered.length} opportunit{filtered.length === 1 ? "y" : "ies"}
+            {filtered.length} client{filtered.length === 1 ? "" : "s"}
           </p>
         </div>
 
@@ -236,9 +234,9 @@ export default function ClientsPage() {
         ) : filtered.length === 0 ? (
           <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea] py-16 text-center">
             <Briefcase className="mx-auto mb-3 h-10 w-10 text-[#6f6b62]/30" />
-            <p className="text-sm font-semibold text-[#111111]">No opportunities in the queue</p>
+            <p className="text-sm font-semibold text-[#111111]">No client work records yet</p>
             <p className="mt-1 text-xs text-[#6f6b62]">
-              Move qualified prospects from Prospect Finder when an opportunity is identified.
+              Advance opportunities from Prospect Queue when agreement to proceed is confirmed.
             </p>
           </div>
         ) : (
@@ -259,9 +257,9 @@ export default function ClientsPage() {
                   key={c.id}
                   role="button"
                   tabIndex={0}
-                  onClick={() => router.push(`/admin/clients/${c.id}`)}
+                  onClick={() => router.push(`/admin/client-work/${c.id}`)}
                   onKeyDown={(ev) => {
-                    if (ev.key === "Enter") router.push(`/admin/clients/${c.id}`);
+                    if (ev.key === "Enter") router.push(`/admin/client-work/${c.id}`);
                   }}
                   className="flex cursor-pointer items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
                 >

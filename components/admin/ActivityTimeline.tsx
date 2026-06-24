@@ -21,6 +21,7 @@ type Props = {
   enquiryId?: string;
   queueId?: string;
   contactId?: string;
+  outreachId?: string;
   chatContextType?: "enquiry" | "prospect" | "client";
   chatContextId?: string;
   refreshKey?: number;
@@ -135,6 +136,7 @@ export function ActivityTimeline({
   enquiryId,
   queueId,
   contactId,
+  outreachId,
   chatContextType,
   chatContextId,
   refreshKey = 0,
@@ -150,7 +152,7 @@ export function ActivityTimeline({
     setLoading(true);
     try {
       const [logs, chats] = await Promise.all([
-        fetchActivityLog({ enquiryId, queueId, contactId }),
+        fetchActivityLog({ enquiryId, queueId, contactId, outreachId }),
         chatContextType && chatContextId
           ? fetchChatActivity(chatContextType, chatContextId)
           : Promise.resolve([]),
@@ -160,7 +162,7 @@ export function ActivityTimeline({
     } finally {
       setLoading(false);
     }
-  }, [enquiryId, queueId, contactId, chatContextType, chatContextId]);
+  }, [enquiryId, queueId, contactId, outreachId, chatContextType, chatContextId]);
 
   useEffect(() => {
     void load();

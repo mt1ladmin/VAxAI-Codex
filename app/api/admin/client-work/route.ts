@@ -1,21 +1,21 @@
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
-import { isProspectQueueStage, PROSPECT_QUEUE_STAGES } from "@/lib/engagement/prospect-queue-stages";
+import { CLIENT_SERVICE_STAGES, isClientServiceStage } from "@/lib/engagement/client-stages";
 
-const QUEUE_STAGES = [...PROSPECT_QUEUE_STAGES];
+const CLIENT_STAGES = [...CLIENT_SERVICE_STAGES];
 
 export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);
   const stage = searchParams.get("stage") || "";
 
-  const stages = stage && isProspectQueueStage(stage) ? [stage] : QUEUE_STAGES;
+  const stages = stage && isClientServiceStage(stage) ? [stage] : CLIENT_STAGES;
 
   const { data: opps, error: oppError } = await supabase
     .from("engagement_opportunities")
     .select(
-      "id, title, stage, indicative_value_low, indicative_value_high, notes, desired_outcomes, recommended_pathway, updated_at, created_at, primary_contact_id, outreach_id, assigned_team_member_id, next_action, assigned:assigned_team_member_id(id, display_name)"
+      "id, title, stage, indicative_value_low, indicative_value_high, notes, desired_outcomes, recommended_pathway, updated_at, created_at, primary_contact_id, outreach_id, assigned_team_member_id, assigned:assigned_team_member_id(id, display_name)",
     )
     .in("stage", stages)
     .not("primary_contact_id", "is", null)
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
   const { data: contacts, error: cError } = await supabase
     .from("engagement_contacts")
     .select(
-      "id, first_name, last_name, role, professional_email, phone, updated_at, organisation:organisation_id(id, name, industry)"
+      "id, first_name, last_name, role, professional_email, phone, updated_at, organisation:organisation_id(id, name, industry)",
     )
     .in("id", contactIds)
     .order("updated_at", { ascending: false });
@@ -58,12 +58,10 @@ export async function GET(req: NextRequest) {
   const enriched = (contacts || []).map((c) => ({
     ...c,
     client_opportunities: oppMap[c.id] || [],
-    primary_stage: oppMap[c.id]?.[0]?.stage ?? "Identified",
+    primary_stage: oppMap[c.id]?.[0]?.stage ?? "Won",
     primary_service: oppMap[c.id]?.[0]?.title ?? null,
     primary_opp_id: oppMap[c.id]?.[0]?.id ?? null,
-    primary_next_action: oppMap[c.id]?.[0]?.next_action ?? null,
     assigned_team_member: oppMap[c.id]?.[0]?.assigned ?? null,
-    outreach_id: oppMap[c.id]?.[0]?.outreach_id ?? null,
   }));
 
   const filteredContactIds = enriched.map((c) => c.id);

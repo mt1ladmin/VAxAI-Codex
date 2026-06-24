@@ -10,12 +10,34 @@ export async function GET(req: NextRequest) {
   const contact = searchParams.get("contact_id") || "";
   const opp = searchParams.get("opportunity_id") || "";
   const due = searchParams.get("due_today") === "true";
+  const assignee = searchParams.get("assigned_team_member_id") || "";
+  const myTasks = searchParams.get("my_tasks") === "true";
+  const userEmail = searchParams.get("user_email") || "";
   const limit = parseInt(searchParams.get("limit") || "500");
+
+  let assigneeId = assignee;
+  if (myTasks && userEmail) {
+    const { data: member } = await supabase
+      .from("studio_team_members")
+      .select("id")
+      .ilike("user_email", userEmail)
+      .maybeSingle();
+    if (!member?.id) {
+      const { data: byName } = await supabase
+        .from("studio_team_members")
+        .select("id")
+        .ilike("display_name", userEmail.split("@")[0])
+        .maybeSingle();
+      assigneeId = byName?.id || "";
+    } else {
+      assigneeId = member.id;
+    }
+  }
 
   let query = supabase
     .from("engagement_tasks")
     .select(
-      `*, organisation:organisation_id(id, name), contact:contact_id(id, first_name, last_name), opportunity:opportunity_id(id, title, stage, enquiry_id, queue_id)`,
+      `*, organisation:organisation_id(id, name), contact:contact_id(id, first_name, last_name), opportunity:opportunity_id(id, title, stage, enquiry_id, queue_id), assignee:assigned_team_member_id(id, display_name)`,
       { count: "exact" },
     )
     .order("due_date", { ascending: true })
@@ -31,6 +53,7 @@ export async function GET(req: NextRequest) {
     const today = new Date().toISOString().split("T")[0];
     query = query.lte("due_date", today);
   }
+  if (assigneeId) query = query.eq("assigned_team_member_id", assigneeId);
 
   const { data, count, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

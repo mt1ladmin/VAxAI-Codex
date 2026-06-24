@@ -16,4 +16,5 @@ export const DEFAULT_TASK_FORM = {
   due_date: "",
   task_type: "follow_up",
   notes: "",
+  assigned_team_member_id: "",
 };

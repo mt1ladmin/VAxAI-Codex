@@ -1,97 +1,72 @@
 import { logActivity } from "@/lib/engagement/activity-log";
-import { NextRequest, NextResponse } from "next/server";
-import { createServiceClient } from "@/lib/supabase";
-import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
+import { engagementStatusForAssignment, isFinderEngagementStatus } from "@/lib/engagement/engagement-status";
 import {
-  mergeProspectRecord,
-  snapshotToQueueFields,
-} from "@/lib/engagement/prospect-outreach/snapshot";
+  buildFinderList,
+  filterFinderList,
+  loadOverrideMaps,
+  loadTeamMembers,
+  paginate,
+} from "@/lib/engagement/prospect-finder/load-catalog";
+import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
+import { mergeProspectRecord } from "@/lib/engagement/prospect-outreach/snapshot";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
-
-async function loadQueuedOutreachIds(supabase: ReturnType<typeof createServiceClient>) {
-  const { data } = await supabase
-    .from("prospect_queue")
-    .select("outreach_id")
-    .not("outreach_id", "is", null);
-  return new Set((data || []).map((r) => r.outreach_id as string));
-}
-
-async function loadOverrideData(supabase: ReturnType<typeof createServiceClient>) {
-  const { data } = await supabase
-    .from("prospect_outreach_overrides")
-    .select("outreach_id, overrides, review_notes");
-  const overrides = new Map<string, Record<string, unknown>>();
-  const reviewNotes = new Map<string, string>();
-  for (const row of data || []) {
-    overrides.set(row.outreach_id, (row.overrides as Record<string, unknown>) || {});
-    if (row.review_notes) reviewNotes.set(row.outreach_id, row.review_notes as string);
-  }
-  return { overrides, reviewNotes };
-}
-
-type OutreachWithNotes = ProspectOutreachRecord & { review_notes?: string | null };
-
-function applyFilters(
-  data: OutreachWithNotes[],
-  searchParams: URLSearchParams,
-): OutreachWithNotes[] {
-  const region = searchParams.get("region");
-  const needScore = searchParams.get("need_score");
-  const confidence = searchParams.get("confidence");
-  const type = searchParams.get("type");
-  const q = (searchParams.get("q") || "").toLowerCase().trim();
-
-  let filtered = data;
-  if (region) filtered = filtered.filter((p) => p.region === region);
-  if (needScore) filtered = filtered.filter((p) => p.need_score === parseInt(needScore, 10));
-  if (confidence) filtered = filtered.filter((p) => p.data_confidence === confidence);
-  if (type) filtered = filtered.filter((p) => p.organisation_type === type);
-  if (q) {
-    filtered = filtered.filter(
-      (p) =>
-        p.organisation_name.toLowerCase().includes(q) ||
-        p.location.toLowerCase().includes(q) ||
-        p.decision_maker_name.toLowerCase().includes(q) ||
-        p.sector_tags.some((t) => t.toLowerCase().includes(q)) ||
-        p.need_rationale.toLowerCase().includes(q) ||
-        (p.service_fit_summary || "").toLowerCase().includes(q) ||
-        (p.likely_need || "").toLowerCase().includes(q),
-    );
-  }
-  return filtered;
-}
+import { createServiceClient } from "@/lib/supabase";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
-  const [queuedIds, { overrides, reviewNotes }] = await Promise.all([
-    loadQueuedOutreachIds(supabase),
-    loadOverrideData(supabase),
+  const { searchParams } = new URL(req.url);
+
+  const [overrideMaps, members] = await Promise.all([
+    loadOverrideMaps(supabase),
+    loadTeamMembers(supabase),
   ]);
 
-  const available: OutreachWithNotes[] = prospectOutreachCatalog.prospects
-    .filter((p) => !queuedIds.has(p.id))
-    .map((p) => ({
-      ...mergeProspectRecord(p, overrides.get(p.id)),
-      review_notes: reviewNotes.get(p.id) ?? null,
-    }));
+  const all = buildFinderList(overrideMaps.rows, overrideMaps.overrides, members);
+  const filtered = filterFinderList(all, {
+    q: searchParams.get("q") || undefined,
+    region: searchParams.get("region") || undefined,
+    need_score: searchParams.get("need_score") || undefined,
+    confidence: searchParams.get("confidence") || undefined,
+    type: searchParams.get("type") || undefined,
+    assigned_to: searchParams.get("assigned_to") || undefined,
+    engagement_status: searchParams.get("engagement_status") || undefined,
+    my_prospects: searchParams.get("my_prospects") === "true",
+    unassigned: searchParams.get("unassigned") === "true",
+    in_queue:
+      searchParams.get("in_queue") === "true"
+        ? true
+        : searchParams.get("in_queue") === "false"
+          ? false
+          : undefined,
+    userEmail: searchParams.get("user_email") || undefined,
+    members,
+  });
 
-  const data = applyFilters(available, new URL(req.url).searchParams);
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const pageSize = Math.min(100, Math.max(10, parseInt(searchParams.get("page_size") || "50", 10)));
+  const paged = paginate(filtered, page, pageSize);
 
   const filteredByRegion: Record<string, number> = {};
-  for (const row of data) {
+  for (const row of filtered) {
     filteredByRegion[row.region] = (filteredByRegion[row.region] || 0) + 1;
   }
 
   return NextResponse.json({
     meta: {
       ...prospectOutreachCatalog.meta,
-      available_count: available.length,
-      filtered_count: data.length,
+      total_count: all.length,
+      filtered_count: filtered.length,
       filtered_by_region: filteredByRegion,
-      queued_count: queuedIds.size,
+      in_queue_count: all.filter((p) => p.in_prospect_queue).length,
+      unassigned_count: all.filter((p) => !p.assigned_team_member_id).length,
+      page: paged.page,
+      page_size: paged.page_size,
+      total_pages: paged.total_pages,
     },
-    data,
-    count: data.length,
+    data: paged.data,
+    count: paged.data.length,
+    team_members: members.filter((m) => m.is_active),
   });
 }
 
@@ -101,6 +76,11 @@ export async function PATCH(req: NextRequest) {
     outreach_id?: string;
     overrides?: Partial<ProspectOutreachRecord>;
     review_notes?: string | null;
+    assigned_team_member_id?: string | null;
+    engagement_status?: string;
+    opportunity_description?: string | null;
+    next_action?: string | null;
+    next_action_date?: string | null;
   };
 
   if (!outreach_id) {
@@ -115,7 +95,7 @@ export async function PATCH(req: NextRequest) {
   const supabase = createServiceClient();
   const { data: existing } = await supabase
     .from("prospect_outreach_overrides")
-    .select("overrides")
+    .select("*")
     .eq("outreach_id", outreach_id)
     .maybeSingle();
 
@@ -129,7 +109,26 @@ export async function PATCH(req: NextRequest) {
     overrides: mergedOverrides,
     updated_at: new Date().toISOString(),
   };
+
   if (review_notes !== undefined) upsertPayload.review_notes = review_notes;
+  if (body.assigned_team_member_id !== undefined) {
+    upsertPayload.assigned_team_member_id = body.assigned_team_member_id;
+    upsertPayload.engagement_status = engagementStatusForAssignment(
+      body.assigned_team_member_id,
+      body.engagement_status ?? existing?.engagement_status,
+    );
+  }
+  if (body.engagement_status !== undefined) {
+    if (!isFinderEngagementStatus(body.engagement_status)) {
+      return NextResponse.json({ error: "Invalid engagement_status" }, { status: 400 });
+    }
+    upsertPayload.engagement_status = body.engagement_status;
+  }
+  if (body.opportunity_description !== undefined) {
+    upsertPayload.opportunity_description = body.opportunity_description;
+  }
+  if (body.next_action !== undefined) upsertPayload.next_action = body.next_action;
+  if (body.next_action_date !== undefined) upsertPayload.next_action_date = body.next_action_date;
 
   const { error } = await supabase.from("prospect_outreach_overrides").upsert(upsertPayload);
 
@@ -137,81 +136,49 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
+  if (body.assigned_team_member_id !== undefined || body.engagement_status !== undefined) {
+    await logActivity(supabase, {
+      event_type: "assignment_updated",
+      title: "Prospect assignment updated",
+      outreach_id,
+      metadata: {
+        assigned_team_member_id: body.assigned_team_member_id ?? existing?.assigned_team_member_id,
+        engagement_status: upsertPayload.engagement_status,
+      },
+    });
+  }
+
+  const members = await loadTeamMembers(supabase);
+  const { overrides: overrideMap, rows } = await loadOverrideMaps(supabase);
+  const row = rows.get(outreach_id);
+  const merged = mergeProspectRecord(base, overrideMap.get(outreach_id));
+
   return NextResponse.json({
     data: {
-      ...mergeProspectRecord(base, mergedOverrides),
-      review_notes: review_notes ?? null,
+      ...merged,
+      review_notes: review_notes ?? row?.review_notes ?? null,
+      assigned_team_member_id: row?.assigned_team_member_id ?? body.assigned_team_member_id ?? null,
+      engagement_status: upsertPayload.engagement_status ?? row?.engagement_status ?? "Not assigned",
+      opportunity_description: row?.opportunity_description ?? null,
+      next_action: row?.next_action ?? null,
+      next_action_date: row?.next_action_date ?? null,
+      opportunity_id: row?.opportunity_id ?? null,
+      pipeline_contact_id: row?.pipeline_contact_id ?? null,
+      assigned_team_member_name:
+        members.find((m) => m.id === (row?.assigned_team_member_id ?? body.assigned_team_member_id))?.display_name ??
+        null,
     },
   });
 }
 
+/** @deprecated Use move-to-queue — kept for backward compatibility */
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  type ProspectPayload = ProspectOutreachRecord & { review_notes?: string | null };
-  const prospects = (body.prospects || []) as ProspectPayload[];
-  const ids = (body.ids || []) as string[];
-
-  let selected: ProspectPayload[] = prospects;
-
-  if (!selected.length && ids.length) {
-    const supabase = createServiceClient();
-    const { overrides, reviewNotes } = await loadOverrideData(supabase);
-    selected = prospectOutreachCatalog.prospects
-      .filter((p) => ids.includes(p.id))
-      .map((p) => ({
-        ...mergeProspectRecord(p, overrides.get(p.id)),
-        review_notes: reviewNotes.get(p.id) ?? null,
-      }));
+  if (body.prospects?.length || body.ids?.length) {
+    return NextResponse.json(
+      { error: "Use POST /api/admin/engagement/prospect-outreach/move-to-queue instead" },
+      { status: 410 },
+    );
   }
-
-  if (!selected.length) {
-    return NextResponse.json({ error: "No prospects provided" }, { status: 400 });
-  }
-
-  const supabase = createServiceClient();
-  const queuedIds = await loadQueuedOutreachIds(supabase);
-  const toInsert = selected.filter((p) => !queuedIds.has(p.id));
-
-  if (!toInsert.length) {
-    return NextResponse.json({ error: "All selected prospects are already in the queue" }, { status: 409 });
-  }
-
-  const payloads = toInsert.map((p) => snapshotToQueueFields(p, p.review_notes));
-  const { data, error } = await supabase
-    .from("prospect_queue")
-    .insert(payloads)
-    .select("id, raw_org_name, outreach_id");
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
-  }
-
-  for (const row of data ?? []) {
-    await logActivity(supabase, {
-      event_type: "queued",
-      title: "Added to prospect queue",
-      detail: row.raw_org_name ?? undefined,
-      queue_id: row.id,
-      outreach_id: row.outreach_id ?? undefined,
-    });
-
-    if (row.outreach_id) {
-      const { data: outreachLinks } = await supabase
-        .from("engagement_knowledge_attachments")
-        .select("sector_ids, persona_ids, pain_point_ids")
-        .eq("outreach_id", row.outreach_id)
-        .maybeSingle();
-      if (outreachLinks) {
-        await supabase.from("engagement_knowledge_attachments").upsert({
-          queue_id: row.id,
-          sector_ids: outreachLinks.sector_ids,
-          persona_ids: outreachLinks.persona_ids,
-          pain_point_ids: outreachLinks.pain_point_ids,
-          updated_at: new Date().toISOString(),
-        });
-      }
-    }
-  }
-
-  return NextResponse.json({ data, count: data?.length ?? 0 }, { status: 201 });
+  return NextResponse.json({ error: "No prospects provided" }, { status: 400 });
 }

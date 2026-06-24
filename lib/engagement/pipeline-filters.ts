@@ -1,5 +1,5 @@
 import { CLIENT_SERVICE_STAGES } from "@/lib/engagement/client-stages";
-import { PROSPECT_WORKFLOW_PAGE_LABEL } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
 import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 
 export const CLOSED_WON = CLIENT_SERVICE_STAGES;
@@ -23,7 +23,7 @@ export type SourceFilter = "all" | "website_enquiry" | "prospect_queue";
 export const SOURCE_FILTER_OPTIONS: { value: SourceFilter; label: string }[] = [
   { value: "all", label: "All sources" },
   { value: "website_enquiry", label: "Website enquiry" },
-  { value: "prospect_queue", label: PROSPECT_WORKFLOW_PAGE_LABEL },
+  { value: "prospect_queue", label: `${PROSPECT_FINDER_LABEL} / ${PROSPECT_QUEUE_LABEL}` },
 ];
 
 export const TASK_FILTER_OPTIONS: { value: TaskFilter; label: string }[] = [

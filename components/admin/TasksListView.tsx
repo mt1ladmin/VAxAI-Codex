@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TasksListSkeleton } from "@/components/admin/HubDetailSkeleton";
-import { PROSPECT_WORKFLOW_PAGE_LABEL } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
+import { useUserEmail } from "@/lib/user-email-context";
+import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import { Check, CheckSquare, Inbox, LayoutGrid, List, MessageSquare, Plus, Target, X } from "lucide-react";
 import {
@@ -43,10 +45,17 @@ const selectClass =
 
 function taskRecordHref(task: EngagementTask, allowClientLinks: boolean): string | null {
   const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
-  const queueId = task.queue_id ?? task.opportunity?.queue_id;
   if (enquiryId) return `/admin/enquiries/${enquiryId}`;
-  if (queueId) return `/admin/engagement/prospect-queue/${queueId}`;
-  if (task.contact_id && allowClientLinks) return `/admin/clients/${task.contact_id}`;
+  if (task.outreach_id) return `/admin/engagement/prospect-outreach/${task.outreach_id}`;
+  const queueId = task.queue_id ?? task.opportunity?.queue_id;
+  if (queueId) return `/admin/engagement/prospect-outreach`;
+  if (task.contact_id && allowClientLinks) {
+    const clientStages = new Set(["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"]);
+    if (task.opportunity?.stage && clientStages.has(task.opportunity.stage)) {
+      return `/admin/client-work/${task.contact_id}`;
+    }
+    return `/admin/clients/${task.contact_id}`;
+  }
   return null;
 }
 
@@ -60,10 +69,17 @@ function TaskSourceLabel({ task }: { task: EngagementTask }) {
       </span>
     );
   }
+  if (task.outreach_id) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32]">
+        <Inbox className="h-3 w-3" /> {PROSPECT_FINDER_LABEL}
+      </span>
+    );
+  }
   if (queueId) {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-700">
-        <Inbox className="h-3 w-3" /> {PROSPECT_WORKFLOW_PAGE_LABEL}
+        <Inbox className="h-3 w-3" /> {PROSPECT_QUEUE_LABEL}
       </span>
     );
   }
@@ -125,6 +141,9 @@ function TaskRow({
             </Link>
           ) : null}
           {task.organisation && <span className="text-[10px] text-[#6f6b62]">· {task.organisation.name}</span>}
+          {task.assignee?.display_name && (
+            <span className="text-[10px] text-[#6f6b62]">· {task.assignee.display_name}</span>
+          )}
           {task.contact && (
             <span className="text-[10px] text-[#6f6b62]">
               · {task.contact.first_name} {task.contact.last_name}
@@ -218,7 +237,11 @@ export function TasksListView({
   const hasLoadedRef = useRef(false);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ title: "", priority: "medium", due_date: "", notes: "", task_type: "follow_up" });
+  const [form, setForm] = useState({ title: "", priority: "medium", due_date: "", notes: "", task_type: "follow_up", assigned_team_member_id: "" });
+  const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
+  const [assigneeFilter, setAssigneeFilter] = useState("");
+  const [myTasksOnly, setMyTasksOnly] = useState(false);
+  const userEmail = useUserEmail();
   const [saveError, setSaveError] = useState("");
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
@@ -230,12 +253,23 @@ export function TasksListView({
     const params = new URLSearchParams();
     if (view === "list" && status) params.set("status", status);
     params.set("limit", "500");
+    if (assigneeFilter) params.set("assigned_team_member_id", assigneeFilter);
+    if (myTasksOnly) {
+      params.set("my_tasks", "true");
+      if (userEmail) params.set("user_email", userEmail);
+    }
     const res = await fetch(`/api/admin/engagement/tasks?${params}`);
     const json = (await res.json()) as { data: EngagementTask[] };
     setTasks(json.data || []);
     hasLoadedRef.current = true;
     setInitialLoading(false);
-  }, [status, view]);
+  }, [status, view, assigneeFilter, myTasksOnly, userEmail]);
+
+  useEffect(() => {
+    void fetch("/api/admin/engagement/team-members")
+      .then((r) => r.json())
+      .then((j: { data?: StudioTeamMember[] }) => setTeamMembers(j.data || []));
+  }, []);
 
   useEffect(() => {
     void load();
@@ -314,7 +348,7 @@ export function TasksListView({
       setSaving(false);
       return;
     }
-    setForm({ title: "", priority: "medium", due_date: "", notes: "", task_type: "follow_up" });
+    setForm({ title: "", priority: "medium", due_date: "", notes: "", task_type: "follow_up", assigned_team_member_id: "" });
     setAdding(false);
     setSaving(false);
     void load();
@@ -337,7 +371,7 @@ export function TasksListView({
             <div>
               <h1 className="text-lg font-semibold text-[#111111]">Tasks Tracker</h1>
               <p className="text-sm text-[#6f6b62]">
-                Master task list across {PROSPECT_WORKFLOW_PAGE_LABEL} and Website Enquiries
+                Master task list across Prospect Finder, Prospect Queue, and Website Enquiries
               </p>
             </div>
           </div>
@@ -464,6 +498,25 @@ export function TasksListView({
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+          <select
+            value={assigneeFilter}
+            onChange={(e) => { setAssigneeFilter(e.target.value); setMyTasksOnly(false); }}
+            className={selectClass}
+          >
+            <option value="">All assignees</option>
+            {teamMembers.map((m) => (
+              <option key={m.id} value={m.id}>{m.display_name}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={() => { setMyTasksOnly((v) => !v); setAssigneeFilter(""); }}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
+              myTasksOnly ? "border-[#063b32] bg-[#063b32] text-white" : "border-[#111111]/15 text-[#6f6b62]"
+            }`}
+          >
+            My tasks
+          </button>
           <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value as SourceFilter)} className={selectClass}>
             {SOURCE_FILTER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>

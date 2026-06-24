@@ -37,6 +37,11 @@ export type ProspectOutreachMeta = {
   available_count?: number;
   filtered_count?: number;
   queued_count?: number;
+  in_queue_count?: number;
+  unassigned_count?: number;
+  page?: number;
+  page_size?: number;
+  total_pages?: number;
   by_region: Record<string, number>;
   filtered_by_region?: Record<string, number>;
   by_need_score: Record<string, number>;

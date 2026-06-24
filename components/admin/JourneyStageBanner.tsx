@@ -63,12 +63,12 @@ export function JourneyStageBanner({ currentStage, status, hint }: Props) {
           Make contact and record progress. {ADVANCE_STATUS_HINT}
         </p>
       )}
-      {currentStage === "pre_sales" && (
+      {currentStage === "queue" && status === PRE_SALES_STATUS && (
         <p className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-          Pre-sales pipeline is active (status: {PRE_SALES_STATUS}). Track discovery and proposals on the Opportunities tab, then advance to client work once there is agreement to proceed.
+          Opportunity is active (status: {PRE_SALES_STATUS}). Track discovery and proposals, then advance to client work once there is agreement to proceed.
         </p>
       )}
-      {currentStage === "outreach" && (
+      {currentStage === "finder" && (
         <Link
           href="/admin/engagement/knowledge?tab=sectors"
           className="inline-flex text-xs font-semibold text-[#063b32] hover:underline"

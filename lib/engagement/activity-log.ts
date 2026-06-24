@@ -14,7 +14,9 @@ export type ActivityEventType =
   | "ai_summary"
   | "journey_summary"
   | "advanced_to_client"
-  | "research_updated";
+  | "research_updated"
+  | "assignment_updated"
+  | "moved_to_prospect_queue";
 
 export type ActivityLogEntry = {
   id: string;
@@ -66,11 +68,13 @@ export async function fetchActivityLog(query: {
   enquiryId?: string;
   queueId?: string;
   contactId?: string;
+  outreachId?: string;
 }): Promise<ActivityLogEntry[]> {
   const params = new URLSearchParams();
   if (query.enquiryId) params.set("enquiry_id", query.enquiryId);
   if (query.queueId) params.set("queue_id", query.queueId);
   if (query.contactId) params.set("contact_id", query.contactId);
+  if (query.outreachId) params.set("outreach_id", query.outreachId);
   const res = await fetch(`/api/admin/engagement/activity-log?${params}`);
   if (!res.ok) return [];
   const j = (await res.json()) as { data?: ActivityLogEntry[] };
@@ -92,4 +96,6 @@ export const ACTIVITY_EVENT_DOT: Record<ActivityEventType, string> = {
   journey_summary: "bg-[#063b32]",
   advanced_to_client: "bg-[#063b32]",
   research_updated: "bg-teal-500",
+  assignment_updated: "bg-slate-500",
+  moved_to_prospect_queue: "bg-[#063b32]",
 };

@@ -14,8 +14,8 @@ import {
   Zap,
 } from "lucide-react";
 import {
-  PROSPECT_CATALOG_PAGE_LABEL,
-  PROSPECT_WORKFLOW_PAGE_LABEL,
+  PROSPECT_FINDER_LABEL,
+  PROSPECT_QUEUE_LABEL,
 } from "@/lib/engagement/journey";
 
 
@@ -100,12 +100,12 @@ export default function EngagementOverview() {
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
 
-      fetch("/api/admin/engagement/prospect-queue?status=Needs+review&limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
+      fetch("/api/admin/engagement/prospect-outreach?page_size=1").then((r) => r.json()).catch(() => ({ meta: {} })),
       fetch("/api/admin/enquiries?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/posts?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([taskRes, queueRes, enqRes, postRes]) => {
+    ]).then(([taskRes, finderRes, enqRes, postRes]) => {
       const taskData = (taskRes.data || []) as Task[];
-      const queueData = (queueRes.data || []) as { status: string }[];
+      const finderMeta = (finderRes.meta || {}) as { unassigned_count?: number };
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
 
@@ -127,7 +127,7 @@ export default function EngagementOverview() {
       const isScheduled = (p: PostItem) => !!p.scheduled_at && p.status !== "published";
 
       setStats({
-        pendingQueue: queueData.filter((q) => q.status === "Needs review").length,
+        pendingQueue: finderMeta.unassigned_count ?? 0,
         newEnquiries: enqData.filter((e) => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
         openTasks: taskData.filter((t) => t.status !== "done").length,
@@ -163,7 +163,7 @@ export default function EngagementOverview() {
         {!stats.loading && (stats.overdueTasks > 0 || stats.pendingQueue > 0 || stats.newEnquiries > 0) && (
           <div className="mt-3 flex flex-wrap gap-2">
             <AlertPill count={stats.overdueTasks} label="overdue task(s)" href="/admin/engagement/pipeline" color="bg-red-100 text-red-700" />
-            <AlertPill count={stats.pendingQueue} label="prospect(s) needing review" href="/admin/engagement/prospect-queue" color="bg-amber-100 text-amber-700" />
+            <AlertPill count={stats.pendingQueue} label="unassigned prospect(s)" href="/admin/engagement/prospect-outreach?unassigned=true" color="bg-amber-100 text-amber-700" />
             <AlertPill count={stats.newEnquiries} label="new enquiry(ies)" href="/admin/enquiries" color="bg-blue-100 text-blue-700" />
           </div>
         )}
@@ -180,7 +180,7 @@ export default function EngagementOverview() {
               ))
             : [
                 { label: "Open tasks", value: stats.openTasks, href: "/admin/engagement/pipeline", color: "text-[#063b32]" },
-                { label: PROSPECT_WORKFLOW_PAGE_LABEL, value: stats.pendingQueue, href: "/admin/engagement/prospect-queue", color: "text-amber-600" },
+                { label: "Unassigned prospects", value: stats.pendingQueue, href: "/admin/engagement/prospect-outreach?unassigned=true", color: "text-amber-600" },
                 { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
                 { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
               ].map(({ label, value, href, color }) => (
@@ -193,7 +193,7 @@ export default function EngagementOverview() {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            { label: PROSPECT_CATALOG_PAGE_LABEL, desc: "Service-fit assessed targets — review before outreach", href: "/admin/engagement/prospect-outreach", icon: Send },
+            { label: PROSPECT_FINDER_LABEL, desc: "Researched organisations — assign, qualify, and move opportunities to the queue", href: "/admin/engagement/prospect-outreach", icon: Send },
             { label: "Prepare for a prospect", desc: "Sector guidance, personas, and VAT-informed prompts", href: "/admin/engagement/knowledge", icon: Users },
             { label: "Help with a pain point", desc: "Phrase-led support for workflow and admin pressure", href: "/admin/engagement/pain-points", icon: Zap },
           ].map(({ label, desc, href, icon: Icon }) => (
@@ -370,7 +370,7 @@ export default function EngagementOverview() {
           {[
             { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
             { label: "Website Enquiries", href: "/admin/enquiries", icon: Users, desc: "Contact form submissions" },
-            { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox, desc: "Imported prospects awaiting review" },
+            { label: PROSPECT_QUEUE_LABEL, href: "/admin/clients", icon: Inbox, desc: "Active opportunities the team is engaging" },
           ].map((item) => (
             <Link
               key={item.href}

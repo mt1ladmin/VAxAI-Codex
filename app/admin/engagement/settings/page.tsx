@@ -7,13 +7,17 @@ import {
   type RecommendationRule, type PricingRule, type VatPrompt,
 } from "@/lib/engagement/types";
 
-type Tab = "rec_rules" | "pricing" | "vat_prompts";
+import type { StudioTeamMember } from "@/lib/engagement/team-members";
+
+type Tab = "rec_rules" | "pricing" | "vat_prompts" | "team_members";
 
 export default function SettingsPage() {
   const [tab, setTab] = useState<Tab>("rec_rules");
   const [recRules, setRecRules] = useState<RecommendationRule[]>([]);
   const [pricing, setPricing] = useState<PricingRule[]>([]);
   const [vatPrompts, setVatPrompts] = useState<VatPrompt[]>([]);
+  const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
+  const [newMemberName, setNewMemberName] = useState("");
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -26,10 +30,14 @@ export default function SettingsPage() {
       const res = await fetch("/api/admin/engagement/pricing?limit=50");
       const json = await res.json() as { data: PricingRule[] };
       setPricing(json.data || []);
-    } else {
+    } else if (tab === "vat_prompts") {
       const res = await fetch("/api/admin/engagement/vat-prompts?limit=200");
       const json = await res.json() as { data: VatPrompt[] };
       setVatPrompts(json.data || []);
+    } else {
+      const res = await fetch("/api/admin/engagement/team-members?active_only=false");
+      const json = await res.json() as { data: StudioTeamMember[] };
+      setTeamMembers(json.data || []);
     }
     setLoading(false);
   }, [tab]);
@@ -63,6 +71,7 @@ export default function SettingsPage() {
             ["rec_rules", "Recommendation rules"],
             ["pricing", "Pricing bands"],
             ["vat_prompts", "VAT prompts"],
+            ["team_members", "Team members"],
           ] as [Tab, string][]).map(([key, label]) => (
             <button
               key={key}
@@ -204,6 +213,89 @@ export default function SettingsPage() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            )}
+
+            {tab === "team_members" && (
+              <div>
+                <p className="mb-4 text-sm text-[#6f6b62]">
+                  Manage assignable team members for Prospect Finder, Prospect Queue, and tasks. Inactive members keep existing assignments but cannot be selected for new work.
+                </p>
+                <div className="mb-4 flex gap-2">
+                  <input
+                    value={newMemberName}
+                    onChange={(e) => setNewMemberName(e.target.value)}
+                    placeholder="New team member name"
+                    className="flex-1 rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                  <button
+                    type="button"
+                    disabled={!newMemberName.trim()}
+                    onClick={async () => {
+                      await fetch("/api/admin/engagement/team-members", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ display_name: newMemberName.trim() }),
+                      });
+                      setNewMemberName("");
+                      void load();
+                    }}
+                    className="rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    Add member
+                  </button>
+                </div>
+                <div className="rounded-xl border border-[#111111]/10 overflow-hidden divide-y divide-[#111111]/5">
+                  {teamMembers.map((member) => (
+                    <div key={member.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5">
+                      <input
+                        defaultValue={member.display_name}
+                        onBlur={async (e) => {
+                          const name = e.target.value.trim();
+                          if (!name || name === member.display_name) return;
+                          await fetch(`/api/admin/engagement/team-members/${member.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ display_name: name }),
+                          });
+                          void load();
+                        }}
+                        className="min-w-[140px] flex-1 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm"
+                      />
+                      <input
+                        defaultValue={member.user_email || ""}
+                        placeholder="Email (optional, for My prospects)"
+                        onBlur={async (e) => {
+                          const email = e.target.value.trim();
+                          if (email === (member.user_email || "")) return;
+                          await fetch(`/api/admin/engagement/team-members/${member.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ user_email: email || null }),
+                          });
+                          void load();
+                        }}
+                        className="min-w-[200px] flex-1 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await fetch(`/api/admin/engagement/team-members/${member.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ is_active: !member.is_active }),
+                          });
+                          void load();
+                        }}
+                        className={`rounded-full px-3 py-0.5 text-[10px] font-semibold ${
+                          member.is_active ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
+                        }`}
+                      >
+                        {member.is_active ? "Active" : "Inactive"}
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

@@ -2,33 +2,22 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowRight,
-  BookOpen,
-  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Filter,
-  Inbox,
   Loader2,
-  Save,
   Search,
-  Send,
+  User,
 } from "lucide-react";
-import { AddToProspectQueueModal } from "@/components/admin/AddToProspectQueueModal";
-import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
-import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
-import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
-import { useSetAIContext } from "@/lib/ai-assistant-context";
-import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
-import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
-import {
-  PROSPECT_CATALOG_PAGE_LABEL,
-  PROSPECT_WORKFLOW_PAGE_LABEL,
-} from "@/lib/engagement/journey";
-import type { ProspectOutreachMeta, ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
-import {
-  NEED_SCORE_COLORS,
-  OUTREACH_REGIONS,
-} from "@/lib/engagement/prospect-outreach/types";
+import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
+import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
+import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
+import type { ProspectOutreachMeta } from "@/lib/engagement/prospect-outreach/types";
+import { OUTREACH_REGIONS } from "@/lib/engagement/prospect-outreach/types";
+import type { StudioTeamMember } from "@/lib/engagement/team-members";
+import { useUserEmail } from "@/lib/user-email-context";
 
 function CustomSelect({
   value,
@@ -48,10 +37,10 @@ function CustomSelect({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full min-w-[140px] items-center justify-between rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-left text-sm"
+        className="flex w-full min-w-[130px] items-center justify-between rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-left text-sm"
       >
         <span className={selected ? "text-[#111111]" : "text-[#6f6b62]"}>{selected?.label || placeholder}</span>
-        <ChevronDown className={`h-4 w-4 text-[#6f6b62] ${open ? "rotate-180" : ""}`} />
+        <ChevronRight className={`h-4 w-4 text-[#6f6b62] transition-transform ${open ? "rotate-90" : ""}`} />
       </button>
       {open && (
         <div className="absolute z-40 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg">
@@ -71,218 +60,131 @@ function CustomSelect({
   );
 }
 
-type OutreachRecord = ProspectOutreachRecord & { review_notes?: string | null };
+function statusTone(status: string): string {
+  if (status === "In prospect queue") return "text-[#063b32] font-medium";
+  if (status === "Opportunity identified") return "text-[#111111] font-medium";
+  if (status === "Not progressing") return "text-[#6f6b62]";
+  if (status === "Not assigned") return "text-[#6f6b62]";
+  return "text-[#111111]";
+}
 
-export default function ProspectOutreachPage() {
-  const [prospects, setProspects] = useState<OutreachRecord[]>([]);
+export default function ProspectFinderPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const userEmail = useUserEmail();
+
+  const [prospects, setProspects] = useState<ProspectFinderListItem[]>([]);
   const [meta, setMeta] = useState<ProspectOutreachMeta | null>(null);
+  const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [search, setSearch] = useState("");
-  const [region, setRegion] = useState("");
-  const [needScore, setNeedScore] = useState("");
-  const [confidence, setConfidence] = useState("");
-  const [orgType, setOrgType] = useState("");
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<OutreachRecord | null>(null);
-  const [reviewNotes, setReviewNotes] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [queueModalOpen, setQueueModalOpen] = useState(false);
-  const [queueModalProspects, setQueueModalProspects] = useState<ProspectOutreachRecord[]>([]);
+
+  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const search = searchParams.get("q") || "";
+  const region = searchParams.get("region") || "";
+  const needScore = searchParams.get("need_score") || "";
+  const confidence = searchParams.get("confidence") || "";
+  const orgType = searchParams.get("type") || "";
+  const assignedTo = searchParams.get("assigned_to") || "";
+  const engagementStatus = searchParams.get("engagement_status") || "";
+  const myProspects = searchParams.get("my_prospects") === "true";
+  const unassigned = searchParams.get("unassigned") === "true";
+
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      for (const [key, value] of Object.entries(updates)) {
+        if (!value) params.delete(key);
+        else params.set(key, value);
+      }
+      if (!("page" in updates)) params.delete("page");
+      router.push(`/admin/engagement/prospect-outreach?${params.toString()}`);
+    },
+    [router, searchParams],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("page_size", "50");
     if (region) params.set("region", region);
     if (needScore) params.set("need_score", needScore);
     if (confidence) params.set("confidence", confidence);
     if (orgType) params.set("type", orgType);
     if (search) params.set("q", search);
+    if (assignedTo) params.set("assigned_to", assignedTo);
+    if (engagementStatus) params.set("engagement_status", engagementStatus);
+    if (myProspects) {
+      params.set("my_prospects", "true");
+      if (userEmail) params.set("user_email", userEmail);
+    }
+    if (unassigned) params.set("unassigned", "true");
+
     const res = await fetch(`/api/admin/engagement/prospect-outreach?${params}`);
     const json = await res.json();
     setProspects(json.data || []);
     setMeta(json.meta || null);
+    setTeamMembers(json.team_members || []);
     setLoading(false);
-  }, [region, needScore, confidence, orgType, search]);
+  }, [
+    page,
+    region,
+    needScore,
+    confidence,
+    orgType,
+    search,
+    assignedTo,
+    engagementStatus,
+    myProspects,
+    unassigned,
+    userEmail,
+  ]);
 
   useEffect(() => { void load(); }, [load]);
 
-  useEffect(
-    () =>
-      subscribeNotesSaved((detail) => {
-        if (detail.contextType === "outreach") {
-          void load().then(() => {
-            if (detail.contextId) setSelectedId(detail.contextId);
-          });
-        }
-      }),
-    [load],
+  const totalPages = meta?.total_pages ?? 1;
+  const hasActiveFilters = Boolean(
+    region || needScore || confidence || orgType || search.trim() || assignedTo || engagementStatus || myProspects || unassigned,
   );
 
-  const selected = useMemo(
-    () => prospects.find((p) => p.id === selectedId) ?? prospects[0] ?? null,
-    [prospects, selectedId],
+  const memberOptions = useMemo(
+    () => [{ value: "", label: "All assignees" }, ...teamMembers.map((m) => ({ value: m.id, label: m.display_name }))],
+    [teamMembers],
   );
-
-  useEffect(() => {
-    if (prospects.length && !selectedId) setSelectedId(prospects[0].id);
-  }, [prospects, selectedId]);
-
-  useEffect(() => {
-    if (selected) {
-      setDraft(selected);
-      setReviewNotes(selected.review_notes || "");
-    }
-    setEditing(false);
-  }, [selected?.id]);
-
-  useSetAIContext(
-    draft
-      ? {
-          type: "outreach",
-          id: draft.id,
-          label: draft.organisation_name,
-          summary: buildOutreachContextSummary(draft, reviewNotes),
-        }
-      : null,
-  );
-
-  const highNeedCount = useMemo(() => prospects.filter((p) => p.need_score >= 4).length, [prospects]);
-
-  const hasActiveFilters = Boolean(region || needScore || confidence || orgType || search.trim());
-
-  async function saveReviewNotes() {
-    if (!draft) return;
-    setSaving(true);
-    try {
-      const res = await fetch("/api/admin/engagement/prospect-outreach", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outreach_id: draft.id, review_notes: reviewNotes }),
-      });
-      if (!res.ok) throw new Error((await res.json()).error || "Failed");
-      setProspects((prev) =>
-        prev.map((p) => (p.id === draft.id ? { ...p, review_notes: reviewNotes } : p)),
-      );
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to save notes");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function saveEdits() {
-    if (!draft) return;
-    setSaving(true);
-    try {
-      const { review_notes: _rn, ...overrides } = draft;
-      const res = await fetch("/api/admin/engagement/prospect-outreach", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          outreach_id: draft.id,
-          overrides,
-          review_notes: reviewNotes,
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to save");
-      setProspects((prev) => prev.map((p) => (p.id === draft.id ? json.data : p)));
-      setEditing(false);
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to save");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function openQueueModal(ids: string[]) {
-    const items = prospects
-      .filter((p) => ids.includes(p.id))
-      .map((p) => ({
-        ...p,
-        review_notes: p.id === draft?.id ? reviewNotes : p.review_notes,
-      }));
-    setQueueModalProspects(items);
-    setQueueModalOpen(true);
-  }
-
-  function toggleSelect(id: string) {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <AddToProspectQueueModal
-        open={queueModalOpen}
-        prospects={queueModalProspects}
-        onClose={() => setQueueModalOpen(false)}
-        onAdded={() => {
-          setQueueModalOpen(false);
-          setSelectedIds(new Set());
-          void load();
-        }}
-      />
-
       <div className="shrink-0 border-b border-[#111111]/10 bg-white px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
-            <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_CATALOG_PAGE_LABEL}</h1>
+            <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_FINDER_LABEL}</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
-              Researched charities and SMBs assessed for workflow pressure, service fit, complexity, and realistic VAxAI support — review before outreach.
+              Researched organisations — scan fit, assign owners, and open records for full research and actions.
             </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/admin/engagement/knowledge"
-              className="inline-flex items-center gap-2 rounded-full border border-[#111111]/15 bg-white px-4 py-2 text-sm font-medium hover:bg-[#f7f4ea]"
-            >
-              <BookOpen className="h-4 w-4" /> Knowledge Hub
-            </Link>
-            <Link
-              href="/admin/engagement/prospect-queue"
-              className="inline-flex items-center gap-2 rounded-full border border-[#111111]/15 bg-white px-4 py-2 text-sm font-medium hover:bg-[#f7f4ea]"
-            >
-              <Inbox className="h-4 w-4" /> {PROSPECT_WORKFLOW_PAGE_LABEL}
-            </Link>
           </div>
         </div>
 
         {meta ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-[#111111]/8 bg-white p-4 shadow-sm">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Researched prospects</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">
-                {meta.total_count.toLocaleString()}
-              </p>
+          <div className="mt-4 flex flex-wrap gap-6 text-sm">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total researched</p>
+              <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
             </div>
-            {hasActiveFilters && meta.filtered_count != null ? (
-              <div className="rounded-xl border border-[#111111]/8 bg-white p-4 shadow-sm">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Showing (filtered)</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">
-                  {meta.filtered_count.toLocaleString()}
-                </p>
+            {hasActiveFilters ? (
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Matching filters</p>
+                <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#111111]">{(meta.filtered_count ?? 0).toLocaleString()}</p>
               </div>
             ) : null}
-            <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-4 shadow-sm">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#063b32]">High need (4–5)</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{highNeedCount}</p>
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Unassigned</p>
+              <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#111111]">{(meta.unassigned_count ?? 0).toLocaleString()}</p>
             </div>
-            {meta.queued_count != null && meta.queued_count > 0 ? (
-              <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">In {PROSPECT_WORKFLOW_PAGE_LABEL}</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">
-                  {meta.queued_count.toLocaleString()}
-                </p>
-              </div>
-            ) : null}
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">In Prospect Queue</p>
+              <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#063b32]">{(meta.in_queue_count ?? 0).toLocaleString()}</p>
+            </div>
           </div>
         ) : null}
 
@@ -291,194 +193,148 @@ export default function ProspectOutreachPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
             <input
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search organisation, location, sector, decision maker…"
+              onChange={(e) => updateParams({ q: e.target.value || null })}
+              placeholder="Search organisation, sector, location, assignee…"
               className="w-full rounded-xl border border-[#111111]/15 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
             />
           </div>
           <Filter className="h-4 w-4 text-[#6f6b62]" />
           <CustomSelect
             value={region}
-            onChange={setRegion}
+            onChange={(v) => updateParams({ region: v || null })}
             placeholder="All regions"
             options={[{ value: "", label: "All regions" }, ...OUTREACH_REGIONS.map((r) => ({ value: r, label: r }))]}
           />
           <CustomSelect
             value={needScore}
-            onChange={setNeedScore}
-            placeholder="All need scores"
+            onChange={(v) => updateParams({ need_score: v || null })}
+            placeholder="All need"
             options={[
               { value: "", label: "All need scores" },
               ...["5", "4", "3", "2"].map((s) => ({ value: s, label: `Need ${s}` })),
             ]}
           />
           <CustomSelect
-            value={confidence}
-            onChange={setConfidence}
-            placeholder="All confidence"
-            options={[
-              { value: "", label: "All confidence" },
-              { value: "High", label: "High" },
-              { value: "Medium", label: "Medium" },
-              { value: "Low", label: "Low" },
-            ]}
+            value={assignedTo}
+            onChange={(v) => updateParams({ assigned_to: v || null, my_prospects: null })}
+            placeholder="All assignees"
+            options={memberOptions}
           />
           <CustomSelect
-            value={orgType}
-            onChange={setOrgType}
-            placeholder="All types"
+            value={engagementStatus}
+            onChange={(v) => updateParams({ engagement_status: v || null })}
+            placeholder="All statuses"
             options={[
-              { value: "", label: "All types" },
-              { value: "Charity", label: "Charities" },
-              { value: "Business", label: "Businesses (SMB)" },
+              { value: "", label: "All statuses" },
+              ...FINDER_ENGAGEMENT_STATUSES.map((s) => ({ value: s, label: s })),
             ]}
           />
-          {selectedIds.size > 0 && (
-            <button
-              type="button"
-              onClick={() => openQueueModal([...selectedIds])}
-              className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
-            >
-              <Send className="h-4 w-4" />
-              Add {selectedIds.size} to queue
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => updateParams({
+              my_prospects: myProspects ? null : "true",
+              assigned_to: null,
+              unassigned: null,
+            })}
+            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+              myProspects ? "border-[#063b32] bg-[#063b32] text-white" : "border-[#111111]/15 text-[#6f6b62] hover:bg-[#f7f4ea]"
+            }`}
+          >
+            My prospects
+          </button>
+          <button
+            type="button"
+            onClick={() => updateParams({ unassigned: unassigned ? null : "true", my_prospects: null })}
+            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+              unassigned ? "border-[#063b32] bg-[#063b32] text-white" : "border-[#111111]/15 text-[#6f6b62] hover:bg-[#f7f4ea]"
+            }`}
+          >
+            Unassigned
+          </button>
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1">
-        <div className="w-[42%] min-w-[320px] overflow-auto border-r border-[#111111]/10 bg-[#f7f4ea]/40">
-          {loading ? (
-            <div className="flex items-center justify-center py-16 text-[#6f6b62]">
-              <Loader2 className="h-6 w-6 animate-spin" />
-            </div>
-          ) : (
-            <ul className="divide-y divide-[#111111]/5">
-              {prospects.map((p) => (
-                <li key={p.id}>
-                  <div className="flex items-start gap-2 px-4 py-3 hover:bg-white/80">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(p.id)}
-                      onChange={() => toggleSelect(p.id)}
-                      className="mt-1.5"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setSelectedId(p.id)}
-                      className={`flex-1 text-left ${selectedId === p.id ? "opacity-100" : "opacity-90"}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-[#111111]">{p.organisation_name}</span>
-                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${NEED_SCORE_COLORS[p.need_score] || ""}`}>
-                          {p.need_score}
+      <div className="min-h-0 flex-1 overflow-auto">
+        {loading ? (
+          <div className="flex items-center justify-center py-16 text-[#6f6b62]">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        ) : (
+          <table className="w-full min-w-[900px] border-collapse text-sm">
+            <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#f7f4ea]/90 backdrop-blur-sm">
+              <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                <th className="px-6 py-3 font-semibold">Organisation</th>
+                <th className="px-3 py-3 font-semibold">Sector</th>
+                <th className="px-3 py-3 font-semibold">Location</th>
+                <th className="px-3 py-3 font-semibold">Fit</th>
+                <th className="px-3 py-3 font-semibold">Assigned to</th>
+                <th className="px-3 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold">Next action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#111111]/5">
+              {prospects.map((p) => {
+                const backQs = searchParams.toString();
+                const href = `/admin/engagement/prospect-outreach/${p.id}${backQs ? `?back=${encodeURIComponent(backQs)}` : ""}`;
+                return (
+                  <tr key={p.id} className="group hover:bg-[#f7f4ea]/40">
+                    <td className="px-6 py-3.5">
+                      <Link href={href} className="font-medium text-[#111111] group-hover:text-[#063b32]">
+                        {p.organisation_name}
+                      </Link>
+                    </td>
+                    <td className="px-3 py-3.5 text-[#6f6b62]">{p.sector_label}</td>
+                    <td className="px-3 py-3.5 text-[#6f6b62]">{p.location}</td>
+                    <td className="px-3 py-3.5">
+                      <span className="tabular-nums text-[#111111]">{p.need_score}</span>
+                      <span className="ml-1 text-xs text-[#6f6b62]">{p.priority_label}</span>
+                    </td>
+                    <td className="px-3 py-3.5">
+                      {p.assigned_team_member_name ? (
+                        <span className="inline-flex items-center gap-1 text-[#111111]">
+                          <User className="h-3.5 w-3.5 text-[#6f6b62]" />
+                          {p.assigned_team_member_name}
                         </span>
-                      </div>
-                      <p className="mt-0.5 text-xs text-[#6f6b62]">
-                        {p.organisation_type} · {p.location}
-                        {p.complexity_level ? ` · ${p.complexity_level}` : ""}
-                      </p>
-                      {p.service_fit_summary ? (
-                        <p className="mt-1 line-clamp-2 text-xs text-[#111111]/80">{p.service_fit_summary}</p>
                       ) : (
-                        <p className="mt-1 line-clamp-2 text-xs text-[#111111]/80">{p.need_rationale}</p>
+                        <span className="text-[#6f6b62]">—</span>
                       )}
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                    </td>
+                    <td className={`px-3 py-3.5 text-xs ${statusTone(p.engagement_status)}`}>
+                      {p.engagement_status}
+                    </td>
+                    <td className="max-w-[220px] truncate px-6 py-3.5 text-xs text-[#6f6b62]">
+                      {p.next_action || p.in_prospect_queue ? "In Prospect Queue" : "—"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
 
-        <div className="flex-1 overflow-auto bg-white p-6">
-          {!draft ? (
-            <p className="text-[#6f6b62]">Select a prospect to view details.</p>
-          ) : (
-            <div className="max-w-3xl space-y-6">
-              <JourneyStageBanner
-                currentStage="outreach"
-                hint="Review the service-fit assessment, attach Knowledge Hub guidance, and confirm what still needs validating before adding to Prospect Outreach."
-              />
-
-              <ProspectResearchPanel
-                data={editing ? draft : selected!}
-                editable={editing}
-                onChange={setDraft}
-              />
-
-              <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-                <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-                  Reviewer notes (passed to {PROSPECT_WORKFLOW_PAGE_LABEL.toLowerCase()})
-                </label>
-                <textarea
-                  value={reviewNotes}
-                  onChange={(e) => setReviewNotes(e.target.value)}
-                  rows={4}
-                  placeholder="Your verification checks, AI summary, or handoff notes for the outreach team…"
-                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
-                />
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => void saveReviewNotes()}
-                  className="text-xs font-semibold text-[#063b32] hover:underline disabled:opacity-50"
-                >
-                  Save review notes
-                </button>
-              </div>
-
-              {selected && <KnowledgeAttachPicker outreachId={selected.id} />}
-
-              <div className="flex flex-wrap gap-3">
-                {editing ? (
-                  <>
-                    <button
-                      type="button"
-                      disabled={saving}
-                      onClick={() => void saveEdits()}
-                      className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
-                    >
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                      Save changes
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setDraft(selected!); setEditing(false); }}
-                      className="rounded-full border border-[#111111]/15 px-5 py-2.5 text-sm font-medium hover:bg-[#f7f4ea]"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setEditing(true)}
-                      className="rounded-full border border-[#111111]/15 px-5 py-2.5 text-sm font-medium hover:bg-[#f7f4ea]"
-                    >
-                      Edit details
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openQueueModal([draft.id])}
-                      className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
-                    >
-                      <Send className="h-4 w-4" /> Add to {PROSPECT_WORKFLOW_PAGE_LABEL}
-                    </button>
-                    <Link
-                      href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(draft.sector_tags.join(","))}`}
-                      className="inline-flex items-center gap-2 rounded-full border border-[#111111]/15 px-5 py-2.5 text-sm font-medium hover:bg-[#f7f4ea]"
-                    >
-                      <BookOpen className="h-4 w-4" /> Sector guidance
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
+      <div className="flex shrink-0 items-center justify-between border-t border-[#111111]/10 bg-white px-6 py-3 text-sm">
+        <p className="text-[#6f6b62]">
+          Page {page} of {totalPages}
+          {meta?.filtered_count != null ? ` · ${meta.filtered_count.toLocaleString()} results` : ""}
+        </p>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            disabled={page <= 1}
+            onClick={() => updateParams({ page: String(page - 1) })}
+            className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+          >
+            <ChevronLeft className="h-4 w-4" /> Previous
+          </button>
+          <button
+            type="button"
+            disabled={page >= totalPages}
+            onClick={() => updateParams({ page: String(page + 1) })}
+            className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-medium disabled:opacity-40"
+          >
+            Next <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>

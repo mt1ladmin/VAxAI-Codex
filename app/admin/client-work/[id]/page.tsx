@@ -340,8 +340,8 @@ function ClientDetailContent() {
   return (
     <div className="min-h-screen bg-white">
       <RecordBackNav
-        href="/admin/clients"
-        backLabel="Prospect Queue"
+        href="/admin/client-work"
+        backLabel="Client Work"
         title={fullName}
         actions={
           activeTab === "overview" ? (
