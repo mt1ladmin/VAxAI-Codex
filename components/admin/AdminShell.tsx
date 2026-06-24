@@ -11,6 +11,7 @@ import {
   ExternalLink,
   Handshake,
   Inbox,
+  Search,
   LogOut,
   MessageSquare,
   PanelLeftClose,
@@ -35,7 +36,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
       { label: PROSPECT_CATALOG_PAGE_LABEL, href: "/admin/engagement/prospect-outreach", icon: Send },
-      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox },
+      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Search },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Tasks Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
       { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
@@ -62,8 +63,9 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
   {
     section: "CLIENT ENGAGEMENT",
     items: [
+      { label: "Overview", href: "/admin/engagement", icon: Handshake },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
-      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox },
+      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Search },
     ],
   },
   {
@@ -97,7 +99,7 @@ export default function AdminShell({
 
   const platformAdmin = studioRole ? isPlatformAdmin(studioRole) : true;
   const sections = platformAdmin ? navSections : memberNavSections;
-  const homeHref = platformAdmin ? "/admin/engagement" : "/admin/enquiries";
+  const homeHref = "/admin/engagement";
 
   const isActive = (href: string) =>
     exactMatchRoutes.has(href) ? pathname === href : pathname.startsWith(href);

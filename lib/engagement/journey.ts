@@ -1,25 +1,25 @@
 /**
  * VAxAI prospect-to-client journey stages and workflow helpers.
  *
- * Prospect queue (catalog) → Prospect outreach (workflow) → Prospect/Client
+ * Prospect Queue (catalog) → Prospect Finder (workflow) → Prospect/Client
  */
 
 /** Research catalog at /prospect-outreach */
-export const PROSPECT_CATALOG_PAGE_LABEL = "Prospect queue";
-/** Active outreach workflow at /prospect-queue */
-export const PROSPECT_WORKFLOW_PAGE_LABEL = "Prospect outreach";
+export const PROSPECT_CATALOG_PAGE_LABEL = "Prospect Queue";
+/** Active prospect workflow at /prospect-queue */
+export const PROSPECT_WORKFLOW_PAGE_LABEL = "Prospect Finder";
 
 export const JOURNEY_STAGES = [
   {
     id: "outreach",
     label: PROSPECT_CATALOG_PAGE_LABEL,
-    description: "Review researched targets, verify fit, add notes, push to outreach workflow.",
+    description: "Review researched targets, verify fit, add notes, push to Prospect Finder.",
     path: "/admin/engagement/prospect-outreach",
   },
   {
     id: "queue",
     label: PROSPECT_WORKFLOW_PAGE_LABEL,
-    description: "Make contact, book meetings, gauge interest, advance when there is a positive signal.",
+    description: "Find, add, and work prospects — make contact, book meetings, and advance when there is a positive signal.",
     path: "/admin/engagement/prospect-queue",
   },
   {

@@ -12,6 +12,27 @@ type Props = {
 
 const COLLAPSE_CHAR_THRESHOLD = 280;
 
+function ToggleBar({
+  expanded,
+  onToggle,
+}: {
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#111111]/8 bg-[#f7f4ea]/60 px-3 py-1.5 text-xs font-semibold text-[#063b32] transition-colors hover:bg-[#f7f4ea]"
+    >
+      <ChevronDown
+        className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
+      />
+      {expanded ? "Show less" : "Show more"}
+    </button>
+  );
+}
+
 export function CollapsibleNote({
   content,
   maxLines = 6,
@@ -31,8 +52,11 @@ export function CollapsibleNote({
     );
   }
 
+  const toggle = () => setExpanded((open) => !open);
+
   return (
-    <div className={className}>
+    <div className={`space-y-2 ${className}`}>
+      <ToggleBar expanded={expanded} onToggle={toggle} />
       <p
         className={`whitespace-pre-wrap ${textClassName} ${
           expanded ? "" : "line-clamp-6"
@@ -40,16 +64,7 @@ export function CollapsibleNote({
       >
         {content}
       </p>
-      <button
-        type="button"
-        onClick={() => setExpanded((open) => !open)}
-        className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
-      >
-        <ChevronDown
-          className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
-        />
-        {expanded ? "Show less" : "Show more"}
-      </button>
+      {expanded ? <ToggleBar expanded={expanded} onToggle={toggle} /> : null}
     </div>
   );
 }

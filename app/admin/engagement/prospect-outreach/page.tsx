@@ -138,10 +138,6 @@ export default function ProspectOutreachPage() {
   const highNeedCount = useMemo(() => prospects.filter((p) => p.need_score >= 4).length, [prospects]);
 
   const hasActiveFilters = Boolean(region || needScore || confidence || orgType || search.trim());
-  const regionCounts = useMemo(() => {
-    if (!meta) return {};
-    return hasActiveFilters ? meta.filtered_by_region ?? {} : meta.by_region;
-  }, [meta, hasActiveFilters]);
 
   async function saveReviewNotes() {
     if (!draft) return;
@@ -226,31 +222,8 @@ export default function ProspectOutreachPage() {
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_CATALOG_PAGE_LABEL}</h1>
-            {meta && (
-              <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <p className="font-serif text-3xl tabular-nums text-[#063b32]">
-                  {meta.total_count.toLocaleString()}
-                </p>
-                <p className="text-sm font-medium text-[#111111]">researched prospects</p>
-              </div>
-            )}
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
               Researched charities and SMBs for admin reduction, AI training, automation, and virtual assistance.
-              {meta && (
-                <>
-                  {meta.charity_count != null && meta.business_count != null && (
-                    <> · {meta.charity_count} charities · {meta.business_count} businesses</>
-                  )}
-                  {meta.available_count != null && <> · {meta.available_count.toLocaleString()} available</>}
-                  {meta.queued_count != null && meta.queued_count > 0 && (
-                    <> · {meta.queued_count.toLocaleString()} in queue</>
-                  )}
-                  {hasActiveFilters && meta.filtered_count != null && (
-                    <> · showing {meta.filtered_count.toLocaleString()} (filtered)</>
-                  )}
-                  <> · research date {meta.research_date}</>
-                </>
-              )}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -269,29 +242,36 @@ export default function ProspectOutreachPage() {
           </div>
         </div>
 
-        {meta && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {meta.charity_count != null && (
-              <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-medium text-violet-800">
-                Charities: {meta.charity_count}
-              </span>
-            )}
-            {meta.business_count != null && (
-              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-900">
-                Businesses: {meta.business_count}
-              </span>
-            )}
-            {Object.entries(regionCounts).map(([r, n]) => (
-              <span key={r} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs font-medium text-[#063b32]">
-                {r}: {n}
-                {hasActiveFilters ? " shown" : ""}
-              </span>
-            ))}
-            <span className="rounded-full bg-[#063b32]/10 px-3 py-1 text-xs font-medium text-[#063b32]">
-              High need (4–5): {highNeedCount}
-            </span>
+        {meta ? (
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-[#111111]/8 bg-white p-4 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Researched prospects</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">
+                {meta.total_count.toLocaleString()}
+              </p>
+            </div>
+            {hasActiveFilters && meta.filtered_count != null ? (
+              <div className="rounded-xl border border-[#111111]/8 bg-white p-4 shadow-sm">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Showing (filtered)</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">
+                  {meta.filtered_count.toLocaleString()}
+                </p>
+              </div>
+            ) : null}
+            <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-4 shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#063b32]">High need (4–5)</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{highNeedCount}</p>
+            </div>
+            {meta.queued_count != null && meta.queued_count > 0 ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">In {PROSPECT_WORKFLOW_PAGE_LABEL}</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">
+                  {meta.queued_count.toLocaleString()}
+                </p>
+              </div>
+            ) : null}
           </div>
-        )}
+        ) : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">

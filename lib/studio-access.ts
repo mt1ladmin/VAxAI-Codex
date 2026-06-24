@@ -30,6 +30,8 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/tasks",
   "/api/admin/engagement/contacts",
   "/api/admin/engagement/prospect-queue",
+  "/api/admin/engagement/prospect-finder",
+  "/api/admin/engagement/ai",
   "/api/admin/engagement/activity-log",
   "/api/admin/ai",
 ] as const;
@@ -43,6 +45,8 @@ const MEMBER_READ_ONLY_API_PREFIXES = [
   "/api/admin/engagement/contacts",
 ] as const;
 
+const MEMBER_PAGE_EXACT = new Set(["/admin/forbidden", "/admin/engagement"]);
+
 const PAIN_POINT_DETAIL = /^\/admin\/engagement\/pain-points\/[^/]+/;
 
 export function isPlatformAdmin(role: StudioRole | null | undefined): boolean {
@@ -50,10 +54,10 @@ export function isPlatformAdmin(role: StudioRole | null | undefined): boolean {
 }
 
 export function isMemberPathAllowed(pathname: string): boolean {
+  if (MEMBER_PAGE_EXACT.has(pathname)) return true;
   if (pathname === "/admin" || pathname === "/admin/") return true;
 
   if (MEMBER_PAGE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-
     return true;
   }
 
@@ -78,8 +82,8 @@ export function isMemberApiAllowed(pathname: string, method: string): boolean {
   return true;
 }
 
-export function defaultAdminHome(role: StudioRole): string {
-  return isPlatformAdmin(role) ? "/admin/engagement" : "/admin/enquiries";
+export function defaultAdminHome(_role: StudioRole): string {
+  return "/admin/engagement";
 }
 
 /** When a member hits a platform-admin-only page, send them back safely. */

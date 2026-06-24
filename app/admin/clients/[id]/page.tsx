@@ -459,7 +459,7 @@ function ClientDetailContent() {
             >
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Original submission</p>
               <p className="mt-1 text-sm font-semibold text-[#111111]">
-                {linkedEnquiry ? "Website enquiry" : "Prospect queue"}
+                {linkedEnquiry ? "Website enquiry" : "Prospect Finder"}
               </p>
               <p className="text-xs text-[#063b32] mt-0.5">View full submission →</p>
             </button>
@@ -598,7 +598,7 @@ function ClientDetailContent() {
                     <>
                       <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
                         <Inbox className="h-4 w-4 text-amber-700" />
-                        <span className="text-sm font-semibold text-[#111111]">Prospect queue</span>
+                        <span className="text-sm font-semibold text-[#111111]">Prospect Finder</span>
                         <span className="ml-auto text-xs text-[#6f6b62]">Archived on conversion</span>
                       </div>
                       {(() => {

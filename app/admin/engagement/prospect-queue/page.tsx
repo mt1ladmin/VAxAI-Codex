@@ -14,11 +14,13 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Sparkles,
   Trash2,
   Upload,
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { ProspectFinderAiModal } from "@/components/admin/ProspectFinderAiModal";
 import { PROSPECT_WORKFLOW_PAGE_LABEL } from "@/lib/engagement/journey";
 import type { ProspectQueueEntry } from "@/lib/engagement/types";
 import { INDUSTRIES, PROSPECT_QUEUE_STATUSES } from "@/lib/engagement/types";
@@ -263,6 +265,7 @@ export default function ProspectQueuePage() {
   const [orgIdsWithOpportunity, setOrgIdsWithOpportunity] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAiModal, setShowAiModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState<ProspectQueueEntry | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -395,6 +398,25 @@ export default function ProspectQueuePage() {
   const handleAdd = async (form: ProspectForm) => {
     setSaving(true);
     setFormError(null);
+    if (form.raw_org_name.trim()) {
+      const dupRes = await fetch("/api/admin/engagement/ai/duplicate-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orgName: form.raw_org_name,
+          email: form.raw_email,
+          phone: form.raw_phone,
+          website: form.raw_website,
+        }),
+      });
+      const dupJson = await dupRes.json() as { duplicates?: Array<{ score: number; reason: string }> };
+      const strong = (dupJson.duplicates ?? []).find((d) => d.score >= 85);
+      if (strong) {
+        setFormError(`Possible duplicate: ${strong.reason}. Edit details or use Find with AI.`);
+        setSaving(false);
+        return;
+      }
+    }
     const res = await fetch("/api/admin/engagement/prospect-queue", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -404,7 +426,7 @@ export default function ProspectQueuePage() {
     if (!res.ok) { setFormError(j.error || "Failed to save."); setSaving(false); return; }
     setShowAddModal(false);
     setSaving(false);
-    showToast("Prospect added to queue");
+    showToast(`Organisation added to ${PROSPECT_WORKFLOW_PAGE_LABEL}`);
     void fetchQueue();
   };
 
@@ -520,9 +542,18 @@ export default function ProspectQueuePage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <ProspectFinderAiModal
+        open={showAiModal}
+        onClose={() => setShowAiModal(false)}
+        onAdded={() => {
+          setShowAiModal(false);
+          showToast(`AI prospect added to ${PROSPECT_WORKFLOW_PAGE_LABEL}`);
+          void fetchQueue();
+        }}
+      />
       {showAddModal && (
         <ProspectFormModal
-          title="Add to queue"
+          title="Add organisation"
           initial={EMPTY_FORM}
           saving={saving}
           error={formError}
@@ -579,7 +610,7 @@ export default function ProspectQueuePage() {
               <span className="font-medium text-[#111111]">
                 {confirmDelete.raw_org_name || confirmDelete.organisation?.name || "this entry"}
               </span>{" "}
-              from the queue.
+              from {PROSPECT_WORKFLOW_PAGE_LABEL}.
             </p>
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -612,7 +643,7 @@ export default function ProspectQueuePage() {
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{PROSPECT_WORKFLOW_PAGE_LABEL}</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">Imported and manually added prospects — review, contact, and convert.</p>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">Find, import, and manually add prospects — review, contact, and convert.</p>
       </div>
 
       <div className="px-8 py-6">
@@ -745,11 +776,19 @@ export default function ProspectQueuePage() {
 
             <button
               type="button"
+              onClick={() => setShowAiModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[#063b32]/25 bg-[#063b32]/5 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10"
+            >
+              <Sparkles className="h-4 w-4" />
+              Find with AI
+            </button>
+            <button
+              type="button"
               onClick={() => { setFormError(null); setShowAddModal(true); }}
               className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
             >
               <Plus className="h-4 w-4" />
-              Add to queue
+              Add organisation
             </button>
           </div>
         </div>
@@ -798,7 +837,7 @@ export default function ProspectQueuePage() {
               onClick={() => { setFormError(null); setShowAddModal(true); }}
               className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
             >
-              <Plus className="h-4 w-4" /> Add to queue
+              <Plus className="h-4 w-4" /> Add organisation
             </button>
           </div>
         ) : (
