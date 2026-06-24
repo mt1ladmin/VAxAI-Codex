@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpen, Loader2, Save } from "lucide-react";
+import { BookOpen, ChevronDown, Loader2, Save } from "lucide-react";
 import {
   fetchKnowledgeAttachments,
   type KnowledgeLinkIds,
@@ -83,15 +83,33 @@ export function KnowledgeAttachPicker({
         Attach sector / persona / pain point guidance
       </button>
       {open && (
-        <div className="space-y-3 border-t border-[#111111]/10 px-4 py-3 text-xs">
-          <PickerGroup title="Sectors" options={sectors} selected={selected.sector_ids} onToggle={(id) => toggle("sector_ids", id)} />
-          <PickerGroup title="Personas" options={personas} selected={selected.persona_ids} onToggle={(id) => toggle("persona_ids", id)} />
-          <PickerGroup title="Pain points" options={painPoints} selected={selected.pain_point_ids} onToggle={(id) => toggle("pain_point_ids", id)} />
+        <div className="space-y-2 border-t border-[#111111]/10 px-4 py-3 text-xs">
+          <PickerGroup
+            title="Sectors"
+            options={sectors}
+            selected={selected.sector_ids}
+            defaultExpanded={selected.sector_ids.length > 0}
+            onToggle={(id) => toggle("sector_ids", id)}
+          />
+          <PickerGroup
+            title="Personas"
+            options={personas}
+            selected={selected.persona_ids}
+            defaultExpanded={selected.persona_ids.length > 0}
+            onToggle={(id) => toggle("persona_ids", id)}
+          />
+          <PickerGroup
+            title="Pain points"
+            options={painPoints}
+            selected={selected.pain_point_ids}
+            defaultExpanded={selected.pain_point_ids.length > 0}
+            onToggle={(id) => toggle("pain_point_ids", id)}
+          />
           <button
             type="button"
             onClick={() => void save()}
             disabled={saving}
-            className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white"
+            className="mt-1 flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white"
           >
             {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
             Save attachments
@@ -106,33 +124,67 @@ function PickerGroup({
   title,
   options,
   selected,
+  defaultExpanded = false,
   onToggle,
 }: {
   title: string;
   options: Option[];
   selected: string[];
+  defaultExpanded?: boolean;
   onToggle: (id: string) => void;
 }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    if (defaultExpanded) setExpanded(true);
+  }, [defaultExpanded]);
+
   if (!options.length) return null;
+
+  const selectedLabels = options.filter((o) => selected.includes(o.id)).map((o) => o.label);
+
   return (
-    <div>
-      <p className="mb-1 font-semibold uppercase tracking-wider text-[#6f6b62]">{title}</p>
-      <div className="flex max-h-24 flex-wrap gap-1 overflow-y-auto">
-        {options.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => onToggle(o.id)}
-            className={`rounded-full px-2 py-0.5 ${
-              selected.includes(o.id)
-                ? "bg-[#063b32] text-white"
-                : "border border-[#111111]/15 text-[#6f6b62]"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
+    <div className="overflow-hidden rounded-lg border border-[#111111]/10">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left hover:bg-[#f7f4ea]/60"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{title}</span>
+            {selected.length > 0 && (
+              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                {selected.length}
+              </span>
+            )}
+          </div>
+          {!expanded && selectedLabels.length > 0 && (
+            <p className="mt-0.5 truncate text-[11px] text-[#111111]">{selectedLabels.join(", ")}</p>
+          )}
+        </div>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
+      {expanded && (
+        <div className="flex max-h-28 flex-wrap gap-1 overflow-y-auto border-t border-[#111111]/10 bg-[#faf9f5] px-3 py-2">
+          {options.map((o) => (
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => onToggle(o.id)}
+              className={`rounded-full px-2 py-0.5 ${
+                selected.includes(o.id)
+                  ? "bg-[#063b32] text-white"
+                  : "border border-[#111111]/15 bg-white text-[#6f6b62]"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
