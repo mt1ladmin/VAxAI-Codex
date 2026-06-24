@@ -406,6 +406,11 @@ function ClientDetailContent() {
     setChatActivityKey((k) => k + 1);
   };
 
+  const deleteTask = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, { method: "DELETE" });
+    await loadTasks(id, contact?.organisation_id, opportunities);
+  };
+
   const openTab = (
     tab: ClientTab,
     opts?: { addNote?: boolean; addTask?: boolean },
@@ -525,6 +530,7 @@ function ClientDetailContent() {
                   stages={stageOptionsFor(primaryOpp)}
                   onChange={(stage) => void updateOpportunityStage(primaryOpp.id, stage)}
                   loading={updatingStage}
+                  dropUp
                 />
               </div>
               <p className="text-xs text-[#6f6b62] leading-relaxed">{queueStageHint(primaryOpp.stage)}</p>
@@ -712,6 +718,7 @@ function ClientDetailContent() {
                 onMarkDone={markTaskDone}
                 onMarkUndone={markTaskUndone}
                 onUpdateTask={updateTask}
+                onDeleteTask={deleteTask}
                 onSaveLinkedNextAction={handleSaveLinkedNextAction}
                 onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
                 showDone={showDone}
@@ -786,6 +793,7 @@ function ClientDetailContent() {
                   setShowAddNote(false);
                   setNoteText("");
                 }}
+                onShowAddNote={() => setShowAddNote(true)}
                 noteText={noteText}
                 onNoteTextChange={setNoteText}
                 saving={savingNote}

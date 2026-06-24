@@ -107,6 +107,8 @@ export function KnowledgeAttachPicker({
       }
       onSaved?.();
       setOpen(false);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save — please try again");
     } finally {
       setSaving(false);
     }

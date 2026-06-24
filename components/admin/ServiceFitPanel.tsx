@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, Pencil, Save, X } from "lucide-react";
 import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { COMPLEXITY_COLORS } from "@/lib/engagement/prospect-outreach/types";
@@ -389,6 +389,39 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: 
   const showRecommended = resolvedMode === "recommended_engagement" || resolvedMode === "full";
   const showOpenQuestions = resolvedMode === "research" || resolvedMode === "full";
 
+  const [editingSummary, setEditingSummary] = useState(false);
+  const [summaryForm, setSummaryForm] = useState({
+    service_fit_summary: data.service_fit_summary || "",
+    likely_need: data.likely_need || "",
+    complexity_level: data.complexity_level || "",
+    engagement_basis: data.engagement_basis || "",
+  });
+  const [savingSummary, setSavingSummary] = useState(false);
+
+  const startSummaryEdit = () => {
+    setSummaryForm({
+      service_fit_summary: data.service_fit_summary || "",
+      likely_need: data.likely_need || "",
+      complexity_level: data.complexity_level || "",
+      engagement_basis: data.engagement_basis || "",
+    });
+    setEditingSummary(true);
+  };
+
+  const saveSummary = async () => {
+    if (!onSaveField) return;
+    setSavingSummary(true);
+    try {
+      await onSaveField("service_fit_summary", summaryForm.service_fit_summary.trim());
+      await onSaveField("likely_need", summaryForm.likely_need.trim());
+      await onSaveField("complexity_level", summaryForm.complexity_level.trim());
+      await onSaveField("engagement_basis", summaryForm.engagement_basis.trim());
+      setEditingSummary(false);
+    } finally {
+      setSavingSummary(false);
+    }
+  };
+
   if (resolvedMode === "overview" && !data.service_fit_summary && !data.likely_need) {
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
@@ -425,33 +458,107 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: 
     <div className="space-y-4">
       {showSummary && (
         <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
-            {data.complexity_level && (
-              <span
-                className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                  COMPLEXITY_COLORS[data.complexity_level] || "bg-slate-100 text-slate-600"
-                }`}
-              >
-                {data.complexity_level} complexity
-              </span>
-            )}
-            {data.engagement_basis && data.engagement_basis !== "unknown" && (
-              <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62] capitalize">
-                {data.engagement_basis.replace("_", " ")} support
-              </span>
-            )}
-            {data.bespoke_build_fit === false && (
-              <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
-                Improve existing first
-              </span>
-            )}
-          </div>
-          <p className="mt-2 text-sm font-medium text-[#111111]">
-            {data.service_fit_summary || data.likely_need}
-          </p>
-          {resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary && (
-            <p className="mt-2 text-sm text-[#6f6b62]">{data.likely_need}</p>
+          {editingSummary ? (
+            <div className="space-y-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Service fit summary</label>
+                <textarea
+                  value={summaryForm.service_fit_summary}
+                  onChange={(e) => setSummaryForm((f) => ({ ...f, service_fit_summary: e.target.value }))}
+                  rows={3}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Likely need</label>
+                <textarea
+                  value={summaryForm.likely_need}
+                  onChange={(e) => setSummaryForm((f) => ({ ...f, likely_need: e.target.value }))}
+                  rows={2}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Complexity level</label>
+                  <input
+                    value={summaryForm.complexity_level}
+                    onChange={(e) => setSummaryForm((f) => ({ ...f, complexity_level: e.target.value }))}
+                    placeholder="e.g. low, medium, high"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement basis</label>
+                  <input
+                    value={summaryForm.engagement_basis}
+                    onChange={(e) => setSummaryForm((f) => ({ ...f, engagement_basis: e.target.value }))}
+                    placeholder="e.g. retainer, project"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => void saveSummary()}
+                  disabled={savingSummary}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                >
+                  {savingSummary ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingSummary(false)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-white/50"
+                >
+                  <X className="h-3.5 w-3.5" /> Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
+                {data.complexity_level && (
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                      COMPLEXITY_COLORS[data.complexity_level] || "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    {data.complexity_level} complexity
+                  </span>
+                )}
+                {data.engagement_basis && data.engagement_basis !== "unknown" && (
+                  <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62] capitalize">
+                    {data.engagement_basis.replace("_", " ")} support
+                  </span>
+                )}
+                {data.bespoke_build_fit === false && (
+                  <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                    Improve existing first
+                  </span>
+                )}
+                {editable && onSaveField && (
+                  <button
+                    type="button"
+                    onClick={startSummaryEdit}
+                    className="ml-auto inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                  >
+                    <Pencil className="h-3 w-3" /> Edit
+                  </button>
+                )}
+              </div>
+              <p className="mt-2 text-sm font-medium text-[#111111]">
+                {data.service_fit_summary || data.likely_need}
+              </p>
+              {resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary && (
+                <p className="mt-2 text-sm text-[#6f6b62]">{data.likely_need}</p>
+              )}
+            </>
           )}
         </div>
       )}

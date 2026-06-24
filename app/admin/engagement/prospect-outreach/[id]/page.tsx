@@ -216,6 +216,11 @@ function ProspectFinderDetailContent() {
     await load({ silent: true });
   };
 
+  const deleteTask = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, { method: "DELETE" });
+    await load({ silent: true });
+  };
+
   if (loading && !record) return <HubDetailSkeleton />;
   if (!record) return <div className="p-8 text-sm text-[#6f6b62]">Prospect not found.</div>;
 
@@ -445,6 +450,7 @@ function ProspectFinderDetailContent() {
                   setShowAddNote(false);
                   setNoteText("");
                 }}
+                onShowAddNote={() => setShowAddNote(true)}
                 noteText={noteText}
                 onNoteTextChange={setNoteText}
                 saving={saving}
@@ -474,6 +480,7 @@ function ProspectFinderDetailContent() {
                 onMarkDone={(taskId) => void markTaskDone(taskId)}
                 onMarkUndone={(taskId) => void markTaskUndone(taskId)}
                 onUpdateTask={updateTask}
+                onDeleteTask={deleteTask}
                 showDone={showDone}
                 setShowDone={setShowDone}
               />
