@@ -162,8 +162,8 @@ function ClientDetailContent() {
     [],
   );
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     const [cRes, oRes, eRes, tmRes] = await Promise.all([
       fetch(`/api/admin/engagement/contacts/${id}`),
       fetch(`/api/admin/engagement/opportunities?contact_id=${id}&limit=30`),
@@ -201,7 +201,7 @@ function ClientDetailContent() {
     }
 
     await loadTasks(id, cData.data.organisation_id, opps);
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [id, loadTasks]);
 
   useEffect(() => {
@@ -212,7 +212,7 @@ function ClientDetailContent() {
     () =>
       subscribeNotesSaved((detail) => {
         if (detail.contextType === "client" && detail.contextId === id) {
-          void loadData();
+          void loadData({ silent: true });
         }
       }),
     [id, loadData],
@@ -308,7 +308,7 @@ function ClientDetailContent() {
     setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
 
-  if (loading) return <HubDetailSkeleton />;
+  if (loading && !contact) return <HubDetailSkeleton />;
   if (!contact) return <div className="p-8 text-sm text-[#6f6b62]">Client not found.</div>;
 
   const fullName = `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`;
@@ -329,13 +329,13 @@ function ClientDetailContent() {
     payload: { title: string; dueDate: string | null },
   ) => {
     await patchLinkedNextAction(item, payload);
-    await loadData();
+    await loadData({ silent: true });
     setChatActivityKey((k) => k + 1);
   };
 
   const handleCompleteLinkedNextAction = async (item: (typeof linkedNextActions)[number]) => {
     await clearLinkedNextAction(item);
-    await loadData();
+    await loadData({ silent: true });
     setChatActivityKey((k) => k + 1);
   };
   const lastActivity = linkedEnquiry?.last_action || null;
@@ -546,7 +546,7 @@ function ClientDetailContent() {
               <JourneySummaryButton
                 contactId={id}
                 onSaved={() => {
-                  void loadData();
+                  void loadData({ silent: true });
                   setChatActivityKey((k) => k + 1);
                 }}
               />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -83,6 +83,8 @@ export default function ProspectFinderPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const hasLoadedRef = useRef(false);
   const studioAccess = useStudioAccessOptional();
   const isPlatformAdmin = studioAccess?.isPlatformAdmin ?? true;
 
@@ -110,8 +112,15 @@ export default function ProspectFinderPage() {
     [router, searchParams],
   );
 
-  const load = useCallback(async (opts?: { silent?: boolean }) => {
-    if (!opts?.silent) setLoading(true);
+  const load = useCallback(async (opts?: { silent?: boolean; forceSpinner?: boolean }) => {
+    const silent = opts?.silent ?? hasLoadedRef.current;
+    if (opts?.forceSpinner) {
+      setLoading(true);
+    } else if (!silent) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+    }
     const params = new URLSearchParams();
     params.set("page", String(page));
     params.set("page_size", "50");
@@ -133,7 +142,9 @@ export default function ProspectFinderPage() {
     setProspects(json.data || []);
     setMeta(json.meta || null);
     setTeamMembers(json.team_members || []);
-    if (!opts?.silent) setLoading(false);
+    hasLoadedRef.current = true;
+    setLoading(false);
+    setRefreshing(false);
   }, [
     page,
     region,
@@ -180,7 +191,7 @@ export default function ProspectFinderPage() {
       });
       if (!res.ok) throw new Error("Delete failed");
       setSelectedIds(new Set());
-      await load();
+      await load({ forceSpinner: true });
     } finally {
       setDeleting(false);
     }
@@ -333,12 +344,12 @@ export default function ProspectFinderPage() {
       />
 
       <div className="min-h-0 flex-1 overflow-auto">
-        {loading ? (
+        {loading && prospects.length === 0 ? (
           <div className="flex items-center justify-center py-16 text-[#6f6b62]">
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : (
-          <table className="w-full min-w-[900px] border-collapse text-sm">
+          <table className={`w-full min-w-[900px] border-collapse text-sm transition-opacity ${refreshing ? "opacity-60" : ""}`}>
             <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#f7f4ea]/90 backdrop-blur-sm">
               <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
                 {isPlatformAdmin && <th className="w-10 px-3 py-3" />}

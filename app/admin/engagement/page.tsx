@@ -198,9 +198,9 @@ export default function EngagementOverview() {
       </div>
 
       <div className="px-8 py-6 space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.loading
-            ? [1, 2, 3, 4, 5].map((i) => (
+            ? [1, 2, 3, 4].map((i) => (
                 <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
                   <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
                   <div className="mt-3 h-8 w-12 rounded bg-[#f7f4ea]/80" />
@@ -208,7 +208,6 @@ export default function EngagementOverview() {
               ))
             : [
                 { label: PROSPECT_QUEUE_LABEL, value: stats.activeProspectQueue, href: "/admin/engagement/prospect-queue", color: "text-[#063b32]" },
-                { label: "Open tasks", value: stats.openTasks, href: "/admin/engagement/pipeline", color: "text-[#063b32]" },
                 { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
                 { label: "Unassigned prospects", value: stats.pendingQueue, href: "/admin/engagement/prospect-outreach?unassigned=true", color: "text-amber-600" },
                 { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },

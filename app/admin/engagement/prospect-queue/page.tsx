@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -82,11 +82,17 @@ export default function ClientsPage() {
     pipelineValueActive: { low: 0, high: 0, display: null },
   });
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const hasLoadedRef = useRef(false);
   const [stageFilter, setStageFilter] = useState("");
   const [search, setSearch] = useState("");
 
   const load = useCallback(async () => {
-    setLoading(true);
+    if (!hasLoadedRef.current) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+    }
     const params = new URLSearchParams();
     if (stageFilter) params.set("stage", stageFilter);
     const res = await fetch(`/api/admin/engagement/prospect-queue?${params.toString()}`);
@@ -101,7 +107,9 @@ export default function ClientsPage() {
         pipelineValueActive: { low: 0, high: 0, display: null },
       },
     );
+    hasLoadedRef.current = true;
     setLoading(false);
+    setRefreshing(false);
   }, [stageFilter]);
 
   useEffect(() => {
@@ -131,7 +139,7 @@ export default function ClientsPage() {
         </p>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {loading
+          {loading && clients.length === 0
             ? [1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
                   <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
@@ -209,7 +217,7 @@ export default function ClientsPage() {
         </div>
 
         {/* List */}
-        {loading ? (
+        {loading && clients.length === 0 ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-28 rounded-xl bg-[#f7f4ea] animate-pulse" />
@@ -230,7 +238,7 @@ export default function ClientsPage() {
             </a>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className={`space-y-2 transition-opacity ${refreshing ? "opacity-60" : ""}`}>
             {filtered.map((c) => {
               const fullName = `${c.first_name}${c.last_name ? ` ${c.last_name}` : ""}`;
               const initials = `${c.first_name[0] ?? ""}${c.last_name?.[0] ?? ""}`.toUpperCase();

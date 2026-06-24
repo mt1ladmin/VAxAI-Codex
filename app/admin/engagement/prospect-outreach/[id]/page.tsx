@@ -28,7 +28,7 @@ import { fetchActivityLog, type ActivityLogEntry } from "@/lib/engagement/activi
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { countNotes } from "@/lib/engagement/note-count";
 import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
-import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
+import { FINDER_ENGAGEMENT_STATUSES, type FinderEngagementStatus } from "@/lib/engagement/engagement-status";
 import {
   MOVE_TO_PROSPECT_QUEUE_LABEL,
   PROSPECT_FINDER_LABEL,
@@ -75,8 +75,8 @@ function ProspectFinderDetailContent() {
   const [chatActivityKey, setChatActivityKey] = useState(0);
   const [lastActivity, setLastActivity] = useState<ActivityLogEntry | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     const [res, activities] = await Promise.all([
       fetch(`/api/admin/engagement/prospect-outreach/${id}`),
       fetchActivityLog({ outreachId: id }),
@@ -90,7 +90,7 @@ function ProspectFinderDetailContent() {
       setTeamMembers(json.team_members || []);
     }
     setLastActivity(activities[0] ?? null);
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [id]);
 
   useEffect(() => { void load(); }, [load]);
@@ -104,7 +104,7 @@ function ProspectFinderDetailContent() {
   useEffect(
     () =>
       subscribeNotesSaved((detail) => {
-        if (detail.contextType === "outreach" && detail.contextId === id) void load();
+        if (detail.contextType === "outreach" && detail.contextId === id) void load({ silent: true });
       }),
     [id, load],
   );
@@ -128,7 +128,13 @@ function ProspectFinderDetailContent() {
     });
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || "Failed to save");
-    await load();
+    if (json.data) {
+      setRecord(json.data);
+      setReviewNotes(json.data.review_notes || "");
+      if (json.data.engagement_approach !== undefined) {
+        setEngagementGuideDraft(json.data.engagement_approach || "");
+      }
+    }
     return json.data;
   };
 
@@ -177,7 +183,7 @@ function ProspectFinderDetailContent() {
     if (res.ok) {
       setTaskForm(DEFAULT_TASK_FORM);
       setAddingTask(false);
-      await load();
+      await load({ silent: true });
       setChatActivityKey((k) => k + 1);
     }
     setSavingTask(false);
@@ -189,7 +195,7 @@ function ProspectFinderDetailContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" }),
     });
-    await load();
+    await load({ silent: true });
   };
 
   const markTaskUndone = async (taskId: string) => {
@@ -198,10 +204,10 @@ function ProspectFinderDetailContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "todo" }),
     });
-    await load();
+    await load({ silent: true });
   };
 
-  if (loading) return <HubDetailSkeleton />;
+  if (loading && !record) return <HubDetailSkeleton />;
   if (!record) return <div className="p-8 text-sm text-[#6f6b62]">Prospect not found.</div>;
 
   const openTasks = tasks.filter((t) => t.status !== "done");
@@ -264,7 +270,21 @@ function ProspectFinderDetailContent() {
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Assignment</p>
             <select
               value={record.assigned_team_member_id || ""}
-              onChange={(e) => void patchWorkflow({ assigned_team_member_id: e.target.value || null })}
+              onChange={(e) => {
+                const assignedId = e.target.value || null;
+                const assignedName =
+                  memberOptions.find((opt) => opt.value === assignedId)?.label ?? null;
+                setRecord((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        assigned_team_member_id: assignedId,
+                        assigned_team_member_name: assignedName,
+                      }
+                    : prev,
+                );
+                void patchWorkflow({ assigned_team_member_id: assignedId });
+              }}
               className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
             >
               <option value="">Unassigned</option>
@@ -276,7 +296,11 @@ function ProspectFinderDetailContent() {
               <p className="mb-1 text-[10px] text-[#6f6b62]">Engagement status</p>
               <select
                 value={record.engagement_status}
-                onChange={(e) => void patchWorkflow({ engagement_status: e.target.value })}
+                onChange={(e) => {
+                  const status = e.target.value as FinderEngagementStatus;
+                  setRecord((prev) => (prev ? { ...prev, engagement_status: status } : prev));
+                  void patchWorkflow({ engagement_status: status });
+                }}
                 disabled={record.in_prospect_queue}
                 className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] disabled:opacity-60"
               >
@@ -340,7 +364,7 @@ function ProspectFinderDetailContent() {
                 outreachId={record.id}
                 contactId={record.pipeline_contact_id ?? undefined}
                 onSaved={() => {
-                  void load();
+                  void load({ silent: true });
                   setChatActivityKey((k) => k + 1);
                 }}
               />
