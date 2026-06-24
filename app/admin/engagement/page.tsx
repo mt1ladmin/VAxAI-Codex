@@ -71,6 +71,7 @@ function SectionCard({
 
 export default function EngagementOverview() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(true);
 
   const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -91,6 +92,7 @@ export default function EngagementOverview() {
       .then((r) => r.json())
       .then((j) => setCommonPainPoints(j.data || []));
 
+    setTasksLoading(true);
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
 
@@ -103,7 +105,19 @@ export default function EngagementOverview() {
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
 
-      setTasks(taskData.slice(0, 5));
+      const todayStr = new Date().toISOString().split("T")[0];
+      const openTasks = taskData.filter((t) => t.status !== "done");
+      const sorted = [...openTasks].sort((a, b) => {
+        const aOver = a.due_date && a.due_date < todayStr ? 0 : 1;
+        const bOver = b.due_date && b.due_date < todayStr ? 0 : 1;
+        if (aOver !== bOver) return aOver - bOver;
+        if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
+        if (a.due_date) return -1;
+        if (b.due_date) return 1;
+        return 0;
+      });
+      setTasks(sorted.slice(0, 8));
+      setTasksLoading(false);
 
       const isSocial = (p: PostItem) => (p.content_type || "").toLowerCase().includes("social");
       const isScheduled = (p: PostItem) => !!p.scheduled_at && p.status !== "published";
@@ -128,6 +142,7 @@ export default function EngagementOverview() {
   }, []);
 
   const now = new Date().toISOString();
+  const todayStr = now.split("T")[0];
 
   return (
     <div className="min-h-screen bg-white">
@@ -149,21 +164,26 @@ export default function EngagementOverview() {
       </div>
 
       <div className="px-8 py-6 space-y-6">
-        {!stats.loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Open tasks", value: stats.openTasks, href: "/admin/engagement/pipeline", color: "text-[#063b32]" },
-              { label: "Prospects in queue", value: stats.pendingQueue, href: "/admin/engagement/prospect-queue", color: "text-amber-600" },
-              { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
-              { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
-            ].map(({ label, value, href, color }) => (
-              <Link key={href} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#063b32]/30 transition-colors">
-                <p className="text-xs font-semibold text-[#6f6b62]">{label}</p>
-                <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
-              </Link>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {stats.loading
+            ? [1, 2, 3, 4].map((i) => (
+                <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
+                  <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
+                  <div className="mt-3 h-8 w-12 rounded bg-[#f7f4ea]/80" />
+                </div>
+              ))
+            : [
+                { label: "Open tasks", value: stats.openTasks, href: "/admin/engagement/pipeline", color: "text-[#063b32]" },
+                { label: "Prospects in queue", value: stats.pendingQueue, href: "/admin/engagement/prospect-queue", color: "text-amber-600" },
+                { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
+                { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
+              ].map(({ label, value, href, color }) => (
+                <Link key={href} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#063b32]/30 transition-colors">
+                  <p className="text-xs font-semibold text-[#6f6b62]">{label}</p>
+                  <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
+                </Link>
+              ))}
+        </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
@@ -184,63 +204,57 @@ export default function EngagementOverview() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <SectionCard
-            title="Follow-ups due"
-            action={
-              <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">
-                Tasks Tracker
+        <SectionCard
+          title="Tasks & follow-ups"
+          action={
+            <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">
+              View all tasks
+            </Link>
+          }
+        >
+          {tasksLoading ? (
+            <div className="divide-y divide-[#111111]/5">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="px-5 py-3">
+                  <div className="h-4 w-2/3 animate-pulse rounded bg-[#111111]/8" />
+                  <div className="mt-2 h-3 w-1/3 animate-pulse rounded bg-[#111111]/5" />
+                </div>
+              ))}
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">
+              No open tasks yet.{" "}
+              <Link href="/admin/engagement/pipeline" className="text-[#063b32] font-semibold hover:underline">
+                Add one in Tasks Tracker
               </Link>
-            }
-          >
-            {tasks.length === 0 ? (
-              <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">No follow-ups scheduled yet.</div>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {tasks.map((t) => (
+            </div>
+          ) : (
+            <div className="divide-y divide-[#111111]/5">
+              {tasks.map((t) => {
+                const overdue = t.due_date && t.due_date < todayStr;
+                return (
                   <div key={t.id} className="px-5 py-3">
                     <p className="text-sm font-semibold text-[#111111] truncate">{t.title}</p>
                     {(t.organisation || t.contact) && (
                       <p className="mt-0.5 text-xs text-[#6f6b62] truncate">
-                        {t.contact ? `${t.contact.first_name} ${t.contact.last_name || ""}`.trim() : t.organisation?.name}
+                        {t.contact
+                          ? `${t.contact.first_name} ${t.contact.last_name || ""}`.trim()
+                          : t.organisation?.name}
                       </p>
                     )}
                     {t.due_date && (
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-[#6f6b62]">
+                      <p className={`mt-0.5 flex items-center gap-1 text-xs ${overdue ? "font-semibold text-red-600" : "text-[#6f6b62]"}`}>
                         <Calendar className="h-3 w-3" />
+                        {overdue ? "Overdue · " : ""}
                         {new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                       </p>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
-            <div className="border-t border-[#111111]/5 px-5 py-3">
-              <Link
-                href="/admin/engagement/pipeline"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#063b32] hover:underline"
-              >
-                <Plus className="h-3.5 w-3.5" /> Open Tasks Tracker
-              </Link>
+                );
+              })}
             </div>
-          </SectionCard>
-
-          <SectionCard
-            title="Tasks Tracker"
-            action={
-              <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">
-                Open tracker
-              </Link>
-            }
-          >
-            <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">
-              <p>Master task list across website enquiries and prospect queue.</p>
-              <Link href="/admin/engagement/pipeline" className="mt-2 inline-block text-[#063b32] font-semibold hover:underline">
-                View all tasks →
-              </Link>
-            </div>
-          </SectionCard>
-        </div>
+          )}
+        </SectionCard>
 
         <SectionCard
           title="Common pain points"

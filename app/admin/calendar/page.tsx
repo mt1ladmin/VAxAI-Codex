@@ -492,9 +492,11 @@ export default function CalendarPage() {
 
   const panelOpen = panelMode !== "none";
 
+  const closePanel = () => setPanelMode("none");
+
   return (
-    <div className="flex min-h-screen bg-white">
-      <div className="flex-1 overflow-x-auto">
+    <div className="min-h-screen bg-white">
+      <div className="overflow-x-auto">
         {/* Header */}
         <div className="border-b border-gray-100 bg-white px-8 py-6">
           <div className="flex items-center justify-between gap-4">
@@ -586,25 +588,35 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* Right panel */}
       {panelOpen && (
-        <div className="w-[420px] shrink-0 overflow-hidden border-l border-gray-100 bg-white flex flex-col" style={{ height: "100vh", position: "sticky", top: 0 }}>
-          {panelMode === "view-social" && activeSocial ? (
-            <SocialPostDetail
-              post={activeSocial}
-              onClose={() => setPanelMode("none")}
-              onDelete={() => deleteSocial(activeSocial.id)}
-              onEdit={() => setPanelMode("edit-social")}
-            />
-          ) : (panelMode === "new-social" || panelMode === "edit-social") ? (
-            <SocialPostForm
-              key={panelMode + (activeSocial?.id ?? "")}
-              initial={panelMode === "edit-social" ? activeSocial ?? undefined : undefined}
-              defaultDate={panelDate}
-              onSave={saveSocial}
-              onCancel={() => setPanelMode("none")}
-            />
-          ) : null}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={closePanel}
+          role="presentation"
+        >
+          <div
+            className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            {panelMode === "view-social" && activeSocial ? (
+              <SocialPostDetail
+                post={activeSocial}
+                onClose={closePanel}
+                onDelete={() => deleteSocial(activeSocial.id)}
+                onEdit={() => setPanelMode("edit-social")}
+              />
+            ) : (panelMode === "new-social" || panelMode === "edit-social") ? (
+              <SocialPostForm
+                key={panelMode + (activeSocial?.id ?? "")}
+                initial={panelMode === "edit-social" ? activeSocial ?? undefined : undefined}
+                defaultDate={panelDate}
+                onSave={saveSocial}
+                onCancel={closePanel}
+              />
+            ) : null}
+          </div>
         </div>
       )}
 

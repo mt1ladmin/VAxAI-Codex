@@ -8,31 +8,32 @@ import {
   Building2,
   Calendar,
   CheckCircle,
-  ChevronDown,
   ExternalLink,
-  Link2,
   Loader2,
   Mail,
   Phone,
   Plus,
   Save,
   User,
-  X,
 } from "lucide-react";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
+import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
-import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
-import { CRM_HUB_TAB_IDS, CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import {
+  CRM_HUB_TAB_IDS_PRE_CLIENT,
+  CRM_HUB_TABS_PRE_CLIENT,
+  type PreClientHubTab,
+} from "@/lib/engagement/hub-tabs";
 import {
   ADVANCE_ACTION_LABEL,
   ADVANCE_STATUS_HINT,
@@ -56,7 +57,7 @@ import type {
   EngagementOpportunity,
   EngagementTask,
 } from "@/lib/engagement/types";
-import { STAGE_COLORS } from "@/lib/engagement/types";
+
 
 type Enquiry = {
   id: string;
@@ -98,7 +99,7 @@ function EnquiryDetailContent() {
   const [showAddNote, setShowAddNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
-  const [activeTab, setActiveTab] = useState<CrmHubTab>("overview");
+  const [activeTab, setActiveTab] = useState<PreClientHubTab>("overview");
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
   const [loadingCrm, setLoadingCrm] = useState(false);
   const [openTasks, setOpenTasks] = useState<EngagementTask[]>([]);
@@ -108,13 +109,9 @@ function EnquiryDetailContent() {
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
 
-  const [linkingOpp, setLinkingOpp] = useState(false);
-  const [oppPickerOpen, setOppPickerOpen] = useState(false);
-  const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
-  const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [chatActivityKey, setChatActivityKey] = useState(0);
-  const hubTabs = CRM_HUB_TABS;
+  const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
 
   useSetAIContext(
     enquiry
@@ -195,9 +192,9 @@ function EnquiryDetailContent() {
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    const normalizedTab = tab === "opportunities" ? "client_work" : tab;
-    if (normalizedTab && CRM_HUB_TAB_IDS.has(normalizedTab)) {
-      setActiveTab(normalizedTab as CrmHubTab);
+    const normalizedTab = tab === "opportunities" || tab === "client_work" ? "overview" : tab;
+    if (normalizedTab && CRM_HUB_TAB_IDS_PRE_CLIENT.has(normalizedTab)) {
+      setActiveTab(normalizedTab as PreClientHubTab);
     }
   }, [searchParams]);
 
@@ -287,46 +284,7 @@ function EnquiryDetailContent() {
     }
   };
 
-  const handleOpportunityUpdated = (updated: EngagementOpportunity) => {
-    setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
-  };
-
-  const loadOppPicker = async () => {
-    setOppPickerLoading(true);
-    try {
-      const res = await fetch("/api/admin/engagement/opportunities?limit=50");
-      const j = await res.json() as { data?: EngagementOpportunity[] };
-      setOppPickerList((j.data || []).filter((o) => o.enquiry_id !== id));
-      setOppPickerOpen(true);
-    } finally {
-      setOppPickerLoading(false);
-    }
-  };
-
-  const linkOpportunity = async (oppId: string) => {
-    setLinkingOpp(true);
-    try {
-      const res = await fetch(`/api/admin/engagement/opportunities/${oppId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enquiry_id: id }),
-      });
-      const j = await res.json() as { data?: EngagementOpportunity };
-      if (j.data) {
-        const next = [j.data, ...opportunities.filter((o) => o.id !== j.data!.id)];
-        setOpportunities(next);
-        setOppPickerOpen(false);
-        setActiveTab("client_work");
-        if (enquiry) {
-          void loadTasks(enquiry.contact_id, enquiry.organisation_id, next);
-        }
-      }
-    } finally {
-      setLinkingOpp(false);
-    }
-  };
-
-  if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
+  if (loading) return <HubDetailSkeleton />;
   if (!enquiry) return <div className="p-8 text-sm text-[#6f6b62]">Enquiry not found.</div>;
 
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
@@ -409,9 +367,6 @@ function EnquiryDetailContent() {
               {tab.label}
               {tab.id === "tasks" && openWorkCount > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openWorkCount}</span>
-              )}
-              {tab.id === "client_work" && opportunities.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">{opportunities.length}</span>
               )}
             </button>
           ))}
@@ -540,16 +495,11 @@ function EnquiryDetailContent() {
                 hint="Website enquiry — qualify the inbound need and respond."
               />
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
                   value={openWorkCount}
                   label="Open tasks & actions"
                   onClick={() => setActiveTab("tasks")}
-                />
-                <HubMetricCard
-                  value={opportunities.length}
-                  label="Client work"
-                  onClick={() => setActiveTab("client_work")}
                 />
                 <HubMetricCard
                   value={notesCount}
@@ -616,48 +566,6 @@ function EnquiryDetailContent() {
             </div>
           )}
 
-          {activeTab === "client_work" && (
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => void loadOppPicker()} disabled={oppPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
-                  <Link2 className="h-4 w-4" /> Link existing
-                </button>
-              </div>
-
-              {oppPickerOpen && (
-                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Link opportunity</p>
-                    <button type="button" onClick={() => setOppPickerOpen(false)} className="text-[#6f6b62] hover:text-[#111111]"><X className="h-4 w-4" /></button>
-                  </div>
-                  <div className="space-y-1 max-h-48 overflow-auto">
-                    {oppPickerList.map((o) => (
-                      <button key={o.id} type="button" onClick={() => void linkOpportunity(o.id)} disabled={linkingOpp} className="w-full rounded-lg border border-[#111111]/10 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40">
-                        <span className="font-semibold text-[#111111]">{o.title}</span>
-                        <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[o.stage] || "bg-gray-100 text-gray-600"}`}>{o.stage}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {opportunities.length > 0 ? (
-                <div className="space-y-2">
-                  {opportunities.map((opp) => (
-                    <OpportunityPreviewCard
-                      key={opp.id}
-                      opportunity={opp}
-                      editable
-                      onUpdated={handleOpportunityUpdated}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No client work linked yet.</p>
-              )}
-            </div>
-          )}
-
           {activeTab === "notes" && (
             <div className="space-y-4">
               <AttachedKnowledgePanel enquiryId={id} />
@@ -700,7 +608,7 @@ function EnquiryDetailContent() {
 
 export default function EnquiryDetailPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-sm text-[#6f6b62]">Loading…</div>}>
+    <Suspense fallback={<HubDetailSkeleton />}>
       <EnquiryDetailContent />
     </Suspense>
   );

@@ -6,9 +6,21 @@ export const CRM_HUB_TABS = [
   { id: "activity", label: "Activity" },
 ] as const;
 
+/** Enquiry and prospect queue — before prospect/client delivery stage. */
+export const CRM_HUB_TABS_PRE_CLIENT = [
+  { id: "overview", label: "Overview" },
+  { id: "tasks", label: "Tasks & next actions" },
+  { id: "notes", label: "Notes" },
+  { id: "activity", label: "Activity" },
+] as const;
+
 export type CrmHubTab = (typeof CRM_HUB_TABS)[number]["id"];
+export type PreClientHubTab = (typeof CRM_HUB_TABS_PRE_CLIENT)[number]["id"];
 
 export const CRM_HUB_TAB_IDS = new Set<string>(CRM_HUB_TABS.map((t) => t.id));
+export const CRM_HUB_TAB_IDS_PRE_CLIENT = new Set<string>(
+  CRM_HUB_TABS_PRE_CLIENT.map((t) => t.id),
+);
 
 export function getCrmHubTabs() {
   return CRM_HUB_TABS;

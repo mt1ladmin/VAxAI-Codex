@@ -10,10 +10,8 @@ import {
   Building2,
   Calendar,
   CheckCircle,
-  ChevronDown,
   ExternalLink,
   History,
-  Link2,
   Loader2,
   Mail,
   Phone,
@@ -25,13 +23,13 @@ import {
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
+import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
-import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
@@ -43,7 +41,11 @@ import {
   canAdvanceToClientWork,
   journeyStageForQueueStatus,
 } from "@/lib/engagement/journey";
-import { CRM_HUB_TAB_IDS, CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import {
+  CRM_HUB_TAB_IDS_PRE_CLIENT,
+  CRM_HUB_TABS_PRE_CLIENT,
+  type PreClientHubTab,
+} from "@/lib/engagement/hub-tabs";
 import { syncQueueFromSnapshot } from "@/lib/engagement/prospect-outreach/snapshot";
 import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
 import { sectorGuidancePath } from "@/lib/engagement/sector-guidance";
@@ -66,7 +68,7 @@ import type {
   EngagementTask,
   ProspectQueueEntry,
 } from "@/lib/engagement/types";
-import { STAGE_COLORS } from "@/lib/engagement/types";
+
 
 function gmailComposeUrl(email: string) {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
@@ -92,7 +94,7 @@ function ProspectDetailContent() {
     raw_linkedin: "",
   });
   const [savingContact, setSavingContact] = useState(false);
-  const [activeTab, setActiveTab] = useState<CrmHubTab>("overview");
+  const [activeTab, setActiveTab] = useState<PreClientHubTab>("overview");
   const [opportunities, setOpportunities] = useState<EngagementOpportunity[]>([]);
   const [loadingCrm, setLoadingCrm] = useState(false);
   const [openTasks, setOpenTasks] = useState<EngagementTask[]>([]);
@@ -105,15 +107,11 @@ function ProspectDetailContent() {
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [chatActivityKey, setChatActivityKey] = useState(0);
 
-  const [linkingOpp, setLinkingOpp] = useState(false);
-  const [oppPickerOpen, setOppPickerOpen] = useState(false);
-  const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
-  const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [editingResearch, setEditingResearch] = useState(false);
   const [researchDraft, setResearchDraft] = useState<ProspectOutreachRecord | null>(null);
   const [savingResearch, setSavingResearch] = useState(false);
   const [sectors, setSectors] = useState<Pick<SectorProfile, "id" | "name">[]>([]);
-  const hubTabs = CRM_HUB_TABS;
+  const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
 
   const outreachData = entry ? outreachFromQueueEntry(entry) : null;
 
@@ -240,9 +238,9 @@ function ProspectDetailContent() {
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    const normalizedTab = tab === "opportunities" ? "client_work" : tab;
-    if (normalizedTab && CRM_HUB_TAB_IDS.has(normalizedTab)) {
-      setActiveTab(normalizedTab as CrmHubTab);
+    const normalizedTab = tab === "opportunities" || tab === "client_work" ? "overview" : tab;
+    if (normalizedTab && CRM_HUB_TAB_IDS_PRE_CLIENT.has(normalizedTab)) {
+      setActiveTab(normalizedTab as PreClientHubTab);
     }
   }, [searchParams]);
 
@@ -343,52 +341,7 @@ function ProspectDetailContent() {
     }
   };
 
-  const handleOpportunityUpdated = (updated: EngagementOpportunity) => {
-    setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
-  };
-
-  const loadOppPicker = async () => {
-    setOppPickerLoading(true);
-    try {
-      const res = await fetch("/api/admin/engagement/opportunities?limit=50");
-      const j = await res.json() as { data?: EngagementOpportunity[] };
-      const linkedIds = new Set(opportunities.map((o) => o.id));
-      setOppPickerList((j.data || []).filter((o) => !linkedIds.has(o.id)));
-      setOppPickerOpen(true);
-    } finally {
-      setOppPickerLoading(false);
-    }
-  };
-
-  const linkOpportunity = async (oppId: string) => {
-    if (!entry) return;
-    setLinkingOpp(true);
-    try {
-      const res = await fetch(`/api/admin/engagement/opportunities/${oppId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          organisation_id: entry.organisation_id || undefined,
-          primary_contact_id: entry.contact_id || undefined,
-          queue_id: entry.id,
-        }),
-      });
-      const j = await res.json() as { data?: EngagementOpportunity };
-      if (j.data) {
-        const next = [j.data, ...opportunities.filter((o) => o.id !== j.data!.id)];
-        setOpportunities(next);
-        setOppPickerOpen(false);
-        setActiveTab("client_work");
-        if (entry) {
-          void loadTasks(entry.contact_id, entry.organisation_id, next);
-        }
-      }
-    } finally {
-      setLinkingOpp(false);
-    }
-  };
-
-  if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
+  if (loading) return <HubDetailSkeleton />;
   if (!entry) return <div className="p-8 text-sm text-[#6f6b62]">Prospect not found.</div>;
 
   const orgName = entry.organisation?.name || entry.raw_org_name || "Unknown organisation";
@@ -521,9 +474,6 @@ function ProspectDetailContent() {
               {tab.label}
               {tab.id === "tasks" && openWorkCount > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openWorkCount}</span>
-              )}
-              {tab.id === "client_work" && opportunities.length > 0 && (
-                <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">{opportunities.length}</span>
               )}
             </button>
           ))}
@@ -703,16 +653,11 @@ function ProspectDetailContent() {
                 status={entry.status}
               />
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
                   value={openWorkCount}
                   label="Open tasks & actions"
                   onClick={() => setActiveTab("tasks")}
-                />
-                <HubMetricCard
-                  value={opportunities.length}
-                  label="Client work"
-                  onClick={() => setActiveTab("client_work")}
                 />
                 <HubMetricCard
                   value={notesCount}
@@ -833,48 +778,6 @@ function ProspectDetailContent() {
             </div>
           )}
 
-          {activeTab === "client_work" && (
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => void loadOppPicker()} disabled={oppPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
-                  <Link2 className="h-4 w-4" /> Link existing
-                </button>
-              </div>
-
-              {oppPickerOpen && (
-                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Link opportunity</p>
-                    <button type="button" onClick={() => setOppPickerOpen(false)} className="text-[#6f6b62] hover:text-[#111111]"><X className="h-4 w-4" /></button>
-                  </div>
-                  <div className="space-y-1 max-h-48 overflow-auto">
-                    {oppPickerList.map((o) => (
-                      <button key={o.id} type="button" onClick={() => void linkOpportunity(o.id)} disabled={linkingOpp} className="w-full rounded-lg border border-[#111111]/10 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] disabled:opacity-40">
-                        <span className="font-semibold text-[#111111]">{o.title}</span>
-                        <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[o.stage] || "bg-gray-100 text-gray-600"}`}>{o.stage}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {opportunities.length > 0 ? (
-                <div className="space-y-2">
-                  {opportunities.map((opp) => (
-                    <OpportunityPreviewCard
-                      key={opp.id}
-                      opportunity={opp}
-                      editable
-                      onUpdated={handleOpportunityUpdated}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No client work linked yet.</p>
-              )}
-            </div>
-          )}
-
           {activeTab === "notes" && (
             <div className="space-y-4">
               <AttachedKnowledgePanel queueId={id} />
@@ -917,7 +820,7 @@ function ProspectDetailContent() {
 
 export default function ProspectDetailPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-sm text-[#6f6b62]">Loading…</div>}>
+    <Suspense fallback={<HubDetailSkeleton />}>
       <ProspectDetailContent />
     </Suspense>
   );

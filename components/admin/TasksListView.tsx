@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { TasksListSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { Check, CheckSquare, Inbox, LayoutGrid, List, MessageSquare, Plus, Target, X } from "lucide-react";
 import {
   DUE_DATE_FILTER_OPTIONS,
@@ -195,13 +196,20 @@ function TaskBoardCard({
   );
 }
 
-export function TasksListView({ embedded = true }: { embedded?: boolean }) {
+export function TasksListView({
+  embedded = true,
+  showPageHeader = false,
+}: {
+  embedded?: boolean;
+  showPageHeader?: boolean;
+}) {
   const [view, setView] = useState<"list" | "board">("list");
   const [status, setStatus] = useState("todo");
   const [dueDateFilter, setDueDateFilter] = useState<DueDateFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const hasLoadedRef = useRef(false);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ title: "", priority: "medium", due_date: "", notes: "", task_type: "follow_up" });
@@ -210,14 +218,15 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
   const [dropTarget, setDropTarget] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true);
+    if (!hasLoadedRef.current) setInitialLoading(true);
     const params = new URLSearchParams();
     if (view === "list" && status) params.set("status", status);
     params.set("limit", "500");
     const res = await fetch(`/api/admin/engagement/tasks?${params}`);
     const json = (await res.json()) as { data: EngagementTask[] };
     setTasks(json.data || []);
-    setLoading(false);
+    hasLoadedRef.current = true;
+    setInitialLoading(false);
   }, [status, view]);
 
   useEffect(() => {
@@ -305,6 +314,27 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
 
   return (
     <div className={embedded ? "" : "min-h-screen bg-white"}>
+      {initialLoading ? (
+        <div className="px-8 py-6">
+          <TasksListSkeleton />
+        </div>
+      ) : (
+        <>
+      {showPageHeader && (
+        <div className="border-b border-[#111111]/10 px-8 py-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#063b32]/10">
+              <CheckSquare className="h-5 w-5 text-[#063b32]" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-[#111111]">Tasks Tracker</h1>
+              <p className="text-sm text-[#6f6b62]">
+                Master task list across Prospect Queue and Website Enquiries
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className={`${embedded ? "" : "border-b border-[#111111]/10"} px-8 ${embedded ? "pt-6" : "py-6"}`}>
         <div className="flex items-center justify-end gap-3">
           <div className="flex rounded-lg border border-[#111111]/15 overflow-hidden bg-white">
@@ -433,9 +463,7 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
           </select>
         </div>
 
-        {loading ? (
-          <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>
-        ) : filteredTasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <div className="rounded-xl border border-[#111111]/10 py-16 text-center">
             <CheckSquare className="mx-auto h-8 w-8 text-[#6f6b62]/40 mb-3" />
             <p className="text-sm text-[#6f6b62]">{tasks.length === 0 ? "No tasks found." : "No tasks match your filters."}</p>
@@ -487,6 +515,8 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
           </div>
         )}
       </div>
+        </>
+      )}
     </div>
   );
 }

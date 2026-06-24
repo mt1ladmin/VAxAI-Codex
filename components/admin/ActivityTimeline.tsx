@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronDown, Loader2, Sparkles } from "lucide-react";
+import { ChevronDown, Sparkles } from "lucide-react";
 import { ChatHistoryModal } from "@/components/admin/ChatHistoryModal";
 import {
   ACTIVITY_EVENT_DOT,
@@ -80,11 +80,16 @@ export function ActivityTimeline({
 
   return (
     <div className="space-y-3">
-      {loading && (
-        <p className="flex items-center gap-2 text-sm text-[#6f6b62]">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading activity…
-        </p>
-      )}
+      {loading &&
+        [1, 2, 3].map((i) => (
+          <div key={i} className="flex gap-3 rounded-lg border border-[#111111]/10 px-4 py-3">
+            <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[#111111]/10" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="h-4 w-2/3 rounded bg-[#f7f4ea]" />
+              <div className="h-3 w-1/3 rounded bg-[#f7f4ea]/80" />
+            </div>
+          </div>
+        ))}
 
       {!loading &&
         timeline.map((item) => {

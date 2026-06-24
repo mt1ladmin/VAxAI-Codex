@@ -38,6 +38,7 @@ import {
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
+import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
@@ -279,7 +280,7 @@ function ClientDetailContent() {
     setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
 
-  if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
+  if (loading) return <HubDetailSkeleton />;
   if (!contact) return <div className="p-8 text-sm text-[#6f6b62]">Client not found.</div>;
 
   const fullName = `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`;
@@ -465,16 +466,11 @@ function ClientDetailContent() {
                 hint="Use VAxAI Assistant to summarize the journey, draft proposals, and connect to Knowledge Hub."
               />
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
                   value={openWorkCount}
                   label="Open tasks & actions"
                   onClick={() => setActiveTab("tasks")}
-                />
-                <HubMetricCard
-                  value={opportunities.length}
-                  label="Client work"
-                  onClick={() => setActiveTab("client_work")}
                 />
                 <HubMetricCard
                   value={notesCount}
@@ -490,40 +486,6 @@ function ClientDetailContent() {
                   setChatActivityKey((k) => k + 1);
                 }}
               />
-
-              {primaryOpp && (
-                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
-                    Service record
-                  </p>
-                  <div>
-                    <p className="text-base font-semibold text-[#111111]">{primaryOpp.title}</p>
-                    {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high) && (
-                      <p className="mt-1 text-sm font-semibold text-[#063b32]">
-                        {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high)}
-                      </p>
-                    )}
-                  </div>
-                  {primaryOpp.desired_outcomes && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Desired outcomes</p>
-                      <CollapsibleNote content={primaryOpp.desired_outcomes} />
-                    </div>
-                  )}
-                  {primaryOpp.recommended_pathway && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Agreed pathway</p>
-                      <CollapsibleNote content={primaryOpp.recommended_pathway} />
-                    </div>
-                  )}
-                  {primaryOpp.notes && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Service notes</p>
-                      <CollapsibleNote content={primaryOpp.notes} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
-                    </div>
-                  )}
-                </div>
-              )}
 
               <div className="rounded-xl border border-[#111111]/10 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
@@ -755,6 +717,40 @@ function ClientDetailContent() {
                 </p>
               </div>
 
+              {primaryOpp && (
+                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
+                    Service record
+                  </p>
+                  <div>
+                    <p className="text-base font-semibold text-[#111111]">{primaryOpp.title}</p>
+                    {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high) && (
+                      <p className="mt-1 text-sm font-semibold text-[#063b32]">
+                        {formatValue(primaryOpp.indicative_value_low, primaryOpp.indicative_value_high)}
+                      </p>
+                    )}
+                  </div>
+                  {primaryOpp.desired_outcomes && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Desired outcomes</p>
+                      <CollapsibleNote content={primaryOpp.desired_outcomes} />
+                    </div>
+                  )}
+                  {primaryOpp.recommended_pathway && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Agreed pathway</p>
+                      <CollapsibleNote content={primaryOpp.recommended_pathway} />
+                    </div>
+                  )}
+                  {primaryOpp.notes && (
+                    <div>
+                      <p className="text-[10px] text-[#6f6b62]">Service notes</p>
+                      <CollapsibleNote content={primaryOpp.notes} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
+                    </div>
+                  )}
+                </div>
+              )}
+
               {opportunities.length === 0 ? (
                 <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
                   <p className="text-sm text-[#6f6b62]">No client work records yet.</p>
@@ -851,7 +847,7 @@ function ClientDetailContent() {
 
 export default function ClientDetailPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-sm text-[#6f6b62]">Loading…</div>}>
+    <Suspense fallback={<HubDetailSkeleton />}>
       <ClientDetailContent />
     </Suspense>
   );

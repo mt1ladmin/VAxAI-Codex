@@ -68,6 +68,6 @@ export function buildUnifiedTimeline(
   }
 
   return items.sort(
-    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   );
 }
