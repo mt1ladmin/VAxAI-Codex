@@ -2,14 +2,23 @@
 
 import { useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
+import { RecentNotesPreview } from "@/components/admin/RecentNotesPreview";
 
 type Props = {
   contactId?: string;
   outreachId?: string;
+  notes?: string | null;
+  onViewAllNotes?: () => void;
   onSaved?: () => void;
 };
 
-export function JourneySummaryButton({ contactId, outreachId, onSaved }: Props) {
+export function JourneySummaryButton({
+  contactId,
+  outreachId,
+  notes,
+  onViewAllNotes,
+  onSaved,
+}: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
@@ -57,6 +66,9 @@ export function JourneySummaryButton({ contactId, outreachId, onSaved }: Props) 
       </button>
       {done && <p className="text-xs text-[#063b32]">{savedMessage}</p>}
       {error && <p className="text-xs text-red-600">{error}</p>}
+      {onViewAllNotes ? (
+        <RecentNotesPreview notes={notes} onViewAll={onViewAllNotes} />
+      ) : null}
     </div>
   );
 }

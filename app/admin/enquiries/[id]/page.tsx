@@ -23,6 +23,7 @@ import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { MoveEnquiryToProspectQueueModal } from "@/components/admin/MoveEnquiryToProspectQueueModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
+import { RecentNotesPreview } from "@/components/admin/RecentNotesPreview";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
@@ -503,12 +504,6 @@ function EnquiryDetailContent() {
         <div className="lg:col-span-2 space-y-4">
           {activeTab === "overview" && (
             <>
-              <JourneyStageBanner
-                currentStage={journeyStageForEnquiryStatus(enquiry.status)}
-                status={enquiry.status}
-                hint="Website enquiry — qualify the inbound need and respond."
-              />
-
               <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
                   value={openWorkCount}
@@ -522,19 +517,15 @@ function EnquiryDetailContent() {
                 />
               </div>
 
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
-                {enquiry.last_action ? (
-                  <>
-                    <p className="text-sm text-[#111111]">{enquiry.last_action}</p>
-                    {enquiry.last_action_date && (
-                      <p className="mt-1 text-xs text-[#6f6b62]">{new Date(enquiry.last_action_date).toLocaleString("en-GB")}</p>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-sm text-[#6f6b62]/50">No activity recorded yet.</p>
-                )}
-              </div>
+              <JourneyStageBanner
+                currentStage={journeyStageForEnquiryStatus(enquiry.status)}
+                status={enquiry.status}
+              />
+
+              <RecentNotesPreview
+                notes={enquiry.admin_notes}
+                onViewAll={() => setActiveTab("notes")}
+              />
             </>
           )}
 

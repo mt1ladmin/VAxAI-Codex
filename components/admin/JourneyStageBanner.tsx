@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
-import { queueStageHint } from "@/lib/engagement/queue-stage-hints";
 import {
   ADVANCE_STATUS_HINT,
   JOURNEY_STAGES,
@@ -17,17 +16,10 @@ type Props = {
   currentStage: JourneyStageId;
   /** Finder / enquiry workflow status (legacy inbound records). */
   status?: string;
-  /** Prospect Queue opportunity stage — drives queue-specific guidance. */
-  opportunityStage?: string | null;
-  hint?: string;
 };
 
-export function JourneyStageBanner({ currentStage, status, opportunityStage, hint }: Props) {
+export function JourneyStageBanner({ currentStage, status }: Props) {
   const currentIndex = JOURNEY_STAGES.findIndex((s) => s.id === currentStage);
-  const stageHint =
-    currentStage === "queue" && opportunityStage
-      ? queueStageHint(opportunityStage)
-      : null;
 
   return (
     <div className="rounded-xl border border-[#111111]/8 bg-white p-4 shadow-sm space-y-3">
@@ -57,15 +49,6 @@ export function JourneyStageBanner({ currentStage, status, opportunityStage, hin
           );
         })}
       </div>
-      <p className="text-sm text-[#6f6b62]">
-        {stageHint ?? JOURNEY_STAGES[currentIndex]?.description}
-        {hint && !stageHint ? ` ${hint}` : ""}
-      </p>
-      {currentStage === "queue" && opportunityStage && (
-        <p className="text-xs text-[#063b32] bg-[#063b32]/5 border border-[#063b32]/15 rounded-lg px-3 py-2">
-          <span className="font-semibold">{opportunityStage}:</span> {stageHint}
-        </p>
-      )}
       {currentStage === "finder" && status && canMoveToPreSales(status) && (
         <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           {PRE_SALES_SIGNAL_HINT}

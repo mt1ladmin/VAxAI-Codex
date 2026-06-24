@@ -295,20 +295,6 @@ function ClientDetailContent() {
     setSavingNote(false);
   };
 
-  const updateOpportunityNextAction = async (nextAction: string | null) => {
-    const opp = opportunities[0];
-    if (!opp) return;
-    const res = await fetch(`/api/admin/engagement/opportunities/${opp.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ next_action: nextAction }),
-    });
-    if (res.ok) {
-      const j = await res.json() as { data: EngagementOpportunity };
-      handleOpportunityUpdated(j.data);
-    }
-  };
-
   const handleOpportunityUpdated = (updated: EngagementOpportunity) => {
     setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
@@ -368,11 +354,6 @@ function ClientDetailContent() {
     await loadData({ silent: true });
     setChatActivityKey((k) => k + 1);
   };
-  const lastActivity = linkedEnquiry?.last_action || null;
-  const lastActivityDate =
-    linkedEnquiry?.last_action_date ||
-    primaryOpp?.updated_at ||
-    null;
   const handoffNote =
     primaryOpp?.desired_outcomes?.trim() ||
     outreachRecord?.opportunity_description?.trim() ||
@@ -516,19 +497,6 @@ function ClientDetailContent() {
           {/* OVERVIEW TAB */}
           {activeTab === "overview" && (
             <>
-              <JourneyStageBanner
-                currentStage="queue"
-                opportunityStage={primaryOpp?.stage}
-              />
-
-              {outreachRecord && (
-                <div className="space-y-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client journey</p>
-                  <ServiceFitPanel data={outreachRecord} mode="overview" />
-                  <ProspectTagList data={outreachRecord} />
-                </div>
-              )}
-
               <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
                   value={openWorkCount}
@@ -542,30 +510,24 @@ function ClientDetailContent() {
                 />
               </div>
 
+              <JourneyStageBanner currentStage="queue" />
+
+              {outreachRecord && (
+                <div className="space-y-4">
+                  <ServiceFitPanel data={outreachRecord} mode="overview" />
+                  <ProspectTagList data={outreachRecord} />
+                </div>
+              )}
+
               <JourneySummaryButton
                 contactId={id}
+                notes={contact.notes}
+                onViewAllNotes={() => setActiveTab("notes")}
                 onSaved={() => {
                   void loadData({ silent: true });
                   setChatActivityKey((k) => k + 1);
                 }}
               />
-
-              {primaryOpp && (
-                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
-                  <input
-                    value={primaryOpp.next_action || ""}
-                    onChange={(e) =>
-                      setOpportunities((prev) =>
-                        prev.map((o, i) => (i === 0 ? { ...o, next_action: e.target.value } : o)),
-                      )
-                    }
-                    onBlur={() => void updateOpportunityNextAction(primaryOpp.next_action)}
-                    placeholder="Most important next step for this engagement"
-                    className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  />
-                </div>
-              )}
 
               {deliveryOpp && deliveryOpp.id !== primaryOpp?.id && (
                 <OpportunityPreviewCard
@@ -576,22 +538,6 @@ function ClientDetailContent() {
                   onUpdated={handleOpportunityUpdated}
                 />
               )}
-
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
-                {lastActivity ? (
-                  <>
-                    <p className="text-sm text-[#111111]">{lastActivity}</p>
-                    {lastActivityDate && (
-                      <p className="mt-1 text-xs text-[#6f6b62]">
-                        {new Date(lastActivityDate).toLocaleString("en-GB")}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-sm text-[#6f6b62]/50">No activity recorded yet.</p>
-                )}
-              </div>
             </>
           )}
 
