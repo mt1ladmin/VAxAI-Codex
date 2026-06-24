@@ -122,6 +122,7 @@ export async function POST(
       stage: "Identified",
       notes: enquiry.admin_notes,
       desired_outcomes: opportunity_description,
+      recommended_pathway: (enquiry.details as string)?.slice(0, 4000) || null,
       next_action: enquiry.next_action,
       enquiry_id: enquiryId,
       assigned_team_member_id,

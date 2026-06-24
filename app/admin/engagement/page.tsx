@@ -6,7 +6,6 @@ import {
   AlertCircle,
   ArrowRight,
   BookOpen,
-  Calendar,
   Inbox,
   Plus,
   Users,
@@ -137,7 +136,7 @@ export default function EngagementOverview() {
         if (b.due_date) return 1;
         return 0;
       });
-      setTasks(sorted.slice(0, 8));
+      setTasks(sorted.slice(0, 3));
       setTasksLoading(false);
 
       const isSocial = (p: PostItem) => (p.content_type || "").toLowerCase().includes("social");
@@ -221,76 +220,87 @@ export default function EngagementOverview() {
               ))}
         </div>
 
-        <SectionCard title="My work today">
-          {workLoading ? (
-            <p className="px-5 py-6 text-sm text-[#6f6b62]">Loading…</p>
-          ) : !workToday ? (
-            <p className="px-5 py-6 text-sm text-[#6f6b62]">No work items right now.</p>
-          ) : (
-            <div className="grid gap-4 px-5 py-4 lg:grid-cols-2">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-red-700 mb-2">Overdue tasks</p>
-                {workToday.overdueTasks.length === 0 ? (
-                  <p className="text-sm text-[#6f6b62]">None — good.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {workToday.overdueTasks.map((t) => (
-                      <Link key={t.id} href={t.href} className="block rounded-lg border border-red-100 bg-red-50/50 px-3 py-2 hover:border-red-200">
-                        <p className="text-sm font-semibold text-[#111111]">{t.title}</p>
-                        {t.contact_name && <p className="text-xs text-[#6f6b62]">{t.contact_name}</p>}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+        <div className="grid gap-4 lg:grid-cols-2">
+          <SectionCard
+            title="Overdue tasks"
+            action={<Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
+          >
+            {workLoading ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
+            ) : !workToday?.overdueTasks.length ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">None — good.</p>
+            ) : (
+              <div className="divide-y divide-[#111111]/5">
+                {workToday.overdueTasks.map((t) => (
+                  <Link key={t.id} href={t.href} className="block px-5 py-3 hover:bg-red-50/40">
+                    <p className="text-sm font-semibold text-[#111111] truncate">{t.title}</p>
+                    {t.contact_name && <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{t.contact_name}</p>}
+                  </Link>
+                ))}
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32] mb-2">{PROSPECT_QUEUE_LABEL}</p>
-                {workToday.queueRecords.length === 0 ? (
-                  <p className="text-sm text-[#6f6b62]">No assigned engagements.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {workToday.queueRecords.map((r) => (
-                      <Link key={r.contact_id} href={r.href} className="block rounded-lg border border-[#111111]/10 px-3 py-2 hover:bg-[#f7f4ea]/50">
-                        <p className="text-sm font-semibold text-[#111111]">{r.name}</p>
-                        <p className="text-xs text-[#6f6b62]">{r.stage}{r.next_action ? ` · ${r.next_action}` : ""}</p>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+            )}
+          </SectionCard>
+
+          <SectionCard
+            title={PROSPECT_QUEUE_LABEL}
+            action={<Link href="/admin/engagement/prospect-queue" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
+          >
+            {workLoading ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
+            ) : !workToday?.queueRecords.length ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">No assigned engagements.</p>
+            ) : (
+              <div className="divide-y divide-[#111111]/5">
+                {workToday.queueRecords.map((r) => (
+                  <Link key={r.contact_id} href={r.href} className="block px-5 py-3 hover:bg-[#f7f4ea]/50">
+                    <p className="text-sm font-semibold text-[#111111] truncate">{r.name}</p>
+                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{r.stage}</p>
+                  </Link>
+                ))}
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700 mb-2">{PROSPECT_FINDER_LABEL}</p>
-                {workToday.finderProspects.length === 0 ? (
-                  <p className="text-sm text-[#6f6b62]">No prospects awaiting action.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {workToday.finderProspects.map((p) => (
-                      <Link key={p.id} href={p.href} className="block rounded-lg border border-[#111111]/10 px-3 py-2 hover:bg-[#f7f4ea]/50">
-                        <p className="text-sm font-semibold text-[#111111]">{p.organisation_name}</p>
-                        <p className="text-xs text-[#6f6b62]">{p.engagement_status}</p>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+            )}
+          </SectionCard>
+
+          <SectionCard
+            title={PROSPECT_FINDER_LABEL}
+            action={<Link href="/admin/engagement/prospect-outreach" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
+          >
+            {workLoading ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
+            ) : !workToday?.finderProspects.length ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">No prospects awaiting action.</p>
+            ) : (
+              <div className="divide-y divide-[#111111]/5">
+                {workToday.finderProspects.map((p) => (
+                  <Link key={p.id} href={p.href} className="block px-5 py-3 hover:bg-[#f7f4ea]/50">
+                    <p className="text-sm font-semibold text-[#111111] truncate">{p.organisation_name}</p>
+                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{p.engagement_status}</p>
+                  </Link>
+                ))}
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-700 mb-2">New enquiries</p>
-                {workToday.newEnquiries.length === 0 ? (
-                  <p className="text-sm text-[#6f6b62]">Inbox clear.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {workToday.newEnquiries.map((e) => (
-                      <Link key={e.id} href={e.href} className="block rounded-lg border border-[#111111]/10 px-3 py-2 hover:bg-[#f7f4ea]/50">
-                        <p className="text-sm font-semibold text-[#111111]">{e.name}</p>
-                        <p className="text-xs text-[#6f6b62]">{e.status}</p>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+            )}
+          </SectionCard>
+
+          <SectionCard
+            title="New enquiries"
+            action={<Link href="/admin/enquiries" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
+          >
+            {workLoading ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
+            ) : !workToday?.newEnquiries.length ? (
+              <p className="px-5 py-4 text-sm text-[#6f6b62]">Inbox clear.</p>
+            ) : (
+              <div className="divide-y divide-[#111111]/5">
+                {workToday.newEnquiries.map((e) => (
+                  <Link key={e.id} href={e.href} className="block px-5 py-3 hover:bg-[#f7f4ea]/50">
+                    <p className="text-sm font-semibold text-[#111111] truncate">{e.name}</p>
+                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{e.status}</p>
+                  </Link>
+                ))}
               </div>
-            </div>
-          )}
-        </SectionCard>
+            )}
+          </SectionCard>
+        </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
@@ -312,7 +322,7 @@ export default function EngagementOverview() {
         </div>
 
         <SectionCard
-          title="Tasks & follow-ups"
+          title="Tasks"
           action={
             <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">
               View all tasks
@@ -342,20 +352,12 @@ export default function EngagementOverview() {
                 return (
                   <Link key={t.id} href="/admin/engagement/pipeline" className="block px-5 py-3 hover:bg-[#f7f4ea]/40">
                     <p className="text-sm font-semibold text-[#111111] truncate">{t.title}</p>
-                    {(t.organisation || t.contact) && (
-                      <p className="mt-0.5 text-xs text-[#6f6b62] truncate">
-                        {t.contact
-                          ? `${t.contact.first_name} ${t.contact.last_name || ""}`.trim()
-                          : t.organisation?.name}
-                      </p>
-                    )}
-                    {t.due_date && (
-                      <p className={`mt-0.5 flex items-center gap-1 text-xs ${overdue ? "font-semibold text-red-600" : "text-[#6f6b62]"}`}>
-                        <Calendar className="h-3 w-3" />
-                        {overdue ? "Overdue · " : ""}
-                        {new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                      </p>
-                    )}
+                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">
+                      {t.contact
+                        ? `${t.contact.first_name} ${t.contact.last_name || ""}`.trim()
+                        : t.organisation?.name || "View in Task Tracker"}
+                      {t.due_date ? ` · ${overdue ? "Overdue" : new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}
+                    </p>
                   </Link>
                 );
               })}

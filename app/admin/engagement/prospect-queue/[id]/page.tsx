@@ -56,7 +56,15 @@ import type {
   SectorProfile,
 } from "@/lib/engagement/types";
 import { STAGE_COLORS } from "@/lib/engagement/types";
-import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
+import {
+  ProspectDecisionMakerCard,
+  ProspectOrganisationCard,
+  ProspectProfileHeader,
+  ProspectResearchEvidenceCard,
+  ProspectTagList,
+} from "@/components/admin/ProspectResearchPanel";
+import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
+import type { StudioTeamMember } from "@/lib/engagement/team-members";
 
 type ClientTab = CrmHubTab | "submission";
 
@@ -122,6 +130,7 @@ function ClientDetailContent() {
   // Notes
   const [noteText, setNoteText] = useState("");
   const [savingNote, setSavingNote] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
 
   // AI context — set once contact data is loaded
@@ -156,16 +165,19 @@ function ClientDetailContent() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
-    const [cRes, oRes, eRes] = await Promise.all([
+    const [cRes, oRes, eRes, tmRes] = await Promise.all([
       fetch(`/api/admin/engagement/contacts/${id}`),
       fetch(`/api/admin/engagement/opportunities?contact_id=${id}&limit=30`),
       fetch(`/api/admin/enquiries?contact_id=${id}&include_closed=true`),
+      fetch("/api/admin/engagement/team-members"),
     ]);
-    const [cData, oData, eData] = await Promise.all([
+    const [cData, oData, eData, tmData] = await Promise.all([
       cRes.json() as Promise<{ data: EngagementContact }>,
       oRes.json() as Promise<{ data: EngagementOpportunity[] }>,
       eRes.json() as Promise<{ data: EnquiryArchive[] }>,
+      tmRes.json() as Promise<{ data: StudioTeamMember[] }>,
     ]);
+    setTeamMembers(tmData.data || []);
     setContact(cData.data);
     const opps = oData.data || [];
     setOpportunities(opps);
@@ -230,6 +242,8 @@ function ClientDetailContent() {
         status: "todo",
         contact_id: id,
         organisation_id: contact?.organisation_id ?? null,
+        opportunity_id: opportunities[0]?.id ?? null,
+        assigned_team_member_id: taskForm.assigned_team_member_id || null,
       }),
     });
     if (res.ok) {
@@ -389,58 +403,42 @@ function ClientDetailContent() {
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* ── Left sidebar ── */}
         <div className="space-y-4">
-          {/* Identity card */}
-          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#063b32] text-base font-bold text-[#f5f274]">
-                {initials || <Briefcase className="h-5 w-5" />}
-              </div>
-              <div>
-                <p className="font-semibold text-[#111111]">{fullName}</p>
-                {contact.role && <p className="text-xs text-[#6f6b62]">{contact.role}</p>}
-              </div>
+          {outreachRecord ? (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Summary</p>
+              <ProspectProfileHeader data={outreachRecord} />
+              <ProspectOrganisationCard data={outreachRecord} />
+              <ProspectDecisionMakerCard data={outreachRecord} />
             </div>
-
-            {contact.professional_email && (
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Email</p>
-                <a
-                  href={emailComposeUrl(contact.professional_email)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1 text-sm text-[#063b32] hover:underline"
-                >
+          ) : (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#063b32] text-base font-bold text-[#f5f274]">
+                  {initials || <Briefcase className="h-5 w-5" />}
+                </div>
+                <div>
+                  <p className="font-semibold text-[#111111]">{fullName}</p>
+                  {contact.role && <p className="text-xs text-[#6f6b62]">{contact.role}</p>}
+                </div>
+              </div>
+              {contact.professional_email && (
+                <a href={emailComposeUrl(contact.professional_email)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
                   <Mail className="h-3.5 w-3.5" /> {contact.professional_email}
                 </a>
-              </div>
-            )}
-            {contact.phone && (
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Phone</p>
-                <a
-                  href={`tel:${contact.phone}`}
-                  className="flex items-center gap-1 text-sm text-[#063b32] hover:underline"
-                >
+              )}
+              {contact.phone && (
+                <a href={`tel:${contact.phone}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
                   <Phone className="h-3.5 w-3.5" /> {contact.phone}
                 </a>
-              </div>
-            )}
-            {contact.preferred_channel && (
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Preferred channel</p>
-                <p className="text-sm text-[#111111]">{contact.preferred_channel}</p>
-              </div>
-            )}
-            {contact.organisation && (
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Organisation</p>
+              )}
+              {contact.organisation && (
                 <p className="flex items-center gap-1 text-sm text-[#111111]">
                   <Building2 className="h-3.5 w-3.5 text-[#063b32]" />
                   {(contact.organisation as { id: string; name: string }).name}
                 </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
           {primaryOpp && (
             <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
@@ -452,16 +450,10 @@ function ClientDetailContent() {
                 editable
                 clientContext={isClientServiceStage(primaryOpp.stage)}
                 defaultExpanded={false}
+                dropUpStageSelect
                 onUpdated={handleOpportunityUpdated}
                 openTaskCount={openTasks.length}
               />
-            </div>
-          )}
-
-          {primaryOpp?.next_action != null && (
-            <div className="rounded-xl border border-[#111111]/10 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Next action</p>
-              <p className="text-sm text-[#111111]">{primaryOpp.next_action || "—"}</p>
             </div>
           )}
 
@@ -499,37 +491,19 @@ function ClientDetailContent() {
                 opportunityStage={primaryOpp?.stage}
               />
 
-              {primaryOpp && (
-                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
-                  <input
-                    value={primaryOpp.next_action || ""}
-                    onChange={(e) =>
-                      setOpportunities((prev) =>
-                        prev.map((o, i) => (i === 0 ? { ...o, next_action: e.target.value } : o)),
-                      )
-                    }
-                    onBlur={() => void updateOpportunityNextAction(primaryOpp.next_action)}
-                    placeholder="Most important next step for this engagement"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  />
+              {outreachRecord && (
+                <div className="space-y-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client journey</p>
+                  <ServiceFitPanel data={outreachRecord} />
+                  <ProspectResearchEvidenceCard data={outreachRecord} />
+                  <ProspectTagList data={outreachRecord} />
                 </div>
-              )}
-
-              {deliveryOpp && deliveryOpp.id !== primaryOpp?.id && (
-                <OpportunityPreviewCard
-                  opportunity={deliveryOpp}
-                  editable
-                  clientContext
-                  defaultExpanded
-                  onUpdated={handleOpportunityUpdated}
-                />
               )}
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <HubMetricCard
                   value={openWorkCount}
-                  label="Open tasks & actions"
+                  label="Open tasks"
                   onClick={() => setActiveTab("tasks")}
                 />
                 <HubMetricCard
@@ -546,6 +520,33 @@ function ClientDetailContent() {
                   setChatActivityKey((k) => k + 1);
                 }}
               />
+
+              {primaryOpp && (
+                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
+                  <input
+                    value={primaryOpp.next_action || ""}
+                    onChange={(e) =>
+                      setOpportunities((prev) =>
+                        prev.map((o, i) => (i === 0 ? { ...o, next_action: e.target.value } : o)),
+                      )
+                    }
+                    onBlur={() => void updateOpportunityNextAction(primaryOpp.next_action)}
+                    placeholder="Most important next step for this engagement"
+                    className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+              )}
+
+              {deliveryOpp && deliveryOpp.id !== primaryOpp?.id && (
+                <OpportunityPreviewCard
+                  opportunity={deliveryOpp}
+                  editable
+                  clientContext
+                  defaultExpanded
+                  onUpdated={handleOpportunityUpdated}
+                />
+              )}
 
               <div className="rounded-xl border border-[#111111]/10 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
@@ -645,16 +646,18 @@ function ClientDetailContent() {
                     </>
                   )}
                   {outreachRecord && !linkedEnquiry && (
-                    <>
-                      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 space-y-2">
+                      <div className="flex items-center gap-2">
                         <Inbox className="h-4 w-4 text-amber-700" />
                         <span className="text-sm font-semibold text-[#111111]">Moved from Prospect Finder</span>
                       </div>
                       <p className="text-sm text-[#6f6b62]">
-                        Full research is on the Research tab. Snapshot from move:
+                        Client journey and engagement guide are retained on this record. Open Prospect Finder for the original catalog entry.
                       </p>
-                      <p className="text-sm text-[#111111]">{outreachRecord.opportunity_description || outreachRecord.service_fit_summary}</p>
-                    </>
+                      <Link href={`${PROSPECT_FINDER_PATH}/${outreachRecord.id}`} className="text-sm font-semibold text-[#063b32] hover:underline">
+                        Open in Prospect Finder →
+                      </Link>
+                    </div>
                   )}
                   <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 shrink-0 text-[#063b32]" />
@@ -711,6 +714,8 @@ function ClientDetailContent() {
                 openTasks={openTasks}
                 doneTasks={doneTasks}
                 linkedNextActions={linkedNextActions}
+                viewAllTasksHref="/admin/engagement/pipeline"
+                teamMembers={teamMembers}
                 addingTask={addingTask}
                 setAddingTask={setAddingTask}
                 taskForm={taskForm}
@@ -729,11 +734,17 @@ function ClientDetailContent() {
 
           {/* RESEARCH TAB */}
           {activeTab === "research" && (
-            outreachRecord ? (
-              <ProspectResearchPanel data={outreachRecord} compact />
+            outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway ? (
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>
+                <CollapsibleNote
+                  content={outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway || ""}
+                  textClassName="text-sm text-[#111111] leading-relaxed"
+                />
+              </div>
             ) : (
               <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
-                <p className="text-sm text-[#6f6b62]">No Prospect Finder research linked to this record.</p>
+                <p className="text-sm text-[#6f6b62]">No engagement guide linked to this record yet.</p>
               </div>
             )
           )}

@@ -41,7 +41,7 @@ const TAB_LABELS: Record<Tab, string> = {
   overview: "Overview",
   engagement_guide: "Engagement guide",
   notes: "Notes",
-  tasks: "Tasks & next actions",
+  tasks: "Tasks",
   activity: "Activity",
 };
 
@@ -62,6 +62,8 @@ function ProspectFinderDetailContent() {
   const [reviewNotes, setReviewNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [noteText, setNoteText] = useState("");
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesDraft, setNotesDraft] = useState("");
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
@@ -175,6 +177,25 @@ function ProspectFinderDetailContent() {
       body: JSON.stringify({ status: "done" }),
     });
     await load();
+  };
+
+  const markTaskUndone = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "todo" }),
+    });
+    await load();
+  };
+
+  const saveNotes = async () => {
+    setSaving(true);
+    try {
+      await patchWorkflow({ review_notes: notesDraft.trim() || null });
+      setEditingNotes(false);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) return <HubDetailSkeleton />;
@@ -363,47 +384,71 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "notes" && (
             <div className="space-y-4">
-              {reviewNotes ? (
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Notes</p>
+                {!editingNotes && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotesDraft(reviewNotes);
+                      setEditingNotes(true);
+                    }}
+                    className="text-xs font-semibold text-[#063b32] hover:underline"
+                  >
+                    {reviewNotes ? "Edit notes" : "Write notes"}
+                  </button>
+                )}
+              </div>
+              {editingNotes ? (
+                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                  <textarea
+                    value={notesDraft}
+                    onChange={(e) => setNotesDraft(e.target.value)}
+                    rows={12}
+                    placeholder="Reviewer notes, call outcomes, and handoff context…"
+                    className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm resize-y outline-none focus:border-[#063b32]"
+                  />
+                  <div className="flex gap-2">
+                    <button type="button" disabled={saving} onClick={() => void saveNotes()} className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save notes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNotesDraft(reviewNotes);
+                        setEditingNotes(false);
+                      }}
+                      className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : reviewNotes ? (
                 <div className="rounded-xl border border-[#111111]/10 p-5">
                   <CollapsibleNote content={reviewNotes} />
                 </div>
               ) : (
                 <p className="text-sm text-[#6f6b62]">No notes yet.</p>
               )}
-              <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
-                <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={3} placeholder="Add a note…" className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm resize-y" />
-                <button type="button" disabled={saving || !noteText.trim()} onClick={() => void saveNote()} className="text-sm font-semibold text-[#063b32] hover:underline">Add note</button>
-              </div>
+              {!editingNotes && (
+                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
+                  <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={3} placeholder="Add a note…" className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm resize-y" />
+                  <button type="button" disabled={saving || !noteText.trim()} onClick={() => void saveNote()} className="text-sm font-semibold text-[#063b32] hover:underline">Add note</button>
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === "tasks" && (
             <div className="space-y-4">
-              <div className="rounded-xl border border-[#111111]/10 p-4">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-2">Next action</p>
-                <input
-                  value={record.next_action || ""}
-                  onChange={(e) => setRecord((r) => r ? { ...r, next_action: e.target.value } : r)}
-                  onBlur={() => void patchWorkflow({ next_action: record.next_action || null })}
-                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  placeholder="Most relevant next step for this prospect"
-                />
-              </div>
-              {addingTask && (
-                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-3">
-                  <input value={taskForm.title} onChange={(e) => setTaskForm((f) => ({ ...f, title: e.target.value }))} placeholder="Task title" className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm" />
-                  <select value={taskForm.assigned_team_member_id} onChange={(e) => setTaskForm((f) => ({ ...f, assigned_team_member_id: e.target.value }))} className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm">
-                    <option value="">Assign to…</option>
-                    {memberOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                  </select>
-                  <input type="date" value={taskForm.due_date} onChange={(e) => setTaskForm((f) => ({ ...f, due_date: e.target.value }))} className="rounded-xl border border-[#111111]/15 px-3 py-2 text-sm" />
-                  <button type="button" disabled={savingTask} onClick={() => void createTask()} className="rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">Create task</button>
-                </div>
-              )}
               <HubTasksTab
                 entityLabel={record.organisation_name}
                 openTasks={openTasks}
                 doneTasks={doneTasks}
+                tasksOnly
+                viewAllTasksHref="/admin/engagement/pipeline"
+                teamMembers={teamMembers}
                 addingTask={addingTask}
                 setAddingTask={setAddingTask}
                 taskForm={taskForm}
@@ -411,6 +456,7 @@ function ProspectFinderDetailContent() {
                 savingTask={savingTask}
                 onCreateTask={() => void createTask()}
                 onMarkDone={(taskId) => void markTaskDone(taskId)}
+                onMarkUndone={(taskId) => void markTaskUndone(taskId)}
                 showDone={showDone}
                 setShowDone={setShowDone}
               />

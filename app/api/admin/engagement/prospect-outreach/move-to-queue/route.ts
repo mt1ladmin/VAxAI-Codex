@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       stage: "Identified",
       notes: reviewNotes,
       desired_outcomes: opportunity_description,
+      recommended_pathway: merged.engagement_approach || null,
       next_action: existing?.next_action ?? null,
       outreach_id,
       assigned_team_member_id,

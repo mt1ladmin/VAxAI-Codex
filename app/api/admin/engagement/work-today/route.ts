@@ -73,8 +73,8 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  const overdueTasks = tasks.filter((t) => t.overdue).slice(0, 8);
-  const dueSoon = tasks.filter((t) => !t.overdue).slice(0, 5);
+  const overdueTasks = tasks.filter((t) => t.overdue).slice(0, 3);
+  const dueSoon = tasks.filter((t) => !t.overdue).slice(0, 3);
 
   let queueRecords = (queueRes.data ?? []).map((o) => {
     const rawContact = o.primary_contact as unknown;
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
       return opp?.assigned_team_member_id === resolvedMemberId;
     });
   }
-  queueRecords = queueRecords.slice(0, 8);
+  queueRecords = queueRecords.slice(0, 3);
 
   const [{ overrides, rows }, members] = await Promise.all([
     loadOverrideMaps(supabase),
@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
   });
 
   const finderItems = finderFiltered
-    .slice(0, 6)
+    .slice(0, 3)
     .map((p) => ({
       id: p.id,
       organisation_name: p.organisation_name,
@@ -130,7 +130,7 @@ export async function GET(req: NextRequest) {
 
   const newEnquiries = (enqRes.data ?? [])
     .filter((e) => !e.status || e.status === "Needs review" || e.status === "new" || e.status === "open")
-    .slice(0, 6)
+    .slice(0, 3)
     .map((e) => ({
       id: e.id,
       name: e.name as string,

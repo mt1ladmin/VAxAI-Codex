@@ -20,6 +20,7 @@ export function OpportunityPreviewCard({
   clientContext = false,
   onUpdated,
   openTaskCount,
+  dropUpStageSelect = false,
 }: {
   opportunity: EngagementOpportunity;
   defaultExpanded?: boolean;
@@ -27,6 +28,7 @@ export function OpportunityPreviewCard({
   clientContext?: boolean;
   onUpdated?: (updated: EngagementOpportunity) => void;
   openTaskCount?: number;
+  dropUpStageSelect?: boolean;
 }) {
   const [opportunity, setOpportunity] = useState(initialOpportunity);
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -62,7 +64,7 @@ export function OpportunityPreviewCard({
   };
 
   return (
-    <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden transition-colors hover:border-[#063b32]/20">
+    <div className="rounded-xl border border-[#111111]/10 bg-white overflow-visible transition-colors hover:border-[#063b32]/20">
       <div className="flex items-center gap-2 px-4 py-3">
         <button
           type="button"
@@ -85,6 +87,7 @@ export function OpportunityPreviewCard({
               stages={stages}
               onChange={(stage) => void updateStage(stage)}
               loading={updatingStage}
+              dropUp={dropUpStageSelect}
             />
           ) : (
             <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${stageColor}`}>

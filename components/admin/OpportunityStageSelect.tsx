@@ -10,6 +10,7 @@ export function OpportunityStageSelect({
   onChange,
   disabled = false,
   loading = false,
+  dropUp = false,
   className = "",
 }: {
   value: string;
@@ -17,6 +18,7 @@ export function OpportunityStageSelect({
   onChange: (stage: string) => void;
   disabled?: boolean;
   loading?: boolean;
+  dropUp?: boolean;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -54,7 +56,11 @@ export function OpportunityStageSelect({
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-40 mt-1 max-h-64 w-52 overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg">
+        <div
+          className={`absolute right-0 z-50 max-h-64 w-56 overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg ${
+            dropUp ? "bottom-full mb-1" : "top-full mt-1"
+          }`}
+        >
           {stages.map((stage) => (
             <button
               key={stage}

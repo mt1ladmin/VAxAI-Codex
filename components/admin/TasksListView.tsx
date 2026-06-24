@@ -41,7 +41,7 @@ const inputClass =
   "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] transition-colors";
 
 const selectClass =
-  "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32]";
+  "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32] appearance-none";
 
 function taskRecordHref(task: EngagementTask, allowClientLinks: boolean): string | null {
   const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
@@ -332,6 +332,7 @@ export function TasksListView({
         notes: form.notes.trim() || null,
         task_type: form.task_type,
         status: "todo",
+        assigned_team_member_id: form.assigned_team_member_id || null,
       }),
     });
     if (!res.ok) {
@@ -444,6 +445,19 @@ export function TasksListView({
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Notes</label>
                 <input type="text" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Optional context…" className={inputClass} />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Assignee</label>
+                <select
+                  value={form.assigned_team_member_id}
+                  onChange={(e) => setForm((f) => ({ ...f, assigned_team_member_id: e.target.value }))}
+                  className={inputClass}
+                >
+                  <option value="">Unassigned</option>
+                  {teamMembers.map((m) => (
+                    <option key={m.id} value={m.id}>{m.display_name}</option>
+                  ))}
+                </select>
               </div>
             </div>
             {saveError && <p className="mt-3 text-sm text-red-600">{saveError}</p>}
