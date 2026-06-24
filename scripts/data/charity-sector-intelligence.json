@@ -1,0 +1,152 @@
+[
+  {
+    "sector_key": "housing",
+    "sector_label": "Housing & homelessness",
+    "admin_burden": "Tenancy administration, referral tracking, void management, support plans, contract and funder reporting, volunteer coordination, and partner agency handoffs.",
+    "charity_ai_notes": "Many housing charities use housing management systems but still rely on spreadsheets and email for referrals, contract evidence, and partner reporting. AI for drafting support notes or summarising case updates is early-stage; staff often need training before tool adoption.",
+    "vaxai_fit": {
+      "primary": "Workflow review + selective VA",
+      "va_less_suitable_when": "VA alone is weak for real-time homelessness triage or statutory housing applications — automate referral logging and reporting templates first.",
+      "meeting_hooks": [
+        "Map referral-to-tenancy handoffs without replacing your HMS",
+        "Train staff on safe AI drafting for support notes with human review",
+        "Reduce contract reporting prep with structured templates and VA follow-up"
+      ]
+    }
+  },
+  {
+    "sector_key": "care",
+    "sector_label": "Care & supported living",
+    "admin_burden": "Care plans, rotas, safeguarding records, MAR charts liaison, CQC evidence, funder reporting, family communication, and staff onboarding paperwork.",
+    "charity_ai_notes": "Care charities face high data sensitivity. AI adoption is cautious; practical wins are usually in rota coordination, care note drafting support, and training rather than automated decision-making.",
+    "vaxai_fit": {
+      "primary": "Training + workflow review",
+      "va_less_suitable_when": "Avoid leading with VA for regulated care documentation — start with policy, training, and workflow review with safeguarding oversight.",
+      "meeting_hooks": [
+        "VAT-informed review of where AI can assist without touching safeguarding decisions",
+        "Workflow review across rotas, care plans, and funder evidence",
+        "Upskill team leads on practical AI drafting with audit trails"
+      ]
+    }
+  },
+  {
+    "sector_key": "children",
+    "sector_label": "Children, youth & families",
+    "admin_burden": "Casework, safeguarding, referrals, programme enrolment, consent forms, session registers, volunteer DBS tracking, and grant reporting.",
+    "charity_ai_notes": "Youth charities often juggle CRM or case tools with heavy manual reporting to councils and funders. AI for programme summaries and parent communications is emerging but needs clear policy.",
+    "vaxai_fit": {
+      "primary": "Blend: training + workflow review",
+      "va_less_suitable_when": "VA is not the right lead for safeguarding case management — prioritise policy, training, and referral workflow clarity.",
+      "meeting_hooks": [
+        "Cut grant reporting prep without changing your case system",
+        "AI policy workshop for staff working with children and families",
+        "Map referral and enrolment bottlenecks across programmes"
+      ]
+    }
+  },
+  {
+    "sector_key": "health",
+    "sector_label": "Health & wellbeing",
+    "admin_burden": "Appointment coordination, clinical liaison, case records, volunteer scheduling, partner referrals, outcomes reporting, and NHS or ICB reporting cycles.",
+    "charity_ai_notes": "Health charities must balance efficiency with clinical governance. AI training and workflow review around non-clinical admin (scheduling, reporting drafts) is usually the safest entry point.",
+    "vaxai_fit": {
+      "primary": "Training + policy guidance",
+      "va_less_suitable_when": "Do not propose AI for clinical decisions or patient triage — focus on administrative coordination and governed drafting support.",
+      "meeting_hooks": [
+        "Identify admin tasks that can be AI-assisted without clinical risk",
+        "Develop practical AI guidance for helpline and coordination teams",
+        "Review appointment and referral workflows across partners"
+      ]
+    }
+  },
+  {
+    "sector_key": "advice",
+    "sector_label": "Advice & advocacy",
+    "admin_burden": "High-volume enquiries, triage, case notes, referral tracking, volunteer rota management, quality audits, and funder outcome reporting.",
+    "charity_ai_notes": "Advice charities process large enquiry volumes. AI for summarising case notes and drafting referral letters is attractive but needs strong data governance and staff training.",
+    "vaxai_fit": {
+      "primary": "Workflow automation + training",
+      "va_less_suitable_when": "VA alone cannot replace structured advice casework — automate triage templates and train staff on governed AI drafting first.",
+      "meeting_hooks": [
+        "Reduce case note and referral letter drafting time with governed AI",
+        "Workflow review across enquiry → advice → referral",
+        "Train advisers on safe AI use with client confidentiality"
+      ]
+    }
+  },
+  {
+    "sector_key": "community",
+    "sector_label": "Community & employment",
+    "admin_burden": "Volunteer management, bookings, training registers, partner reporting, event admin, membership records, and multi-programme coordination.",
+    "charity_ai_notes": "Community charities often run on CRM-lite tools plus spreadsheets. AI training and virtual assistance for coordination frequently land well when tied to visible admin pain.",
+    "vaxai_fit": {
+      "primary": "Blend: training + VA",
+      "va_less_suitable_when": "If the need is primarily a new CRM, position VAxAI as review and support around existing tools rather than a platform replacement.",
+      "meeting_hooks": [
+        "Free up coordinator time across volunteers and bookings",
+        "Practical AI workshop for programme and outreach teams",
+        "Review how reporting to funders is assembled each quarter"
+      ]
+    }
+  },
+  {
+    "sector_key": "arts",
+    "sector_label": "Arts, culture & heritage",
+    "admin_burden": "Event scheduling, box office reconciliation, participant admin, grant applications, donor communications, and volunteer coordination.",
+    "charity_ai_notes": "Arts charities are often lean on admin headcount. AI for grant drafts and marketing copy is common; fewer have structured workflow improvement support.",
+    "vaxai_fit": {
+      "primary": "Training + selective VA",
+      "va_less_suitable_when": "Avoid leading with complex automation for ticketing systems — start with grant/reporting workflow and AI drafting training.",
+      "meeting_hooks": [
+        "Support grant and report drafting without losing organisational voice",
+        "Review event and participant admin across programmes",
+        "Train team on AI for communications with editorial control"
+      ]
+    }
+  },
+  {
+    "sector_key": "disability",
+    "sector_label": "Disability & accessibility",
+    "admin_burden": "Person-centred planning, rota and transport coordination, safeguarding, equipment logs, funder evidence, and accessible communications.",
+    "charity_ai_notes": "Disability charities must consider accessibility in any process change. AI and automation should be paired with flexible human support and neurodiversity-aware ways of working.",
+    "vaxai_fit": {
+      "primary": "Training + accessibility-aware workflow review",
+      "va_less_suitable_when": "Do not propose notification-heavy automation without checking impact on neurodivergent staff and service users.",
+      "meeting_hooks": [
+        "Review admin workflows with accessibility and reasonable adjustments in mind",
+        "AI training that emphasises human coordination alongside tools",
+        "Map funder reporting burden across day services"
+      ]
+    }
+  },
+  {
+    "sector_key": "legal",
+    "sector_label": "Legal & social justice",
+    "admin_burden": "Case intake, file management, court deadline tracking, client communications, pro bono coordination, and compliance reporting.",
+    "charity_ai_notes": "Legal charities handle sensitive case material. AI for research summaries and letter drafts is growing but requires strict governance and specialist oversight for legal content.",
+    "vaxai_fit": {
+      "primary": "Policy + training",
+      "va_less_suitable_when": "VAxAI should not provide legal advice — focus on admin workflow, governed AI drafting, and coordination support.",
+      "meeting_hooks": [
+        "VAT-informed AI policy for case-handling teams",
+        "Workflow review across intake, files, and deadlines",
+        "Train caseworkers on AI research support with professional review"
+      ]
+    }
+  },
+  {
+    "sector_key": "environment",
+    "sector_label": "Environment & conservation",
+    "admin_burden": "Volunteer and land-management scheduling, grant reporting, membership admin, event coordination, and partner project reporting.",
+    "charity_ai_notes": "Environmental charities often have seasonal volunteer peaks and grant-heavy funding. Practical AI for reporting drafts and volunteer comms is a common entry point.",
+    "vaxai_fit": {
+      "primary": "Training + workflow review",
+      "va_less_suitable_when": "Field operations and land management systems are usually outside VAxAI direct delivery — focus on office coordination and reporting.",
+      "meeting_hooks": [
+        "Reduce grant and project reporting assembly time",
+        "Review volunteer coordination workflows across sites",
+        "AI workshop for comms and reporting teams"
+      ]
+    }
+  }
+]
