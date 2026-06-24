@@ -323,6 +323,8 @@ function ProspectFinderDetailContent() {
               <KnowledgeAttachPicker outreachId={record.id} />
               <Link
                 href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
+                target="_blank"
+                rel="noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-medium text-[#063b32] hover:underline"
               >
                 <BookOpen className="h-4 w-4" /> Sector guidance

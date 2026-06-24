@@ -84,6 +84,8 @@ export function JourneyStageBanner({ currentStage, status, opportunityStage, hin
       {currentStage === "finder" && (
         <Link
           href="/admin/engagement/knowledge?tab=sectors"
+          target="_blank"
+          rel="noreferrer"
           className="inline-flex text-xs font-semibold text-[#063b32] hover:underline"
         >
           Open Knowledge Hub for sector guidance →
