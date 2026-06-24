@@ -365,7 +365,19 @@ function LiveCallAssistInner() {
     if (!summaryApproved) return;
     setSaving(true);
     try {
-      const fullNotes = notes.map((n) => `[${n.timestamp.toLocaleTimeString()}] ${n.text}`).join("\n");
+      const userNotes = notes.map((n) => `[${n.timestamp.toLocaleTimeString()}] ${n.text}`).join("\n");
+      const aiHistory = liveDrafts.length
+        ? "\n\n--- AI Guidance History ---\n" +
+          liveDrafts.map(d =>
+            `Phrase: "${d.phrase}"\n` +
+            `Title: ${d.guidance.title}\n` +
+            (d.guidance.what_this_means?.length ? `What this means: ${d.guidance.what_this_means.join(" / ")}\n` : "") +
+            (d.guidance.natural_questions?.length ? `Questions to ask: ${d.guidance.natural_questions.join(" | ")}\n` : "") +
+            (d.guidance.what_not_assume?.length ? `Don't assume: ${d.guidance.what_not_assume.join(" | ")}\n` : "") +
+            (d.kept ? "[Flagged for knowledge library]" : "")
+          ).join("\n\n")
+        : "";
+      const fullNotes = userNotes + aiHistory;
       const finalSummary = editedSummary ||
         structuredNotes?.call_summary ||
         `Call with ${selectedContact ? `${selectedContact.first_name} ${selectedContact.last_name || ""}` : "unknown contact"} (${callType}). Duration: ${elapsed}. Pain points: ${selectedPainPoints.map((p) => p.title).join(", ") || "none identified"}.`;
