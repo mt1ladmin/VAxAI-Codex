@@ -25,7 +25,16 @@ export async function GET(req: NextRequest) {
   if (oppError) return NextResponse.json({ error: oppError.message }, { status: 500 });
 
   if (!opps || opps.length === 0) {
-    return NextResponse.json({ data: [], metrics: { total: 0, totalTasks: 0, overdueTasks: 0 } });
+    return NextResponse.json({
+      data: [],
+      metrics: {
+        total: 0,
+        totalTasks: 0,
+        overdueTasks: 0,
+        pipelineValueAll: { low: 0, high: 0, display: null },
+        pipelineValueActive: { low: 0, high: 0, display: null },
+      },
+    });
   }
 
   const contactIds = [...new Set(opps.map((o) => o.primary_contact_id as string))];
@@ -80,8 +89,38 @@ export async function GET(req: NextRequest) {
     overdueTasks = overdueRes.count ?? 0;
   }
 
+  const fmtValue = (low: number, high: number): string | null => {
+    if (low === 0 && high === 0) return null;
+    const fmt = (n: number) =>
+      n >= 1000 ? `£${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : `£${n.toLocaleString()}`;
+    if (low && high && low !== high) return `${fmt(low)} – ${fmt(high)}`;
+    return fmt(low || high);
+  };
+
+  const sumRange = (rows: typeof opps) => {
+    let low = 0;
+    let high = 0;
+    for (const o of rows) {
+      low += o.indicative_value_low ?? o.indicative_value_high ?? 0;
+      high += o.indicative_value_high ?? o.indicative_value_low ?? 0;
+    }
+    return { low, high, display: fmtValue(low, high) };
+  };
+
+  const activeStages = new Set(["Active client", "Onboarding in progress", "Onboarding", "Onboarding planned"]);
+  const primaryOpps = enriched
+    .map((c) => oppMap[c.id]?.[0])
+    .filter((o): o is (typeof opps)[number] => Boolean(o));
+  const activePrimaryOpps = primaryOpps.filter((o) => activeStages.has(o.stage));
+
   return NextResponse.json({
     data: enriched,
-    metrics: { total: enriched.length, totalTasks, overdueTasks },
+    metrics: {
+      total: enriched.length,
+      totalTasks,
+      overdueTasks,
+      pipelineValueAll: sumRange(opps),
+      pipelineValueActive: sumRange(activePrimaryOpps),
+    },
   });
 }

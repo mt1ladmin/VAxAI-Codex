@@ -1,23 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ChevronDown, Loader2 } from "lucide-react";
-import { ChatActivityList } from "@/components/admin/ChatActivityList";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChevronDown, Loader2, Sparkles } from "lucide-react";
+import { ChatHistoryModal } from "@/components/admin/ChatHistoryModal";
 import {
   ACTIVITY_EVENT_DOT,
   fetchActivityLog,
   type ActivityLogEntry,
 } from "@/lib/engagement/activity-log";
-import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
+import { fetchChatActivity, type ChatActivitySnapshot } from "@/lib/engagement/chat-activity";
+import {
+  buildUnifiedTimeline,
+  type SeedEvent,
+  type UnifiedActivityItem,
+} from "@/lib/engagement/unified-activity";
 import { STAGE_COLORS } from "@/lib/engagement/types";
-
-type SeedEvent = {
-  title: string;
-  detail?: string;
-  created_at: string;
-  dotClass?: string;
-};
 
 type Props = {
   enquiryId?: string;
@@ -41,48 +38,48 @@ export function ActivityTimeline({
   emptyMessage = "No activity yet. Status changes, notes, and pipeline moves will appear here.",
 }: Props) {
   const [entries, setEntries] = useState<ActivityLogEntry[]>([]);
+  const [chatSnapshots, setChatSnapshots] = useState<ChatActivitySnapshot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedChat, setSelectedChat] = useState<ChatActivitySnapshot | null>(null);
+  const [snapshotByTime, setSnapshotByTime] = useState<Record<string, ChatActivitySnapshot>>({});
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [logs, chats] = await Promise.all([
+        fetchActivityLog({ enquiryId, queueId, contactId }),
+        chatContextType && chatContextId
+          ? fetchChatActivity(chatContextType, chatContextId)
+          : Promise.resolve([]),
+      ]);
+      setEntries(logs);
+      setChatSnapshots(chats);
+      const map: Record<string, ChatActivitySnapshot> = {};
+      for (const c of chats) {
+        map[c.ended_at] = c;
+      }
+      setSnapshotByTime(map);
+    } finally {
+      setLoading(false);
+    }
+  }, [enquiryId, queueId, contactId, chatContextType, chatContextId]);
 
   useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    void fetchActivityLog({ enquiryId, queueId, contactId })
-      .then((data) => {
-        if (!cancelled) setEntries(data);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [enquiryId, queueId, contactId, refreshKey]);
+    void load();
+  }, [load, refreshKey]);
 
-  const hasContent =
-    seedEvents.length > 0 ||
-    entries.length > 0 ||
-    Boolean(chatContextType && chatContextId);
+  const timeline = useMemo(
+    () => buildUnifiedTimeline(seedEvents, entries, chatSnapshots),
+    [seedEvents, entries, chatSnapshots],
+  );
+
+  const openChatForItem = (item: UnifiedActivityItem) => {
+    const snap = snapshotByTime[item.created_at];
+    if (snap) setSelectedChat(snap);
+  };
 
   return (
     <div className="space-y-3">
-      {seedEvents.map((event, i) => (
-        <div
-          key={`seed-${i}`}
-          className="flex gap-3 rounded-lg border border-[#111111]/10 bg-[#f7f4ea]/40 px-4 py-3"
-        >
-          <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${event.dotClass ?? "bg-[#063b32]"}`} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-[#111111]">{event.title}</p>
-            <p className="text-xs text-[#6f6b62]">
-              {new Date(event.created_at).toLocaleString("en-GB")}
-            </p>
-            {event.detail && (
-              <p className="mt-1 text-sm text-[#6f6b62] whitespace-pre-wrap">{event.detail}</p>
-            )}
-          </div>
-        </div>
-      ))}
-
       {loading && (
         <p className="flex items-center gap-2 text-sm text-[#6f6b62]">
           <Loader2 className="h-4 w-4 animate-spin" /> Loading activity…
@@ -90,31 +87,28 @@ export function ActivityTimeline({
       )}
 
       {!loading &&
-        entries.map((entry) => {
-          const oppId = entry.opportunity_id;
-          const stage = entry.metadata?.stage as string | undefined;
-          const returnPath = enquiryId
-            ? `/admin/enquiries/${enquiryId}?tab=activity`
-            : queueId
-              ? `/admin/engagement/prospect-queue/${queueId}?tab=activity`
-              : contactId
-                ? `/admin/clients/${contactId}?tab=activity`
-                : undefined;
+        timeline.map((item) => {
+          const isChat = item.kind === "chat_snapshot";
+          const stage =
+            item.kind === "log" ? (item.logEntry?.metadata?.stage as string | undefined) : undefined;
+          const dot =
+            item.dotClass ??
+            (item.kind === "log"
+              ? ACTIVITY_EVENT_DOT[item.logEntry!.event_type]
+              : item.kind === "seed"
+                ? "bg-[#063b32]"
+                : "bg-indigo-500");
 
           const inner = (
             <>
-              <div
-                className={`mt-1 h-2 w-2 shrink-0 rounded-full ${
-                  ACTIVITY_EVENT_DOT[entry.event_type] ?? "bg-[#6f6b62]"
-                }`}
-              />
+              <div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${dot}`} />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-[#111111]">{entry.title}</p>
+                <p className="text-sm font-semibold text-[#111111]">{item.title}</p>
                 <p className="text-xs text-[#6f6b62]">
-                  {new Date(entry.created_at).toLocaleString("en-GB")}
+                  {new Date(item.created_at).toLocaleString("en-GB")}
                 </p>
-                {entry.detail && (
-                  <p className="mt-1 text-sm text-[#6f6b62] whitespace-pre-wrap">{entry.detail}</p>
+                {item.detail && (
+                  <p className="mt-1 text-sm text-[#6f6b62] whitespace-pre-wrap">{item.detail}</p>
                 )}
                 {stage && (
                   <span
@@ -126,47 +120,54 @@ export function ActivityTimeline({
                   </span>
                 )}
               </div>
-              {oppId && returnPath && (
+              {isChat && (
                 <ChevronDown className="h-4 w-4 shrink-0 -rotate-90 text-[#6f6b62]" />
               )}
             </>
           );
 
-          if (oppId && returnPath) {
+          if (isChat) {
             return (
-              <Link
-                key={entry.id}
-                href={opportunityDetailPath(oppId, {
-                  returnTo: returnPath,
-                  returnLabel: "Activity",
-                })}
-                className="flex w-full gap-3 rounded-lg border border-amber-200 bg-amber-50/40 px-4 py-3 hover:bg-amber-50"
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => openChatForItem(item)}
+                className="flex w-full gap-3 rounded-lg border border-violet-200 bg-violet-50/40 px-4 py-3 text-left hover:bg-violet-50 transition-colors"
               >
+                <div className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-violet-100">
+                  <Sparkles className="h-3 w-3 text-violet-700" />
+                </div>
                 {inner}
-              </Link>
+              </button>
             );
           }
 
+          const borderClass =
+            item.kind === "seed"
+              ? "border-[#111111]/10 bg-[#f7f4ea]/40"
+              : item.logEntry?.event_type === "ai_summary"
+                ? "border-indigo-200 bg-indigo-50/30"
+                : "border-[#111111]/10";
+
           return (
-            <div
-              key={entry.id}
-              className="flex gap-3 rounded-lg border border-[#111111]/10 px-4 py-3"
-            >
+            <div key={item.id} className={`flex gap-3 rounded-lg border px-4 py-3 ${borderClass}`}>
               {inner}
             </div>
           );
         })}
 
-      {chatContextType && chatContextId && (
-        <ChatActivityList
-          contextType={chatContextType}
-          contextId={chatContextId}
-          refreshKey={refreshKey}
-        />
+      {!loading && timeline.length === 0 && (
+        <p className="text-sm text-[#6f6b62]/60 py-4 text-center">{emptyMessage}</p>
       )}
 
-      {!loading && !hasContent && (
-        <p className="text-sm text-[#6f6b62]/60 py-4 text-center">{emptyMessage}</p>
+      {selectedChat && (
+        <ChatHistoryModal
+          open={!!selectedChat}
+          onClose={() => setSelectedChat(null)}
+          sessionId={selectedChat.session_id}
+          title={selectedChat.title ?? "VAxAI Assistant chat"}
+          endedAt={selectedChat.ended_at}
+        />
       )}
     </div>
   );

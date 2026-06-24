@@ -38,16 +38,26 @@ const inputClass =
 const selectClass =
   "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32]";
 
+function taskRecordHref(task: EngagementTask): string | null {
+  const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
+  const queueId = task.queue_id ?? task.opportunity?.queue_id;
+  if (enquiryId) return `/admin/enquiries/${enquiryId}`;
+  if (queueId) return `/admin/engagement/prospect-queue/${queueId}`;
+  if (task.contact_id) return `/admin/clients/${task.contact_id}`;
+  return null;
+}
+
 function TaskSourceLabel({ task }: { task: EngagementTask }) {
-  if (!task.opportunity) return null;
-  if (task.opportunity.enquiry_id) {
+  const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
+  const queueId = task.queue_id ?? task.opportunity?.queue_id;
+  if (enquiryId) {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700">
         <MessageSquare className="h-3 w-3" /> Website enquiry
       </span>
     );
   }
-  if (task.opportunity.queue_id) {
+  if (queueId) {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-700">
         <Inbox className="h-3 w-3" /> Prospect queue
@@ -57,6 +67,13 @@ function TaskSourceLabel({ task }: { task: EngagementTask }) {
   return null;
 }
 
+function taskRecordLabel(task: EngagementTask): string {
+  if (task.opportunity?.title) return task.opportunity.title;
+  if (task.contact) return `${task.contact.first_name} ${task.contact.last_name ?? ""}`.trim();
+  if (task.organisation?.name) return task.organisation.name;
+  return "View record";
+}
+
 function TaskRow({
   task,
   onMarkDone,
@@ -64,6 +81,8 @@ function TaskRow({
   task: EngagementTask;
   onMarkDone: (id: string) => void;
 }) {
+  const recordHref = taskRecordHref(task);
+
   return (
     <div className="flex items-center gap-4 px-5 py-3.5">
       <button
@@ -90,14 +109,14 @@ function TaskRow({
         <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
           {task.task_type && <span className="text-[10px] text-[#6f6b62]">{task.task_type.replace("_", " ")}</span>}
           <TaskSourceLabel task={task} />
-          {task.opportunity_id && task.opportunity ? (
+          {recordHref ? (
             <Link
-              href={`/admin/engagement/pipeline/opportunities/${task.opportunity_id}`}
+              href={recordHref}
               onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
             >
               <Target className="h-3 w-3" />
-              {task.opportunity.title}
+              {taskRecordLabel(task)}
             </Link>
           ) : null}
           {task.organisation && <span className="text-[10px] text-[#6f6b62]">· {task.organisation.name}</span>}
@@ -129,6 +148,8 @@ function TaskBoardCard({
   onMarkDone: (id: string) => void;
   onDragStart: (taskId: string) => void;
 }) {
+  const recordHref = taskRecordHref(task);
+
   return (
     <div
       draggable
@@ -159,12 +180,12 @@ function TaskBoardCard({
               {new Date(task.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
             </p>
           )}
-          {task.opportunity?.title && (
+          {recordHref && (
             <Link
-              href={`/admin/engagement/pipeline/opportunities/${task.opportunity_id}`}
+              href={recordHref}
               className="mt-1 block text-[10px] font-semibold text-[#063b32] hover:underline truncate"
             >
-              {task.opportunity.title}
+              {taskRecordLabel(task)}
             </Link>
           )}
         </div>
@@ -192,7 +213,7 @@ export function TasksListView({ embedded = true }: { embedded?: boolean }) {
     setLoading(true);
     const params = new URLSearchParams();
     if (view === "list" && status) params.set("status", status);
-    params.set("limit", "200");
+    params.set("limit", "500");
     const res = await fetch(`/api/admin/engagement/tasks?${params}`);
     const json = (await res.json()) as { data: EngagementTask[] };
     setTasks(json.data || []);

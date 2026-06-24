@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { data, error } = await supabase
     .from("engagement_sector_profiles")
-    .insert(body)
+    .insert({ ...body, status: body.status ?? "approved" })
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

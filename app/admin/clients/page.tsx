@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Mail,
   Phone,
+  PoundSterling,
   Search,
   Users,
 } from "lucide-react";
@@ -37,10 +38,14 @@ type Client = {
   primary_service: string | null;
 };
 
+type ValueMetric = { low: number; high: number; display: string | null };
+
 type Metrics = {
   total: number;
   totalTasks: number;
   overdueTasks: number;
+  pipelineValueAll: ValueMetric;
+  pipelineValueActive: ValueMetric;
 };
 
 function LabeledField({ label, children }: { label: string; children: ReactNode }) {
@@ -74,7 +79,13 @@ function formatValue(low: number | null, high: number | null) {
 export default function ClientsPage() {
   const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
-  const [metrics, setMetrics] = useState<Metrics>({ total: 0, totalTasks: 0, overdueTasks: 0 });
+  const [metrics, setMetrics] = useState<Metrics>({
+    total: 0,
+    totalTasks: 0,
+    overdueTasks: 0,
+    pipelineValueAll: { low: 0, high: 0, display: null },
+    pipelineValueActive: { low: 0, high: 0, display: null },
+  });
   const [loading, setLoading] = useState(true);
   const [stageFilter, setStageFilter] = useState("");
   const [search, setSearch] = useState("");
@@ -86,7 +97,15 @@ export default function ClientsPage() {
     const res = await fetch(`/api/admin/clients?${params.toString()}`);
     const json = (await res.json()) as { data: Client[]; metrics: Metrics };
     setClients(json.data || []);
-    setMetrics(json.metrics || { total: 0, totalTasks: 0, overdueTasks: 0 });
+    setMetrics(
+      json.metrics || {
+        total: 0,
+        totalTasks: 0,
+        overdueTasks: 0,
+        pipelineValueAll: { low: 0, high: 0, display: null },
+        pipelineValueActive: { low: 0, high: 0, display: null },
+      },
+    );
     setLoading(false);
   }, [stageFilter]);
 
@@ -144,6 +163,28 @@ export default function ClientsPage() {
               <div>
                 <p className="text-xl font-bold text-red-600">{metrics.overdueTasks}</p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Overdue tasks</p>
+              </div>
+            </div>
+          )}
+          {metrics.pipelineValueAll.display && (
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-[#063b32]/10">
+                <PoundSterling className="h-4 w-4 text-[#063b32]" />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-[#111111]">{metrics.pipelineValueAll.display}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Pipeline value (all)</p>
+              </div>
+            </div>
+          )}
+          {metrics.pipelineValueActive.display && (
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-emerald-50">
+                <PoundSterling className="h-4 w-4 text-emerald-700" />
+              </div>
+              <div>
+                <p className="text-xl font-bold text-[#111111]">{metrics.pipelineValueActive.display}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Pipeline value (active)</p>
               </div>
             </div>
           )}

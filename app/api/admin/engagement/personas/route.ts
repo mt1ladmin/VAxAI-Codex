@@ -20,3 +20,19 @@ export async function GET(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ data });
 }
+
+export async function POST(req: NextRequest) {
+  const supabase = createServiceClient();
+  const body = await req.json();
+  const { data, error } = await supabase
+    .from("engagement_personas")
+    .insert({
+      ...body,
+      status: "approved",
+      evidence_status: body.evidence_status ?? "draft",
+    })
+    .select()
+    .single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  return NextResponse.json({ data }, { status: 201 });
+}

@@ -20,15 +20,13 @@ import {
   Phone,
   Plus,
   Save,
-  Target,
   User,
   X,
 } from "lucide-react";
-import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
+import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
-import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { StatusSelect } from "@/components/admin/StatusSelect";
@@ -42,13 +40,13 @@ import {
   canAdvanceToClientWork,
   journeyStageForQueueStatus,
 } from "@/lib/engagement/journey";
-import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
-import { outreachSummaryForConversion, syncQueueFromSnapshot } from "@/lib/engagement/prospect-outreach/snapshot";
+import { CRM_HUB_TAB_IDS, CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { syncQueueFromSnapshot } from "@/lib/engagement/prospect-outreach/snapshot";
 import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
 import { sectorGuidancePath } from "@/lib/engagement/sector-guidance";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import type { SectorProfile } from "@/lib/engagement/types";
-import { useStudioAccess } from "@/lib/studio-access-context";
+
 import {
   clearLinkedNextAction,
   collectLinkedNextActions,
@@ -57,7 +55,7 @@ import {
 } from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
-import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
+
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type {
   EngagementContact,
@@ -100,10 +98,10 @@ function ProspectDetailContent() {
   const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
-  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
+
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [chatActivityKey, setChatActivityKey] = useState(0);
-  const [createOppPresetStage, setCreateOppPresetStage] = useState<string | undefined>();
+
   const [linkingOpp, setLinkingOpp] = useState(false);
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
@@ -112,8 +110,7 @@ function ProspectDetailContent() {
   const [researchDraft, setResearchDraft] = useState<ProspectOutreachRecord | null>(null);
   const [savingResearch, setSavingResearch] = useState(false);
   const [sectors, setSectors] = useState<Pick<SectorProfile, "id" | "name">[]>([]);
-  const { canUseProspectQueueAi } = useStudioAccess();
-  const hubTabs = getCrmHubTabs(canUseProspectQueueAi);
+  const hubTabs = CRM_HUB_TABS;
 
   const outreachData = entry ? outreachFromQueueEntry(entry) : null;
 
@@ -236,17 +233,13 @@ function ProspectDetailContent() {
     setLoading(false);
   }, [id, loadCrmData, loadTasks, router]);
 
-  const refreshAfterChat = useCallback(() => {
-    void load();
-    setChatActivityKey((k) => k + 1);
-  }, [load]);
-
   useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && CRM_HUB_TAB_IDS.has(tab)) {
-      setActiveTab(tab as CrmHubTab);
+    const normalizedTab = tab === "opportunities" ? "client_work" : tab;
+    if (normalizedTab && CRM_HUB_TAB_IDS.has(normalizedTab)) {
+      setActiveTab(normalizedTab as CrmHubTab);
     }
   }, [searchParams]);
 
@@ -347,23 +340,8 @@ function ProspectDetailContent() {
     }
   };
 
-  const openCreateOpportunity = (presetStage?: string) => {
-    setCreateOppPresetStage(presetStage);
-    setShowCreateOppModal(true);
-  };
-
   const handleOpportunityUpdated = (updated: EngagementOpportunity) => {
     setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
-  };
-
-  const handleOpportunityCreated = (opp: EngagementOpportunity) => {
-    const next = [opp, ...opportunities.filter((o) => o.id !== opp.id)];
-    setOpportunities(next);
-    setActiveTab("opportunities");
-    setCreateOppPresetStage(undefined);
-    if (entry) {
-      void loadTasks(entry.contact_id, entry.organisation_id, next);
-    }
   };
 
   const loadOppPicker = async () => {
@@ -397,7 +375,7 @@ function ProspectDetailContent() {
         const next = [j.data, ...opportunities.filter((o) => o.id !== j.data!.id)];
         setOpportunities(next);
         setOppPickerOpen(false);
-        setActiveTab("opportunities");
+        setActiveTab("client_work");
         if (entry) {
           void loadTasks(entry.contact_id, entry.organisation_id, next);
         }
@@ -457,26 +435,6 @@ function ProspectDetailContent() {
         supportType={entry.raw_industry || entry.organisation?.industry || "Prospect queue"}
         existingContactId={entry.contact_id}
         existingOrgId={entry.organisation_id}
-      />
-
-      <CreateOpportunityModal
-        open={showCreateOppModal}
-        onClose={() => {
-          setShowCreateOppModal(false);
-          setCreateOppPresetStage(undefined);
-        }}
-        onCreated={handleOpportunityCreated}
-        contextLabel={`Prospect queue — ${orgName}`}
-        defaults={{
-          title: `${orgName} — Prospect`.slice(0, 120),
-          stage: createOppPresetStage ?? "Identified",
-          desired_outcomes: outreachData?.need_rationale ?? entry.raw_notes ?? "",
-          notes: outreachData ? outreachSummaryForConversion(outreachData) : entry.raw_notes ?? "",
-          organisation_id: entry.organisation_id,
-          primary_contact_id: entry.contact_id,
-          queue_id: entry.id,
-        }}
-        pipelineOnly
       />
 
       {editingContact && (
@@ -550,7 +508,7 @@ function ProspectDetailContent() {
               {tab.id === "tasks" && openWorkCount > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openWorkCount}</span>
               )}
-              {tab.id === "opportunities" && opportunities.length > 0 && (
+              {tab.id === "client_work" && opportunities.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">{opportunities.length}</span>
               )}
             </button>
@@ -736,9 +694,9 @@ function ProspectDetailContent() {
                   <p className="text-2xl font-bold text-[#111111]">{openWorkCount}</p>
                   <p className="text-xs font-semibold text-[#6f6b62]">Open tasks &amp; actions</p>
                 </button>
-                <button type="button" onClick={() => setActiveTab("opportunities")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                <button type="button" onClick={() => setActiveTab("client_work")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Client work</p>
                 </button>
                 <button type="button" onClick={() => setActiveTab("notes")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{notesCount}</p>
@@ -747,9 +705,6 @@ function ProspectDetailContent() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => openCreateOpportunity()} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100">
-                  <Target className="h-4 w-4" /> Create opportunity
-                </button>
                 <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
                   <Plus className="h-4 w-4" /> Add note
                 </button>
@@ -870,12 +825,9 @@ function ProspectDetailContent() {
             </div>
           )}
 
-          {activeTab === "opportunities" && (
+          {activeTab === "client_work" && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => openCreateOpportunity()} className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
-                  <Plus className="h-4 w-4" /> Create opportunity
-                </button>
                 <button type="button" onClick={() => void loadOppPicker()} disabled={oppPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
                   <Link2 className="h-4 w-4" /> Link existing
                 </button>
@@ -906,19 +858,18 @@ function ProspectDetailContent() {
                       opportunity={opp}
                       editable
                       onUpdated={handleOpportunityUpdated}
-                      returnTo={`/admin/engagement/prospect-queue/${id}?tab=opportunities`}
-                      returnLabel="Prospect opportunities"
                     />
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No opportunities linked yet.</p>
+                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No client work linked yet.</p>
               )}
             </div>
           )}
 
           {activeTab === "notes" && (
             <div className="space-y-4">
+              <AttachedKnowledgePanel queueId={id} />
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Notes &amp; admin log</p>
                 <button
@@ -950,28 +901,6 @@ function ProspectDetailContent() {
             </div>
           )}
 
-          {canUseProspectQueueAi && activeTab === "chat" && (
-            <div className="col-span-full">
-              <AIChatHistory
-                contextType="prospect"
-                contextId={entry.id}
-                contextLabel={orgName}
-                contextSummary={[
-                  `Organisation: ${entry.raw_org_name || "—"} | Contact: ${contactName || "—"}`,
-                  email ? `Email: ${email}` : null,
-                  entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
-                  `Status: ${entry.status}`,
-                  outreachData?.need_rationale ? `Admin/AI need: ${outreachData.need_rationale}` : null,
-                  entry.last_action ? `Last action: ${entry.last_action}` : null,
-                  entry.next_action ? `Next action: ${entry.next_action}` : null,
-                  entry.raw_notes ? `Notes: ${entry.raw_notes.slice(0, 300)}` : null,
-                ].filter(Boolean).join("\n")}
-                allowModelUpgrade={false}
-                onNotesSaved={refreshAfterChat}
-                onActivityRecorded={() => setChatActivityKey((k) => k + 1)}
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>

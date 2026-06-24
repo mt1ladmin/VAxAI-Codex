@@ -217,6 +217,30 @@ export function ConvertToClientModal({
         }),
       });
 
+      const parentKey = sourceType === "enquiry" ? "enquiry_id" : "queue_id";
+      const attachRes = await fetch(
+        `/api/admin/engagement/knowledge-attachments?${parentKey}=${sourceId}`,
+      );
+      const attachJson = (await attachRes.json()) as {
+        data?: {
+          sector_ids: string[];
+          persona_ids: string[];
+          pain_point_ids: string[];
+        } | null;
+      };
+      if (attachJson.data) {
+        await fetch("/api/admin/engagement/knowledge-attachments", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contact_id: contactId,
+            sector_ids: attachJson.data.sector_ids,
+            persona_ids: attachJson.data.persona_ids,
+            pain_point_ids: attachJson.data.pain_point_ids,
+          }),
+        });
+      }
+
       onConverted(contactId!);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Conversion failed — please try again.");

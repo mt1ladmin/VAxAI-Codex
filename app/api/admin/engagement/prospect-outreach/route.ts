@@ -192,6 +192,23 @@ export async function POST(req: NextRequest) {
       queue_id: row.id,
       outreach_id: row.outreach_id ?? undefined,
     });
+
+    if (row.outreach_id) {
+      const { data: outreachLinks } = await supabase
+        .from("engagement_knowledge_attachments")
+        .select("sector_ids, persona_ids, pain_point_ids")
+        .eq("outreach_id", row.outreach_id)
+        .maybeSingle();
+      if (outreachLinks) {
+        await supabase.from("engagement_knowledge_attachments").upsert({
+          queue_id: row.id,
+          sector_ids: outreachLinks.sector_ids,
+          persona_ids: outreachLinks.persona_ids,
+          pain_point_ids: outreachLinks.pain_point_ids,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    }
   }
 
   return NextResponse.json({ data, count: data?.length ?? 0 }, { status: 201 });

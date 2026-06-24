@@ -7,6 +7,7 @@ import {
   BookOpen,
   Briefcase,
   CalendarDays,
+  CheckSquare,
   ExternalLink,
   Handshake,
   Inbox,
@@ -17,7 +18,6 @@ import {
   Plus,
   Send,
   Settings,
-  Users,
 } from "lucide-react";
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
@@ -33,7 +33,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Prospect outreach", href: "/admin/engagement/prospect-outreach", icon: Send },
       { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
-      { label: "Opportunities tracker", href: "/admin/engagement/pipeline", icon: Users },
+      { label: "Tasks Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
       { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },

@@ -146,6 +146,8 @@ export type EngagementTask = {
   organisation_id: string | null;
   contact_id: string | null;
   opportunity_id: string | null;
+  enquiry_id: string | null;
+  queue_id: string | null;
   owner_email: string | null;
   due_date: string | null;
   priority: string;

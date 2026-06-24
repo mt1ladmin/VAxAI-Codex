@@ -13,7 +13,7 @@ import {
   Send,
   Zap,
 } from "lucide-react";
-import { STAGE_COLORS } from "@/lib/engagement/types";
+
 
 type Task = {
   id: string;
@@ -24,7 +24,7 @@ type Task = {
   organisation?: { name: string } | null;
   contact?: { first_name: string; last_name: string | null } | null;
 };
-type Opportunity = { id: string; title: string; stage: string; organisation?: { name: string } | null };
+
 type PainPoint = { id: string; title: string; category: string; slug: string | null };
 type PostItem = { id: string; title: string; status: string; scheduled_at?: string | null; content_type: string };
 
@@ -32,7 +32,7 @@ type Stats = {
   pendingQueue: number;
   newEnquiries: number;
   overdueTasks: number;
-  openOpps: number;
+  openTasks: number;
   recentInsightPosts: PostItem[];
   upcomingSocialPosts: PostItem[];
   upcomingBlogPosts: PostItem[];
@@ -71,13 +71,13 @@ function SectionCard({
 
 export default function EngagementOverview() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
+
   const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
   const [stats, setStats] = useState<Stats>({
     pendingQueue: 0,
     newEnquiries: 0,
     overdueTasks: 0,
-    openOpps: 0,
+    openTasks: 0,
     recentInsightPosts: [],
     upcomingSocialPosts: [],
     upcomingBlogPosts: [],
@@ -93,19 +93,17 @@ export default function EngagementOverview() {
 
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
-      fetch("/api/admin/engagement/opportunities?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
+
       fetch("/api/admin/engagement/prospect-queue?status=Needs+review&limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/enquiries?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/posts?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([taskRes, oppRes, queueRes, enqRes, postRes]) => {
+    ]).then(([taskRes, queueRes, enqRes, postRes]) => {
       const taskData = (taskRes.data || []) as Task[];
-      const oppData = (oppRes.data || []) as Opportunity[];
       const queueData = (queueRes.data || []) as { status: string }[];
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
 
       setTasks(taskData.slice(0, 5));
-      setOpportunities(oppData.slice(0, 8));
 
       const isSocial = (p: PostItem) => (p.content_type || "").toLowerCase().includes("social");
       const isScheduled = (p: PostItem) => !!p.scheduled_at && p.status !== "published";
@@ -114,7 +112,7 @@ export default function EngagementOverview() {
         pendingQueue: queueData.filter((q) => q.status === "Needs review").length,
         newEnquiries: enqData.filter((e) => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
-        openOpps: oppData.filter((o) => !["Closed", "Won", "Lost"].includes(o.stage)).length,
+        openTasks: taskData.filter((t) => t.status !== "done").length,
         recentInsightPosts: postData.filter((p) => p.status === "published" && !isSocial(p)).slice(0, 3),
         upcomingSocialPosts: postData
           .filter((p) => isSocial(p) && isScheduled(p))
@@ -128,11 +126,6 @@ export default function EngagementOverview() {
       });
     });
   }, []);
-
-  const stageGroups = opportunities.reduce<Record<string, Opportunity[]>>((acc, o) => {
-    (acc[o.stage] ??= []).push(o);
-    return acc;
-  }, {});
 
   const now = new Date().toISOString();
 
@@ -148,7 +141,7 @@ export default function EngagementOverview() {
         </div>
         {!stats.loading && (stats.overdueTasks > 0 || stats.pendingQueue > 0 || stats.newEnquiries > 0) && (
           <div className="mt-3 flex flex-wrap gap-2">
-            <AlertPill count={stats.overdueTasks} label="overdue task(s)" href="/admin/engagement/pipeline?tab=tasks" color="bg-red-100 text-red-700" />
+            <AlertPill count={stats.overdueTasks} label="overdue task(s)" href="/admin/engagement/pipeline" color="bg-red-100 text-red-700" />
             <AlertPill count={stats.pendingQueue} label="prospect(s) needing review" href="/admin/engagement/prospect-queue" color="bg-amber-100 text-amber-700" />
             <AlertPill count={stats.newEnquiries} label="new enquiry(ies)" href="/admin/enquiries" color="bg-blue-100 text-blue-700" />
           </div>
@@ -159,10 +152,10 @@ export default function EngagementOverview() {
         {!stats.loading && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: "Open opportunities", value: stats.openOpps, href: "/admin/engagement/pipeline?tab=opportunities", color: "text-[#063b32]" },
+              { label: "Open tasks", value: stats.openTasks, href: "/admin/engagement/pipeline", color: "text-[#063b32]" },
               { label: "Prospects in queue", value: stats.pendingQueue, href: "/admin/engagement/prospect-queue", color: "text-amber-600" },
               { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
-              { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline?tab=tasks", color: "text-red-600" },
+              { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
             ].map(({ label, value, href, color }) => (
               <Link key={href} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#063b32]/30 transition-colors">
                 <p className="text-xs font-semibold text-[#6f6b62]">{label}</p>
@@ -195,8 +188,8 @@ export default function EngagementOverview() {
           <SectionCard
             title="Follow-ups due"
             action={
-              <Link href="/admin/engagement/pipeline?tab=tasks" className="text-xs font-semibold text-[#063b32] hover:underline">
-                All tasks
+              <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">
+                Tasks Tracker
               </Link>
             }
           >
@@ -224,55 +217,28 @@ export default function EngagementOverview() {
             )}
             <div className="border-t border-[#111111]/5 px-5 py-3">
               <Link
-                href="/admin/engagement/pipeline?tab=tasks"
+                href="/admin/engagement/pipeline"
                 className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#063b32] hover:underline"
               >
-                <Plus className="h-3.5 w-3.5" /> Add task
+                <Plus className="h-3.5 w-3.5" /> Open Tasks Tracker
               </Link>
             </div>
           </SectionCard>
 
           <SectionCard
-            title="Open opportunities"
+            title="Tasks Tracker"
             action={
-              <Link href="/admin/engagement/pipeline?tab=opportunities" className="text-xs font-semibold text-[#063b32] hover:underline">
-                All opportunities
+              <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">
+                Open tracker
               </Link>
             }
           >
-            {Object.keys(stageGroups).length === 0 ? (
-              <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">
-                No open opportunities yet.{" "}
-                <Link href="/admin/engagement/pipeline/opportunities/new" className="text-[#063b32] underline">
-                  Add one
-                </Link>
-              </div>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {Object.entries(stageGroups).map(([stage, opps]) => (
-                  <div key={stage} className="px-5 py-3">
-                    <div className="mb-2 flex items-center gap-2">
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${STAGE_COLORS[stage] || "bg-gray-100 text-gray-600"}`}>
-                        {stage}
-                      </span>
-                      <span className="text-xs text-[#6f6b62]">{opps.length}</span>
-                    </div>
-                    <div className="space-y-1">
-                      {opps.map((o) => (
-                        <Link
-                          key={o.id}
-                          href={`/admin/engagement/pipeline/opportunities/${o.id}`}
-                          className="flex items-center justify-between text-sm text-[#111111] hover:text-[#063b32]"
-                        >
-                          <span className="truncate">{o.title}</span>
-                          {o.organisation && <span className="ml-2 shrink-0 text-xs text-[#6f6b62]">{o.organisation.name}</span>}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">
+              <p>Master task list across website enquiries and prospect queue.</p>
+              <Link href="/admin/engagement/pipeline" className="mt-2 inline-block text-[#063b32] font-semibold hover:underline">
+                View all tasks →
+              </Link>
+            </div>
           </SectionCard>
         </div>
 

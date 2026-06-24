@@ -172,13 +172,20 @@ export function matchesSourceFilter(
   return getOpportunitySource(opp) === filter;
 }
 
+export function getTaskSource(
+  task: Pick<EngagementTask, "enquiry_id" | "queue_id" | "opportunity">,
+): Exclude<SourceFilter, "all"> | null {
+  if (task.enquiry_id || task.opportunity?.enquiry_id) return "website_enquiry";
+  if (task.queue_id || task.opportunity?.queue_id) return "prospect_queue";
+  return null;
+}
+
 export function matchesTaskSourceFilter(
   task: EngagementTask,
   filter: SourceFilter,
 ): boolean {
   if (filter === "all") return true;
-  if (!task.opportunity_id || !task.opportunity) return false;
-  return matchesSourceFilter(task.opportunity, filter);
+  return getTaskSource(task) === filter;
 }
 
 export function opportunityPartyLabel(

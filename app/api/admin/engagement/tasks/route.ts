@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const contact = searchParams.get("contact_id") || "";
   const opp = searchParams.get("opportunity_id") || "";
   const due = searchParams.get("due_today") === "true";
-  const limit = parseInt(searchParams.get("limit") || "50");
+  const limit = parseInt(searchParams.get("limit") || "500");
 
   let query = supabase
     .from("engagement_tasks")

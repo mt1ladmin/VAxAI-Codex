@@ -56,7 +56,7 @@ export function isMemberPathAllowed(pathname: string): boolean {
   if (pathname === "/admin" || pathname === "/admin/") return true;
 
   if (MEMBER_PAGE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
-    if (pathname.startsWith("/admin/engagement/knowledge-review")) return false;
+
     return true;
   }
 

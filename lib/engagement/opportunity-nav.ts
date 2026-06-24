@@ -1,4 +1,4 @@
-export const DEFAULT_OPPORTUNITY_RETURN = "/admin/engagement/pipeline?tab=opportunities";
+export const DEFAULT_OPPORTUNITY_RETURN = "/admin/engagement/pipeline";
 
 /** Only allow internal admin paths as return targets. */
 export function safeReturnTo(raw: string | null | undefined): string {
@@ -7,16 +7,25 @@ export function safeReturnTo(raw: string | null | undefined): string {
   return raw;
 }
 
+type OpportunityRecordContext = {
+  enquiry_id?: string | null;
+  queue_id?: string | null;
+  primary_contact_id?: string | null;
+  contact_id?: string | null;
+};
+
+/**
+ * @deprecated Opportunity detail pages were removed. Resolves to the parent enquiry, queue, or client record.
+ */
 export function opportunityDetailPath(
-  id: string,
-  options?: { returnTo?: string; returnLabel?: string },
+  _id: string,
+  context?: OpportunityRecordContext,
 ): string {
-  const params = new URLSearchParams();
-  const returnTo = options?.returnTo;
-  if (returnTo) params.set("returnTo", returnTo);
-  if (options?.returnLabel) params.set("returnLabel", options.returnLabel);
-  const q = params.toString();
-  return `/admin/engagement/pipeline/opportunities/${id}${q ? `?${q}` : ""}`;
+  if (context?.enquiry_id) return `/admin/enquiries/${context.enquiry_id}?tab=client_work`;
+  if (context?.queue_id) return `/admin/engagement/prospect-queue/${context.queue_id}?tab=client_work`;
+  const contactId = context?.primary_contact_id ?? context?.contact_id;
+  if (contactId) return `/admin/clients/${contactId}?tab=client_work`;
+  return DEFAULT_OPPORTUNITY_RETURN;
 }
 
 export function opportunityReturnLabel(
@@ -25,11 +34,10 @@ export function opportunityReturnLabel(
 ): string {
   if (returnLabel) return returnLabel;
   const path = safeReturnTo(returnTo ?? null);
-  if (path.includes("/admin/clients/")) return "Client opportunities";
-  if (path.includes("/admin/enquiries/")) return "Enquiry opportunities";
-  if (path.includes("/admin/engagement/prospect-queue/")) return "Prospect opportunities";
-  if (path.includes("tab=opportunities") || path.includes("/pipeline/opportunities")) {
-    return "Opportunities";
-  }
+  if (path.includes("/admin/clients/")) return "Client work";
+  if (path.includes("/admin/enquiries/")) return "Enquiry client work";
+  if (path.includes("/admin/engagement/prospect-queue/")) return "Prospect client work";
+  if (path.includes("tab=client_work")) return "Client work";
+  if (path.includes("/admin/engagement/pipeline")) return "Tasks Tracker";
   return "Back";
 }

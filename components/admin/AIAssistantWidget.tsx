@@ -225,6 +225,8 @@ function ChatPanel({
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [saveTitle, setSaveTitle] = useState("");
   const [saveSummary, setSaveSummary] = useState("");
+  const [summariseModalOpen, setSummariseModalOpen] = useState(false);
+  const [summarising, setSummarising] = useState(false);
   const [resetting, setResetting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -398,6 +400,29 @@ function ChatPanel({
     const json = (await res.json()) as { error?: string };
     if (!res.ok) throw new Error(json.error ?? "Failed to save to notes");
     onNotesSaved?.();
+    onActivityRecorded?.();
+  };
+
+  const openSummariseModal = async () => {
+    if (messages.length === 0 || summarising) return;
+    setSummarising(true);
+    setError("");
+    try {
+      const res = await fetch("/api/admin/ai/chat/summarise", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ context_type: contextType, context_id: contextId }),
+      });
+      const json = (await res.json()) as { title?: string; summary?: string; error?: string };
+      if (!res.ok || !json.summary) throw new Error(json.error ?? "Could not summarise conversation");
+      setSaveTitle(json.title ?? "Conversation summary");
+      setSaveSummary(json.summary);
+      setSummariseModalOpen(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not summarise conversation");
+    } finally {
+      setSummarising(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -458,6 +483,19 @@ function ChatPanel({
             <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
             <span className="truncate text-xs font-medium text-[#111111]">{contextLabel}</span>
           </div>
+        )}
+
+        {messages.length > 0 && (
+          <button
+            type="button"
+            onClick={() => void openSummariseModal()}
+            disabled={summarising || sessionLoading}
+            title="Summarise full conversation"
+            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[#063b32] hover:bg-[#063b32]/5 disabled:opacity-40"
+          >
+            {summarising ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+            Summarise
+          </button>
         )}
 
         {showNewChatButton && (
@@ -606,6 +644,13 @@ function ChatPanel({
       <SaveSummaryModal
         open={saveModalOpen}
         onClose={() => setSaveModalOpen(false)}
+        defaultTitle={saveTitle}
+        defaultSummary={saveSummary}
+        onConfirm={confirmSaveToNotes}
+      />
+      <SaveSummaryModal
+        open={summariseModalOpen}
+        onClose={() => setSummariseModalOpen(false)}
         defaultTitle={saveTitle}
         defaultSummary={saveSummary}
         onConfirm={confirmSaveToNotes}

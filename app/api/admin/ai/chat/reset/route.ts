@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase";
+import { logActivity } from "@/lib/engagement/activity-log";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -45,13 +46,31 @@ export async function POST(req: NextRequest) {
 
     if (!latest || latest.message_count < messageCount) {
       const title = `VAxAI Assistant chat (${messageCount} message${messageCount === 1 ? "" : "s"})`;
+      const endedAt = new Date().toISOString();
       await supabase.from("ai_chat_activity_snapshots").insert({
         session_id: chatSession.id,
         context_type: contextType,
         context_id: contextId,
         title,
         message_count: messageCount,
-        ended_at: new Date().toISOString(),
+        ended_at: endedAt,
+      });
+
+      const activityIds =
+        contextType === "enquiry"
+          ? { enquiry_id: contextId }
+          : contextType === "prospect"
+            ? { queue_id: contextId }
+            : contextType === "client"
+              ? { contact_id: contextId }
+              : {};
+
+      await logActivity(supabase, {
+        event_type: "ai_summary",
+        title: "VAxAI Assistant conversation recorded",
+        detail: `${messageCount} message${messageCount === 1 ? "" : "s"} saved to activity timeline`,
+        metadata: { message_count: messageCount, session_id: chatSession.id },
+        ...activityIds,
       });
     }
   }

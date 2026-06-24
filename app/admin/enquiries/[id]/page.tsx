@@ -17,21 +17,19 @@ import {
   Phone,
   Plus,
   Save,
-  Target,
   User,
   X,
 } from "lucide-react";
-import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
+import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
-import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
-import { CRM_HUB_TAB_IDS, getCrmHubTabs, type CrmHubTab } from "@/lib/engagement/hub-tabs";
+import { CRM_HUB_TAB_IDS, CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import {
   ADVANCE_ACTION_LABEL,
   ADVANCE_STATUS_HINT,
@@ -39,7 +37,7 @@ import {
   canAdvanceToClientWork,
   journeyStageForEnquiryStatus,
 } from "@/lib/engagement/journey";
-import { useStudioAccess } from "@/lib/studio-access-context";
+
 import {
   clearLinkedNextAction,
   collectLinkedNextActions,
@@ -48,7 +46,7 @@ import {
 } from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
-import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
+
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type {
   EngagementContact,
@@ -106,15 +104,14 @@ function EnquiryDetailContent() {
   const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
-  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
+
   const [linkingOpp, setLinkingOpp] = useState(false);
   const [oppPickerOpen, setOppPickerOpen] = useState(false);
   const [oppPickerList, setOppPickerList] = useState<EngagementOpportunity[]>([]);
   const [oppPickerLoading, setOppPickerLoading] = useState(false);
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [chatActivityKey, setChatActivityKey] = useState(0);
-  const { canUseEnquiryAi } = useStudioAccess();
-  const hubTabs = getCrmHubTabs(canUseEnquiryAi);
+  const hubTabs = CRM_HUB_TABS;
 
   useSetAIContext(
     enquiry
@@ -195,8 +192,9 @@ function EnquiryDetailContent() {
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && CRM_HUB_TAB_IDS.has(tab)) {
-      setActiveTab(tab as CrmHubTab);
+    const normalizedTab = tab === "opportunities" ? "client_work" : tab;
+    if (normalizedTab && CRM_HUB_TAB_IDS.has(normalizedTab)) {
+      setActiveTab(normalizedTab as CrmHubTab);
     }
   }, [searchParams]);
 
@@ -215,11 +213,6 @@ function EnquiryDetailContent() {
   };
 
   const bumpTimeline = () => setChatActivityKey((k) => k + 1);
-
-  const refreshAfterChat = useCallback(() => {
-    void load();
-    bumpTimeline();
-  }, [load]);
 
   const updateStatus = async (status: string) => {
     if (!enquiry || status === enquiry.status) return;
@@ -295,15 +288,6 @@ function EnquiryDetailContent() {
     setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
 
-  const handleOpportunityCreated = (opp: EngagementOpportunity) => {
-    const next = [opp, ...opportunities.filter((o) => o.id !== opp.id)];
-    setOpportunities(next);
-    setActiveTab("opportunities");
-    if (enquiry) {
-      void loadTasks(enquiry.contact_id, enquiry.organisation_id, next);
-    }
-  };
-
   const loadOppPicker = async () => {
     setOppPickerLoading(true);
     try {
@@ -329,7 +313,7 @@ function EnquiryDetailContent() {
         const next = [j.data, ...opportunities.filter((o) => o.id !== j.data!.id)];
         setOpportunities(next);
         setOppPickerOpen(false);
-        setActiveTab("opportunities");
+        setActiveTab("client_work");
         if (enquiry) {
           void loadTasks(enquiry.contact_id, enquiry.organisation_id, next);
         }
@@ -386,23 +370,6 @@ function EnquiryDetailContent() {
         existingOrgId={enquiry.organisation_id}
       />
 
-      <CreateOpportunityModal
-        open={showCreateOppModal}
-        onClose={() => setShowCreateOppModal(false)}
-        onCreated={handleOpportunityCreated}
-        contextLabel={`Website enquiry — ${enquiry.name}`}
-        defaults={{
-          title: `${enquiry.name} — ${enquiry.support_type}`.slice(0, 120),
-          stage: "Identified",
-          desired_outcomes: enquiry.details,
-          notes: enquiry.details,
-          organisation_id: enquiry.organisation_id,
-          primary_contact_id: enquiry.contact_id,
-          enquiry_id: enquiry.id,
-        }}
-        pipelineOnly
-      />
-
       <div className="border-b border-[#111111]/10 bg-white px-8 py-3">
         <Link
           href="/admin/enquiries"
@@ -429,7 +396,7 @@ function EnquiryDetailContent() {
               {tab.id === "tasks" && openWorkCount > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openWorkCount}</span>
               )}
-              {tab.id === "opportunities" && opportunities.length > 0 && (
+              {tab.id === "client_work" && opportunities.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">{opportunities.length}</span>
               )}
             </button>
@@ -564,9 +531,9 @@ function EnquiryDetailContent() {
                   <p className="text-2xl font-bold text-[#111111]">{openWorkCount}</p>
                   <p className="text-xs font-semibold text-[#6f6b62]">Open tasks &amp; actions</p>
                 </button>
-                <button type="button" onClick={() => setActiveTab("opportunities")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
+                <button type="button" onClick={() => setActiveTab("client_work")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Client work</p>
                 </button>
                 <button type="button" onClick={() => setActiveTab("notes")} className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50">
                   <p className="text-2xl font-bold text-[#111111]">{notesCount}</p>
@@ -575,9 +542,6 @@ function EnquiryDetailContent() {
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => setShowCreateOppModal(true)} className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100">
-                  <Target className="h-4 w-4" /> Create opportunity
-                </button>
                 <button type="button" onClick={() => { setActiveTab("notes"); setShowAddNote(true); }} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
                   <Plus className="h-4 w-4" /> Add note
                 </button>
@@ -644,12 +608,9 @@ function EnquiryDetailContent() {
             </div>
           )}
 
-          {activeTab === "opportunities" && (
+          {activeTab === "client_work" && (
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => setShowCreateOppModal(true)} className="flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700">
-                  <Plus className="h-4 w-4" /> Create opportunity
-                </button>
                 <button type="button" onClick={() => void loadOppPicker()} disabled={oppPickerLoading} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50">
                   <Link2 className="h-4 w-4" /> Link existing
                 </button>
@@ -680,19 +641,18 @@ function EnquiryDetailContent() {
                       opportunity={opp}
                       editable
                       onUpdated={handleOpportunityUpdated}
-                      returnTo={`/admin/enquiries/${id}?tab=opportunities`}
-                      returnLabel="Enquiry opportunities"
                     />
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No opportunities linked yet.</p>
+                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No client work linked yet.</p>
               )}
             </div>
           )}
 
           {activeTab === "notes" && (
             <div className="space-y-4">
+              <AttachedKnowledgePanel enquiryId={id} />
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Notes &amp; admin log</p>
                 <button
@@ -724,19 +684,6 @@ function EnquiryDetailContent() {
             </div>
           )}
 
-          {canUseEnquiryAi && activeTab === "chat" && (
-            <div className="col-span-full">
-              <AIChatHistory
-                contextType="enquiry"
-                contextId={enquiry.id}
-                contextLabel={enquiry.name}
-                contextSummary={buildEnquiryContextSummary(enquiry, opportunities)}
-                allowModelUpgrade={false}
-                onNotesSaved={refreshAfterChat}
-                onActivityRecorded={() => bumpTimeline()}
-              />
-            </div>
-          )}
         </div>
       </div>
     </div>

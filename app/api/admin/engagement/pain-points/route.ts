@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("engagement_pain_points")
-    .insert(pp)
+    .insert({ ...pp, status: pp.status ?? "approved" })
     .select()
     .single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

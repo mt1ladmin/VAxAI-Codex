@@ -8,12 +8,11 @@ import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
-import { KnowledgeReviewContent } from "../knowledge-review/knowledge-review-content";
-import { useStudioAccess } from "@/lib/studio-access-context";
+import { KnowledgeCreateModal } from "@/components/admin/KnowledgeCreateModal";
 
-type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "knowledge_review";
+type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts";
 
-const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts", "knowledge_review"];
+const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts"];
 
 function CustomSelect({
   value,
@@ -73,8 +72,8 @@ function CustomSelect({
 
 function KnowledgePageInner() {
   const searchParams = useSearchParams();
-  const { isPlatformAdmin } = useStudioAccess();
   const [tab, setTab] = useState<Tab>("sectors");
+  const [createOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [dimension, setDimension] = useState("");
@@ -135,14 +134,9 @@ function KnowledgePageInner() {
     el?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [tab, highlightIds, loading, sectors.length]);
 
-  const visibleTabs = isPlatformAdmin
-    ? TAB_KEYS
-    : TAB_KEYS.filter((t) => t !== "knowledge_review");
-
   useEffect(() => {
     const urlTab = searchParams.get("tab");
-    if (urlTab && visibleTabs.includes(urlTab as Tab)) setTab(urlTab as Tab);
-    else if (urlTab === "knowledge_review" && !isPlatformAdmin) setTab("sectors");
+    if (urlTab && TAB_KEYS.includes(urlTab as Tab)) setTab(urlTab as Tab);
 
     const highlight = searchParams.get("highlight");
     if (highlight) {
@@ -150,7 +144,7 @@ function KnowledgePageInner() {
     } else {
       setHighlightIds(new Set());
     }
-  }, [searchParams, visibleTabs, isPlatformAdmin]);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -164,7 +158,6 @@ function KnowledgePageInner() {
               ["personas", "Personas"],
               ["pain_points", "Pain points"],
               ["vat_prompts", "VAT prompts"],
-              ...(isPlatformAdmin ? [["knowledge_review", "Knowledge Review"] as [Tab, string]] : []),
             ] as [Tab, string][]).map(([key, label]) => (
               <button
                 key={key}
@@ -182,14 +175,26 @@ function KnowledgePageInner() {
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : "Knowledge Review"}</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : tab === "vat_prompts" ? "View VAT prompts by dimension for relevant insights." : "Review and approve AI-generated draft pain points before they enter the knowledge library."}</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : "VAT Prompts"}</h1>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : "View VAT prompts by dimension for relevant insights."}</p>
+          </div>
+          {tab !== "vat_prompts" && (
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="shrink-0 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            >
+              + Create
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="px-8 py-6">
         {/* Search + filters */}
-        {tab !== "knowledge_review" && (
-          <div className="flex gap-3 mb-5">
+        <div className="flex gap-3 mb-5">
             {tab !== "vat_prompts" && (
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
@@ -232,7 +237,6 @@ function KnowledgePageInner() {
               </div>
             )}
           </div>
-        )}
 
         {loading ? (
           <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>
@@ -403,10 +407,16 @@ function KnowledgePageInner() {
                 </div>
               )
             )}
-            {tab === "knowledge_review" && <KnowledgeReviewContent />}
           </>
         )}
       </div>
+
+      <KnowledgeCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        defaultType={tab === "sectors" ? "sector" : tab === "pain_points" ? "pain_point" : "persona"}
+        onCreated={() => void load()}
+      />
     </div>
   );
 }

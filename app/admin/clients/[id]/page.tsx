@@ -17,14 +17,12 @@ import {
   Phone,
   Plus,
   Save,
-  Target,
   X,
 } from "lucide-react";
-import { AIChatHistory } from "@/components/admin/AIAssistantWidget";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
 import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
-import { CreateOpportunityModal } from "@/components/admin/CreateOpportunityModal";
+
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
@@ -39,8 +37,9 @@ import {
   patchLinkedNextAction,
 } from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
+import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { countNotes } from "@/lib/engagement/note-count";
-import { opportunityDetailPath } from "@/lib/engagement/opportunity-nav";
+
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type {
   EngagementContact,
@@ -107,7 +106,7 @@ function ClientDetailContent() {
   const [linkedEnquiry, setLinkedEnquiry] = useState<EnquiryArchive | null>(null);
   const [linkedQueue, setLinkedQueue] = useState<ProspectQueueEntry | null>(null);
   const [updatingStage, setUpdatingStage] = useState(false);
-  const [showCreateOppModal, setShowCreateOppModal] = useState(false);
+
   const [chatActivityKey, setChatActivityKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ClientTab>("overview");
@@ -191,19 +190,15 @@ function ClientDetailContent() {
     setLoading(false);
   }, [id, loadTasks]);
 
-  const refreshAfterChat = useCallback(() => {
-    void loadData();
-    setChatActivityKey((k) => k + 1);
-  }, [loadData]);
-
   useEffect(() => {
     void loadData();
   }, [loadData]);
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && VALID_TABS.has(tab)) {
-      setActiveTab(tab as ClientTab);
+    const normalizedTab = tab === "opportunities" ? "client_work" : tab;
+    if (normalizedTab && VALID_TABS.has(normalizedTab)) {
+      setActiveTab(normalizedTab as ClientTab);
     }
   }, [searchParams]);
 
@@ -281,19 +276,6 @@ function ClientDetailContent() {
     setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
 
-  const sourceOpp = opportunities.find((o) => o.enquiry_id || o.queue_id);
-
-  const openCreateOpportunity = () => {
-    if (!sourceOpp?.enquiry_id && !sourceOpp?.queue_id) {
-      const go = window.confirm(
-        "New opportunities must be linked to a website enquiry or prospect queue item.\n\nCreate one of those first, then add the opportunity from that page.\n\nOpen the new opportunity linker now?",
-      );
-      if (go) window.location.href = "/admin/engagement/pipeline/opportunities/new";
-      return;
-    }
-    setShowCreateOppModal(true);
-  };
-
   if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
   if (!contact) return <div className="p-8 text-sm text-[#6f6b62]">Client not found.</div>;
 
@@ -330,25 +312,6 @@ function ClientDetailContent() {
     linkedQueue?.last_action_date ||
     primaryOpp?.updated_at ||
     null;
-  const createOppDefaults = contact && sourceOpp ? {
-    title: `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""} — New opportunity`.slice(0, 120),
-    stage: "Identified",
-    primary_contact_id: id,
-    organisation_id: contact.organisation_id ?? null,
-    enquiry_id: sourceOpp.enquiry_id ?? null,
-    queue_id: sourceOpp.queue_id ?? null,
-  } : undefined;
-
-  const aiContextSummary = [
-    `Name: ${fullName} | Email: ${contact.professional_email ?? "—"}`,
-    contact.role ? `Role: ${contact.role}` : null,
-    contact.organisation ? `Organisation: ${(contact.organisation as { name: string }).name}` : null,
-    primaryOpp ? `Primary service: ${primaryOpp.title} | Stage: ${primaryOpp.stage}` : null,
-    primaryOpp?.desired_outcomes ? `Desired outcomes: ${(primaryOpp.desired_outcomes as string).slice(0, 200)}` : null,
-    openWorkCount ? `Open tasks & actions: ${openWorkCount}` : null,
-    contact.notes ? `Notes: ${(contact.notes as string).slice(0, 300)}` : null,
-  ].filter(Boolean).join("\n");
-
   return (
     <div className="min-h-screen bg-white">
       {/* Back link */}
@@ -381,7 +344,7 @@ function ClientDetailContent() {
                   {openWorkCount}
                 </span>
               )}
-              {tab.id === "opportunities" && opportunities.length > 0 && (
+              {tab.id === "client_work" && opportunities.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
                   {opportunities.length}
                 </span>
@@ -500,11 +463,11 @@ function ClientDetailContent() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("opportunities")}
+                  onClick={() => setActiveTab("client_work")}
                   className="rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
                 >
                   <p className="text-2xl font-bold text-[#111111]">{opportunities.length}</p>
-                  <p className="text-xs font-semibold text-[#6f6b62]">Opportunities</p>
+                  <p className="text-xs font-semibold text-[#6f6b62]">Client work</p>
                 </button>
                 <button
                   type="button"
@@ -524,14 +487,6 @@ function ClientDetailContent() {
                     setChatActivityKey((k) => k + 1);
                   }}
                 />
-                <button
-                  type="button"
-                  onClick={openCreateOpportunity}
-                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100"
-                >
-                  <Target className="h-4 w-4" />
-                  Create opportunity
-                </button>
                 <button
                   type="button"
                   onClick={() => { setActiveTab("notes"); setShowAddNote(true); }}
@@ -804,26 +759,17 @@ function ClientDetailContent() {
           )}
 
           {/* OPPORTUNITIES TAB */}
-          {activeTab === "opportunities" && (
+          {activeTab === "client_work" && (
             <>
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                  Service &amp; opportunity records
+                  Service &amp; client work records
                 </p>
-                <button
-                  type="button"
-                  onClick={openCreateOpportunity}
-                  className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100"
-                >
-                  <Target className="h-3.5 w-3.5" />
-                  Create opportunity
-                </button>
               </div>
 
               {opportunities.length === 0 ? (
                 <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
-                  <Target className="mx-auto mb-2 h-8 w-8 text-[#6f6b62]/30" />
-                  <p className="text-sm text-[#6f6b62]">No opportunities yet.</p>
+                  <p className="text-sm text-[#6f6b62]">No client work records yet.</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -834,8 +780,6 @@ function ClientDetailContent() {
                       editable
                       clientContext
                       onUpdated={handleOpportunityUpdated}
-                      returnTo={`/admin/clients/${id}?tab=opportunities`}
-                      returnLabel="Client opportunities"
                     />
                   ))}
                 </div>
@@ -846,6 +790,7 @@ function ClientDetailContent() {
           {/* NOTES TAB */}
           {activeTab === "notes" && (
             <>
+              <AttachedKnowledgePanel contactId={id} refreshKey={chatActivityKey} />
               <div className="flex items-center justify-between">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
                   Client notes
@@ -912,31 +857,8 @@ function ClientDetailContent() {
             </>
           )}
 
-          {activeTab === "chat" && (
-            <AIChatHistory
-              contextType="client"
-              contextId={contact.id}
-              contextLabel={fullName}
-              contextSummary={aiContextSummary}
-              allowModelUpgrade={true}
-              onNotesSaved={refreshAfterChat}
-              onActivityRecorded={() => setChatActivityKey((k) => k + 1)}
-            />
-          )}
         </div>
       </div>
-
-      <CreateOpportunityModal
-        open={showCreateOppModal}
-        onClose={() => setShowCreateOppModal(false)}
-        onCreated={() => {
-          setShowCreateOppModal(false);
-          void loadData();
-        }}
-        defaults={createOppDefaults}
-        contextLabel={fullName}
-        pipelineOnly
-      />
     </div>
   );
 }
