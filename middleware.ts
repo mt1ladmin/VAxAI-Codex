@@ -5,6 +5,7 @@ import {
   isMemberApiAllowed,
   isMemberPathAllowed,
   isPlatformAdmin,
+  resolveMemberDeniedRedirect,
   type StudioRole,
 } from "@/lib/studio-access";
 
@@ -63,6 +64,16 @@ export async function middleware(request: NextRequest) {
     if (!user) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
+    const role = await resolveStudioRole(supabase, user.id);
+    if (role) {
+      const dest = resolveMemberDeniedRedirect(
+        pathname,
+        role,
+        request.headers.get("referer"),
+        request.nextUrl.origin,
+      );
+      return NextResponse.redirect(new URL(dest, request.url));
+    }
     return response;
   }
 
@@ -98,7 +109,13 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!isPlatformAdmin(role) && !isMemberPathAllowed(pathname)) {
-      return NextResponse.redirect(new URL("/admin/forbidden", request.url));
+      const dest = resolveMemberDeniedRedirect(
+        pathname,
+        role,
+        request.headers.get("referer"),
+        request.nextUrl.origin,
+      );
+      return NextResponse.redirect(new URL(dest, request.url));
     }
   }
 

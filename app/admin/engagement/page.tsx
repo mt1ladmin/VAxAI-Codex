@@ -13,6 +13,10 @@ import {
   Send,
   Zap,
 } from "lucide-react";
+import {
+  PROSPECT_CATALOG_PAGE_LABEL,
+  PROSPECT_WORKFLOW_PAGE_LABEL,
+} from "@/lib/engagement/journey";
 
 
 type Task = {
@@ -174,7 +178,7 @@ export default function EngagementOverview() {
               ))
             : [
                 { label: "Open tasks", value: stats.openTasks, href: "/admin/engagement/pipeline", color: "text-[#063b32]" },
-                { label: "Prospects in queue", value: stats.pendingQueue, href: "/admin/engagement/prospect-queue", color: "text-amber-600" },
+                { label: PROSPECT_WORKFLOW_PAGE_LABEL, value: stats.pendingQueue, href: "/admin/engagement/prospect-queue", color: "text-amber-600" },
                 { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
                 { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
               ].map(({ label, value, href, color }) => (
@@ -187,7 +191,7 @@ export default function EngagementOverview() {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            { label: "Prospect outreach", desc: "1,000 targets (500 charities + 500 SMBs) · 23 Jun 2026", href: "/admin/engagement/prospect-outreach", icon: Send },
+            { label: PROSPECT_CATALOG_PAGE_LABEL, desc: "1,000 targets (500 charities + 500 SMBs) · 23 Jun 2026", href: "/admin/engagement/prospect-outreach", icon: Send },
             { label: "Prepare for a prospect", desc: "Sector, profile and guidance", href: "/admin/engagement/knowledge", icon: Users },
             { label: "Help with a pain point", desc: "Phrase-led conversation support", href: "/admin/engagement/pain-points", icon: Zap },
           ].map(({ label, desc, href, icon: Icon }) => (
@@ -364,7 +368,7 @@ export default function EngagementOverview() {
           {[
             { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
             { label: "Website Enquiries", href: "/admin/enquiries", icon: Users, desc: "Contact form submissions" },
-            { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox, desc: "Imported prospects awaiting review" },
+            { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox, desc: "Imported prospects awaiting review" },
           ].map((item) => (
             <Link
               key={item.href}

@@ -19,6 +19,10 @@ import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker"
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
+import {
+  PROSPECT_CATALOG_PAGE_LABEL,
+  PROSPECT_WORKFLOW_PAGE_LABEL,
+} from "@/lib/engagement/journey";
 import type { ProspectOutreachMeta, ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import {
   NEED_SCORE_COLORS,
@@ -221,7 +225,7 @@ export default function ProspectOutreachPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
-            <h1 className="mt-1 font-serif text-2xl text-[#111111]">Prospect outreach</h1>
+            <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_CATALOG_PAGE_LABEL}</h1>
             {meta && (
               <div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <p className="font-serif text-3xl tabular-nums text-[#063b32]">
@@ -260,7 +264,7 @@ export default function ProspectOutreachPage() {
               href="/admin/engagement/prospect-queue"
               className="inline-flex items-center gap-2 rounded-full border border-[#111111]/15 bg-white px-4 py-2 text-sm font-medium hover:bg-[#f7f4ea]"
             >
-              <Inbox className="h-4 w-4" /> Prospect Queue
+              <Inbox className="h-4 w-4" /> {PROSPECT_WORKFLOW_PAGE_LABEL}
             </Link>
           </div>
         </div>
@@ -410,7 +414,7 @@ export default function ProspectOutreachPage() {
 
               <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
                 <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-                  Reviewer notes (passed to prospect queue)
+                  Reviewer notes (passed to {PROSPECT_WORKFLOW_PAGE_LABEL.toLowerCase()})
                 </label>
                 <textarea
                   value={reviewNotes}
@@ -465,7 +469,7 @@ export default function ProspectOutreachPage() {
                       onClick={() => openQueueModal([draft.id])}
                       className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
                     >
-                      <Send className="h-4 w-4" /> Add to Prospect Queue
+                      <Send className="h-4 w-4" /> Add to {PROSPECT_WORKFLOW_PAGE_LABEL}
                     </button>
                     <Link
                       href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(draft.sector_tags.join(","))}`}

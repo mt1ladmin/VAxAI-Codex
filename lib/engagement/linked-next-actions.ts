@@ -49,7 +49,7 @@ export function collectLinkedNextActions(opts: {
       key: `queue:${opts.queue.id}`,
       source: "queue",
       sourceId: opts.queue.id,
-      sourceLabel: opts.queue.raw_org_name?.trim() || "Prospect queue",
+      sourceLabel: opts.queue.raw_org_name?.trim() || "Prospect outreach",
       title: opts.queue.next_action.trim(),
       dueDate: opts.queue.next_action_date?.split("T")[0] ?? null,
     });

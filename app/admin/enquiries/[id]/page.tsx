@@ -28,6 +28,7 @@ import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { useStudioAccess } from "@/lib/studio-access-context";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
 import {
   CRM_HUB_TAB_IDS_PRE_CLIENT,
@@ -112,6 +113,7 @@ function EnquiryDetailContent() {
   const [showConvertModal, setShowConvertModal] = useState(false);
   const [chatActivityKey, setChatActivityKey] = useState(0);
   const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
+  const { isPlatformAdmin } = useStudioAccess();
 
   useSetAIContext(
     enquiry
@@ -312,24 +314,26 @@ function EnquiryDetailContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <ConvertToClientModal
-        open={showConvertModal}
-        onClose={() => setShowConvertModal(false)}
-        onConverted={(contactId) => {
-          setShowConvertModal(false);
-          router.push(`/admin/clients/${contactId}`);
-        }}
-        sourceType="enquiry"
-        sourceId={enquiry.id}
-        sourceStatus={enquiry.status}
-        sourceLabel={enquiry.name}
-        contactName={enquiry.name}
-        contactEmail={enquiry.email}
-        contactPhone={enquiry.telephone}
-        supportType={enquiry.support_type}
-        existingContactId={enquiry.contact_id}
-        existingOrgId={enquiry.organisation_id}
-      />
+      {isPlatformAdmin && (
+        <ConvertToClientModal
+          open={showConvertModal}
+          onClose={() => setShowConvertModal(false)}
+          onConverted={(contactId) => {
+            setShowConvertModal(false);
+            router.push(`/admin/clients/${contactId}`);
+          }}
+          sourceType="enquiry"
+          sourceId={enquiry.id}
+          sourceStatus={enquiry.status}
+          sourceLabel={enquiry.name}
+          contactName={enquiry.name}
+          contactEmail={enquiry.email}
+          contactPhone={enquiry.telephone}
+          supportType={enquiry.support_type}
+          existingContactId={enquiry.contact_id}
+          existingOrgId={enquiry.organisation_id}
+        />
+      )}
 
       <RecordBackNav
         href="/admin/enquiries"
@@ -436,54 +440,56 @@ function EnquiryDetailContent() {
             )}
           </div>
 
-          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client record</p>
-            {linkedContact && (
-              <div className="space-y-2">
-                <p className="flex items-center gap-2 text-sm font-semibold text-[#111111]">
-                  <User className="h-4 w-4 text-[#063b32]" />
-                  {linkedContact.first_name} {linkedContact.last_name || ""}
-                </p>
-                {linkedContact.organisation && (
-                  <p className="flex items-center gap-2 text-xs text-[#6f6b62]">
-                    <Building2 className="h-3.5 w-3.5" /> {linkedContact.organisation.name}
+          {isPlatformAdmin && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client record</p>
+              {linkedContact && (
+                <div className="space-y-2">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-[#111111]">
+                    <User className="h-4 w-4 text-[#063b32]" />
+                    {linkedContact.first_name} {linkedContact.last_name || ""}
                   </p>
-                )}
-              </div>
-            )}
-            {clientOpportunity ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
-                  <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
-                  <span className="text-xs font-semibold text-[#063b32]">{clientOpportunity.stage}</span>
+                  {linkedContact.organisation && (
+                    <p className="flex items-center gap-2 text-xs text-[#6f6b62]">
+                      <Building2 className="h-3.5 w-3.5" /> {linkedContact.organisation.name}
+                    </p>
+                  )}
                 </div>
-                <Link
-                  href={`/admin/clients/${linkedContact?.id}`}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  View client record
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => canAdvanceToClientWork(enquiry.status) && setShowConvertModal(true)}
-                  disabled={!canAdvanceToClientWork(enquiry.status)}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#063b32]/5"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  {ADVANCE_ACTION_LABEL}
-                </button>
-                {!canAdvanceToClientWork(enquiry.status) && (
-                  <p className="text-xs text-[#6f6b62] leading-relaxed">
-                    Set status to <span className="font-semibold">{PRE_SALES_STATUS}</span> first. {ADVANCE_STATUS_HINT}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+              {clientOpportunity ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
+                    <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
+                    <span className="text-xs font-semibold text-[#063b32]">{clientOpportunity.stage}</span>
+                  </div>
+                  <Link
+                    href={`/admin/clients/${linkedContact?.id}`}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+                  >
+                    <Briefcase className="h-4 w-4" />
+                    View client record
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => canAdvanceToClientWork(enquiry.status) && setShowConvertModal(true)}
+                    disabled={!canAdvanceToClientWork(enquiry.status)}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#063b32]/5"
+                  >
+                    <Briefcase className="h-4 w-4" />
+                    {ADVANCE_ACTION_LABEL}
+                  </button>
+                  {!canAdvanceToClientWork(enquiry.status) && (
+                    <p className="text-xs text-[#6f6b62] leading-relaxed">
+                      Set status to <span className="font-semibold">{PRE_SALES_STATUS}</span> first. {ADVANCE_STATUS_HINT}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-2 space-y-4">

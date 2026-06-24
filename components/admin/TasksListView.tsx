@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TasksListSkeleton } from "@/components/admin/HubDetailSkeleton";
+import { PROSPECT_WORKFLOW_PAGE_LABEL } from "@/lib/engagement/journey";
+import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import { Check, CheckSquare, Inbox, LayoutGrid, List, MessageSquare, Plus, Target, X } from "lucide-react";
 import {
   DUE_DATE_FILTER_OPTIONS,
@@ -39,12 +41,12 @@ const inputClass =
 const selectClass =
   "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32]";
 
-function taskRecordHref(task: EngagementTask): string | null {
+function taskRecordHref(task: EngagementTask, allowClientLinks: boolean): string | null {
   const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
   const queueId = task.queue_id ?? task.opportunity?.queue_id;
   if (enquiryId) return `/admin/enquiries/${enquiryId}`;
   if (queueId) return `/admin/engagement/prospect-queue/${queueId}`;
-  if (task.contact_id) return `/admin/clients/${task.contact_id}`;
+  if (task.contact_id && allowClientLinks) return `/admin/clients/${task.contact_id}`;
   return null;
 }
 
@@ -61,7 +63,7 @@ function TaskSourceLabel({ task }: { task: EngagementTask }) {
   if (queueId) {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-700">
-        <Inbox className="h-3 w-3" /> Prospect queue
+        <Inbox className="h-3 w-3" /> {PROSPECT_WORKFLOW_PAGE_LABEL}
       </span>
     );
   }
@@ -78,11 +80,13 @@ function taskRecordLabel(task: EngagementTask): string {
 function TaskRow({
   task,
   onMarkDone,
+  allowClientLinks,
 }: {
   task: EngagementTask;
   onMarkDone: (id: string) => void;
+  allowClientLinks: boolean;
 }) {
-  const recordHref = taskRecordHref(task);
+  const recordHref = taskRecordHref(task, allowClientLinks);
 
   return (
     <div className="flex items-center gap-4 px-5 py-3.5">
@@ -144,12 +148,14 @@ function TaskBoardCard({
   task,
   onMarkDone,
   onDragStart,
+  allowClientLinks,
 }: {
   task: EngagementTask;
   onMarkDone: (id: string) => void;
   onDragStart: (taskId: string) => void;
+  allowClientLinks: boolean;
 }) {
-  const recordHref = taskRecordHref(task);
+  const recordHref = taskRecordHref(task, allowClientLinks);
 
   return (
     <div
@@ -216,6 +222,8 @@ export function TasksListView({
   const [saveError, setSaveError] = useState("");
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
+  const studioAccess = useStudioAccessOptional();
+  const allowClientLinks = studioAccess?.isPlatformAdmin ?? true;
 
   const load = useCallback(async () => {
     if (!hasLoadedRef.current) setInitialLoading(true);
@@ -329,7 +337,7 @@ export function TasksListView({
             <div>
               <h1 className="text-lg font-semibold text-[#111111]">Tasks Tracker</h1>
               <p className="text-sm text-[#6f6b62]">
-                Master task list across Prospect Queue and Website Enquiries
+                Master task list across {PROSPECT_WORKFLOW_PAGE_LABEL} and Website Enquiries
               </p>
             </div>
           </div>
@@ -475,7 +483,7 @@ export function TasksListView({
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{dateLabel}</p>
                 <div className="rounded-xl border border-[#111111]/10 overflow-hidden divide-y divide-[#111111]/5">
                   {items.map((t) => (
-                    <TaskRow key={t.id} task={t} onMarkDone={markDone} />
+                    <TaskRow key={t.id} task={t} onMarkDone={markDone} allowClientLinks={allowClientLinks} />
                   ))}
                 </div>
               </div>
@@ -501,7 +509,7 @@ export function TasksListView({
                   </div>
                   <div className="min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto p-2 space-y-2 scrollbar-subtle">
                     {items.map((t) => (
-                      <TaskBoardCard key={t.id} task={t} onMarkDone={markDone} onDragStart={setDraggingId} />
+                      <TaskBoardCard key={t.id} task={t} onMarkDone={markDone} onDragStart={setDraggingId} allowClientLinks={allowClientLinks} />
                     ))}
                     {items.length === 0 && (
                       <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-[#111111]/10 text-[11px] text-[#6f6b62]/50">

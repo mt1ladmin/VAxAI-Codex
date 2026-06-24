@@ -2,6 +2,7 @@
 
 import { Loader2, Send, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { PROSPECT_WORKFLOW_PAGE_LABEL } from "@/lib/engagement/journey";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 
 type ProspectPayload = ProspectOutreachRecord & { review_notes?: string | null };
@@ -65,7 +66,7 @@ export function AddToProspectQueueModal({ open, prospects, onClose, onAdded }: P
       <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-[#111111]/10 px-6 py-4">
           <div>
-            <h2 className="text-base font-semibold text-[#111111]">Add to Prospect Queue</h2>
+            <h2 className="text-base font-semibold text-[#111111]">Add to {PROSPECT_WORKFLOW_PAGE_LABEL}</h2>
             <p className="text-xs text-[#6f6b62]">
               Review and edit research before adding. {drafts.length} prospect{drafts.length === 1 ? "" : "s"} selected.
             </p>
@@ -98,14 +99,14 @@ export function AddToProspectQueueModal({ open, prospects, onClose, onAdded }: P
               <ProspectResearchPanel data={active} editable onChange={updateDraft} />
               <div className="mt-4 rounded-xl border border-[#111111]/10 p-4 space-y-2">
                 <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-                  Reviewer notes for prospect queue
+                  Reviewer notes for {PROSPECT_WORKFLOW_PAGE_LABEL.toLowerCase()}
                 </label>
                 <textarea
                   value={active.review_notes || ""}
                   onChange={(e) => updateReviewNotes(e.target.value)}
                   rows={3}
                   className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
-                  placeholder="Handoff notes — visible on the prospect queue as team notes"
+                  placeholder={`Handoff notes — visible on ${PROSPECT_WORKFLOW_PAGE_LABEL.toLowerCase()} as team notes`}
                 />
               </div>
             </>
@@ -129,7 +130,7 @@ export function AddToProspectQueueModal({ open, prospects, onClose, onAdded }: P
             className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            Add to Prospect Queue
+            Add to {PROSPECT_WORKFLOW_PAGE_LABEL}
           </button>
         </div>
       </div>

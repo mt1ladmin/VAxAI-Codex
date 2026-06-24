@@ -7,7 +7,7 @@ export default function StudioForbiddenPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
         <h1 className="mt-2 text-2xl font-semibold text-[#111111]">Access not available</h1>
         <p className="mt-3 text-sm leading-relaxed text-[#6f6b62]">
-          Your account is signed in but has not been granted access to this part of VAxAI Studio.
+          Your account is signed in but is not registered as a VAxAI Studio member.
           Contact a platform admin if you believe this is a mistake.
         </p>
         <div className="mt-6 flex flex-col gap-2">

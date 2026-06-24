@@ -1,3 +1,7 @@
+import {
+  PROSPECT_CATALOG_PAGE_LABEL,
+  PROSPECT_WORKFLOW_PAGE_LABEL,
+} from "@/lib/engagement/journey";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
 import type { ProspectQueueEntry, EngagementContact, EngagementOpportunity } from "@/lib/engagement/types";
@@ -48,7 +52,7 @@ export function buildOutreachContextSummary(
   reviewNotes?: string | null,
 ): string {
   return [
-    `JOURNEY STAGE: Prospect outreach (review before queue)`,
+    `JOURNEY STAGE: ${PROSPECT_CATALOG_PAGE_LABEL} (review before outreach workflow)`,
     `Organisation: ${record.organisation_name} (${record.organisation_type})`,
     `Location: ${record.location}, ${record.region}`,
     `Decision maker: ${record.decision_maker_name || "—"} — ${record.decision_maker_role || "—"}`,
@@ -60,7 +64,7 @@ export function buildOutreachContextSummary(
     record.sector_tags.length ? `Sector tags: ${record.sector_tags.join(", ")}` : null,
     record.pain_point_tags.length ? `Pain tags: ${record.pain_point_tags.join(", ")}` : null,
     reviewNotes ? `Reviewer notes: ${reviewNotes}` : null,
-    `YOUR FOCUS: Help verify fit, suggest what to check, draft review notes, and assess readiness for the prospect queue. Reference Knowledge Hub sectors/personas where relevant.`,
+    `YOUR FOCUS: Help verify fit, suggest what to check, draft review notes, and assess readiness for ${PROSPECT_WORKFLOW_PAGE_LABEL.toLowerCase()}. Reference Knowledge Hub sectors/personas where relevant.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -71,7 +75,7 @@ export function buildProspectContextSummary(entry: ProspectQueueEntry): string {
   const advanceReady = canAdvanceToClientWork(entry.status);
 
   return [
-    `JOURNEY STAGE: Prospect queue (active outreach & conversion)`,
+    `JOURNEY STAGE: ${PROSPECT_WORKFLOW_PAGE_LABEL} (active outreach & conversion)`,
     `Status: ${entry.status}${advanceReady ? " — pre-sales active, ready to advance to client work when agreed" : ""}`,
     `Organisation: ${entry.raw_org_name || "—"}`,
     `Contact: ${entry.raw_contact_name || "—"}`,

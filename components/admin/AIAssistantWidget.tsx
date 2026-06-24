@@ -79,7 +79,7 @@ const TYPE_LABEL: Record<string, string> = {
   outreach: "Outreach review",
   enquiry: "Enquiry",
   client: "Prospect/Client",
-  prospect: "Prospect queue",
+  prospect: "Prospect outreach",
 };
 
 const SUGGESTED: Record<string, string[]> = {

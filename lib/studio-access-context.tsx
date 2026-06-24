@@ -46,3 +46,7 @@ export function useStudioAccess(): StudioAccessValue {
   }
   return ctx;
 }
+
+export function useStudioAccessOptional(): StudioAccessValue | null {
+  return useContext(StudioAccessContext);
+}

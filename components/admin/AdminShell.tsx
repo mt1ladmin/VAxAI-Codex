@@ -21,6 +21,10 @@ import {
 } from "lucide-react";
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
+import {
+  PROSPECT_CATALOG_PAGE_LABEL,
+  PROSPECT_WORKFLOW_PAGE_LABEL,
+} from "@/lib/engagement/journey";
 import { isPlatformAdmin, type StudioRole } from "@/lib/studio-access";
 
 type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
@@ -30,8 +34,8 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: "Prospect outreach", href: "/admin/engagement/prospect-outreach", icon: Send },
-      { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
+      { label: PROSPECT_CATALOG_PAGE_LABEL, href: "/admin/engagement/prospect-outreach", icon: Send },
+      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Tasks Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
       { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
@@ -59,7 +63,7 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
-      { label: "Prospect Queue", href: "/admin/engagement/prospect-queue", icon: Inbox },
+      { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox },
     ],
   },
   {

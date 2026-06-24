@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PROSPECT_WORKFLOW_PAGE_LABEL } from "@/lib/engagement/journey";
 import type { MouseEvent } from "react";
 import { Inbox, MessageSquare } from "lucide-react";
 import type { EngagementOpportunity } from "@/lib/engagement/types";
@@ -53,7 +54,7 @@ export function OpportunitySourceBadge({
       }`}
     >
       <Inbox className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
-      Prospect queue
+      {PROSPECT_WORKFLOW_PAGE_LABEL}
     </Link>
   ) : null;
 

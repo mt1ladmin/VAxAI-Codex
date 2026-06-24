@@ -15,8 +15,6 @@ const MEMBER_PAGE_PREFIXES = [
   "/admin/engagement/prospect-queue",
 ] as const;
 
-const MEMBER_PAGE_EXACT = new Set(["/admin/forbidden"]);
-
 /** API routes a studio member may call */
 const MEMBER_API_PREFIXES = [
   "/api/admin/enquiries",
@@ -52,7 +50,6 @@ export function isPlatformAdmin(role: StudioRole | null | undefined): boolean {
 }
 
 export function isMemberPathAllowed(pathname: string): boolean {
-  if (MEMBER_PAGE_EXACT.has(pathname)) return true;
   if (pathname === "/admin" || pathname === "/admin/") return true;
 
   if (MEMBER_PAGE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
@@ -83,4 +80,28 @@ export function isMemberApiAllowed(pathname: string, method: string): boolean {
 
 export function defaultAdminHome(role: StudioRole): string {
   return isPlatformAdmin(role) ? "/admin/engagement" : "/admin/enquiries";
+}
+
+/** When a member hits a platform-admin-only page, send them back safely. */
+export function resolveMemberDeniedRedirect(
+  blockedPathname: string,
+  role: StudioRole,
+  referer: string | null,
+  origin: string,
+): string {
+  if (referer) {
+    try {
+      const ref = new URL(referer);
+      if (
+        ref.origin === origin &&
+        ref.pathname !== blockedPathname &&
+        isMemberPathAllowed(ref.pathname)
+      ) {
+        return `${ref.pathname}${ref.search}`;
+      }
+    } catch {
+      /* ignore malformed referer */
+    }
+  }
+  return defaultAdminHome(role);
 }
