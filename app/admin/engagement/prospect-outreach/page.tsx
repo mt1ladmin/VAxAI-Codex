@@ -210,30 +210,32 @@ export default function ProspectFinderPage() {
         </div>
 
         {meta ? (
-          <div className="mt-4 flex flex-wrap gap-6 text-sm">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total researched</p>
-              <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
+              <p className="text-xs font-semibold text-[#6f6b62]">Total researched</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
             </div>
             {hasActiveFilters ? (
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Matching filters</p>
-                <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#111111]">{(meta.filtered_count ?? 0).toLocaleString()}</p>
+              <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3">
+                <p className="text-xs font-semibold text-[#063b32]/80">Matching filters</p>
+                <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{(meta.filtered_count ?? 0).toLocaleString()}</p>
               </div>
             ) : null}
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Unassigned</p>
-              <p className="mt-0.5 text-xl font-semibold tabular-nums text-[#111111]">{(meta.unassigned_count ?? 0).toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">In Prospect Queue</p>
-              <Link
-                href="/admin/engagement/prospect-queue"
-                className="mt-0.5 block text-xl font-semibold tabular-nums text-[#063b32] hover:underline"
-              >
-                {(meta.in_queue_count ?? 0).toLocaleString()}
-              </Link>
-            </div>
+            <button
+              type="button"
+              onClick={() => updateParams({ unassigned: "true", my_prospects: null, engagement_status: null })}
+              className="rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-left transition-colors hover:border-amber-300 hover:bg-amber-50"
+            >
+              <p className="text-xs font-semibold text-amber-700">Unassigned</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{(meta.unassigned_count ?? 0).toLocaleString()}</p>
+            </button>
+            <Link
+              href="/admin/engagement/prospect-queue"
+              className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3 transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/8"
+            >
+              <p className="text-xs font-semibold text-[#063b32]/80">In {PROSPECT_QUEUE_LABEL}</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{(meta.in_queue_count ?? 0).toLocaleString()}</p>
+            </Link>
           </div>
         ) : null}
 

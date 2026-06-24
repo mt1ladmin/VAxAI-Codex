@@ -327,15 +327,11 @@ function ProspectFinderDetailContent() {
                 <ProspectTagList data={record} />
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <HubMetricCard
-                  value={openTasks.length}
-                  label="Open tasks"
-                  onClick={() => setActiveTab("tasks")}
-                />
+              <div className="grid gap-3 sm:max-w-xs">
                 <HubMetricCard
                   value={notesCount}
                   label="Notes"
+                  tone="notes"
                   onClick={() => setActiveTab("notes")}
                 />
               </div>
