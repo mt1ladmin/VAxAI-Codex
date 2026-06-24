@@ -1,18 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  AlertTriangle,
   Briefcase,
   Building2,
-  CheckSquare,
   ChevronRight,
   Mail,
   Phone,
-  PoundSterling,
   Search,
-  Users,
 } from "lucide-react";
 import { PROSPECT_QUEUE_STAGE_GROUPS } from "@/lib/engagement/prospect-queue-stages";
 import { PROSPECT_FINDER_PATH, PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
@@ -132,62 +129,49 @@ export default function ClientsPage() {
         <p className="mt-0.5 text-sm text-[#6f6b62]">
           Live engagements — update pipeline stage and next action on each record. Nothing is active here until promoted from Finder or Enquiries.
         </p>
-      </div>
 
-      {/* Metrics */}
-      <div className="border-b border-[#111111]/10 px-8 py-4">
-        <div className="flex flex-wrap gap-6">
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-[#063b32]/10">
-              <Users className="h-4 w-4 text-[#063b32]" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-[#111111]">{metrics.total}</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Active engagements</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-amber-50">
-              <CheckSquare className="h-4 w-4 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-[#111111]">{metrics.totalTasks}</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Open tasks</p>
-            </div>
-          </div>
-          {metrics.overdueTasks > 0 && (
-            <div className="flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-red-50">
-                <AlertTriangle className="h-4 w-4 text-red-500" />
-              </div>
-              <div>
-                <p className="text-xl font-bold text-red-600">{metrics.overdueTasks}</p>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Overdue tasks</p>
-              </div>
-            </div>
-          )}
-          {metrics.pipelineValueAll.display && (
-            <div className="flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-[#063b32]/10">
-                <PoundSterling className="h-4 w-4 text-[#063b32]" />
-              </div>
-              <div>
-                <p className="text-xl font-bold text-[#111111]">{metrics.pipelineValueAll.display}</p>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Pipeline value (all)</p>
-              </div>
-            </div>
-          )}
-          {metrics.pipelineValueActive.display && (
-            <div className="flex items-center gap-2.5">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-emerald-50">
-                <PoundSterling className="h-4 w-4 text-emerald-700" />
-              </div>
-              <div>
-                <p className="text-xl font-bold text-[#111111]">{metrics.pipelineValueActive.display}</p>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Pipeline value (active)</p>
-              </div>
-            </div>
-          )}
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {loading
+            ? [1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
+                  <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
+                  <div className="mt-3 h-8 w-12 rounded bg-[#f7f4ea]/80" />
+                </div>
+              ))
+            : (
+              <>
+                <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
+                  <p className="text-xs font-semibold text-[#6f6b62]">Active engagements</p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{metrics.total}</p>
+                </div>
+                <Link
+                  href="/admin/engagement/pipeline"
+                  className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3 transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/8"
+                >
+                  <p className="text-xs font-semibold text-[#063b32]/80">Open tasks</p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{metrics.totalTasks}</p>
+                </Link>
+                <Link
+                  href="/admin/engagement/pipeline"
+                  className="rounded-xl border border-red-200 bg-red-50/50 px-4 py-3 transition-colors hover:border-red-300 hover:bg-red-50"
+                >
+                  <p className="text-xs font-semibold text-red-700">Tasks overdue</p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums text-red-600">{metrics.overdueTasks}</p>
+                </Link>
+                {metrics.pipelineValueAll.display ? (
+                  <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
+                    <p className="text-xs font-semibold text-[#6f6b62]">Pipeline value (all)</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{metrics.pipelineValueAll.display}</p>
+                  </div>
+                ) : null}
+                {metrics.pipelineValueActive.display ? (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 px-4 py-3">
+                    <p className="text-xs font-semibold text-emerald-700">Pipeline value (active)</p>
+                    <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-800">{metrics.pipelineValueActive.display}</p>
+                  </div>
+                ) : null}
+              </>
+            )}
         </div>
       </div>
 
