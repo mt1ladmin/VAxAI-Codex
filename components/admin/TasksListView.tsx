@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TasksListSkeleton } from "@/components/admin/HubDetailSkeleton";
-import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
 import { useUserEmail } from "@/lib/user-email-context";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
-import { Check, CheckSquare, Inbox, LayoutGrid, List, MessageSquare, Plus, Target, X } from "lucide-react";
+import { Check, CheckSquare, Plus, X } from "lucide-react";
 import {
   DUE_DATE_FILTER_OPTIONS,
   SOURCE_FILTER_OPTIONS,
@@ -22,13 +21,6 @@ const PRIORITY_DOT: Record<string, string> = {
   high: "bg-red-500",
   medium: "bg-amber-500",
   low: "bg-gray-300",
-};
-
-const STATUS_BADGE: Record<string, string> = {
-  todo: "bg-gray-100 text-gray-600",
-  in_progress: "bg-blue-100 text-blue-700",
-  done: "bg-emerald-100 text-emerald-700",
-  cancelled: "bg-gray-100 text-gray-400 line-through",
 };
 
 const BOARD_COLUMNS = [
@@ -58,101 +50,11 @@ function taskRecordHref(task: EngagementTask, allowClientLinks: boolean): string
   return null;
 }
 
-function TaskSourceLabel({ task }: { task: EngagementTask }) {
-  const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
-  const outreachId = task.outreach_id ?? task.opportunity?.outreach_id;
-  if (enquiryId) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700">
-        <MessageSquare className="h-3 w-3" /> Website enquiry
-      </span>
-    );
-  }
-  if (outreachId) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32]">
-        <Inbox className="h-3 w-3" /> {PROSPECT_FINDER_LABEL}
-      </span>
-    );
-  }
-  return null;
-}
-
 function taskRecordLabel(task: EngagementTask): string {
   if (task.opportunity?.title) return task.opportunity.title;
   if (task.contact) return `${task.contact.first_name} ${task.contact.last_name ?? ""}`.trim();
   if (task.organisation?.name) return task.organisation.name;
   return "View record";
-}
-
-function TaskRow({
-  task,
-  onToggleStatus,
-  allowClientLinks,
-}: {
-  task: EngagementTask;
-  onToggleStatus: (id: string, currentStatus: string) => void;
-  allowClientLinks: boolean;
-}) {
-  const recordHref = taskRecordHref(task, allowClientLinks);
-
-  return (
-    <div className="flex items-center gap-4 px-5 py-3.5">
-      <button
-        type="button"
-        onClick={() => void onToggleStatus(task.id, task.status)}
-        title={task.status === "done" ? "Mark as not done" : "Mark done"}
-        className={`h-5 w-5 shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
-          task.status === "done"
-            ? "bg-emerald-500 border-emerald-500 hover:bg-emerald-600"
-            : "border-[#111111]/20 hover:border-[#063b32]"
-        }`}
-      >
-        {task.status === "done" && (
-          <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        )}
-      </button>
-      <div className={`h-2 w-2 rounded-full shrink-0 ${PRIORITY_DOT[task.priority] || "bg-gray-300"}`} />
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-semibold ${task.status === "done" ? "text-[#6f6b62] line-through" : "text-[#111111]"}`}>
-          {task.title}
-        </p>
-        <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-          {task.task_type && <span className="text-[10px] text-[#6f6b62]">{task.task_type.replace("_", " ")}</span>}
-          <TaskSourceLabel task={task} />
-          {recordHref ? (
-            <Link
-              href={recordHref}
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
-            >
-              <Target className="h-3 w-3" />
-              {taskRecordLabel(task)}
-            </Link>
-          ) : null}
-          {task.organisation && <span className="text-[10px] text-[#6f6b62]">· {task.organisation.name}</span>}
-          {task.assignee?.display_name && (
-            <span className="text-[10px] text-[#6f6b62]">· {task.assignee.display_name}</span>
-          )}
-          {task.contact && (
-            <span className="text-[10px] text-[#6f6b62]">
-              · {task.contact.first_name} {task.contact.last_name}
-            </span>
-          )}
-        </div>
-      </div>
-      {task.due_date && (
-        <span className="text-xs text-[#6f6b62] shrink-0 tabular-nums">
-          {new Date(task.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-        </span>
-      )}
-      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold shrink-0 ${STATUS_BADGE[task.status] || "bg-gray-100 text-gray-600"}`}>
-        {task.status.replace("_", " ")}
-      </span>
-    </div>
-  );
 }
 
 function TaskBoardCard({
@@ -220,8 +122,6 @@ export function TasksListView({
   embedded?: boolean;
   showPageHeader?: boolean;
 }) {
-  const [view, setView] = useState<"list" | "board">("list");
-  const [status, setStatus] = useState("todo");
   const [dueDateFilter, setDueDateFilter] = useState<DueDateFilter>("all");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
@@ -243,7 +143,6 @@ export function TasksListView({
   const load = useCallback(async () => {
     if (!hasLoadedRef.current) setInitialLoading(true);
     const params = new URLSearchParams();
-    if (view === "list" && status) params.set("status", status);
     params.set("limit", "500");
     if (assigneeFilter) params.set("assigned_team_member_id", assigneeFilter);
     if (myTasksOnly) {
@@ -255,7 +154,7 @@ export function TasksListView({
     setTasks(json.data || []);
     hasLoadedRef.current = true;
     setInitialLoading(false);
-  }, [status, view, assigneeFilter, myTasksOnly, userEmail]);
+  }, [assigneeFilter, myTasksOnly, userEmail]);
 
   useEffect(() => {
     void fetch("/api/admin/engagement/team-members")
@@ -271,16 +170,6 @@ export function TasksListView({
     () => tasks.filter((t) => matchesDueDateFilter(t, dueDateFilter) && matchesTaskSourceFilter(t, sourceFilter)),
     [tasks, dueDateFilter, sourceFilter],
   );
-
-  const grouped = useMemo(() => {
-    return filteredTasks.reduce<Record<string, EngagementTask[]>>((acc, t) => {
-      const key = t.due_date
-        ? new Date(t.due_date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })
-        : "No due date";
-      (acc[key] ??= []).push(t);
-      return acc;
-    }, {});
-  }, [filteredTasks]);
 
   const boardGroups = useMemo(() => {
     const groups: Record<string, EngagementTask[]> = { todo: [], in_progress: [], done: [] };
@@ -372,24 +261,6 @@ export function TasksListView({
       )}
       <div className={`${embedded ? "" : "border-b border-[#111111]/10"} px-8 ${embedded ? "pt-6" : "py-6"}`}>
         <div className="flex items-center justify-end gap-3">
-          <div className="flex rounded-lg border border-[#111111]/15 overflow-hidden bg-white">
-            {([
-              ["list", "List", List],
-              ["board", "Board", LayoutGrid],
-            ] as const).map(([v, label, Icon]) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setView(v)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  view === v ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {label}
-              </button>
-            ))}
-          </div>
           <button
             type="button"
             onClick={() => setAdding((v) => !v)}
@@ -478,27 +349,6 @@ export function TasksListView({
         )}
 
         <div className="mb-5 flex flex-wrap items-center gap-3">
-          {view === "list" && (
-          <div className="flex rounded-lg border border-[#111111]/15 overflow-hidden">
-            {[
-              { val: "todo", label: "To do" },
-              { val: "in_progress", label: "In progress" },
-              { val: "", label: "All" },
-              { val: "done", label: "Done" },
-            ].map(({ val, label }) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => setStatus(val)}
-                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${
-                  status === val ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:text-[#111111]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          )}
           <select value={dueDateFilter} onChange={(e) => setDueDateFilter(e.target.value as DueDateFilter)} className={selectClass}>
             {DUE_DATE_FILTER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -534,19 +384,6 @@ export function TasksListView({
           <div className="rounded-xl border border-[#111111]/10 py-16 text-center">
             <CheckSquare className="mx-auto h-8 w-8 text-[#6f6b62]/40 mb-3" />
             <p className="text-sm text-[#6f6b62]">{tasks.length === 0 ? "No tasks found." : "No tasks match your filters."}</p>
-          </div>
-        ) : view === "list" ? (
-          <div className="space-y-6">
-            {Object.entries(grouped).map(([dateLabel, items]) => (
-              <div key={dateLabel}>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{dateLabel}</p>
-                <div className="rounded-xl border border-[#111111]/10 overflow-hidden divide-y divide-[#111111]/5">
-                  {items.map((t) => (
-                    <TaskRow key={t.id} task={t} onToggleStatus={toggleTaskStatus} allowClientLinks={allowClientLinks} />
-                  ))}
-                </div>
-              </div>
-            ))}
           </div>
         ) : (
           <div className="flex gap-3 overflow-x-auto pb-2">
