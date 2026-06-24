@@ -35,6 +35,7 @@ import {
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
+import { emailComposeUrl } from "@/lib/engagement/email-links";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type { EngagementTask } from "@/lib/engagement/types";
 
@@ -46,10 +47,6 @@ const TAB_LABELS: Record<Tab, string> = {
   tasks: "Tasks & next actions",
   activity: "Activity",
 };
-
-function gmailComposeUrl(email: string) {
-  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
-}
 
 function ProspectFinderDetailContent() {
   const { id } = useParams<{ id: string }>();
@@ -237,7 +234,7 @@ function ProspectFinderDetailContent() {
               <p className="text-sm text-[#111111]">Need {record.need_score} · {record.priority_label}</p>
             </div>
             {record.email && (
-              <a href={gmailComposeUrl(record.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
+              <a href={emailComposeUrl(record.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
                 <Mail className="h-3.5 w-3.5" /> {record.email}
               </a>
             )}
@@ -286,7 +283,7 @@ function ProspectFinderDetailContent() {
               <Link href={prospectQueueDetailPath(record.pipeline_contact_id)} className="text-sm font-semibold text-[#063b32] hover:underline">
                 View in {PROSPECT_QUEUE_LABEL}
               </Link>
-            ) : (
+            ) : record.engagement_status === "Opportunity identified" ? (
               <button
                 type="button"
                 onClick={() => setShowMoveModal(true)}
@@ -294,6 +291,19 @@ function ProspectFinderDetailContent() {
               >
                 <Send className="h-4 w-4" /> {MOVE_TO_PROSPECT_QUEUE_LABEL}
               </button>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  disabled
+                  className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white opacity-50"
+                >
+                  <Send className="h-4 w-4" /> {MOVE_TO_PROSPECT_QUEUE_LABEL}
+                </button>
+                <p className="text-xs text-[#6f6b62]">
+                  Set engagement status to <span className="font-semibold text-[#111111]">Opportunity identified</span> first.
+                </p>
+              </div>
             )}
           </div>
         </div>

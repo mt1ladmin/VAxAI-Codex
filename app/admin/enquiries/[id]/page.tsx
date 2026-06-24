@@ -23,13 +23,13 @@ import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
-import { ConvertToClientModal } from "@/components/admin/ConvertToClientModal";
+import { MoveEnquiryToProspectQueueModal } from "@/components/admin/MoveEnquiryToProspectQueueModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
-import { useStudioAccess } from "@/lib/studio-access-context";
+import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
 import {
   CRM_HUB_TAB_IDS_PRE_CLIENT,
@@ -53,6 +53,7 @@ import {
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
 import { countNotes } from "@/lib/engagement/note-count";
 
+import { emailComposeUrl } from "@/lib/engagement/email-links";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type {
   EngagementContact,
@@ -84,10 +85,6 @@ type Enquiry = {
   posts?: { id: string; title: string; slug: string } | null;
 };
 
-function gmailComposeUrl(email: string) {
-  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
-}
-
 function EnquiryDetailContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -111,10 +108,10 @@ function EnquiryDetailContent() {
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
 
-  const [showConvertModal, setShowConvertModal] = useState(false);
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [chatActivityKey, setChatActivityKey] = useState(0);
   const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
-  const { isPlatformAdmin } = useStudioAccess();
 
   useSetAIContext(
     enquiry
@@ -192,6 +189,12 @@ function EnquiryDetailContent() {
   }, [id, loadCrmData, loadTasks, router]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    fetch("/api/admin/engagement/team-members")
+      .then((r) => r.json())
+      .then((j) => setTeamMembers(j.data || []));
+  }, []);
 
   useEffect(
     () =>
@@ -331,32 +334,20 @@ function EnquiryDetailContent() {
     await load();
     bumpTimeline();
   };
-  const clientOpportunity = opportunities.find((o) =>
-    ["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"].includes(o.stage)
-  ) ?? null;
+  const queueOpportunity = opportunities.find((o) => o.enquiry_id === enquiry.id) ?? null;
 
   return (
     <div className="min-h-screen bg-white">
-      {isPlatformAdmin && (
-        <ConvertToClientModal
-          open={showConvertModal}
-          onClose={() => setShowConvertModal(false)}
-          onConverted={(contactId) => {
-            setShowConvertModal(false);
-            router.push(`/admin/engagement/prospect-queue/${contactId}`);
-          }}
-          sourceType="enquiry"
-          sourceId={enquiry.id}
-          sourceStatus={enquiry.status}
-          sourceLabel={enquiry.name}
-          contactName={enquiry.name}
-          contactEmail={enquiry.email}
-          contactPhone={enquiry.telephone}
-          supportType={enquiry.support_type}
-          existingContactId={enquiry.contact_id}
-          existingOrgId={enquiry.organisation_id}
-        />
-      )}
+      <MoveEnquiryToProspectQueueModal
+        open={showMoveModal}
+        enquiry={enquiry}
+        teamMembers={teamMembers}
+        onClose={() => setShowMoveModal(false)}
+        onMoved={({ contact_id }) => {
+          setShowMoveModal(false);
+          router.push(`/admin/engagement/prospect-queue/${contact_id}`);
+        }}
+      />
 
       <RecordBackNav
         href="/admin/enquiries"
@@ -410,7 +401,7 @@ function EnquiryDetailContent() {
             </div>
             <div>
               <p className="text-[10px] text-[#6f6b62]">Email</p>
-              <a href={gmailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
+              <a href={emailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
                 <Mail className="h-3.5 w-3.5" /> {enquiry.email}
               </a>
             </div>
@@ -463,56 +454,54 @@ function EnquiryDetailContent() {
             )}
           </div>
 
-          {isPlatformAdmin && (
-            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client record</p>
-              {linkedContact && (
-                <div className="space-y-2">
-                  <p className="flex items-center gap-2 text-sm font-semibold text-[#111111]">
-                    <User className="h-4 w-4 text-[#063b32]" />
-                    {linkedContact.first_name} {linkedContact.last_name || ""}
+          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Prospect Queue</p>
+            {linkedContact && (
+              <div className="space-y-2">
+                <p className="flex items-center gap-2 text-sm font-semibold text-[#111111]">
+                  <User className="h-4 w-4 text-[#063b32]" />
+                  {linkedContact.first_name} {linkedContact.last_name || ""}
+                </p>
+                {linkedContact.organisation && (
+                  <p className="flex items-center gap-2 text-xs text-[#6f6b62]">
+                    <Building2 className="h-3.5 w-3.5" /> {linkedContact.organisation.name}
                   </p>
-                  {linkedContact.organisation && (
-                    <p className="flex items-center gap-2 text-xs text-[#6f6b62]">
-                      <Building2 className="h-3.5 w-3.5" /> {linkedContact.organisation.name}
-                    </p>
-                  )}
+                )}
+              </div>
+            )}
+            {queueOpportunity && linkedContact ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
+                  <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
+                  <span className="text-xs font-semibold text-[#063b32]">{queueOpportunity.stage}</span>
                 </div>
-              )}
-              {clientOpportunity ? (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
-                    <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
-                    <span className="text-xs font-semibold text-[#063b32]">{clientOpportunity.stage}</span>
-                  </div>
-                  <Link
-                    href={`/admin/engagement/prospect-queue/${linkedContact?.id}`}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
-                  >
-                    <Briefcase className="h-4 w-4" />
-                    View client record
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => canAdvanceToClientWork(enquiry.status) && setShowConvertModal(true)}
-                    disabled={!canAdvanceToClientWork(enquiry.status)}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#063b32]/5"
-                  >
-                    <Briefcase className="h-4 w-4" />
-                    {ADVANCE_ACTION_LABEL}
-                  </button>
-                  {!canAdvanceToClientWork(enquiry.status) && (
-                    <p className="text-xs text-[#6f6b62] leading-relaxed">
-                      Set status to <span className="font-semibold">{PRE_SALES_STATUS}</span> first. {ADVANCE_STATUS_HINT}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+                <Link
+                  href={`/admin/engagement/prospect-queue/${linkedContact.id}`}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  Open in Prospect Queue
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => canAdvanceToClientWork(enquiry.status) && setShowMoveModal(true)}
+                  disabled={!canAdvanceToClientWork(enquiry.status)}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#063b32]/5"
+                >
+                  <Briefcase className="h-4 w-4" />
+                  {ADVANCE_ACTION_LABEL}
+                </button>
+                {!canAdvanceToClientWork(enquiry.status) && (
+                  <p className="text-xs text-[#6f6b62] leading-relaxed">
+                    Set status to <span className="font-semibold">{PRE_SALES_STATUS}</span> first. {ADVANCE_STATUS_HINT}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="lg:col-span-2 space-y-4">

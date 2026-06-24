@@ -13,7 +13,8 @@ import {
   User,
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
-import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
+import { BulkArchiveProspectsModal } from "@/components/admin/BulkArchiveProspectsModal";
+import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL, prospectQueueDetailPath } from "@/lib/engagement/journey";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { ProspectOutreachMeta } from "@/lib/engagement/prospect-outreach/types";
@@ -81,6 +82,7 @@ export default function ProspectFinderPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
   const studioAccess = useStudioAccessOptional();
   const isPlatformAdmin = studioAccess?.isPlatformAdmin ?? true;
 
@@ -169,7 +171,6 @@ export default function ProspectFinderPage() {
 
   const bulkDelete = async () => {
     if (!selectedIds.size || !isPlatformAdmin) return;
-    if (!window.confirm(`Archive ${selectedIds.size} prospect(s) from Finder? This cannot be undone easily.`)) return;
     setDeleting(true);
     try {
       const res = await fetch("/api/admin/engagement/prospect-outreach", {
@@ -203,7 +204,7 @@ export default function ProspectFinderPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_FINDER_LABEL}</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
-              Researched organisations — scan fit, assign owners, and open records for full research and actions.
+              Research catalog — assign owners and qualify fit. Active engagement starts only after moving to {PROSPECT_QUEUE_LABEL}.
             </p>
           </div>
         </div>
@@ -230,6 +231,24 @@ export default function ProspectFinderPage() {
             </div>
           </div>
         ) : null}
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {[
+            { label: "My prospects", params: { my_prospects: "true", unassigned: null, engagement_status: null } },
+            { label: "Unassigned", params: { unassigned: "true", my_prospects: null, engagement_status: null } },
+            { label: "Ready to move", params: { engagement_status: "Opportunity identified", unassigned: null, my_prospects: null } },
+            { label: `In ${PROSPECT_QUEUE_LABEL}`, params: { engagement_status: "In prospect queue", unassigned: null, my_prospects: null } },
+          ].map((view) => (
+            <button
+              key={view.label}
+              type="button"
+              onClick={() => updateParams(view.params)}
+              className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+            >
+              {view.label}
+            </button>
+          ))}
+        </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">
@@ -298,15 +317,22 @@ export default function ProspectFinderPage() {
             <button
               type="button"
               disabled={deleting}
-              onClick={() => void bulkDelete()}
+              onClick={() => setShowArchiveModal(true)}
               className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
             >
-              {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-              Delete {selectedIds.size} selected
+              <Trash2 className="h-3.5 w-3.5" />
+              Archive {selectedIds.size} selected
             </button>
           )}
         </div>
       </div>
+
+      <BulkArchiveProspectsModal
+        open={showArchiveModal}
+        count={selectedIds.size}
+        onClose={() => setShowArchiveModal(false)}
+        onConfirm={bulkDelete}
+      />
 
       <div className="min-h-0 flex-1 overflow-auto">
         {loading ? (
@@ -348,6 +374,11 @@ export default function ProspectFinderPage() {
                       <Link href={href} className="font-medium text-[#111111] group-hover:text-[#063b32]">
                         {p.organisation_name}
                       </Link>
+                      {p.days_since_touch != null && p.days_since_touch >= 14 && !p.in_prospect_queue && (
+                        <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-800">
+                          {p.days_since_touch}d idle
+                        </span>
+                      )}
                     </td>
                     <td className="px-3 py-3.5 text-[#6f6b62]">{p.sector_label}</td>
                     <td className="px-3 py-3.5 text-[#6f6b62]">{p.location}</td>
@@ -368,8 +399,18 @@ export default function ProspectFinderPage() {
                     <td className={`px-3 py-3.5 text-xs ${statusTone(p.engagement_status)}`}>
                       {p.engagement_status}
                     </td>
-                    <td className="max-w-[220px] truncate px-6 py-3.5 text-xs text-[#6f6b62]">
-                      {p.next_action || p.in_prospect_queue ? "In Prospect Queue" : "—"}
+                    <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#6f6b62]">
+                      {p.in_prospect_queue && p.pipeline_contact_id ? (
+                        <Link
+                          href={prospectQueueDetailPath(p.pipeline_contact_id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="font-semibold text-[#063b32] hover:underline"
+                        >
+                          Open in {PROSPECT_QUEUE_LABEL}
+                        </Link>
+                      ) : (
+                        <span className="truncate block">{p.next_action || "—"}</span>
+                      )}
                     </td>
                   </tr>
                 );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CheckCircle } from "lucide-react";
+import { queueStageHint } from "@/lib/engagement/queue-stage-hints";
 import {
   ADVANCE_STATUS_HINT,
   JOURNEY_STAGES,
@@ -14,12 +15,19 @@ import {
 
 type Props = {
   currentStage: JourneyStageId;
+  /** Finder / enquiry workflow status (legacy inbound records). */
   status?: string;
+  /** Prospect Queue opportunity stage — drives queue-specific guidance. */
+  opportunityStage?: string | null;
   hint?: string;
 };
 
-export function JourneyStageBanner({ currentStage, status, hint }: Props) {
+export function JourneyStageBanner({ currentStage, status, opportunityStage, hint }: Props) {
   const currentIndex = JOURNEY_STAGES.findIndex((s) => s.id === currentStage);
+  const stageHint =
+    currentStage === "queue" && opportunityStage
+      ? queueStageHint(opportunityStage)
+      : null;
 
   return (
     <div className="rounded-xl border border-[#111111]/8 bg-white p-4 shadow-sm space-y-3">
@@ -50,22 +58,27 @@ export function JourneyStageBanner({ currentStage, status, hint }: Props) {
         })}
       </div>
       <p className="text-sm text-[#6f6b62]">
-        {JOURNEY_STAGES[currentIndex]?.description}
-        {hint ? ` ${hint}` : ""}
+        {stageHint ?? JOURNEY_STAGES[currentIndex]?.description}
+        {hint && !stageHint ? ` ${hint}` : ""}
       </p>
-      {currentStage === "queue" && status && canMoveToPreSales(status) && (
+      {currentStage === "queue" && opportunityStage && (
+        <p className="text-xs text-[#063b32] bg-[#063b32]/5 border border-[#063b32]/15 rounded-lg px-3 py-2">
+          <span className="font-semibold">{opportunityStage}:</span> {stageHint}
+        </p>
+      )}
+      {currentStage === "finder" && status && canMoveToPreSales(status) && (
         <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           {PRE_SALES_SIGNAL_HINT}
         </p>
       )}
-      {currentStage === "queue" && status && !canAdvanceToClientWork(status) && !canMoveToPreSales(status) && (
+      {currentStage === "finder" && status && !canAdvanceToClientWork(status) && !canMoveToPreSales(status) && (
         <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          Make contact and record progress. {ADVANCE_STATUS_HINT}
+          Qualify fit and assign an owner. {ADVANCE_STATUS_HINT}
         </p>
       )}
-      {currentStage === "queue" && status === PRE_SALES_STATUS && (
+      {currentStage === "finder" && status === PRE_SALES_STATUS && (
         <p className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-          Opportunity is active (status: {PRE_SALES_STATUS}). Track discovery and proposals through Prospect Queue until agreement to proceed.
+          Ready to promote — use Move to Prospect Queue when scope and owner are confirmed.
         </p>
       )}
       {currentStage === "finder" && (

@@ -18,7 +18,7 @@ export async function loadOverrideMaps(supabase: ServiceClient) {
   const { data } = await supabase
     .from("prospect_outreach_overrides")
     .select(
-      "outreach_id, overrides, review_notes, assigned_team_member_id, engagement_status, opportunity_description, next_action, next_action_date, opportunity_id, pipeline_contact_id",
+      "outreach_id, overrides, review_notes, assigned_team_member_id, engagement_status, opportunity_description, next_action, next_action_date, opportunity_id, pipeline_contact_id, updated_at",
     );
 
   const overrides = new Map<string, Record<string, unknown>>();

@@ -17,6 +17,15 @@ import {
   PROSPECT_FINDER_LABEL,
   PROSPECT_QUEUE_LABEL,
 } from "@/lib/engagement/journey";
+import { useUserEmail } from "@/lib/user-email-context";
+
+type WorkToday = {
+  overdueTasks: Array<{ id: string; title: string; due_date: string | null; href: string; contact_name: string | null }>;
+  dueSoonTasks: Array<{ id: string; title: string; due_date: string | null; href: string; contact_name: string | null }>;
+  queueRecords: Array<{ contact_id: string; name: string; organisation: string | null; stage: string; next_action: string | null; href: string }>;
+  finderProspects: Array<{ id: string; organisation_name: string; engagement_status: string; next_action: string | null; href: string }>;
+  newEnquiries: Array<{ id: string; name: string; status: string; href: string }>;
+};
 
 
 type Task = {
@@ -75,8 +84,12 @@ function SectionCard({
 }
 
 export default function EngagementOverview() {
+  const userEmail = useUserEmail();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [tasksLoading, setTasksLoading] = useState(true);
+  const [workToday, setWorkToday] = useState<WorkToday | null>(null);
+  const [workLoading, setWorkLoading] = useState(true);
+  const [showContent, setShowContent] = useState(false);
 
   const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
   const [stats, setStats] = useState<Stats>({
@@ -150,6 +163,16 @@ export default function EngagementOverview() {
     });
   }, []);
 
+  useEffect(() => {
+    setWorkLoading(true);
+    const params = new URLSearchParams();
+    if (userEmail) params.set("user_email", userEmail);
+    fetch(`/api/admin/engagement/work-today?${params}`)
+      .then((r) => r.json())
+      .then((j) => setWorkToday(j.data || null))
+      .finally(() => setWorkLoading(false));
+  }, [userEmail]);
+
   const now = new Date().toISOString();
   const todayStr = now.split("T")[0];
 
@@ -176,26 +199,98 @@ export default function EngagementOverview() {
       </div>
 
       <div className="px-8 py-6 space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {stats.loading
-            ? [1, 2, 3, 4].map((i) => (
+            ? [1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
                   <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
                   <div className="mt-3 h-8 w-12 rounded bg-[#f7f4ea]/80" />
                 </div>
               ))
             : [
+                { label: PROSPECT_QUEUE_LABEL, value: stats.activeProspectQueue, href: "/admin/engagement/prospect-queue", color: "text-[#063b32]" },
                 { label: "Open tasks", value: stats.openTasks, href: "/admin/engagement/pipeline", color: "text-[#063b32]" },
+                { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
                 { label: "Unassigned prospects", value: stats.pendingQueue, href: "/admin/engagement/prospect-outreach?unassigned=true", color: "text-amber-600" },
                 { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
-                { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
               ].map(({ label, value, href, color }) => (
-                <Link key={href} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#063b32]/30 transition-colors">
+                <Link key={label} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#063b32]/30 transition-colors">
                   <p className="text-xs font-semibold text-[#6f6b62]">{label}</p>
                   <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
                 </Link>
               ))}
         </div>
+
+        <SectionCard title="My work today">
+          {workLoading ? (
+            <p className="px-5 py-6 text-sm text-[#6f6b62]">Loading…</p>
+          ) : !workToday ? (
+            <p className="px-5 py-6 text-sm text-[#6f6b62]">No work items right now.</p>
+          ) : (
+            <div className="grid gap-4 px-5 py-4 lg:grid-cols-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-red-700 mb-2">Overdue tasks</p>
+                {workToday.overdueTasks.length === 0 ? (
+                  <p className="text-sm text-[#6f6b62]">None — good.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {workToday.overdueTasks.map((t) => (
+                      <Link key={t.id} href={t.href} className="block rounded-lg border border-red-100 bg-red-50/50 px-3 py-2 hover:border-red-200">
+                        <p className="text-sm font-semibold text-[#111111]">{t.title}</p>
+                        {t.contact_name && <p className="text-xs text-[#6f6b62]">{t.contact_name}</p>}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32] mb-2">{PROSPECT_QUEUE_LABEL}</p>
+                {workToday.queueRecords.length === 0 ? (
+                  <p className="text-sm text-[#6f6b62]">No assigned engagements.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {workToday.queueRecords.map((r) => (
+                      <Link key={r.contact_id} href={r.href} className="block rounded-lg border border-[#111111]/10 px-3 py-2 hover:bg-[#f7f4ea]/50">
+                        <p className="text-sm font-semibold text-[#111111]">{r.name}</p>
+                        <p className="text-xs text-[#6f6b62]">{r.stage}{r.next_action ? ` · ${r.next_action}` : ""}</p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-700 mb-2">{PROSPECT_FINDER_LABEL}</p>
+                {workToday.finderProspects.length === 0 ? (
+                  <p className="text-sm text-[#6f6b62]">No prospects awaiting action.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {workToday.finderProspects.map((p) => (
+                      <Link key={p.id} href={p.href} className="block rounded-lg border border-[#111111]/10 px-3 py-2 hover:bg-[#f7f4ea]/50">
+                        <p className="text-sm font-semibold text-[#111111]">{p.organisation_name}</p>
+                        <p className="text-xs text-[#6f6b62]">{p.engagement_status}</p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-blue-700 mb-2">New enquiries</p>
+                {workToday.newEnquiries.length === 0 ? (
+                  <p className="text-sm text-[#6f6b62]">Inbox clear.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {workToday.newEnquiries.map((e) => (
+                      <Link key={e.id} href={e.href} className="block rounded-lg border border-[#111111]/10 px-3 py-2 hover:bg-[#f7f4ea]/50">
+                        <p className="text-sm font-semibold text-[#111111]">{e.name}</p>
+                        <p className="text-xs text-[#6f6b62]">{e.status}</p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </SectionCard>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
@@ -245,7 +340,7 @@ export default function EngagementOverview() {
               {tasks.map((t) => {
                 const overdue = t.due_date && t.due_date < todayStr;
                 return (
-                  <div key={t.id} className="px-5 py-3">
+                  <Link key={t.id} href="/admin/engagement/pipeline" className="block px-5 py-3 hover:bg-[#f7f4ea]/40">
                     <p className="text-sm font-semibold text-[#111111] truncate">{t.title}</p>
                     {(t.organisation || t.contact) && (
                       <p className="mt-0.5 text-xs text-[#6f6b62] truncate">
@@ -261,7 +356,7 @@ export default function EngagementOverview() {
                         {new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                       </p>
                     )}
-                  </div>
+                  </Link>
                 );
               })}
             </div>
@@ -290,6 +385,18 @@ export default function EngagementOverview() {
           </div>
         </SectionCard>
 
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-[#111111]">Content & publishing</p>
+          <button
+            type="button"
+            onClick={() => setShowContent((v) => !v)}
+            className="text-xs font-semibold text-[#063b32] hover:underline"
+          >
+            {showContent ? "Hide" : "Show"}
+          </button>
+        </div>
+
+        {showContent && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <SectionCard
             title="Recent insights"
@@ -371,6 +478,7 @@ export default function EngagementOverview() {
             )}
           </SectionCard>
         </div>
+        )}
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[

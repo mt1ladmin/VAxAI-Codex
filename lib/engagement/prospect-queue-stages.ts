@@ -12,17 +12,24 @@ export function isProspectQueueStage(stage: string): boolean {
   return (PROSPECT_QUEUE_STAGES as readonly string[]).includes(stage);
 }
 
-/** Group labels for stage filters on the Prospect Queue list. */
+/** Compact stage filters grouped by journey phase. */
 export const PROSPECT_QUEUE_STAGE_GROUPS = [
-  { value: "", label: "All in queue" },
-  { value: "Identified", label: "Identified" },
-  { value: "Ready to contact", label: "Ready to contact" },
-  { value: "Contacted", label: "Contacted" },
-  { value: "Discovery booked", label: "Discovery booked" },
-  { value: "Proposal sent", label: "Proposal sent" },
-  { value: "Decision pending", label: "Decision pending" },
-  { value: "Won", label: "Won" },
-  { value: "Onboarding planned", label: "Onboarding planned" },
-  { value: "Onboarding in progress", label: "Onboarding" },
-  { value: "Active client", label: "Active clients" },
+  { value: "", label: "All engagements" },
+  { value: "__pre_sales__", label: "Pre-sales", stages: [
+    "Identified", "Researching", "Ready to contact", "Contacted", "Response received",
+    "Discovery booked", "Discovery completed", "Workflow review proposed", "Proposal sent", "Decision pending",
+  ] },
+  { value: "__closing__", label: "Closing", stages: ["Won", "Nurture", "Paused"] },
+  { value: "__delivery__", label: "Delivery", stages: [
+    "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client",
+  ] },
 ] as const;
+
+export type ProspectQueueStageFilter = (typeof PROSPECT_QUEUE_STAGE_GROUPS)[number]["value"];
+
+export function stagesForQueueFilter(filter: string): string[] | null {
+  if (!filter) return null;
+  const group = PROSPECT_QUEUE_STAGE_GROUPS.find((g) => g.value === filter);
+  if (!group || !("stages" in group)) return filter ? [filter] : null;
+  return [...group.stages];
+}

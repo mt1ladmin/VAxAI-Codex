@@ -1,8 +1,9 @@
 "use client";
 
-import { Loader2, Send, X } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle, Loader2, Send, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { MOVE_TO_PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
+import { MOVE_TO_PROSPECT_QUEUE_LABEL, prospectQueueDetailPath } from "@/lib/engagement/journey";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
@@ -26,12 +27,14 @@ export function MoveToProspectQueueModal({
   const [assignedId, setAssignedId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [movedResult, setMovedResult] = useState<{ contact_id: string; opportunity_id: string } | null>(null);
 
   useEffect(() => {
     if (open && prospect) {
       setOpportunityDescription(prospect.opportunity_description || "");
       setAssignedId(prospect.assigned_team_member_id || "");
       setError("");
+      setMovedResult(null);
     }
   }, [open, prospect]);
 
@@ -58,8 +61,10 @@ export function MoveToProspectQueueModal({
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to move to Prospect Queue");
-      onMoved({ opportunity_id: json.data.opportunity_id, contact_id: json.data.contact_id });
-      onClose();
+      setMovedResult({
+        contact_id: json.data.contact_id,
+        opportunity_id: json.data.opportunity_id,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to move to Prospect Queue");
     } finally {
@@ -81,40 +86,58 @@ export function MoveToProspectQueueModal({
         </div>
 
         <div className="flex-1 space-y-4 overflow-auto px-6 py-5">
-          {prospect.engagement_status !== "Opportunity identified" && (
+          {movedResult ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+                <CheckCircle className="h-5 w-5 shrink-0" />
+                Moved to Prospect Queue at <span className="font-semibold">Identified</span>.
+              </div>
+              <p className="text-sm font-semibold text-[#111111]">Suggested next steps</p>
+              <ul className="space-y-2 text-sm text-[#6f6b62]">
+                <li>• Set the first next action on the queue record</li>
+                <li>• Create an outreach or discovery task with a due date</li>
+                <li>• Attach sector / persona knowledge if not already linked</li>
+              </ul>
+            </div>
+          ) : null}
+          {!movedResult && prospect.engagement_status !== "Opportunity identified" && (
             <div className="rounded-xl border border-amber-200 bg-amber-50/80 px-4 py-3 text-sm text-amber-900">
               Set engagement status to <span className="font-semibold">Opportunity identified</span> before moving to Prospect Queue.
             </div>
           )}
 
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-              Identified opportunity <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={opportunityDescription}
-              onChange={(e) => setOpportunityDescription(e.target.value)}
-              rows={4}
-              placeholder="Describe the opportunity clearly — what the organisation needs and why we should pursue it."
-              className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
-            />
-          </div>
+          {!movedResult && (
+            <>
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                  Identified opportunity <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={opportunityDescription}
+                  onChange={(e) => setOpportunityDescription(e.target.value)}
+                  rows={4}
+                  placeholder="Describe the opportunity clearly — what the organisation needs and why we should pursue it."
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                />
+              </div>
 
-          <div>
-            <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-              Responsible team member <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={assignedId}
-              onChange={(e) => setAssignedId(e.target.value)}
-              className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-            >
-              <option value="">Select team member</option>
-              {options.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
+              <div>
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                  Responsible team member <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={assignedId}
+                  onChange={(e) => setAssignedId(e.target.value)}
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                >
+                  <option value="">Select team member</option>
+                  {options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
         </div>
@@ -125,17 +148,30 @@ export function MoveToProspectQueueModal({
             onClick={onClose}
             className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-medium text-[#6f6b62] hover:bg-[#f7f4ea]"
           >
-            Cancel
+            {movedResult ? "Close" : "Cancel"}
           </button>
-          <button
-            type="button"
-            disabled={submitting || !canSubmit}
-            onClick={() => void submit()}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-          >
-            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            {MOVE_TO_PROSPECT_QUEUE_LABEL}
-          </button>
+          {movedResult ? (
+            <Link
+              href={prospectQueueDetailPath(movedResult.contact_id, "tasks")}
+              onClick={() => {
+                onMoved(movedResult);
+                onClose();
+              }}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            >
+              Open queue record
+            </Link>
+          ) : (
+            <button
+              type="button"
+              disabled={submitting || !canSubmit}
+              onClick={() => void submit()}
+              className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+            >
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {MOVE_TO_PROSPECT_QUEUE_LABEL}
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -20,8 +20,6 @@ import {
 } from "lucide-react";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
-import { ClientStatusSelect } from "@/components/admin/ClientStatusSelect";
-
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
@@ -30,7 +28,9 @@ import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { buildClientContextSummary } from "@/lib/ai/context-builders";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
-import { PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
+import { emailComposeUrl } from "@/lib/engagement/email-links";
+import { queueStageLabel } from "@/lib/engagement/queue-stage-hints";
+import { PROSPECT_FINDER_PATH, PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import {
   clearLinkedNextAction,
@@ -62,7 +62,7 @@ type ClientTab = CrmHubTab | "submission";
 
 const CLIENT_TABS: Array<{ id: ClientTab; label: string }> = [
   { id: "overview", label: "Overview" },
-  { id: "submission", label: "Original submission" },
+  { id: "submission", label: "Source" },
   ...CRM_HUB_TABS.filter((t) => t.id !== "overview"),
 ];
 
@@ -110,8 +110,6 @@ function ClientDetailContent() {
   const [doneTasks, setDoneTasks] = useState<EngagementTask[]>([]);
   const [linkedEnquiry, setLinkedEnquiry] = useState<EnquiryArchive | null>(null);
   const [outreachRecord, setOutreachRecord] = useState<ProspectFinderListItem | null>(null);
-  const [updatingStage, setUpdatingStage] = useState(false);
-
   const [chatActivityKey, setChatActivityKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ClientTab>("overview");
@@ -281,20 +279,18 @@ function ClientDetailContent() {
     setSavingNote(false);
   };
 
-  const updatePrimaryStage = async (stage: string) => {
-    const clientOpp = opportunities.find((o) => isClientServiceStage(o.stage));
-    if (!clientOpp) return;
-    setUpdatingStage(true);
-    const res = await fetch(`/api/admin/engagement/opportunities/${clientOpp.id}`, {
+  const updateOpportunityNextAction = async (nextAction: string | null) => {
+    const opp = opportunities[0];
+    if (!opp) return;
+    const res = await fetch(`/api/admin/engagement/opportunities/${opp.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ stage }),
+      body: JSON.stringify({ next_action: nextAction }),
     });
     if (res.ok) {
       const j = await res.json() as { data: EngagementOpportunity };
-      setOpportunities((prev) => prev.map((o) => (o.id === j.data.id ? j.data : o)));
+      handleOpportunityUpdated(j.data);
     }
-    setUpdatingStage(false);
   };
 
   const handleOpportunityUpdated = (updated: EngagementOpportunity) => {
@@ -307,8 +303,8 @@ function ClientDetailContent() {
   const fullName = `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`;
   const initials = `${contact.first_name[0] ?? ""}${contact.last_name?.[0] ?? ""}`.toUpperCase();
 
-  const clientOpps = opportunities.filter((o) => isClientServiceStage(o.stage));
-  const primaryOpp = clientOpps[0] ?? null;
+  const primaryOpp = opportunities[0] ?? null;
+  const deliveryOpp = opportunities.find((o) => isClientServiceStage(o.stage)) ?? null;
   const notesCount = countNotes(contact.notes);
   const linkedNextActions = collectLinkedNextActions({
     enquiry: linkedEnquiry,
@@ -409,7 +405,9 @@ function ClientDetailContent() {
               <div>
                 <p className="text-[10px] text-[#6f6b62]">Email</p>
                 <a
-                  href={`mailto:${contact.professional_email}`}
+                  href={emailComposeUrl(contact.professional_email)}
+                  target="_blank"
+                  rel="noreferrer"
                   className="flex items-center gap-1 text-sm text-[#063b32] hover:underline"
                 >
                   <Mail className="h-3.5 w-3.5" /> {contact.professional_email}
@@ -444,18 +442,26 @@ function ClientDetailContent() {
             )}
           </div>
 
-          {/* Client status */}
           {primaryOpp && (
             <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
-                Client status
+                {queueStageLabel(primaryOpp.stage)}
               </p>
-              <ClientStatusSelect
-                value={primaryOpp.stage}
-                onChange={(stage) => void updatePrimaryStage(stage)}
-                disabled={updatingStage}
+              <OpportunityPreviewCard
+                opportunity={primaryOpp}
+                editable
+                clientContext={isClientServiceStage(primaryOpp.stage)}
+                defaultExpanded={false}
+                onUpdated={handleOpportunityUpdated}
+                openTaskCount={openTasks.length}
               />
-              <p className="text-sm font-semibold text-[#111111]">{primaryOpp.title}</p>
+            </div>
+          )}
+
+          {primaryOpp?.next_action != null && (
+            <div className="rounded-xl border border-[#111111]/10 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Next action</p>
+              <p className="text-sm text-[#111111]">{primaryOpp.next_action || "—"}</p>
             </div>
           )}
 
@@ -465,12 +471,21 @@ function ClientDetailContent() {
               onClick={() => setActiveTab("submission")}
               className="w-full rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Original submission</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Source</p>
               <p className="mt-1 text-sm font-semibold text-[#111111]">
-                {linkedEnquiry ? "Website enquiry" : "Prospect Finder record"}
+                {linkedEnquiry ? "Website enquiry" : "Prospect Finder"}
               </p>
-              <p className="text-xs text-[#063b32] mt-0.5">View full submission →</p>
+              <p className="text-xs text-[#063b32] mt-0.5">View source record →</p>
             </button>
+          )}
+
+          {outreachRecord?.id && (
+            <Link
+              href={`${PROSPECT_FINDER_PATH}/${outreachRecord.id}`}
+              className="block w-full rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors text-sm font-semibold text-[#063b32]"
+            >
+              Open in Prospect Finder →
+            </Link>
           )}
         </div>
 
@@ -481,26 +496,34 @@ function ClientDetailContent() {
             <>
               <JourneyStageBanner
                 currentStage="queue"
-                hint="Track engagement from first contact through delivery. Use tasks, notes, and the assistant for follow-through."
+                opportunityStage={primaryOpp?.stage}
               />
 
               {primaryOpp && (
-                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">Service record</p>
-                  <p className="text-base font-semibold text-[#111111]">{primaryOpp.title}</p>
-                  {primaryOpp.desired_outcomes && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Desired outcomes</p>
-                      <CollapsibleNote content={primaryOpp.desired_outcomes} />
-                    </div>
-                  )}
-                  {primaryOpp.recommended_pathway && (
-                    <div>
-                      <p className="text-[10px] text-[#6f6b62]">Agreed pathway</p>
-                      <CollapsibleNote content={primaryOpp.recommended_pathway} />
-                    </div>
-                  )}
+                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
+                  <input
+                    value={primaryOpp.next_action || ""}
+                    onChange={(e) =>
+                      setOpportunities((prev) =>
+                        prev.map((o, i) => (i === 0 ? { ...o, next_action: e.target.value } : o)),
+                      )
+                    }
+                    onBlur={() => void updateOpportunityNextAction(primaryOpp.next_action)}
+                    placeholder="Most important next step for this engagement"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
                 </div>
+              )}
+
+              {deliveryOpp && deliveryOpp.id !== primaryOpp?.id && (
+                <OpportunityPreviewCard
+                  opportunity={deliveryOpp}
+                  editable
+                  clientContext
+                  defaultExpanded
+                  onUpdated={handleOpportunityUpdated}
+                />
               )}
 
               <div className="grid gap-3 sm:grid-cols-2">

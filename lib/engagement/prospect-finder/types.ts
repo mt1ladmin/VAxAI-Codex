@@ -12,6 +12,8 @@ export type ProspectFinderWorkflow = {
   pipeline_contact_id: string | null;
   review_notes: string | null;
   in_prospect_queue: boolean;
+  /** Days since last override update — for staleness signals on the list. */
+  days_since_touch: number | null;
 };
 
 export type ProspectFinderListItem = ProspectOutreachRecord &

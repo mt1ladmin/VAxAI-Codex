@@ -20,6 +20,7 @@ const MEMBER_PAGE_PREFIXES = [
 /** API routes a studio member may call */
 const MEMBER_API_PREFIXES = [
   "/api/admin/enquiries",
+  "/api/admin/engagement/work-today",
   "/api/admin/posts",
   "/api/admin/authors",
   "/api/admin/social-posts",

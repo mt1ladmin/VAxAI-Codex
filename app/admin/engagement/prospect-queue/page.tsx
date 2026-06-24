@@ -15,7 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { PROSPECT_QUEUE_STAGE_GROUPS } from "@/lib/engagement/prospect-queue-stages";
-import { PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_PATH, PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
 import { STAGE_COLORS } from "@/lib/engagement/types";
 
 type ClientOpportunity = {
@@ -38,6 +38,9 @@ type Client = {
   client_opportunities: ClientOpportunity[];
   primary_stage: string;
   primary_service: string | null;
+  primary_next_action: string | null;
+  assigned_team_member: { id: string; display_name: string } | null;
+  has_overdue_tasks: boolean;
 };
 
 type ValueMetric = { low: number; high: number; display: string | null };
@@ -127,7 +130,7 @@ export default function ClientsPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Prospect Queue</h1>
         <p className="mt-0.5 text-sm text-[#6f6b62]">
-          Active engagement from first contact through delivery — track stage, ownership, tasks, and next actions.
+          Live engagements — update pipeline stage and next action on each record. Nothing is active here until promoted from Finder or Enquiries.
         </p>
       </div>
 
@@ -140,7 +143,7 @@ export default function ClientsPage() {
             </div>
             <div>
               <p className="text-xl font-bold text-[#111111]">{metrics.total}</p>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Active opportunities</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Active engagements</p>
             </div>
           </div>
           <div className="flex items-center gap-2.5">
@@ -200,16 +203,16 @@ export default function ClientsPage() {
               className="w-full rounded-xl border border-[#111111]/15 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
             />
           </div>
-          <div className="flex overflow-hidden rounded-xl border border-[#111111]/15">
+          <div className="flex flex-wrap gap-2">
             {STAGE_FILTERS.map((f) => (
               <button
                 key={f.value}
                 type="button"
                 onClick={() => setStageFilter(f.value)}
-                className={`px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                   stageFilter === f.value
                     ? "bg-[#063b32] text-white"
-                    : "bg-white text-[#6f6b62] hover:bg-[#f7f4ea]"
+                    : "border border-[#111111]/15 bg-white text-[#6f6b62] hover:bg-[#f7f4ea]"
                 }`}
               >
                 {f.label}
@@ -231,10 +234,16 @@ export default function ClientsPage() {
         ) : filtered.length === 0 ? (
           <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea] py-16 text-center">
             <Briefcase className="mx-auto mb-3 h-10 w-10 text-[#6f6b62]/30" />
-            <p className="text-sm font-semibold text-[#111111]">No opportunities in the queue</p>
+            <p className="text-sm font-semibold text-[#111111]">No engagements in the queue</p>
             <p className="mt-1 text-xs text-[#6f6b62]">
-              Move qualified prospects from Prospect Finder when an opportunity is identified.
+              Promote qualified prospects from Prospect Finder or website enquiries.
             </p>
+            <a
+              href={`${PROSPECT_FINDER_PATH}?unassigned=true`}
+              className="mt-4 inline-flex rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            >
+              Open Prospect Finder
+            </a>
           </div>
         ) : (
           <div className="space-y-2">
@@ -328,10 +337,23 @@ export default function ClientsPage() {
                         )}
                       </div>
 
-                      <div className="flex shrink-0 flex-col items-end gap-2">
+                      <div className="flex shrink-0 flex-col items-end gap-2 max-w-[200px]">
                         <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${stageColor}`}>
                           {c.primary_stage}
                         </span>
+                        {c.assigned_team_member && (
+                          <span className="text-[10px] text-[#6f6b62]">{c.assigned_team_member.display_name}</span>
+                        )}
+                        {c.primary_next_action && (
+                          <span className="text-[10px] text-[#111111] truncate max-w-full" title={c.primary_next_action}>
+                            → {c.primary_next_action}
+                          </span>
+                        )}
+                        {c.has_overdue_tasks && (
+                          <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-700">
+                            Overdue tasks
+                          </span>
+                        )}
                         <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
                       </div>
                     </div>

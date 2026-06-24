@@ -1,6 +1,10 @@
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
-import { isProspectQueueStage, PROSPECT_QUEUE_STAGES } from "@/lib/engagement/prospect-queue-stages";
+import {
+  isProspectQueueStage,
+  PROSPECT_QUEUE_STAGES,
+  stagesForQueueFilter,
+} from "@/lib/engagement/prospect-queue-stages";
 
 const QUEUE_STAGES = [...PROSPECT_QUEUE_STAGES];
 
@@ -9,7 +13,10 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const stage = searchParams.get("stage") || "";
 
-  const stages = stage && isProspectQueueStage(stage) ? [stage] : QUEUE_STAGES;
+  const grouped = stagesForQueueFilter(stage);
+  const stages =
+    grouped ??
+    (stage && isProspectQueueStage(stage) ? [stage] : QUEUE_STAGES);
 
   const { data: opps, error: oppError } = await supabase
     .from("engagement_opportunities")
@@ -70,9 +77,10 @@ export async function GET(req: NextRequest) {
 
   let totalTasks = 0;
   let overdueTasks = 0;
+  const overdueByContact = new Set<string>();
 
   if (filteredContactIds.length > 0) {
-    const [tasksRes, overdueRes] = await Promise.all([
+    const [tasksRes, overdueRes, overdueRows] = await Promise.all([
       supabase
         .from("engagement_tasks")
         .select("id", { count: "exact", head: true })
@@ -85,10 +93,25 @@ export async function GET(req: NextRequest) {
         .neq("status", "done")
         .not("due_date", "is", null)
         .lte("due_date", today),
+      supabase
+        .from("engagement_tasks")
+        .select("contact_id")
+        .in("contact_id", filteredContactIds)
+        .neq("status", "done")
+        .not("due_date", "is", null)
+        .lte("due_date", today),
     ]);
     totalTasks = tasksRes.count ?? 0;
     overdueTasks = overdueRes.count ?? 0;
+    for (const row of overdueRows.data ?? []) {
+      if (row.contact_id) overdueByContact.add(row.contact_id as string);
+    }
   }
+
+  const enrichedWithOverdue = enriched.map((c) => ({
+    ...c,
+    has_overdue_tasks: overdueByContact.has(c.id),
+  }));
 
   const fmtValue = (low: number, high: number): string | null => {
     if (low === 0 && high === 0) return null;
@@ -115,15 +138,15 @@ export async function GET(req: NextRequest) {
     "Onboarding planned",
     "Won",
   ]);
-  const primaryOpps = enriched
+  const primaryOpps = enrichedWithOverdue
     .map((c) => oppMap[c.id]?.[0])
     .filter((o): o is (typeof opps)[number] => Boolean(o));
   const activePrimaryOpps = primaryOpps.filter((o) => activeStages.has(o.stage));
 
   return NextResponse.json({
-    data: enriched,
+    data: enrichedWithOverdue,
     metrics: {
-      total: enriched.length,
+      total: enrichedWithOverdue.length,
       totalTasks,
       overdueTasks,
       pipelineValueAll: sumRange(opps),

@@ -29,17 +29,22 @@ import {
 } from "@/lib/engagement/journey";
 import { isPlatformAdmin, type StudioRole } from "@/lib/studio-access";
 
-type NavItem = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
+type NavItem = {
+  label: string;
+  subtitle?: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
 
 const navSections: Array<{ section: string; items: NavItem[] }> = [
   {
     section: "CLIENT ENGAGEMENT",
     items: [
-      { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox },
-      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
-      { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
+      { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
+      { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
+      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
+      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
+      { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
   },
   {
@@ -63,11 +68,11 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
   {
     section: "CLIENT ENGAGEMENT",
     items: [
-      { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox },
-      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
-      { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
+      { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
+      { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
+      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
+      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
+      { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
   },
   {
@@ -194,7 +199,14 @@ export default function AdminShell({
                     } ${!open ? "justify-center" : ""}`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
-                    {open && item.label}
+                    {open && (
+                      <span className="min-w-0">
+                        <span className="block">{item.label}</span>
+                        {item.subtitle && (
+                          <span className="block text-[10px] font-normal text-white/40">{item.subtitle}</span>
+                        )}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
