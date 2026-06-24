@@ -61,7 +61,12 @@ import {
   ProspectResearchEvidenceCard,
   ProspectTagList,
 } from "@/components/admin/ProspectResearchPanel";
-import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
+import {
+  hasRecommendedEngagementContent,
+  hasResearchAssessmentContent,
+  hasVaxaiSupportContent,
+  ServiceFitPanel,
+} from "@/components/admin/ServiceFitPanel";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 
 type ClientTab = CrmHubTab | "submission";
@@ -414,10 +419,16 @@ function ClientDetailContent() {
                   {openWorkCount}
                 </span>
               )}
-              {tab.id === "research" && outreachRecord && (
+              {tab.id === "research" && outreachRecord && hasResearchAssessmentContent(outreachRecord) && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
               )}
-              {tab.id === "engagement_guide" && (outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway) && (
+              {tab.id === "vaxai_support" && outreachRecord && hasVaxaiSupportContent(outreachRecord) && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
+              )}
+              {tab.id === "engagement_guide" &&
+                (outreachRecord?.engagement_approach ||
+                  (outreachRecord && hasRecommendedEngagementContent(outreachRecord)) ||
+                  primaryOpp?.recommended_pathway) && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
               )}
               {tab.id === "submission" && (linkedEnquiry || outreachRecord) && (
@@ -734,15 +745,38 @@ function ClientDetailContent() {
             )
           )}
 
+          {/* VAXAI SUPPORT TAB */}
+          {activeTab === "vaxai_support" && (
+            outreachRecord ? (
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">VAxAI support and boundaries</p>
+                <ServiceFitPanel data={outreachRecord} mode="support" />
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
+                <p className="text-sm text-[#6f6b62]">No Prospect Finder research linked to this record yet.</p>
+              </div>
+            )
+          )}
+
           {/* ENGAGEMENT GUIDE TAB */}
           {activeTab === "engagement_guide" && (
-            outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway ? (
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>
-                <CollapsibleNote
-                  content={outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway || ""}
-                  textClassName="text-sm text-[#111111] leading-relaxed"
-                />
+            outreachRecord?.engagement_approach ||
+            (outreachRecord && hasRecommendedEngagementContent(outreachRecord)) ||
+            primaryOpp?.recommended_pathway ? (
+              <div className="space-y-4">
+                {outreachRecord && hasRecommendedEngagementContent(outreachRecord) ? (
+                  <ServiceFitPanel data={outreachRecord} mode="recommended_engagement" />
+                ) : null}
+                {outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway ? (
+                  <div className="rounded-xl border border-[#111111]/10 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>
+                    <CollapsibleNote
+                      content={outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway || ""}
+                      textClassName="text-sm text-[#111111] leading-relaxed"
+                    />
+                  </div>
+                ) : null}
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">

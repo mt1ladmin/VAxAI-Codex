@@ -1,6 +1,7 @@
 export const CRM_HUB_TABS = [
   { id: "overview", label: "Overview" },
   { id: "research", label: "Research" },
+  { id: "vaxai_support", label: "VAxAI support" },
   { id: "engagement_guide", label: "Engagement guide" },
   { id: "tasks", label: "Tasks" },
   { id: "notes", label: "Notes" },

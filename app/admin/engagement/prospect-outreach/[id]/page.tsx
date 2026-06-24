@@ -20,7 +20,12 @@ import {
   ProspectResearchEvidenceCard,
   ProspectTagList,
 } from "@/components/admin/ProspectResearchPanel";
-import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
+import {
+  hasRecommendedEngagementContent,
+  hasResearchAssessmentContent,
+  hasVaxaiSupportContent,
+  ServiceFitPanel,
+} from "@/components/admin/ServiceFitPanel";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { appendSimpleNote } from "@/lib/engagement/append-note";
@@ -40,10 +45,11 @@ import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type { EngagementTask } from "@/lib/engagement/types";
 
-type Tab = "overview" | "research" | "engagement_guide" | "notes" | "tasks";
+type Tab = "overview" | "research" | "vaxai_support" | "engagement_guide" | "notes" | "tasks";
 const TAB_LABELS: Record<Tab, string> = {
   overview: "Overview",
   research: "Research",
+  vaxai_support: "VAxAI support",
   engagement_guide: "Engagement guide",
   notes: "Notes",
   tasks: "Tasks",
@@ -249,6 +255,15 @@ function ProspectFinderDetailContent() {
               {tabId === "tasks" && openTasks.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openTasks.length}</span>
               )}
+              {tabId === "research" && hasResearchAssessmentContent(record) && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>
+              )}
+              {tabId === "vaxai_support" && hasVaxaiSupportContent(record) && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>
+              )}
+              {tabId === "engagement_guide" && (hasRecommendedEngagementContent(record) || record.engagement_approach) && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>
+              )}
               {tabId === "notes" && notesCount > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{notesCount}</span>
               )}
@@ -418,8 +433,18 @@ function ProspectFinderDetailContent() {
             </div>
           )}
 
+          {activeTab === "vaxai_support" && (
+            <div className="space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">VAxAI support and boundaries</p>
+              <ServiceFitPanel data={record} mode="support" />
+            </div>
+          )}
+
           {activeTab === "engagement_guide" && (
             <div className="space-y-4">
+              {hasRecommendedEngagementContent(record) ? (
+                <ServiceFitPanel data={record} mode="recommended_engagement" />
+              ) : null}
               <div className="rounded-xl border border-[#111111]/10 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>
                 {editingEngagementGuide ? (
