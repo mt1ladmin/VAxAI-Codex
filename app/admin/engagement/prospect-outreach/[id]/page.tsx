@@ -4,13 +4,12 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { BookOpen, Send } from "lucide-react";
-import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
-import { HubSectionHeader } from "@/components/admin/HubSectionHeader";
+import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
@@ -21,7 +20,6 @@ import {
   ProspectDecisionMakerCard,
   ProspectOrganisationCard,
   ProspectProfileHeader,
-  ProspectResearchEvidenceCard,
   ProspectTagList,
 } from "@/components/admin/ProspectResearchPanel";
 import {
@@ -61,10 +59,6 @@ function ProspectFinderDetailContent() {
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<CrmHubTab>("overview");
-  const [editingEngagementGuide, setEditingEngagementGuide] = useState(false);
-  const [engagementGuideDraft, setEngagementGuideDraft] = useState("");
-  const [editingResearchEvidence, setEditingResearchEvidence] = useState(false);
-  const [researchEvidenceDraft, setResearchEvidenceDraft] = useState("");
   const [reviewNotes, setReviewNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [noteText, setNoteText] = useState("");
@@ -82,7 +76,6 @@ function ProspectFinderDetailContent() {
     const json = await res.json();
     if (json.data) {
       setRecord(json.data);
-      setEngagementGuideDraft(json.data.engagement_approach || "");
       setReviewNotes(json.data.review_notes || "");
       setTasks(json.tasks || []);
       setTeamMembers(json.team_members || []);
@@ -128,52 +121,44 @@ function ProspectFinderDetailContent() {
     if (json.data) {
       setRecord(json.data);
       setReviewNotes(json.data.review_notes || "");
-      if (json.data.engagement_approach !== undefined) {
-        setEngagementGuideDraft(json.data.engagement_approach || "");
-      }
     }
     return json.data;
   };
 
-  const saveEngagementGuide = async () => {
+  const saveOutreachField = async (field: string, value: string | string[]) => {
+    await patchWorkflow({ overrides: { [field]: value } });
+    setChatActivityKey((k) => k + 1);
+  };
+
+  const replaceNotes = async (notes: string) => {
     setSaving(true);
     try {
-      await patchWorkflow({
-        overrides: { engagement_approach: engagementGuideDraft.trim() },
-      });
-      setEditingEngagementGuide(false);
+      await patchWorkflow({ review_notes: notes });
     } finally {
       setSaving(false);
     }
   };
 
-  const saveResearchEvidence = async () => {
-    setSaving(true);
-    try {
-      await patchWorkflow({
-        overrides: { need_rationale: researchEvidenceDraft.trim() },
-      });
-      setEditingResearchEvidence(false);
-    } finally {
-      setSaving(false);
-    }
+  const updateTask = async (
+    taskId: string,
+    payload: { title: string; due_date: string | null; notes: string | null },
+  ) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    await load({ silent: true });
+    setChatActivityKey((k) => k + 1);
   };
 
   const openTab = (
     tab: CrmHubTab,
-    opts?: { addNote?: boolean; addTask?: boolean; editGuide?: boolean; editResearch?: boolean },
+    opts?: { addNote?: boolean; addTask?: boolean },
   ) => {
     setActiveTab(tab);
     if (opts?.addNote) setShowAddNote(true);
     if (opts?.addTask) setAddingTask(true);
-    if (opts?.editGuide) {
-      setEngagementGuideDraft(record?.engagement_approach || "");
-      setEditingEngagementGuide(true);
-    }
-    if (opts?.editResearch) {
-      setResearchEvidenceDraft(record?.need_rationale || "");
-      setEditingResearchEvidence(true);
-    }
   };
 
   const saveNote = async () => {
@@ -264,7 +249,7 @@ function ProspectFinderDetailContent() {
       description: "Meeting prep, discovery hooks, and conversation guidance.",
       actionLabel: "Edit guide",
       hasContent: !!(hasRecommendedEngagementContent(record) || record.engagement_approach),
-      onClick: () => openTab("engagement_guide", { editGuide: true }),
+      onClick: () => openTab("engagement_guide"),
     },
     {
       id: "notes",
@@ -463,126 +448,49 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "research" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Research assessment"
-                description="Review AI-generated fit analysis and update evidence notes for this prospect."
-                action={
-                  editingResearchEvidence
-                    ? {
-                        label: "Save evidence",
-                        onClick: () => void saveResearchEvidence(),
-                        loading: saving,
-                      }
-                    : {
-                        label: "Edit evidence",
-                        onClick: () => {
-                          setResearchEvidenceDraft(record.need_rationale || "");
-                          setEditingResearchEvidence(true);
-                        },
-                      }
-                }
-                secondaryAction={
-                  editingResearchEvidence
-                    ? {
-                        label: "Cancel",
-                        onClick: () => {
-                          setResearchEvidenceDraft(record.need_rationale || "");
-                          setEditingResearchEvidence(false);
-                        },
-                        variant: "secondary",
-                      }
-                    : undefined
-                }
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Research assessment</p>
+              <ServiceFitPanel
+                data={record}
+                mode="research"
+                editable
+                onSaveField={saveOutreachField}
               />
-              <ServiceFitPanel data={record} mode="research" />
-              {editingResearchEvidence ? (
-                <textarea
-                  value={researchEvidenceDraft}
-                  onChange={(e) => setResearchEvidenceDraft(e.target.value)}
-                  rows={8}
-                  placeholder="Summarise why this prospect needs support and what evidence backs the assessment…"
-                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm leading-relaxed outline-none focus:border-[#063b32] resize-y"
-                />
-              ) : (
-                <ProspectResearchEvidenceCard data={record} />
-              )}
             </div>
           )}
 
           {activeTab === "vaxai_support" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="VAxAI support and boundaries"
-                description="What VAxAI can support directly, partially, or through partners — sourced from research."
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">VAxAI support and boundaries</p>
+              <ServiceFitPanel
+                data={record}
+                mode="support"
+                editable
+                onSaveField={saveOutreachField}
               />
-              <ServiceFitPanel data={record} mode="support" />
             </div>
           )}
 
           {activeTab === "engagement_guide" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Engagement guide"
-                description="Meeting prep, discovery hooks, and recommended conversation approach."
-                action={
-                  editingEngagementGuide
-                    ? {
-                        label: "Save guide",
-                        onClick: () => void saveEngagementGuide(),
-                        loading: saving,
-                      }
-                    : {
-                        label: record.engagement_approach ? "Edit guide" : "Add guide",
-                        onClick: () => {
-                          setEngagementGuideDraft(record.engagement_approach || "");
-                          setEditingEngagementGuide(true);
-                        },
-                      }
-                }
-                secondaryAction={
-                  editingEngagementGuide
-                    ? {
-                        label: "Cancel",
-                        onClick: () => {
-                          setEngagementGuideDraft(record.engagement_approach || "");
-                          setEditingEngagementGuide(false);
-                        },
-                        variant: "secondary",
-                      }
-                    : undefined
-                }
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Engagement guide</p>
+              <ServiceFitPanel
+                data={record}
+                mode="recommended_engagement"
+                editable
+                onSaveField={saveOutreachField}
               />
-              {hasRecommendedEngagementContent(record) ? (
-                <ServiceFitPanel data={record} mode="recommended_engagement" />
-              ) : null}
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                {editingEngagementGuide ? (
-                  <textarea
-                    value={engagementGuideDraft}
-                    onChange={(e) => setEngagementGuideDraft(e.target.value)}
-                    rows={18}
-                    placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm leading-relaxed outline-none focus:border-[#063b32] resize-y"
-                  />
-                ) : record.engagement_approach ? (
-                  <CollapsibleNote content={record.engagement_approach} textClassName="text-sm text-[#111111] leading-relaxed" />
-                ) : (
-                  <p className="text-sm text-[#6f6b62]">No engagement guide yet. Use Edit guide above to add meeting prep and conversation guidance.</p>
-                )}
-              </div>
+              <EditableFieldCard
+                label="Engagement guide"
+                value={record.engagement_approach || ""}
+                rows={18}
+                placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
+                onSave={(value) => saveOutreachField("engagement_approach", value)}
+              />
             </div>
           )}
 
           {activeTab === "notes" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Prospect notes"
-                description="Reviewer notes, call outcomes, and handoff context."
-                action={{
-                  label: "Add note",
-                  onClick: () => setShowAddNote(true),
-                }}
-              />
               <HubNotesTab
                 title="Prospect notes"
                 notes={reviewNotes || null}
@@ -596,6 +504,7 @@ function ProspectFinderDetailContent() {
                 onNoteTextChange={setNoteText}
                 saving={saving}
                 onSave={saveNote}
+                onReplaceNotes={replaceNotes}
                 placeholder="Reviewer notes, call outcomes, and handoff context…"
                 header={<KnowledgeAttachPicker outreachId={record.id} />}
               />
@@ -604,14 +513,6 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "tasks" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Tasks"
-                description="Follow-ups, calls, and actions for this prospect."
-                action={{
-                  label: "New task",
-                  onClick: () => setAddingTask(true),
-                }}
-              />
               <HubTasksTab
                 entityLabel={record.organisation_name}
                 openTasks={openTasks}
@@ -627,6 +528,7 @@ function ProspectFinderDetailContent() {
                 onCreateTask={() => void createTask()}
                 onMarkDone={(taskId) => void markTaskDone(taskId)}
                 onMarkUndone={(taskId) => void markTaskUndone(taskId)}
+                onUpdateTask={updateTask}
                 showDone={showDone}
                 setShowDone={setShowDone}
               />

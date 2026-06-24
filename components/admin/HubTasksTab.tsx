@@ -29,6 +29,10 @@ type HubTasksTabProps = {
   onCreateTask: () => void;
   onMarkDone: (taskId: string) => void;
   onMarkUndone?: (taskId: string) => void;
+  onUpdateTask?: (
+    taskId: string,
+    payload: { title: string; due_date: string | null; notes: string | null },
+  ) => Promise<void>;
   onSaveLinkedNextAction?: (item: LinkedNextAction, payload: { title: string; dueDate: string | null }) => Promise<void>;
   onCompleteLinkedNextAction?: (item: LinkedNextAction) => Promise<void>;
   showDone: boolean;
@@ -62,6 +66,7 @@ export function HubTasksTab({
   onCreateTask,
   onMarkDone,
   onMarkUndone,
+  onUpdateTask,
   onSaveLinkedNextAction,
   onCompleteLinkedNextAction,
   showDone,
@@ -70,8 +75,11 @@ export function HubTasksTab({
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDue, setEditDue] = useState("");
+  const [editNotes, setEditNotes] = useState("");
   const [savingLinked, setSavingLinked] = useState(false);
   const [completingKey, setCompletingKey] = useState<string | null>(null);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [savingTaskEdit, setSavingTaskEdit] = useState(false);
 
   const visibleLinked = tasksOnly ? [] : linkedNextActions;
   const sortedLinked = sortByDue(visibleLinked);
@@ -92,6 +100,28 @@ export function HubTasksTab({
       setEditingKey(null);
     } finally {
       setSavingLinked(false);
+    }
+  };
+
+  const startEditTask = (task: EngagementTask) => {
+    setEditingTaskId(task.id);
+    setEditTitle(task.title);
+    setEditDue(task.due_date ?? "");
+    setEditNotes(task.notes ?? "");
+  };
+
+  const saveTaskEdit = async (task: EngagementTask) => {
+    if (!onUpdateTask || !editTitle.trim()) return;
+    setSavingTaskEdit(true);
+    try {
+      await onUpdateTask(task.id, {
+        title: editTitle.trim(),
+        due_date: editDue || null,
+        notes: editNotes.trim() || null,
+      });
+      setEditingTaskId(null);
+    } finally {
+      setSavingTaskEdit(false);
     }
   };
 
@@ -297,44 +327,97 @@ export function HubTasksTab({
           {sortedOpen.map((t) => {
             const isOverdue =
               t.due_date && new Date(t.due_date) < new Date() && t.status !== "done";
+            const isEditing = editingTaskId === t.id;
             return (
               <div
                 key={t.id}
-                className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3"
+                className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3"
               >
-                <button
-                  type="button"
-                  onClick={() => void onMarkDone(t.id)}
-                  className="grid h-4 w-4 shrink-0 place-items-center rounded border border-[#111111]/25 bg-white hover:border-[#063b32] hover:bg-[#063b32]/5"
-                  title="Mark done"
-                />
-                <span
-                  className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_DOT[t.priority] ?? "bg-gray-300"}`}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-[#111111]">{t.title}</p>
-                  {t.notes && <p className="text-xs text-[#6f6b62] truncate">{t.notes}</p>}
-                </div>
-                {t.assignee?.display_name && (
-                  <span className="shrink-0 rounded-full border border-[#111111]/10 bg-white px-2 py-0.5 text-[10px] font-medium text-[#6f6b62]">
-                    {t.assignee.display_name}
-                  </span>
-                )}
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_BADGE[t.status] ?? "bg-gray-100 text-gray-600"}`}
-                >
-                  {t.status.replace("_", " ")}
-                </span>
-                {t.due_date && (
-                  <span
-                    className={`shrink-0 flex items-center gap-1 text-xs ${isOverdue ? "text-red-600 font-semibold" : "text-[#6f6b62]"}`}
-                  >
-                    <Calendar className="h-3 w-3" />
-                    {new Date(t.due_date).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </span>
+                {isEditing ? (
+                  <div className="space-y-2">
+                    <input
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className={fieldClass}
+                    />
+                    <input
+                      type="date"
+                      value={editDue}
+                      onChange={(e) => setEditDue(e.target.value)}
+                      className={fieldClass}
+                    />
+                    <textarea
+                      value={editNotes}
+                      onChange={(e) => setEditNotes(e.target.value)}
+                      placeholder="Notes (optional)…"
+                      rows={2}
+                      className={`${fieldClass} resize-none`}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void saveTaskEdit(t)}
+                        disabled={savingTaskEdit || !editTitle.trim()}
+                        className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+                      >
+                        {savingTaskEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingTaskId(null)}
+                        className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#6f6b62]"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => void onMarkDone(t.id)}
+                      className="grid h-4 w-4 shrink-0 place-items-center rounded border border-[#111111]/25 bg-white hover:border-[#063b32] hover:bg-[#063b32]/5"
+                      title="Mark done"
+                    />
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${PRIORITY_DOT[t.priority] ?? "bg-gray-300"}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-[#111111]">{t.title}</p>
+                      {t.notes && <p className="text-xs text-[#6f6b62] truncate">{t.notes}</p>}
+                    </div>
+                    {t.assignee?.display_name && (
+                      <span className="shrink-0 rounded-full border border-[#111111]/10 bg-white px-2 py-0.5 text-[10px] font-medium text-[#6f6b62]">
+                        {t.assignee.display_name}
+                      </span>
+                    )}
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_BADGE[t.status] ?? "bg-gray-100 text-gray-600"}`}
+                    >
+                      {t.status.replace("_", " ")}
+                    </span>
+                    {t.due_date && (
+                      <span
+                        className={`shrink-0 flex items-center gap-1 text-xs ${isOverdue ? "text-red-600 font-semibold" : "text-[#6f6b62]"}`}
+                      >
+                        <Calendar className="h-3 w-3" />
+                        {new Date(t.due_date).toLocaleDateString("en-GB", {
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </span>
+                    )}
+                    {onUpdateTask && (
+                      <button
+                        type="button"
+                        onClick={() => startEditTask(t)}
+                        className="shrink-0 text-[10px] font-semibold text-[#063b32] hover:underline"
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             );

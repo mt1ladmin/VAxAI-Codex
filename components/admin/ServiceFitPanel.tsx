@@ -2,17 +2,86 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { COMPLEXITY_COLORS } from "@/lib/engagement/prospect-outreach/types";
 
 type ServiceFitMode = "overview" | "research" | "support" | "recommended_engagement" | "full";
+
+type SaveFieldValue = string | string[];
 
 type Props = {
   data: ProspectOutreachRecord;
   /** @deprecated Prefer `mode` — when true, shows summary only. */
   compact?: boolean;
   mode?: ServiceFitMode;
+  editable?: boolean;
+  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
 };
+
+function linesFromItems(items: string[] | undefined): string {
+  return (items ?? []).join("\n");
+}
+
+function itemsFromLines(text: string): string[] {
+  return text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function EditableTextField({
+  label,
+  value,
+  field,
+  onSaveField,
+  rows = 4,
+  placeholder,
+  multiline = true,
+}: {
+  label: string;
+  value: string;
+  field: string;
+  onSaveField: (field: string, value: SaveFieldValue) => Promise<void>;
+  rows?: number;
+  placeholder?: string;
+  multiline?: boolean;
+}) {
+  return (
+    <EditableFieldCard
+      label={label}
+      value={value}
+      rows={rows}
+      multiline={multiline}
+      placeholder={placeholder}
+      onSave={(next) => onSaveField(field, next)}
+    />
+  );
+}
+
+function EditableListField({
+  label,
+  items,
+  field,
+  onSaveField,
+  placeholder,
+}: {
+  label: string;
+  items: string[] | undefined;
+  field: string;
+  onSaveField: (field: string, value: SaveFieldValue) => Promise<void>;
+  placeholder?: string;
+}) {
+  return (
+    <EditableFieldCard
+      label={label}
+      value={linesFromItems(items)}
+      rows={5}
+      placeholder={placeholder ?? "One item per line"}
+      onSave={(next) => onSaveField(field, itemsFromLines(next))}
+    />
+  );
+}
 
 function CollapsibleSection({
   title,
@@ -87,9 +156,70 @@ export function hasRecommendedEngagementContent(data: ProspectOutreachRecord): b
   );
 }
 
-function EvidenceAndAssessment({ data }: { data: ProspectOutreachRecord }) {
-  return (
-    <CollapsibleSection title="Evidence and assessment" defaultOpen>
+function EvidenceAndAssessment({
+  data,
+  editable,
+  onSaveField,
+}: {
+  data: ProspectOutreachRecord;
+  editable?: boolean;
+  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+}) {
+  const content = editable && onSaveField ? (
+    <div className="space-y-3">
+      <EditableTextField
+        label="Evidence summary"
+        value={data.evidence_summary || ""}
+        field="evidence_summary"
+        onSaveField={onSaveField}
+        rows={5}
+      />
+      <EditableTextField
+        label="Need rationale"
+        value={data.need_rationale || ""}
+        field="need_rationale"
+        onSaveField={onSaveField}
+        rows={5}
+      />
+      <EditableTextField
+        label="Complexity"
+        value={data.complexity_rationale || ""}
+        field="complexity_rationale"
+        onSaveField={onSaveField}
+      />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <EditableTextField
+          label="Admin capacity"
+          value={data.admin_capacity || ""}
+          field="admin_capacity"
+          onSaveField={onSaveField}
+          multiline={false}
+        />
+        <EditableTextField
+          label="AI / automation use"
+          value={data.ai_automation_use || ""}
+          field="ai_automation_use"
+          onSaveField={onSaveField}
+          multiline={false}
+        />
+        <EditableTextField
+          label="Data sensitivity"
+          value={data.data_sensitivity || ""}
+          field="data_sensitivity"
+          onSaveField={onSaveField}
+          multiline={false}
+        />
+        <EditableTextField
+          label="Systems landscape"
+          value={data.systems_landscape || ""}
+          field="systems_landscape"
+          onSaveField={onSaveField}
+          rows={4}
+        />
+      </div>
+    </div>
+  ) : (
+    <>
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence</p>
         <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">
@@ -128,11 +258,71 @@ function EvidenceAndAssessment({ data }: { data: ProspectOutreachRecord }) {
           </div>
         )}
       </div>
+    </>
+  );
+
+  if (editable) {
+    return (
+      <div className="space-y-3">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence and assessment</p>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <CollapsibleSection title="Evidence and assessment" defaultOpen>
+      {content}
     </CollapsibleSection>
   );
 }
 
-function VaxaiSupportContent({ data }: { data: ProspectOutreachRecord }) {
+function VaxaiSupportContent({
+  data,
+  editable,
+  onSaveField,
+}: {
+  data: ProspectOutreachRecord;
+  editable?: boolean;
+  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+}) {
+  if (editable && onSaveField) {
+    return (
+      <div className="space-y-3">
+        <EditableListField
+          label="Best-fit VAxAI support"
+          items={data.vaxai_direct_support}
+          field="vaxai_direct_support"
+          onSaveField={onSaveField}
+        />
+        <EditableListField
+          label="Partial VAxAI role"
+          items={data.vaxai_partial_support}
+          field="vaxai_partial_support"
+          onSaveField={onSaveField}
+        />
+        <EditableListField
+          label="Specialist / partner may be needed"
+          items={data.partner_support}
+          field="partner_support"
+          onSaveField={onSaveField}
+        />
+        <EditableTextField
+          label="Capability boundaries"
+          value={data.capability_boundaries || ""}
+          field="capability_boundaries"
+          onSaveField={onSaveField}
+        />
+        <EditableTextField
+          label="Build vs improve"
+          value={data.bespoke_build_note || ""}
+          field="bespoke_build_note"
+          onSaveField={onSaveField}
+        />
+      </div>
+    );
+  }
+
   return (
     <>
       <div>
@@ -167,23 +357,62 @@ function VaxaiSupportContent({ data }: { data: ProspectOutreachRecord }) {
   );
 }
 
-function VaxaiSupportAndBoundaries({ data, flat = false }: { data: ProspectOutreachRecord; flat?: boolean }) {
-  if (flat) {
+function VaxaiSupportAndBoundaries({
+  data,
+  flat = false,
+  editable,
+  onSaveField,
+}: {
+  data: ProspectOutreachRecord;
+  flat?: boolean;
+  editable?: boolean;
+  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+}) {
+  if (flat || editable) {
     return (
       <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-        <VaxaiSupportContent data={data} />
+        <VaxaiSupportContent data={data} editable={editable} onSaveField={onSaveField} />
       </div>
     );
   }
 
   return (
     <CollapsibleSection title="VAxAI support and boundaries" defaultOpen>
-      <VaxaiSupportContent data={data} />
+      <VaxaiSupportContent data={data} editable={editable} onSaveField={onSaveField} />
     </CollapsibleSection>
   );
 }
 
-function RecommendedEngagement({ data }: { data: ProspectOutreachRecord }) {
+function RecommendedEngagement({
+  data,
+  editable,
+  onSaveField,
+}: {
+  data: ProspectOutreachRecord;
+  editable?: boolean;
+  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+}) {
+  if (editable && onSaveField) {
+    return (
+      <div className="space-y-3">
+        <EditableTextField
+          label="Recommended engagement"
+          value={data.recommended_engagement || ""}
+          field="recommended_engagement"
+          onSaveField={onSaveField}
+          rows={6}
+        />
+        <EditableTextField
+          label="Accessibility note"
+          value={data.accessibility_considerations || ""}
+          field="accessibility_considerations"
+          onSaveField={onSaveField}
+          rows={4}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Recommended engagement</p>
@@ -200,7 +429,27 @@ function RecommendedEngagement({ data }: { data: ProspectOutreachRecord }) {
   );
 }
 
-function StillToConfirm({ data }: { data: ProspectOutreachRecord }) {
+function StillToConfirm({
+  data,
+  editable,
+  onSaveField,
+}: {
+  data: ProspectOutreachRecord;
+  editable?: boolean;
+  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+}) {
+  if (editable && onSaveField) {
+    return (
+      <EditableListField
+        label="Still to confirm"
+        items={data.open_questions}
+        field="open_questions"
+        onSaveField={onSaveField}
+        placeholder="One question per line"
+      />
+    );
+  }
+
   if (!(data.open_questions?.length ?? 0)) return null;
   return (
     <CollapsibleSection title="Still to confirm">
@@ -213,7 +462,7 @@ function StillToConfirm({ data }: { data: ProspectOutreachRecord }) {
   );
 }
 
-export function ServiceFitPanel({ data, compact, mode }: Props) {
+export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: Props) {
   const resolvedMode: ServiceFitMode = mode ?? (compact ? "overview" : "full");
   const showSummary = resolvedMode === "overview" || resolvedMode === "full";
   const showEvidence = resolvedMode === "research" || resolvedMode === "full";
@@ -229,7 +478,7 @@ export function ServiceFitPanel({ data, compact, mode }: Props) {
     );
   }
 
-  if (resolvedMode === "research" && !hasResearchAssessmentContent(data)) {
+  if (resolvedMode === "research" && !editable && !hasResearchAssessmentContent(data)) {
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
         Detailed research assessment not yet available for this record.
@@ -237,7 +486,7 @@ export function ServiceFitPanel({ data, compact, mode }: Props) {
     );
   }
 
-  if (resolvedMode === "support" && !hasVaxaiSupportContent(data)) {
+  if (resolvedMode === "support" && !editable && !hasVaxaiSupportContent(data)) {
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
         VAxAI support and boundaries not yet available for this record.
@@ -245,7 +494,7 @@ export function ServiceFitPanel({ data, compact, mode }: Props) {
     );
   }
 
-  if (resolvedMode === "recommended_engagement" && !hasRecommendedEngagementContent(data)) {
+  if (resolvedMode === "recommended_engagement" && !editable && !hasRecommendedEngagementContent(data)) {
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
         Recommended engagement not yet available for this record.
@@ -288,12 +537,23 @@ export function ServiceFitPanel({ data, compact, mode }: Props) {
         </div>
       )}
 
-      {showEvidence && <EvidenceAndAssessment data={data} />}
-      {showSupport && (
-        <VaxaiSupportAndBoundaries data={data} flat={resolvedMode === "support"} />
+      {showEvidence && (
+        <EvidenceAndAssessment data={data} editable={editable} onSaveField={onSaveField} />
       )}
-      {showRecommended && <RecommendedEngagement data={data} />}
-      {showOpenQuestions && <StillToConfirm data={data} />}
+      {showSupport && (
+        <VaxaiSupportAndBoundaries
+          data={data}
+          flat={resolvedMode === "support"}
+          editable={editable}
+          onSaveField={onSaveField}
+        />
+      )}
+      {showRecommended && (
+        <RecommendedEngagement data={data} editable={editable} onSaveField={onSaveField} />
+      )}
+      {showOpenQuestions && (
+        <StillToConfirm data={data} editable={editable} onSaveField={onSaveField} />
+      )}
     </div>
   );
 }

@@ -28,3 +28,12 @@ export function recentNoteEntries(
 ): NoteEntry[] {
   return parseNoteEntries(notes).slice(0, limit);
 }
+
+/** Rebuild a notes field from parsed entries (oldest first). */
+export function serializeNoteEntries(entries: NoteEntry[]): string {
+  const chronological = [...entries].reverse();
+  return chronological
+    .map((entry) => (entry.header ? `${entry.header}\n${entry.body}`.trim() : entry.body.trim()))
+    .filter(Boolean)
+    .join("\n\n");
+}

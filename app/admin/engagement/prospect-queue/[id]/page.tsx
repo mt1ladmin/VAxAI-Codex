@@ -43,7 +43,7 @@ import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
-import { HubSectionHeader } from "@/components/admin/HubSectionHeader";
+import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { appendSimpleNote } from "@/lib/engagement/append-note";
@@ -62,7 +62,6 @@ import {
   ProspectDecisionMakerCard,
   ProspectOrganisationCard,
   ProspectProfileHeader,
-  ProspectResearchEvidenceCard,
   ProspectTagList,
 } from "@/components/admin/ProspectResearchPanel";
 import {
@@ -140,10 +139,6 @@ function ClientDetailContent() {
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
   const [updatingStage, setUpdatingStage] = useState(false);
-  const [editingEngagementGuide, setEditingEngagementGuide] = useState(false);
-  const [engagementGuideDraft, setEngagementGuideDraft] = useState("");
-  const [savingGuide, setSavingGuide] = useState(false);
-
   // AI context — set once contact data is loaded
   const contactFullName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}` : null;
   useSetAIContext(
@@ -366,39 +361,60 @@ function ClientDetailContent() {
     outreachRecord?.opportunity_description?.trim() ||
     null;
 
-  const saveEngagementGuide = async () => {
+  const saveOutreachField = async (field: string, value: string | string[]) => {
     if (!outreachRecord) return;
-    setSavingGuide(true);
+    const res = await fetch("/api/admin/engagement/prospect-outreach", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        outreach_id: outreachRecord.id,
+        overrides: { [field]: value },
+      }),
+    });
+    if (res.ok) {
+      const json = await res.json() as { data?: ProspectFinderListItem };
+      if (json.data) setOutreachRecord(json.data);
+      setChatActivityKey((k) => k + 1);
+    }
+  };
+
+  const replaceNotes = async (notes: string) => {
+    setSavingNote(true);
     try {
-      const res = await fetch("/api/admin/engagement/prospect-outreach", {
+      const res = await fetch(`/api/admin/engagement/contacts/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          outreach_id: outreachRecord.id,
-          overrides: { engagement_approach: engagementGuideDraft.trim() },
-        }),
+        body: JSON.stringify({ notes }),
       });
       if (res.ok) {
-        const json = await res.json() as { data?: ProspectFinderListItem };
-        if (json.data) setOutreachRecord(json.data);
-        setEditingEngagementGuide(false);
+        const j = await res.json() as { data: EngagementContact };
+        setContact(j.data);
       }
     } finally {
-      setSavingGuide(false);
+      setSavingNote(false);
     }
+  };
+
+  const updateTask = async (
+    taskId: string,
+    payload: { title: string; due_date: string | null; notes: string | null },
+  ) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    await loadTasks(id, contact?.organisation_id, opportunities);
+    setChatActivityKey((k) => k + 1);
   };
 
   const openTab = (
     tab: ClientTab,
-    opts?: { addNote?: boolean; addTask?: boolean; editGuide?: boolean },
+    opts?: { addNote?: boolean; addTask?: boolean },
   ) => {
     setActiveTab(tab);
     if (opts?.addNote) setShowAddNote(true);
     if (opts?.addTask) setAddingTask(true);
-    if (opts?.editGuide) {
-      setEngagementGuideDraft(outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway || "");
-      setEditingEngagementGuide(true);
-    }
   };
 
   const editShortcuts: HubEditShortcut[] = [
@@ -430,7 +446,7 @@ function ClientDetailContent() {
               hasRecommendedEngagementContent(outreachRecord) ||
               primaryOpp?.recommended_pathway
             ),
-            onClick: () => openTab("engagement_guide", { editGuide: true }),
+            onClick: () => openTab("engagement_guide"),
           },
         ]
       : []),
@@ -744,14 +760,6 @@ function ClientDetailContent() {
           {/* TASKS TAB */}
           {activeTab === "tasks" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Tasks"
-                description="Follow-ups, calls, and actions for this engagement."
-                action={{
-                  label: "New task",
-                  onClick: () => setAddingTask(true),
-                }}
-              />
               <HubTasksTab
                 entityLabel={contact.first_name}
                 openTasks={openTasks}
@@ -767,6 +775,7 @@ function ClientDetailContent() {
                 onCreateTask={createTask}
                 onMarkDone={markTaskDone}
                 onMarkUndone={markTaskUndone}
+                onUpdateTask={updateTask}
                 onSaveLinkedNextAction={handleSaveLinkedNextAction}
                 onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
                 showDone={showDone}
@@ -779,19 +788,13 @@ function ClientDetailContent() {
           {activeTab === "research" && (
             outreachRecord ? (
               <div className="space-y-4">
-                <HubSectionHeader
-                  title="Research assessment"
-                  description="Assessment, evidence, and open questions retained from Prospect Finder."
-                  action={{
-                    label: "Open in Finder",
-                    onClick: () => {
-                      window.open(`/admin/engagement/prospect-outreach/${outreachRecord.id}?tab=research`, "_blank");
-                    },
-                    variant: "secondary",
-                  }}
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Research assessment</p>
+                <ServiceFitPanel
+                  data={outreachRecord}
+                  mode="research"
+                  editable
+                  onSaveField={saveOutreachField}
                 />
-                <ServiceFitPanel data={outreachRecord} mode="research" />
-                <ProspectResearchEvidenceCard data={outreachRecord} />
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
@@ -804,11 +807,13 @@ function ClientDetailContent() {
           {activeTab === "vaxai_support" && (
             outreachRecord ? (
               <div className="space-y-4">
-                <HubSectionHeader
-                  title="VAxAI support and boundaries"
-                  description="What VAxAI can support directly, partially, or through partners."
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">VAxAI support and boundaries</p>
+                <ServiceFitPanel
+                  data={outreachRecord}
+                  mode="support"
+                  editable
+                  onSaveField={saveOutreachField}
                 />
-                <ServiceFitPanel data={outreachRecord} mode="support" />
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
@@ -821,67 +826,20 @@ function ClientDetailContent() {
           {activeTab === "engagement_guide" && (
             outreachRecord ? (
               <div className="space-y-4">
-                <HubSectionHeader
-                  title="Engagement guide"
-                  description="Meeting prep, discovery hooks, and recommended conversation approach."
-                  action={
-                    editingEngagementGuide
-                      ? {
-                          label: "Save guide",
-                          onClick: () => void saveEngagementGuide(),
-                          loading: savingGuide,
-                        }
-                      : {
-                          label:
-                            outreachRecord.engagement_approach || primaryOpp?.recommended_pathway
-                              ? "Edit guide"
-                              : "Add guide",
-                          onClick: () => {
-                            setEngagementGuideDraft(
-                              outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || "",
-                            );
-                            setEditingEngagementGuide(true);
-                          },
-                        }
-                  }
-                  secondaryAction={
-                    editingEngagementGuide
-                      ? {
-                          label: "Cancel",
-                          onClick: () => {
-                            setEngagementGuideDraft(
-                              outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || "",
-                            );
-                            setEditingEngagementGuide(false);
-                          },
-                          variant: "secondary",
-                        }
-                      : undefined
-                  }
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Engagement guide</p>
+                <ServiceFitPanel
+                  data={outreachRecord}
+                  mode="recommended_engagement"
+                  editable
+                  onSaveField={saveOutreachField}
                 />
-                {hasRecommendedEngagementContent(outreachRecord) ? (
-                  <ServiceFitPanel data={outreachRecord} mode="recommended_engagement" />
-                ) : null}
-                <div className="rounded-xl border border-[#111111]/10 p-5">
-                  {editingEngagementGuide ? (
-                    <textarea
-                      value={engagementGuideDraft}
-                      onChange={(e) => setEngagementGuideDraft(e.target.value)}
-                      rows={18}
-                      placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
-                      className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm leading-relaxed outline-none focus:border-[#063b32] resize-y"
-                    />
-                  ) : outreachRecord.engagement_approach || primaryOpp?.recommended_pathway ? (
-                    <CollapsibleNote
-                      content={outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || ""}
-                      textClassName="text-sm text-[#111111] leading-relaxed"
-                    />
-                  ) : (
-                    <p className="text-sm text-[#6f6b62]">
-                      No engagement guide yet. Use Edit guide above to add meeting prep and conversation guidance.
-                    </p>
-                  )}
-                </div>
+                <EditableFieldCard
+                  label="Engagement guide"
+                  value={outreachRecord.engagement_approach || primaryOpp?.recommended_pathway || ""}
+                  rows={18}
+                  placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
+                  onSave={(value) => saveOutreachField("engagement_approach", value)}
+                />
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
@@ -893,14 +851,6 @@ function ClientDetailContent() {
           {/* NOTES TAB */}
           {activeTab === "notes" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Client notes"
-                description="Notes, call outcomes, and handoff context for this engagement."
-                action={{
-                  label: "Add note",
-                  onClick: () => setShowAddNote(true),
-                }}
-              />
               <HubNotesTab
                 title="Client notes"
                 notes={contact.notes}
@@ -914,6 +864,7 @@ function ClientDetailContent() {
                 onNoteTextChange={setNoteText}
                 saving={savingNote}
                 onSave={saveNote}
+                onReplaceNotes={replaceNotes}
                 placeholder="Add a note about this client…"
                 header={<AttachedKnowledgePanel contactId={id} refreshKey={chatActivityKey} />}
               />

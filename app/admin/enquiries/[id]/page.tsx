@@ -20,7 +20,6 @@ import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
-import { HubSectionHeader } from "@/components/admin/HubSectionHeader";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { MoveEnquiryToProspectQueueModal } from "@/components/admin/MoveEnquiryToProspectQueueModal";
@@ -312,6 +311,30 @@ function EnquiryDetailContent() {
     }
   };
 
+  const replaceNotes = async (notes: string) => {
+    setSavingNote(true);
+    try {
+      await patchEnquiry({ admin_notes: notes });
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  const updateTask = async (
+    taskId: string,
+    payload: { title: string; due_date: string | null; notes: string | null },
+  ) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (enquiry) {
+      await loadTasks(enquiry.contact_id, enquiry.organisation_id, opportunities);
+    }
+    bumpTimeline();
+  };
+
   if (loading && !enquiry) return <HubDetailSkeleton />;
   if (!enquiry) return <div className="p-8 text-sm text-[#6f6b62]">Enquiry not found.</div>;
 
@@ -559,14 +582,6 @@ function EnquiryDetailContent() {
 
           {activeTab === "tasks" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Tasks"
-                description="Follow-ups, calls, and actions for this enquiry."
-                action={{
-                  label: "New task",
-                  onClick: () => setAddingTask(true),
-                }}
-              />
               <HubTasksTab
                 entityLabel={enquiry.name}
                 openTasks={openTasks}
@@ -580,6 +595,7 @@ function EnquiryDetailContent() {
                 onCreateTask={createTask}
                 onMarkDone={markTaskDone}
                 onMarkUndone={markTaskUndone}
+                onUpdateTask={updateTask}
                 onSaveLinkedNextAction={handleSaveLinkedNextAction}
                 onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
                 showDone={showDone}
@@ -590,14 +606,6 @@ function EnquiryDetailContent() {
 
           {activeTab === "notes" && (
             <div className="space-y-4">
-              <HubSectionHeader
-                title="Enquiry notes"
-                description="Notes, call outcomes, and qualification context."
-                action={{
-                  label: "Add note",
-                  onClick: () => setShowAddNote(true),
-                }}
-              />
               <HubNotesTab
                 title="Enquiry notes"
                 notes={enquiry.admin_notes}
@@ -611,6 +619,7 @@ function EnquiryDetailContent() {
                 onNoteTextChange={setNoteText}
                 saving={savingNote}
                 onSave={saveNote}
+                onReplaceNotes={replaceNotes}
                 placeholder="What happened? What was discussed?"
                 header={<AttachedKnowledgePanel enquiryId={id} />}
               />
