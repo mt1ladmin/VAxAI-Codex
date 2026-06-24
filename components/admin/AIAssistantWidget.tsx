@@ -776,6 +776,15 @@ function readWidgetOpen(): boolean {
   return sessionStorage.getItem("vaxai-widget-open") === "1";
 }
 
+function readWidgetPosition(): { right: number; bottom: number } {
+  if (typeof window === "undefined") return { right: 24, bottom: 24 };
+  try {
+    const raw = sessionStorage.getItem("vaxai-widget-position");
+    if (raw) return JSON.parse(raw) as { right: number; bottom: number };
+  } catch {}
+  return { right: 24, bottom: 24 };
+}
+
 async function fetchContextDetail(type: string, id: string): Promise<AIContext | null> {
   try {
     const res = await fetch(`/api/admin/ai/context-detail?type=${encodeURIComponent(type)}&id=${encodeURIComponent(id)}`);
@@ -807,10 +816,20 @@ export function AIAssistantWidget() {
   const [customSize, setCustomSize] = useState<{ width: number; height: number } | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [chatNonce, setChatNonce] = useState(0);
+  const [position, setPosition] = useState<{ right: number; bottom: number }>(readWidgetPosition);
   const panelRef = useRef<HTMLDivElement>(null);
   const resizeDrag = useRef<{ startX: number; startY: number; startW: number; startH: number } | null>(null);
+  const posDrag = useRef<{ startX: number; startY: number; startRight: number; startBottom: number; moved: boolean } | null>(null);
+  const isOpenRef = useRef(isOpen);
 
   usePersistWidgetOpen(isOpen);
+  isOpenRef.current = isOpen;
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("vaxai-widget-position", JSON.stringify(position));
+    } catch {}
+  }, [position]);
 
   const activeType = context.type;
   const activeId = context.id;
@@ -867,6 +886,41 @@ export function AIAssistantWidget() {
 
   const panelDimensions = customSize ?? PANEL_SIZES[panelSize];
 
+  const handleButtonMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    posDrag.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      startRight: position.right,
+      startBottom: position.bottom,
+      moved: false,
+    };
+
+    const onMove = (ev: MouseEvent) => {
+      if (!posDrag.current) return;
+      const dx = ev.clientX - posDrag.current.startX;
+      const dy = ev.clientY - posDrag.current.startY;
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) posDrag.current.moved = true;
+      setPosition({
+        right: Math.max(8, posDrag.current.startRight - dx),
+        bottom: Math.max(8, posDrag.current.startBottom - dy),
+      });
+    };
+
+    const onUp = () => {
+      if (posDrag.current && !posDrag.current.moved) {
+        if (isOpenRef.current) setIsOpen(false);
+        else openPanel();
+      }
+      posDrag.current = null;
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  };
+
   const startResize = (e: React.MouseEvent) => {
     e.preventDefault();
     resizeDrag.current = {
@@ -898,12 +952,13 @@ export function AIAssistantWidget() {
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Floating trigger button — drag to reposition, click to open/close */}
       <button
         type="button"
-        onClick={() => (isOpen ? setIsOpen(false) : openPanel())}
-        className="fixed bottom-6 right-6 z-40 grid h-12 w-12 place-items-center rounded-full bg-[#063b32] shadow-lg hover:bg-[#1a5c42] transition-colors"
-        title="VAxAI Assistant"
+        onMouseDown={handleButtonMouseDown}
+        style={{ bottom: position.bottom, right: position.right }}
+        className="fixed z-40 grid h-12 w-12 place-items-center rounded-full bg-[#063b32] shadow-lg hover:bg-[#1a5c42] transition-colors cursor-grab active:cursor-grabbing select-none"
+        title="VAxAI Assistant (drag to move)"
       >
         {isOpen ? (
           <ChevronDown className="h-5 w-5 text-[#f5f274]" />
@@ -916,8 +971,8 @@ export function AIAssistantWidget() {
       {isOpen && (
         <div
           ref={panelRef}
-          className="fixed bottom-20 right-6 z-40 flex flex-col rounded-2xl border border-[#111111]/10 bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden transition-[width,height] duration-150 ease-out"
-          style={{ width: panelDimensions.width, height: panelDimensions.height }}
+          className="fixed z-40 flex flex-col rounded-2xl border border-[#111111]/10 bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden transition-[width,height] duration-150 ease-out"
+          style={{ width: panelDimensions.width, height: panelDimensions.height, bottom: position.bottom + 56, right: position.right }}
         >
           {/* Manual resize — drag top-left corner */}
           <button

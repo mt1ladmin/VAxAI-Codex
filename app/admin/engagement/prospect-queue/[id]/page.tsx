@@ -1,17 +1,11 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import {
   Briefcase,
   Building2,
-  CheckCircle,
-  ExternalLink,
-  Inbox,
-  Loader2,
   Mail,
-  MessageSquare,
   Phone,
 } from "lucide-react";
 
@@ -72,11 +66,10 @@ import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
 import { FINDER_ENGAGEMENT_STATUSES, type FinderEngagementStatus } from "@/lib/engagement/engagement-status";
 
-type ClientTab = CrmHubTab | "submission";
+type ClientTab = CrmHubTab;
 
 const CLIENT_TABS: HubTabItem[] = [
   { id: "overview", label: "Overview", editable: false },
-  { id: "submission", label: "Source", editable: false },
   ...CRM_HUB_TABS.filter((t) => t.id !== "overview"),
 ];
 
@@ -485,9 +478,6 @@ function ClientDetailContent() {
           ) {
             return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>;
           }
-          if (tabId === "submission" && (linkedEnquiry || outreachRecord)) {
-            return <span className="rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-700">1</span>;
-          }
           return null;
         }}
       />
@@ -590,17 +580,6 @@ function ClientDetailContent() {
             </div>
           )}
 
-          {linkedEnquiry && (
-            <button
-              type="button"
-              onClick={() => setActiveTab("submission")}
-              className="w-full rounded-xl border border-[#111111]/10 p-4 text-left hover:bg-[#f7f4ea]/50 transition-colors"
-            >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Source</p>
-              <p className="mt-1 text-sm font-semibold text-[#111111]">Website enquiry</p>
-              <p className="text-xs text-[#063b32] mt-0.5">View submission details →</p>
-            </button>
-          )}
         </div>
 
         {/* ── Main content ── */}
@@ -647,107 +626,6 @@ function ClientDetailContent() {
                   defaultExpanded
                   onUpdated={handleOpportunityUpdated}
                 />
-              )}
-            </>
-          )}
-
-          {/* ORIGINAL SUBMISSION TAB */}
-          {activeTab === "submission" && (
-            <>
-              {!linkedEnquiry && !outreachRecord ? (
-                <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
-                  <p className="text-sm text-[#6f6b62]">No original submission linked to this client.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {linkedEnquiry && (
-                    <>
-                      <div className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3">
-                        <MessageSquare className="h-4 w-4 text-blue-700" />
-                        <span className="text-sm font-semibold text-[#111111]">Website enquiry</span>
-                        <span className="ml-auto text-xs text-[#6f6b62]">Archived on conversion</span>
-                      </div>
-                      <div className="grid gap-4 lg:grid-cols-2">
-                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact at submission</p>
-                          <div>
-                            <p className="text-[10px] text-[#6f6b62]">Name</p>
-                            <p className="text-sm font-semibold text-[#111111]">{linkedEnquiry.name}</p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-[#6f6b62]">Email</p>
-                            <p className="text-sm text-[#111111]">{linkedEnquiry.email}</p>
-                          </div>
-                          {linkedEnquiry.telephone && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Telephone</p>
-                              <p className="text-sm text-[#111111]">{linkedEnquiry.telephone}</p>
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-[10px] text-[#6f6b62]">Received</p>
-                            <p className="text-sm text-[#111111]">
-                              {new Date(linkedEnquiry.created_at).toLocaleString("en-GB")}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Submission details</p>
-                          <div>
-                            <p className="text-[10px] text-[#6f6b62]">Query type</p>
-                            <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">
-                              {linkedEnquiry.support_type}
-                            </span>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-[#6f6b62]">Preferred contact</p>
-                            <p className="text-sm text-[#111111]">{linkedEnquiry.preferred_contact}</p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-[#6f6b62]">Description</p>
-                            <CollapsibleNote content={linkedEnquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
-                          </div>
-                          {(linkedEnquiry.posts?.title || linkedEnquiry.connected_post_title) && (
-                            <div>
-                              <p className="text-[10px] text-[#6f6b62]">Related post</p>
-                              {linkedEnquiry.connected_post_id ? (
-                                <Link href={`/admin/posts/${linkedEnquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
-                                  <ExternalLink className="h-3.5 w-3.5" />
-                                  {linkedEnquiry.posts?.title || linkedEnquiry.connected_post_title}
-                                </Link>
-                              ) : (
-                                <p className="text-sm text-[#111111]">{linkedEnquiry.connected_post_title}</p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      {linkedEnquiry.admin_notes && (
-                        <div className="rounded-xl border border-[#111111]/10 p-5">
-                          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Admin notes from enquiry</p>
-                          <CollapsibleNote content={linkedEnquiry.admin_notes} />
-                        </div>
-                      )}
-                    </>
-                  )}
-                  {outreachRecord && !linkedEnquiry && (
-                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Inbox className="h-4 w-4 text-amber-700" />
-                        <span className="text-sm font-semibold text-[#111111]">Moved from Prospect Finder</span>
-                      </div>
-                      <p className="text-sm text-[#6f6b62]">
-                        Research, client journey, and engagement guide from Prospect Finder are retained on this record.
-                      </p>
-                    </div>
-                  )}
-                  <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 shrink-0 text-[#063b32]" />
-                    <p className="text-sm text-[#111111]">
-                      This submission was converted to a client record. All enquiry and queue history lives on this page.
-                    </p>
-                  </div>
-                </div>
               )}
             </>
           )}
@@ -839,6 +717,12 @@ function ClientDetailContent() {
           {/* NOTES TAB */}
           {activeTab === "notes" && (
             <div className="space-y-4">
+              {linkedEnquiry?.admin_notes && (
+                <div className="rounded-xl border border-[#111111]/10 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Notes from original enquiry</p>
+                  <CollapsibleNote content={linkedEnquiry.admin_notes} />
+                </div>
+              )}
               <HubNotesTab
                 notes={contact.notes}
                 showAddNote={showAddNote}
