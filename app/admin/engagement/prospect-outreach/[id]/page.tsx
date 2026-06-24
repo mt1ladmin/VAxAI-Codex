@@ -315,11 +315,6 @@ function ProspectFinderDetailContent() {
                 currentStage="finder"
                 hint="Assign an owner, update engagement status, and open research before moving genuine opportunities to Prospect Queue."
               />
-              <div className="rounded-xl border border-[#111111]/10 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-2">Decision maker</p>
-                <p className="text-sm font-semibold text-[#111111]">{record.decision_maker_name}</p>
-                <p className="text-sm text-[#6f6b62]">{record.decision_maker_role}</p>
-              </div>
               <KnowledgeAttachPicker outreachId={record.id} />
               <Link
                 href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
