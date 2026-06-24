@@ -7,8 +7,10 @@ import { BookOpen, Loader2, Save, Send } from "lucide-react";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
+import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
+import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { MoveToProspectQueueModal } from "@/components/admin/MoveToProspectQueueModal";
 import {
@@ -21,7 +23,9 @@ import {
 import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { fetchActivityLog, type ActivityLogEntry } from "@/lib/engagement/activity-log";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
+import { countNotes } from "@/lib/engagement/note-count";
 import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
 import {
@@ -36,9 +40,10 @@ import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type { EngagementTask } from "@/lib/engagement/types";
 
-type Tab = "overview" | "engagement_guide" | "notes" | "tasks" | "activity";
+type Tab = "overview" | "research" | "engagement_guide" | "notes" | "tasks" | "activity";
 const TAB_LABELS: Record<Tab, string> = {
   overview: "Overview",
+  research: "Research",
   engagement_guide: "Engagement guide",
   notes: "Notes",
   tasks: "Tasks",
@@ -70,10 +75,14 @@ function ProspectFinderDetailContent() {
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const [chatActivityKey, setChatActivityKey] = useState(0);
+  const [lastActivity, setLastActivity] = useState<ActivityLogEntry | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/admin/engagement/prospect-outreach/${id}`);
+    const [res, activities] = await Promise.all([
+      fetch(`/api/admin/engagement/prospect-outreach/${id}`),
+      fetchActivityLog({ outreachId: id }),
+    ]);
     const json = await res.json();
     if (json.data) {
       setRecord(json.data);
@@ -82,6 +91,7 @@ function ProspectFinderDetailContent() {
       setTasks(json.tasks || []);
       setTeamMembers(json.team_members || []);
     }
+    setLastActivity(activities[0] ?? null);
     setLoading(false);
   }, [id]);
 
@@ -204,6 +214,12 @@ function ProspectFinderDetailContent() {
   const openTasks = tasks.filter((t) => t.status !== "done");
   const doneTasks = tasks.filter((t) => t.status === "done");
   const memberOptions = activeTeamMemberOptions(teamMembers);
+  const notesCount = countNotes(reviewNotes);
+
+  const updateNextAction = async (nextAction: string | null) => {
+    await patchWorkflow({ next_action: nextAction });
+    setChatActivityKey((k) => k + 1);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -233,6 +249,9 @@ function ProspectFinderDetailContent() {
               {label}
               {tabId === "tasks" && openTasks.length > 0 && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{openTasks.length}</span>
+              )}
+              {tabId === "notes" && notesCount > 0 && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">{notesCount}</span>
               )}
             </button>
           ))}
@@ -315,10 +334,62 @@ function ProspectFinderDetailContent() {
               />
               <div className="space-y-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client journey</p>
-                <ServiceFitPanel data={record} />
-                <ProspectResearchEvidenceCard data={record} />
+                <ServiceFitPanel data={record} mode="overview" />
                 <ProspectTagList data={record} />
               </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <HubMetricCard
+                  value={openTasks.length}
+                  label="Open tasks"
+                  onClick={() => setActiveTab("tasks")}
+                />
+                <HubMetricCard
+                  value={notesCount}
+                  label="Notes"
+                  onClick={() => setActiveTab("notes")}
+                />
+              </div>
+
+              <JourneySummaryButton
+                outreachId={record.id}
+                contactId={record.pipeline_contact_id ?? undefined}
+                onSaved={() => {
+                  void load();
+                  setChatActivityKey((k) => k + 1);
+                }}
+              />
+
+              <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
+                <input
+                  value={record.next_action || ""}
+                  onChange={(e) =>
+                    setRecord((prev) => (prev ? { ...prev, next_action: e.target.value } : prev))
+                  }
+                  onBlur={() => void updateNextAction(record.next_action)}
+                  placeholder="Most important next step for this prospect"
+                  className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                />
+              </div>
+
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-1">Last activity</p>
+                {lastActivity ? (
+                  <>
+                    <p className="text-sm text-[#111111]">{lastActivity.title}</p>
+                    {lastActivity.detail && (
+                      <p className="mt-1 text-sm text-[#6f6b62]">{lastActivity.detail}</p>
+                    )}
+                    <p className="mt-1 text-xs text-[#6f6b62]">
+                      {new Date(lastActivity.created_at).toLocaleString("en-GB")}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-sm text-[#6f6b62]/50">No activity recorded yet.</p>
+                )}
+              </div>
+
               <KnowledgeAttachPicker outreachId={record.id} />
               <Link
                 href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
@@ -329,6 +400,14 @@ function ProspectFinderDetailContent() {
                 <BookOpen className="h-4 w-4" /> Sector guidance
               </Link>
             </>
+          )}
+
+          {activeTab === "research" && (
+            <div className="space-y-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Research assessment</p>
+              <ServiceFitPanel data={record} mode="research" />
+              <ProspectResearchEvidenceCard data={record} />
+            </div>
           )}
 
           {activeTab === "engagement_guide" && (

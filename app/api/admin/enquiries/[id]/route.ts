@@ -1,3 +1,4 @@
+import { appendNextActionToNotes } from "@/lib/engagement/append-note";
 import { logActivity } from "@/lib/engagement/activity-log";
 import { ensurePreSalesOpportunity } from "@/lib/engagement/pre-sales-pipeline";
 import { NextRequest, NextResponse } from "next/server";
@@ -143,6 +144,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           contact_id: data.contact_id,
           metadata: { due: data.next_action_date },
         });
+
+        if (
+          updates.next_action !== undefined &&
+          updates.next_action !== before.next_action &&
+          data.next_action?.trim()
+        ) {
+          const combined = appendNextActionToNotes(before.admin_notes, data.next_action);
+          if (combined !== before.admin_notes) {
+            await db.from("enquiries").update({ admin_notes: combined }).eq("id", id);
+            data.admin_notes = combined;
+          }
+        }
       }
     }
 

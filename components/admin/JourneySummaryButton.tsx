@@ -4,16 +4,22 @@ import { useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
 
 type Props = {
-  contactId: string;
+  contactId?: string;
+  outreachId?: string;
   onSaved?: () => void;
 };
 
-export function JourneySummaryButton({ contactId, onSaved }: Props) {
+export function JourneySummaryButton({ contactId, outreachId, onSaved }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
+  const savedMessage = outreachId && !contactId
+    ? "Summary saved to prospect notes. Open the Notes tab to review."
+    : "Summary saved to client notes. Open the Notes tab to review.";
+
   const generate = async () => {
+    if (!contactId && !outreachId) return;
     setLoading(true);
     setError(null);
     setDone(false);
@@ -21,7 +27,7 @@ export function JourneySummaryButton({ contactId, onSaved }: Props) {
       const res = await fetch("/api/admin/ai/journey-summary", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contactId }),
+        body: JSON.stringify({ contactId, outreachId }),
       });
       const j = (await res.json()) as { error?: string; data?: { saved: boolean } };
       if (!res.ok) throw new Error(j.error || "Failed to generate summary");
@@ -39,7 +45,7 @@ export function JourneySummaryButton({ contactId, onSaved }: Props) {
       <button
         type="button"
         onClick={() => void generate()}
-        disabled={loading}
+        disabled={loading || (!contactId && !outreachId)}
         className="flex items-center gap-1.5 rounded-lg border border-[#063b32]/25 bg-[#063b32]/5 px-4 py-2 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:opacity-50"
       >
         {loading ? (
@@ -49,11 +55,7 @@ export function JourneySummaryButton({ contactId, onSaved }: Props) {
         )}
         {loading ? "Generating journey summary…" : "Generate journey summary"}
       </button>
-      {done && (
-        <p className="text-xs text-[#063b32]">
-          Summary saved to client notes. Open the Notes tab to review.
-        </p>
-      )}
+      {done && <p className="text-xs text-[#063b32]">{savedMessage}</p>}
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );

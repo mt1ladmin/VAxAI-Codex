@@ -391,6 +391,9 @@ function ClientDetailContent() {
               {tab.id === "research" && outreachRecord && (
                 <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
               )}
+              {tab.id === "engagement_guide" && (outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway) && (
+                <span className="ml-1.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">✓</span>
+              )}
               {tab.id === "submission" && (linkedEnquiry || outreachRecord) && (
                 <span className="ml-1.5 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] text-blue-700">1</span>
               )}
@@ -494,8 +497,7 @@ function ClientDetailContent() {
               {outreachRecord && (
                 <div className="space-y-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client journey</p>
-                  <ServiceFitPanel data={outreachRecord} />
-                  <ProspectResearchEvidenceCard data={outreachRecord} />
+                  <ServiceFitPanel data={outreachRecord} mode="overview" />
                   <ProspectTagList data={outreachRecord} />
                 </div>
               )}
@@ -734,6 +736,21 @@ function ClientDetailContent() {
 
           {/* RESEARCH TAB */}
           {activeTab === "research" && (
+            outreachRecord ? (
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Research assessment</p>
+                <ServiceFitPanel data={outreachRecord} mode="research" />
+                <ProspectResearchEvidenceCard data={outreachRecord} />
+              </div>
+            ) : (
+              <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+                <p className="text-sm text-[#6f6b62]">No Prospect Finder research linked to this record yet.</p>
+              </div>
+            )
+          )}
+
+          {/* ENGAGEMENT GUIDE TAB */}
+          {activeTab === "engagement_guide" && (
             outreachRecord?.engagement_approach || primaryOpp?.recommended_pathway ? (
               <div className="rounded-xl border border-[#111111]/10 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>

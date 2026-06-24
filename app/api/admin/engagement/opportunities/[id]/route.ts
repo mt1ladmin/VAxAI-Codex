@@ -1,3 +1,4 @@
+import { appendNextActionToNotes } from "@/lib/engagement/append-note";
 import { logActivity } from "@/lib/engagement/activity-log";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -65,6 +66,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         outreach_id: body.outreach_id,
         contact_id: data.primary_contact_id,
       });
+    }
+
+    if (body.next_action !== undefined && body.next_action !== before.next_action) {
+      await logActivity(supabase, {
+        event_type: "next_action",
+        title: "Next action updated",
+        detail: data.next_action ?? null,
+        opportunity_id: id,
+        enquiry_id: data.enquiry_id,
+        outreach_id: data.outreach_id,
+        contact_id: data.primary_contact_id,
+      });
+
+      if (body.next_action?.trim() && data.primary_contact_id) {
+        const { data: contact } = await supabase
+          .from("engagement_contacts")
+          .select("notes")
+          .eq("id", data.primary_contact_id)
+          .single();
+
+        const combined = appendNextActionToNotes(contact?.notes, body.next_action);
+        await supabase
+          .from("engagement_contacts")
+          .update({ notes: combined })
+          .eq("id", data.primary_contact_id);
+      }
     }
   }
 

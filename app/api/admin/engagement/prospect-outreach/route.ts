@@ -1,3 +1,4 @@
+import { appendNextActionToNotes } from "@/lib/engagement/append-note";
 import { logActivity } from "@/lib/engagement/activity-log";
 import { engagementStatusForAssignment, isFinderEngagementStatus } from "@/lib/engagement/engagement-status";
 import {
@@ -110,7 +111,18 @@ export async function PATCH(req: NextRequest) {
     updated_at: new Date().toISOString(),
   };
 
-  if (review_notes !== undefined) upsertPayload.review_notes = review_notes;
+  let syncedReviewNotes: string | null | undefined = review_notes ?? existing?.review_notes ?? null;
+
+  if (
+    body.next_action !== undefined &&
+    body.next_action?.trim() &&
+    body.next_action !== existing?.next_action
+  ) {
+    syncedReviewNotes = appendNextActionToNotes(syncedReviewNotes, body.next_action);
+    upsertPayload.review_notes = syncedReviewNotes;
+  } else if (review_notes !== undefined) {
+    upsertPayload.review_notes = review_notes;
+  }
   if (body.assigned_team_member_id !== undefined) {
     upsertPayload.assigned_team_member_id = body.assigned_team_member_id;
     upsertPayload.engagement_status = engagementStatusForAssignment(
@@ -148,6 +160,21 @@ export async function PATCH(req: NextRequest) {
     });
   }
 
+  if (
+    body.next_action !== undefined &&
+    body.next_action !== existing?.next_action
+  ) {
+    await logActivity(supabase, {
+      event_type: "next_action",
+      title: "Next action updated",
+      detail: body.next_action ?? null,
+      outreach_id,
+      opportunity_id: existing?.opportunity_id ?? null,
+      contact_id: existing?.pipeline_contact_id ?? null,
+      metadata: { due: body.next_action_date ?? existing?.next_action_date ?? null },
+    });
+  }
+
   const members = await loadTeamMembers(supabase);
   const { overrides: overrideMap, rows } = await loadOverrideMaps(supabase);
   const row = rows.get(outreach_id);
@@ -156,7 +183,7 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json({
     data: {
       ...merged,
-      review_notes: review_notes ?? row?.review_notes ?? null,
+      review_notes: upsertPayload.review_notes ?? syncedReviewNotes ?? row?.review_notes ?? null,
       assigned_team_member_id: row?.assigned_team_member_id ?? body.assigned_team_member_id ?? null,
       engagement_status: upsertPayload.engagement_status ?? row?.engagement_status ?? "Not assigned",
       opportunity_description: row?.opportunity_description ?? null,

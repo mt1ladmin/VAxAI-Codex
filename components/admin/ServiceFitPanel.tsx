@@ -7,7 +7,9 @@ import { COMPLEXITY_COLORS } from "@/lib/engagement/prospect-outreach/types";
 
 type Props = {
   data: ProspectOutreachRecord;
+  /** @deprecated Prefer `mode` — when true, shows summary only. */
   compact?: boolean;
+  mode?: "overview" | "research" | "full";
 };
 
 function CollapsibleSection({
@@ -53,8 +55,16 @@ function TagList({ items, tone }: { items: string[]; tone?: "primary" | "muted" 
   );
 }
 
-export function ServiceFitPanel({ data, compact }: Props) {
-  if (!data.service_fit_summary && !data.likely_need) {
+export function ServiceFitPanel({ data, compact, mode }: Props) {
+  const resolvedMode = mode ?? (compact ? "overview" : "full");
+  const showSummary = resolvedMode === "overview" || resolvedMode === "full";
+  const showResearch = resolvedMode === "research" || resolvedMode === "full";
+
+  if (
+    resolvedMode === "overview" &&
+    !data.service_fit_summary &&
+    !data.likely_need
+  ) {
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
         Service-fit assessment not yet available for this record.
@@ -62,8 +72,25 @@ export function ServiceFitPanel({ data, compact }: Props) {
     );
   }
 
+  if (
+    resolvedMode === "research" &&
+    !data.evidence_summary &&
+    !data.need_rationale &&
+    !(data.vaxai_direct_support?.length ?? 0) &&
+    !data.recommended_engagement &&
+    !data.engagement_approach &&
+    !(data.open_questions?.length ?? 0)
+  ) {
+    return (
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
+        Detailed research assessment not yet available for this record.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
+      {showSummary && (
       <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-4">
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
@@ -90,12 +117,13 @@ export function ServiceFitPanel({ data, compact }: Props) {
         <p className="mt-2 text-sm font-medium text-[#111111]">
           {data.service_fit_summary || data.likely_need}
         </p>
-        {!compact && data.likely_need && data.likely_need !== data.service_fit_summary && (
+        {showResearch && data.likely_need && data.likely_need !== data.service_fit_summary && (
           <p className="mt-2 text-sm text-[#6f6b62]">{data.likely_need}</p>
         )}
       </div>
+      )}
 
-      {!compact && (
+      {showResearch && (
         <>
           <CollapsibleSection title="Evidence and assessment" defaultOpen>
             <div>
