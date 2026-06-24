@@ -27,16 +27,6 @@ type WorkToday = {
 };
 
 
-type Task = {
-  id: string;
-  title: string;
-  due_date: string | null;
-  priority: string;
-  status: string;
-  organisation?: { name: string } | null;
-  contact?: { first_name: string; last_name: string | null } | null;
-};
-
 type PainPoint = { id: string; title: string; category: string; slug: string | null };
 type PostItem = { id: string; title: string; status: string; scheduled_at?: string | null; content_type: string };
 
@@ -84,8 +74,6 @@ function SectionCard({
 
 export default function EngagementOverview() {
   const userEmail = useUserEmail();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [tasksLoading, setTasksLoading] = useState(true);
   const [workToday, setWorkToday] = useState<WorkToday | null>(null);
   const [workLoading, setWorkLoading] = useState(true);
   const [showContent, setShowContent] = useState(false);
@@ -110,7 +98,6 @@ export default function EngagementOverview() {
       .then((r) => r.json())
       .then((j) => setCommonPainPoints(j.data || []));
 
-    setTasksLoading(true);
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
 
@@ -119,25 +106,11 @@ export default function EngagementOverview() {
       fetch("/api/admin/enquiries?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/posts?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
     ]).then(([taskRes, finderRes, queueRes, enqRes, postRes]) => {
-      const taskData = (taskRes.data || []) as Task[];
+      const taskData = (taskRes.data || []) as Array<{ due_date: string | null; status: string }>;
       const finderMeta = (finderRes.meta || {}) as { unassigned_count?: number };
       const queueMetrics = (queueRes.metrics || {}) as { total?: number };
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
-
-      const todayStr = new Date().toISOString().split("T")[0];
-      const openTasks = taskData.filter((t) => t.status !== "done");
-      const sorted = [...openTasks].sort((a, b) => {
-        const aOver = a.due_date && a.due_date < todayStr ? 0 : 1;
-        const bOver = b.due_date && b.due_date < todayStr ? 0 : 1;
-        if (aOver !== bOver) return aOver - bOver;
-        if (a.due_date && b.due_date) return a.due_date.localeCompare(b.due_date);
-        if (a.due_date) return -1;
-        if (b.due_date) return 1;
-        return 0;
-      });
-      setTasks(sorted.slice(0, 3));
-      setTasksLoading(false);
 
       const isSocial = (p: PostItem) => (p.content_type || "").toLowerCase().includes("social");
       const isScheduled = (p: PostItem) => !!p.scheduled_at && p.status !== "published";
@@ -319,50 +292,6 @@ export default function EngagementOverview() {
             </Link>
           ))}
         </div>
-
-        <SectionCard
-          title="Tasks"
-          action={
-            <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">
-              View all tasks
-            </Link>
-          }
-        >
-          {tasksLoading ? (
-            <div className="divide-y divide-[#111111]/5">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="px-5 py-3">
-                  <div className="h-4 w-2/3 animate-pulse rounded bg-[#111111]/8" />
-                  <div className="mt-2 h-3 w-1/3 animate-pulse rounded bg-[#111111]/5" />
-                </div>
-              ))}
-            </div>
-          ) : tasks.length === 0 ? (
-            <div className="px-5 py-8 text-center text-sm text-[#6f6b62]">
-              No open tasks yet.{" "}
-              <Link href="/admin/engagement/pipeline" className="text-[#063b32] font-semibold hover:underline">
-                Add one in Tasks Tracker
-              </Link>
-            </div>
-          ) : (
-            <div className="divide-y divide-[#111111]/5">
-              {tasks.map((t) => {
-                const overdue = t.due_date && t.due_date < todayStr;
-                return (
-                  <Link key={t.id} href="/admin/engagement/pipeline" className="block px-5 py-3 hover:bg-[#f7f4ea]/40">
-                    <p className="text-sm font-semibold text-[#111111] truncate">{t.title}</p>
-                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">
-                      {t.contact
-                        ? `${t.contact.first_name} ${t.contact.last_name || ""}`.trim()
-                        : t.organisation?.name || "View in Task Tracker"}
-                      {t.due_date ? ` · ${overdue ? "Overdue" : new Date(t.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}
-                    </p>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </SectionCard>
 
         <SectionCard
           title="Common pain points"

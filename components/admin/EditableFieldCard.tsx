@@ -14,6 +14,7 @@ type Props = {
   rows?: number;
   emptyText?: string;
   placeholder?: string;
+  flat?: boolean;
 };
 
 export function EditableFieldCard({
@@ -24,6 +25,7 @@ export function EditableFieldCard({
   rows = 4,
   emptyText = "—",
   placeholder,
+  flat,
 }: Props) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -49,8 +51,8 @@ export function EditableFieldCard({
     }
   };
 
-  return (
-    <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
+  const content = (
+    <>
       <div className="mb-2 flex items-start justify-between gap-3">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{label}</p>
         {!editing ? (
@@ -107,6 +109,14 @@ export function EditableFieldCard({
       ) : (
         <p className="text-sm text-[#111111] whitespace-pre-wrap">{value.trim() || emptyText}</p>
       )}
+    </>
+  );
+
+  if (flat) return <div>{content}</div>;
+
+  return (
+    <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
+      {content}
     </div>
   );
 }
