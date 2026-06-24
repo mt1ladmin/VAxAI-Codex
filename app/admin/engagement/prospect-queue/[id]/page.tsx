@@ -472,7 +472,6 @@ function ClientDetailContent() {
                   stages={stageOptionsFor(primaryOpp)}
                   onChange={(stage) => void updateOpportunityStage(primaryOpp.id, stage)}
                   loading={updatingStage}
-                  dropUp
                 />
               </div>
               <p className="text-xs text-[#6f6b62] leading-relaxed">{queueStageHint(primaryOpp.stage)}</p>

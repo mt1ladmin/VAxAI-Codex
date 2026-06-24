@@ -57,7 +57,7 @@ export function OpportunityStageSelect({
       </button>
       {open && (
         <div
-          className={`absolute right-0 z-50 max-h-64 w-56 overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg ${
+          className={`absolute right-0 z-30 max-h-64 w-full min-w-[12rem] overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg ${
             dropUp ? "bottom-full mb-1" : "top-full mt-1"
           }`}
         >
@@ -66,13 +66,13 @@ export function OpportunityStageSelect({
               key={stage}
               type="button"
               onClick={() => handleSelect(stage)}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition-colors hover:bg-[#f7f4ea] ${
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
                 value === stage ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"
               }`}
             >
               <span className={`h-2 w-2 shrink-0 rounded-full ${(STAGE_COLORS[stage] || "bg-gray-300").split(" ")[0]}`} />
               <span className="flex-1">{stage}</span>
-              {value === stage && <Check className="h-3 w-3 shrink-0 text-[#063b32]" />}
+              {value === stage && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
             </button>
           ))}
         </div>
