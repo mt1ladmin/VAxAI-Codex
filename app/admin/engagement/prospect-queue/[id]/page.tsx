@@ -342,6 +342,18 @@ function ProspectDetailContent() {
     if (entry) {
       void loadTasks(entry.contact_id, entry.organisation_id, opportunities);
     }
+    bumpTimeline();
+  };
+
+  const markTaskUndone = async (taskId: string) => {
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "todo" }),
+    });
+    if (entry) {
+      void loadTasks(entry.contact_id, entry.organisation_id, opportunities);
+    }
   };
 
   if (loading) return <HubDetailSkeleton />;
@@ -757,6 +769,7 @@ function ProspectDetailContent() {
                 savingTask={savingTask}
                 onCreateTask={createTask}
                 onMarkDone={markTaskDone}
+                onMarkUndone={markTaskUndone}
                 onSaveLinkedNextAction={handleSaveLinkedNextAction}
                 onCompleteLinkedNextAction={handleCompleteLinkedNextAction}
                 showDone={showDone}
@@ -766,8 +779,13 @@ function ProspectDetailContent() {
           )}
 
           {activeTab === "activity" && (
-            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
+                <p className="mt-1 text-sm text-[#6f6b62]/80">
+                  Status changes, notes, tasks, and VAxAI conversations in one chronological feed.
+                </p>
+              </div>
               <ActivityTimeline
                 queueId={id}
                 contactId={entry.contact_id ?? undefined}

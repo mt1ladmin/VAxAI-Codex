@@ -274,6 +274,7 @@ export default function ProspectQueuePage() {
   const [confirmDelete, setConfirmDelete] = useState<ProspectQueueEntry | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const importRef = useRef<HTMLDivElement>(null);
 
   const showToast = (message: string) => {
@@ -512,6 +513,7 @@ export default function ProspectQueuePage() {
     });
     if (!res.ok) showToast("Could not delete selected prospects");
     else showToast(`Removed ${selected.size} prospect${selected.size !== 1 ? "s" : ""}`);
+    setConfirmBulkDelete(false);
     setBulkDeleting(false);
     void fetchQueue();
   };
@@ -539,6 +541,34 @@ export default function ProspectQueuePage() {
           onDelete={() => setConfirmDelete(editingEntry)}
           deleting={deleting}
         />
+      )}
+      {confirmBulkDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="text-base font-semibold text-[#111111]">Delete {selected.size} prospect{selected.size !== 1 ? "s" : ""}?</h3>
+            <p className="mt-2 text-sm text-[#6f6b62]">
+              This permanently removes the selected entries from the queue. This cannot be undone.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmBulkDelete(false)}
+                className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-medium text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void bulkDelete()}
+                disabled={bulkDeleting}
+                className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {bulkDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                Delete selected
+              </button>
+            </div>
+          </div>
+        </div>
       )}
       {confirmDelete && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
@@ -731,7 +761,7 @@ export default function ProspectQueuePage() {
               <span className="text-sm text-[#6f6b62]">{selected.size} selected</span>
               <button
                 type="button"
-                onClick={() => void bulkDelete()}
+                onClick={() => setConfirmBulkDelete(true)}
                 disabled={bulkDeleting}
                 className="flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50"
               >

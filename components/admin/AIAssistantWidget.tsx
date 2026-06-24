@@ -24,6 +24,7 @@ import {
 } from "@/lib/ai-assistant-context";
 import { assistantParagraphs } from "@/lib/ai/format-message";
 import { recordChatSnapshot } from "@/lib/engagement/chat-activity";
+import { notifyActivityRecorded } from "@/lib/engagement/activity-events";
 
 type AIMessage = {
   id: string;
@@ -288,6 +289,7 @@ function ChatPanel({
     if (!sessionId || messageCount <= 0) return;
     await recordChatSnapshot(contextType, contextId, sessionId, messageCount);
     onActivityRecorded?.();
+    notifyActivityRecorded();
   }, [contextType, contextId, onActivityRecorded]);
 
   useEffect(() => {
@@ -374,9 +376,10 @@ function ChatPanel({
         json.data!.assistantMessage,
       ]);
       setSession(json.data.session);
+      const nextCount = json.data.session.message_count ?? 0;
       snapshotRef.current = {
         sessionId: json.data.session.id,
-        messageCount: json.data.session.message_count ?? messages.length + 2,
+        messageCount: nextCount,
       };
       onChatStarted?.();
     } catch {
@@ -404,6 +407,7 @@ function ChatPanel({
     if (!res.ok) throw new Error(json.error ?? "Failed to save to notes");
     onNotesSaved?.();
     onActivityRecorded?.();
+    notifyActivityRecorded();
   };
 
   const openSummariseModal = async () => {
@@ -441,12 +445,12 @@ function ChatPanel({
     setError("");
     try {
       if (messages.length > 0) {
-        await takeSnapshot();
         await fetch("/api/admin/ai/chat/reset", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ context_type: contextType, context_id: contextId }),
         });
+        notifyActivityRecorded();
       }
       if (onNewChat) {
         onNewChat();
@@ -962,6 +966,7 @@ export function AIAssistantWidget() {
                 showNewChatButton
                 onNewChat={handleNewChat}
                 onChatStarted={handleChatStarted}
+                onActivityRecorded={notifyActivityRecorded}
               />
             )}
           </div>

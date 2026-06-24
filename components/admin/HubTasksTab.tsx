@@ -20,6 +20,7 @@ type HubTasksTabProps = {
   savingTask: boolean;
   onCreateTask: () => void;
   onMarkDone: (taskId: string) => void;
+  onMarkUndone?: (taskId: string) => void;
   onSaveLinkedNextAction?: (item: LinkedNextAction, payload: { title: string; dueDate: string | null }) => Promise<void>;
   onCompleteLinkedNextAction?: (item: LinkedNextAction) => Promise<void>;
   showDone: boolean;
@@ -49,6 +50,7 @@ export function HubTasksTab({
   savingTask,
   onCreateTask,
   onMarkDone,
+  onMarkUndone,
   onSaveLinkedNextAction,
   onCompleteLinkedNextAction,
   showDone,
@@ -324,10 +326,25 @@ export function HubTasksTab({
                   key={t.id}
                   className="flex items-center gap-3 rounded-xl border border-[#111111]/8 bg-[#f7f4ea]/50 px-4 py-3"
                 >
-                  <div className="grid h-4 w-4 shrink-0 place-items-center rounded border border-emerald-300 bg-emerald-50">
+                  <button
+                    type="button"
+                    onClick={() => onMarkUndone?.(t.id)}
+                    disabled={!onMarkUndone}
+                    title={onMarkUndone ? "Mark as not done" : undefined}
+                    className="grid h-4 w-4 shrink-0 place-items-center rounded border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 disabled:cursor-default"
+                  >
                     <Check className="h-3 w-3 text-emerald-600" />
-                  </div>
+                  </button>
                   <span className="flex-1 text-sm text-[#6f6b62] line-through">{t.title}</span>
+                  {onMarkUndone && (
+                    <button
+                      type="button"
+                      onClick={() => void onMarkUndone(t.id)}
+                      className="shrink-0 text-[10px] font-semibold text-[#063b32] hover:underline"
+                    >
+                      Reopen
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

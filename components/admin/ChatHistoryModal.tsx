@@ -31,12 +31,14 @@ export function ChatHistoryModal({
   open,
   onClose,
   sessionId,
+  snapshotId,
   title,
   endedAt,
 }: {
   open: boolean;
   onClose: () => void;
-  sessionId: string;
+  sessionId?: string;
+  snapshotId?: string;
   title: string;
   endedAt: string;
 }) {
@@ -46,14 +48,14 @@ export function ChatHistoryModal({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open || !sessionId) return;
+    if (!open || (!sessionId && !snapshotId)) return;
     setLoading(true);
     setError(null);
-    void fetchChatMessages(sessionId)
+    void fetchChatMessages({ sessionId, snapshotId })
       .then((data) => setMessages(data))
       .catch(() => setError("Could not load chat history."))
       .finally(() => setLoading(false));
-  }, [open, sessionId]);
+  }, [open, sessionId, snapshotId]);
 
   useEffect(() => {
     if (scrollRef.current) {

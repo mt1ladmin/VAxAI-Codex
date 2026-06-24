@@ -79,11 +79,11 @@ function taskRecordLabel(task: EngagementTask): string {
 
 function TaskRow({
   task,
-  onMarkDone,
+  onToggleStatus,
   allowClientLinks,
 }: {
   task: EngagementTask;
-  onMarkDone: (id: string) => void;
+  onToggleStatus: (id: string, currentStatus: string) => void;
   allowClientLinks: boolean;
 }) {
   const recordHref = taskRecordHref(task, allowClientLinks);
@@ -92,11 +92,11 @@ function TaskRow({
     <div className="flex items-center gap-4 px-5 py-3.5">
       <button
         type="button"
-        onClick={() => void onMarkDone(task.id)}
-        disabled={task.status === "done"}
+        onClick={() => void onToggleStatus(task.id, task.status)}
+        title={task.status === "done" ? "Mark as not done" : "Mark done"}
         className={`h-5 w-5 shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
           task.status === "done"
-            ? "bg-emerald-500 border-emerald-500"
+            ? "bg-emerald-500 border-emerald-500 hover:bg-emerald-600"
             : "border-[#111111]/20 hover:border-[#063b32]"
         }`}
       >
@@ -146,12 +146,12 @@ function TaskRow({
 
 function TaskBoardCard({
   task,
-  onMarkDone,
+  onToggleStatus,
   onDragStart,
   allowClientLinks,
 }: {
   task: EngagementTask;
-  onMarkDone: (id: string) => void;
+  onToggleStatus: (id: string, currentStatus: string) => void;
   onDragStart: (taskId: string) => void;
   allowClientLinks: boolean;
 }) {
@@ -166,10 +166,10 @@ function TaskBoardCard({
       <div className="flex items-start gap-2">
         <button
           type="button"
-          onClick={() => void onMarkDone(task.id)}
-          disabled={task.status === "done"}
+          onClick={() => void onToggleStatus(task.id, task.status)}
+          title={task.status === "done" ? "Mark as not done" : "Mark done"}
           className={`mt-0.5 h-4 w-4 shrink-0 rounded border-2 flex items-center justify-center ${
-            task.status === "done" ? "bg-emerald-500 border-emerald-500" : "border-[#111111]/20 hover:border-[#063b32]"
+            task.status === "done" ? "bg-emerald-500 border-emerald-500 hover:bg-emerald-600" : "border-[#111111]/20 hover:border-[#063b32]"
           }`}
         >
           {task.status === "done" && (
@@ -275,8 +275,8 @@ export function TasksListView({
     void load();
   };
 
-  const markDone = async (taskId: string) => {
-    await updateStatus(taskId, "done");
+  const toggleTaskStatus = async (taskId: string, currentStatus: string) => {
+    await updateStatus(taskId, currentStatus === "done" ? "todo" : "done");
   };
 
   const handleDrop = async (columnId: string) => {
@@ -483,7 +483,7 @@ export function TasksListView({
                 <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{dateLabel}</p>
                 <div className="rounded-xl border border-[#111111]/10 overflow-hidden divide-y divide-[#111111]/5">
                   {items.map((t) => (
-                    <TaskRow key={t.id} task={t} onMarkDone={markDone} allowClientLinks={allowClientLinks} />
+                    <TaskRow key={t.id} task={t} onToggleStatus={toggleTaskStatus} allowClientLinks={allowClientLinks} />
                   ))}
                 </div>
               </div>
@@ -509,7 +509,7 @@ export function TasksListView({
                   </div>
                   <div className="min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto p-2 space-y-2 scrollbar-subtle">
                     {items.map((t) => (
-                      <TaskBoardCard key={t.id} task={t} onMarkDone={markDone} onDragStart={setDraggingId} allowClientLinks={allowClientLinks} />
+                      <TaskBoardCard key={t.id} task={t} onToggleStatus={toggleTaskStatus} onDragStart={setDraggingId} allowClientLinks={allowClientLinks} />
                     ))}
                     {items.length === 0 && (
                       <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-[#111111]/10 text-[11px] text-[#6f6b62]/50">

@@ -42,8 +42,15 @@ export async function recordChatSnapshot(
   });
 }
 
-export async function fetchChatMessages(sessionId: string): Promise<ChatActivityMessage[]> {
-  const res = await fetch(`/api/admin/ai/chat/messages?session_id=${encodeURIComponent(sessionId)}`);
+export async function fetchChatMessages(
+  opts: { sessionId?: string; snapshotId?: string },
+): Promise<ChatActivityMessage[]> {
+  const params = new URLSearchParams();
+  if (opts.snapshotId) params.set("snapshot_id", opts.snapshotId);
+  else if (opts.sessionId) params.set("session_id", opts.sessionId);
+  else return [];
+
+  const res = await fetch(`/api/admin/ai/chat/messages?${params}`);
   const json = (await res.json()) as { data?: ChatActivityMessage[] };
   return json.data ?? [];
 }
