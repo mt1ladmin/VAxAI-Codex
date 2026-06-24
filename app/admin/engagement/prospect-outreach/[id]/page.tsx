@@ -3,16 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  BookOpen,
-  ExternalLink,
-  Loader2,
-  Mail,
-  Phone,
-  Save,
-  Send,
-  User,
-} from "lucide-react";
+import { BookOpen, Loader2, Save, Send } from "lucide-react";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
@@ -20,7 +11,14 @@ import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { MoveToProspectQueueModal } from "@/components/admin/MoveToProspectQueueModal";
-import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
+import {
+  ProspectDecisionMakerCard,
+  ProspectOrganisationCard,
+  ProspectProfileHeader,
+  ProspectResearchEvidenceCard,
+  ProspectTagList,
+} from "@/components/admin/ProspectResearchPanel";
+import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
@@ -35,14 +33,13 @@ import {
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
-import { emailComposeUrl } from "@/lib/engagement/email-links";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type { EngagementTask } from "@/lib/engagement/types";
 
-type Tab = "overview" | "research" | "notes" | "tasks" | "activity";
+type Tab = "overview" | "engagement_guide" | "notes" | "tasks" | "activity";
 const TAB_LABELS: Record<Tab, string> = {
   overview: "Overview",
-  research: "Research",
+  engagement_guide: "Engagement guide",
   notes: "Notes",
   tasks: "Tasks & next actions",
   activity: "Activity",
@@ -60,8 +57,8 @@ function ProspectFinderDetailContent() {
   const [tasks, setTasks] = useState<EngagementTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
-  const [editingResearch, setEditingResearch] = useState(false);
-  const [researchDraft, setResearchDraft] = useState<ProspectFinderListItem | null>(null);
+  const [editingEngagementGuide, setEditingEngagementGuide] = useState(false);
+  const [engagementGuideDraft, setEngagementGuideDraft] = useState("");
   const [reviewNotes, setReviewNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [noteText, setNoteText] = useState("");
@@ -78,7 +75,7 @@ function ProspectFinderDetailContent() {
     const json = await res.json();
     if (json.data) {
       setRecord(json.data);
-      setResearchDraft(json.data);
+      setEngagementGuideDraft(json.data.engagement_approach || "");
       setReviewNotes(json.data.review_notes || "");
       setTasks(json.tasks || []);
       setTeamMembers(json.team_members || []);
@@ -119,13 +116,13 @@ function ProspectFinderDetailContent() {
     return json.data;
   };
 
-  const saveResearch = async () => {
-    if (!researchDraft) return;
+  const saveEngagementGuide = async () => {
     setSaving(true);
     try {
-      const { review_notes: _rn, assigned_team_member_id: _a, engagement_status: _e, ...overrides } = researchDraft;
-      await patchWorkflow({ overrides, review_notes: reviewNotes });
-      setEditingResearch(false);
+      await patchWorkflow({
+        overrides: { engagement_approach: engagementGuideDraft.trim() },
+      });
+      setEditingEngagementGuide(false);
     } finally {
       setSaving(false);
     }
@@ -223,31 +220,11 @@ function ProspectFinderDetailContent() {
 
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
-          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Summary</p>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Sector · Location</p>
-              <p className="text-sm text-[#111111]">{record.sector_label} · {record.location}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Fit</p>
-              <p className="text-sm text-[#111111]">Need {record.need_score} · {record.priority_label}</p>
-            </div>
-            {record.email && (
-              <a href={emailComposeUrl(record.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
-                <Mail className="h-3.5 w-3.5" /> {record.email}
-              </a>
-            )}
-            {record.phone && (
-              <a href={`tel:${record.phone}`} className="flex items-center gap-1.5 text-sm text-[#111111]">
-                <Phone className="h-3.5 w-3.5" /> {record.phone}
-              </a>
-            )}
-            {record.website && (
-              <a href={record.website.startsWith("http") ? record.website : `https://${record.website}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
-                <ExternalLink className="h-3.5 w-3.5" /> Website
-              </a>
-            )}
+            <ProspectProfileHeader data={record} />
+            <ProspectOrganisationCard data={record} />
+            <ProspectDecisionMakerCard data={record} />
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
@@ -313,8 +290,14 @@ function ProspectFinderDetailContent() {
             <>
               <JourneyStageBanner
                 currentStage="finder"
-                hint="Assign an owner, update engagement status, and open research before moving genuine opportunities to Prospect Queue."
+                hint="Assign an owner, update engagement status, and review the client journey before moving genuine opportunities to Prospect Queue."
               />
+              <div className="space-y-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client journey</p>
+                <ServiceFitPanel data={record} />
+                <ProspectResearchEvidenceCard data={record} />
+                <ProspectTagList data={record} />
+              </div>
               <KnowledgeAttachPicker outreachId={record.id} />
               <Link
                 href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
@@ -327,30 +310,52 @@ function ProspectFinderDetailContent() {
             </>
           )}
 
-          {activeTab === "research" && (
+          {activeTab === "engagement_guide" && (
             <div className="space-y-4">
-              <ProspectResearchPanel
-                data={editingResearch && researchDraft ? researchDraft : record}
-                editable={editingResearch}
-                compact
-                onChange={(next) => setResearchDraft({ ...record, ...next })}
-              />
-              {record.engagement_approach && !editingResearch && (
-                <div className="rounded-xl border border-[#111111]/10 p-4">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement guide</p>
+              <div className="rounded-xl border border-[#111111]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62] mb-3">Engagement guide</p>
+                {editingEngagementGuide ? (
+                  <textarea
+                    value={engagementGuideDraft}
+                    onChange={(e) => setEngagementGuideDraft(e.target.value)}
+                    rows={18}
+                    placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm leading-relaxed outline-none focus:border-[#063b32] resize-y"
+                  />
+                ) : record.engagement_approach ? (
                   <CollapsibleNote content={record.engagement_approach} textClassName="text-sm text-[#111111] leading-relaxed" />
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-[#6f6b62]">No engagement guide yet. Add meeting prep and conversation guidance for this prospect.</p>
+                )}
+              </div>
               <div className="flex gap-2">
-                {editingResearch ? (
+                {editingEngagementGuide ? (
                   <>
-                    <button type="button" disabled={saving} onClick={() => void saveResearch()} className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save research
+                    <button type="button" disabled={saving} onClick={() => void saveEngagementGuide()} className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">
+                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save engagement guide
                     </button>
-                    <button type="button" onClick={() => { setResearchDraft(record); setEditingResearch(false); }} className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm">Cancel</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEngagementGuideDraft(record.engagement_approach || "");
+                        setEditingEngagementGuide(false);
+                      }}
+                      className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm"
+                    >
+                      Cancel
+                    </button>
                   </>
                 ) : (
-                  <button type="button" onClick={() => setEditingResearch(true)} className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm">Edit research</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEngagementGuideDraft(record.engagement_approach || "");
+                      setEditingEngagementGuide(true);
+                    }}
+                    className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm"
+                  >
+                    Edit engagement guide
+                  </button>
                 )}
               </div>
             </div>
