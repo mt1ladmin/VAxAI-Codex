@@ -205,7 +205,7 @@ export function HubTasksTab({
       )}
 
       {!hasOpenWork && !addingTask ? (
-        <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+        <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
           <Check className="mx-auto mb-2 h-8 w-8 text-emerald-400" />
           <p className="text-sm text-[#6f6b62]">No open tasks.</p>
         </div>

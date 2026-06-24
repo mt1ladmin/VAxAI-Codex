@@ -27,7 +27,7 @@ function CollapsibleSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between bg-[#f7f4ea]/60 px-4 py-3 text-left"
+        className="flex w-full items-center justify-between bg-white px-4 py-3 text-left transition-colors hover:bg-[#f7f4ea]/25"
       >
         <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{title}</span>
         {open ? <ChevronDown className="h-4 w-4 text-[#6f6b62]" /> : <ChevronRight className="h-4 w-4 text-[#6f6b62]" />}

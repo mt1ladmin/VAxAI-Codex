@@ -87,7 +87,7 @@ export function HubNotesTab({
         </div>
       ) : (
         !showAddNote && (
-          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+          <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
             <p className="text-sm text-[#6f6b62]">No notes yet. Add one above.</p>
           </div>
         )

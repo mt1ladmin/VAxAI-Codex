@@ -51,7 +51,7 @@ export function StatusSelect({
         type="button"
         onClick={() => !disabled && !loading && setOpen((v) => !v)}
         disabled={disabled || loading}
-        className={`flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40 focus:border-[#063b32] disabled:cursor-not-allowed disabled:opacity-60`}
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40 focus:border-[#063b32] disabled:cursor-not-allowed"
       >
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${triggerColor}`}

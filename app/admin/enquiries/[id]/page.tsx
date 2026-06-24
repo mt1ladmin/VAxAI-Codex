@@ -308,7 +308,7 @@ function EnquiryDetailContent() {
     }
   };
 
-  if (loading) return <HubDetailSkeleton />;
+  if (loading && !enquiry) return <HubDetailSkeleton />;
   if (!enquiry) return <div className="p-8 text-sm text-[#6f6b62]">Enquiry not found.</div>;
 
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
@@ -590,7 +590,7 @@ function EnquiryDetailContent() {
 
 export default function EnquiryDetailPage() {
   return (
-    <Suspense fallback={<HubDetailSkeleton />}>
+    <Suspense fallback={null}>
       <EnquiryDetailContent />
     </Suspense>
   );

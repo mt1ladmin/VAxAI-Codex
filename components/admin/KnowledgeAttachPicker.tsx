@@ -148,7 +148,7 @@ function PickerGroup({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left hover:bg-[#f7f4ea]/60"
+        className="flex w-full items-center justify-between gap-2 bg-white px-3 py-2.5 text-left transition-colors hover:bg-[#f7f4ea]/25"
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">

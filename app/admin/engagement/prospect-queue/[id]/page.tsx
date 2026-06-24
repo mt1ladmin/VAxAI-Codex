@@ -600,7 +600,7 @@ function ClientDetailContent() {
           {activeTab === "submission" && (
             <>
               {!linkedEnquiry && !outreachRecord ? (
-                <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+                <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
                   <p className="text-sm text-[#6f6b62]">No original submission linked to this client.</p>
                 </div>
               ) : (
@@ -741,7 +741,7 @@ function ClientDetailContent() {
                 <ProspectResearchEvidenceCard data={outreachRecord} />
               </div>
             ) : (
-              <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+              <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
                 <p className="text-sm text-[#6f6b62]">No Prospect Finder research linked to this record yet.</p>
               </div>
             )
@@ -758,7 +758,7 @@ function ClientDetailContent() {
                 />
               </div>
             ) : (
-              <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
+              <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
                 <p className="text-sm text-[#6f6b62]">No engagement guide linked to this record yet.</p>
               </div>
             )
@@ -794,7 +794,7 @@ function ClientDetailContent() {
 
 export default function ClientDetailPage() {
   return (
-    <Suspense fallback={<HubDetailSkeleton />}>
+    <Suspense fallback={null}>
       <ClientDetailContent />
     </Suspense>
   );

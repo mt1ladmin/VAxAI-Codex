@@ -302,7 +302,7 @@ function ProspectFinderDetailContent() {
                   void patchWorkflow({ engagement_status: status });
                 }}
                 disabled={record.in_prospect_queue}
-                className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] disabled:opacity-60"
+                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] disabled:cursor-not-allowed disabled:bg-[#f7f4ea]/20"
               >
                 {FINDER_ENGAGEMENT_STATUSES.filter((s) => s !== "In prospect queue" || record.in_prospect_queue).map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -326,7 +326,7 @@ function ProspectFinderDetailContent() {
                 <button
                   type="button"
                   disabled
-                  className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white opacity-50"
+                  className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-[#063b32]/25 bg-[#063b32]/5 px-4 py-2.5 text-sm font-semibold text-[#063b32]/70"
                 >
                   <Send className="h-4 w-4" /> {MOVE_TO_PROSPECT_QUEUE_LABEL}
                 </button>
@@ -521,7 +521,7 @@ function ProspectFinderDetailContent() {
 
 export default function ProspectFinderDetailPage() {
   return (
-    <Suspense fallback={<HubDetailSkeleton />}>
+    <Suspense fallback={null}>
       <ProspectFinderDetailContent />
     </Suspense>
   );

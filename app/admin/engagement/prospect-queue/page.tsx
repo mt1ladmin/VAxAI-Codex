@@ -7,6 +7,7 @@ import {
   Briefcase,
   Building2,
   ChevronRight,
+  Loader2,
   Mail,
   Phone,
   Search,
@@ -82,7 +83,6 @@ export default function ClientsPage() {
     pipelineValueActive: { low: 0, high: 0, display: null },
   });
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const hasLoadedRef = useRef(false);
   const [stageFilter, setStageFilter] = useState("");
   const [search, setSearch] = useState("");
@@ -90,8 +90,6 @@ export default function ClientsPage() {
   const load = useCallback(async () => {
     if (!hasLoadedRef.current) {
       setLoading(true);
-    } else {
-      setRefreshing(true);
     }
     const params = new URLSearchParams();
     if (stageFilter) params.set("stage", stageFilter);
@@ -109,7 +107,6 @@ export default function ClientsPage() {
     );
     hasLoadedRef.current = true;
     setLoading(false);
-    setRefreshing(false);
   }, [stageFilter]);
 
   useEffect(() => {
@@ -218,13 +215,11 @@ export default function ClientsPage() {
 
         {/* List */}
         {loading && clients.length === 0 ? (
-          <div className="space-y-2">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-28 rounded-xl bg-[#f7f4ea] animate-pulse" />
-            ))}
+          <div className="flex items-center justify-center py-16 text-[#6f6b62]">
+            <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea] py-16 text-center">
+          <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-16 text-center">
             <Briefcase className="mx-auto mb-3 h-10 w-10 text-[#6f6b62]/30" />
             <p className="text-sm font-semibold text-[#111111]">No engagements in the queue</p>
             <p className="mt-1 text-xs text-[#6f6b62]">
@@ -238,7 +233,7 @@ export default function ClientsPage() {
             </a>
           </div>
         ) : (
-          <div className={`space-y-2 transition-opacity ${refreshing ? "opacity-60" : ""}`}>
+          <div className="space-y-2">
             {filtered.map((c) => {
               const fullName = `${c.first_name}${c.last_name ? ` ${c.last_name}` : ""}`;
               const initials = `${c.first_name[0] ?? ""}${c.last_name?.[0] ?? ""}`.toUpperCase();

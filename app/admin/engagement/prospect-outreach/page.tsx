@@ -83,7 +83,6 @@ export default function ProspectFinderPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
   const hasLoadedRef = useRef(false);
   const studioAccess = useStudioAccessOptional();
   const isPlatformAdmin = studioAccess?.isPlatformAdmin ?? true;
@@ -114,12 +113,8 @@ export default function ProspectFinderPage() {
 
   const load = useCallback(async (opts?: { silent?: boolean; forceSpinner?: boolean }) => {
     const silent = opts?.silent ?? hasLoadedRef.current;
-    if (opts?.forceSpinner) {
+    if (opts?.forceSpinner || !silent) {
       setLoading(true);
-    } else if (!silent) {
-      setLoading(true);
-    } else {
-      setRefreshing(true);
     }
     const params = new URLSearchParams();
     params.set("page", String(page));
@@ -144,7 +139,6 @@ export default function ProspectFinderPage() {
     setTeamMembers(json.team_members || []);
     hasLoadedRef.current = true;
     setLoading(false);
-    setRefreshing(false);
   }, [
     page,
     region,
@@ -349,7 +343,7 @@ export default function ProspectFinderPage() {
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : (
-          <table className={`w-full min-w-[900px] border-collapse text-sm transition-opacity ${refreshing ? "opacity-60" : ""}`}>
+          <table className="w-full min-w-[900px] border-collapse text-sm">
             <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#f7f4ea]/90 backdrop-blur-sm">
               <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
                 {isPlatformAdmin && <th className="w-10 px-3 py-3" />}

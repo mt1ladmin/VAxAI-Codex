@@ -98,7 +98,7 @@ export function OpportunityPreviewCard({
       </div>
 
       {expanded && (
-        <div className="border-t border-[#111111]/10 bg-[#f7f4ea]/30 px-4 py-4 space-y-3">
+        <div className="border-t border-[#111111]/10 bg-white px-4 py-4 space-y-3">
           <div className="flex flex-wrap items-center gap-3 text-xs">
             <span className="text-[#6f6b62]">
               Updated {new Date(opportunity.updated_at).toLocaleDateString("en-GB")}

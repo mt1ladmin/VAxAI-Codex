@@ -44,7 +44,7 @@ export function OpportunityStageSelect({
         type="button"
         onClick={() => !disabled && !loading && setOpen((v) => !v)}
         disabled={disabled || loading}
-        className="flex items-center justify-between gap-1.5 rounded-full border border-[#111111]/10 bg-white px-2.5 py-1 text-left outline-none transition-colors hover:border-[#063b32]/30 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex items-center justify-between gap-1.5 rounded-full border border-[#111111]/10 bg-white px-2.5 py-1 text-left outline-none transition-colors hover:border-[#063b32]/30 disabled:cursor-not-allowed"
       >
         <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${triggerColor}`}>
           {value}
