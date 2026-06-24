@@ -37,7 +37,7 @@ import {
   patchLinkedNextAction,
 } from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
-import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
+import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
@@ -852,10 +852,8 @@ function ClientDetailContent() {
           {activeTab === "notes" && (
             <div className="space-y-4">
               <HubNotesTab
-                title="Client notes"
                 notes={contact.notes}
                 showAddNote={showAddNote}
-                onShowAddNote={() => setShowAddNote(true)}
                 onHideAddNote={() => {
                   setShowAddNote(false);
                   setNoteText("");
@@ -866,7 +864,13 @@ function ClientDetailContent() {
                 onSave={saveNote}
                 onReplaceNotes={replaceNotes}
                 placeholder="Add a note about this client…"
-                header={<AttachedKnowledgePanel contactId={id} refreshKey={chatActivityKey} />}
+                header={
+                  <KnowledgeAttachPicker
+                    contactId={id}
+                    outreachId={outreachRecord?.id}
+                    onSaved={() => setChatActivityKey((k) => k + 1)}
+                  />
+                }
               />
             </div>
           )}

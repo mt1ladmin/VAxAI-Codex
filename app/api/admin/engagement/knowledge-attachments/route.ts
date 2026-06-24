@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 type AttachmentBody = {
   outreach_id?: string | null;
-  queue_id?: string | null;
   enquiry_id?: string | null;
   contact_id?: string | null;
   sector_ids?: string[];
@@ -13,7 +12,6 @@ type AttachmentBody = {
 
 function parentFilter(body: AttachmentBody) {
   if (body.outreach_id) return { col: "outreach_id" as const, val: body.outreach_id };
-  if (body.queue_id) return { col: "queue_id" as const, val: body.queue_id };
   if (body.enquiry_id) return { col: "enquiry_id" as const, val: body.enquiry_id };
   if (body.contact_id) return { col: "contact_id" as const, val: body.contact_id };
   return null;
@@ -22,19 +20,17 @@ function parentFilter(body: AttachmentBody) {
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const outreachId = searchParams.get("outreach_id");
-  const queueId = searchParams.get("queue_id");
   const enquiryId = searchParams.get("enquiry_id");
   const contactId = searchParams.get("contact_id");
 
   const parent =
     outreachId ? { col: "outreach_id" as const, val: outreachId }
-    : queueId ? { col: "queue_id" as const, val: queueId }
     : enquiryId ? { col: "enquiry_id" as const, val: enquiryId }
     : contactId ? { col: "contact_id" as const, val: contactId }
     : null;
 
   if (!parent) {
-    return NextResponse.json({ error: "outreach_id, queue_id, enquiry_id, or contact_id required" }, { status: 400 });
+    return NextResponse.json({ error: "outreach_id, enquiry_id, or contact_id required" }, { status: 400 });
   }
 
   const supabase = createServiceClient();
@@ -60,10 +56,9 @@ export async function PUT(req: NextRequest) {
     persona_ids: body.persona_ids ?? [],
     pain_point_ids: body.pain_point_ids ?? [],
     updated_at: new Date().toISOString(),
-    outreach_id: body.outreach_id ?? null,
-    queue_id: body.queue_id ?? null,
-    enquiry_id: body.enquiry_id ?? null,
-    contact_id: body.contact_id ?? null,
+    outreach_id: parent.col === "outreach_id" ? parent.val : null,
+    enquiry_id: parent.col === "enquiry_id" ? parent.val : null,
+    contact_id: parent.col === "contact_id" ? parent.val : null,
   };
 
   const supabase = createServiceClient();

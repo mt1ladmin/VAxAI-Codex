@@ -13,7 +13,7 @@ import {
   Phone,
   User,
 } from "lucide-react";
-import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
+import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
@@ -607,10 +607,8 @@ function EnquiryDetailContent() {
           {activeTab === "notes" && (
             <div className="space-y-4">
               <HubNotesTab
-                title="Enquiry notes"
                 notes={enquiry.admin_notes}
                 showAddNote={showAddNote}
-                onShowAddNote={() => setShowAddNote(true)}
                 onHideAddNote={() => {
                   setShowAddNote(false);
                   setNoteText("");
@@ -621,7 +619,7 @@ function EnquiryDetailContent() {
                 onSave={saveNote}
                 onReplaceNotes={replaceNotes}
                 placeholder="What happened? What was discussed?"
-                header={<AttachedKnowledgePanel enquiryId={id} />}
+                header={<KnowledgeAttachPicker enquiryId={id} onSaved={bumpTimeline} />}
               />
             </div>
           )}

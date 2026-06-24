@@ -141,20 +141,13 @@ export function HubTasksTab({
         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
           Tasks — {entityLabel}
         </p>
-        <div className="flex items-center gap-2">
-          {viewAllTasksHref && (
-            <Link href={viewAllTasksHref} className="text-xs font-semibold text-[#063b32] hover:underline">
-              View all tasks
-            </Link>
-          )}
-          <button
-            type="button"
-            onClick={() => setAddingTask(!addingTask)}
-            className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
-          >
-            <Plus className="h-3.5 w-3.5" /> New task
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setAddingTask(!addingTask)}
+          className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
+        >
+          <Plus className="h-3.5 w-3.5" /> New task
+        </button>
       </div>
 
       {addingTask && (
@@ -468,6 +461,14 @@ export function HubTasksTab({
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {viewAllTasksHref && (
+        <div className="pt-1">
+          <Link href={viewAllTasksHref} className="text-xs font-semibold text-[#063b32] hover:underline">
+            View all tasks
+          </Link>
         </div>
       )}
     </>

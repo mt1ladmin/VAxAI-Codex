@@ -492,10 +492,8 @@ function ProspectFinderDetailContent() {
           {activeTab === "notes" && (
             <div className="space-y-4">
               <HubNotesTab
-                title="Prospect notes"
                 notes={reviewNotes || null}
                 showAddNote={showAddNote}
-                onShowAddNote={() => setShowAddNote(true)}
                 onHideAddNote={() => {
                   setShowAddNote(false);
                   setNoteText("");

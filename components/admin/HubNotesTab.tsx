@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Pencil, Plus, Save, X } from "lucide-react";
+import { Loader2, Pencil, Save, X } from "lucide-react";
 import { parseNoteEntries, serializeNoteEntries, type NoteEntry } from "@/lib/engagement/parse-notes";
 
 type Props = {
-  title: string;
   notes: string | null;
   showAddNote: boolean;
-  onShowAddNote: () => void;
   onHideAddNote: () => void;
   noteText: string;
   onNoteTextChange: (value: string) => void;
@@ -23,10 +21,8 @@ const inputClass =
   "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none";
 
 export function HubNotesTab({
-  title,
   notes,
   showAddNote,
-  onShowAddNote,
   onHideAddNote,
   noteText,
   onNoteTextChange,
@@ -70,18 +66,6 @@ export function HubNotesTab({
   return (
     <>
       {header}
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">{title}</p>
-        {!showAddNote && (
-          <button
-            type="button"
-            onClick={onShowAddNote}
-            className="flex items-center gap-1.5 text-xs text-[#063b32] hover:underline"
-          >
-            <Plus className="h-3.5 w-3.5" /> Add note
-          </button>
-        )}
-      </div>
 
       {showAddNote && (
         <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
@@ -171,7 +155,7 @@ export function HubNotesTab({
       ) : (
         !showAddNote && (
           <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
-            <p className="text-sm text-[#6f6b62]">No notes yet. Add one above.</p>
+            <p className="text-sm text-[#6f6b62]">No notes yet.</p>
           </div>
         )
       )}

@@ -9,15 +9,45 @@ import {
 
 type Option = { id: string; label: string };
 
+type ParentIds = {
+  outreachId?: string;
+  contactId?: string;
+  enquiryId?: string;
+};
+
+function saveParent(ids: ParentIds) {
+  if (ids.contactId) return { contact_id: ids.contactId };
+  if (ids.enquiryId) return { enquiry_id: ids.enquiryId };
+  if (ids.outreachId) return { outreach_id: ids.outreachId };
+  return null;
+}
+
+async function loadAttachments(ids: ParentIds) {
+  if (ids.contactId) {
+    const contact = await fetchKnowledgeAttachments({ contactId: ids.contactId });
+    if (contact) return contact;
+  }
+  if (ids.enquiryId) {
+    const enquiry = await fetchKnowledgeAttachments({ enquiryId: ids.enquiryId });
+    if (enquiry) return enquiry;
+  }
+  if (ids.outreachId) {
+    return fetchKnowledgeAttachments({ outreachId: ids.outreachId });
+  }
+  return null;
+}
+
 export function KnowledgeAttachPicker({
   outreachId,
+  contactId,
+  enquiryId,
   onSaved,
-}: {
-  outreachId: string;
+}: ParentIds & {
   onSaved?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [sectors, setSectors] = useState<Option[]>([]);
   const [personas, setPersonas] = useState<Option[]>([]);
   const [painPoints, setPainPoints] = useState<Option[]>([]);
@@ -27,12 +57,14 @@ export function KnowledgeAttachPicker({
     pain_point_ids: [],
   });
 
+  const parentKey = `${outreachId ?? ""}:${contactId ?? ""}:${enquiryId ?? ""}`;
+
   useEffect(() => {
     void Promise.all([
       fetch("/api/admin/engagement/sectors?limit=100").then((r) => r.json()),
       fetch("/api/admin/engagement/personas?limit=100").then((r) => r.json()),
       fetch("/api/admin/engagement/pain-points?limit=100").then((r) => r.json()),
-      fetchKnowledgeAttachments({ outreachId }),
+      loadAttachments({ outreachId, contactId, enquiryId }),
     ]).then(([sJson, pJson, ppJson, existing]) => {
       setSectors((sJson.data ?? []).map((s: { id: string; name: string }) => ({ id: s.id, label: s.name })));
       setPersonas((pJson.data ?? []).map((p: { id: string; persona_name: string }) => ({ id: p.id, label: p.persona_name })));
@@ -45,7 +77,7 @@ export function KnowledgeAttachPicker({
         });
       }
     });
-  }, [outreachId]);
+  }, [parentKey, outreachId, contactId, enquiryId]);
 
   const toggle = (key: keyof KnowledgeLinkIds, id: string) => {
     setSelected((prev) => {
@@ -58,13 +90,21 @@ export function KnowledgeAttachPicker({
   };
 
   const save = async () => {
+    const parent = saveParent({ outreachId, contactId, enquiryId });
+    if (!parent) return;
     setSaving(true);
+    setError(null);
     try {
-      await fetch("/api/admin/engagement/knowledge-attachments", {
+      const res = await fetch("/api/admin/engagement/knowledge-attachments", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outreach_id: outreachId, ...selected }),
+        body: JSON.stringify({ ...parent, ...selected }),
       });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setError(json.error || "Failed to save attachments");
+        return;
+      }
       onSaved?.();
       setOpen(false);
     } finally {
@@ -105,6 +145,7 @@ export function KnowledgeAttachPicker({
             defaultExpanded={selected.pain_point_ids.length > 0}
             onToggle={(id) => toggle("pain_point_ids", id)}
           />
+          {error ? <p className="text-xs text-red-600">{error}</p> : null}
           <button
             type="button"
             onClick={() => void save()}
