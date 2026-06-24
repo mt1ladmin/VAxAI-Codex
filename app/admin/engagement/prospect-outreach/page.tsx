@@ -241,7 +241,6 @@ export default function ProspectFinderPage() {
 
         <div className="mt-3 flex flex-wrap gap-2">
           {[
-            { label: "My prospects", params: { my_prospects: "true", unassigned: null, engagement_status: null } },
             { label: "Unassigned", params: { unassigned: "true", my_prospects: null, engagement_status: null } },
             { label: "Ready to move", params: { engagement_status: "Opportunity identified", unassigned: null, my_prospects: null } },
           ].map((view) => (
@@ -303,19 +302,6 @@ export default function ProspectFinderPage() {
               ...FINDER_ENGAGEMENT_STATUSES.map((s) => ({ value: s, label: s })),
             ]}
           />
-          <button
-            type="button"
-            onClick={() => updateParams({
-              my_prospects: myProspects ? null : "true",
-              assigned_to: null,
-              unassigned: null,
-            })}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              myProspects ? "border-[#063b32] bg-[#063b32] text-white" : "border-[#111111]/15 text-[#6f6b62] hover:bg-[#f7f4ea]"
-            }`}
-          >
-            My prospects
-          </button>
           <button
             type="button"
             onClick={() => updateParams({ unassigned: unassigned ? null : "true", my_prospects: null })}
