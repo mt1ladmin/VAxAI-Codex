@@ -22,6 +22,7 @@ import {
   type AIContext,
   type AIContextType,
 } from "@/lib/ai-assistant-context";
+import { assistantParagraphs } from "@/lib/ai/format-message";
 import { recordChatSnapshot } from "@/lib/engagement/chat-activity";
 
 type AIMessage = {
@@ -47,8 +48,8 @@ type SearchResult = {
 };
 
 const MODEL_OPTIONS = [
-  { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5", note: "Fastest" },
-  { id: "claude-sonnet-4-6", label: "Sonnet 4.6", note: "Balanced" },
+  { id: "claude-haiku-4-5-20251001", label: "Auto", note: "Routes by task" },
+  { id: "claude-sonnet-4-6", label: "Sonnet 4.6", note: "Deeper analysis" },
   { id: "claude-opus-4-8", label: "Opus 4.8", note: "Most capable" },
 ];
 
@@ -159,14 +160,20 @@ function ChatMessage({
     );
   }
 
+  const paragraphs = assistantParagraphs(msg.content);
+
   return (
     <div className="flex gap-2.5 pr-2">
       <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#111111]/8 bg-white shadow-sm">
         <Sparkles className="h-3 w-3 text-[#063b32]" />
       </div>
       <div className="min-w-0 flex-1 space-y-2">
-        <div className="max-w-full overflow-hidden rounded-2xl rounded-bl-md border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-[13px] leading-[1.65] text-[#111111] whitespace-pre-wrap break-words">
-          {msg.content}
+        <div className="max-w-full overflow-hidden rounded-2xl rounded-bl-md border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-[13px] leading-[1.65] text-[#111111] break-words space-y-2.5">
+          {paragraphs.map((para, i) => (
+            <p key={i} className="whitespace-pre-wrap">
+              {para}
+            </p>
+          ))}
         </div>
         {onSaveToNotes && (
           <button
@@ -214,7 +221,6 @@ function ChatPanel({
 }) {
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [session, setSession] = useState<AISession | null>(null);
-  const [linkedSummary, setLinkedSummary] = useState<string | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -242,7 +248,7 @@ function ChatPanel({
         `/api/admin/ai/chat/session?context_type=${contextType}&context_id=${contextId}`,
       );
       const json = (await res.json()) as {
-        data?: { session: AISession; messages: AIMessage[]; linkedSummary: string | null };
+        data?: { session: AISession; messages: AIMessage[] };
         error?: string;
       };
       if (!res.ok || !json.data) {
@@ -251,7 +257,6 @@ function ChatPanel({
       }
       setSession(json.data.session);
       setMessages(json.data.messages);
-      setLinkedSummary(json.data.linkedSummary);
     } catch {
       setSessionError("Could not connect to the chat service.");
     } finally {
@@ -347,9 +352,7 @@ function ChatPanel({
           contextType,
           contextId,
           message: text,
-          model,
-          contextSummary,
-          linkedSummary,
+          model: model === "claude-haiku-4-5-20251001" ? undefined : model,
         }),
       });
       const json = (await res.json()) as {
@@ -526,7 +529,11 @@ function ChatPanel({
           </button>
           {showModelMenu && (
             <div className="absolute right-0 top-full z-20 mt-1 w-48 overflow-hidden rounded-xl border border-[#111111]/8 bg-white py-1 shadow-lg">
-              {MODEL_OPTIONS.filter((o) => allowModelUpgrade || o.id === "claude-haiku-4-5-20251001").map((o) => (
+              {MODEL_OPTIONS.filter(
+                (o) =>
+                  o.id === "claude-haiku-4-5-20251001" ||
+                  (allowModelUpgrade && o.id !== "claude-haiku-4-5-20251001"),
+              ).map((o) => (
                 <button
                   key={o.id}
                   type="button"
@@ -572,9 +579,9 @@ function ChatPanel({
               </div>
             </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-[#111111]">Ask me anything about this account</p>
+              <p className="text-sm font-semibold text-[#111111]">Ask about this account</p>
               <p className="mt-1 text-xs text-[#6f6b62]">
-                I know the account details, knowledge base, and our conversation history.
+                Paste rough notes, prep for a call, or ask what to do next — I use the live account record.
               </p>
             </div>
             <div className="space-y-2 pt-1">

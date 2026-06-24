@@ -1,4 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { assembleContextPackage } from "@/lib/ai/assemble-context-package";
+import { SUMMARISE_NOTE_PROMPT } from "@/lib/ai/system-prompt";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -17,13 +19,17 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
-  const { data: session } = await supabase
-    .from("ai_chat_sessions")
-    .select("id")
-    .eq("context_type", contextType)
-    .eq("context_id", contextId)
-    .maybeSingle();
+  const [assembled, sessionRes] = await Promise.all([
+    assembleContextPackage(supabase, contextType, contextId),
+    supabase
+      .from("ai_chat_sessions")
+      .select("id, summary")
+      .eq("context_type", contextType)
+      .eq("context_id", contextId)
+      .maybeSingle(),
+  ]);
 
+  const session = sessionRes.data;
   if (!session) {
     return NextResponse.json({ error: "No conversation to summarise" }, { status: 404 });
   }
@@ -38,17 +44,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No messages in conversation" }, { status: 404 });
   }
 
-  const transcript = messages
+  const recent = messages.slice(-12);
+  const transcript = recent
     .map((m) => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`)
     .join("\n\n");
 
+  const prior = session.summary ? `Earlier conversation summary:\n${session.summary}\n\n` : "";
+
   const response = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 900,
+    max_tokens: 650,
+    system: [
+      { type: "text", text: SUMMARISE_NOTE_PROMPT, cache_control: { type: "ephemeral" } },
+      {
+        type: "text",
+        text: `Account context:\n${assembled.package}`,
+      },
+    ],
     messages: [
       {
         role: "user",
-        content: `Summarise this VAxAI Assistant conversation for a CRM note. Use clear headings, bullet points where helpful, and capture decisions, actions, and open questions. Keep a professional, concise tone.\n\n${transcript}`,
+        content: `${prior}Recent messages:\n\n${transcript}`,
       },
     ],
   });
