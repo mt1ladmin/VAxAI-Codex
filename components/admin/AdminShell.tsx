@@ -38,7 +38,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: PROSPECT_CATALOG_PAGE_LABEL, href: "/admin/engagement/prospect-outreach", icon: Send },
       { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Search },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
-      { label: "Tasks Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
+      { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
       { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },
@@ -64,8 +64,11 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
+      { label: PROSPECT_CATALOG_PAGE_LABEL, href: "/admin/engagement/prospect-outreach", icon: Send },
       { label: PROSPECT_WORKFLOW_PAGE_LABEL, href: "/admin/engagement/prospect-queue", icon: Search },
+      { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
+      { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
+      { label: "Prospect/Clients", href: "/admin/clients", icon: Briefcase },
     ],
   },
   {
@@ -144,8 +147,8 @@ export default function AdminShell({
           )}
         </div>
 
-        {/* Quick actions */}
-        <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
+        {platformAdmin && (
+          <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
             <Link
               href="/admin/posts/new"
               className={`flex items-center gap-2 rounded-md bg-[#1a5c42] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1f6e4f] transition-colors ${
@@ -156,7 +159,8 @@ export default function AdminShell({
               <Plus className="h-4 w-4 shrink-0" />
               {open && "New post"}
             </Link>
-        </div>
+          </div>
+        )}
 
         {/* Nav */}
         <nav className="flex-1 overflow-y-auto px-2 py-2">

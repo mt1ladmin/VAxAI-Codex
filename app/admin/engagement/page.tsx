@@ -154,7 +154,9 @@ export default function EngagementOverview() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold text-[#111111]">Overview</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">Your engagement hub at a glance.</p>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">
+              Prospect assessment, outreach, enquiries, tasks, and Knowledge Hub — aligned to VAxAI wraparound support.
+            </p>
           </div>
 
         </div>
@@ -191,9 +193,9 @@ export default function EngagementOverview() {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
-            { label: PROSPECT_CATALOG_PAGE_LABEL, desc: "1,000 targets (500 charities + 500 SMBs) · 23 Jun 2026", href: "/admin/engagement/prospect-outreach", icon: Send },
-            { label: "Prepare for a prospect", desc: "Sector, profile and guidance", href: "/admin/engagement/knowledge", icon: Users },
-            { label: "Help with a pain point", desc: "Phrase-led conversation support", href: "/admin/engagement/pain-points", icon: Zap },
+            { label: PROSPECT_CATALOG_PAGE_LABEL, desc: "Service-fit assessed targets — review before outreach", href: "/admin/engagement/prospect-outreach", icon: Send },
+            { label: "Prepare for a prospect", desc: "Sector guidance, personas, and VAT-informed prompts", href: "/admin/engagement/knowledge", icon: Users },
+            { label: "Help with a pain point", desc: "Phrase-led support for workflow and admin pressure", href: "/admin/engagement/pain-points", icon: Zap },
           ].map(({ label, desc, href, icon: Icon }) => (
             <Link key={href} href={href} className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3.5 hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/40 transition-colors">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#063b32]/8 text-[#063b32]">

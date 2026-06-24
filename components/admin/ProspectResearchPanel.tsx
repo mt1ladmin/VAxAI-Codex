@@ -7,6 +7,7 @@ import {
   NEED_SCORE_COLORS,
 } from "@/lib/engagement/prospect-outreach/types";
 import { formatRevenue } from "@/lib/engagement/prospect-outreach/snapshot";
+import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
 
 const inputClass =
   "w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]";
@@ -175,9 +176,11 @@ export function ProspectResearchPanel({ data, editable, onChange, compact }: Pro
         </div>
       </div>
 
+      <ServiceFitPanel data={data} compact={compact} />
+
       <div className="rounded-xl border border-[#111111]/10 bg-[#063b32]/5 p-4">
         <Field
-          label="Why high admin / AI need"
+          label="Research evidence (preserved)"
           value={data.need_rationale}
           editable={editable}
           multiline
@@ -188,7 +191,7 @@ export function ProspectResearchPanel({ data, editable, onChange, compact }: Pro
       {(data.engagement_approach || editable) && (
         <div className="rounded-xl border border-[#111111]/10 p-4">
           <Field
-            label="Meeting prep notes"
+            label="Engagement approach notes"
             value={data.engagement_approach}
             editable={editable}
             multiline

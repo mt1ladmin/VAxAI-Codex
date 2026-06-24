@@ -223,7 +223,7 @@ export default function ProspectOutreachPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_CATALOG_PAGE_LABEL}</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
-              Researched charities and SMBs for admin reduction, AI training, automation, and virtual assistance.
+              Researched charities and SMBs assessed for workflow pressure, service fit, complexity, and realistic VAxAI support — review before outreach.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -364,9 +364,12 @@ export default function ProspectOutreachPage() {
                       </div>
                       <p className="mt-0.5 text-xs text-[#6f6b62]">
                         {p.organisation_type} · {p.location}
+                        {p.complexity_level ? ` · ${p.complexity_level}` : ""}
                       </p>
-                      {p.decision_maker_name && (
-                        <p className="mt-0.5 text-xs text-[#063b32]">{p.decision_maker_name}</p>
+                      {p.service_fit_summary ? (
+                        <p className="mt-1 line-clamp-2 text-xs text-[#111111]/80">{p.service_fit_summary}</p>
+                      ) : (
+                        <p className="mt-1 line-clamp-2 text-xs text-[#111111]/80">{p.need_rationale}</p>
                       )}
                     </button>
                   </div>
@@ -383,7 +386,7 @@ export default function ProspectOutreachPage() {
             <div className="max-w-3xl space-y-6">
               <JourneyStageBanner
                 currentStage="outreach"
-                hint="Use the VAxAI Assistant (floating widget) to review fit and draft notes before adding to queue."
+                hint="Review the service-fit assessment, attach Knowledge Hub guidance, and confirm what still needs validating before adding to Prospect Outreach."
               />
 
               <ProspectResearchPanel

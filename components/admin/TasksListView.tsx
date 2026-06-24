@@ -223,7 +223,7 @@ export function TasksListView({
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const studioAccess = useStudioAccessOptional();
-  const allowClientLinks = studioAccess?.isPlatformAdmin ?? true;
+  const allowClientLinks = true;
 
   const load = useCallback(async () => {
     if (!hasLoadedRef.current) setInitialLoading(true);

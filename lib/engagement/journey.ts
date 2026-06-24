@@ -1,13 +1,13 @@
 /**
  * VAxAI prospect-to-client journey stages and workflow helpers.
  *
- * Prospect Queue (catalog) → Prospect Finder (workflow) → Prospect/Client
+ * Prospect Queue (catalog) → Prospect Outreach (workflow) → Prospect/Client
  */
 
 /** Research catalog at /prospect-outreach */
 export const PROSPECT_CATALOG_PAGE_LABEL = "Prospect Queue";
 /** Active prospect workflow at /prospect-queue */
-export const PROSPECT_WORKFLOW_PAGE_LABEL = "Prospect Finder";
+export const PROSPECT_WORKFLOW_PAGE_LABEL = "Prospect Outreach";
 
 export const JOURNEY_STAGES = [
   {

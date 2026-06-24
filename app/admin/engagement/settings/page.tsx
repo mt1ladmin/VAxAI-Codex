@@ -51,7 +51,9 @@ export default function SettingsPage() {
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Settings</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">Manage recommendation rules, pricing bands and VAT prompts.</p>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">
+          Platform admin: recommendation rules, pricing bands, and VAT prompts that shape service-fit guidance across Studio.
+        </p>
       </div>
 
       <div className="px-8 py-6">

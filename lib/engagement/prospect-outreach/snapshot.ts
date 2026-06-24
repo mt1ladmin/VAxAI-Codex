@@ -10,6 +10,18 @@ export function mergeProspectRecord(
   if (Array.isArray(overrides.pain_point_tags)) {
     merged.pain_point_tags = overrides.pain_point_tags as string[];
   }
+  if (Array.isArray(overrides.vaxai_direct_support)) {
+    merged.vaxai_direct_support = overrides.vaxai_direct_support as string[];
+  }
+  if (Array.isArray(overrides.vaxai_partial_support)) {
+    merged.vaxai_partial_support = overrides.vaxai_partial_support as string[];
+  }
+  if (Array.isArray(overrides.partner_support)) {
+    merged.partner_support = overrides.partner_support as string[];
+  }
+  if (Array.isArray(overrides.open_questions)) {
+    merged.open_questions = overrides.open_questions as string[];
+  }
   return merged;
 }
 
@@ -55,16 +67,23 @@ export function syncQueueFromSnapshot(
 
 export function outreachSummaryForConversion(snapshot: ProspectOutreachRecord): string {
   return [
+    snapshot.service_fit_summary ? `Service fit: ${snapshot.service_fit_summary}` : null,
+    snapshot.complexity_level ? `Complexity: ${snapshot.complexity_level}` : null,
     `Need score: ${snapshot.need_score}/5`,
-    snapshot.need_rationale,
-    snapshot.engagement_approach ? `Approach: ${snapshot.engagement_approach}` : "",
-    snapshot.employees ? `Employees: ${snapshot.employees}` : "",
+    snapshot.likely_need ? `Likely need: ${snapshot.likely_need}` : snapshot.need_rationale,
+    snapshot.capability_boundaries ? `Boundaries: ${snapshot.capability_boundaries}` : null,
+    snapshot.recommended_engagement
+      ? `Recommended engagement: ${snapshot.recommended_engagement}`
+      : snapshot.engagement_approach
+        ? `Approach: ${snapshot.engagement_approach}`
+        : null,
+    snapshot.employees ? `Employees: ${snapshot.employees}` : null,
     snapshot.annual_revenue_gbp
       ? `Revenue: £${snapshot.annual_revenue_gbp.toLocaleString("en-GB")}`
-      : "",
-    snapshot.revenue_basis ? `Revenue basis: ${snapshot.revenue_basis}` : "",
-    snapshot.sector_tags.length ? `Sectors: ${snapshot.sector_tags.join(", ")}` : "",
-    snapshot.pain_point_tags.length ? `Pain points: ${snapshot.pain_point_tags.join(", ")}` : "",
+      : null,
+    snapshot.revenue_basis ? `Revenue basis: ${snapshot.revenue_basis}` : null,
+    snapshot.sector_tags.length ? `Sectors: ${snapshot.sector_tags.join(", ")}` : null,
+    snapshot.pain_point_tags.length ? `Pain points: ${snapshot.pain_point_tags.join(", ")}` : null,
   ]
     .filter(Boolean)
     .join("\n");

@@ -20,6 +20,39 @@ type EnquiryLike = {
   last_action?: string | null;
 };
 
+function formatServiceFitBlock(record: ProspectOutreachRecord): string[] {
+  return [
+    record.service_fit_summary ? `Service fit summary: ${record.service_fit_summary}` : null,
+    record.likely_need ? `Likely need: ${record.likely_need}` : null,
+    record.complexity_level ? `Complexity: ${record.complexity_level}` : null,
+    record.complexity_rationale ? `Complexity rationale: ${record.complexity_rationale}` : null,
+    record.vaxai_direct_support?.length
+      ? `VAxAI direct support: ${record.vaxai_direct_support.join("; ")}`
+      : null,
+    record.vaxai_partial_support?.length
+      ? `Partial VAxAI role: ${record.vaxai_partial_support.join("; ")}`
+      : null,
+    record.partner_support?.length
+      ? `Partner/specialist may be needed: ${record.partner_support.join("; ")}`
+      : null,
+    record.capability_boundaries ? `Capability boundaries: ${record.capability_boundaries}` : null,
+    record.recommended_engagement
+      ? `Recommended engagement: ${record.recommended_engagement}`
+      : null,
+    record.engagement_basis && record.engagement_basis !== "unknown"
+      ? `Support basis: ${record.engagement_basis}`
+      : null,
+    record.evidence_summary ? `Evidence: ${record.evidence_summary}` : null,
+    record.open_questions?.length
+      ? `Still to confirm: ${record.open_questions.join(" | ")}`
+      : null,
+    record.accessibility_considerations
+      ? `Accessibility note: ${record.accessibility_considerations}`
+      : null,
+    record.bespoke_build_note ? `Build vs improve: ${record.bespoke_build_note}` : null,
+  ].filter(Boolean) as string[];
+}
+
 export function buildEnquiryContextSummary(
   enquiry: EnquiryLike,
   opportunities?: EngagementOpportunity[],
@@ -41,7 +74,7 @@ export function buildEnquiryContextSummary(
     enquiry.next_action ? `Next action: ${enquiry.next_action}` : null,
     enquiry.last_action ? `Last action: ${enquiry.last_action}` : null,
     enquiry.admin_notes ? `Team notes:\n${enquiry.admin_notes}` : null,
-    `YOUR FOCUS: Understand the inbound need, plan qualification and response, suggest pre-sales steps when interest is confirmed, and judge readiness to advance to Prospect/Client work. Use Knowledge Hub for sector-specific language.`,
+    `YOUR FOCUS: Qualify the inbound need against VAxAI's wraparound offer — review and improve existing systems, training, VAT-informed strategy, and virtual assistance. Avoid defaulting to a new system build unless the enquiry clearly fits a small, bounded scope. Use Knowledge Hub for sector-specific language.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -52,19 +85,21 @@ export function buildOutreachContextSummary(
   reviewNotes?: string | null,
 ): string {
   return [
-    `JOURNEY STAGE: ${PROSPECT_CATALOG_PAGE_LABEL} (review before outreach workflow)`,
+    `JOURNEY STAGE: ${PROSPECT_CATALOG_PAGE_LABEL} (review before ${PROSPECT_WORKFLOW_PAGE_LABEL})`,
     `Organisation: ${record.organisation_name} (${record.organisation_type})`,
     `Location: ${record.location}, ${record.region}`,
+    record.employees ? `Employees: ${record.employees}` : null,
     `Decision maker: ${record.decision_maker_name || "—"} — ${record.decision_maker_role || "—"}`,
     record.email ? `Email: ${record.email}` : null,
     record.phone ? `Phone: ${record.phone}` : null,
     `Need score: ${record.need_score}/5 | Confidence: ${record.data_confidence}`,
-    `Admin/AI need: ${record.need_rationale}`,
-    record.engagement_approach ? `Approach: ${record.engagement_approach}` : null,
+    `Research evidence: ${record.need_rationale}`,
+    ...formatServiceFitBlock(record),
+    record.engagement_approach ? `Engagement notes: ${record.engagement_approach}` : null,
     record.sector_tags.length ? `Sector tags: ${record.sector_tags.join(", ")}` : null,
     record.pain_point_tags.length ? `Pain tags: ${record.pain_point_tags.join(", ")}` : null,
     reviewNotes ? `Reviewer notes: ${reviewNotes}` : null,
-    `YOUR FOCUS: Help verify fit, suggest what to check, draft review notes, and assess readiness for ${PROSPECT_WORKFLOW_PAGE_LABEL.toLowerCase()}. Reference Knowledge Hub sectors/personas where relevant.`,
+    `YOUR FOCUS: Interpret the stored service-fit assessment — do not contradict it without reason. Help verify fit, suggest what to confirm, draft review notes, and assess readiness for ${PROSPECT_WORKFLOW_PAGE_LABEL}. Reference Knowledge Hub sectors/personas where relevant.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -83,13 +118,14 @@ export function buildProspectContextSummary(entry: ProspectQueueEntry): string {
     entry.raw_phone ? `Phone: ${entry.raw_phone}` : null,
     entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
     entry.raw_location ? `Location: ${entry.raw_location}` : null,
-    outreach?.need_rationale ? `Admin/AI need: ${outreach.need_rationale}` : null,
-    outreach?.engagement_approach ? `Approach: ${outreach.engagement_approach}` : null,
+    outreach?.need_rationale ? `Research evidence: ${outreach.need_rationale}` : null,
+    ...(outreach ? formatServiceFitBlock(outreach) : []),
+    outreach?.engagement_approach ? `Engagement notes: ${outreach.engagement_approach}` : null,
     outreach?.sector_tags.length ? `Sectors: ${outreach.sector_tags.join(", ")}` : null,
     entry.next_action ? `Next action: ${entry.next_action}` : null,
     entry.last_action ? `Last action: ${entry.last_action}` : null,
     entry.raw_notes ? `Team notes:\n${entry.raw_notes}` : null,
-    `YOUR FOCUS: Help with contact strategy, meeting prep, follow-ups, and identifying when to advance to Prospect/Client work. Use Knowledge Hub for sector-specific language.`,
+    `YOUR FOCUS: Ground recommendations in the stored service-fit assessment and outreach history. Help with contact strategy, meeting prep, follow-ups, and identifying when to advance — within VAxAI capability boundaries.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -112,10 +148,11 @@ export function buildClientContextSummary(
     primary ? `Service: ${primary.title} | Stage: ${primary.stage}` : null,
     primary?.desired_outcomes ? `Desired outcomes: ${primary.desired_outcomes}` : null,
     primary?.recommended_pathway ? `Agreed pathway: ${primary.recommended_pathway}` : null,
-    outreach?.need_rationale ? `Original admin/AI need: ${outreach.need_rationale}` : null,
+    outreach?.need_rationale ? `Original research evidence: ${outreach.need_rationale}` : null,
+    ...(outreach ? formatServiceFitBlock(outreach) : []),
     linkedQueue?.raw_notes ? `Pre-client notes:\n${linkedQueue.raw_notes}` : null,
     contact.notes ? `Client notes:\n${contact.notes}` : null,
-    `YOUR FOCUS: Summarize the full journey, help with proposals and onboarding, connect to Knowledge Hub, and identify risks or upsell opportunities. Delivery happens offline once agreed.`,
+    `YOUR FOCUS: Summarize the full journey using stored service-fit context. Help with proposals and onboarding within VAxAI's wraparound delivery model. Delivery happens offline once agreed.`,
   ]
     .filter(Boolean)
     .join("\n");

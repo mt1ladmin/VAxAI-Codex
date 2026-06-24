@@ -1,3 +1,5 @@
+import type { ServiceFitFields } from "@/lib/engagement/service-fit/types";
+
 export type ProspectOutreachRecord = {
   id: string;
   organisation_name: string;
@@ -22,7 +24,7 @@ export type ProspectOutreachRecord = {
   engagement_approach: string;
   research_date: string;
   priority_region: "primary" | "secondary" | "deprioritized";
-};
+} & Partial<ServiceFitFields>;
 
 export type ProspectOutreachMeta = {
   research_date: string;
@@ -68,4 +70,11 @@ export const CONFIDENCE_COLORS: Record<string, string> = {
   High: "bg-green-100 text-green-800",
   Medium: "bg-amber-100 text-amber-800",
   Low: "bg-red-100 text-red-700",
+};
+
+export const COMPLEXITY_COLORS: Record<string, string> = {
+  Low: "bg-emerald-100 text-emerald-800",
+  Moderate: "bg-sky-100 text-sky-800",
+  High: "bg-amber-100 text-amber-800",
+  "Very high": "bg-rose-100 text-rose-800",
 };

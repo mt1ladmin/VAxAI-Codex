@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:service-fit": "tsx scripts/migrate-prospect-service-fit.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.105.0",

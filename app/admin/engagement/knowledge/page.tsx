@@ -178,7 +178,7 @@ function KnowledgePageInner() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : "VAT Prompts"}</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Browse sector profiles for industry context and pressures." : tab === "personas" ? "Explore typical client personas and their needs." : tab === "pain_points" ? "Browse pain points by category with counts and details." : "View VAT prompts by dimension for relevant insights."}</p>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Sector context for workflow pressure, admin burden, and realistic VAxAI support." : tab === "personas" ? "Personas to interpret who may feel admin, system, or automation strain." : tab === "pain_points" ? "Pain points linked to review, training, virtual assistance, and improvement — not default new builds." : "VAT prompts for Value, Alignment, and Trust in AI decisions."}</p>
           </div>
           {tab !== "vat_prompts" && (
             <button

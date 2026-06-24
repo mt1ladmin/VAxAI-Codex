@@ -195,7 +195,9 @@ export default function EnquiriesPage() {
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Website Enquiries</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">Contact form submissions — track status and manage each enquiry.</p>
+        <p className="mt-0.5 text-sm text-[#6f6b62]">
+          Inbound interest — qualify against VAxAI wraparound support, workflow review, training, and virtual assistance.
+        </p>
       </div>
 
       <div className="px-8 py-6">

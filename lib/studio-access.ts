@@ -11,8 +11,11 @@ const MEMBER_PAGE_PREFIXES = [
   "/admin/calendar",
   "/admin/posts",
   "/admin/authors",
+  "/admin/clients",
   "/admin/engagement/knowledge",
   "/admin/engagement/prospect-queue",
+  "/admin/engagement/prospect-outreach",
+  "/admin/engagement/pipeline",
 ] as const;
 
 /** API routes a studio member may call */
@@ -22,6 +25,7 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/authors",
   "/api/admin/social-posts",
   "/api/admin/upload",
+  "/api/admin/clients",
   "/api/admin/engagement/sectors",
   "/api/admin/engagement/personas",
   "/api/admin/engagement/pain-points",
@@ -30,10 +34,11 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/tasks",
   "/api/admin/engagement/contacts",
   "/api/admin/engagement/prospect-queue",
+  "/api/admin/engagement/prospect-outreach",
   "/api/admin/engagement/prospect-finder",
+  "/api/admin/engagement/knowledge-attachments",
   "/api/admin/engagement/ai",
   "/api/admin/engagement/activity-log",
-  "/api/admin/ai",
 ] as const;
 
 /** Knowledge browse APIs — members may only read */

@@ -423,7 +423,7 @@ function EnquiryDetailContent() {
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Submission</p>
             <div>
-              <p className="text-[10px] text-[#6f6b62]">Query type</p>
+              <p className="text-[10px] text-[#6f6b62]">Service interest</p>
               <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
             </div>
             <div>

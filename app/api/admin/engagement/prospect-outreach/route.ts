@@ -53,7 +53,9 @@ function applyFilters(
         p.location.toLowerCase().includes(q) ||
         p.decision_maker_name.toLowerCase().includes(q) ||
         p.sector_tags.some((t) => t.toLowerCase().includes(q)) ||
-        p.need_rationale.toLowerCase().includes(q),
+        p.need_rationale.toLowerCase().includes(q) ||
+        (p.service_fit_summary || "").toLowerCase().includes(q) ||
+        (p.likely_need || "").toLowerCase().includes(q),
     );
   }
   return filtered;

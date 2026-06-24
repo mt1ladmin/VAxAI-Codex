@@ -1,6 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createServiceClient } from "@/lib/supabase";
 import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
+import { reassessProspectRecord } from "@/lib/engagement/service-fit/assess";
+import { STUDIO_SERVICE_POSITIONING } from "@/lib/engagement/service-fit/positioning";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { OUTREACH_REGIONS } from "@/lib/engagement/prospect-outreach/types";
 
@@ -116,7 +118,7 @@ function findDuplicates(
       source: inQueue ? "queue" : "catalog",
       name,
       reason: inQueue
-        ? "Similar organisation already in Prospect Finder"
+        ? "Similar organisation already in Prospect Outreach"
         : "Similar name in researched catalog or CRM",
       score: target === name ? 95 : 70,
     });
@@ -183,13 +185,17 @@ export async function discoverProspects(
     messages: [
       {
         role: "user",
-        content: `You are a UK prospect researcher for VAxAI (virtual admin / AI training for charities and SMBs).
+        content: `You are a UK prospect researcher for VAxAI.
+
+${STUDIO_SERVICE_POSITIONING}
 
 METHODOLOGY (match existing catalog):
-- Target charities and SMBs with admin burden, manual processes, or growth friction
-- Score need 2-5 (5 = urgent admin/ops pain, strong fit for VAxAI)
+- Target charities and SMBs with admin burden, manual processes, or workflow friction — not greenfield system builds
+- Score need 2-5 (5 = strong admin/ops pain where wraparound review, training, and virtual assistance could help)
 - Prefer Norfolk, Suffolk, Cambridgeshire, Greater Manchester, Merseyside
 - Use realistic UK data; mark confidence Low if inferred
+- need_rationale must describe evidence of admin pressure, not generic AI hype
+- engagement_approach should suggest realistic first contact — usually workflow review or discovery, not a platform pitch
 - NEVER return organisations from the exclusion list or duplicates
 
 EXISTING ORGANISATIONS (do not repeat — ${existingNames.length} known names):
@@ -250,9 +256,10 @@ Use research_date "${today}". Generate stable id as slug from org name (lowercas
       priority_region: (p.priority_region as ProspectOutreachRecord["priority_region"]) ?? "primary",
     } satisfies ProspectOutreachRecord;
 
-    const duplicates = findDuplicates(record, existingNames, queueNames);
+    const prospect = reassessProspectRecord(record);
+    const duplicates = findDuplicates(prospect, existingNames, queueNames);
     return {
-      prospect: record,
+      prospect,
       duplicates,
       isLikelyDuplicate: duplicates.some((d) => d.score >= 85),
     };

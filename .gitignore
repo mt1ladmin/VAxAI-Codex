@@ -27,5 +27,7 @@ tsconfig.tsbuildinfo
 # local workspace scratch
 work
 outputs
+.npm-cache/
+lib/engagement/prospect-outreach/backups/
 __pycache__/
 scripts/.cache/
