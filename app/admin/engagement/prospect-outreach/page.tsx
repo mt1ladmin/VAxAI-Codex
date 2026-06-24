@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { AddToProspectQueueModal } from "@/components/admin/AddToProspectQueueModal";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
+import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
@@ -427,6 +428,8 @@ export default function ProspectOutreachPage() {
                   Save review notes
                 </button>
               </div>
+
+              {selected && <KnowledgeAttachPicker outreachId={selected.id} />}
 
               <div className="flex flex-wrap gap-3">
                 {editing ? (
