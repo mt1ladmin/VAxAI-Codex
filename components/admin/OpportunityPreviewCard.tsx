@@ -119,19 +119,7 @@ export function OpportunityPreviewCard({
             </div>
           )}
 
-          {opportunity.recommended_pathway && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Recommended pathway</p>
-              <p className="mt-0.5 text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{opportunity.recommended_pathway}</p>
-            </div>
-          )}
 
-          {opportunity.notes && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Notes</p>
-              <p className="mt-0.5 text-sm text-[#6f6b62] whitespace-pre-wrap leading-relaxed">{opportunity.notes}</p>
-            </div>
-          )}
         </div>
       )}
     </div>

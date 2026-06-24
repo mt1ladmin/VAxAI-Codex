@@ -7,7 +7,6 @@ import {
   Briefcase,
   Building2,
   CheckCircle,
-  ChevronDown,
   ExternalLink,
   Inbox,
   Loader2,
@@ -19,11 +18,12 @@ import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
+import { OpportunityStageSelect } from "@/components/admin/OpportunityStageSelect";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { buildClientContextSummary } from "@/lib/ai/context-builders";
-import { isClientServiceStage } from "@/lib/engagement/client-stages";
+import { CLIENT_SERVICE_STAGES, isClientServiceStage } from "@/lib/engagement/client-stages";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import { emailComposeUrl } from "@/lib/engagement/email-links";
 import { queueStageHint, queueStageLabel } from "@/lib/engagement/queue-stage-hints";
@@ -53,7 +53,7 @@ import type {
   Persona,
   SectorProfile,
 } from "@/lib/engagement/types";
-import { STAGE_COLORS } from "@/lib/engagement/types";
+import { OPPORTUNITY_STAGES } from "@/lib/engagement/types";
 import {
   ProspectDecisionMakerCard,
   ProspectOrganisationCard,
@@ -130,7 +130,7 @@ function ClientDetailContent() {
   const [savingNote, setSavingNote] = useState(false);
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
-  const [handoffNoteOpen, setHandoffNoteOpen] = useState(false);
+  const [updatingStage, setUpdatingStage] = useState(false);
 
   // AI context — set once contact data is loaded
   const contactFullName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}` : null;
@@ -308,6 +308,31 @@ function ClientDetailContent() {
     setOpportunities((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
   };
 
+  const updateOpportunityStage = async (oppId: string, stage: string) => {
+    const opp = opportunities.find((o) => o.id === oppId);
+    if (!opp || stage === opp.stage) return;
+    setUpdatingStage(true);
+    try {
+      const res = await fetch(`/api/admin/engagement/opportunities/${oppId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stage }),
+      });
+      const j = await res.json() as { data?: EngagementOpportunity };
+      if (j.data) handleOpportunityUpdated(j.data);
+    } finally {
+      setUpdatingStage(false);
+    }
+  };
+
+  const stageOptionsFor = (opp: EngagementOpportunity) => {
+    const clientContext = isClientServiceStage(opp.stage);
+    if (clientContext) {
+      return CLIENT_SERVICE_STAGES;
+    }
+    return OPPORTUNITY_STAGES.filter((s) => !isClientServiceStage(s));
+  };
+
   if (loading && !contact) return <HubDetailSkeleton />;
   if (!contact) return <div className="p-8 text-sm text-[#6f6b62]">Client not found.</div>;
 
@@ -445,57 +470,20 @@ function ClientDetailContent() {
           )}
 
           {primaryOpp && (
-            <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
-                    {queueStageLabel(primaryOpp.stage)}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-[#111111]">{primaryOpp.stage}</p>
-                  <p className="mt-1 text-xs text-[#6f6b62] leading-relaxed">
-                    {queueStageHint(primaryOpp.stage)}
-                  </p>
-                </div>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                    STAGE_COLORS[primaryOpp.stage] || "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {primaryOpp.stage}
-                </span>
+            <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
+                  {queueStageLabel(primaryOpp.stage)}
+                </p>
+                <OpportunityStageSelect
+                  value={primaryOpp.stage}
+                  stages={stageOptionsFor(primaryOpp)}
+                  onChange={(stage) => void updateOpportunityStage(primaryOpp.id, stage)}
+                  loading={updatingStage}
+                  dropUp
+                />
               </div>
-
-              {handoffNote && (
-                <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
-                  <button
-                    type="button"
-                    onClick={() => setHandoffNoteOpen((v) => !v)}
-                    className="flex w-full items-center justify-between px-4 py-3 text-left"
-                  >
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-                      Move to queue note
-                    </span>
-                    <ChevronDown
-                      className={`h-4 w-4 text-[#6f6b62] transition-transform ${handoffNoteOpen ? "rotate-180" : ""}`}
-                    />
-                  </button>
-                  {handoffNoteOpen && (
-                    <div className="border-t border-[#111111]/10 px-4 py-3">
-                      <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{handoffNote}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <OpportunityPreviewCard
-                opportunity={primaryOpp}
-                editable
-                clientContext={isClientServiceStage(primaryOpp.stage)}
-                defaultExpanded={false}
-                dropUpStageSelect
-                onUpdated={handleOpportunityUpdated}
-                openTaskCount={openTasks.length}
-              />
+              <p className="text-xs text-[#6f6b62] leading-relaxed">{queueStageHint(primaryOpp.stage)}</p>
             </div>
           )}
 
@@ -683,7 +671,6 @@ function ClientDetailContent() {
                       </div>
                       <p className="text-sm text-[#6f6b62]">
                         Research, client journey, and engagement guide from Prospect Finder are retained on this record.
-                        {handoffNote ? " The move-to-queue note is in the pipeline panel on the left." : ""}
                       </p>
                       {handoffNote && (
                         <div className="rounded-lg border border-amber-200/80 bg-white/80 p-3">
