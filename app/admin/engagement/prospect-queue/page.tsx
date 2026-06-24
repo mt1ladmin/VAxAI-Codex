@@ -304,14 +304,6 @@ export default function ClientsPage() {
                         {c.role && (
                           <LabeledField label="Role">{c.role}</LabeledField>
                         )}
-                        {c.primary_service && (
-                          <LabeledField label="Service">
-                            <span className="flex items-center gap-1">
-                              <Briefcase className="h-3 w-3 text-[#6f6b62]" />
-                              {c.primary_service}
-                            </span>
-                          </LabeledField>
-                        )}
                         {value && (
                           <LabeledField label="Value">
                             <span className="font-semibold text-[#063b32]">{value}</span>

@@ -602,6 +602,16 @@ function ClientDetailContent() {
               {outreachRecord && (
                 <div className="space-y-4">
                   <ServiceFitPanel data={outreachRecord} mode="overview" />
+                  {handoffNote && (
+                    <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                        Move to queue note
+                      </p>
+                      <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">
+                        {handoffNote}
+                      </p>
+                    </div>
+                  )}
                   <ProspectTagList data={outreachRecord} />
                 </div>
               )}
@@ -718,14 +728,6 @@ function ClientDetailContent() {
                       <p className="text-sm text-[#6f6b62]">
                         Research, client journey, and engagement guide from Prospect Finder are retained on this record.
                       </p>
-                      {handoffNote && (
-                        <div className="rounded-lg border border-amber-200/80 bg-white/80 p-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-                            Move to queue note
-                          </p>
-                          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{handoffNote}</p>
-                        </div>
-                      )}
                     </div>
                   )}
                   <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 flex items-center gap-3">
