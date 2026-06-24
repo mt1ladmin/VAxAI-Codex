@@ -69,6 +69,8 @@ import {
   ServiceFitPanel,
 } from "@/components/admin/ServiceFitPanel";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
+import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
+import { FINDER_ENGAGEMENT_STATUSES, type FinderEngagementStatus } from "@/lib/engagement/engagement-status";
 
 type ClientTab = CrmHubTab | "submission";
 
@@ -376,6 +378,19 @@ function ClientDetailContent() {
     }
   };
 
+  const patchOutreachWorkflow = async (payload: Record<string, unknown>) => {
+    if (!outreachRecord) return;
+    const res = await fetch("/api/admin/engagement/prospect-outreach", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ outreach_id: outreachRecord.id, ...payload }),
+    });
+    if (res.ok) {
+      const json = await res.json() as { data?: ProspectFinderListItem };
+      if (json.data) setOutreachRecord(json.data);
+    }
+  };
+
   const replaceNotes = async (notes: string) => {
     setSavingNote(true);
     try {
@@ -519,6 +534,44 @@ function ClientDetailContent() {
             </div>
           )}
 
+          {outreachRecord && (
+            <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Assignment</p>
+              <select
+                value={outreachRecord.assigned_team_member_id || ""}
+                onChange={(e) => {
+                  const assignedId = e.target.value || null;
+                  const opts = activeTeamMemberOptions(teamMembers);
+                  const assignedName = opts.find((o) => o.value === assignedId)?.label ?? null;
+                  setOutreachRecord((prev) => prev ? { ...prev, assigned_team_member_id: assignedId, assigned_team_member_name: assignedName } : prev);
+                  void patchOutreachWorkflow({ assigned_team_member_id: assignedId });
+                }}
+                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32]"
+              >
+                <option value="">Unassigned</option>
+                {activeTeamMemberOptions(teamMembers).map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <div>
+                <p className="mb-1 text-[10px] text-[#6f6b62]">Engagement status</p>
+                <select
+                  value={outreachRecord.engagement_status}
+                  onChange={(e) => {
+                    const status = e.target.value as FinderEngagementStatus;
+                    setOutreachRecord((prev) => prev ? { ...prev, engagement_status: status } : prev);
+                    void patchOutreachWorkflow({ engagement_status: status });
+                  }}
+                  className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32]"
+                >
+                  {FINDER_ENGAGEMENT_STATUSES.filter((s) => s !== "In prospect queue").map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
           {primaryOpp && (
             <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-5 space-y-2">
               <div className="flex items-center justify-between gap-3">
@@ -571,7 +624,7 @@ function ClientDetailContent() {
 
               {outreachRecord && (
                 <div className="space-y-4">
-                  <ServiceFitPanel data={outreachRecord} mode="overview" />
+                  <ServiceFitPanel data={outreachRecord} mode="overview" editable onSaveField={saveOutreachField} />
                   {handoffNote && (
                     <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-4">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">

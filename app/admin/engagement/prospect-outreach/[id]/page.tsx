@@ -320,7 +320,7 @@ function ProspectFinderDetailContent() {
                 );
                 void patchWorkflow({ assigned_team_member_id: assignedId });
               }}
-              className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+              className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32]"
             >
               <option value="">Unassigned</option>
               {memberOptions.map((opt) => (
@@ -337,7 +337,7 @@ function ProspectFinderDetailContent() {
                   void patchWorkflow({ engagement_status: status });
                 }}
                 disabled={record.in_prospect_queue}
-                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] disabled:cursor-not-allowed disabled:bg-[#f7f4ea]/20"
+                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32] disabled:cursor-not-allowed disabled:bg-[#f7f4ea]/20"
               >
                 {FINDER_ENGAGEMENT_STATUSES.filter((s) => s !== "In prospect queue" || record.in_prospect_queue).map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -391,7 +391,7 @@ function ProspectFinderDetailContent() {
               </div>
 
               <div className="space-y-4">
-                <ServiceFitPanel data={record} mode="overview" />
+                <ServiceFitPanel data={record} mode="overview" editable onSaveField={saveOutreachField} />
                 <ProspectTagList data={record} />
               </div>
 

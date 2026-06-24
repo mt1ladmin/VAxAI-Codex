@@ -30,7 +30,7 @@ const BOARD_COLUMNS = [
 ] as const;
 
 const inputClass =
-  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] transition-colors";
+  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32] transition-colors";
 
 const selectClass =
   "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32] appearance-none";

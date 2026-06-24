@@ -113,7 +113,7 @@ export function MoveEnquiryToProspectQueueModal({
             <select
               value={assignedId}
               onChange={(e) => setAssignedId(e.target.value)}
-              className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+              className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32]"
             >
               <option value="">Select team member</option>
               {options.map((opt) => (
