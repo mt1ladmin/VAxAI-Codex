@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
-  Briefcase,
   CalendarDays,
   CheckSquare,
   ExternalLink,
@@ -23,9 +22,10 @@ import {
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
 import {
-  CLIENT_WORK_LABEL,
   PROSPECT_FINDER_LABEL,
   PROSPECT_QUEUE_LABEL,
+  PROSPECT_QUEUE_PATH,
+  PROSPECT_FINDER_PATH,
 } from "@/lib/engagement/journey";
 import { isPlatformAdmin, type StudioRole } from "@/lib/studio-access";
 
@@ -36,9 +36,8 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: PROSPECT_FINDER_LABEL, href: "/admin/engagement/prospect-outreach", icon: Search },
-      { label: PROSPECT_QUEUE_LABEL, href: "/admin/clients", icon: Inbox },
-      { label: CLIENT_WORK_LABEL, href: "/admin/client-work", icon: Briefcase },
+      { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search },
+      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
     ],
@@ -65,9 +64,8 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
     section: "CLIENT ENGAGEMENT",
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake },
-      { label: PROSPECT_FINDER_LABEL, href: "/admin/engagement/prospect-outreach", icon: Search },
-      { label: PROSPECT_QUEUE_LABEL, href: "/admin/clients", icon: Inbox },
-      { label: CLIENT_WORK_LABEL, href: "/admin/client-work", icon: Briefcase },
+      { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search },
+      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare },
     ],

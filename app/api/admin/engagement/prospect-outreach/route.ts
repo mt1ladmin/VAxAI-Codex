@@ -171,6 +171,41 @@ export async function PATCH(req: NextRequest) {
   });
 }
 
+/** Archive prospects from Finder (platform admin only). */
+export async function DELETE(req: NextRequest) {
+  const body = (await req.json()) as { outreach_ids?: string[] };
+  const ids = body.outreach_ids?.filter(Boolean) ?? [];
+  if (!ids.length) {
+    return NextResponse.json({ error: "outreach_ids required" }, { status: 400 });
+  }
+
+  const supabase = createServiceClient();
+  const { data: existing } = await supabase
+    .from("prospect_outreach_overrides")
+    .select("outreach_id, overrides")
+    .in("outreach_id", ids);
+
+  const existingMap = new Map((existing || []).map((r) => [r.outreach_id, r]));
+
+  for (const outreach_id of ids) {
+    const base = prospectOutreachCatalog.prospects.find((p) => p.id === outreach_id);
+    if (!base) continue;
+    const row = existingMap.get(outreach_id);
+    const mergedOverrides = {
+      ...((row?.overrides as Record<string, unknown>) || {}),
+      archived: true,
+      archived_at: new Date().toISOString(),
+    };
+    await supabase.from("prospect_outreach_overrides").upsert({
+      outreach_id,
+      overrides: mergedOverrides,
+      updated_at: new Date().toISOString(),
+    });
+  }
+
+  return NextResponse.json({ success: true, archived_count: ids.length });
+}
+
 /** @deprecated Use move-to-queue — kept for backward compatibility */
 export async function POST(req: NextRequest) {
   const body = await req.json();

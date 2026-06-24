@@ -94,13 +94,12 @@ export async function patchLinkedNextAction(
     return;
   }
 
-  if (item.source === "queue") {
-    const res = await fetch(`/api/admin/engagement/prospect-queue/${item.sourceId}`, {
+  if (item.source === "queue" || item.source === "opportunity") {
+    const res = await fetch(`/api/admin/engagement/opportunities/${item.sourceId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         next_action: payload.title.trim() || null,
-        next_action_date: payload.dueDate || null,
       }),
     });
     if (!res.ok) throw new Error("Failed to update prospect next action");

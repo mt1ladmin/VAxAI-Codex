@@ -10,7 +10,7 @@ export function OpportunityCreatedFrom({
   contactName?: string | null;
   organisationName?: string | null;
 }) {
-  if (!opportunity.enquiry_id && !opportunity.queue_id) return null;
+  if (!opportunity.enquiry_id && !opportunity.outreach_id) return null;
 
   const resolvedContact =
     contactName ??

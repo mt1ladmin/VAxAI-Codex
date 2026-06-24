@@ -65,7 +65,7 @@ export function JourneyStageBanner({ currentStage, status, hint }: Props) {
       )}
       {currentStage === "queue" && status === PRE_SALES_STATUS && (
         <p className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-          Opportunity is active (status: {PRE_SALES_STATUS}). Track discovery and proposals, then advance to client work once there is agreement to proceed.
+          Opportunity is active (status: {PRE_SALES_STATUS}). Track discovery and proposals through Prospect Queue until agreement to proceed.
         </p>
       )}
       {currentStage === "finder" && (

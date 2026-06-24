@@ -3,15 +3,14 @@ import {
   buildClientContextSummary,
   buildEnquiryContextSummary,
   buildOutreachContextSummary,
-  buildProspectContextSummary,
   extractKnowledgeKeywords,
 } from "@/lib/ai/context-builders";
 import type { KnowledgeLinkIds } from "@/lib/engagement/knowledge-links";
 import { EMPTY_KNOWLEDGE_LINKS } from "@/lib/engagement/knowledge-links";
 import { getProspectById } from "@/lib/engagement/prospect-outreach/catalog";
+import { loadMergedOutreachRecord } from "@/lib/engagement/prospect-outreach/load-record";
 import { mergeProspectRecord } from "@/lib/engagement/prospect-outreach/snapshot";
-import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
-import type { EngagementOpportunity, EngagementTask, ProspectQueueEntry } from "@/lib/engagement/types";
+import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 import type { createServiceClient } from "@/lib/supabase";
 
 type Supabase = ReturnType<typeof createServiceClient>;
@@ -206,35 +205,26 @@ export async function assembleContextPackage(
   }
 
   if (contextType === "prospect") {
-    const { data: entry } = await supabase
-      .from("prospect_queue")
-      .select("*")
-      .eq("id", contextId)
-      .maybeSingle();
-
-    if (!entry) {
+    const loaded = await loadMergedOutreachRecord(supabase, contextId);
+    if (!loaded) {
       return finalizeWithAccountState(supabase, contextType, contextId, {
         label: "Unknown prospect",
-        package: "Account not found.",
+        package: "Prospect Finder record not found.",
         keywords: [],
         attachments: EMPTY_KNOWLEDGE_LINKS,
       }, includeWorkingState);
     }
 
-    const queueEntry = entry as ProspectQueueEntry;
-    const core = buildProspectContextSummary(queueEntry);
-    const attachments = await loadAttachments(supabase, { col: "queue_id", val: contextId });
-    const [tasks, activity] = await Promise.all([
-      loadOpenTasks(supabase, [{ col: "queue_id", val: contextId }]),
-      loadRecentActivity(supabase, { col: "queue_id", val: contextId }),
-    ]);
-    const notes = extractRecentNotes(queueEntry.raw_notes);
-
+    const { record, reviewNotes } = loaded;
+    const core = buildOutreachContextSummary(record, reviewNotes);
+    const attachments = await loadAttachments(supabase, { col: "outreach_id", val: contextId });
+    const notes = extractRecentNotes(reviewNotes);
     const parts = [core];
-    appendSupplement(parts, tasks, activity, notes, null, gaps);
+    if (notes.length) parts.push("REVIEWER NOTES:", ...notes.map((n) => `• ${n}`));
+    if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
 
     return finalizeWithAccountState(supabase, contextType, contextId, {
-      label: queueEntry.raw_org_name || queueEntry.raw_contact_name || "Prospect",
+      label: record.organisation_name,
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
       attachments,
@@ -267,14 +257,17 @@ export async function assembleContextPackage(
     }
 
     const opportunities = (oppRes.data ?? []) as EngagementOpportunity[];
-    const queueId = opportunities.find((o) => o.queue_id)?.queue_id ?? null;
-    let linkedQueue: ProspectQueueEntry | null = null;
-    if (queueId) {
-      const { data } = await supabase.from("prospect_queue").select("*").eq("id", queueId).maybeSingle();
-      linkedQueue = data as ProspectQueueEntry | null;
-    }
+    const outreachId = opportunities.find((o) => o.outreach_id)?.outreach_id ?? null;
+    const loadedOutreach = outreachId ? await loadMergedOutreachRecord(supabase, outreachId) : null;
+    const linkedOutreach = loadedOutreach?.record ?? null;
+    const finderReviewNotes = loadedOutreach?.reviewNotes ?? null;
 
-    const core = buildClientContextSummary(contact, opportunities, linkedQueue);
+    const core = buildClientContextSummary(
+      contact,
+      opportunities,
+      linkedOutreach,
+      finderReviewNotes,
+    );
     const attachments = await loadAttachments(supabase, { col: "contact_id", val: contextId });
 
     const taskFilters: Array<{ col: string; val: string }> = [{ col: "contact_id", val: contextId }];
@@ -292,7 +285,7 @@ export async function assembleContextPackage(
     const notes = extractRecentNotes(contact.notes);
     const fees = formatFees(opportunities[0]);
 
-    if (!contact.notes?.trim() && !linkedQueue?.raw_notes) {
+    if (!contact.notes?.trim() && !finderReviewNotes?.trim()) {
       gaps.push("Limited recorded notes on this account");
     }
 
@@ -354,15 +347,4 @@ export async function assembleContextPackage(
     keywords: [],
     attachments: EMPTY_KNOWLEDGE_LINKS,
   }, includeWorkingState);
-}
-
-/** Keywords from outreach snapshot on queue entries when assembling linked history. */
-export function keywordsFromQueue(entry: ProspectQueueEntry): string[] {
-  const outreach = outreachFromQueueEntry(entry);
-  if (!outreach) return [];
-  return [
-    ...outreach.sector_tags,
-    ...outreach.pain_point_tags,
-    outreach.organisation_type,
-  ].map((t) => t.toLowerCase());
 }

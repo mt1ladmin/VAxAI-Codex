@@ -1,12 +1,14 @@
 /**
- * VAxAI prospect-to-client journey stages.
+ * VAxAI prospect journey — two stages only.
  *
- * Prospect Finder → Prospect Queue → Client Work
+ * Prospect Finder → Prospect Queue
  */
 
 export const PROSPECT_FINDER_LABEL = "Prospect Finder";
 export const PROSPECT_QUEUE_LABEL = "Prospect Queue";
-export const CLIENT_WORK_LABEL = "Client Work";
+
+/** @deprecated Use PROSPECT_QUEUE_LABEL — client work merged into Prospect Queue */
+export const CLIENT_WORK_LABEL = PROSPECT_QUEUE_LABEL;
 
 /** @deprecated Use PROSPECT_FINDER_LABEL */
 export const PROSPECT_CATALOG_PAGE_LABEL = PROSPECT_FINDER_LABEL;
@@ -14,24 +16,22 @@ export const PROSPECT_CATALOG_PAGE_LABEL = PROSPECT_FINDER_LABEL;
 /** @deprecated Intermediary stage removed */
 export const PROSPECT_WORKFLOW_PAGE_LABEL = PROSPECT_FINDER_LABEL;
 
+export const PROSPECT_QUEUE_PATH = "/admin/engagement/prospect-queue";
+export const PROSPECT_FINDER_PATH = "/admin/engagement/prospect-outreach";
+
 export const JOURNEY_STAGES = [
   {
     id: "finder",
     label: PROSPECT_FINDER_LABEL,
-    description: "Review researched targets, assign owners, and qualify fit before moving to the active pipeline.",
-    path: "/admin/engagement/prospect-outreach",
+    description: "Review researched targets, assign owners, and qualify fit before moving to active engagement.",
+    path: PROSPECT_FINDER_PATH,
   },
   {
     id: "queue",
     label: PROSPECT_QUEUE_LABEL,
-    description: "Active opportunities the team is engaging — track stage, tasks, and readiness for client work.",
-    path: "/admin/clients",
-  },
-  {
-    id: "client",
-    label: CLIENT_WORK_LABEL,
-    description: "Strategic delivery — onboarding, proposals, and ongoing client services.",
-    path: "/admin/client-work",
+    description:
+      "Active engagement — from first contact through opportunity, onboarding, and ongoing client delivery.",
+    path: PROSPECT_QUEUE_PATH,
   },
 ] as const;
 
@@ -55,26 +55,32 @@ export function canMoveToPreSales(status: string): boolean {
 }
 
 export const ADVANCE_STATUS_HINT =
-  "Set status to Opportunity when there is a confirmed sales opportunity (meeting held, interest confirmed, or proposal in progress). Advance to client work once you have agreement to proceed.";
+  "Set status to Opportunity when there is a confirmed sales opportunity, then move to Prospect Queue for active engagement.";
 
 export const PRE_SALES_SIGNAL_HINT =
-  "Positive signal recorded — set status to Opportunity to open the pre-sales pipeline when ready.";
+  "Positive signal recorded — set status to Opportunity, then move to Prospect Queue when ready.";
 
 export function journeyStageForQueueStatus(status: string): JourneyStageId {
-  if (status === "Closed") return "client";
+  if (status === "Closed") return "queue";
   if (status === "Opportunity" || status === "In prospect queue") return "queue";
   return "finder";
 }
 
 export function journeyStageForEnquiryStatus(status: string): JourneyStageId {
-  if (status === "Closed") return "client";
+  if (status === "Closed") return "queue";
   if (status === "Opportunity") return "queue";
   return "finder";
 }
 
-export const ADVANCE_ACTION_LABEL = "Advance to client work";
-export const ADVANCE_MODAL_TITLE = "Advance to client work";
+/** @deprecated Client work is now Prospect Queue */
+export const ADVANCE_ACTION_LABEL = "Move to Prospect Queue";
+export const ADVANCE_MODAL_TITLE = "Move to Prospect Queue";
 export const ADVANCE_MODAL_SUBTITLE =
-  "Create the client work record for strategic follow-up, proposals, and onboarding.";
+  "Open the Prospect Queue record for active engagement, tasks, and follow-up.";
 
 export const MOVE_TO_PROSPECT_QUEUE_LABEL = "Move to Prospect Queue";
+
+export function prospectQueueDetailPath(contactId: string, tab?: string): string {
+  const base = `${PROSPECT_QUEUE_PATH}/${contactId}`;
+  return tab ? `${base}?tab=${tab}` : base;
+}

@@ -158,15 +158,15 @@ export function isOpenOpportunity(opp: EngagementOpportunity): boolean {
 }
 
 export function getOpportunitySource(
-  opp: Pick<EngagementOpportunity, "enquiry_id" | "queue_id">,
+  opp: Pick<EngagementOpportunity, "enquiry_id" | "outreach_id">,
 ): Exclude<SourceFilter, "all"> | null {
   if (opp.enquiry_id) return "website_enquiry";
-  if (opp.queue_id) return "prospect_queue";
+  if (opp.outreach_id) return "prospect_queue";
   return null;
 }
 
 export function matchesSourceFilter(
-  opp: Pick<EngagementOpportunity, "enquiry_id" | "queue_id">,
+  opp: Pick<EngagementOpportunity, "enquiry_id" | "outreach_id">,
   filter: SourceFilter,
 ): boolean {
   if (filter === "all") return true;
@@ -174,10 +174,10 @@ export function matchesSourceFilter(
 }
 
 export function getTaskSource(
-  task: Pick<EngagementTask, "enquiry_id" | "queue_id" | "opportunity">,
+  task: Pick<EngagementTask, "enquiry_id" | "outreach_id" | "opportunity">,
 ): Exclude<SourceFilter, "all"> | null {
   if (task.enquiry_id || task.opportunity?.enquiry_id) return "website_enquiry";
-  if (task.queue_id || task.opportunity?.queue_id) return "prospect_queue";
+  if (task.outreach_id || task.opportunity?.outreach_id) return "prospect_queue";
   return null;
 }
 

@@ -42,16 +42,6 @@ async function loadExistingNames(): Promise<string[]> {
   const supabase = createServiceClient();
   const names = new Set<string>();
 
-  const { data: queueRows } = await supabase
-    .from("prospect_queue")
-    .select("raw_org_name, organisation:organisation_id(name)")
-    .limit(500);
-
-  for (const row of queueRows ?? []) {
-    const org = row.raw_org_name || (row.organisation as { name?: string } | null)?.name;
-    if (org) names.add(normName(org));
-  }
-
   const { data: orgs } = await supabase
     .from("engagement_organisations")
     .select("name")

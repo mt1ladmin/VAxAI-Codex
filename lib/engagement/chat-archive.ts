@@ -79,7 +79,7 @@ export async function createChatSnapshotWithArchive(
       contextType === "enquiry"
         ? { enquiry_id: contextId }
         : contextType === "prospect"
-          ? { queue_id: contextId }
+          ? { outreach_id: contextId }
           : contextType === "client"
             ? { contact_id: contextId }
             : contextType === "outreach"

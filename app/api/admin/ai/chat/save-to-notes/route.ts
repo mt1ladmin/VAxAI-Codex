@@ -64,39 +64,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data: { saved: true, notes: combined } });
   }
 
-  if (contextType === "prospect") {
-    const { data: entryRow, error: fetchErr } = await supabase
-      .from("prospect_queue")
-      .select("raw_notes")
-      .eq("id", contextId)
-      .single();
-
-    if (fetchErr || !entryRow) {
-      return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
-    }
-
-    const combined = entryRow.raw_notes ? `${entryRow.raw_notes}\n\n${entry}` : entry;
-    const { error } = await supabase
-      .from("prospect_queue")
-      .update({
-        raw_notes: combined,
-        last_action: `AI summary saved: ${title.trim().slice(0, 60)}`,
-        last_action_date: new Date().toISOString(),
-      })
-      .eq("id", contextId);
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    await logActivity(supabase, {
-      event_type: "ai_summary",
-      title: `AI summary: ${title.trim().slice(0, 60)}`,
-      detail: summary.trim().slice(0, 300),
-      queue_id: contextId,
-    });
-    scheduleAccountStateRefresh(contextType, contextId, summary.trim());
-    return NextResponse.json({ data: { saved: true, notes: combined } });
-  }
-
-  if (contextType === "outreach") {
+  if (contextType === "prospect" || contextType === "outreach") {
     const { data: row, error: fetchErr } = await supabase
       .from("prospect_outreach_overrides")
       .select("review_notes, overrides")

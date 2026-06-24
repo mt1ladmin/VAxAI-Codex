@@ -1,7 +1,7 @@
 import { logActivity } from "@/lib/engagement/activity-log";
 import { isFinderEngagementStatus } from "@/lib/engagement/engagement-status";
 import { getBaseRecord, loadOverrideMaps, loadTeamMembers } from "@/lib/engagement/prospect-finder/load-catalog";
-import { mergeProspectRecord, snapshotToQueueFields } from "@/lib/engagement/prospect-outreach/snapshot";
+import { mergeProspectRecord } from "@/lib/engagement/prospect-outreach/snapshot";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -147,35 +147,6 @@ export async function POST(req: NextRequest) {
       opportunity_id: oppRes.data.id,
     })
     .eq("outreach_id", outreach_id);
-
-  const legacyQueue = await supabase
-    .from("prospect_queue")
-    .select("id")
-    .eq("outreach_id", outreach_id)
-    .maybeSingle();
-
-  if (legacyQueue.data?.id) {
-    await supabase
-      .from("prospect_queue")
-      .update({
-        status: "Opportunity",
-        organisation_id: orgRes.data.id,
-        contact_id: contactRes.data.id,
-        last_action: "Moved to Prospect Queue",
-        last_action_date: new Date().toISOString(),
-      })
-      .eq("id", legacyQueue.data.id);
-  } else {
-    const queuePayload = snapshotToQueueFields(merged, reviewNotes);
-    await supabase.from("prospect_queue").insert({
-      ...queuePayload,
-      status: "Opportunity",
-      organisation_id: orgRes.data.id,
-      contact_id: contactRes.data.id,
-      last_action: "Moved to Prospect Queue",
-      last_action_date: new Date().toISOString(),
-    });
-  }
 
   await logActivity(supabase, {
     event_type: "moved_to_prospect_queue",

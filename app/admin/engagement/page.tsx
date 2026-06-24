@@ -34,6 +34,7 @@ type PostItem = { id: string; title: string; status: string; scheduled_at?: stri
 
 type Stats = {
   pendingQueue: number;
+  activeProspectQueue: number;
   newEnquiries: number;
   overdueTasks: number;
   openTasks: number;
@@ -80,6 +81,7 @@ export default function EngagementOverview() {
   const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
   const [stats, setStats] = useState<Stats>({
     pendingQueue: 0,
+    activeProspectQueue: 0,
     newEnquiries: 0,
     overdueTasks: 0,
     openTasks: 0,
@@ -101,11 +103,13 @@ export default function EngagementOverview() {
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
 
       fetch("/api/admin/engagement/prospect-outreach?page_size=1").then((r) => r.json()).catch(() => ({ meta: {} })),
+      fetch("/api/admin/engagement/prospect-queue").then((r) => r.json()).catch(() => ({ metrics: {} })),
       fetch("/api/admin/enquiries?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/posts?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([taskRes, finderRes, enqRes, postRes]) => {
+    ]).then(([taskRes, finderRes, queueRes, enqRes, postRes]) => {
       const taskData = (taskRes.data || []) as Task[];
       const finderMeta = (finderRes.meta || {}) as { unassigned_count?: number };
+      const queueMetrics = (queueRes.metrics || {}) as { total?: number };
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
 
@@ -128,6 +132,7 @@ export default function EngagementOverview() {
 
       setStats({
         pendingQueue: finderMeta.unassigned_count ?? 0,
+        activeProspectQueue: queueMetrics.total ?? 0,
         newEnquiries: enqData.filter((e) => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
         openTasks: taskData.filter((t) => t.status !== "done").length,
@@ -160,10 +165,11 @@ export default function EngagementOverview() {
           </div>
 
         </div>
-        {!stats.loading && (stats.overdueTasks > 0 || stats.pendingQueue > 0 || stats.newEnquiries > 0) && (
+        {!stats.loading && (stats.overdueTasks > 0 || stats.pendingQueue > 0 || stats.activeProspectQueue > 0 || stats.newEnquiries > 0) && (
           <div className="mt-3 flex flex-wrap gap-2">
             <AlertPill count={stats.overdueTasks} label="overdue task(s)" href="/admin/engagement/pipeline" color="bg-red-100 text-red-700" />
             <AlertPill count={stats.pendingQueue} label="unassigned prospect(s)" href="/admin/engagement/prospect-outreach?unassigned=true" color="bg-amber-100 text-amber-700" />
+            <AlertPill count={stats.activeProspectQueue} label={`active ${PROSPECT_QUEUE_LABEL.toLowerCase()}`} href="/admin/engagement/prospect-queue" color="bg-[#063b32]/10 text-[#063b32]" />
             <AlertPill count={stats.newEnquiries} label="new enquiry(ies)" href="/admin/enquiries" color="bg-blue-100 text-blue-700" />
           </div>
         )}
@@ -370,7 +376,7 @@ export default function EngagementOverview() {
           {[
             { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
             { label: "Website Enquiries", href: "/admin/enquiries", icon: Users, desc: "Contact form submissions" },
-            { label: PROSPECT_QUEUE_LABEL, href: "/admin/clients", icon: Inbox, desc: "Active opportunities the team is engaging" },
+            { label: PROSPECT_QUEUE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox, desc: "Active engagement from first contact through delivery" },
           ].map((item) => (
             <Link
               key={item.href}

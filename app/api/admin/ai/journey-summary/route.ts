@@ -1,8 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { extractKnowledgeKeywords } from "@/lib/ai/context-builders";
 import { logActivity } from "@/lib/engagement/activity-log";
-import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
-import type { ProspectQueueEntry } from "@/lib/engagement/types";
+import { loadMergedOutreachRecord } from "@/lib/engagement/prospect-outreach/load-record";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -66,14 +65,10 @@ export async function POST(req: NextRequest) {
   const activities = activityRes.data ?? [];
   const enquiry = enquiryRes.data;
 
-  const queueId = opportunities.find((o) => o.queue_id)?.queue_id ?? null;
-  let queue: ProspectQueueEntry | null = null;
-  if (queueId) {
-    const { data } = await supabase.from("prospect_queue").select("*").eq("id", queueId).single();
-    queue = data as ProspectQueueEntry | null;
-  }
-
-  const outreach = queue ? outreachFromQueueEntry(queue) : null;
+  const outreachId = opportunities.find((o) => o.outreach_id)?.outreach_id ?? null;
+  const loadedOutreach = outreachId ? await loadMergedOutreachRecord(supabase, outreachId) : null;
+  const outreach = loadedOutreach?.record ?? null;
+  const finderReviewNotes = loadedOutreach?.reviewNotes ?? null;
   const fullName = `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`;
 
   const contextBlock = [
@@ -85,9 +80,10 @@ export async function POST(req: NextRequest) {
     enquiry
       ? `WEBSITE ENQUIRY (${enquiry.created_at}): ${enquiry.support_type} — ${enquiry.details}\nStatus: ${enquiry.status}\nAdmin notes: ${enquiry.admin_notes ?? "—"}`
       : null,
-    queue
-      ? `PROSPECT QUEUE: ${queue.raw_org_name ?? "—"} | Status: ${queue.status}\nNotes: ${queue.raw_notes ?? "—"}`
+    outreach
+      ? `PROSPECT FINDER: ${outreach.organisation_name} | Need score: ${outreach.need_score}/5`
       : null,
+    finderReviewNotes ? `Finder review notes: ${finderReviewNotes}` : null,
     outreach?.need_rationale ? `Original admin/AI need: ${outreach.need_rationale}` : null,
     opportunities.length
       ? `OPPORTUNITIES:\n${opportunities
@@ -172,7 +168,7 @@ ${contextBlock}`,
     detail: summary.slice(0, 300) + (summary.length > 300 ? "…" : ""),
     contact_id: contactId,
     enquiry_id: enquiry?.id ?? null,
-    queue_id: queueId,
+    outreach_id: outreachId,
     metadata: { saved_to_notes: true },
   });
 

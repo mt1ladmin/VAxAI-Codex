@@ -19,16 +19,10 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
   }
 
-  const { data: legacyQueue } = await supabase
-    .from("prospect_queue")
-    .select("id, status, raw_notes, contact_id, organisation_id")
-    .eq("outreach_id", id)
-    .maybeSingle();
-
   const { data: tasks } = await supabase
     .from("engagement_tasks")
     .select("*, organisation:organisation_id(id, name), contact:contact_id(id, first_name, last_name)")
-    .or(`outreach_id.eq.${id}${legacyQueue?.id ? `,queue_id.eq.${legacyQueue.id}` : ""}`)
+    .eq("outreach_id", id)
     .order("due_date", { ascending: true });
 
   let opportunity = null;
@@ -43,7 +37,6 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
   return NextResponse.json({
     data: record,
-    legacy_queue: legacyQueue,
     opportunity,
     tasks: tasks || [],
     team_members: members.filter((m) => m.is_active),

@@ -14,6 +14,7 @@ import {
   User,
 } from "lucide-react";
 import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
+import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
@@ -29,6 +30,7 @@ import {
   MOVE_TO_PROSPECT_QUEUE_LABEL,
   PROSPECT_FINDER_LABEL,
   PROSPECT_QUEUE_LABEL,
+  prospectQueueDetailPath,
 } from "@/lib/engagement/journey";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
@@ -37,6 +39,13 @@ import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type { EngagementTask } from "@/lib/engagement/types";
 
 type Tab = "overview" | "research" | "notes" | "tasks" | "activity";
+const TAB_LABELS: Record<Tab, string> = {
+  overview: "Overview",
+  research: "Research",
+  notes: "Notes",
+  tasks: "Tasks & next actions",
+  activity: "Activity",
+};
 
 function gmailComposeUrl(email: string) {
   return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}`;
@@ -189,7 +198,7 @@ function ProspectFinderDetailContent() {
         teamMembers={teamMembers}
         onClose={() => setShowMoveModal(false)}
         onMoved={({ contact_id }) => {
-          router.push(`/admin/clients/${contact_id}`);
+          router.push(prospectQueueDetailPath(contact_id));
         }}
       />
 
@@ -197,13 +206,7 @@ function ProspectFinderDetailContent() {
 
       <div className="border-b border-[#111111]/10 px-8">
         <div className="flex gap-1 overflow-x-auto">
-          {([
-            ["overview", "Overview"],
-            ["research", "Research"],
-            ["notes", "Notes"],
-            ["tasks", "Tasks"],
-            ["activity", "Activity"],
-          ] as [Tab, string][]).map(([tabId, label]) => (
+          {(Object.entries(TAB_LABELS) as [Tab, string][]).map(([tabId, label]) => (
             <button
               key={tabId}
               type="button"
@@ -275,22 +278,12 @@ function ProspectFinderDetailContent() {
                 ))}
               </select>
             </div>
-            <div>
-              <p className="mb-1 text-[10px] text-[#6f6b62]">Next action</p>
-              <input
-                value={record.next_action || ""}
-                onChange={(e) => setRecord((r) => r ? { ...r, next_action: e.target.value } : r)}
-                onBlur={() => void patchWorkflow({ next_action: record.next_action || null })}
-                className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                placeholder="Most relevant next step"
-              />
-            </div>
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Pipeline</p>
             {record.in_prospect_queue && record.pipeline_contact_id ? (
-              <Link href={`/admin/clients/${record.pipeline_contact_id}`} className="text-sm font-semibold text-[#063b32] hover:underline">
+              <Link href={prospectQueueDetailPath(record.pipeline_contact_id)} className="text-sm font-semibold text-[#063b32] hover:underline">
                 View in {PROSPECT_QUEUE_LABEL}
               </Link>
             ) : (
@@ -332,8 +325,15 @@ function ProspectFinderDetailContent() {
               <ProspectResearchPanel
                 data={editingResearch && researchDraft ? researchDraft : record}
                 editable={editingResearch}
+                compact
                 onChange={(next) => setResearchDraft({ ...record, ...next })}
               />
+              {record.engagement_approach && !editingResearch && (
+                <div className="rounded-xl border border-[#111111]/10 p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement guide</p>
+                  <CollapsibleNote content={record.engagement_approach} textClassName="text-sm text-[#111111] leading-relaxed" />
+                </div>
+              )}
               <div className="flex gap-2">
                 {editingResearch ? (
                   <>
@@ -351,24 +351,32 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "notes" && (
             <div className="space-y-4">
-              <textarea
-                value={reviewNotes}
-                onChange={(e) => setReviewNotes(e.target.value)}
-                rows={8}
-                className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
-              />
-              <button type="button" disabled={saving} onClick={() => void patchWorkflow({ review_notes: reviewNotes })} className="text-sm font-semibold text-[#063b32] hover:underline">
-                Save notes
-              </button>
-              <div className="border-t border-[#111111]/10 pt-4">
-                <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={3} placeholder="Add a note…" className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm" />
-                <button type="button" disabled={saving || !noteText.trim()} onClick={() => void saveNote()} className="mt-2 text-sm font-semibold text-[#063b32]">Add note</button>
+              {reviewNotes ? (
+                <div className="rounded-xl border border-[#111111]/10 p-5">
+                  <CollapsibleNote content={reviewNotes} />
+                </div>
+              ) : (
+                <p className="text-sm text-[#6f6b62]">No notes yet.</p>
+              )}
+              <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
+                <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={3} placeholder="Add a note…" className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm resize-y" />
+                <button type="button" disabled={saving || !noteText.trim()} onClick={() => void saveNote()} className="text-sm font-semibold text-[#063b32] hover:underline">Add note</button>
               </div>
             </div>
           )}
 
           {activeTab === "tasks" && (
             <div className="space-y-4">
+              <div className="rounded-xl border border-[#111111]/10 p-4">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-2">Next action</p>
+                <input
+                  value={record.next_action || ""}
+                  onChange={(e) => setRecord((r) => r ? { ...r, next_action: e.target.value } : r)}
+                  onBlur={() => void patchWorkflow({ next_action: record.next_action || null })}
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  placeholder="Most relevant next step for this prospect"
+                />
+              </div>
               {addingTask && (
                 <div className="rounded-xl border border-[#111111]/10 p-4 space-y-3">
                   <input value={taskForm.title} onChange={(e) => setTaskForm((f) => ({ ...f, title: e.target.value }))} placeholder="Task title" className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm" />

@@ -40,12 +40,16 @@ export async function loadTeamMembers(supabase: ServiceClient): Promise<StudioTe
   return (data || []) as StudioTeamMember[];
 }
 
+export function isArchivedProspect(overrides: Record<string, unknown> | undefined): boolean {
+  return overrides?.archived === true;
+}
+
 export function buildFinderList(
   overrideRows: Map<string, OutreachOverrideRow>,
   overrides: Map<string, Record<string, unknown>>,
   members: StudioTeamMember[],
 ): ProspectFinderListItem[] {
-  return prospectOutreachCatalog.prospects.map((base) => {
+  return prospectOutreachCatalog.prospects.filter((base) => !isArchivedProspect(overrides.get(base.id))).map((base) => {
     const row = overrideRows.get(base.id);
     const merged = mergeProspectRecord(base, overrides.get(base.id));
     const workflow = buildFinderWorkflow(row, members);

@@ -37,9 +37,9 @@ export async function POST(req: NextRequest) {
   const supabase = createServiceClient();
   const body = await req.json();
 
-  if (!body.enquiry_id && !body.queue_id) {
+  if (!body.enquiry_id && !body.outreach_id && !body.primary_contact_id) {
     return NextResponse.json(
-      { error: "Opportunities must be linked to a website enquiry or prospect queue record." },
+      { error: "Opportunities must be linked to a website enquiry, Prospect Finder record, or contact." },
       { status: 400 },
     );
   }
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     detail: data.title,
     opportunity_id: data.id,
     enquiry_id: data.enquiry_id,
-    queue_id: data.queue_id,
+    outreach_id: data.outreach_id,
     contact_id: data.primary_contact_id,
     metadata: { stage: data.stage },
   });

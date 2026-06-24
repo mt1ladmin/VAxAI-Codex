@@ -5,8 +5,8 @@ import type { createServiceClient } from "@/lib/supabase";
 
 type ServiceClient = ReturnType<typeof createServiceClient>;
 
-export const PRE_SALES_ENTRY_STAGE: Record<"queue" | "enquiry", OpportunityStage> = {
-  queue: "Discovery booked",
+export const PRE_SALES_ENTRY_STAGE: Record<"outreach" | "enquiry", OpportunityStage> = {
+  outreach: "Discovery booked",
   enquiry: "Response received",
 };
 
@@ -20,7 +20,7 @@ export function isPreSalesStage(stage: string): boolean {
 export async function ensurePreSalesOpportunity(
   supabase: ServiceClient,
   opts: {
-    source: "queue" | "enquiry";
+    source: "outreach" | "enquiry";
     sourceId: string;
     title: string;
     notes?: string | null;
@@ -30,7 +30,7 @@ export async function ensurePreSalesOpportunity(
     nextAction?: string | null;
   },
 ): Promise<{ data: EngagementOpportunity | null; created: boolean }> {
-  const linkCol = opts.source === "queue" ? "queue_id" : "enquiry_id";
+  const linkCol = opts.source === "outreach" ? "outreach_id" : "enquiry_id";
 
   const { data: existing } = await supabase
     .from("engagement_opportunities")
@@ -71,7 +71,7 @@ export async function ensurePreSalesOpportunity(
     title: "Pre-sales pipeline opened",
     detail: `Stage: ${stage}`,
     opportunity_id: data.id,
-    queue_id: opts.source === "queue" ? opts.sourceId : null,
+    outreach_id: opts.source === "outreach" ? opts.sourceId : null,
     enquiry_id: opts.source === "enquiry" ? opts.sourceId : null,
     contact_id: opts.contactId ?? null,
     metadata: { auto_created: true, stage },

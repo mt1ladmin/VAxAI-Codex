@@ -46,22 +46,21 @@ const selectClass =
 function taskRecordHref(task: EngagementTask, allowClientLinks: boolean): string | null {
   const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
   if (enquiryId) return `/admin/enquiries/${enquiryId}`;
-  if (task.outreach_id) return `/admin/engagement/prospect-outreach/${task.outreach_id}`;
-  const queueId = task.queue_id ?? task.opportunity?.queue_id;
-  if (queueId) return `/admin/engagement/prospect-outreach`;
+  const outreachId = task.outreach_id ?? task.opportunity?.outreach_id;
+  if (outreachId) return `/admin/engagement/prospect-outreach/${outreachId}`;
   if (task.contact_id && allowClientLinks) {
     const clientStages = new Set(["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"]);
     if (task.opportunity?.stage && clientStages.has(task.opportunity.stage)) {
-      return `/admin/client-work/${task.contact_id}`;
+      return `/admin/engagement/prospect-queue/${task.contact_id}`;
     }
-    return `/admin/clients/${task.contact_id}`;
+    return `/admin/engagement/prospect-queue/${task.contact_id}`;
   }
   return null;
 }
 
 function TaskSourceLabel({ task }: { task: EngagementTask }) {
   const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
-  const queueId = task.queue_id ?? task.opportunity?.queue_id;
+  const outreachId = task.outreach_id ?? task.opportunity?.outreach_id;
   if (enquiryId) {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-blue-700">
@@ -69,17 +68,10 @@ function TaskSourceLabel({ task }: { task: EngagementTask }) {
       </span>
     );
   }
-  if (task.outreach_id) {
+  if (outreachId) {
     return (
       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32]">
         <Inbox className="h-3 w-3" /> {PROSPECT_FINDER_LABEL}
-      </span>
-    );
-  }
-  if (queueId) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-violet-700">
-        <Inbox className="h-3 w-3" /> {PROSPECT_QUEUE_LABEL}
       </span>
     );
   }

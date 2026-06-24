@@ -173,7 +173,7 @@ function EnquiryDetailContent() {
     const j = await res.json() as { data: Enquiry };
     if (j.data) {
       if (j.data.status === "Closed" && j.data.contact_id) {
-        router.replace(`/admin/clients/${j.data.contact_id}?tab=submission`);
+        router.replace(`/admin/engagement/prospect-queue/${j.data.contact_id}?tab=submission`);
         setLoading(false);
         return;
       }
@@ -343,7 +343,7 @@ function EnquiryDetailContent() {
           onClose={() => setShowConvertModal(false)}
           onConverted={(contactId) => {
             setShowConvertModal(false);
-            router.push(`/admin/clients/${contactId}`);
+            router.push(`/admin/engagement/prospect-queue/${contactId}`);
           }}
           sourceType="enquiry"
           sourceId={enquiry.id}
@@ -486,7 +486,7 @@ function EnquiryDetailContent() {
                     <span className="text-xs font-semibold text-[#063b32]">{clientOpportunity.stage}</span>
                   </div>
                   <Link
-                    href={`/admin/clients/${linkedContact?.id}`}
+                    href={`/admin/engagement/prospect-queue/${linkedContact?.id}`}
                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
                   >
                     <Briefcase className="h-4 w-4" />

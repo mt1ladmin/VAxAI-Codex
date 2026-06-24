@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PROSPECT_WORKFLOW_PAGE_LABEL } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import type { MouseEvent } from "react";
 import { Inbox, MessageSquare } from "lucide-react";
 import type { EngagementOpportunity } from "@/lib/engagement/types";
@@ -22,7 +22,7 @@ export function OpportunitySourceBadge({
   organisationName,
   showNames = false,
 }: {
-  opportunity: Pick<EngagementOpportunity, "enquiry_id" | "queue_id" | "organisation" | "primary_contact">;
+  opportunity: Pick<EngagementOpportunity, "enquiry_id" | "outreach_id" | "organisation" | "primary_contact">;
   compact?: boolean;
   onClick?: (e: MouseEvent) => void;
   contactName?: string | null;
@@ -45,16 +45,16 @@ export function OpportunitySourceBadge({
       <MessageSquare className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
       Website enquiry
     </Link>
-  ) : opportunity.queue_id ? (
+  ) : opportunity.outreach_id ? (
     <Link
-      href={`/admin/engagement/prospect-queue/${opportunity.queue_id}`}
+      href={`/admin/engagement/prospect-outreach/${opportunity.outreach_id}`}
       onClick={onClick}
       className={`inline-flex items-center gap-1 rounded-full bg-violet-50 font-semibold text-violet-700 hover:bg-violet-100 ${
         compact ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-0.5 text-xs"
       }`}
     >
       <Inbox className={compact ? "h-3 w-3" : "h-3.5 w-3.5"} />
-      {PROSPECT_WORKFLOW_PAGE_LABEL}
+      {PROSPECT_FINDER_LABEL}
     </Link>
   ) : null;
 

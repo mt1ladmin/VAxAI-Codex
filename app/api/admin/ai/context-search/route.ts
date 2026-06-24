@@ -1,8 +1,9 @@
+import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 type SearchResult = {
-  type: "enquiry" | "client" | "prospect";
+  type: "enquiry" | "client" | "prospect" | "outreach";
   id: string;
   label: string;
   sublabel: string | null;
@@ -18,8 +19,9 @@ export async function GET(req: NextRequest) {
   }
 
   const search = `%${q}%`;
+  const qLower = q.toLowerCase();
 
-  const [enquiryRes, contactRes, prospectRes] = await Promise.all([
+  const [enquiryRes, contactRes] = await Promise.all([
     supabase
       .from("enquiries")
       .select("id, name, email, support_type, status")
@@ -30,12 +32,6 @@ export async function GET(req: NextRequest) {
       .from("engagement_contacts")
       .select("id, first_name, last_name, professional_email, role, organisation:organisation_id(name)")
       .or(`first_name.ilike.${search},last_name.ilike.${search},professional_email.ilike.${search}`)
-      .limit(8),
-
-    supabase
-      .from("prospect_queue")
-      .select("id, raw_org_name, raw_contact_name, raw_email, status")
-      .or(`raw_org_name.ilike.${search},raw_contact_name.ilike.${search},raw_email.ilike.${search}`)
       .limit(8),
   ]);
 
@@ -63,13 +59,23 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  for (const p of prospectRes.data ?? []) {
+  const catalogMatches = prospectOutreachCatalog.prospects
+    .filter(
+      (p) =>
+        p.organisation_name.toLowerCase().includes(qLower) ||
+        p.decision_maker_name.toLowerCase().includes(qLower) ||
+        p.email.toLowerCase().includes(qLower) ||
+        p.location.toLowerCase().includes(qLower),
+    )
+    .slice(0, 8);
+
+  for (const p of catalogMatches) {
     results.push({
-      type: "prospect",
+      type: "outreach",
       id: p.id,
-      label: (p.raw_org_name as string) || (p.raw_contact_name as string) || "Unknown",
-      sublabel: p.raw_contact_name as string | null,
-      status: p.status as string,
+      label: p.organisation_name,
+      sublabel: p.decision_maker_name || p.email || null,
+      status: null,
     });
   }
 

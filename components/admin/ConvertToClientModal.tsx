@@ -16,7 +16,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onConverted: (contactId: string) => void;
-  sourceType: "enquiry" | "queue";
+  sourceType: "enquiry" | "outreach";
   sourceId: string;
   sourceLabel: string;
   sourceStatus: string;
@@ -107,16 +107,6 @@ export function ConvertToClientModal({
           last_action_date: new Date().toISOString(),
         }),
       });
-    } else {
-      await fetch(`/api/admin/engagement/prospect-queue/${sourceId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: CONVERTED_SOURCE_STATUS,
-          last_action: "Advanced to client work",
-          last_action_date: new Date().toISOString(),
-        }),
-      });
     }
   };
 
@@ -128,7 +118,7 @@ export function ConvertToClientModal({
     try {
       let contactId = existingContactId;
       let orgId = existingOrgId;
-      const contactSource = sourceType === "enquiry" ? "website_enquiry" : "prospect_queue";
+      const contactSource = sourceType === "enquiry" ? "website_enquiry" : "prospect_finder";
 
       if (!contactId) {
         const orgRes = await fetch("/api/admin/engagement/organisations", {
@@ -170,15 +160,6 @@ export function ConvertToClientModal({
               organisation_id: orgId,
             }),
           });
-        } else {
-          await fetch(`/api/admin/engagement/prospect-queue/${sourceId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contact_id: contactId,
-              organisation_id: orgId,
-            }),
-          });
         }
       }
 
@@ -194,7 +175,7 @@ export function ConvertToClientModal({
         notes: serviceNotes.trim() || null,
       };
       if (sourceType === "enquiry") oppPayload.enquiry_id = sourceId;
-      else oppPayload.queue_id = sourceId;
+      else oppPayload.outreach_id = sourceId;
 
       const oppRes = await fetch("/api/admin/engagement/opportunities", {
         method: "POST",
@@ -212,12 +193,12 @@ export function ConvertToClientModal({
         body: JSON.stringify({
           contextType: "client",
           contextId: contactId,
-          linkedContextType: sourceType === "enquiry" ? "enquiry" : "prospect",
+          linkedContextType: sourceType === "enquiry" ? "enquiry" : "outreach",
           linkedContextId: sourceId,
         }),
       });
 
-      const parentKey = sourceType === "enquiry" ? "enquiry_id" : "queue_id";
+      const parentKey = sourceType === "enquiry" ? "enquiry_id" : "outreach_id";
       const attachRes = await fetch(
         `/api/admin/engagement/knowledge-attachments?${parentKey}=${sourceId}`,
       );
@@ -251,7 +232,7 @@ export function ConvertToClientModal({
 
   if (!open) return null;
 
-  const sourceName = sourceType === "enquiry" ? "enquiry" : "prospect queue item";
+  const sourceName = sourceType === "enquiry" ? "enquiry" : "Prospect Finder record";
   const advanceAllowed = canAdvanceToClientWork(sourceStatus);
 
   return (

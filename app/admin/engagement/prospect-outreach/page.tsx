@@ -9,10 +9,12 @@ import {
   Filter,
   Loader2,
   Search,
+  Trash2,
   User,
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
 import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
+import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { ProspectOutreachMeta } from "@/lib/engagement/prospect-outreach/types";
 import { OUTREACH_REGIONS } from "@/lib/engagement/prospect-outreach/types";
@@ -77,6 +79,10 @@ export default function ProspectFinderPage() {
   const [meta, setMeta] = useState<ProspectOutreachMeta | null>(null);
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
+  const studioAccess = useStudioAccessOptional();
+  const isPlatformAdmin = studioAccess?.isPlatformAdmin ?? true;
 
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const search = searchParams.get("q") || "";
@@ -102,8 +108,8 @@ export default function ProspectFinderPage() {
     [router, searchParams],
   );
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     const params = new URLSearchParams();
     params.set("page", String(page));
     params.set("page_size", "50");
@@ -125,7 +131,7 @@ export default function ProspectFinderPage() {
     setProspects(json.data || []);
     setMeta(json.meta || null);
     setTeamMembers(json.team_members || []);
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [
     page,
     region,
@@ -141,6 +147,43 @@ export default function ProspectFinderPage() {
   ]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    const timer = setInterval(() => { void load({ silent: true }); }, 30_000);
+    const onFocus = () => { void load({ silent: true }); };
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [load]);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const bulkDelete = async () => {
+    if (!selectedIds.size || !isPlatformAdmin) return;
+    if (!window.confirm(`Archive ${selectedIds.size} prospect(s) from Finder? This cannot be undone easily.`)) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/engagement/prospect-outreach", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ outreach_ids: [...selectedIds] }),
+      });
+      if (!res.ok) throw new Error("Delete failed");
+      setSelectedIds(new Set());
+      await load();
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const totalPages = meta?.total_pages ?? 1;
   const hasActiveFilters = Boolean(
@@ -251,6 +294,17 @@ export default function ProspectFinderPage() {
           >
             Unassigned
           </button>
+          {isPlatformAdmin && selectedIds.size > 0 && (
+            <button
+              type="button"
+              disabled={deleting}
+              onClick={() => void bulkDelete()}
+              className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+            >
+              {deleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+              Delete {selectedIds.size} selected
+            </button>
+          )}
         </div>
       </div>
 
@@ -263,6 +317,7 @@ export default function ProspectFinderPage() {
           <table className="w-full min-w-[900px] border-collapse text-sm">
             <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#f7f4ea]/90 backdrop-blur-sm">
               <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                {isPlatformAdmin && <th className="w-10 px-3 py-3" />}
                 <th className="px-6 py-3 font-semibold">Organisation</th>
                 <th className="px-3 py-3 font-semibold">Sector</th>
                 <th className="px-3 py-3 font-semibold">Location</th>
@@ -278,6 +333,17 @@ export default function ProspectFinderPage() {
                 const href = `/admin/engagement/prospect-outreach/${p.id}${backQs ? `?back=${encodeURIComponent(backQs)}` : ""}`;
                 return (
                   <tr key={p.id} className="group hover:bg-[#f7f4ea]/40">
+                    {isPlatformAdmin && (
+                      <td className="px-3 py-3.5">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(p.id)}
+                          onChange={() => toggleSelect(p.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="rounded border-[#111111]/20"
+                        />
+                      </td>
+                    )}
                     <td className="px-6 py-3.5">
                       <Link href={href} className="font-medium text-[#111111] group-hover:text-[#063b32]">
                         {p.organisation_name}

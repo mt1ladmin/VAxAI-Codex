@@ -3,9 +3,7 @@ import {
   PROSPECT_WORKFLOW_PAGE_LABEL,
 } from "@/lib/engagement/journey";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
-import { outreachFromQueueEntry } from "@/lib/engagement/prospect-outreach/queue-snapshot";
-import type { ProspectQueueEntry, EngagementContact, EngagementOpportunity } from "@/lib/engagement/types";
-import { canAdvanceToClientWork } from "@/lib/engagement/journey";
+import type { EngagementContact, EngagementOpportunity } from "@/lib/engagement/types";
 
 type EnquiryLike = {
   name: string;
@@ -105,42 +103,16 @@ export function buildOutreachContextSummary(
     .join("\n");
 }
 
-export function buildProspectContextSummary(entry: ProspectQueueEntry): string {
-  const outreach = outreachFromQueueEntry(entry);
-  const advanceReady = canAdvanceToClientWork(entry.status);
-
-  return [
-    `JOURNEY STAGE: ${PROSPECT_WORKFLOW_PAGE_LABEL} (active outreach & conversion)`,
-    `Status: ${entry.status}${advanceReady ? " — pre-sales active, ready to advance to client work when agreed" : ""}`,
-    `Organisation: ${entry.raw_org_name || "—"}`,
-    `Contact: ${entry.raw_contact_name || "—"}`,
-    entry.raw_email ? `Email: ${entry.raw_email}` : null,
-    entry.raw_phone ? `Phone: ${entry.raw_phone}` : null,
-    entry.raw_industry ? `Industry: ${entry.raw_industry}` : null,
-    entry.raw_location ? `Location: ${entry.raw_location}` : null,
-    outreach?.need_rationale ? `Research evidence: ${outreach.need_rationale}` : null,
-    ...(outreach ? formatServiceFitBlock(outreach) : []),
-    outreach?.engagement_approach ? `Engagement notes: ${outreach.engagement_approach}` : null,
-    outreach?.sector_tags.length ? `Sectors: ${outreach.sector_tags.join(", ")}` : null,
-    entry.next_action ? `Next action: ${entry.next_action}` : null,
-    entry.last_action ? `Last action: ${entry.last_action}` : null,
-    entry.raw_notes ? `Team notes:\n${entry.raw_notes}` : null,
-    `YOUR FOCUS: Ground recommendations in the stored service-fit assessment and outreach history. Help with contact strategy, meeting prep, follow-ups, and identifying when to advance — within VAxAI capability boundaries.`,
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
 export function buildClientContextSummary(
   contact: EngagementContact,
   opportunities: EngagementOpportunity[],
-  linkedQueue?: ProspectQueueEntry | null,
+  linkedOutreach?: ProspectOutreachRecord | null,
+  finderReviewNotes?: string | null,
 ): string {
   const primary = opportunities[0];
-  const outreach = linkedQueue ? outreachFromQueueEntry(linkedQueue) : null;
 
   return [
-    `JOURNEY STAGE: Prospect/Client (strategic delivery & onboarding)`,
+    `JOURNEY STAGE: Prospect Queue (active engagement through client delivery)`,
     `Contact: ${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`,
     contact.role ? `Role: ${contact.role}` : null,
     contact.professional_email ? `Email: ${contact.professional_email}` : null,
@@ -148,9 +120,9 @@ export function buildClientContextSummary(
     primary ? `Service: ${primary.title} | Stage: ${primary.stage}` : null,
     primary?.desired_outcomes ? `Desired outcomes: ${primary.desired_outcomes}` : null,
     primary?.recommended_pathway ? `Agreed pathway: ${primary.recommended_pathway}` : null,
-    outreach?.need_rationale ? `Original research evidence: ${outreach.need_rationale}` : null,
-    ...(outreach ? formatServiceFitBlock(outreach) : []),
-    linkedQueue?.raw_notes ? `Pre-client notes:\n${linkedQueue.raw_notes}` : null,
+    linkedOutreach?.need_rationale ? `Original research evidence: ${linkedOutreach.need_rationale}` : null,
+    ...(linkedOutreach ? formatServiceFitBlock(linkedOutreach) : []),
+    finderReviewNotes ? `Finder review notes:\n${finderReviewNotes}` : null,
     contact.notes ? `Client notes:\n${contact.notes}` : null,
     `YOUR FOCUS: Summarize the full journey using stored service-fit context. Help with proposals and onboarding within VAxAI's wraparound delivery model. Delivery happens offline once agreed.`,
   ]

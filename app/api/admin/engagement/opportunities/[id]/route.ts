@@ -41,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         detail: before.stage ? `From ${before.stage}` : null,
         opportunity_id: id,
         enquiry_id: data.enquiry_id,
-        queue_id: data.queue_id,
+        outreach_id: data.outreach_id,
         contact_id: data.primary_contact_id,
         metadata: { from: before.stage, to: body.stage, stage: body.stage },
       });
@@ -57,12 +57,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       });
     }
 
-    if (body.queue_id && body.queue_id !== before.queue_id) {
+    if (body.outreach_id && body.outreach_id !== before.outreach_id) {
       await logActivity(supabase, {
         event_type: "opportunity_linked",
-        title: "Opportunity linked to prospect queue",
+        title: "Opportunity linked to Prospect Finder",
         opportunity_id: id,
-        queue_id: body.queue_id,
+        outreach_id: body.outreach_id,
         contact_id: data.primary_contact_id,
       });
     }

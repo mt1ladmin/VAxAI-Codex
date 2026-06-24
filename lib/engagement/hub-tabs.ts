@@ -1,12 +1,12 @@
 export const CRM_HUB_TABS = [
   { id: "overview", label: "Overview" },
+  { id: "research", label: "Research" },
   { id: "tasks", label: "Tasks & next actions" },
-  { id: "client_work", label: "Client work" },
   { id: "notes", label: "Notes" },
   { id: "activity", label: "Activity" },
 ] as const;
 
-/** Enquiry and prospect queue — before prospect/client delivery stage. */
+/** Enquiry records before full Prospect Queue promotion. */
 export const CRM_HUB_TABS_PRE_CLIENT = [
   { id: "overview", label: "Overview" },
   { id: "tasks", label: "Tasks & next actions" },

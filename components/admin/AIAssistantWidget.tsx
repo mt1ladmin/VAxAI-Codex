@@ -41,7 +41,7 @@ type AISession = {
 };
 
 type SearchResult = {
-  type: "enquiry" | "client" | "prospect";
+  type: "enquiry" | "client" | "prospect" | "outreach";
   id: string;
   label: string;
   sublabel: string | null;
@@ -58,12 +58,14 @@ const TYPE_BADGE: Record<string, string> = {
   enquiry: "bg-violet-100 text-violet-700",
   client: "bg-[#063b32]/10 text-[#063b32]",
   prospect: "bg-amber-100 text-amber-700",
+  outreach: "bg-amber-100 text-amber-700",
 };
 
 const TYPE_DOT: Record<string, string> = {
   enquiry: "bg-violet-500",
   client: "bg-[#063b32]",
   prospect: "bg-amber-500",
+  outreach: "bg-amber-500",
 };
 
 type PanelSize = "large" | "xl";
