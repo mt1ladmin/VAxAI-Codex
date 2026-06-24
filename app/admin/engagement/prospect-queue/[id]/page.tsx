@@ -14,12 +14,9 @@ import {
   Mail,
   MessageSquare,
   Phone,
-  Plus,
-  Save,
-  X,
 } from "lucide-react";
-import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
+import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
@@ -45,6 +42,7 @@ import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
+import { appendSimpleNote } from "@/lib/engagement/append-note";
 import { countNotes } from "@/lib/engagement/note-count";
 
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
@@ -277,9 +275,7 @@ function ClientDetailContent() {
   const saveNote = async () => {
     if (!noteText.trim() || !contact) return;
     setSavingNote(true);
-    const combined = contact.notes
-      ? `${contact.notes}\n\n[${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}] ${noteText.trim()}`
-      : `[${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}] ${noteText.trim()}`;
+    const combined = appendSimpleNote(contact.notes, noteText);
     const res = await fetch(`/api/admin/engagement/contacts/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -710,42 +706,6 @@ function ClientDetailContent() {
             </>
           )}
 
-          {/* ACTIVITY TAB */}
-          {activeTab === "activity" && (
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
-                <p className="mt-1 text-sm text-[#6f6b62]/80">
-                  Status changes, notes, tasks, and VAxAI conversations in one chronological feed.
-                </p>
-              </div>
-              <ActivityTimeline
-                contactId={id}
-                enquiryId={linkedEnquiry?.id}
-                outreachId={outreachRecord?.id}
-                chatContextType="client"
-                chatContextId={id}
-                refreshKey={chatActivityKey}
-                seedEvents={[
-                  ...(linkedEnquiry
-                    ? [{
-                        title: "Website enquiry received",
-                        detail: `${linkedEnquiry.support_type} — ${linkedEnquiry.details.slice(0, 120)}${linkedEnquiry.details.length > 120 ? "…" : ""}`,
-                        created_at: linkedEnquiry.created_at,
-                      }]
-                    : []),
-                  ...(outreachRecord && !linkedEnquiry
-                    ? [{
-                        title: "Moved to Prospect Queue",
-                        detail: outreachRecord.organisation_name,
-                        created_at: primaryOpp?.created_at || new Date().toISOString(),
-                      }]
-                    : []),
-                ]}
-              />
-            </div>
-          )}
-
           {/* TASKS TAB */}
           {activeTab === "tasks" && (
             <div className="space-y-4">
@@ -806,70 +766,24 @@ function ClientDetailContent() {
 
           {/* NOTES TAB */}
           {activeTab === "notes" && (
-            <>
-              <AttachedKnowledgePanel contactId={id} refreshKey={chatActivityKey} />
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
-                  Client notes
-                </p>
-                {!showAddNote && (
-                  <button
-                    type="button"
-                    onClick={() => setShowAddNote(true)}
-                    className="flex items-center gap-1.5 text-xs text-[#063b32] hover:underline"
-                  >
-                    <Plus className="h-3.5 w-3.5" /> Add note
-                  </button>
-                )}
-              </div>
-
-              {showAddNote && (
-                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
-                  <textarea
-                    value={noteText}
-                    onChange={(e) => setNoteText(e.target.value)}
-                    placeholder="Add a note about this client…"
-                    rows={4}
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none"
-                    autoFocus
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void saveNote()}
-                      disabled={savingNote || !noteText.trim()}
-                      className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-                    >
-                      {savingNote ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Save className="h-3.5 w-3.5" />
-                      )}
-                      Save note
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setShowAddNote(false); setNoteText(""); }}
-                      className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-                    >
-                      <X className="h-3.5 w-3.5" /> Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {contact.notes ? (
-                <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <CollapsibleNote content={contact.notes} />
-                </div>
-              ) : (
-                !showAddNote && (
-                  <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/50 py-10 text-center">
-                    <p className="text-sm text-[#6f6b62]">No notes yet. Add one above.</p>
-                  </div>
-                )
-              )}
-            </>
+            <div className="space-y-4">
+              <HubNotesTab
+                title="Client notes"
+                notes={contact.notes}
+                showAddNote={showAddNote}
+                onShowAddNote={() => setShowAddNote(true)}
+                onHideAddNote={() => {
+                  setShowAddNote(false);
+                  setNoteText("");
+                }}
+                noteText={noteText}
+                onNoteTextChange={setNoteText}
+                saving={savingNote}
+                onSave={saveNote}
+                placeholder="Add a note about this client…"
+                header={<AttachedKnowledgePanel contactId={id} refreshKey={chatActivityKey} />}
+              />
+            </div>
           )}
 
         </div>

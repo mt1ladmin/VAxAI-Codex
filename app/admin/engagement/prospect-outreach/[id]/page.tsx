@@ -4,8 +4,8 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { BookOpen, Loader2, Save, Send } from "lucide-react";
-import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
+import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
@@ -23,6 +23,7 @@ import {
 import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { appendSimpleNote } from "@/lib/engagement/append-note";
 import { fetchActivityLog, type ActivityLogEntry } from "@/lib/engagement/activity-log";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { countNotes } from "@/lib/engagement/note-count";
@@ -39,14 +40,13 @@ import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import type { EngagementTask } from "@/lib/engagement/types";
 
-type Tab = "overview" | "research" | "engagement_guide" | "notes" | "tasks" | "activity";
+type Tab = "overview" | "research" | "engagement_guide" | "notes" | "tasks";
 const TAB_LABELS: Record<Tab, string> = {
   overview: "Overview",
   research: "Research",
   engagement_guide: "Engagement guide",
   notes: "Notes",
   tasks: "Tasks",
-  activity: "Activity",
 };
 
 function ProspectFinderDetailContent() {
@@ -66,8 +66,7 @@ function ProspectFinderDetailContent() {
   const [reviewNotes, setReviewNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [noteText, setNoteText] = useState("");
-  const [editingNotes, setEditingNotes] = useState(false);
-  const [notesDraft, setNotesDraft] = useState("");
+  const [showAddNote, setShowAddNote] = useState(false);
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
@@ -148,11 +147,10 @@ function ProspectFinderDetailContent() {
   const saveNote = async () => {
     if (!noteText.trim() || !record) return;
     setSaving(true);
-    const next = record.review_notes
-      ? `${record.review_notes}\n\n[${new Date().toLocaleDateString("en-GB")}] ${noteText}`
-      : noteText;
+    const next = appendSimpleNote(record.review_notes, noteText);
     await patchWorkflow({ review_notes: next });
     setNoteText("");
+    setShowAddNote(false);
     setSaving(false);
     setChatActivityKey((k) => k + 1);
   };
@@ -201,16 +199,6 @@ function ProspectFinderDetailContent() {
       body: JSON.stringify({ status: "todo" }),
     });
     await load();
-  };
-
-  const saveNotes = async () => {
-    setSaving(true);
-    try {
-      await patchWorkflow({ review_notes: notesDraft.trim() || null });
-      setEditingNotes(false);
-    } finally {
-      setSaving(false);
-    }
   };
 
   if (loading) return <HubDetailSkeleton />;
@@ -391,7 +379,6 @@ function ProspectFinderDetailContent() {
                 )}
               </div>
 
-              <KnowledgeAttachPicker outreachId={record.id} />
               <Link
                 href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
                 target="_blank"
@@ -464,59 +451,22 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "notes" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Notes</p>
-                {!editingNotes && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNotesDraft(reviewNotes);
-                      setEditingNotes(true);
-                    }}
-                    className="text-xs font-semibold text-[#063b32] hover:underline"
-                  >
-                    {reviewNotes ? "Edit notes" : "Write notes"}
-                  </button>
-                )}
-              </div>
-              {editingNotes ? (
-                <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-                  <textarea
-                    value={notesDraft}
-                    onChange={(e) => setNotesDraft(e.target.value)}
-                    rows={12}
-                    placeholder="Reviewer notes, call outcomes, and handoff context…"
-                    className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm resize-y outline-none focus:border-[#063b32]"
-                  />
-                  <div className="flex gap-2">
-                    <button type="button" disabled={saving} onClick={() => void saveNotes()} className="inline-flex items-center gap-2 rounded-full bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">
-                      {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save notes
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNotesDraft(reviewNotes);
-                        setEditingNotes(false);
-                      }}
-                      className="rounded-full border border-[#111111]/15 px-4 py-2 text-sm"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : reviewNotes ? (
-                <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <CollapsibleNote content={reviewNotes} />
-                </div>
-              ) : (
-                <p className="text-sm text-[#6f6b62]">No notes yet.</p>
-              )}
-              {!editingNotes && (
-                <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
-                  <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={3} placeholder="Add a note…" className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm resize-y" />
-                  <button type="button" disabled={saving || !noteText.trim()} onClick={() => void saveNote()} className="text-sm font-semibold text-[#063b32] hover:underline">Add note</button>
-                </div>
-              )}
+              <HubNotesTab
+                title="Prospect notes"
+                notes={reviewNotes || null}
+                showAddNote={showAddNote}
+                onShowAddNote={() => setShowAddNote(true)}
+                onHideAddNote={() => {
+                  setShowAddNote(false);
+                  setNoteText("");
+                }}
+                noteText={noteText}
+                onNoteTextChange={setNoteText}
+                saving={saving}
+                onSave={saveNote}
+                placeholder="Reviewer notes, call outcomes, and handoff context…"
+                header={<KnowledgeAttachPicker outreachId={record.id} />}
+              />
             </div>
           )}
 
@@ -543,9 +493,6 @@ function ProspectFinderDetailContent() {
             </div>
           )}
 
-          {activeTab === "activity" && (
-            <ActivityTimeline outreachId={record.id} refreshKey={chatActivityKey} />
-          )}
         </div>
       </div>
     </div>

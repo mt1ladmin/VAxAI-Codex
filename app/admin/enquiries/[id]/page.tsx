@@ -9,16 +9,13 @@ import {
   Calendar,
   CheckCircle,
   ExternalLink,
-  Loader2,
   Mail,
   Phone,
-  Plus,
-  Save,
   User,
 } from "lucide-react";
-import { ActivityTimeline } from "@/components/admin/ActivityTimeline";
 import { AttachedKnowledgePanel } from "@/components/admin/AttachedKnowledgePanel";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
+import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
@@ -51,6 +48,7 @@ import {
   patchLinkedNextAction,
 } from "@/lib/engagement/linked-next-actions";
 import { fetchHubTasks } from "@/lib/engagement/load-hub-tasks";
+import { appendSimpleNote } from "@/lib/engagement/append-note";
 import { countNotes } from "@/lib/engagement/note-count";
 
 import { emailComposeUrl } from "@/lib/engagement/email-links";
@@ -251,9 +249,7 @@ function EnquiryDetailContent() {
     if (!noteText.trim() || !enquiry) return;
     setSavingNote(true);
     await patchEnquiry({
-      admin_notes: enquiry.admin_notes
-        ? `${enquiry.admin_notes}\n\n[${new Date().toLocaleDateString("en-GB")}] ${noteText}`
-        : noteText,
+      admin_notes: appendSimpleNote(enquiry.admin_notes, noteText),
       last_action: noteText.slice(0, 80),
       last_action_date: new Date().toISOString(),
     } as Partial<Enquiry>);
@@ -565,62 +561,24 @@ function EnquiryDetailContent() {
             </div>
           )}
 
-          {activeTab === "activity" && (
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Activity timeline</p>
-                <p className="mt-1 text-sm text-[#6f6b62]/80">
-                  Status changes, notes, tasks, and VAxAI conversations in one chronological feed.
-                </p>
-              </div>
-              <ActivityTimeline
-                enquiryId={id}
-                contactId={enquiry.contact_id ?? undefined}
-                chatContextType="enquiry"
-                chatContextId={id}
-                refreshKey={chatActivityKey}
-                seedEvents={[
-                  {
-                    title: "Enquiry received",
-                    detail: `${enquiry.support_type} — ${enquiry.details.slice(0, 200)}${enquiry.details.length > 200 ? "…" : ""}`,
-                    created_at: enquiry.created_at,
-                  },
-                ]}
-              />
-            </div>
-          )}
-
           {activeTab === "notes" && (
             <div className="space-y-4">
-              <AttachedKnowledgePanel enquiryId={id} />
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Notes &amp; admin log</p>
-                <button
-                  type="button"
-                  onClick={() => setShowAddNote(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]"
-                >
-                  <Plus className="h-4 w-4" /> Add note
-                </button>
-              </div>
-              {showAddNote && (
-                <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-                  <textarea value={noteText} onChange={(e) => setNoteText(e.target.value)} rows={4} placeholder="What happened? What was discussed?" className="w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none" />
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => void saveNote()} disabled={savingNote || !noteText.trim()} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
-                      {savingNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save note
-                    </button>
-                    <button type="button" onClick={() => { setShowAddNote(false); setNoteText(""); }} className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
-                  </div>
-                </div>
-              )}
-              {enquiry.admin_notes ? (
-                <div className="rounded-xl border border-[#111111]/10 p-5">
-                  <CollapsibleNote content={enquiry.admin_notes} />
-                </div>
-              ) : (
-                <p className="text-sm text-[#6f6b62]/60 py-8 text-center">No notes yet.</p>
-              )}
+              <HubNotesTab
+                title="Enquiry notes"
+                notes={enquiry.admin_notes}
+                showAddNote={showAddNote}
+                onShowAddNote={() => setShowAddNote(true)}
+                onHideAddNote={() => {
+                  setShowAddNote(false);
+                  setNoteText("");
+                }}
+                noteText={noteText}
+                onNoteTextChange={setNoteText}
+                saving={savingNote}
+                onSave={saveNote}
+                placeholder="What happened? What was discussed?"
+                header={<AttachedKnowledgePanel enquiryId={id} />}
+              />
             </div>
           )}
 

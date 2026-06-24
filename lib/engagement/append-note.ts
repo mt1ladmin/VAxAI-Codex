@@ -8,6 +8,24 @@ export function formatDatedNoteEntry(label: string, text: string): string {
   return `[${date}] ${label}\n${text.trim()}`;
 }
 
+/** Format a single-line dated note (no label). */
+export function formatSimpleDatedNote(text: string): string {
+  const date = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return `[${date}] ${text.trim()}`;
+}
+
+/** Append a dated note line to an existing notes field. */
+export function appendSimpleNote(
+  existing: string | null | undefined,
+  text: string,
+): string {
+  return appendNoteEntry(existing, formatSimpleDatedNote(text));
+}
+
 /** Append a note entry to an existing notes field. */
 export function appendNoteEntry(
   existing: string | null | undefined,

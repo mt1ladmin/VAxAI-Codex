@@ -4,7 +4,6 @@ export const CRM_HUB_TABS = [
   { id: "engagement_guide", label: "Engagement guide" },
   { id: "tasks", label: "Tasks" },
   { id: "notes", label: "Notes" },
-  { id: "activity", label: "Activity" },
 ] as const;
 
 /** Enquiry records before full Prospect Queue promotion. */
@@ -12,7 +11,6 @@ export const CRM_HUB_TABS_PRE_CLIENT = [
   { id: "overview", label: "Overview" },
   { id: "tasks", label: "Tasks" },
   { id: "notes", label: "Notes" },
-  { id: "activity", label: "Activity" },
 ] as const;
 
 export type CrmHubTab = (typeof CRM_HUB_TABS)[number]["id"];
