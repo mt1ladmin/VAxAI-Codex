@@ -26,6 +26,7 @@ import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { buildClientContextSummary } from "@/lib/ai/context-builders";
 import { isClientServiceStage } from "@/lib/engagement/client-stages";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
@@ -197,6 +198,16 @@ function ClientDetailContent() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(
+    () =>
+      subscribeNotesSaved((detail) => {
+        if (detail.contextType === "client" && detail.contextId === id) {
+          void loadData();
+        }
+      }),
+    [id, loadData],
+  );
 
   useEffect(() => {
     const tab = searchParams.get("tab");

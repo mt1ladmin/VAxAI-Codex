@@ -18,6 +18,7 @@ import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { ProspectResearchPanel } from "@/components/admin/ProspectResearchPanel";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
 import {
   PROSPECT_CATALOG_PAGE_LABEL,
@@ -106,6 +107,18 @@ export default function ProspectOutreachPage() {
   }, [region, needScore, confidence, orgType, search]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(
+    () =>
+      subscribeNotesSaved((detail) => {
+        if (detail.contextType === "outreach") {
+          void load().then(() => {
+            if (detail.contextId) setSelectedId(detail.contextId);
+          });
+        }
+      }),
+    [load],
+  );
 
   const selected = useMemo(
     () => prospects.find((p) => p.id === selectedId) ?? prospects[0] ?? null,

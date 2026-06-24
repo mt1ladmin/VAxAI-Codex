@@ -82,7 +82,9 @@ export async function createChatSnapshotWithArchive(
           ? { queue_id: contextId }
           : contextType === "client"
             ? { contact_id: contextId }
-            : {};
+            : contextType === "outreach"
+              ? { outreach_id: contextId }
+              : {};
 
     await logActivity(supabase, {
       event_type: "ai_summary",

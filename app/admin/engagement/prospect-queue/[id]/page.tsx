@@ -33,6 +33,7 @@ import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { useStudioAccess } from "@/lib/studio-access-context";
 import { buildProspectContextSummary } from "@/lib/ai/context-builders";
 import {
@@ -238,6 +239,16 @@ function ProspectDetailContent() {
   }, [id, loadCrmData, loadTasks, router]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(
+    () =>
+      subscribeNotesSaved((detail) => {
+        if (detail.contextType === "prospect" && detail.contextId === id) {
+          void load();
+        }
+      }),
+    [id, load],
+  );
 
   useEffect(() => {
     const tab = searchParams.get("tab");

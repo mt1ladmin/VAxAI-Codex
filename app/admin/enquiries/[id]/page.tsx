@@ -28,6 +28,7 @@ import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStageBanner } from "@/components/admin/JourneyStageBanner";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
+import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { useStudioAccess } from "@/lib/studio-access-context";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
 import {
@@ -191,6 +192,16 @@ function EnquiryDetailContent() {
   }, [id, loadCrmData, loadTasks, router]);
 
   useEffect(() => { void load(); }, [load]);
+
+  useEffect(
+    () =>
+      subscribeNotesSaved((detail) => {
+        if (detail.contextType === "enquiry" && detail.contextId === id) {
+          void load();
+        }
+      }),
+    [id, load],
+  );
 
   useEffect(() => {
     const tab = searchParams.get("tab");

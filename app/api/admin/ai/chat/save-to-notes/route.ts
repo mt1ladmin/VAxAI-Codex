@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
       enquiry_id: contextId,
     });
     scheduleAccountStateRefresh(contextType, contextId, summary.trim());
-    return NextResponse.json({ data: { saved: true } });
+    return NextResponse.json({ data: { saved: true, notes: combined } });
   }
 
   if (contextType === "prospect") {
@@ -93,13 +93,13 @@ export async function POST(req: NextRequest) {
       queue_id: contextId,
     });
     scheduleAccountStateRefresh(contextType, contextId, summary.trim());
-    return NextResponse.json({ data: { saved: true } });
+    return NextResponse.json({ data: { saved: true, notes: combined } });
   }
 
   if (contextType === "outreach") {
     const { data: row, error: fetchErr } = await supabase
       .from("prospect_outreach_overrides")
-      .select("review_notes")
+      .select("review_notes, overrides")
       .eq("outreach_id", contextId)
       .maybeSingle();
 
@@ -108,18 +108,29 @@ export async function POST(req: NextRequest) {
     }
 
     const combined = row?.review_notes ? `${row.review_notes}\n\n${entry}` : entry;
+    const existingOverrides =
+      row?.overrides && typeof row.overrides === "object"
+        ? (row.overrides as Record<string, unknown>)
+        : {};
+
     const { error } = await supabase
       .from("prospect_outreach_overrides")
       .upsert({
         outreach_id: contextId,
-        overrides: {},
+        overrides: existingOverrides,
         review_notes: combined,
         updated_at: new Date().toISOString(),
       });
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await logActivity(supabase, {
+      event_type: "ai_summary",
+      title: `AI summary: ${title.trim().slice(0, 60)}`,
+      detail: summary.trim().slice(0, 300),
+      outreach_id: contextId,
+    });
     scheduleAccountStateRefresh(contextType, contextId, summary.trim());
-    return NextResponse.json({ data: { saved: true } });
+    return NextResponse.json({ data: { saved: true, notes: combined } });
   }
 
   if (contextType === "client") {
@@ -147,7 +158,14 @@ export async function POST(req: NextRequest) {
       contact_id: contextId,
     });
     scheduleAccountStateRefresh(contextType, contextId, summary.trim());
-    return NextResponse.json({ data: { saved: true } });
+    return NextResponse.json({ data: { saved: true, notes: combined } });
+  }
+
+  if (contextType === "general") {
+    return NextResponse.json(
+      { error: "Open an enquiry, prospect, client, or Prospect Queue record before saving to notes." },
+      { status: 400 },
+    );
   }
 
   return NextResponse.json({ error: "Unsupported context type" }, { status: 400 });

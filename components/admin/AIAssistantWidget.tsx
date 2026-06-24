@@ -24,7 +24,7 @@ import {
 } from "@/lib/ai-assistant-context";
 import { assistantParagraphs } from "@/lib/ai/format-message";
 import { recordChatSnapshot } from "@/lib/engagement/chat-activity";
-import { notifyActivityRecorded } from "@/lib/engagement/activity-events";
+import { notifyActivityRecorded, notifyNotesSaved } from "@/lib/engagement/activity-events";
 
 type AIMessage = {
   id: string;
@@ -235,6 +235,7 @@ function ChatPanel({
   const [summariseModalOpen, setSummariseModalOpen] = useState(false);
   const [summarising, setSummarising] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const modelMenuRef = useRef<HTMLDivElement>(null);
@@ -398,6 +399,12 @@ function ChatPanel({
   };
 
   const confirmSaveToNotes = async (title: string, summary: string) => {
+    if (contextType === "general" || contextId === "general") {
+      throw new Error(
+        "Open an enquiry, prospect, client, or Prospect Queue record before saving to notes.",
+      );
+    }
+
     const res = await fetch("/api/admin/ai/chat/save-to-notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -405,6 +412,11 @@ function ChatPanel({
     });
     const json = (await res.json()) as { error?: string };
     if (!res.ok) throw new Error(json.error ?? "Failed to save to notes");
+
+    setSaveNotice("Saved to notes");
+    window.setTimeout(() => setSaveNotice(null), 4000);
+
+    notifyNotesSaved({ contextType, contextId });
     onNotesSaved?.();
     onActivityRecorded?.();
     notifyActivityRecorded();
@@ -617,6 +629,12 @@ function ChatPanel({
               <Sparkles className="h-3 w-3 text-[#063b32]" />
             </div>
             <TypingIndicator />
+          </div>
+        )}
+
+        {saveNotice && (
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
+            {saveNotice}
           </div>
         )}
 
