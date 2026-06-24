@@ -307,13 +307,9 @@ export default function AdminShell({
 
         {children}
       </main>
-      {platformAdmin && <AIAssistantWidget />}
+      <AIAssistantWidget />
     </div>
   );
 
-  if (platformAdmin) {
-    return <AIAssistantContextProvider>{shell}</AIAssistantContextProvider>;
-  }
-
-  return shell;
+  return <AIAssistantContextProvider>{shell}</AIAssistantContextProvider>;
 }

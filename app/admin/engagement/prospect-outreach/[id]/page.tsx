@@ -13,7 +13,7 @@ import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStagePills } from "@/components/admin/JourneyStageBanner";
-import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
+
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { MoveToProspectQueueModal } from "@/components/admin/MoveToProspectQueueModal";
 import {
@@ -425,15 +425,6 @@ function ProspectFinderDetailContent() {
                 <ServiceFitPanel data={record} mode="overview" />
                 <ProspectTagList data={record} />
               </div>
-
-              <JourneySummaryButton
-                outreachId={record.id}
-                contactId={record.pipeline_contact_id ?? undefined}
-                onSaved={() => {
-                  void load({ silent: true });
-                  setChatActivityKey((k) => k + 1);
-                }}
-              />
 
               <HubEditShortcuts shortcuts={editShortcuts} />
 

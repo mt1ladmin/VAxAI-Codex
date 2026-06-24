@@ -39,6 +39,7 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/knowledge-attachments",
   "/api/admin/engagement/ai",
   "/api/admin/engagement/activity-log",
+  "/api/admin/ai",
 ] as const;
 
 /** Knowledge browse APIs — members may only read */

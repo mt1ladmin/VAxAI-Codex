@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, Pencil, Save, X } from "lucide-react";
-import { parseNoteEntries, serializeNoteEntries, type NoteEntry } from "@/lib/engagement/parse-notes";
+import { parseNoteEntries, serializeNoteEntries } from "@/lib/engagement/parse-notes";
 
 type Props = {
   notes: string | null;
@@ -20,6 +20,8 @@ type Props = {
 const inputClass =
   "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none";
 
+const PREVIEW_LINES = 2;
+
 export function HubNotesTab({
   notes,
   showAddNote,
@@ -32,36 +34,47 @@ export function HubNotesTab({
   placeholder = "Add a note…",
   header,
 }: Props) {
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [viewingIndex, setViewingIndex] = useState<number | null>(null);
+  const [editingInModal, setEditingInModal] = useState(false);
   const [editDraft, setEditDraft] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
   const entries = parseNoteEntries(notes);
 
-  const startEdit = (index: number) => {
-    setEditingIndex(index);
-    setEditDraft(entries[index]?.body ?? "");
-  };
-
-  const cancelEdit = () => {
-    setEditingIndex(null);
+  const closeModal = () => {
+    setViewingIndex(null);
+    setEditingInModal(false);
     setEditDraft("");
   };
 
-  const saveEdit = async (index: number) => {
-    if (!onReplaceNotes) return;
+  const openNote = (index: number) => {
+    setViewingIndex(index);
+    setEditingInModal(false);
+    setEditDraft(entries[index]?.body ?? "");
+  };
+
+  const startEdit = () => {
+    if (viewingIndex === null) return;
+    setEditingInModal(true);
+    setEditDraft(entries[viewingIndex]?.body ?? "");
+  };
+
+  const saveEdit = async () => {
+    if (!onReplaceNotes || viewingIndex === null) return;
     const nextEntries = [...entries];
-    const entry = nextEntries[index];
+    const entry = nextEntries[viewingIndex];
     if (!entry) return;
-    nextEntries[index] = { ...entry, body: editDraft.trim() };
+    nextEntries[viewingIndex] = { ...entry, body: editDraft.trim() };
     setSavingEdit(true);
     try {
       await onReplaceNotes(serializeNoteEntries(nextEntries));
-      setEditingIndex(null);
-      setEditDraft("");
+      setEditingInModal(false);
+      closeModal();
     } finally {
       setSavingEdit(false);
     }
   };
+
+  const viewingEntry = viewingIndex !== null ? entries[viewingIndex] : null;
 
   return (
     <>
@@ -103,52 +116,27 @@ export function HubNotesTab({
       )}
 
       {entries.length > 0 ? (
-        <ul className="space-y-3">
+        <ul className="space-y-2">
           {entries.map((entry, index) => (
-            <li key={`${entry.header}-${index}`} className="rounded-xl border border-[#111111]/10 bg-white p-4">
-              <div className="mb-2 flex items-start justify-between gap-3">
+            <li key={`${entry.header}-${index}`}>
+              <button
+                type="button"
+                onClick={() => openNote(index)}
+                className="w-full rounded-xl border border-[#111111]/10 bg-white p-4 text-left transition-colors hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/20"
+              >
                 <p className="text-xs font-semibold text-[#6f6b62]">{entry.header || "Note"}</p>
-                {editingIndex !== index && onReplaceNotes ? (
-                  <button
-                    type="button"
-                    onClick={() => startEdit(index)}
-                    className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
-                  >
-                    <Pencil className="h-3 w-3" /> Edit
-                  </button>
-                ) : null}
-              </div>
-              {editingIndex === index ? (
-                <div className="space-y-2">
-                  <textarea
-                    value={editDraft}
-                    onChange={(e) => setEditDraft(e.target.value)}
-                    rows={4}
-                    className={inputClass}
-                    autoFocus
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void saveEdit(index)}
-                      disabled={savingEdit || !editDraft.trim()}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-                    >
-                      {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                      Save
-                    </button>
-                    <button
-                      type="button"
-                      onClick={cancelEdit}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-                    >
-                      <X className="h-3.5 w-3.5" /> Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{entry.body}</p>
-              )}
+                <p
+                  className="mt-1 text-sm text-[#111111] leading-relaxed"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: PREVIEW_LINES,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {entry.body}
+                </p>
+              </button>
             </li>
           ))}
         </ul>
@@ -158,6 +146,76 @@ export function HubNotesTab({
             <p className="text-sm text-[#6f6b62]">No notes yet.</p>
           </div>
         )
+      )}
+
+      {viewingEntry && viewingIndex !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={closeModal}
+        >
+          <div
+            className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 flex items-start justify-between gap-3 border-b border-[#111111]/10 bg-white px-5 py-4">
+              <p className="text-sm font-semibold text-[#111111]">{viewingEntry.header || "Note"}</p>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="shrink-0 rounded-lg p-1 text-[#6f6b62] hover:bg-[#f7f4ea]"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-4 px-5 py-4">
+              {editingInModal ? (
+                <textarea
+                  value={editDraft}
+                  onChange={(e) => setEditDraft(e.target.value)}
+                  rows={12}
+                  className={inputClass}
+                  autoFocus
+                />
+              ) : (
+                <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{viewingEntry.body}</p>
+              )}
+              <div className="flex gap-2">
+                {editingInModal ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => void saveEdit()}
+                      disabled={savingEdit || !editDraft.trim()}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                    >
+                      {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingInModal(false);
+                        setEditDraft(viewingEntry.body);
+                      }}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : onReplaceNotes ? (
+                  <button
+                    type="button"
+                    onClick={startEdit}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
+                  >
+                    <Pencil className="h-3 w-3" /> Edit
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

@@ -14,7 +14,7 @@ import {
   MessageSquare,
   Phone,
 } from "lucide-react";
-import { JourneySummaryButton } from "@/components/admin/JourneySummaryButton";
+
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { OpportunityPreviewCard } from "@/components/admin/OpportunityPreviewCard";
@@ -631,14 +631,6 @@ function ClientDetailContent() {
                   <ProspectTagList data={outreachRecord} />
                 </div>
               )}
-
-              <JourneySummaryButton
-                contactId={id}
-                onSaved={() => {
-                  void loadData({ silent: true });
-                  setChatActivityKey((k) => k + 1);
-                }}
-              />
 
               <HubEditShortcuts shortcuts={editShortcuts} />
 
