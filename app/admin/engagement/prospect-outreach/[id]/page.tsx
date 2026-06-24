@@ -267,14 +267,6 @@ function ProspectFinderDetailContent() {
       onClick: () => openTab("engagement_guide", { editGuide: true }),
     },
     {
-      id: "tasks",
-      label: "Tasks",
-      description: "Follow-ups, calls, and actions for this prospect.",
-      actionLabel: "Add task",
-      hasContent: openTasks.length > 0,
-      onClick: () => openTab("tasks", { addTask: true }),
-    },
-    {
       id: "notes",
       label: "Notes",
       description: "Reviewer notes, call outcomes, and handoff context.",
@@ -429,12 +421,7 @@ function ProspectFinderDetailContent() {
         <div className="lg:col-span-2 space-y-6">
           {activeTab === "overview" && (
             <>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <HubMetricCard
-                  value={openTasks.length}
-                  label="Open tasks"
-                  onClick={() => openTab("tasks")}
-                />
+              <div className="grid gap-3 sm:max-w-xs">
                 <HubMetricCard
                   value={notesCount}
                   label="Notes"
