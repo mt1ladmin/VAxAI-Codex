@@ -9,7 +9,6 @@ import {
   loadTeamMembers,
   paginate,
 } from "@/lib/engagement/prospect-finder/load-catalog";
-import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
 import { mergeProspectRecord } from "@/lib/engagement/prospect-outreach/snapshot";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { createServiceClient } from "@/lib/supabase";
@@ -50,9 +49,20 @@ export async function GET(req: NextRequest) {
     filteredByRegion[row.region] = (filteredByRegion[row.region] || 0) + 1;
   }
 
+  const byRegion: Record<string, number> = {};
+  const byNeedScore: Record<string, number> = {};
+  let researchDate = "";
+  for (const p of catalog) {
+    byRegion[p.region] = (byRegion[p.region] || 0) + 1;
+    byNeedScore[String(p.need_score)] = (byNeedScore[String(p.need_score)] || 0) + 1;
+    if (p.research_date > researchDate) researchDate = p.research_date;
+  }
+
   return NextResponse.json({
     meta: {
-      ...prospectOutreachCatalog.meta,
+      research_date: researchDate || new Date().toISOString().slice(0, 10),
+      by_region: byRegion,
+      by_need_score: byNeedScore,
       total_count: all.length,
       filtered_count: filtered.length,
       filtered_by_region: filteredByRegion,

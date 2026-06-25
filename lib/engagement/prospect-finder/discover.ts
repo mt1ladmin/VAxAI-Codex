@@ -1,6 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createServiceClient } from "@/lib/supabase";
-import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
 import { reassessProspectRecord } from "@/lib/engagement/service-fit/assess";
 import { STUDIO_SERVICE_POSITIONING } from "@/lib/engagement/service-fit/positioning";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
@@ -38,21 +37,16 @@ function normName(name: string) {
     .trim();
 }
 
-async function loadExistingNames(): Promise<string[]> {
-  const supabase = createServiceClient();
+async function loadExistingNames(supabase: ReturnType<typeof createServiceClient>): Promise<string[]> {
   const names = new Set<string>();
 
-  const { data: orgs } = await supabase
-    .from("engagement_organisations")
-    .select("name")
-    .limit(300);
-  for (const o of orgs ?? []) {
-    if (o.name) names.add(normName(o.name));
-  }
+  const [{ data: orgs }, { data: catalogOrgs }] = await Promise.all([
+    supabase.from("engagement_organisations").select("name").limit(300),
+    supabase.from("prospect_outreach_catalog").select("organisation_name").limit(400),
+  ]);
 
-  for (const p of prospectOutreachCatalog.prospects.slice(0, 400)) {
-    names.add(normName(p.organisation_name));
-  }
+  for (const o of orgs ?? []) if (o.name) names.add(normName(o.name as string));
+  for (const p of catalogOrgs ?? []) if (p.organisation_name) names.add(normName(p.organisation_name as string));
 
   return [...names];
 }
@@ -145,15 +139,24 @@ const RECORD_SCHEMA = `{
 export async function discoverProspects(
   input: ProspectFinderRequest,
 ): Promise<ProspectFinderResult[]> {
+  const supabase = createServiceClient();
   const count = Math.min(Math.max(input.count ?? 1, 1), 3);
-  const existingNames = await loadExistingNames();
+
+  const [existingNames, { data: sampleRecords }] = await Promise.all([
+    loadExistingNames(supabase),
+    supabase
+      .from("prospect_outreach_catalog")
+      .select("organisation_name, organisation_type, region, need_score, need_rationale")
+      .order("need_score", { ascending: false })
+      .limit(3),
+  ]);
+
   const queueNames = existingNames.slice(0, 200);
 
-  const sampleBrief = prospectOutreachCatalog.prospects
-    .slice(0, 3)
+  const sampleBrief = (sampleRecords ?? [])
     .map(
       (p) =>
-        `${p.organisation_name} (${p.organisation_type}, ${p.region}, need ${p.need_score}): ${p.need_rationale.slice(0, 120)}`,
+        `${p.organisation_name as string} (${p.organisation_type as string}, ${p.region as string}, need ${p.need_score as number}): ${((p.need_rationale as string) || "").slice(0, 120)}`,
     )
     .join("\n");
 

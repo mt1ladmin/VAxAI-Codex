@@ -1,4 +1,3 @@
-import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
 import { mergeProspectRecord } from "@/lib/engagement/prospect-outreach/snapshot";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import {
@@ -14,23 +13,17 @@ import type { createServiceClient } from "@/lib/supabase";
 
 type ServiceClient = ReturnType<typeof createServiceClient>;
 
-/**
- * Load prospect records from the Supabase catalog table.
- * Falls back to the bundled catalog.json if the table is empty or unavailable.
- */
+/** Load all prospect records from Supabase. Returns [] on error. */
 export async function loadCatalogRecords(supabase: ServiceClient): Promise<ProspectOutreachRecord[]> {
-  try {
-    const { data, error } = await supabase
-      .from("prospect_outreach_catalog")
-      .select("*")
-      .order("need_score", { ascending: false });
-    if (!error && data && data.length > 0) {
-      return data as unknown as ProspectOutreachRecord[];
-    }
-  } catch {
-    // fall through to JSON fallback
+  const { data, error } = await supabase
+    .from("prospect_outreach_catalog")
+    .select("*")
+    .order("need_score", { ascending: false });
+  if (error) {
+    console.error("Failed to load prospect catalog:", error.message);
+    return [];
   }
-  return prospectOutreachCatalog.prospects;
+  return (data || []) as unknown as ProspectOutreachRecord[];
 }
 
 export async function loadOverrideMaps(supabase: ServiceClient) {
@@ -65,9 +58,9 @@ export function buildFinderList(
   overrideRows: Map<string, OutreachOverrideRow>,
   overrides: Map<string, Record<string, unknown>>,
   members: StudioTeamMember[],
-  catalog?: ProspectOutreachRecord[],
+  catalog: ProspectOutreachRecord[],
 ): ProspectFinderListItem[] {
-  const source = catalog ?? prospectOutreachCatalog.prospects;
+  const source = catalog;
   return source.filter((base) => !isArchivedProspect(overrides.get(base.id))).map((base) => {
     const row = overrideRows.get(base.id);
     const merged = mergeProspectRecord(base, overrides.get(base.id));
@@ -159,10 +152,9 @@ export function getFinderRecord(
   overrideRows: Map<string, OutreachOverrideRow>,
   overrides: Map<string, Record<string, unknown>>,
   members: StudioTeamMember[],
-  catalog?: ProspectOutreachRecord[],
+  catalog: ProspectOutreachRecord[],
 ): ProspectFinderListItem | null {
-  const source = catalog ?? prospectOutreachCatalog.prospects;
-  const base = source.find((p) => p.id === outreachId);
+  const base = catalog.find((p) => p.id === outreachId);
   if (!base) return null;
   const row = overrideRows.get(outreachId);
   const merged = mergeProspectRecord(base, overrides.get(outreachId));
@@ -177,8 +169,7 @@ export function getFinderRecord(
 
 export function getBaseRecord(
   outreachId: string,
-  catalog?: ProspectOutreachRecord[],
+  catalog: ProspectOutreachRecord[],
 ): ProspectOutreachRecord | null {
-  const source = catalog ?? prospectOutreachCatalog.prospects;
-  return source.find((p) => p.id === outreachId) ?? null;
+  return catalog.find((p) => p.id === outreachId) ?? null;
 }

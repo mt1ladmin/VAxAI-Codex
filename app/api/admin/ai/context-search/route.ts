@@ -1,4 +1,3 @@
-import { prospectOutreachCatalog } from "@/lib/engagement/prospect-outreach/catalog";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,9 +18,8 @@ export async function GET(req: NextRequest) {
   }
 
   const search = `%${q}%`;
-  const qLower = q.toLowerCase();
 
-  const [enquiryRes, contactRes] = await Promise.all([
+  const [enquiryRes, contactRes, catalogRes] = await Promise.all([
     supabase
       .from("enquiries")
       .select("id, name, email, support_type, status")
@@ -32,6 +30,12 @@ export async function GET(req: NextRequest) {
       .from("engagement_contacts")
       .select("id, first_name, last_name, professional_email, role, organisation:organisation_id(name)")
       .or(`first_name.ilike.${search},last_name.ilike.${search},professional_email.ilike.${search}`)
+      .limit(8),
+
+    supabase
+      .from("prospect_outreach_catalog")
+      .select("id, organisation_name, decision_maker_name, email, location")
+      .or(`organisation_name.ilike.${search},decision_maker_name.ilike.${search},email.ilike.${search},location.ilike.${search}`)
       .limit(8),
   ]);
 
@@ -59,22 +63,12 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const catalogMatches = prospectOutreachCatalog.prospects
-    .filter(
-      (p) =>
-        p.organisation_name.toLowerCase().includes(qLower) ||
-        p.decision_maker_name.toLowerCase().includes(qLower) ||
-        p.email.toLowerCase().includes(qLower) ||
-        p.location.toLowerCase().includes(qLower),
-    )
-    .slice(0, 8);
-
-  for (const p of catalogMatches) {
+  for (const p of catalogRes.data ?? []) {
     results.push({
       type: "outreach",
-      id: p.id,
-      label: p.organisation_name,
-      sublabel: p.decision_maker_name || p.email || null,
+      id: p.id as string,
+      label: p.organisation_name as string,
+      sublabel: (p.decision_maker_name as string | null) || (p.email as string | null) || null,
       status: null,
     });
   }
