@@ -354,14 +354,14 @@ function ClientDetailContent() {
     outreachRecord?.opportunity_description?.trim() ||
     null;
 
-  const saveOutreachField = async (field: string, value: string | string[]) => {
+  const saveOutreachFields = async (fields: Record<string, string | string[]>) => {
     if (!outreachRecord) return;
     const res = await fetch("/api/admin/engagement/prospect-outreach", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         outreach_id: outreachRecord.id,
-        overrides: { [field]: value },
+        overrides: fields,
       }),
     });
     if (res.ok) {
@@ -603,7 +603,7 @@ function ClientDetailContent() {
 
               {outreachRecord && (
                 <div className="space-y-4">
-                  <ServiceFitPanel data={outreachRecord} mode="overview" editable onSaveField={saveOutreachField} />
+                  <ServiceFitPanel data={outreachRecord} mode="overview" editable onSaveFields={saveOutreachFields} />
                   {handoffNote && (
                     <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-4">
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
@@ -667,7 +667,7 @@ function ClientDetailContent() {
                   data={outreachRecord}
                   mode="research"
                   editable
-                  onSaveField={saveOutreachField}
+                  onSaveFields={saveOutreachFields}
                 />
               </div>
             ) : (
@@ -686,7 +686,7 @@ function ClientDetailContent() {
                   data={outreachRecord}
                   mode="support"
                   editable
-                  onSaveField={saveOutreachField}
+                  onSaveFields={saveOutreachFields}
                 />
               </div>
             ) : (
@@ -704,7 +704,7 @@ function ClientDetailContent() {
                   data={outreachRecord}
                   mode="recommended_engagement"
                   editable
-                  onSaveField={saveOutreachField}
+                  onSaveFields={saveOutreachFields}
                 />
               </div>
             ) : (

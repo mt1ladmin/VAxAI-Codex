@@ -123,8 +123,8 @@ function ProspectFinderDetailContent() {
     return json.data;
   };
 
-  const saveOutreachField = async (field: string, value: string | string[]) => {
-    await patchWorkflow({ overrides: { [field]: value } });
+  const saveOutreachFields = async (fields: Record<string, string | string[]>) => {
+    await patchWorkflow({ overrides: fields });
     setChatActivityKey((k) => k + 1);
   };
 
@@ -391,7 +391,7 @@ function ProspectFinderDetailContent() {
               </div>
 
               <div className="space-y-4">
-                <ServiceFitPanel data={record} mode="overview" editable onSaveField={saveOutreachField} />
+                <ServiceFitPanel data={record} mode="overview" editable onSaveFields={saveOutreachFields} />
                 <ProspectTagList data={record} />
               </div>
 
@@ -413,7 +413,7 @@ function ProspectFinderDetailContent() {
                 data={record}
                 mode="research"
                 editable
-                onSaveField={saveOutreachField}
+                onSaveFields={saveOutreachFields}
               />
             </div>
           )}
@@ -425,7 +425,7 @@ function ProspectFinderDetailContent() {
                 data={record}
                 mode="support"
                 editable
-                onSaveField={saveOutreachField}
+                onSaveFields={saveOutreachFields}
               />
             </div>
           )}
@@ -436,7 +436,7 @@ function ProspectFinderDetailContent() {
                 data={record}
                 mode="recommended_engagement"
                 editable
-                onSaveField={saveOutreachField}
+                onSaveFields={saveOutreachFields}
               />
             </div>
           )}

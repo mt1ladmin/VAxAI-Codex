@@ -1,5 +1,6 @@
 import {
   getFinderRecord,
+  loadCatalogRecords,
   loadOverrideMaps,
   loadTeamMembers,
 } from "@/lib/engagement/prospect-finder/load-catalog";
@@ -9,12 +10,13 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = createServiceClient();
-  const [overrideMaps, members] = await Promise.all([
+  const [overrideMaps, members, catalog] = await Promise.all([
     loadOverrideMaps(supabase),
     loadTeamMembers(supabase),
+    loadCatalogRecords(supabase),
   ]);
 
-  const record = getFinderRecord(id, overrideMaps.rows, overrideMaps.overrides, members);
+  const record = getFinderRecord(id, overrideMaps.rows, overrideMaps.overrides, members, catalog);
   if (!record) {
     return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
   }

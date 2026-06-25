@@ -2,6 +2,7 @@ import { PROSPECT_QUEUE_PATH, PROSPECT_FINDER_PATH } from "@/lib/engagement/jour
 import {
   buildFinderList,
   filterFinderList,
+  loadCatalogRecords,
   loadOverrideMaps,
   loadTeamMembers,
 } from "@/lib/engagement/prospect-finder/load-catalog";
@@ -106,11 +107,12 @@ export async function GET(req: NextRequest) {
   }
   queueRecords = queueRecords.slice(0, 3);
 
-  const [{ overrides, rows }, members] = await Promise.all([
+  const [{ overrides, rows }, members, catalog] = await Promise.all([
     loadOverrideMaps(supabase),
     loadTeamMembers(supabase),
+    loadCatalogRecords(supabase),
   ]);
-  const finderAll = buildFinderList(rows, overrides, members);
+  const finderAll = buildFinderList(rows, overrides, members, catalog);
   const finderFiltered = filterFinderList(finderAll, {
     members,
     assigned_to: resolvedMemberId || undefined,

@@ -1,6 +1,6 @@
 import { logActivity } from "@/lib/engagement/activity-log";
 import { isFinderEngagementStatus } from "@/lib/engagement/engagement-status";
-import { getBaseRecord, loadOverrideMaps, loadTeamMembers } from "@/lib/engagement/prospect-finder/load-catalog";
+import { getBaseRecord, loadCatalogRecords, loadOverrideMaps, loadTeamMembers } from "@/lib/engagement/prospect-finder/load-catalog";
 import { mergeProspectRecord } from "@/lib/engagement/prospect-outreach/snapshot";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { createServiceClient } from "@/lib/supabase";
@@ -22,16 +22,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "assigned_team_member_id required" }, { status: 400 });
   }
 
-  const base = getBaseRecord(outreach_id);
-  if (!base) {
-    return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
-  }
-
   const supabase = createServiceClient();
-  const [{ overrides, rows }, members] = await Promise.all([
+  const [catalog, { overrides, rows }, members] = await Promise.all([
+    loadCatalogRecords(supabase),
     loadOverrideMaps(supabase),
     loadTeamMembers(supabase),
   ]);
+
+  const base = getBaseRecord(outreach_id, catalog);
+  if (!base) {
+    return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
+  }
 
   const existing = rows.get(outreach_id);
   if (existing?.opportunity_id) {
