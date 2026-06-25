@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronRight,
   MessageSquare,
+  Plus,
   Search,
   Trash2,
   X,
@@ -71,6 +72,26 @@ function LabeledField({ label, children }: { label: string; children: ReactNode 
   );
 }
 
+const SUPPORT_TYPES = [
+  "Assessment",
+  "Assessment + Strategy & Implementation",
+  "Assessment + Ongoing Support",
+  "Access to Work",
+  "General enquiry",
+];
+
+const PREFERRED_CONTACT_OPTIONS = ["Email", "Telephone"];
+
+const BLANK_ENQUIRY_FORM = {
+  name: "",
+  email: "",
+  support_type: "General enquiry",
+  details: "",
+  preferred_contact: "Email",
+  telephone: "",
+  wants_discovery_call: false,
+};
+
 export default function EnquiriesPage() {
   const router = useRouter();
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
@@ -83,6 +104,9 @@ export default function EnquiriesPage() {
   const [enquiryIdsWithOpportunity, setEnquiryIdsWithOpportunity] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [savingAdd, setSavingAdd] = useState(false);
+  const [addForm, setAddForm] = useState({ ...BLANK_ENQUIRY_FORM });
 
   const fetch_ = useCallback(async () => {
     setLoading(true);
@@ -190,14 +214,48 @@ export default function EnquiriesPage() {
     void fetch_();
   };
 
+  const createEnquiry = async () => {
+    if (!addForm.name.trim() || !addForm.email.trim() || !addForm.details.trim()) return;
+    setSavingAdd(true);
+    const res = await fetch("/api/admin/enquiries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...addForm,
+        telephone: addForm.preferred_contact === "Telephone" ? addForm.telephone : null,
+      }),
+    });
+    const json = await res.json() as { data?: { id: string }; error?: string };
+    setSavingAdd(false);
+    if (!res.ok || !json.data?.id) {
+      window.alert(json.error || "Failed to create enquiry");
+      return;
+    }
+    setShowAddModal(false);
+    setAddForm({ ...BLANK_ENQUIRY_FORM });
+    router.push(`/admin/enquiries/${json.data.id}`);
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Website Enquiries</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">
-          Inbound interest — qualify against VAxAI wraparound support, workflow review, training, and virtual assistance.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
+            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Website Enquiries</h1>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">
+              Inbound interest — qualify against VAxAI wraparound support, workflow review, training, and virtual assistance.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="mt-1 flex shrink-0 items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+          >
+            <Plus className="h-4 w-4" />
+            New enquiry
+          </button>
+        </div>
       </div>
 
       <div className="px-8 py-6">
@@ -461,6 +519,128 @@ export default function EnquiriesPage() {
 
       {statusMenuId && (
         <div className="fixed inset-0 z-10" onClick={() => setStatusMenuId(null)} />
+      )}
+
+      {showAddModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setShowAddModal(false)}
+          role="presentation"
+        >
+          <div
+            className="relative w-full max-w-lg overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-enquiry-title"
+          >
+            <div className="flex items-center justify-between border-b border-[#111111]/10 px-6 py-4">
+              <h2 id="add-enquiry-title" className="text-base font-semibold text-[#111111]">New enquiry</h2>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-4 p-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#111111]">Full name <span className="text-red-500">*</span></label>
+                  <input
+                    type="text"
+                    value={addForm.name}
+                    onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    placeholder="Jane Smith"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#111111]">Email <span className="text-red-500">*</span></label>
+                  <input
+                    type="email"
+                    value={addForm.email}
+                    onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    placeholder="jane@example.com"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[#111111]">Support type <span className="text-red-500">*</span></label>
+                <select
+                  value={addForm.support_type}
+                  onChange={(e) => setAddForm((f) => ({ ...f, support_type: e.target.value }))}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                >
+                  {SUPPORT_TYPES.map((t) => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[#111111]">Details <span className="text-red-500">*</span></label>
+                <textarea
+                  value={addForm.details}
+                  onChange={(e) => setAddForm((f) => ({ ...f, details: e.target.value }))}
+                  rows={4}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  placeholder="What are they looking for help with?"
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#111111]">Preferred contact</label>
+                  <select
+                    value={addForm.preferred_contact}
+                    onChange={(e) => setAddForm((f) => ({ ...f, preferred_contact: e.target.value }))}
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  >
+                    {PREFERRED_CONTACT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+                  </select>
+                </div>
+                {addForm.preferred_contact === "Telephone" && (
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-[#111111]">Telephone</label>
+                    <input
+                      type="tel"
+                      value={addForm.telephone}
+                      onChange={(e) => setAddForm((f) => ({ ...f, telephone: e.target.value }))}
+                      className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      placeholder="+44 7700 900000"
+                    />
+                  </div>
+                )}
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={addForm.wants_discovery_call}
+                  onChange={(e) => setAddForm((f) => ({ ...f, wants_discovery_call: e.target.checked }))}
+                  className="h-4 w-4 rounded border-[#111111]/25 accent-[#063b32]"
+                />
+                <span className="text-sm text-[#111111]">Discovery call requested</span>
+              </label>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void createEnquiry()}
+                  disabled={savingAdd || !addForm.name.trim() || !addForm.email.trim() || !addForm.details.trim()}
+                  className="rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                >
+                  {savingAdd ? "Saving…" : "Create enquiry"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
