@@ -242,9 +242,28 @@ export async function DELETE(req: NextRequest) {
   return NextResponse.json({ success: true, archived_count: ids.length });
 }
 
-/** @deprecated Use move-to-queue — kept for backward compatibility */
 export async function POST(req: NextRequest) {
   const body = await req.json();
+
+  // Create a new catalog entry manually
+  if (body.prospect && typeof body.prospect === "object") {
+    const supabase = createServiceClient();
+    const p = body.prospect as Record<string, unknown>;
+    const slug = String(p.organisation_name ?? "unknown")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    const id = `${slug}-${Date.now().toString(36)}`;
+    const { data, error } = await supabase
+      .from("prospect_outreach_catalog")
+      .insert({ ...p, id, research_date: new Date().toISOString().slice(0, 10), updated_at: new Date().toISOString() })
+      .select()
+      .single();
+    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ data }, { status: 201 });
+  }
+
+  // Legacy compatibility
   if (body.prospects?.length || body.ids?.length) {
     return NextResponse.json(
       { error: "Use POST /api/admin/engagement/prospect-outreach/move-to-queue instead" },
