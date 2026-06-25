@@ -42,8 +42,8 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
+      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
   },
@@ -70,8 +70,8 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
     items: [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
+      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
   },
@@ -281,16 +281,6 @@ export default function AdminShell({
                   Calendar
                 </Link>
                 <Link
-                  href="/admin/posts"
-                  className={`px-4 py-1.5 text-xs font-semibold ${
-                    pathname.startsWith("/admin/posts")
-                      ? "bg-[#063b32] text-white"
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
-                  }`}
-                >
-                  Posts
-                </Link>
-                <Link
                   href="/admin/create-content"
                   className={`px-4 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/create-content")
@@ -299,6 +289,16 @@ export default function AdminShell({
                   }`}
                 >
                   Create
+                </Link>
+                <Link
+                  href="/admin/posts"
+                  className={`px-4 py-1.5 text-xs font-semibold ${
+                    pathname.startsWith("/admin/posts")
+                      ? "bg-[#063b32] text-white"
+                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
+                >
+                  Posts
                 </Link>
                 <Link
                   href="/admin/authors"
