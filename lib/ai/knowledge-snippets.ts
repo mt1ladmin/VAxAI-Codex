@@ -6,6 +6,21 @@ type Supabase = ReturnType<typeof createServiceClient>;
 
 const NEEDS_PERSONAS: ChatIntent[] = ["meeting_prep", "draft", "analysis"];
 
+/** Outreach hub tabs — load Knowledge Hub only when the task needs it (cost control). */
+export function shouldLoadKnowledgeSnippets(
+  contextType: string,
+  intent: ChatIntent,
+  message: string,
+): boolean {
+  if (contextType !== "outreach") return true;
+
+  if (["meeting_prep", "draft", "analysis"].includes(intent)) return true;
+
+  return /\b(knowledge hub|sector|persona|pain point|support|engagement|research|approach|fit|verify|boundar|guide|prep|draft)\b/i.test(
+    message,
+  );
+}
+
 export async function loadKnowledgeSnippets(
   supabase: Supabase,
   opts: {

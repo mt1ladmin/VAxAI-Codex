@@ -1,6 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { HAIKU_MODEL, PROSPECT_DISCOVER_MAX_TOKENS } from "@/lib/ai/research-config";
 import { createServiceClient } from "@/lib/supabase";
 import { reassessProspectRecord } from "@/lib/engagement/service-fit/assess";
+import {
+  formatHubContextForPrompt,
+  loadHubContextForTags,
+  needsExternalResearch,
+} from "@/lib/engagement/service-fit/knowledge-enrich";
 import { STUDIO_SERVICE_POSITIONING } from "@/lib/engagement/service-fit/positioning";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { OUTREACH_REGIONS } from "@/lib/engagement/prospect-outreach/types";
@@ -160,21 +166,37 @@ export async function discoverProspects(
     )
     .join("\n");
 
-  const searchQuery = [
-    input.brief,
-    input.region,
-    input.industry,
-    input.orgType,
-    "UK charity OR small business admin automation",
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const webContext = await tavilySearch(searchQuery);
+  const supabase = createServiceClient();
+  const briefKeywords = input.brief
+    .toLowerCase()
+    .split(/\W+/)
+    .filter((w) => w.length > 3);
+  const hub = await loadHubContextForTags(
+    supabase,
+    [input.industry, input.orgType, input.region].filter(Boolean) as string[],
+    [],
+    briefKeywords,
+  );
+  const hubPrompt = formatHubContextForPrompt(hub);
+
+  const webContext = needsExternalResearch(input.brief)
+    ? await tavilySearch(
+        [
+          input.brief,
+          input.region,
+          input.industry,
+          input.orgType,
+          "UK charity OR small business admin automation",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      )
+    : "";
 
   const today = new Date().toISOString().slice(0, 10);
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 4000,
+    model: HAIKU_MODEL,
+    max_tokens: PROSPECT_DISCOVER_MAX_TOKENS,
     messages: [
       {
         role: "user",
@@ -189,6 +211,8 @@ METHODOLOGY (match existing catalog):
 - Use realistic UK data; mark confidence Low if inferred
 - need_rationale must describe evidence of admin pressure, not generic AI hype
 - engagement_approach should suggest realistic first contact — usually workflow review or discovery, not a platform pitch
+- Align sector_tags and pain_point_tags with Knowledge Hub entries when provided
+- Draw on web research only when supplied — otherwise use brief, catalog patterns, and Knowledge Hub
 - NEVER return organisations from the exclusion list or duplicates
 
 EXISTING ORGANISATIONS (do not repeat — ${existingNames.length} known names):
@@ -197,7 +221,8 @@ ${existingNames.slice(0, 80).join(", ")}
 SAMPLE CATALOG ENTRIES:
 ${sampleBrief}
 
-${webContext ? `WEB RESEARCH:\n${webContext}\n` : ""}
+${hubPrompt ? `KNOWLEDGE HUB (use for tags, rationale, and engagement approach):\n${hubPrompt}\n` : ""}
+${webContext ? `WEB RESEARCH (verification only — prefer catalog patterns if thin):\n${webContext}\n` : ""}
 
 USER BRIEF: ${input.brief}
 REGION PREFERENCE: ${input.region || "any priority region"}
@@ -219,42 +244,49 @@ Use research_date "${today}". Generate stable id as slug from org name (lowercas
   const parsed = JSON.parse(jsonMatch[0]) as { prospects?: Array<Record<string, unknown>> };
   const prospects = (parsed.prospects ?? []).slice(0, count);
 
-  return prospects.map((p) => {
-    const record = {
-      id: String(p.id ?? p.organisation_name ?? "unknown")
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, ""),
-      organisation_name: String(p.organisation_name ?? ""),
-      organisation_type: (p.organisation_type as ProspectOutreachRecord["organisation_type"]) ?? "Business",
-      location: String(p.location ?? ""),
-      region: String(p.region ?? input.region ?? "East of England (other)"),
-      website: String(p.website ?? ""),
-      employees: typeof p.employees === "number" ? p.employees : null,
-      annual_revenue_gbp: typeof p.annual_revenue_gbp === "number" ? p.annual_revenue_gbp : null,
-      revenue_basis: String(p.revenue_basis ?? ""),
-      need_score: Math.min(5, Math.max(2, Number(p.need_score) || 3)),
-      need_rationale: String(p.need_rationale ?? ""),
-      decision_maker_name: String(p.decision_maker_name ?? ""),
-      decision_maker_role: String(p.decision_maker_role ?? ""),
-      email: String(p.email ?? ""),
-      phone: String(p.phone ?? ""),
-      financial_source_url: String(p.financial_source_url ?? ""),
-      contact_source_url: String(p.contact_source_url ?? ""),
-      data_confidence: (p.data_confidence as ProspectOutreachRecord["data_confidence"]) ?? "Medium",
-      sector_tags: Array.isArray(p.sector_tags) ? (p.sector_tags as string[]) : [],
-      pain_point_tags: Array.isArray(p.pain_point_tags) ? (p.pain_point_tags as string[]) : [],
-      engagement_approach: String(p.engagement_approach ?? ""),
-      research_date: String(p.research_date ?? today),
-      priority_region: (p.priority_region as ProspectOutreachRecord["priority_region"]) ?? "primary",
-    } satisfies ProspectOutreachRecord;
+  return Promise.all(
+    prospects.map(async (p) => {
+      const record = {
+        id: String(p.id ?? p.organisation_name ?? "unknown")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, ""),
+        organisation_name: String(p.organisation_name ?? ""),
+        organisation_type: (p.organisation_type as ProspectOutreachRecord["organisation_type"]) ?? "Business",
+        location: String(p.location ?? ""),
+        region: String(p.region ?? input.region ?? "East of England (other)"),
+        website: String(p.website ?? ""),
+        employees: typeof p.employees === "number" ? p.employees : null,
+        annual_revenue_gbp: typeof p.annual_revenue_gbp === "number" ? p.annual_revenue_gbp : null,
+        revenue_basis: String(p.revenue_basis ?? ""),
+        need_score: Math.min(5, Math.max(2, Number(p.need_score) || 3)),
+        need_rationale: String(p.need_rationale ?? ""),
+        decision_maker_name: String(p.decision_maker_name ?? ""),
+        decision_maker_role: String(p.decision_maker_role ?? ""),
+        email: String(p.email ?? ""),
+        phone: String(p.phone ?? ""),
+        financial_source_url: String(p.financial_source_url ?? ""),
+        contact_source_url: String(p.contact_source_url ?? ""),
+        data_confidence: (p.data_confidence as ProspectOutreachRecord["data_confidence"]) ?? "Medium",
+        sector_tags: Array.isArray(p.sector_tags) ? (p.sector_tags as string[]) : [],
+        pain_point_tags: Array.isArray(p.pain_point_tags) ? (p.pain_point_tags as string[]) : [],
+        engagement_approach: String(p.engagement_approach ?? ""),
+        research_date: String(p.research_date ?? today),
+        priority_region: (p.priority_region as ProspectOutreachRecord["priority_region"]) ?? "primary",
+      } satisfies ProspectOutreachRecord;
 
-    const prospect = reassessProspectRecord(record);
-    const duplicates = findDuplicates(prospect, existingNames, queueNames);
-    return {
-      prospect,
-      duplicates,
-      isLikelyDuplicate: duplicates.some((d) => d.score >= 85),
-    };
-  });
+      const recordHub = await loadHubContextForTags(
+        supabase,
+        record.sector_tags,
+        record.pain_point_tags,
+      );
+      const prospect = reassessProspectRecord(record, recordHub);
+      const duplicates = findDuplicates(prospect, existingNames, queueNames);
+      return {
+        prospect,
+        duplicates,
+        isLikelyDuplicate: duplicates.some((d) => d.score >= 85),
+      };
+    }),
+  );
 }
