@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createSessionClient, createServiceClient } from "@/lib/supabase";
+import { sendPostNotification } from "@/lib/email";
 
 async function assertAuth() {
   const supabase = await createSessionClient();
@@ -71,6 +72,15 @@ export async function POST(req: NextRequest) {
       updated_at: now,
     }).select().single();
     if (error) throw error;
+    const action = data.status === "published" ? "published" : data.status === "scheduled" ? "scheduled" : "created";
+    sendPostNotification({
+      action,
+      title: data.title,
+      contentType: data.content_type,
+      status: data.status,
+      postId: data.id,
+      slug: data.slug,
+    }).catch(() => {});
     return NextResponse.json({ data });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error";
