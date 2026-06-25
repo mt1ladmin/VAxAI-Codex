@@ -10,7 +10,10 @@ import {
   Loader2,
   Mail,
   Phone,
+  Plus,
   Search,
+  Trash2,
+  X,
 } from "lucide-react";
 import { PROSPECT_QUEUE_STAGE_GROUPS } from "@/lib/engagement/prospect-queue-stages";
 import { PROSPECT_FINDER_PATH, PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
@@ -86,6 +89,53 @@ export default function ClientsPage() {
   const hasLoadedRef = useRef(false);
   const [stageFilter, setStageFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [savingNew, setSavingNew] = useState(false);
+  const [newForm, setNewForm] = useState({ first_name: "", last_name: "", role: "", professional_email: "", phone: "" });
+
+  const createNewContact = async () => {
+    if (!newForm.first_name.trim()) return;
+    setSavingNew(true);
+    const contactRes = await fetch("/api/admin/engagement/contacts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        first_name: newForm.first_name.trim(),
+        last_name: newForm.last_name.trim() || null,
+        role: newForm.role.trim() || null,
+        professional_email: newForm.professional_email.trim() || null,
+        phone: newForm.phone.trim() || null,
+      }),
+    });
+    if (!contactRes.ok) { setSavingNew(false); return; }
+    const { data: contact } = await contactRes.json() as { data: { id: string } };
+    await fetch("/api/admin/engagement/opportunities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        primary_contact_id: contact.id,
+        title: `${newForm.first_name.trim()}${newForm.last_name.trim() ? ` ${newForm.last_name.trim()}` : ""} opportunity`,
+        stage: "Identified",
+      }),
+    });
+    setSavingNew(false);
+    setShowNewModal(false);
+    setNewForm({ first_name: "", last_name: "", role: "", professional_email: "", phone: "" });
+    router.push(`/admin/engagement/prospect-queue/${contact.id}`);
+  };
+
+  const removeFromQueue = async (contactId: string, name: string) => {
+    if (!confirm(`Remove "${name}" from the prospect queue? This will mark their active opportunities as Lost.`)) return;
+    setRemovingId(contactId);
+    await fetch("/api/admin/engagement/prospect-queue", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contact_id: contactId }),
+    });
+    setRemovingId(null);
+    void load();
+  };
 
   const load = useCallback(async () => {
     if (!hasLoadedRef.current) {
@@ -134,6 +184,15 @@ export default function ClientsPage() {
         <p className="mt-0.5 text-sm text-[#6f6b62]">
           Live engagements — update pipeline stage and next action on each record. Nothing is active here until promoted from Finder or Enquiries.
         </p>
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setShowNewModal(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+          >
+            <Plus className="h-4 w-4" /> New contact
+          </button>
+        </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {loading && clients.length === 0
@@ -333,7 +392,18 @@ export default function ClientsPage() {
                             Overdue tasks
                           </span>
                         )}
-                        <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            title="Remove from queue"
+                            onClick={(ev) => { ev.stopPropagation(); void removeFromQueue(c.id, fullName); }}
+                            disabled={removingId === c.id}
+                            className="rounded p-1 text-[#6f6b62]/40 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 disabled:opacity-50"
+                          >
+                            {removingId === c.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                          </button>
+                          <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -343,6 +413,47 @@ export default function ClientsPage() {
           </div>
         )}
       </div>
+
+      {showNewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[#111111]">New contact</h2>
+              <button type="button" onClick={() => setShowNewModal(false)} className="rounded-lg p-1 hover:bg-[#f7f4ea]"><X className="h-4 w-4 text-[#6f6b62]" /></button>
+            </div>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">First name *</label>
+                  <input value={newForm.first_name} onChange={(e) => setNewForm((f) => ({ ...f, first_name: e.target.value }))} className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" autoFocus placeholder="First name" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Last name</label>
+                  <input value={newForm.last_name} onChange={(e) => setNewForm((f) => ({ ...f, last_name: e.target.value }))} className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" placeholder="Last name" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Role</label>
+                <input value={newForm.role} onChange={(e) => setNewForm((f) => ({ ...f, role: e.target.value }))} className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" placeholder="e.g. CEO, Operations Manager" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Email</label>
+                <input type="email" value={newForm.professional_email} onChange={(e) => setNewForm((f) => ({ ...f, professional_email: e.target.value }))} className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" placeholder="email@example.com" />
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Phone</label>
+                <input type="tel" value={newForm.phone} onChange={(e) => setNewForm((f) => ({ ...f, phone: e.target.value }))} className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]" placeholder="+44..." />
+              </div>
+            </div>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setShowNewModal(false)} className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
+              <button type="button" onClick={() => void createNewContact()} disabled={!newForm.first_name.trim() || savingNew} className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
+                {savingNew ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Create contact
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

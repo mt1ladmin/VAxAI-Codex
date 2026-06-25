@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, Instagram, Linkedin, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export type CalendarBlogPreview = {
   id: string;
@@ -13,6 +14,13 @@ export type CalendarBlogPreview = {
   scheduled_at?: string | null;
   updated_at?: string;
   content_type?: string;
+};
+
+type SocialPost = {
+  id: string;
+  title: string;
+  platform: "linkedin" | "instagram" | "facebook";
+  scheduled_date: string;
 };
 
 type Props = {
@@ -35,7 +43,30 @@ const STATUS_STYLES: Record<CalendarBlogPreview["status"], string> = {
   draft: "bg-[#f5f274]/70 text-[#6f6b62]",
 };
 
+const PLATFORM_ICONS: Record<string, typeof Linkedin> = {
+  linkedin: Linkedin,
+  instagram: Instagram,
+};
+
+const PLATFORM_STYLES: Record<string, string> = {
+  linkedin: "text-[#0077b5] bg-[#0077b5]/10",
+  instagram: "text-pink-600 bg-pink-50",
+  facebook: "text-blue-600 bg-blue-50",
+};
+
 export function CalendarItemPreviewModal({ post, onClose }: Props) {
+  const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>([]);
+
+  useEffect(() => {
+    const path = `/admin/posts/${post.id}`;
+    fetch("/api/admin/social-posts")
+      .then((r) => r.json() as Promise<{ data: (SocialPost & { link?: string | null })[] }>)
+      .then(({ data }) => {
+        setLinkedSocial((data ?? []).filter((s) => s.link === path));
+      })
+      .catch(() => {});
+  }, [post.id]);
+
   const displayDate =
     post.status === "published"
       ? formatDate(post.published_at)
@@ -110,6 +141,31 @@ export function CalendarItemPreviewModal({ post, onClose }: Props) {
             </p>
           ) : (
             <p className="text-sm italic text-[#6f6b62]/60">No description</p>
+          )}
+
+          {linkedSocial.length > 0 && (
+            <div>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Linked social posts</p>
+              <div className="space-y-1.5">
+                {linkedSocial.map((s) => {
+                  const Icon = PLATFORM_ICONS[s.platform];
+                  const style = PLATFORM_STYLES[s.platform] ?? "text-[#6f6b62] bg-[#f7f4ea]";
+                  return (
+                    <div key={s.id} className="flex items-center gap-2 rounded-lg border border-[#111111]/10 px-3 py-2">
+                      {Icon && (
+                        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md text-[10px] ${style}`}>
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                      )}
+                      <span className="flex-1 truncate text-xs font-medium text-[#111111]">{s.title}</span>
+                      <span className="shrink-0 text-[10px] text-[#6f6b62]">
+                        {new Date(s.scheduled_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           <Link

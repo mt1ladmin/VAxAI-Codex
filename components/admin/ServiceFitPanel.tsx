@@ -120,7 +120,6 @@ export function hasVaxaiSupportContent(data: ProspectOutreachRecord): boolean {
 export function hasResearchAssessmentContent(data: ProspectOutreachRecord): boolean {
   return !!(
     data.evidence_summary?.trim() ||
-    data.need_rationale?.trim() ||
     data.complexity_rationale?.trim() ||
     data.admin_capacity?.trim() ||
     data.ai_automation_use?.trim() ||
@@ -547,18 +546,30 @@ function RecommendedEngagement({
   }
 
   return (
-    <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+    <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Recommended engagement</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Engagement Guide</p>
         {editable && onSaveFields && (
           <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
             <Pencil className="h-3 w-3" /> Edit
           </button>
         )}
       </div>
-      <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">
-        {data.recommended_engagement || data.engagement_approach || "—"}
-      </p>
+      {data.engagement_approach && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</p>
+          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{data.engagement_approach}</p>
+        </div>
+      )}
+      {data.recommended_engagement && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Recommended engagement</p>
+          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{data.recommended_engagement}</p>
+        </div>
+      )}
+      {!data.engagement_approach && !data.recommended_engagement && (
+        <p className="text-sm text-[#6f6b62]">—</p>
+      )}
       {data.accessibility_considerations && (
         <div className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-3">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-800">Accessibility note</p>

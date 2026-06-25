@@ -265,7 +265,7 @@ export default function AdminShell({
           </div>
         )}
 
-        {(pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/authors")) && (
+        {(pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/authors") || pathname.startsWith("/admin/create-content")) && (
           <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-semibold text-[#111111]">Content Hub</span>
@@ -289,6 +289,16 @@ export default function AdminShell({
                   }`}
                 >
                   Posts
+                </Link>
+                <Link
+                  href="/admin/create-content"
+                  className={`px-4 py-1.5 text-xs font-semibold ${
+                    pathname.startsWith("/admin/create-content")
+                      ? "bg-[#063b32] text-white"
+                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
+                >
+                  Create
                 </Link>
                 <Link
                   href="/admin/authors"

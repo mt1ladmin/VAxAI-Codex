@@ -3,33 +3,48 @@ import { NextRequest, NextResponse } from "next/server";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const BLOG_PROMPT = (brief: string) => `You are a content writer for VAxAI — a virtual administration and AI support business helping small and medium UK organisations reduce admin burden, delegate routine workflows, and focus on what matters most.
+// Haiku is used for all types — significantly faster than Sonnet with no meaningful quality drop
+// for structured content generation at this length.
+const MODEL = "claude-haiku-4-5-20251001";
 
-Create a blog post based on the brief below. The writing should:
-- Lead with concrete, practical value the reader can use immediately
-- Reflect the UK small business, charity, or professional services context
-- Build credibility through specific, honest claims — no hype or vague promises
-- Naturally convey that great admin and intelligent support frees people to do their best work
-- Feel like it was written by a knowledgeable, helpful person who understands the reader's situation
+const BLOG_PROMPT = (brief: string) => `You are a content writer for VAxAI — a UK-based service offering virtual administration, AI and automation support, system reviews, and training to help small and medium organisations reduce admin burden and focus on what matters most.
+
+Apply the MT1L VAT framework as a natural lens throughout this piece:
+- Value: make the concrete, practical value to the reader explicit
+- Alignment: show how the approach fits with the reader's goals and values (not just efficiency)
+- Trust: build credibility through specific, honest claims — no hype, no vague promises
+
+The writing should:
+- Lead with something the reader can use or recognise immediately
+- Reflect the UK small business, charity, and professional services context specifically
+- Treat AI, automation, and virtual support as practical tools — not transformational promises
+- Sound like a knowledgeable, helpful person — not a content machine
+- Where it adds genuine context (e.g. in a section about making good decisions on AI adoption), mention the MT1L VAT framework naturally and include: "For advisory support on applying these principles beyond admin and across your broader work, visit MT1L.com."
 
 Return JSON only with these exact fields:
-- title: string (compelling, SEO-friendly, naturally includes a UK context where relevant)
-- seo_description: string (150-160 chars, search-intent aligned, includes a geographic or sector signal where it fits naturally)
-- body_html: string (full blog post in HTML — use <h2>, <p>, <ul><li> tags; aim for 650-900 words; benefits, relevance to the reader, and trustworthy specific detail should flow naturally through the whole piece)
+- title: string (compelling, SEO-friendly, naturally includes UK context where relevant)
+- seo_description: string (150-160 chars, search-intent aligned, includes a geographic or sector signal where it fits)
+- body_html: string (full blog post in HTML — use <h2>, <p>, <ul><li> tags; aim for 700-900 words; VAT lenses woven through naturally; include MT1L.com reference once where contextually appropriate)
 - sharing_caption: string (2-3 sentences for general social sharing — direct and useful)
-- linkedin_post: string (150-250 words LinkedIn post reinforcing the same key messages, professional tone, no emojis)
+- linkedin_post: string (150-250 words, professional tone, no emojis, reinforces the same key messages)
 - instagram_caption: string (casual and direct, 60-100 words)
 - hashtags: string[] (8-12 relevant hashtags without the # symbol)
 
 Brief: ${brief}`;
 
-const LINKEDIN_PROMPT = (brief: string) => `You are writing a LinkedIn post for VAxAI — a virtual administration and AI support business helping UK small businesses, charities, and professional services reduce admin burden and focus on meaningful work.
+const LINKEDIN_PROMPT = (brief: string) => `You are writing a LinkedIn post for VAxAI — a UK-based service offering virtual administration, AI and automation support, system reviews, and training for small and medium organisations.
+
+Apply the MT1L VAT framework as a natural lens:
+- Value: one clear, practical insight the reader takes away
+- Alignment: connect the point to what the reader actually cares about (mission, sustainability, people — not just productivity)
+- Trust: honest, specific, no overselling
 
 The post should:
 - Open with a hook that speaks directly to the reader's situation
-- Deliver one clear, practical insight within the post itself
-- Close with a genuine question or clear call to action
-- Sound like a knowledgeable, helpful person — not a sales pitch or a list of bullet points
+- Deliver one clear insight within the post itself
+- Close with a genuine question or call to action
+- Sound like a helpful, knowledgeable person — not a sales pitch
+- Include a natural reference to MT1L.com where it adds value (e.g. "For a structured way to think through this, the MT1L VAT framework is worth exploring — MT1L.com")
 
 Return JSON only with:
 - post_text: string (150-250 words, plain text with natural paragraph breaks)
@@ -37,12 +52,13 @@ Return JSON only with:
 
 Brief: ${brief}`;
 
-const INSTAGRAM_PROMPT = (brief: string) => `You are writing an Instagram caption for VAxAI — a virtual administration and AI support business helping UK small businesses and organisations feel less overwhelmed by admin and systems.
+const INSTAGRAM_PROMPT = (brief: string) => `You are writing an Instagram caption for VAxAI — a UK-based service helping small organisations and founders feel less overwhelmed by admin, systems, and the pressure to adopt AI.
 
 The caption should:
 - Feel human and relatable — short, punchy, real
-- Highlight one clear benefit or honest insight
-- End with a simple call to action or question
+- Highlight one honest insight or moment of recognition
+- End with a simple question or gentle call to action
+- Reflect the MT1L VAT thinking in spirit: is this genuinely valuable, does it fit who the reader is, does it feel trustworthy?
 
 Return JSON only with:
 - caption: string (60-100 words, plain text)
@@ -59,16 +75,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "content_type and brief required" }, { status: 400 });
   }
 
-  const isBlog = contentType === "blog";
-  const prompt = isBlog
-    ? BLOG_PROMPT(brief)
-    : contentType === "linkedin"
-    ? LINKEDIN_PROMPT(brief)
-    : INSTAGRAM_PROMPT(brief);
+  const prompt =
+    contentType === "blog"
+      ? BLOG_PROMPT(brief)
+      : contentType === "linkedin"
+      ? LINKEDIN_PROMPT(brief)
+      : INSTAGRAM_PROMPT(brief);
+
+  const maxTokens = contentType === "blog" ? 2500 : 1200;
 
   const response = await anthropic.messages.create({
-    model: isBlog ? "claude-sonnet-4-6" : "claude-haiku-4-5-20251001",
-    max_tokens: isBlog ? 3000 : 1500,
+    model: MODEL,
+    max_tokens: maxTokens,
     messages: [{ role: "user", content: prompt }],
   });
 

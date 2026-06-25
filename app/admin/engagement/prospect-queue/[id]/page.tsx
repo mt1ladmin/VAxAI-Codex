@@ -5,8 +5,12 @@ import { useParams, useSearchParams } from "next/navigation";
 import {
   Briefcase,
   Building2,
+  Loader2,
   Mail,
+  Pencil,
   Phone,
+  Save,
+  X,
 } from "lucide-react";
 
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
@@ -125,6 +129,9 @@ function ClientDetailContent() {
   const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
+  const [savingContact, setSavingContact] = useState(false);
+  const [contactForm, setContactForm] = useState({ first_name: "", last_name: "", role: "", professional_email: "", phone: "" });
 
   // Notes
   const [noteText, setNoteText] = useState("");
@@ -288,6 +295,40 @@ function ClientDetailContent() {
       setShowAddNote(false);
     }
     setSavingNote(false);
+  };
+
+  const startContactEdit = () => {
+    if (!contact) return;
+    setContactForm({
+      first_name: contact.first_name || "",
+      last_name: contact.last_name || "",
+      role: contact.role || "",
+      professional_email: contact.professional_email || "",
+      phone: contact.phone || "",
+    });
+    setEditingContact(true);
+  };
+
+  const saveContactEdits = async () => {
+    if (!contact) return;
+    setSavingContact(true);
+    const res = await fetch(`/api/admin/engagement/contacts/${contact.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        first_name: contactForm.first_name.trim(),
+        last_name: contactForm.last_name.trim() || null,
+        role: contactForm.role.trim() || null,
+        professional_email: contactForm.professional_email.trim() || null,
+        phone: contactForm.phone.trim() || null,
+      }),
+    });
+    if (res.ok) {
+      const j = await res.json() as { data: EngagementContact };
+      setContact(j.data);
+      setEditingContact(false);
+    }
+    setSavingContact(false);
   };
 
   const handleOpportunityUpdated = (updated: EngagementOpportunity) => {
@@ -496,30 +537,73 @@ function ClientDetailContent() {
             </div>
           ) : (
             <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#063b32] text-base font-bold text-[#f5f274]">
-                  {initials || <Briefcase className="h-5 w-5" />}
-                </div>
-                <div>
-                  <p className="font-semibold text-[#111111]">{fullName}</p>
-                  {contact.role && <p className="text-xs text-[#6f6b62]">{contact.role}</p>}
-                </div>
-              </div>
-              {contact.professional_email && (
-                <a href={emailComposeUrl(contact.professional_email)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
-                  <Mail className="h-3.5 w-3.5" /> {contact.professional_email}
-                </a>
-              )}
-              {contact.phone && (
-                <a href={`tel:${contact.phone}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
-                  <Phone className="h-3.5 w-3.5" /> {contact.phone}
-                </a>
-              )}
-              {contact.organisation && (
-                <p className="flex items-center gap-1 text-sm text-[#111111]">
-                  <Building2 className="h-3.5 w-3.5 text-[#063b32]" />
-                  {(contact.organisation as { id: string; name: string }).name}
-                </p>
+              {editingContact ? (
+                <>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Edit contact</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[10px] text-[#6f6b62] mb-0.5">First name</label>
+                      <input value={contactForm.first_name} onChange={(e) => setContactForm((f) => ({ ...f, first_name: e.target.value }))} className="w-full rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]" autoFocus />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-[#6f6b62] mb-0.5">Last name</label>
+                      <input value={contactForm.last_name} onChange={(e) => setContactForm((f) => ({ ...f, last_name: e.target.value }))} className="w-full rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[#6f6b62] mb-0.5">Role</label>
+                    <input value={contactForm.role} onChange={(e) => setContactForm((f) => ({ ...f, role: e.target.value }))} className="w-full rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[#6f6b62] mb-0.5">Email</label>
+                    <input type="email" value={contactForm.professional_email} onChange={(e) => setContactForm((f) => ({ ...f, professional_email: e.target.value }))} className="w-full rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] text-[#6f6b62] mb-0.5">Phone</label>
+                    <input type="tel" value={contactForm.phone} onChange={(e) => setContactForm((f) => ({ ...f, phone: e.target.value }))} className="w-full rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]" />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <button type="button" onClick={() => void saveContactEdits()} disabled={savingContact} className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
+                      {savingContact ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
+                    </button>
+                    <button type="button" onClick={() => setEditingContact(false)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                      <X className="h-3.5 w-3.5" /> Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#063b32] text-base font-bold text-[#f5f274]">
+                        {initials || <Briefcase className="h-5 w-5" />}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#111111]">{fullName}</p>
+                        {contact.role && <p className="text-xs text-[#6f6b62]">{contact.role}</p>}
+                      </div>
+                    </div>
+                    <button type="button" onClick={startContactEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline shrink-0">
+                      <Pencil className="h-3 w-3" /> Edit
+                    </button>
+                  </div>
+                  {contact.professional_email && (
+                    <a href={emailComposeUrl(contact.professional_email)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
+                      <Mail className="h-3.5 w-3.5" /> {contact.professional_email}
+                    </a>
+                  )}
+                  {contact.phone && (
+                    <a href={`tel:${contact.phone}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
+                      <Phone className="h-3.5 w-3.5" /> {contact.phone}
+                    </a>
+                  )}
+                  {contact.organisation && (
+                    <p className="flex items-center gap-1 text-sm text-[#111111]">
+                      <Building2 className="h-3.5 w-3.5 text-[#063b32]" />
+                      {(contact.organisation as { id: string; name: string }).name}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}

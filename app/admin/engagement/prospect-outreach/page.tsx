@@ -8,9 +8,11 @@ import {
   ChevronRight,
   Filter,
   Loader2,
+  Plus,
   Search,
   Trash2,
   User,
+  X,
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
 import { BulkArchiveProspectsModal } from "@/components/admin/BulkArchiveProspectsModal";
@@ -83,6 +85,19 @@ export default function ProspectFinderPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [savingAdd, setSavingAdd] = useState(false);
+  const [addForm, setAddForm] = useState({
+    organisation_name: "",
+    organisation_type: "Charity" as "Charity" | "Business" | "Social enterprise" | "Other",
+    location: "",
+    region: OUTREACH_REGIONS[0] as string,
+    need_score: 3,
+    decision_maker_name: "",
+    decision_maker_role: "",
+    email: "",
+    phone: "",
+  });
   const hasLoadedRef = useRef(false);
   const studioAccess = useStudioAccessOptional();
   const isPlatformAdmin = studioAccess?.isPlatformAdmin ?? true;
@@ -191,6 +206,27 @@ export default function ProspectFinderPage() {
     }
   };
 
+  const createNewProspect = async () => {
+    if (!addForm.organisation_name.trim()) return;
+    setSavingAdd(true);
+    const res = await fetch("/api/admin/engagement/prospect-outreach", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prospect: { ...addForm, need_score: Number(addForm.need_score) } }),
+    });
+    if (res.ok) {
+      const { data } = await res.json() as { data: { id: string } };
+      setShowAddModal(false);
+      setAddForm({
+        organisation_name: "", organisation_type: "Charity", location: "",
+        region: OUTREACH_REGIONS[0], need_score: 3,
+        decision_maker_name: "", decision_maker_role: "", email: "", phone: "",
+      });
+      router.push(`/admin/engagement/prospect-outreach/${data.id}`);
+    }
+    setSavingAdd(false);
+  };
+
   const totalPages = meta?.total_pages ?? 1;
   const hasActiveFilters = Boolean(
     region || needScore || confidence || orgType || search.trim() || assignedTo || engagementStatus || myProspects || unassigned,
@@ -212,6 +248,13 @@ export default function ProspectFinderPage() {
               Research catalog — assign owners and qualify fit. Active engagement starts only after moving to {PROSPECT_QUEUE_LABEL}.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+          >
+            <Plus className="h-4 w-4" /> Add prospect
+          </button>
         </div>
 
         {meta ? (
@@ -437,6 +480,137 @@ export default function ProspectFinderPage() {
           </button>
         </div>
       </div>
+
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="font-serif text-xl text-[#111111]">Add prospect</h2>
+              <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg p-1 hover:bg-[#f7f4ea]">
+                <X className="h-5 w-5 text-[#6f6b62]" />
+              </button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Organisation name *</label>
+                <input
+                  value={addForm.organisation_name}
+                  onChange={(e) => setAddForm((f) => ({ ...f, organisation_name: e.target.value }))}
+                  placeholder="Organisation name"
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Type</label>
+                  <select
+                    value={addForm.organisation_type}
+                    onChange={(e) => setAddForm((f) => ({ ...f, organisation_type: e.target.value as typeof f.organisation_type }))}
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  >
+                    {(["Charity", "Business", "Social enterprise", "Other"] as const).map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Region</label>
+                  <select
+                    value={addForm.region}
+                    onChange={(e) => setAddForm((f) => ({ ...f, region: e.target.value }))}
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  >
+                    {OUTREACH_REGIONS.map((r) => (
+                      <option key={r} value={r}>{r}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Location (town/city)</label>
+                  <input
+                    value={addForm.location}
+                    onChange={(e) => setAddForm((f) => ({ ...f, location: e.target.value }))}
+                    placeholder="e.g. Norwich"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Need score (1–5)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={5}
+                    value={addForm.need_score}
+                    onChange={(e) => setAddForm((f) => ({ ...f, need_score: Number(e.target.value) }))}
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Decision maker name</label>
+                  <input
+                    value={addForm.decision_maker_name}
+                    onChange={(e) => setAddForm((f) => ({ ...f, decision_maker_name: e.target.value }))}
+                    placeholder="Full name"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Decision maker role</label>
+                  <input
+                    value={addForm.decision_maker_role}
+                    onChange={(e) => setAddForm((f) => ({ ...f, decision_maker_role: e.target.value }))}
+                    placeholder="e.g. CEO"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Email</label>
+                  <input
+                    type="email"
+                    value={addForm.email}
+                    onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+                    placeholder="contact@example.org"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Phone</label>
+                  <input
+                    value={addForm.phone}
+                    onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
+                    placeholder="+44 …"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={savingAdd || !addForm.organisation_name.trim()}
+                onClick={createNewProspect}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                {savingAdd ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                {savingAdd ? "Saving…" : "Add prospect"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
