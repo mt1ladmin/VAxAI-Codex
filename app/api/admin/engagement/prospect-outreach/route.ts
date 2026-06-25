@@ -4,6 +4,7 @@ import { engagementStatusForAssignment, isFinderEngagementStatus } from "@/lib/e
 import {
   buildFinderList,
   filterFinderList,
+  loadCatalogRecords,
   loadOverrideMaps,
   loadTeamMembers,
   paginate,
@@ -18,12 +19,13 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);
 
-  const [overrideMaps, members] = await Promise.all([
+  const [overrideMaps, members, catalog] = await Promise.all([
     loadOverrideMaps(supabase),
     loadTeamMembers(supabase),
+    loadCatalogRecords(supabase),
   ]);
 
-  const all = buildFinderList(overrideMaps.rows, overrideMaps.overrides, members);
+  const all = buildFinderList(overrideMaps.rows, overrideMaps.overrides, members, catalog);
   const filtered = filterFinderList(all, {
     q: searchParams.get("q") || undefined,
     region: searchParams.get("region") || undefined,
@@ -83,12 +85,12 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "outreach_id required" }, { status: 400 });
   }
 
-  const base = prospectOutreachCatalog.prospects.find((p) => p.id === outreach_id);
+  const supabase = createServiceClient();
+  const catalog = await loadCatalogRecords(supabase);
+  const base = catalog.find((p) => p.id === outreach_id);
   if (!base) {
     return NextResponse.json({ error: "Prospect not found in catalog" }, { status: 404 });
   }
-
-  const supabase = createServiceClient();
   const { data: existing } = await supabase
     .from("prospect_outreach_overrides")
     .select("*")
@@ -202,16 +204,18 @@ export async function DELETE(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
-  const { data: existing } = await supabase
-    .from("prospect_outreach_overrides")
-    .select("outreach_id, overrides")
-    .in("outreach_id", ids);
-
+  const [catalog, { data: existing }] = await Promise.all([
+    loadCatalogRecords(supabase),
+    supabase
+      .from("prospect_outreach_overrides")
+      .select("outreach_id, overrides")
+      .in("outreach_id", ids),
+  ]);
+  const catalogIds = new Set(catalog.map((p) => p.id));
   const existingMap = new Map((existing || []).map((r) => [r.outreach_id, r]));
 
   for (const outreach_id of ids) {
-    const base = prospectOutreachCatalog.prospects.find((p) => p.id === outreach_id);
-    if (!base) continue;
+    if (!catalogIds.has(outreach_id)) continue;
     const row = existingMap.get(outreach_id);
     const mergedOverrides = {
       ...((row?.overrides as Record<string, unknown>) || {}),

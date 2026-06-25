@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Loader2, Pencil, Save, X } from "lucide-react";
-import { EditableFieldCard } from "@/components/admin/EditableFieldCard";
+import { ChevronDown, ChevronRight, Loader2, Pencil, Plus, Save, X } from "lucide-react";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import { COMPLEXITY_COLORS } from "@/lib/engagement/prospect-outreach/types";
 
@@ -17,7 +16,11 @@ type Props = {
   mode?: ServiceFitMode;
   editable?: boolean;
   onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+  onSaveFields?: (fields: Record<string, SaveFieldValue>) => Promise<void>;
 };
+
+const inputClass =
+  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]";
 
 function linesFromItems(items: string[] | undefined): string {
   return (items ?? []).join("\n");
@@ -28,65 +31,6 @@ function itemsFromLines(text: string): string[] {
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
-}
-
-function EditableTextField({
-  label,
-  value,
-  field,
-  onSaveField,
-  rows = 4,
-  placeholder,
-  multiline = true,
-  flat,
-}: {
-  label: string;
-  value: string;
-  field: string;
-  onSaveField: (field: string, value: SaveFieldValue) => Promise<void>;
-  rows?: number;
-  placeholder?: string;
-  multiline?: boolean;
-  flat?: boolean;
-}) {
-  return (
-    <EditableFieldCard
-      label={label}
-      value={value}
-      rows={rows}
-      multiline={multiline}
-      placeholder={placeholder}
-      flat={flat}
-      onSave={(next) => onSaveField(field, next)}
-    />
-  );
-}
-
-function EditableListField({
-  label,
-  items,
-  field,
-  onSaveField,
-  placeholder,
-  flat,
-}: {
-  label: string;
-  items: string[] | undefined;
-  field: string;
-  onSaveField: (field: string, value: SaveFieldValue) => Promise<void>;
-  placeholder?: string;
-  flat?: boolean;
-}) {
-  return (
-    <EditableFieldCard
-      label={label}
-      value={linesFromItems(items)}
-      rows={5}
-      placeholder={placeholder ?? "One item per line"}
-      flat={flat}
-      onSave={(next) => onSaveField(field, itemsFromLines(next))}
-    />
-  );
 }
 
 function CollapsibleSection({
@@ -132,6 +76,37 @@ function TagList({ items, tone }: { items: string[]; tone?: "primary" | "muted" 
   );
 }
 
+function SectionEditButtons({
+  saving,
+  onSave,
+  onCancel,
+}: {
+  saving: boolean;
+  onSave: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="flex gap-2 pt-1">
+      <button
+        type="button"
+        onClick={onSave}
+        disabled={saving}
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+      >
+        {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+        Save all
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+      >
+        <X className="h-3.5 w-3.5" /> Cancel
+      </button>
+    </div>
+  );
+}
+
 export function hasVaxaiSupportContent(data: ProspectOutreachRecord): boolean {
   return !!(
     (data.vaxai_direct_support?.length ?? 0) > 0 ||
@@ -162,28 +137,119 @@ export function hasRecommendedEngagementContent(data: ProspectOutreachRecord): b
   );
 }
 
+// ── Research Assessment ────────────────────────────────────────────────────────
+
 function EvidenceAndAssessment({
   data,
   editable,
-  onSaveField,
+  onSaveFields,
 }: {
   data: ProspectOutreachRecord;
   editable?: boolean;
-  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+  onSaveFields?: (fields: Record<string, SaveFieldValue>) => Promise<void>;
 }) {
-  if (editable && onSaveField) {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    evidence_summary: data.evidence_summary || "",
+    need_rationale: data.need_rationale || "",
+    complexity_rationale: data.complexity_rationale || "",
+    admin_capacity: data.admin_capacity || "",
+    ai_automation_use: data.ai_automation_use || "",
+    data_sensitivity: data.data_sensitivity || "",
+    systems_landscape: data.systems_landscape || "",
+    open_questions: linesFromItems(data.open_questions),
+  });
+
+  const hasContent = hasResearchAssessmentContent(data);
+
+  const startEdit = () => {
+    setForm({
+      evidence_summary: data.evidence_summary || "",
+      need_rationale: data.need_rationale || "",
+      complexity_rationale: data.complexity_rationale || "",
+      admin_capacity: data.admin_capacity || "",
+      ai_automation_use: data.ai_automation_use || "",
+      data_sensitivity: data.data_sensitivity || "",
+      systems_landscape: data.systems_landscape || "",
+      open_questions: linesFromItems(data.open_questions),
+    });
+    setEditing(true);
+  };
+
+  const save = async () => {
+    if (!onSaveFields) return;
+    setSaving(true);
+    try {
+      await onSaveFields({
+        evidence_summary: form.evidence_summary.trim(),
+        need_rationale: form.need_rationale.trim(),
+        complexity_rationale: form.complexity_rationale.trim(),
+        admin_capacity: form.admin_capacity.trim(),
+        ai_automation_use: form.ai_automation_use.trim(),
+        data_sensitivity: form.data_sensitivity.trim(),
+        systems_landscape: form.systems_landscape.trim(),
+        open_questions: itemsFromLines(form.open_questions),
+      });
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (editing && editable && onSaveFields) {
     return (
-      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence and assessment</p>
-        <EditableTextField label="Evidence summary" value={data.evidence_summary || ""} field="evidence_summary" onSaveField={onSaveField} rows={5} flat />
-        <EditableTextField label="Need rationale" value={data.need_rationale || ""} field="need_rationale" onSaveField={onSaveField} rows={5} flat />
-        <EditableTextField label="Complexity" value={data.complexity_rationale || ""} field="complexity_rationale" onSaveField={onSaveField} flat />
-        <div className="grid gap-3 sm:grid-cols-2">
-          <EditableTextField label="Admin capacity" value={data.admin_capacity || ""} field="admin_capacity" onSaveField={onSaveField} multiline={false} flat />
-          <EditableTextField label="AI / automation use" value={data.ai_automation_use || ""} field="ai_automation_use" onSaveField={onSaveField} multiline={false} flat />
-          <EditableTextField label="Data sensitivity" value={data.data_sensitivity || ""} field="data_sensitivity" onSaveField={onSaveField} multiline={false} flat />
-          <EditableTextField label="Systems landscape" value={data.systems_landscape || ""} field="systems_landscape" onSaveField={onSaveField} rows={4} flat />
+      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Research Assessment</p>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Evidence summary</label>
+          <textarea value={form.evidence_summary} onChange={(e) => setForm((f) => ({ ...f, evidence_summary: e.target.value }))} rows={5} className={`${inputClass} resize-y leading-relaxed`} autoFocus />
         </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Need rationale</label>
+          <textarea value={form.need_rationale} onChange={(e) => setForm((f) => ({ ...f, need_rationale: e.target.value }))} rows={4} className={`${inputClass} resize-y leading-relaxed`} />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Complexity rationale</label>
+          <textarea value={form.complexity_rationale} onChange={(e) => setForm((f) => ({ ...f, complexity_rationale: e.target.value }))} rows={3} className={`${inputClass} resize-y`} />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Admin capacity</label>
+            <input type="text" value={form.admin_capacity} onChange={(e) => setForm((f) => ({ ...f, admin_capacity: e.target.value }))} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">AI / automation use</label>
+            <input type="text" value={form.ai_automation_use} onChange={(e) => setForm((f) => ({ ...f, ai_automation_use: e.target.value }))} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Data sensitivity</label>
+            <input type="text" value={form.data_sensitivity} onChange={(e) => setForm((f) => ({ ...f, data_sensitivity: e.target.value }))} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Systems landscape</label>
+            <textarea value={form.systems_landscape} onChange={(e) => setForm((f) => ({ ...f, systems_landscape: e.target.value }))} rows={3} className={`${inputClass} resize-y`} />
+          </div>
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Open questions <span className="normal-case font-normal">(one per line)</span></label>
+          <textarea value={form.open_questions} onChange={(e) => setForm((f) => ({ ...f, open_questions: e.target.value }))} rows={4} placeholder="One question per line" className={`${inputClass} resize-y`} />
+        </div>
+        <SectionEditButtons saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
+      </div>
+    );
+  }
+
+  if (!hasContent && editable && onSaveFields) {
+    return (
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Research Assessment</p>
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+            <Plus className="h-3 w-3" /> Add
+          </button>
+        </div>
+        <p className="mt-2 text-sm text-[#6f6b62]">No research assessment added yet.</p>
       </div>
     );
   }
@@ -191,6 +257,13 @@ function EvidenceAndAssessment({
   return (
     <CollapsibleSection title="Evidence and assessment" defaultOpen>
       <>
+        {editable && onSaveFields && (
+          <div className="flex justify-end">
+            <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+              <Pencil className="h-3 w-3" /> Edit
+            </button>
+          </div>
+        )}
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence</p>
           <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">
@@ -229,34 +302,124 @@ function EvidenceAndAssessment({
             </div>
           )}
         </div>
+        {(data.open_questions?.length ?? 0) > 0 && (
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Open questions</p>
+            <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-[#111111]">
+              {data.open_questions!.map((q) => <li key={q}>{q}</li>)}
+            </ul>
+          </div>
+        )}
       </>
     </CollapsibleSection>
   );
 }
 
-function VaxaiSupportContent({
+// ── VAxAI Support ──────────────────────────────────────────────────────────────
+
+function VaxaiSupportAndBoundaries({
   data,
+  flat = false,
   editable,
-  onSaveField,
+  onSaveFields,
 }: {
   data: ProspectOutreachRecord;
+  flat?: boolean;
   editable?: boolean;
-  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+  onSaveFields?: (fields: Record<string, SaveFieldValue>) => Promise<void>;
 }) {
-  if (editable && onSaveField) {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    vaxai_direct_support: linesFromItems(data.vaxai_direct_support),
+    vaxai_partial_support: linesFromItems(data.vaxai_partial_support),
+    partner_support: linesFromItems(data.partner_support),
+    capability_boundaries: data.capability_boundaries || "",
+    bespoke_build_note: data.bespoke_build_note || "",
+  });
+
+  const hasContent = hasVaxaiSupportContent(data);
+
+  const startEdit = () => {
+    setForm({
+      vaxai_direct_support: linesFromItems(data.vaxai_direct_support),
+      vaxai_partial_support: linesFromItems(data.vaxai_partial_support),
+      partner_support: linesFromItems(data.partner_support),
+      capability_boundaries: data.capability_boundaries || "",
+      bespoke_build_note: data.bespoke_build_note || "",
+    });
+    setEditing(true);
+  };
+
+  const save = async () => {
+    if (!onSaveFields) return;
+    setSaving(true);
+    try {
+      await onSaveFields({
+        vaxai_direct_support: itemsFromLines(form.vaxai_direct_support),
+        vaxai_partial_support: itemsFromLines(form.vaxai_partial_support),
+        partner_support: itemsFromLines(form.partner_support),
+        capability_boundaries: form.capability_boundaries.trim(),
+        bespoke_build_note: form.bespoke_build_note.trim(),
+      });
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (editing && editable && onSaveFields) {
     return (
-      <div className="space-y-3">
-        <EditableListField label="Best-fit VAxAI support" items={data.vaxai_direct_support} field="vaxai_direct_support" onSaveField={onSaveField} flat />
-        <EditableListField label="Partial VAxAI role" items={data.vaxai_partial_support} field="vaxai_partial_support" onSaveField={onSaveField} flat />
-        <EditableListField label="Specialist / partner may be needed" items={data.partner_support} field="partner_support" onSaveField={onSaveField} flat />
-        <EditableTextField label="Capability boundaries" value={data.capability_boundaries || ""} field="capability_boundaries" onSaveField={onSaveField} flat />
-        <EditableTextField label="Build vs improve" value={data.bespoke_build_note || ""} field="bespoke_build_note" onSaveField={onSaveField} flat />
+      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">VAxAI Support</p>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Best-fit VAxAI support <span className="normal-case font-normal">(one per line)</span></label>
+          <textarea value={form.vaxai_direct_support} onChange={(e) => setForm((f) => ({ ...f, vaxai_direct_support: e.target.value }))} rows={5} placeholder="One item per line" className={`${inputClass} resize-y`} autoFocus />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Partial VAxAI role <span className="normal-case font-normal">(one per line)</span></label>
+          <textarea value={form.vaxai_partial_support} onChange={(e) => setForm((f) => ({ ...f, vaxai_partial_support: e.target.value }))} rows={4} placeholder="One item per line" className={`${inputClass} resize-y`} />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Specialist / partner may be needed <span className="normal-case font-normal">(one per line)</span></label>
+          <textarea value={form.partner_support} onChange={(e) => setForm((f) => ({ ...f, partner_support: e.target.value }))} rows={3} placeholder="One item per line" className={`${inputClass} resize-y`} />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Capability boundaries</label>
+          <textarea value={form.capability_boundaries} onChange={(e) => setForm((f) => ({ ...f, capability_boundaries: e.target.value }))} rows={4} className={`${inputClass} resize-y`} />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Build vs improve</label>
+          <textarea value={form.bespoke_build_note} onChange={(e) => setForm((f) => ({ ...f, bespoke_build_note: e.target.value }))} rows={3} className={`${inputClass} resize-y`} />
+        </div>
+        <SectionEditButtons saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
       </div>
     );
   }
 
-  return (
+  if (!hasContent && editable && onSaveFields) {
+    return (
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">VAxAI Support</p>
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+            <Plus className="h-3 w-3" /> Add
+          </button>
+        </div>
+        <p className="mt-2 text-sm text-[#6f6b62]">No VAxAI support assessment added yet.</p>
+      </div>
+    );
+  }
+
+  const viewContent = (
     <>
+      {editable && onSaveFields && (
+        <div className="flex justify-end">
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+            <Pencil className="h-3 w-3" /> Edit
+          </button>
+        </div>
+      )}
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Best-fit VAxAI support</p>
         <TagList items={data.vaxai_direct_support || []} />
@@ -287,59 +450,114 @@ function VaxaiSupportContent({
       )}
     </>
   );
-}
 
-function VaxaiSupportAndBoundaries({
-  data,
-  flat = false,
-  editable,
-  onSaveField,
-}: {
-  data: ProspectOutreachRecord;
-  flat?: boolean;
-  editable?: boolean;
-  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
-}) {
   if (flat || editable) {
     return (
       <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-        <VaxaiSupportContent data={data} editable={editable} onSaveField={onSaveField} />
+        {viewContent}
       </div>
     );
   }
 
   return (
     <CollapsibleSection title="VAxAI support and boundaries" defaultOpen>
-      <VaxaiSupportContent data={data} editable={editable} onSaveField={onSaveField} />
+      {viewContent}
     </CollapsibleSection>
   );
 }
 
+// ── Engagement Guide ───────────────────────────────────────────────────────────
+
 function RecommendedEngagement({
   data,
   editable,
-  onSaveField,
+  onSaveFields,
 }: {
   data: ProspectOutreachRecord;
   editable?: boolean;
-  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
+  onSaveFields?: (fields: Record<string, SaveFieldValue>) => Promise<void>;
 }) {
-  if (editable && onSaveField) {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({
+    engagement_approach: data.engagement_approach || "",
+    recommended_engagement: data.recommended_engagement || "",
+    accessibility_considerations: data.accessibility_considerations || "",
+  });
+
+  const hasContent = hasRecommendedEngagementContent(data) || !!data.engagement_approach?.trim();
+
+  const startEdit = () => {
+    setForm({
+      engagement_approach: data.engagement_approach || "",
+      recommended_engagement: data.recommended_engagement || "",
+      accessibility_considerations: data.accessibility_considerations || "",
+    });
+    setEditing(true);
+  };
+
+  const save = async () => {
+    if (!onSaveFields) return;
+    setSaving(true);
+    try {
+      await onSaveFields({
+        engagement_approach: form.engagement_approach.trim(),
+        recommended_engagement: form.recommended_engagement.trim(),
+        accessibility_considerations: form.accessibility_considerations.trim(),
+      });
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (editing && editable && onSaveFields) {
     return (
-      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement guide</p>
-        <EditableTextField label="Engagement guide" value={data.engagement_approach || ""} field="engagement_approach" onSaveField={onSaveField} rows={18} placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…" flat />
-        <EditableTextField label="Recommended engagement" value={data.recommended_engagement || ""} field="recommended_engagement" onSaveField={onSaveField} rows={6} flat />
-        <EditableTextField label="Accessibility note" value={data.accessibility_considerations || ""} field="accessibility_considerations" onSaveField={onSaveField} rows={4} flat />
+      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement Guide</p>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</label>
+          <textarea value={form.engagement_approach} onChange={(e) => setForm((f) => ({ ...f, engagement_approach: e.target.value }))} rows={18} placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…" className={`${inputClass} resize-y leading-relaxed`} autoFocus />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Recommended engagement</label>
+          <textarea value={form.recommended_engagement} onChange={(e) => setForm((f) => ({ ...f, recommended_engagement: e.target.value }))} rows={6} className={`${inputClass} resize-y`} />
+        </div>
+        <div>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Accessibility note</label>
+          <textarea value={form.accessibility_considerations} onChange={(e) => setForm((f) => ({ ...f, accessibility_considerations: e.target.value }))} rows={4} className={`${inputClass} resize-y`} />
+        </div>
+        <SectionEditButtons saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
+      </div>
+    );
+  }
+
+  if (!hasContent && editable && onSaveFields) {
+    return (
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement Guide</p>
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+            <Plus className="h-3 w-3" /> Add
+          </button>
+        </div>
+        <p className="mt-2 text-sm text-[#6f6b62]">No engagement guide added yet.</p>
       </div>
     );
   }
 
   return (
     <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Recommended engagement</p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Recommended engagement</p>
+        {editable && onSaveFields && (
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+            <Pencil className="h-3 w-3" /> Edit
+          </button>
+        )}
+      </div>
       <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">
-        {data.recommended_engagement || "—"}
+        {data.recommended_engagement || data.engagement_approach || "—"}
       </p>
       {data.accessibility_considerations && (
         <div className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-3">
@@ -351,43 +569,25 @@ function RecommendedEngagement({
   );
 }
 
-function StillToConfirm({
-  data,
-  editable,
-  onSaveField,
-}: {
-  data: ProspectOutreachRecord;
-  editable?: boolean;
-  onSaveField?: (field: string, value: SaveFieldValue) => Promise<void>;
-}) {
-  if (editable && onSaveField) {
-    return (
-      <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-3">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Still to confirm</p>
-        <EditableListField label="Open questions" items={data.open_questions} field="open_questions" onSaveField={onSaveField} placeholder="One question per line" flat />
-      </div>
-    );
-  }
+// ── Main export ────────────────────────────────────────────────────────────────
 
-  if (!(data.open_questions?.length ?? 0)) return null;
-  return (
-    <CollapsibleSection title="Still to confirm">
-      <ul className="list-disc space-y-1 pl-5 text-sm text-[#111111]">
-        {data.open_questions!.map((q) => (
-          <li key={q}>{q}</li>
-        ))}
-      </ul>
-    </CollapsibleSection>
-  );
-}
-
-export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: Props) {
+export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, onSaveFields }: Props) {
   const resolvedMode: ServiceFitMode = mode ?? (compact ? "overview" : "full");
   const showSummary = resolvedMode === "overview" || resolvedMode === "full";
   const showEvidence = resolvedMode === "research" || resolvedMode === "full";
   const showSupport = resolvedMode === "support" || resolvedMode === "full";
   const showRecommended = resolvedMode === "recommended_engagement" || resolvedMode === "full";
-  const showOpenQuestions = resolvedMode === "research" || resolvedMode === "full";
+
+  // Resolve batch save function — prefer onSaveFields; fall back to per-field calls
+  const batchSave = onSaveFields ?? (
+    onSaveField
+      ? async (fields: Record<string, SaveFieldValue>) => {
+          for (const [field, value] of Object.entries(fields)) {
+            await onSaveField(field, value);
+          }
+        }
+      : undefined
+  );
 
   const [editingSummary, setEditingSummary] = useState(false);
   const [summaryForm, setSummaryForm] = useState({
@@ -409,13 +609,15 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: 
   };
 
   const saveSummary = async () => {
-    if (!onSaveField) return;
+    if (!batchSave) return;
     setSavingSummary(true);
     try {
-      await onSaveField("service_fit_summary", summaryForm.service_fit_summary.trim());
-      await onSaveField("likely_need", summaryForm.likely_need.trim());
-      await onSaveField("complexity_level", summaryForm.complexity_level.trim());
-      await onSaveField("engagement_basis", summaryForm.engagement_basis.trim());
+      await batchSave({
+        service_fit_summary: summaryForm.service_fit_summary.trim(),
+        likely_need: summaryForm.likely_need.trim(),
+        complexity_level: summaryForm.complexity_level.trim(),
+        engagement_basis: summaryForm.engagement_basis.trim(),
+      });
       setEditingSummary(false);
     } finally {
       setSavingSummary(false);
@@ -542,7 +744,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: 
                     Improve existing first
                   </span>
                 )}
-                {editable && onSaveField && (
+                {editable && batchSave && (
                   <button
                     type="button"
                     onClick={startSummaryEdit}
@@ -564,21 +766,18 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField }: 
       )}
 
       {showEvidence && (
-        <EvidenceAndAssessment data={data} editable={editable} onSaveField={onSaveField} />
+        <EvidenceAndAssessment data={data} editable={editable} onSaveFields={batchSave} />
       )}
       {showSupport && (
         <VaxaiSupportAndBoundaries
           data={data}
           flat={resolvedMode === "support"}
           editable={editable}
-          onSaveField={onSaveField}
+          onSaveFields={batchSave}
         />
       )}
       {showRecommended && (
-        <RecommendedEngagement data={data} editable={editable} onSaveField={onSaveField} />
-      )}
-      {showOpenQuestions && (
-        <StillToConfirm data={data} editable={editable} onSaveField={onSaveField} />
+        <RecommendedEngagement data={data} editable={editable} onSaveFields={batchSave} />
       )}
     </div>
   );
