@@ -398,7 +398,7 @@ export default function ClientsPage() {
                             title="Remove from queue"
                             onClick={(ev) => { ev.stopPropagation(); void removeFromQueue(c.id, fullName); }}
                             disabled={removingId === c.id}
-                            className="rounded p-1 text-[#6f6b62]/40 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 disabled:opacity-50"
+                            className="rounded p-1 text-[#6f6b62]/40 transition-all hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
                           >
                             {removingId === c.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                           </button>
