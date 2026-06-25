@@ -8,6 +8,21 @@ import {
 
 const QUEUE_STAGES = [...PROSPECT_QUEUE_STAGES];
 
+export async function DELETE(req: NextRequest) {
+  const body = (await req.json()) as { contact_id?: string };
+  if (!body.contact_id) {
+    return NextResponse.json({ error: "contact_id required" }, { status: 400 });
+  }
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .from("engagement_opportunities")
+    .update({ stage: "Lost", updated_at: new Date().toISOString() })
+    .eq("primary_contact_id", body.contact_id)
+    .in("stage", QUEUE_STAGES);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
+}
+
 export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);

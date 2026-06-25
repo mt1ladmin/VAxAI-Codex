@@ -11,6 +11,7 @@ import {
   Mail,
   Phone,
   Search,
+  Trash2,
 } from "lucide-react";
 import { PROSPECT_QUEUE_STAGE_GROUPS } from "@/lib/engagement/prospect-queue-stages";
 import { PROSPECT_FINDER_PATH, PROSPECT_QUEUE_PATH } from "@/lib/engagement/journey";
@@ -86,6 +87,19 @@ export default function ClientsPage() {
   const hasLoadedRef = useRef(false);
   const [stageFilter, setStageFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const removeFromQueue = async (contactId: string, name: string) => {
+    if (!confirm(`Remove "${name}" from the prospect queue? This will mark their active opportunities as Lost.`)) return;
+    setRemovingId(contactId);
+    await fetch("/api/admin/engagement/prospect-queue", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contact_id: contactId }),
+    });
+    setRemovingId(null);
+    void load();
+  };
 
   const load = useCallback(async () => {
     if (!hasLoadedRef.current) {
@@ -333,7 +347,18 @@ export default function ClientsPage() {
                             Overdue tasks
                           </span>
                         )}
-                        <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            title="Remove from queue"
+                            onClick={(ev) => { ev.stopPropagation(); void removeFromQueue(c.id, fullName); }}
+                            disabled={removingId === c.id}
+                            className="rounded p-1 text-[#6f6b62]/40 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100 disabled:opacity-50"
+                          >
+                            {removingId === c.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                          </button>
+                          <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
+                        </div>
                       </div>
                     </div>
                   </div>
