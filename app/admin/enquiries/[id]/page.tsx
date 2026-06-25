@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
+  ArrowRight,
   Briefcase,
   Building2,
   Calendar,
@@ -17,7 +18,6 @@ import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker"
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
-import { HubEditShortcuts, type HubEditShortcut } from "@/components/admin/HubEditShortcuts";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { HubTabNav } from "@/components/admin/HubTabNav";
@@ -366,25 +366,6 @@ function EnquiryDetailContent() {
     if (opts?.addTask) setAddingTask(true);
   };
 
-  const editShortcuts: HubEditShortcut[] = [
-    {
-      id: "tasks",
-      label: "Tasks",
-      description: "Follow-ups, calls, and actions for this enquiry.",
-      actionLabel: "Add task",
-      hasContent: openWorkCount > 0,
-      onClick: () => openTab("tasks", { addTask: true }),
-    },
-    {
-      id: "notes",
-      label: "Notes",
-      description: "Enquiry notes, call outcomes, and qualification context.",
-      actionLabel: "Add note",
-      hasContent: notesCount > 0,
-      onClick: () => openTab("notes", { addNote: true }),
-    },
-  ];
-
   const hubQuickActions = (
     <HubQuickActions
       onAddNote={() => openTab("notes", { addNote: true })}
@@ -437,6 +418,13 @@ function EnquiryDetailContent() {
 
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
+          {/* Journey indicator */}
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-[#063b32] px-3 py-1 text-xs font-semibold text-white">Website Enquiry</span>
+            <ArrowRight className="h-3.5 w-3.5 text-[#6f6b62]/50" />
+            <span className="rounded-full border border-[#111111]/15 bg-white px-3 py-1 text-xs font-semibold text-[#6f6b62]">Prospect Queue</span>
+          </div>
+
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact details</p>
             <div>
@@ -464,30 +452,28 @@ function EnquiryDetailContent() {
                 {new Date(enquiry.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
               </p>
             </div>
-          </div>
-
-          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Submission</p>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Service interest</p>
-              <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
-            </div>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Description</p>
-              <CollapsibleNote content={enquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
-            </div>
-            {postTitle && (
+            <div className="border-t border-[#111111]/8 pt-3 space-y-3">
               <div>
-                <p className="text-[10px] text-[#6f6b62]">Related post</p>
-                {enquiry.connected_post_id ? (
-                  <Link href={`/admin/posts/${enquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
-                    <ExternalLink className="h-3.5 w-3.5" /> {postTitle}
-                  </Link>
-                ) : (
-                  <p className="text-sm text-[#111111]">{postTitle}</p>
-                )}
+                <p className="text-[10px] text-[#6f6b62]">Service interest</p>
+                <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
               </div>
-            )}
+              <div>
+                <p className="text-[10px] text-[#6f6b62]">Description</p>
+                <CollapsibleNote content={enquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
+              </div>
+              {postTitle && (
+                <div>
+                  <p className="text-[10px] text-[#6f6b62]">Related post</p>
+                  {enquiry.connected_post_id ? (
+                    <Link href={`/admin/posts/${enquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
+                      <ExternalLink className="h-3.5 w-3.5" /> {postTitle}
+                    </Link>
+                  ) : (
+                    <p className="text-sm text-[#111111]">{postTitle}</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5">
@@ -550,22 +536,18 @@ function EnquiryDetailContent() {
 
         <div className="lg:col-span-2 space-y-4">
           {activeTab === "overview" && (
-            <>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <HubMetricCard
-                  value={openWorkCount}
-                  label="Open tasks & actions"
-                  onClick={() => openTab("tasks")}
-                />
-                <HubMetricCard
-                  value={notesCount}
-                  label="Notes"
-                  onClick={() => openTab("notes")}
-                />
-              </div>
-
-              <HubEditShortcuts shortcuts={editShortcuts} />
-            </>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <HubMetricCard
+                value={openWorkCount}
+                label="Open tasks & actions"
+                onClick={() => openTab("tasks")}
+              />
+              <HubMetricCard
+                value={notesCount}
+                label="Notes"
+                onClick={() => openTab("notes")}
+              />
+            </div>
           )}
 
           {activeTab === "tasks" && (

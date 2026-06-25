@@ -214,46 +214,6 @@ export default function EngagementOverview() {
           </SectionCard>
 
           <SectionCard
-            title={PROSPECT_QUEUE_LABEL}
-            action={<Link href="/admin/engagement/prospect-queue" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
-          >
-            {workLoading ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
-            ) : !workToday?.queueRecords.length ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">No assigned engagements.</p>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {workToday.queueRecords.map((r) => (
-                  <Link key={r.contact_id} href={r.href} className="block px-5 py-3 hover:bg-[#f7f4ea]/50">
-                    <p className="text-sm font-semibold text-[#111111] truncate">{r.name}</p>
-                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{r.stage}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-
-          <SectionCard
-            title={PROSPECT_FINDER_LABEL}
-            action={<Link href="/admin/engagement/prospect-outreach" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
-          >
-            {workLoading ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
-            ) : !workToday?.finderProspects.length ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">No prospects awaiting action.</p>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {workToday.finderProspects.map((p) => (
-                  <Link key={p.id} href={p.href} className="block px-5 py-3 hover:bg-[#f7f4ea]/50">
-                    <p className="text-sm font-semibold text-[#111111] truncate">{p.organisation_name}</p>
-                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{p.engagement_status}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-
-          <SectionCard
             title="New enquiries"
             action={<Link href="/admin/enquiries" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
           >
