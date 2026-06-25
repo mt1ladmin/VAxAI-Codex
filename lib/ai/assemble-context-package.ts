@@ -7,9 +7,7 @@ import {
 } from "@/lib/ai/context-builders";
 import type { KnowledgeLinkIds } from "@/lib/engagement/knowledge-links";
 import { EMPTY_KNOWLEDGE_LINKS } from "@/lib/engagement/knowledge-links";
-import { getProspectById } from "@/lib/engagement/prospect-outreach/catalog";
 import { loadMergedOutreachRecord } from "@/lib/engagement/prospect-outreach/load-record";
-import { mergeProspectRecord } from "@/lib/engagement/prospect-outreach/snapshot";
 import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 import type { createServiceClient } from "@/lib/supabase";
 
@@ -302,8 +300,8 @@ export async function assembleContextPackage(
   }
 
   if (contextType === "outreach") {
-    const base = getProspectById(contextId);
-    if (!base) {
+    const merged = await loadMergedOutreachRecord(supabase, contextId);
+    if (!merged) {
       return finalizeWithAccountState(supabase, contextType, contextId, {
         label: "Unknown outreach",
         package: "Outreach record not found.",
@@ -312,17 +310,7 @@ export async function assembleContextPackage(
       }, includeWorkingState);
     }
 
-    const { data: overrideRow } = await supabase
-      .from("prospect_outreach_overrides")
-      .select("overrides, review_notes")
-      .eq("outreach_id", contextId)
-      .maybeSingle();
-
-    const record = mergeProspectRecord(
-      base,
-      (overrideRow?.overrides as Record<string, unknown>) ?? null,
-    );
-    const reviewNotes = overrideRow?.review_notes ?? null;
+    const { record, reviewNotes } = merged;
     const core = buildOutreachContextSummary(record, reviewNotes);
     const attachments = await loadAttachments(supabase, { col: "outreach_id", val: contextId });
     const notes = extractRecentNotes(reviewNotes);
