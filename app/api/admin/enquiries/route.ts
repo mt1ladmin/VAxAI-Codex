@@ -30,6 +30,45 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    await assertAuth();
+    const body = await req.json() as {
+      name?: string;
+      email?: string;
+      support_type?: string;
+      details?: string;
+      preferred_contact?: string;
+      telephone?: string | null;
+      wants_discovery_call?: boolean;
+    };
+    const { name, email, support_type, details, preferred_contact, telephone, wants_discovery_call } = body;
+    if (!name?.trim() || !email?.trim() || !support_type?.trim() || !details?.trim()) {
+      return NextResponse.json({ error: "name, email, support_type, and details are required" }, { status: 400 });
+    }
+    const db = createServiceClient();
+    const { data, error } = await db
+      .from("enquiries")
+      .insert({
+        name: name.trim(),
+        email: email.trim(),
+        support_type: support_type.trim(),
+        details: details.trim(),
+        preferred_contact: preferred_contact ?? "Email",
+        telephone: telephone?.trim() || null,
+        wants_discovery_call: wants_discovery_call === true,
+        status: "Needs review",
+      })
+      .select("id")
+      .single();
+    if (error) throw error;
+    return NextResponse.json({ data });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Error";
+    return NextResponse.json({ error: msg }, { status: msg === "Unauthorized" ? 401 : 500 });
+  }
+}
+
 export async function DELETE(req: NextRequest) {
   try {
     await assertAuth();
