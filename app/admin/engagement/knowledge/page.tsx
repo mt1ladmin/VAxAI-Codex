@@ -9,11 +9,10 @@ import {
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
 import { KnowledgeCreateModal } from "@/components/admin/KnowledgeCreateModal";
-import { ContentCreateModal } from "@/components/admin/ContentCreateModal";
 
-type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "blog_post";
+type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts";
 
-const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts", "blog_post"];
+const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts"];
 
 function CustomSelect({
   value,
@@ -75,7 +74,6 @@ function KnowledgePageInner() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("sectors");
   const [createOpen, setCreateOpen] = useState(false);
-  const [contentCreateOpen, setContentCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [dimension, setDimension] = useState("");
@@ -160,7 +158,6 @@ function KnowledgePageInner() {
               ["personas", "Personas"],
               ["pain_points", "Pain points"],
               ["vat_prompts", "VAT prompts"],
-              ["blog_post", "Blog post"],
             ] as [Tab, string][]).map(([key, label]) => (
               <button
                 key={key}
@@ -180,10 +177,10 @@ function KnowledgePageInner() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : tab === "vat_prompts" ? "VAT Prompts" : "Blog Post & Social Content"}</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Sector context for workflow pressure, admin burden, and realistic VAxAI support." : tab === "personas" ? "Personas to interpret who may feel admin, system, or automation strain." : tab === "pain_points" ? "Pain points linked to review, training, virtual assistance, and improvement — not default new builds." : tab === "vat_prompts" ? "VAT prompts for Value, Alignment, and Trust in AI decisions." : "Create AI-assisted blog posts, LinkedIn posts, and Instagram captions consistent with VAxAI's voice and approach."}</p>
+            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : "VAT Prompts"}</h1>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Sector context for workflow pressure, admin burden, and realistic VAxAI support." : tab === "personas" ? "Personas to interpret who may feel admin, system, or automation strain." : tab === "pain_points" ? "Pain points linked to review, training, virtual assistance, and improvement — not default new builds." : "VAT prompts for Value, Alignment, and Trust in AI decisions."}</p>
           </div>
-          {tab !== "vat_prompts" && tab !== "blog_post" && (
+          {tab !== "vat_prompts" && (
             <button
               type="button"
               onClick={() => setCreateOpen(true)}
@@ -198,7 +195,7 @@ function KnowledgePageInner() {
       <div className="px-8 py-6">
         {/* Search + filters */}
         <div className="flex gap-3 mb-5">
-            {tab !== "vat_prompts" && tab !== "blog_post" && (
+            {tab !== "vat_prompts" && (
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
                 <input
@@ -410,85 +407,9 @@ function KnowledgePageInner() {
                 </div>
               )
             )}
-            {/* BLOG POST */}
-            {tab === "blog_post" && (
-              <div className="space-y-6 max-w-2xl">
-                <div className="rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/60 px-6 py-5 space-y-3">
-                  <p className="text-sm font-semibold text-[#111111]">How to create consistent, on-brand content using AI</p>
-                  <p className="text-sm text-[#6f6b62]">
-                    Use the + Create button to generate a blog post, LinkedIn post, or Instagram caption. The AI applies VAxAI&apos;s approach — practical value for the reader, honest and specific claims, and UK context — without framing it as a framework. The result is content that sounds natural and builds the right kind of trust with your audience.
-                  </p>
-                  <p className="text-sm text-[#6f6b62]">
-                    For blog posts, you&apos;ll also get the accompanying social media copy and can convert the post directly into a draft in your Posts section with the title, SEO description, and body already filled in.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setContentCreateOpen(true)}
-                    className="rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-                  >
-                    + Create content
-                  </button>
-                </div>
-
-                <div>
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Example prompts</p>
-                  <div className="space-y-3">
-                    <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-                      <div className="bg-[#f7f4ea] px-4 py-2.5">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Blog Post</p>
-                      </div>
-                      <ul className="divide-y divide-[#111111]/5">
-                        {[
-                          "How small charities can use AI to reduce trustee reporting burden without losing the human touch",
-                          "5 admin tasks that solo GP practice managers can safely delegate to a virtual assistant — and how to do it",
-                          "Why UK professional services firms are turning to virtual admin support to manage client intake and follow-up",
-                        ].map((prompt) => (
-                          <li key={prompt} className="px-4 py-3 text-sm text-[#111111] leading-relaxed">{prompt}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-                      <div className="bg-[#f7f4ea] px-4 py-2.5">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">LinkedIn Post</p>
-                      </div>
-                      <ul className="divide-y divide-[#111111]/5">
-                        {[
-                          "Why delegating routine inbox management to a VA is one of the best investments a founder can make",
-                          "The hidden cost of doing your own admin — what it's actually costing your practice each week",
-                          "What good virtual assistant support actually looks like — beyond scheduling and emails",
-                        ].map((prompt) => (
-                          <li key={prompt} className="px-4 py-3 text-sm text-[#111111] leading-relaxed">{prompt}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-                      <div className="bg-[#f7f4ea] px-4 py-2.5">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Instagram Post</p>
-                      </div>
-                      <ul className="divide-y divide-[#111111]/5">
-                        {[
-                          "That feeling when your inbox is finally under control — and you didn't have to do it yourself",
-                          "Admin doesn't have to be the thing that stops you growing — what a difference the right support makes",
-                          "Small business owner reminder: you don't have to do everything alone",
-                        ].map((prompt) => (
-                          <li key={prompt} className="px-4 py-3 text-sm text-[#111111] leading-relaxed">{prompt}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>
-
-      <ContentCreateModal
-        open={contentCreateOpen}
-        onClose={() => setContentCreateOpen(false)}
-      />
 
       <KnowledgeCreateModal
         open={createOpen}

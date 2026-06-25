@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Check, Copy, ExternalLink, Loader2, Sparkles, X } from "lucide-react";
+import { CalendarDays, Check, Copy, ExternalLink, Loader2, Sparkles, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 type ContentType = "blog" | "linkedin" | "instagram";
@@ -47,14 +47,101 @@ function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) 
   );
 }
 
-function Section({ label, children, copyText }: { label: string; children: ReactNode; copyText?: string }) {
+function Section({ label, children, copyText, actions }: { label: string; children: ReactNode; copyText?: string; actions?: ReactNode }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
       <div className="flex items-center justify-between bg-[#f7f4ea] px-4 py-2">
         <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">{label}</p>
-        {copyText && <CopyButton text={copyText} />}
+        <div className="flex items-center gap-2">
+          {actions}
+          {copyText && <CopyButton text={copyText} />}
+        </div>
       </div>
       <div className="px-4 py-3">{children}</div>
+    </div>
+  );
+}
+
+function SaveToCalendarInline({
+  content,
+  hashtags,
+  platform,
+  defaultTitle,
+  postId,
+}: {
+  content: string;
+  hashtags: string[];
+  platform: "linkedin" | "instagram";
+  defaultTitle: string;
+  postId?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const save = async () => {
+    if (!date) return;
+    setSaving(true);
+    const fullContent = hashtags.length
+      ? `${content}\n\n${hashtags.map((h) => `#${h}`).join(" ")}`
+      : content;
+    await fetch("/api/admin/social-posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: `${defaultTitle} — ${platform === "linkedin" ? "LinkedIn" : "Instagram"}`,
+        platform,
+        content: fullContent,
+        scheduled_date: date,
+        link: postId ? `/admin/posts/${postId}` : null,
+      }),
+    });
+    setSaving(false);
+    setSaved(true);
+    setOpen(false);
+  };
+
+  if (saved) {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
+        <Check className="h-3 w-3" /> Saved to calendar
+      </span>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#6f6b62] hover:bg-[#f7f4ea]"
+      >
+        <CalendarDays className="h-3 w-3" /> Schedule
+      </button>
+    );
+  }
+
+  return (
+    <div className="inline-flex items-center gap-1.5">
+      <input
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        className="rounded-md border border-[#111111]/15 px-2 py-0.5 text-xs outline-none focus:border-[#063b32]"
+      />
+      <button
+        type="button"
+        disabled={!date || saving}
+        onClick={() => void save()}
+        className="inline-flex items-center gap-1 rounded-md bg-[#063b32] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+      >
+        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+        Save
+      </button>
+      <button type="button" onClick={() => setOpen(false)} className="text-[#6f6b62] hover:text-[#111111]">
+        <X className="h-3.5 w-3.5" />
+      </button>
     </div>
   );
 }
@@ -66,9 +153,9 @@ const CONTENT_TYPES: { value: ContentType; label: string }[] = [
 ];
 
 const PLACEHOLDERS: Record<ContentType, string> = {
-  blog: "Describe the topic — e.g. 'How small charities can use AI to reduce trustee admin burden and improve board reporting'",
-  linkedin: "Describe the message — e.g. 'Why delegating routine inbox management to a VA is one of the best investments a solo founder can make'",
-  instagram: "Describe the idea — e.g. 'The feeling of finally clearing your inbox backlog with a bit of help'",
+  blog: "Describe the topic — e.g. 'How small charities can review their admin systems to find where AI and automation would save the most time'",
+  linkedin: "Describe the message — e.g. 'The value of reviewing your current systems before adopting AI — what you'll learn that no vendor demo can tell you'",
+  instagram: "Describe the idea — e.g. 'The moment you realise your systems are holding you back more than your workload is'",
 };
 
 export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -80,6 +167,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
   const [error, setError] = useState("");
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [converting, setConverting] = useState(false);
+  const [createdPostId, setCreatedPostId] = useState<string | undefined>(undefined);
 
   const reset = () => {
     setStep("form");
@@ -87,6 +175,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
     setResult(null);
     setError("");
     setContentType("blog");
+    setCreatedPostId(undefined);
   };
 
   const handleClose = () => {
@@ -134,6 +223,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
       });
       const json = (await res.json()) as { data?: { id: string }; error?: string };
       if (!res.ok || !json.data) throw new Error(json.error ?? "Failed to create post");
+      setCreatedPostId(json.data.id);
       onClose();
       router.push(`/admin/posts/${json.data.id}`);
     } catch (e) {
@@ -149,6 +239,8 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
     ? (result.hashtags as string[]).map((h) => `#${h}`).join(" ")
     : "";
 
+  const blogTitle = result && contentType === "blog" ? (result as BlogResult).title : brief;
+
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4">
       <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl">
@@ -159,7 +251,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
               {step === "form" ? "Create content with AI" : `${CONTENT_TYPES.find(t => t.value === contentType)?.label} Preview`}
             </h2>
             {step === "preview" && (
-              <p className="text-xs text-[#6f6b62] mt-0.5">Review and copy or convert to a draft post</p>
+              <p className="text-xs text-[#6f6b62] mt-0.5">Review, copy, schedule to calendar, or convert to a draft post</p>
             )}
           </div>
           <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#f7f4ea]">
@@ -202,7 +294,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
               </div>
 
               <p className="text-xs text-[#6f6b62]">
-                The AI will apply VAxAI&apos;s perspective naturally — concrete value, UK context, and honest credibility woven through the content.
+                The AI applies the MT1L VAT framework (Value, Alignment, Trust) as a natural lens through the content — embedding it where it strengthens the piece and referencing MT1L.com where advisory context is genuinely relevant.
               </p>
 
               {error && <p className="text-sm text-red-600">{error}</p>}
@@ -235,11 +327,35 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                       <p className="text-sm text-[#111111] whitespace-pre-line">{blog.sharing_caption}</p>
                     </Section>
 
-                    <Section label="LinkedIn version" copyText={`${blog.linkedin_post}\n\n${hashtagString}`}>
+                    <Section
+                      label="LinkedIn version"
+                      copyText={`${blog.linkedin_post}\n\n${hashtagString}`}
+                      actions={
+                        <SaveToCalendarInline
+                          content={blog.linkedin_post}
+                          hashtags={blog.hashtags}
+                          platform="linkedin"
+                          defaultTitle={blogTitle}
+                          postId={createdPostId}
+                        />
+                      }
+                    >
                       <p className="text-sm text-[#111111] whitespace-pre-line">{blog.linkedin_post}</p>
                     </Section>
 
-                    <Section label="Instagram caption" copyText={`${blog.instagram_caption}\n\n${hashtagString}`}>
+                    <Section
+                      label="Instagram caption"
+                      copyText={`${blog.instagram_caption}\n\n${hashtagString}`}
+                      actions={
+                        <SaveToCalendarInline
+                          content={blog.instagram_caption}
+                          hashtags={blog.hashtags}
+                          platform="instagram"
+                          defaultTitle={blogTitle}
+                          postId={createdPostId}
+                        />
+                      }
+                    >
                       <p className="text-sm text-[#111111] whitespace-pre-line">{blog.instagram_caption}</p>
                     </Section>
 
@@ -259,7 +375,18 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                 const fullPost = `${li.post_text}\n\n${hashtagString}`;
                 return (
                   <>
-                    <Section label="LinkedIn post" copyText={fullPost}>
+                    <Section
+                      label="LinkedIn post"
+                      copyText={fullPost}
+                      actions={
+                        <SaveToCalendarInline
+                          content={li.post_text}
+                          hashtags={li.hashtags}
+                          platform="linkedin"
+                          defaultTitle={brief.slice(0, 80)}
+                        />
+                      }
+                    >
                       <p className="text-sm text-[#111111] whitespace-pre-line">{li.post_text}</p>
                     </Section>
                     <Section label="Hashtags" copyText={hashtagString}>
@@ -278,7 +405,18 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                 const fullCaption = `${ig.caption}\n\n${hashtagString}`;
                 return (
                   <>
-                    <Section label="Instagram caption" copyText={fullCaption}>
+                    <Section
+                      label="Instagram caption"
+                      copyText={fullCaption}
+                      actions={
+                        <SaveToCalendarInline
+                          content={ig.caption}
+                          hashtags={ig.hashtags}
+                          platform="instagram"
+                          defaultTitle={brief.slice(0, 80)}
+                        />
+                      }
+                    >
                       <p className="text-sm text-[#111111] whitespace-pre-line">{ig.caption}</p>
                     </Section>
                     <Section label="Hashtags" copyText={hashtagString}>
@@ -309,14 +447,14 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                 className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
               >
                 {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Generate with AI
+                {generating ? "Generating…" : "Generate with AI"}
               </button>
             </>
           ) : (
             <>
               <button
                 type="button"
-                onClick={() => { setStep("form"); setResult(null); setError(""); }}
+                onClick={() => { setStep("form"); setResult(null); setError(""); setCreatedPostId(undefined); }}
                 className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]"
               >
                 ← Start over
