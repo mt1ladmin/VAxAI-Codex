@@ -12,7 +12,6 @@ const MEMBER_PAGE_PREFIXES = [
   "/admin/posts",
   "/admin/authors",
   "/admin/engagement/knowledge",
-  "/admin/engagement/prospect-queue",
   "/admin/engagement/prospect-outreach",
   "/admin/engagement/pipeline",
 ] as const;
@@ -33,7 +32,6 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/opportunities",
   "/api/admin/engagement/tasks",
   "/api/admin/engagement/contacts",
-  "/api/admin/engagement/prospect-queue",
   "/api/admin/engagement/prospect-outreach",
   "/api/admin/engagement/prospect-finder",
   "/api/admin/engagement/knowledge-attachments",

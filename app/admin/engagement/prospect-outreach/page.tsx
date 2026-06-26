@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
 import { BulkArchiveProspectsModal } from "@/components/admin/BulkArchiveProspectsModal";
-import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { ProspectOutreachMeta } from "@/lib/engagement/prospect-outreach/types";
@@ -245,7 +245,7 @@ export default function ProspectFinderPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_FINDER_LABEL}</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
-              Research catalog — assign owners and qualify fit. Active engagement starts only after moving to {PROSPECT_QUEUE_LABEL}.
+              Research catalog — assign owners and qualify fit.
             </p>
           </div>
           <button
@@ -277,13 +277,6 @@ export default function ProspectFinderPage() {
               <p className="text-xs font-semibold text-amber-700">Unassigned</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{(meta.unassigned_count ?? 0).toLocaleString()}</p>
             </button>
-            <Link
-              href="/admin/engagement/prospect-queue"
-              className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3 transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/8"
-            >
-              <p className="text-xs font-semibold text-[#063b32]/80">In {PROSPECT_QUEUE_LABEL}</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{(meta.in_queue_count ?? 0).toLocaleString()}</p>
-            </Link>
           </div>
         ) : null}
 
@@ -301,12 +294,6 @@ export default function ProspectFinderPage() {
               {view.label}
             </button>
           ))}
-          <Link
-            href="/admin/engagement/prospect-queue"
-            className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-          >
-            Open {PROSPECT_QUEUE_LABEL}
-          </Link>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">

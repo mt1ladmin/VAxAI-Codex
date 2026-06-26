@@ -35,7 +35,6 @@ export function opportunityReturnLabel(
 ): string {
   if (returnLabel) return returnLabel;
   const path = safeReturnTo(returnTo ?? null);
-  if (path.includes("/admin/engagement/prospect-queue/")) return "Prospect Queue";
   if (path.includes("/admin/enquiries/")) return "Website enquiry";
   if (path.includes("/admin/engagement/pipeline")) return "Tasks Tracker";
   return "Back";

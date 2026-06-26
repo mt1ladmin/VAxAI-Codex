@@ -9,7 +9,6 @@ import {
   CheckSquare,
   ExternalLink,
   Handshake,
-  Inbox,
   Search,
   LogOut,
   MessageSquare,
@@ -23,8 +22,6 @@ import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
 import {
   PROSPECT_FINDER_LABEL,
-  PROSPECT_QUEUE_LABEL,
-  PROSPECT_QUEUE_PATH,
   PROSPECT_FINDER_PATH,
 } from "@/lib/engagement/journey";
 import { isPlatformAdmin, type StudioRole } from "@/lib/studio-access";
@@ -43,7 +40,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
   },
@@ -71,7 +67,6 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
   },

@@ -8,8 +8,6 @@ import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
-import { KnowledgeCreateModal } from "@/components/admin/KnowledgeCreateModal";
-
 type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts";
 
 const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts"];
@@ -73,7 +71,6 @@ function CustomSelect({
 function KnowledgePageInner() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<Tab>("sectors");
-  const [createOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [dimension, setDimension] = useState("");
@@ -180,15 +177,6 @@ function KnowledgePageInner() {
             <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : "VAT Prompts"}</h1>
             <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Sector context for workflow pressure, admin burden, and realistic VAxAI support." : tab === "personas" ? "Personas to interpret who may feel admin, system, or automation strain." : tab === "pain_points" ? "Pain points linked to review, training, virtual assistance, and improvement — not default new builds." : "VAT prompts for Value, Alignment, and Trust in AI decisions."}</p>
           </div>
-          {tab !== "vat_prompts" && (
-            <button
-              type="button"
-              onClick={() => setCreateOpen(true)}
-              className="shrink-0 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-            >
-              + Create
-            </button>
-          )}
         </div>
       </div>
 
@@ -411,12 +399,6 @@ function KnowledgePageInner() {
         )}
       </div>
 
-      <KnowledgeCreateModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        defaultType={tab === "sectors" ? "sector" : tab === "pain_points" ? "pain_point" : "persona"}
-        onCreated={() => void load()}
-      />
     </div>
   );
 }

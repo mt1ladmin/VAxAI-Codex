@@ -40,13 +40,6 @@ function taskRecordHref(task: EngagementTask, allowClientLinks: boolean): string
   if (enquiryId) return `/admin/enquiries/${enquiryId}`;
   const outreachId = task.outreach_id ?? task.opportunity?.outreach_id;
   if (outreachId) return `/admin/engagement/prospect-outreach/${outreachId}`;
-  if (task.contact_id && allowClientLinks) {
-    const clientStages = new Set(["Won", "Onboarding planned", "Contract sent", "Invoices sent", "Onboarding in progress", "Onboarding", "Active client", "Paused"]);
-    if (task.opportunity?.stage && clientStages.has(task.opportunity.stage)) {
-      return `/admin/engagement/prospect-queue/${task.contact_id}`;
-    }
-    return `/admin/engagement/prospect-queue/${task.contact_id}`;
-  }
   return null;
 }
 
@@ -296,7 +289,7 @@ export function TasksListView({
             <div>
               <h1 className="text-lg font-semibold text-[#111111]">Tasks Tracker</h1>
               <p className="text-sm text-[#6f6b62]">
-                Master task list across Prospect Finder, Prospect Queue, and Website Enquiries
+                Master task list across Prospect Finder and Website Enquiries
               </p>
             </div>
           </div>
