@@ -111,7 +111,6 @@ export default function ProspectFinderPage() {
   const assignedTo = searchParams.get("assigned_to") || "";
   const engagementStatus = searchParams.get("engagement_status") || "";
   const myProspects = searchParams.get("my_prospects") === "true";
-  const unassigned = searchParams.get("unassigned") === "true";
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -145,7 +144,6 @@ export default function ProspectFinderPage() {
       params.set("my_prospects", "true");
       if (userEmail) params.set("user_email", userEmail);
     }
-    if (unassigned) params.set("unassigned", "true");
 
     const res = await fetch(`/api/admin/engagement/prospect-outreach?${params}`);
     const json = await res.json();
@@ -164,7 +162,6 @@ export default function ProspectFinderPage() {
     assignedTo,
     engagementStatus,
     myProspects,
-    unassigned,
     userEmail,
   ]);
 
@@ -228,9 +225,6 @@ export default function ProspectFinderPage() {
   };
 
   const totalPages = meta?.total_pages ?? 1;
-  const hasActiveFilters = Boolean(
-    region || needScore || confidence || orgType || search.trim() || assignedTo || engagementStatus || myProspects || unassigned,
-  );
 
   const memberOptions = useMemo(
     () => [{ value: "", label: "All assignees" }, ...teamMembers.map((m) => ({ value: m.id, label: m.display_name }))],
@@ -258,26 +252,18 @@ export default function ProspectFinderPage() {
         </div>
 
         {meta ? (
-          <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
               <p className="text-xs font-semibold text-[#6f6b62]">Total</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => updateParams({ unassigned: "true", my_prospects: null, engagement_status: null })}
-              className="rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-left transition-colors hover:border-amber-300 hover:bg-amber-50"
-            >
-              <p className="text-xs font-semibold text-amber-700">Unassigned</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{(meta.unassigned_count ?? 0).toLocaleString()}</p>
-            </button>
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
               <p className="text-xs font-semibold text-[#6f6b62]">Have tasks</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{(meta.with_tasks_count ?? 0).toLocaleString()}</p>
             </div>
             <button
               type="button"
-              onClick={() => updateParams({ engagement_status: "Preparing to engage", unassigned: null, my_prospects: null })}
+              onClick={() => updateParams({ engagement_status: "Preparing to engage", my_prospects: null })}
               className="rounded-xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50"
             >
               <p className="text-xs font-semibold text-sky-700">Preparing</p>
@@ -352,15 +338,6 @@ export default function ProspectFinderPage() {
               ...FINDER_ENGAGEMENT_STATUSES.map((s) => ({ value: s, label: s })),
             ]}
           />
-          <button
-            type="button"
-            onClick={() => updateParams({ unassigned: unassigned ? null : "true", my_prospects: null })}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              unassigned ? "border-[#063b32] bg-[#063b32] text-white" : "border-[#111111]/15 text-[#6f6b62] hover:bg-[#f7f4ea]"
-            }`}
-          >
-            Unassigned
-          </button>
           {isPlatformAdmin && selectedIds.size > 0 && (
             <button
               type="button"
