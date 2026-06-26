@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
       title?: string; description?: string; body_html?: string;
       content_type?: string; tags?: string[]; author_id?: string;
       cover_image_url?: string; status?: string; slug?: string;
+      sharing_caption?: string; linkedin_post?: string;
+      instagram_caption?: string; social_hashtags?: string[];
     };
     const title = body.title ?? "Untitled";
     const rawSlug = body.slug || slugify(title);
@@ -69,6 +71,10 @@ export async function POST(req: NextRequest) {
       published_at: body.status === "published" ? now : null,
       scheduled_at: (body as { scheduled_at?: string }).scheduled_at ?? null,
       updated_at: now,
+      sharing_caption: body.sharing_caption ?? null,
+      linkedin_post: body.linkedin_post ?? null,
+      instagram_caption: body.instagram_caption ?? null,
+      social_hashtags: body.social_hashtags ?? [],
     }).select().single();
     if (error) throw error;
     return NextResponse.json({ data });

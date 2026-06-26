@@ -154,20 +154,13 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
           content_type: "Article",
           tags: currentHashtags,
           status: "draft",
+          sharing_caption: blog.sharing_caption,
+          social_hashtags: currentHashtags,
         }),
       });
       const json = (await res.json()) as { data?: { id: string }; error?: string };
       if (!res.ok || !json.data) throw new Error(json.error ?? "Failed to create post");
       const postId = json.data.id;
-
-      // Store social content in localStorage for the post editor (persists across sessions)
-      const socialData: Record<string, unknown> = {
-        sharing_caption: blog.sharing_caption,
-        hashtags: currentHashtags,
-      };
-      if ("linkedin_post" in blog) socialData.linkedin_post = (blog as AllResult).linkedin_post;
-      if ("instagram_caption" in blog) socialData.instagram_caption = (blog as AllResult).instagram_caption;
-      localStorage.setItem(`vaxai_social_${postId}`, JSON.stringify(socialData));
 
       onClose();
       router.push(`/admin/posts/${postId}`);
@@ -196,6 +189,10 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
           content_type: "Article",
           tags: currentHashtags,
           status: "draft",
+          sharing_caption: all.sharing_caption,
+          linkedin_post: all.linkedin_post,
+          instagram_caption: all.instagram_caption,
+          social_hashtags: currentHashtags,
         }),
       });
       const json = (await res.json()) as { data?: { id: string }; error?: string };
@@ -232,17 +229,6 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
         setScheduling(false);
         setScheduledSocial(true);
       }
-
-      // Store social content in localStorage for post editor publish popup (persists across sessions)
-      localStorage.setItem(
-        `vaxai_social_${postId}`,
-        JSON.stringify({
-          sharing_caption: all.sharing_caption,
-          linkedin_post: all.linkedin_post,
-          instagram_caption: all.instagram_caption,
-          hashtags: currentHashtags,
-        }),
-      );
 
       onClose();
       router.push(`/admin/posts/${postId}`);

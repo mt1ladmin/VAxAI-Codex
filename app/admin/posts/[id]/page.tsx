@@ -22,6 +22,8 @@ type Post = {
   id: string; title: string; description: string; body_html: string;
   cover_image_url: string | null; content_type: string; tags: string[];
   author_id: string | null; slug: string; status: string; scheduled_at: string | null;
+  sharing_caption: string | null; linkedin_post: string | null;
+  instagram_caption: string | null; social_hashtags: string[];
 };
 
 type SocialDraft = {
@@ -254,20 +256,31 @@ export default function EditPostPage() {
         }
       }
       setAuthors(authorsRes.data ?? []);
-      setLoading(false);
 
-      // Read social draft from localStorage (persists across sessions)
-      try {
-        const raw = localStorage.getItem(`vaxai_social_${id}`);
-        if (raw) {
-          const draft = JSON.parse(raw) as SocialDraft;
-          setSocialDraft(draft);
-          // Auto-open the panel so connected social posts are immediately visible
-          if (draft.linkedin_post || draft.instagram_caption || draft.sharing_caption) {
-            setPanelOpen(true);
+      // Load social content from DB, fall back to localStorage for posts created before DB persistence
+      if (p && (p.sharing_caption || p.linkedin_post || p.instagram_caption)) {
+        const draft: SocialDraft = {
+          sharing_caption: p.sharing_caption ?? undefined,
+          linkedin_post: p.linkedin_post ?? undefined,
+          instagram_caption: p.instagram_caption ?? undefined,
+          hashtags: p.social_hashtags ?? [],
+        };
+        setSocialDraft(draft);
+        setPanelOpen(true);
+      } else {
+        try {
+          const raw = localStorage.getItem(`vaxai_social_${id}`);
+          if (raw) {
+            const draft = JSON.parse(raw) as SocialDraft;
+            setSocialDraft(draft);
+            if (draft.linkedin_post || draft.instagram_caption || draft.sharing_caption) {
+              setPanelOpen(true);
+            }
           }
-        }
-      } catch { /* ignore */ }
+        } catch { /* ignore */ }
+      }
+
+      setLoading(false);
     });
   }, [id]);
 
@@ -287,6 +300,10 @@ export default function EditPostPage() {
         slug: slug || slugify(title || "untitled"),
         status,
         scheduled_at: status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        sharing_caption: socialDraft?.sharing_caption ?? null,
+        linkedin_post: socialDraft?.linkedin_post ?? null,
+        instagram_caption: socialDraft?.instagram_caption ?? null,
+        social_hashtags: socialDraft?.hashtags ?? [],
       }),
     });
     setSaving(false);
@@ -312,7 +329,6 @@ export default function EditPostPage() {
 
   const deletePost = async () => {
     await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
-    localStorage.removeItem(`vaxai_social_${id}`);
     router.push("/admin/posts");
   };
 
