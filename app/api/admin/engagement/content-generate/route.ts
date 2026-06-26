@@ -107,23 +107,24 @@ export async function POST(req: NextRequest) {
 
   const maxTokens = contentType === "blog" || contentType === "all" ? 2500 : 1200;
 
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: maxTokens,
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const textBlock = response.content.find((b) => b.type === "text");
-  const raw = textBlock && textBlock.type === "text" ? textBlock.text : "";
-  const jsonMatch = raw.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    return NextResponse.json({ error: "AI did not return valid JSON" }, { status: 500 });
-  }
-
   try {
+    const response = await anthropic.messages.create({
+      model: MODEL,
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const textBlock = response.content.find((b) => b.type === "text");
+    const raw = textBlock && textBlock.type === "text" ? textBlock.text : "";
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json({ error: "AI did not return valid JSON" }, { status: 500 });
+    }
+
     const data = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
     return NextResponse.json({ data });
-  } catch {
-    return NextResponse.json({ error: "Failed to parse AI response" }, { status: 500 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "AI generation failed";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
