@@ -254,63 +254,71 @@ function EvidenceAndAssessment({
   }
 
   return (
-    <CollapsibleSection title="Evidence and assessment" defaultOpen>
-      <>
+    <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Research Assessment</p>
         {editable && onSaveFields && (
-          <div className="flex justify-end">
-            <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
-              <Pencil className="h-3 w-3" /> Edit
-            </button>
-          </div>
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+            <Pencil className="h-3 w-3" /> Edit
+          </button>
         )}
+      </div>
+      {data.evidence_summary && (
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence</p>
-          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">
-            {data.evidence_summary || data.need_rationale || "—"}
-          </p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence summary</p>
+          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">{data.evidence_summary}</p>
         </div>
-        {data.complexity_rationale && (
+      )}
+      {data.need_rationale && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Need rationale</p>
+          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">{data.need_rationale}</p>
+        </div>
+      )}
+      {data.complexity_rationale && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity rationale</p>
+          <p className="mt-1 text-sm text-[#111111]">{data.complexity_rationale}</p>
+        </div>
+      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {data.admin_capacity && (
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity</p>
-            <p className="mt-1 text-sm text-[#111111]">{data.complexity_rationale}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Admin capacity</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.admin_capacity}</p>
           </div>
         )}
-        <div className="grid gap-3 sm:grid-cols-2">
-          {data.admin_capacity && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Admin capacity</p>
-              <p className="mt-1 text-sm">{data.admin_capacity}</p>
-            </div>
-          )}
-          {data.ai_automation_use && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">AI / automation use</p>
-              <p className="mt-1 text-sm">{data.ai_automation_use}</p>
-            </div>
-          )}
-          {data.data_sensitivity && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Data sensitivity</p>
-              <p className="mt-1 text-sm">{data.data_sensitivity}</p>
-            </div>
-          )}
-          {data.systems_landscape && (
-            <div className="sm:col-span-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Systems landscape</p>
-              <p className="mt-1 text-sm">{data.systems_landscape}</p>
-            </div>
-          )}
-        </div>
-        {(data.open_questions?.length ?? 0) > 0 && (
+        {data.ai_automation_use && (
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Open questions</p>
-            <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-[#111111]">
-              {data.open_questions!.map((q) => <li key={q}>{q}</li>)}
-            </ul>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">AI / automation use</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.ai_automation_use}</p>
           </div>
         )}
-      </>
-    </CollapsibleSection>
+        {data.data_sensitivity && (
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Data sensitivity</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.data_sensitivity}</p>
+          </div>
+        )}
+        {data.systems_landscape && (
+          <div className="sm:col-span-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Systems landscape</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.systems_landscape}</p>
+          </div>
+        )}
+      </div>
+      {(data.open_questions?.length ?? 0) > 0 && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Open questions</p>
+          <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-[#111111]">
+            {data.open_questions!.map((q) => <li key={q}>{q}</li>)}
+          </ul>
+        </div>
+      )}
+      {!data.evidence_summary && !data.need_rationale && !data.complexity_rationale && !data.admin_capacity && !data.ai_automation_use && !data.data_sensitivity && !data.systems_landscape && !(data.open_questions?.length) && (
+        <p className="text-sm text-[#6f6b62]">—</p>
+      )}
+    </div>
   );
 }
 
@@ -515,12 +523,12 @@ function RecommendedEngagement({
       <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-4">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement Guide</p>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</label>
-          <textarea value={form.engagement_approach} onChange={(e) => setForm((f) => ({ ...f, engagement_approach: e.target.value }))} rows={18} placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…" className={`${inputClass} resize-y leading-relaxed`} autoFocus />
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Recommended engagement</label>
+          <textarea value={form.recommended_engagement} onChange={(e) => setForm((f) => ({ ...f, recommended_engagement: e.target.value }))} rows={6} placeholder="Short recommendation on next steps and engagement approach…" className={`${inputClass} resize-y`} autoFocus />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Recommended engagement</label>
-          <textarea value={form.recommended_engagement} onChange={(e) => setForm((f) => ({ ...f, recommended_engagement: e.target.value }))} rows={6} className={`${inputClass} resize-y`} />
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</label>
+          <textarea value={form.engagement_approach} onChange={(e) => setForm((f) => ({ ...f, engagement_approach: e.target.value }))} rows={18} placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…" className={`${inputClass} resize-y leading-relaxed`} />
         </div>
         <div>
           <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Accessibility note</label>
@@ -555,16 +563,16 @@ function RecommendedEngagement({
           </button>
         )}
       </div>
-      {data.engagement_approach && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</p>
-          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{data.engagement_approach}</p>
-        </div>
-      )}
       {data.recommended_engagement && (
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Recommended engagement</p>
           <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{data.recommended_engagement}</p>
+        </div>
+      )}
+      {data.engagement_approach && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</p>
+          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{data.engagement_approach}</p>
         </div>
       )}
       {!data.engagement_approach && !data.recommended_engagement && (
@@ -635,7 +643,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
     }
   };
 
-  if (resolvedMode === "overview" && !data.service_fit_summary && !data.likely_need) {
+  if (resolvedMode === "overview" && !data.service_fit_summary && !data.likely_need && !editable) {
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
         Service-fit assessment not yet available for this record.

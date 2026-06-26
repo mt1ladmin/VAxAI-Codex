@@ -1,5 +1,10 @@
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import {
+  buildEngagementApproachFromHub,
+  enrichServiceFitWithHub,
+  type HubContext,
+} from "./knowledge-enrich";
+import {
   PARTNER_OFFERS,
   VAXAI_CORE_OFFERS,
   VAXAI_PARTIAL_OFFERS,
@@ -316,15 +321,18 @@ export function assessServiceFit(
 }
 
 /** Apply service-fit reassessment while preserving core research fields. */
-export function reassessProspectRecord(record: ProspectOutreachRecord): ProspectOutreachRecord {
-  const assessed = assessServiceFit(record);
+export function reassessProspectRecord(
+  record: ProspectOutreachRecord,
+  hub?: HubContext | null,
+): ProspectOutreachRecord {
+  const assessed = enrichServiceFitWithHub(assessServiceFit(record), hub ?? null);
   const { need_score, ...fit } = assessed;
 
-  const engagementApproach =
-    record.engagement_approach &&
-    !record.engagement_approach.includes("Charity Commission register expansion batch")
-      ? record.engagement_approach
-      : fit.recommended_engagement;
+  const engagementApproach = buildEngagementApproachFromHub(
+    record.engagement_approach,
+    fit,
+    hub ?? null,
+  );
 
   return {
     ...record,

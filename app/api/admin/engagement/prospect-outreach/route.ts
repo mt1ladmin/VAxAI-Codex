@@ -18,11 +18,20 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);
 
-  const [overrideMaps, members, catalog] = await Promise.all([
+  const [overrideMaps, members, catalog, tasksRes] = await Promise.all([
     loadOverrideMaps(supabase),
     loadTeamMembers(supabase),
     loadCatalogRecords(supabase),
+    supabase
+      .from("engagement_tasks")
+      .select("outreach_id")
+      .not("outreach_id", "is", null)
+      .neq("status", "done"),
   ]);
+
+  const outreachIdsWithTasks = new Set(
+    (tasksRes.data ?? []).map((t) => t.outreach_id as string),
+  );
 
   const all = buildFinderList(overrideMaps.rows, overrideMaps.overrides, members, catalog);
   const filtered = filterFinderList(all, {
@@ -35,6 +44,7 @@ export async function GET(req: NextRequest) {
     engagement_status: searchParams.get("engagement_status") || undefined,
     my_prospects: searchParams.get("my_prospects") === "true",
     unassigned: searchParams.get("unassigned") === "true",
+    is_client: searchParams.get("is_client") === "true" ? true : searchParams.get("is_client") === "false" ? false : undefined,
 
     userEmail: searchParams.get("user_email") || undefined,
     members,
@@ -66,8 +76,12 @@ export async function GET(req: NextRequest) {
       total_count: all.length,
       filtered_count: filtered.length,
       filtered_by_region: filteredByRegion,
-      in_queue_count: all.filter((p) => p.in_prospect_queue).length,
       unassigned_count: all.filter((p) => !p.assigned_team_member_id).length,
+      with_tasks_count: all.filter((p) => outreachIdsWithTasks.has(p.id)).length,
+      preparing_to_engage_count: all.filter((p) => p.engagement_status === "Preparing to engage").length,
+      engagement_started_count: all.filter((p) => p.engagement_status === "Engagement started").length,
+      opportunity_identified_count: all.filter((p) => p.engagement_status === "Opportunity identified").length,
+      is_client_count: all.filter((p) => p.is_client).length,
       page: paged.page,
       page_size: paged.page_size,
       total_pages: paged.total_pages,
@@ -148,6 +162,14 @@ export async function PATCH(req: NextRequest) {
   }
   if (body.next_action !== undefined) upsertPayload.next_action = body.next_action;
   if (body.next_action_date !== undefined) upsertPayload.next_action_date = body.next_action_date;
+  if (body.is_client !== undefined) {
+    const currentOverrides = (upsertPayload.overrides as Record<string, unknown>) ?? mergedOverrides;
+    upsertPayload.overrides = {
+      ...currentOverrides,
+      is_client: body.is_client,
+      client_note: body.client_note ?? ((mergedOverrides as Record<string, unknown>).client_note ?? null),
+    };
+  }
 
   const { error } = await supabase.from("prospect_outreach_overrides").upsert(upsertPayload);
 

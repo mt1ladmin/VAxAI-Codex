@@ -9,10 +9,9 @@ export type StudioMembership = {
 const MEMBER_PAGE_PREFIXES = [
   "/admin/enquiries",
   "/admin/calendar",
+  "/admin/create-content",
   "/admin/posts",
   "/admin/authors",
-  "/admin/engagement/knowledge",
-  "/admin/engagement/prospect-queue",
   "/admin/engagement/prospect-outreach",
   "/admin/engagement/pipeline",
 ] as const;
@@ -33,12 +32,12 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/opportunities",
   "/api/admin/engagement/tasks",
   "/api/admin/engagement/contacts",
-  "/api/admin/engagement/prospect-queue",
   "/api/admin/engagement/prospect-outreach",
   "/api/admin/engagement/prospect-finder",
   "/api/admin/engagement/knowledge-attachments",
   "/api/admin/engagement/ai",
   "/api/admin/engagement/activity-log",
+  "/api/admin/engagement/content-generate",
   "/api/admin/ai",
 ] as const;
 
@@ -53,8 +52,6 @@ const MEMBER_READ_ONLY_API_PREFIXES = [
 
 const MEMBER_PAGE_EXACT = new Set(["/admin/forbidden", "/admin/engagement"]);
 
-const PAIN_POINT_DETAIL = /^\/admin\/engagement\/pain-points\/[^/]+/;
-
 export function isPlatformAdmin(role: StudioRole | null | undefined): boolean {
   return role === "platform_admin";
 }
@@ -66,8 +63,6 @@ export function isMemberPathAllowed(pathname: string): boolean {
   if (MEMBER_PAGE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
     return true;
   }
-
-  if (PAIN_POINT_DETAIL.test(pathname)) return true;
 
   return false;
 }

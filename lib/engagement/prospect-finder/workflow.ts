@@ -43,6 +43,8 @@ export function buildFinderWorkflow(
     ? Math.floor((Date.now() - touchedAt.getTime()) / (1000 * 60 * 60 * 24))
     : null;
 
+  const overrides = row?.overrides as Record<string, unknown> | null | undefined;
+
   return {
     assigned_team_member_id: row?.assigned_team_member_id ?? null,
     assigned_team_member_name: teamMemberLabel(members, row?.assigned_team_member_id),
@@ -54,6 +56,8 @@ export function buildFinderWorkflow(
     pipeline_contact_id: row?.pipeline_contact_id ?? null,
     review_notes: row?.review_notes ?? null,
     in_prospect_queue: Boolean(row?.opportunity_id),
+    is_client: Boolean(overrides?.is_client),
+    client_note: (overrides?.client_note as string) ?? null,
     days_since_touch: daysSinceTouch,
   };
 }

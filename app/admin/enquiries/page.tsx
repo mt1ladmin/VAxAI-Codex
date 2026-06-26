@@ -247,14 +247,6 @@ export default function EnquiriesPage() {
               Inbound interest — qualify against VAxAI wraparound support, workflow review, training, and virtual assistance.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowAddModal(true)}
-            className="mt-1 flex shrink-0 items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-          >
-            <Plus className="h-4 w-4" />
-            New enquiry
-          </button>
         </div>
       </div>
 

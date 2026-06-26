@@ -7,9 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   Check,
-  ChevronRight,
   Copy,
-  Facebook,
   Instagram,
   Linkedin,
   Trash2,
@@ -24,12 +22,167 @@ type Post = {
   id: string; title: string; description: string; body_html: string;
   cover_image_url: string | null; content_type: string; tags: string[];
   author_id: string | null; slug: string; status: string; scheduled_at: string | null;
+  sharing_caption: string | null; linkedin_post: string | null;
+  instagram_caption: string | null; social_hashtags: string[];
+};
+
+type SocialDraft = {
+  sharing_caption?: string;
+  linkedin_post?: string;
+  instagram_caption?: string;
+  hashtags?: string[];
 };
 
 const PRESET_TYPES = ["Insight", "Research", "Article", "Guide", "Case Study", "Video", "Framework Comparison"];
 
 function slugify(text: string) {
   return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+}
+
+function Toast({ message, visible }: { message: string; visible: boolean }) {
+  return (
+    <div
+      className={`fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 transition-all duration-300 ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
+      }`}
+    >
+      <div className="flex items-center gap-2 rounded-xl bg-[#111111] px-5 py-3 text-sm font-semibold text-white shadow-xl">
+        <Check className="h-4 w-4 text-emerald-400" />
+        {message}
+      </div>
+    </div>
+  );
+}
+
+function SocialPreviewModal({
+  social,
+  postUrl,
+  onClose,
+}: {
+  social: SocialDraft;
+  postUrl: string;
+  onClose: () => void;
+}) {
+  const [copiedLi, setCopiedLi] = useState(false);
+  const [copiedIg, setCopiedIg] = useState(false);
+  const hashtagStr = (social.hashtags ?? []).map((h) => `#${h}`).join(" ");
+
+  const copy = async (text: string, which: "li" | "ig") => {
+    await navigator.clipboard.writeText(text);
+    if (which === "li") { setCopiedLi(true); setTimeout(() => setCopiedLi(false), 2000); }
+    else { setCopiedIg(true); setTimeout(() => setCopiedIg(false), 2000); }
+  };
+
+  const liContent = [social.linkedin_post, postUrl || null, hashtagStr || null].filter(Boolean).join("\n\n");
+  const igContent = [social.instagram_caption, postUrl || null, hashtagStr || null].filter(Boolean).join("\n\n");
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4">
+      <div className="flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+          <div>
+            <h3 className="text-sm font-semibold text-[#111111]">Social versions ready to copy</h3>
+            <p className="mt-0.5 text-xs text-[#6f6b62]">Post link is embedded — copy and go.</p>
+          </div>
+          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#f7f4ea]">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto space-y-4 p-5">
+          {social.sharing_caption && (
+            <div className="rounded-xl border border-[#111111]/10 p-4">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Sharing caption</p>
+              <p className="text-sm text-[#111111] whitespace-pre-line">{social.sharing_caption}</p>
+            </div>
+          )}
+          {social.linkedin_post && (
+            <div className="rounded-xl border border-[#111111]/10 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Linkedin className="h-4 w-4 text-[#0077B5]" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">LinkedIn post</p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <a href="https://www.linkedin.com/feed/" target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-md border border-[#0077B5]/30 px-2.5 py-1 text-xs font-medium text-[#0077B5] hover:bg-[#0077B5]/5">
+                    <Linkedin className="h-3 w-3" /> Post
+                  </a>
+                  <button type="button" onClick={() => void copy(liContent, "li")}
+                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
+                    {copiedLi ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                    {copiedLi ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+              </div>
+              <p className="text-sm text-[#111111] whitespace-pre-line">{social.linkedin_post}</p>
+              {postUrl && <p className="mt-2 text-xs text-[#0077B5] break-all">{postUrl}</p>}
+              {hashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{hashtagStr}</p>}
+            </div>
+          )}
+          {social.instagram_caption && (
+            <div className="rounded-xl border border-[#111111]/10 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Instagram className="h-4 w-4 text-[#E1306C]" />
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Instagram caption</p>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-md border border-[#E1306C]/30 px-2.5 py-1 text-xs font-medium text-[#E1306C] hover:bg-[#E1306C]/5">
+                    <Instagram className="h-3 w-3" /> Post
+                  </a>
+                  <button type="button" onClick={() => void copy(igContent, "ig")}
+                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
+                    {copiedIg ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                    {copiedIg ? "Copied!" : "Copy"}
+                  </button>
+                </div>
+              </div>
+              <p className="text-sm text-[#111111] whitespace-pre-line">{social.instagram_caption}</p>
+              {postUrl && <p className="mt-2 text-xs text-[#E1306C] break-all">{postUrl}</p>}
+              {hashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{hashtagStr}</p>}
+            </div>
+          )}
+        </div>
+        <div className="border-t border-[#111111]/10 px-5 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-xl bg-[#063b32] py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+        <h3 className="text-base font-semibold text-[#111111]">Delete this post?</h3>
+        <p className="mt-1 text-sm text-[#6f6b62]">This action cannot be undone.</p>
+        <div className="mt-5 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 rounded-lg border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="flex-1 rounded-lg bg-red-600 py-2.5 text-sm font-semibold text-white hover:bg-red-700"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function EditPostPage() {
@@ -54,6 +207,27 @@ export default function EditPostPage() {
   const [postUrl, setPostUrl] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
   const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
+
+  // Social draft from sessionStorage (set by ContentCreateModal)
+  const [socialDraft, setSocialDraft] = useState<SocialDraft | null>(null);
+
+  // Toast
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
+
+  // Panel social copy state
+  const [copiedLiPanel, setCopiedLiPanel] = useState(false);
+  const [copiedIgPanel, setCopiedIgPanel] = useState(false);
+
+  // Modals
+  const [showSocialPreview, setShowSocialPreview] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const showToast = (message: string) => {
+    setToastMsg(message);
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 3000);
+  };
 
   useEffect(() => {
     Promise.all([
@@ -82,6 +256,30 @@ export default function EditPostPage() {
         }
       }
       setAuthors(authorsRes.data ?? []);
+
+      // Load social content from DB, fall back to localStorage for posts created before DB persistence
+      if (p && (p.sharing_caption || p.linkedin_post || p.instagram_caption)) {
+        const draft: SocialDraft = {
+          sharing_caption: p.sharing_caption ?? undefined,
+          linkedin_post: p.linkedin_post ?? undefined,
+          instagram_caption: p.instagram_caption ?? undefined,
+          hashtags: p.social_hashtags ?? [],
+        };
+        setSocialDraft(draft);
+        setPanelOpen(true);
+      } else {
+        try {
+          const raw = localStorage.getItem(`vaxai_social_${id}`);
+          if (raw) {
+            const draft = JSON.parse(raw) as SocialDraft;
+            setSocialDraft(draft);
+            if (draft.linkedin_post || draft.instagram_caption || draft.sharing_caption) {
+              setPanelOpen(true);
+            }
+          }
+        } catch { /* ignore */ }
+      }
+
       setLoading(false);
     });
   }, [id]);
@@ -102,6 +300,10 @@ export default function EditPostPage() {
         slug: slug || slugify(title || "untitled"),
         status,
         scheduled_at: status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        sharing_caption: socialDraft?.sharing_caption ?? null,
+        linkedin_post: socialDraft?.linkedin_post ?? null,
+        instagram_caption: socialDraft?.instagram_caption ?? null,
+        social_hashtags: socialDraft?.hashtags ?? [],
       }),
     });
     setSaving(false);
@@ -109,11 +311,23 @@ export default function EditPostPage() {
       setIsPublished(true);
       setPostUrl(`${window.location.origin}/posts/${slug}`);
       setPanelOpen(true);
+      // Show social preview popup if social content exists
+      if (socialDraft?.linkedin_post || socialDraft?.instagram_caption) {
+        setShowSocialPreview(true);
+      } else {
+        showToast("Post published");
+      }
+    } else if (status === "draft" && isPublished) {
+      setIsPublished(false);
+      showToast("Moved to draft");
+    } else if (status === "draft") {
+      showToast("Draft saved");
+    } else if (status === "scheduled") {
+      showToast("Post scheduled");
     }
-  }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt]);
+  }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft, isPublished]);
 
   const deletePost = async () => {
-    if (!confirm("Delete this post?")) return;
     await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
     router.push("/admin/posts");
   };
@@ -126,6 +340,16 @@ export default function EditPostPage() {
 
   const copyLink = () => { navigator.clipboard.writeText(postUrl); };
 
+  const copyInPanel = async (text: string, which: "li" | "ig") => {
+    await navigator.clipboard.writeText(text);
+    if (which === "li") { setCopiedLiPanel(true); setTimeout(() => setCopiedLiPanel(false), 2000); }
+    else { setCopiedIgPanel(true); setTimeout(() => setCopiedIgPanel(false), 2000); }
+  };
+
+  const panelHashtagStr = (socialDraft?.hashtags ?? []).map((h) => `#${h}`).join(" ");
+  const panelLiContent = [socialDraft?.linkedin_post, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
+  const panelIgContent = [socialDraft?.instagram_caption, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
+
   const activeType = showCustomType && customType ? customType : contentType;
 
   if (loading) {
@@ -134,6 +358,26 @@ export default function EditPostPage() {
 
   return (
     <div className="flex h-full flex-col">
+      <Toast message={toastMsg} visible={toastVisible} />
+
+      {showSocialPreview && socialDraft && (
+        <SocialPreviewModal
+          social={socialDraft}
+          postUrl={postUrl}
+          onClose={() => {
+            setShowSocialPreview(false);
+            showToast("Post published");
+          }}
+        />
+      )}
+
+      {showDeleteConfirm && (
+        <DeleteConfirmModal
+          onConfirm={() => { setShowDeleteConfirm(false); void deletePost(); }}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
+
       {/* Top bar */}
       <div className="flex shrink-0 items-center gap-3 border-b border-[#111111]/10 bg-white px-4 py-3">
         <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
@@ -141,11 +385,11 @@ export default function EditPostPage() {
         </Link>
         <span className="text-sm text-[#6f6b62]">Edit post</span>
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={deletePost} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600">
+          <button onClick={() => setShowDeleteConfirm(true)} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600">
             <Trash2 className="h-4 w-4" />
           </button>
           <button
-            onClick={() => save("draft")}
+            onClick={() => void save("draft")}
             disabled={saving}
             className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea] disabled:opacity-50"
           >
@@ -162,7 +406,7 @@ export default function EditPostPage() {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-white">
           <PostEditor
             title={title}
             onTitleChange={setTitle}
@@ -176,8 +420,8 @@ export default function EditPostPage() {
         </div>
 
         {panelOpen && (
-          <div className="flex w-80 shrink-0 flex-col overflow-y-auto border-l border-[#111111]/10 bg-white">
-            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+          <div className="flex w-80 shrink-0 flex-col border-l border-[#111111]/10 bg-white">
+            <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6f6b62]">
                 {isPublished ? "Post settings" : "Publish post"}
               </p>
@@ -195,15 +439,69 @@ export default function EditPostPage() {
                       className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-[#f7f4ea]">
                       <Linkedin className="h-4 w-4" /> Share on LinkedIn
                     </a>
-                    <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#1877F2] hover:bg-[#f7f4ea]">
-                      <Facebook className="h-4 w-4" /> Share on Facebook
-                    </a>
                     <button onClick={copyLink}
                       className="flex w-full items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
                       <Copy className="h-4 w-4" /> Copy link
                     </button>
                   </div>
+                </div>
+              )}
+
+              {/* Social versions — always visible when present */}
+              {socialDraft?.sharing_caption && (
+                <div>
+                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Sharing caption</p>
+                  <p className="rounded-md border border-[#111111]/10 bg-[#f7f4ea] px-3 py-2 text-sm text-[#111111]">
+                    {socialDraft.sharing_caption}
+                  </p>
+                </div>
+              )}
+              {socialDraft?.linkedin_post && (
+                <div className="rounded-xl border border-[#111111]/10 p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Linkedin className="h-4 w-4 text-[#0077B5]" />
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">LinkedIn post</p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <a href="https://www.linkedin.com/feed/" target="_blank" rel="noreferrer"
+                        className="inline-flex items-center gap-1 rounded-md border border-[#0077B5]/30 px-2 py-1 text-[10px] font-medium text-[#0077B5] hover:bg-[#0077B5]/5">
+                        <Linkedin className="h-3 w-3" /> Post
+                      </a>
+                      <button type="button" onClick={() => void copyInPanel(panelLiContent, "li")}
+                        className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2 py-1 text-[10px] font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
+                        {copiedLiPanel ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                        {copiedLiPanel ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[#111111] whitespace-pre-line">{socialDraft.linkedin_post}</p>
+                  {postUrl && <p className="mt-2 text-xs text-[#0077B5] break-all">{postUrl}</p>}
+                  {panelHashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{panelHashtagStr}</p>}
+                </div>
+              )}
+              {socialDraft?.instagram_caption && (
+                <div className="rounded-xl border border-[#111111]/10 p-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Instagram className="h-4 w-4 text-[#E1306C]" />
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Instagram caption</p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"
+                        className="inline-flex items-center gap-1 rounded-md border border-[#E1306C]/30 px-2 py-1 text-[10px] font-medium text-[#E1306C] hover:bg-[#E1306C]/5">
+                        <Instagram className="h-3 w-3" /> Post
+                      </a>
+                      <button type="button" onClick={() => void copyInPanel(panelIgContent, "ig")}
+                        className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2 py-1 text-[10px] font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
+                        {copiedIgPanel ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                        {copiedIgPanel ? "Copied!" : "Copy"}
+                      </button>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[#111111] whitespace-pre-line">{socialDraft.instagram_caption}</p>
+                  {postUrl && <p className="mt-2 text-xs text-[#E1306C] break-all">{postUrl}</p>}
+                  {panelHashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{panelHashtagStr}</p>}
                 </div>
               )}
 
@@ -266,14 +564,6 @@ export default function EditPostPage() {
                 <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} aspectClass="aspect-video w-full" />
               </div>
 
-              <div>
-                <button type="button" className="flex w-full items-center justify-between rounded-md border border-[#111111]/10 px-4 py-3">
-                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">SEO &amp; Discovery</span>
-                  <ChevronRight className="h-4 w-4 text-[#6f6b62]" />
-                </button>
-                <p className="mt-1 text-[10px] text-[#6f6b62]">SEO fields coming soon.</p>
-              </div>
-
               {/* Publish timing */}
               {!isPublished && (
                 <div>
@@ -294,26 +584,27 @@ export default function EditPostPage() {
                   )}
                 </div>
               )}
+            </div>
 
-              <div className="border-t border-[#111111]/10 pt-4">
-                {publishMode === "now" || isPublished ? (
-                  <button onClick={() => save("published")} disabled={saving}
-                    className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
-                    {saving ? "Saving…" : isPublished ? "Update post" : "Publish post"}
-                  </button>
-                ) : (
-                  <button onClick={() => save("scheduled")} disabled={saving || !scheduledAt}
-                    className="w-full rounded-md bg-amber-500 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
-                    {saving ? "Scheduling…" : "Schedule post"}
-                  </button>
-                )}
-                {isPublished && (
-                  <button onClick={() => save("draft")} disabled={saving}
-                    className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-gray-100 disabled:opacity-50">
-                    Move to draft
-                  </button>
-                )}
-              </div>
+            {/* Sticky publish footer */}
+            <div className="shrink-0 border-t border-[#111111]/10 px-5 py-4">
+              {publishMode === "now" || isPublished ? (
+                <button onClick={() => void save("published")} disabled={saving}
+                  className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                  {saving ? "Saving…" : isPublished ? "Update post" : "Publish post"}
+                </button>
+              ) : (
+                <button onClick={() => void save("scheduled")} disabled={saving || !scheduledAt}
+                  className="w-full rounded-md bg-amber-500 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                  {saving ? "Scheduling…" : "Schedule post"}
+                </button>
+              )}
+              {isPublished && (
+                <button onClick={() => void save("draft")} disabled={saving}
+                  className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-gray-100 disabled:opacity-50">
+                  Move to draft
+                </button>
+              )}
             </div>
           </div>
         )}

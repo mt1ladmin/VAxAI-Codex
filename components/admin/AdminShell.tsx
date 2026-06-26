@@ -9,7 +9,6 @@ import {
   CheckSquare,
   ExternalLink,
   Handshake,
-  Inbox,
   Search,
   LogOut,
   MessageSquare,
@@ -23,8 +22,6 @@ import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
 import {
   PROSPECT_FINDER_LABEL,
-  PROSPECT_QUEUE_LABEL,
-  PROSPECT_QUEUE_PATH,
   PROSPECT_FINDER_PATH,
 } from "@/lib/engagement/journey";
 import { isPlatformAdmin, type StudioRole } from "@/lib/studio-access";
@@ -43,14 +40,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
-    ],
-  },
-  {
-    section: "KNOWLEDGE",
-    items: [
-      { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen },
     ],
   },
   {
@@ -71,13 +61,8 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
-      { label: PROSPECT_QUEUE_LABEL, href: PROSPECT_QUEUE_PATH, icon: Inbox, subtitle: "Active work" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
-  },
-  {
-    section: "KNOWLEDGE",
-    items: [{ label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen }],
   },
   {
     section: "CONTENT",
@@ -217,16 +202,28 @@ export default function AdminShell({
         {/* Bottom */}
         <div className="space-y-0.5 border-t border-white/10 px-2 py-3">
           {platformAdmin && (
-            <Link
-              href="/admin/engagement/settings"
-              title={!open ? "Settings" : undefined}
-              className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
-                pathname.startsWith("/admin/engagement/settings") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
-              } ${!open ? "justify-center" : ""}`}
-            >
-              <Settings className="h-4 w-4 shrink-0" />
-              {open && "Settings"}
-            </Link>
+            <>
+              <Link
+                href="/admin/engagement/knowledge"
+                title={!open ? "Knowledge Hub" : undefined}
+                className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+                  pathname.startsWith("/admin/engagement/knowledge") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
+                } ${!open ? "justify-center" : ""}`}
+              >
+                <BookOpen className="h-4 w-4 shrink-0" />
+                {open && "Knowledge Hub"}
+              </Link>
+              <Link
+                href="/admin/engagement/settings"
+                title={!open ? "Settings" : undefined}
+                className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+                  pathname.startsWith("/admin/engagement/settings") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
+                } ${!open ? "justify-center" : ""}`}
+              >
+                <Settings className="h-4 w-4 shrink-0" />
+                {open && "Settings"}
+              </Link>
+            </>
           )}
           <a
             href="/"
@@ -265,7 +262,7 @@ export default function AdminShell({
           </div>
         )}
 
-        {(pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/authors") || pathname.startsWith("/admin/create-content")) && (
+        {(pathname === "/admin/calendar" || pathname === "/admin/posts" || pathname === "/admin/authors" || pathname === "/admin/create-content") && (
           <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-semibold text-[#111111]">Content Hub</span>

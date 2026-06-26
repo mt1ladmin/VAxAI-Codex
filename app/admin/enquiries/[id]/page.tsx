@@ -2,17 +2,12 @@
 
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
-  ArrowRight,
-  Briefcase,
-  Building2,
   Calendar,
-  CheckCircle,
   ExternalLink,
   Mail,
   Phone,
-  User,
 } from "lucide-react";
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
@@ -22,25 +17,17 @@ import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
-import { MoveEnquiryToProspectQueueModal } from "@/components/admin/MoveEnquiryToProspectQueueModal";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
-import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
 import {
   CRM_HUB_TAB_IDS_PRE_CLIENT,
   CRM_HUB_TABS_PRE_CLIENT,
   type PreClientHubTab,
 } from "@/lib/engagement/hub-tabs";
-import {
-  ADVANCE_ACTION_LABEL,
-  ADVANCE_STATUS_HINT,
-  PRE_SALES_STATUS,
-  canAdvanceToClientWork,
-} from "@/lib/engagement/journey";
 
 import {
   clearLinkedNextAction,
@@ -86,7 +73,6 @@ type Enquiry = {
 
 function EnquiryDetailContent() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [enquiry, setEnquiry] = useState<Enquiry | null>(null);
   const [linkedContact, setLinkedContact] = useState<EngagementContact | null>(null);
@@ -107,8 +93,6 @@ function EnquiryDetailContent() {
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
 
-  const [showMoveModal, setShowMoveModal] = useState(false);
-  const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [chatActivityKey, setChatActivityKey] = useState(0);
   const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
 
@@ -168,11 +152,6 @@ function EnquiryDetailContent() {
     const res = await fetch(`/api/admin/enquiries/${id}`);
     const j = await res.json() as { data: Enquiry };
     if (j.data) {
-      if (j.data.status === "Closed" && j.data.contact_id) {
-        router.replace(`/admin/engagement/prospect-queue/${j.data.contact_id}?tab=submission`);
-        setLoading(false);
-        return;
-      }
       setEnquiry(j.data);
       if (j.data.contact_id) {
         const cRes = await fetch(`/api/admin/engagement/contacts/${j.data.contact_id}`);
@@ -185,15 +164,9 @@ function EnquiryDetailContent() {
       await loadTasks(j.data.contact_id, j.data.organisation_id, opps);
     }
     setLoading(false);
-  }, [id, loadCrmData, loadTasks, router]);
+  }, [id, loadCrmData, loadTasks]);
 
   useEffect(() => { void load(); }, [load]);
-
-  useEffect(() => {
-    fetch("/api/admin/engagement/team-members")
-      .then((r) => r.json())
-      .then((j) => setTeamMembers(j.data || []));
-  }, []);
 
   useEffect(
     () =>
@@ -355,8 +328,6 @@ function EnquiryDetailContent() {
     await load();
     bumpTimeline();
   };
-  const queueOpportunity = opportunities.find((o) => o.enquiry_id === enquiry.id) ?? null;
-
   const openTab = (
     tab: PreClientHubTab,
     opts?: { addNote?: boolean; addTask?: boolean },
@@ -375,17 +346,6 @@ function EnquiryDetailContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <MoveEnquiryToProspectQueueModal
-        open={showMoveModal}
-        enquiry={enquiry}
-        teamMembers={teamMembers}
-        onClose={() => setShowMoveModal(false)}
-        onMoved={({ contact_id }) => {
-          setShowMoveModal(false);
-          router.push(`/admin/engagement/prospect-queue/${contact_id}`);
-        }}
-      />
-
       <RecordBackNav
         href="/admin/enquiries"
         backLabel="Website Enquiries"
@@ -418,13 +378,6 @@ function EnquiryDetailContent() {
 
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
-          {/* Journey indicator */}
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#063b32] px-3 py-1 text-xs font-semibold text-white">Website Enquiry</span>
-            <ArrowRight className="h-3.5 w-3.5 text-[#6f6b62]/50" />
-            <span className="rounded-full border border-[#111111]/15 bg-white px-3 py-1 text-xs font-semibold text-[#6f6b62]">Prospect Queue</span>
-          </div>
-
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact details</p>
             <div>
@@ -484,54 +437,6 @@ function EnquiryDetailContent() {
             )}
           </div>
 
-          <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Prospect Queue</p>
-            {linkedContact && (
-              <div className="space-y-2">
-                <p className="flex items-center gap-2 text-sm font-semibold text-[#111111]">
-                  <User className="h-4 w-4 text-[#063b32]" />
-                  {linkedContact.first_name} {linkedContact.last_name || ""}
-                </p>
-                {linkedContact.organisation && (
-                  <p className="flex items-center gap-2 text-xs text-[#6f6b62]">
-                    <Building2 className="h-3.5 w-3.5" /> {linkedContact.organisation.name}
-                  </p>
-                )}
-              </div>
-            )}
-            {queueOpportunity && linkedContact ? (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 rounded-lg bg-[#063b32]/8 px-3 py-2">
-                  <CheckCircle className="h-4 w-4 shrink-0 text-[#063b32]" />
-                  <span className="text-xs font-semibold text-[#063b32]">{queueOpportunity.stage}</span>
-                </div>
-                <Link
-                  href={`/admin/engagement/prospect-queue/${linkedContact.id}`}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#063b32]/20 px-4 py-2.5 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/5"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  Open in Prospect Queue
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <button
-                  type="button"
-                  onClick={() => canAdvanceToClientWork(enquiry.status) && setShowMoveModal(true)}
-                  disabled={!canAdvanceToClientWork(enquiry.status)}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-[#063b32]/30 bg-[#063b32]/5 px-4 py-3 text-sm font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[#063b32]/5"
-                >
-                  <Briefcase className="h-4 w-4" />
-                  {ADVANCE_ACTION_LABEL}
-                </button>
-                {!canAdvanceToClientWork(enquiry.status) && (
-                  <p className="text-xs text-[#6f6b62] leading-relaxed">
-                    Set status to <span className="font-semibold">{PRE_SALES_STATUS}</span> first. {ADVANCE_STATUS_HINT}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
         </div>
 
         <div className="lg:col-span-2 space-y-4">

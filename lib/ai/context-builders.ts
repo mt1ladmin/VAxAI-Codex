@@ -97,7 +97,7 @@ export function buildOutreachContextSummary(
     record.sector_tags.length ? `Sector tags: ${record.sector_tags.join(", ")}` : null,
     record.pain_point_tags.length ? `Pain tags: ${record.pain_point_tags.join(", ")}` : null,
     reviewNotes ? `Reviewer notes: ${reviewNotes}` : null,
-    `YOUR FOCUS: Interpret the stored service-fit assessment — do not contradict it without reason. Help verify fit, suggest what to confirm, draft review notes, and assess readiness for ${PROSPECT_WORKFLOW_PAGE_LABEL}. Reference Knowledge Hub sectors/personas where relevant.`,
+    `YOUR FOCUS: Research, VAxAI support, and Engagement guide tabs are the source of truth — use stored evidence, support boundaries, and engagement approach before inferring. Draw on Knowledge Hub sectors/personas/pain points only when needed to complete the task. Do not suggest external research unless a specific gap blocks progress. Help verify fit, draft review notes, and assess readiness for ${PROSPECT_WORKFLOW_PAGE_LABEL}.`,
   ]
     .filter(Boolean)
     .join("\n");

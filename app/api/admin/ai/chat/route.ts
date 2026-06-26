@@ -2,7 +2,12 @@ import Anthropic from "@anthropic-ai/sdk";
 import { after } from "next/server";
 import { assembleContextPackage } from "@/lib/ai/assemble-context-package";
 import { detectIntent, resolveModelAndTokens } from "@/lib/ai/intent";
-import { loadKnowledgeSnippets } from "@/lib/ai/knowledge-snippets";
+import {
+  HAIKU_MODEL,
+  OUTREACH_CHAT_DEFAULT_MAX_TOKENS,
+  OUTREACH_CHAT_MAX_TOKENS,
+} from "@/lib/ai/research-config";
+import { loadKnowledgeSnippets, shouldLoadKnowledgeSnippets } from "@/lib/ai/knowledge-snippets";
 import { buildSystemBlocks } from "@/lib/ai/system-prompt";
 import { logChatUsage } from "@/lib/ai/usage-log";
 import { createServiceClient } from "@/lib/supabase";
@@ -89,7 +94,12 @@ export async function POST(req: NextRequest) {
   }
 
   const intent = detectIntent(message);
-  const { model, maxTokens } = resolveModelAndTokens(intent, body.model);
+  const isOutreachResearch = contextType === "outreach";
+  const { model: routedModel, maxTokens: routedMax } = resolveModelAndTokens(intent, body.model);
+  const model = isOutreachResearch ? HAIKU_MODEL : routedModel;
+  const maxTokens = isOutreachResearch
+    ? (OUTREACH_CHAT_MAX_TOKENS[intent] ?? OUTREACH_CHAT_DEFAULT_MAX_TOKENS)
+    : routedMax;
 
   const supabase = createServiceClient();
 
@@ -136,11 +146,13 @@ export async function POST(req: NextRequest) {
     linkedSummary = linked?.summary ?? null;
   }
 
-  const knowledgeSnippets = await loadKnowledgeSnippets(supabase, {
-    keywords: [...assembled.keywords, ...message.toLowerCase().split(/\W+/).filter((w) => w.length > 3)],
-    attached: assembled.attachments,
-    intent,
-  });
+  const knowledgeSnippets = shouldLoadKnowledgeSnippets(contextType, intent, message)
+    ? await loadKnowledgeSnippets(supabase, {
+        keywords: [...assembled.keywords, ...message.toLowerCase().split(/\W+/).filter((w) => w.length > 3)],
+        attached: assembled.attachments,
+        intent,
+      })
+    : null;
 
   const system = buildSystemBlocks(contextType, intent, assembled.package, {
     conversationSummary: session.summary as string | null,

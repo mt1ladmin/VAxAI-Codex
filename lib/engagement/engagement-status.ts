@@ -5,7 +5,6 @@ export const FINDER_ENGAGEMENT_STATUSES = [
   "Preparing to engage",
   "Engagement started",
   "Opportunity identified",
-  "In prospect queue",
   "Not progressing",
 ] as const;
 
@@ -17,12 +16,28 @@ export const FINDER_ENGAGEMENT_STATUS_LABELS: Record<FinderEngagementStatus, str
   "Preparing to engage": "Preparing to engage",
   "Engagement started": "Engagement started",
   "Opportunity identified": "Opportunity identified",
-  "In prospect queue": "In prospect queue",
   "Not progressing": "Not progressing",
 };
 
 export function isFinderEngagementStatus(value: string): value is FinderEngagementStatus {
   return (FINDER_ENGAGEMENT_STATUSES as readonly string[]).includes(value);
+}
+
+/** Prospect Queue engagement statuses — post-opportunity-identified, post-engagement stages. */
+export const QUEUE_ENGAGEMENT_STATUSES = [
+  "Active engagement",
+  "Discovery call booked",
+  "Proposal stage",
+  "Awaiting decision",
+  "Won",
+  "On hold",
+  "Not progressing",
+] as const;
+
+export type QueueEngagementStatus = (typeof QUEUE_ENGAGEMENT_STATUSES)[number];
+
+export function isQueueEngagementStatus(value: string): value is QueueEngagementStatus {
+  return (QUEUE_ENGAGEMENT_STATUSES as readonly string[]).includes(value);
 }
 
 export function engagementStatusForAssignment(

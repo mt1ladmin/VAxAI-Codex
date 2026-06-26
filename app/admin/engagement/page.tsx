@@ -6,32 +6,28 @@ import {
   AlertCircle,
   ArrowRight,
   BookOpen,
-  Inbox,
-  Plus,
   Users,
   Send,
+  UserCheck,
   Zap,
 } from "lucide-react";
-import {
-  PROSPECT_FINDER_LABEL,
-  PROSPECT_QUEUE_LABEL,
-} from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import { useUserEmail } from "@/lib/user-email-context";
 
 type WorkToday = {
   overdueTasks: Array<{ id: string; title: string; due_date: string | null; href: string; contact_name: string | null }>;
   dueSoonTasks: Array<{ id: string; title: string; due_date: string | null; href: string; contact_name: string | null }>;
-  queueRecords: Array<{ contact_id: string; name: string; organisation: string | null; stage: string; next_action: string | null; href: string }>;
   finderProspects: Array<{ id: string; organisation_name: string; engagement_status: string; next_action: string | null; href: string }>;
   newEnquiries: Array<{ id: string; name: string; status: string; href: string }>;
 };
+
+type ClientItem = { id: string; organisation_name: string; client_note: string | null };
 
 
 type PainPoint = { id: string; title: string; category: string; slug: string | null };
 type PostItem = { id: string; title: string; status: string; scheduled_at?: string | null; content_type: string };
 
 type Stats = {
-  activeProspectQueue: number;
   newEnquiries: number;
   overdueTasks: number;
   openTasks: number;
@@ -78,8 +74,8 @@ export default function EngagementOverview() {
   const [showContent, setShowContent] = useState(false);
 
   const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
+  const [recentClients, setRecentClients] = useState<ClientItem[]>([]);
   const [stats, setStats] = useState<Stats>({
-    activeProspectQueue: 0,
     newEnquiries: 0,
     overdueTasks: 0,
     openTasks: 0,
@@ -96,15 +92,17 @@ export default function EngagementOverview() {
       .then((r) => r.json())
       .then((j) => setCommonPainPoints(j.data || []));
 
+    fetch("/api/admin/engagement/prospect-outreach?is_client=true&page_size=10")
+      .then((r) => r.json())
+      .then((j: { data?: ClientItem[] }) => setRecentClients(j.data ?? []))
+      .catch(() => {});
+
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
-
-      fetch("/api/admin/engagement/prospect-queue").then((r) => r.json()).catch(() => ({ metrics: {} })),
       fetch("/api/admin/enquiries?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/posts?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([taskRes, queueRes, enqRes, postRes]) => {
+    ]).then(([taskRes, enqRes, postRes]) => {
       const taskData = (taskRes.data || []) as Array<{ due_date: string | null; status: string }>;
-      const queueMetrics = (queueRes.metrics || {}) as { total?: number };
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
 
@@ -112,7 +110,6 @@ export default function EngagementOverview() {
       const isScheduled = (p: PostItem) => !!p.scheduled_at && p.status !== "published";
 
       setStats({
-        activeProspectQueue: queueMetrics.total ?? 0,
         newEnquiries: enqData.filter((e) => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
         openTasks: taskData.filter((t) => t.status !== "done").length,
@@ -155,26 +152,24 @@ export default function EngagementOverview() {
           </div>
 
         </div>
-        {!stats.loading && (stats.overdueTasks > 0 || stats.activeProspectQueue > 0 || stats.newEnquiries > 0) && (
+        {!stats.loading && (stats.overdueTasks > 0 || stats.newEnquiries > 0) && (
           <div className="mt-3 flex flex-wrap gap-2">
             <AlertPill count={stats.overdueTasks} label="overdue task(s)" href="/admin/engagement/pipeline" color="bg-red-100 text-red-700" />
-            <AlertPill count={stats.activeProspectQueue} label={`active ${PROSPECT_QUEUE_LABEL.toLowerCase()}`} href="/admin/engagement/prospect-queue" color="bg-[#063b32]/10 text-[#063b32]" />
             <AlertPill count={stats.newEnquiries} label="new enquiry(ies)" href="/admin/enquiries" color="bg-blue-100 text-blue-700" />
           </div>
         )}
       </div>
 
       <div className="px-8 py-6 space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {stats.loading
-            ? [1, 2, 3].map((i) => (
+            ? [1, 2].map((i) => (
                 <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
                   <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
                   <div className="mt-3 h-8 w-12 rounded bg-[#f7f4ea]/80" />
                 </div>
               ))
             : [
-                { label: PROSPECT_QUEUE_LABEL, value: stats.activeProspectQueue, href: "/admin/engagement/prospect-queue", color: "text-[#063b32]" },
                 { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
                 { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
               ].map(({ label, value, href, color }) => (
@@ -363,11 +358,40 @@ export default function EngagementOverview() {
         </div>
         )}
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        {recentClients.length > 0 && (
+          <SectionCard
+            title="Clients"
+            action={
+              <Link href="/admin/engagement/prospect-outreach?is_client=true" className="text-xs font-semibold text-[#063b32] hover:underline">
+                View all
+              </Link>
+            }
+          >
+            <div className="divide-y divide-[#111111]/5">
+              {recentClients.map((c) => (
+                <Link key={c.id} href={`/admin/engagement/prospect-outreach/${c.id}`} className="flex items-start gap-3 px-5 py-3 hover:bg-purple-50/40 transition-colors">
+                  <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-100">
+                    <UserCheck className="h-3 w-3 text-purple-700" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-semibold text-[#111111] truncate">{c.organisation_name}</p>
+                      <span className="shrink-0 rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-800">Now a client</span>
+                    </div>
+                    {c.client_note && (
+                      <p className="mt-0.5 truncate text-xs text-[#6f6b62]">{c.client_note}</p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </SectionCard>
+        )}
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {[
             { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
             { label: "Website Enquiries", href: "/admin/enquiries", icon: Users, desc: "Contact form submissions" },
-            { label: PROSPECT_QUEUE_LABEL, href: "/admin/engagement/prospect-queue", icon: Inbox, desc: "Active engagement from first contact through delivery" },
           ].map((item) => (
             <Link
               key={item.href}

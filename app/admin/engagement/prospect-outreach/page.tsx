@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
 import { BulkArchiveProspectsModal } from "@/components/admin/BulkArchiveProspectsModal";
-import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { ProspectOutreachMeta } from "@/lib/engagement/prospect-outreach/types";
@@ -66,8 +66,8 @@ function CustomSelect({
 }
 
 function statusTone(status: string): string {
-  if (status === "In prospect queue") return "text-[#063b32] font-medium";
-  if (status === "Opportunity identified") return "text-[#111111] font-medium";
+  if (status === "Opportunity identified") return "text-[#063b32] font-medium";
+  if (status === "Engagement started") return "text-[#111111] font-medium";
   if (status === "Not progressing") return "text-[#6f6b62]";
   if (status === "Not assigned") return "text-[#6f6b62]";
   return "text-[#111111]";
@@ -225,9 +225,6 @@ export default function ProspectFinderPage() {
   };
 
   const totalPages = meta?.total_pages ?? 1;
-  const hasActiveFilters = Boolean(
-    region || needScore || confidence || orgType || search.trim() || assignedTo || engagementStatus || myProspects,
-  );
 
   const memberOptions = useMemo(
     () => [{ value: "", label: "All assignees" }, ...teamMembers.map((m) => ({ value: m.id, label: m.display_name }))],
@@ -242,7 +239,7 @@ export default function ProspectFinderPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_FINDER_LABEL}</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
-              Research catalog — assign owners and qualify fit. Active engagement starts only after moving to {PROSPECT_QUEUE_LABEL}.
+              Research catalog — assign owners and qualify fit.
             </p>
           </div>
           <button
@@ -255,42 +252,50 @@ export default function ProspectFinderPage() {
         </div>
 
         {meta ? (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-              <p className="text-xs font-semibold text-[#6f6b62]">Total researched</p>
+              <p className="text-xs font-semibold text-[#6f6b62]">Total</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
             </div>
-            {hasActiveFilters ? (
-              <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3">
-                <p className="text-xs font-semibold text-[#063b32]/80">Matching filters</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{(meta.filtered_count ?? 0).toLocaleString()}</p>
-              </div>
-            ) : null}
-            <Link
-              href="/admin/engagement/prospect-queue"
-              className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3 transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/8"
+            <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
+              <p className="text-xs font-semibold text-[#6f6b62]">Have tasks</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{(meta.with_tasks_count ?? 0).toLocaleString()}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateParams({ engagement_status: "Preparing to engage", my_prospects: null })}
+              className="rounded-xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50"
             >
-              <p className="text-xs font-semibold text-[#063b32]/80">In {PROSPECT_QUEUE_LABEL}</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{(meta.in_queue_count ?? 0).toLocaleString()}</p>
-            </Link>
+              <p className="text-xs font-semibold text-sky-700">Preparing</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-sky-800">{(meta.preparing_to_engage_count ?? 0).toLocaleString()}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => updateParams({ engagement_status: "Engagement started", unassigned: null, my_prospects: null })}
+              className="rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-3 text-left transition-colors hover:border-blue-300 hover:bg-blue-50"
+            >
+              <p className="text-xs font-semibold text-blue-700">Engaged</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-blue-800">{(meta.engagement_started_count ?? 0).toLocaleString()}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => updateParams({ engagement_status: "Opportunity identified", unassigned: null, my_prospects: null })}
+              className="rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3 text-left transition-colors hover:border-emerald-300 hover:bg-emerald-50"
+            >
+              <p className="text-xs font-semibold text-emerald-700">Opportunity</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-800">{(meta.opportunity_identified_count ?? 0).toLocaleString()}</p>
+            </button>
           </div>
         ) : null}
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => updateParams({ engagement_status: "Opportunity identified", my_prospects: null })}
-            className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-          >
-            Ready to move
-          </button>
-          <Link
-            href="/admin/engagement/prospect-queue"
-            className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-          >
-            Open {PROSPECT_QUEUE_LABEL}
-          </Link>
-        </div>
+        {meta && (meta.is_client_count ?? 0) > 0 ? (
+          <div className="mt-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-4 py-1.5">
+              <span className="text-xs font-semibold text-purple-800">Clients logged</span>
+              <span className="text-sm font-bold tabular-nums text-purple-900">{(meta.is_client_count ?? 0)}</span>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">
@@ -394,7 +399,12 @@ export default function ProspectFinderPage() {
                       <Link href={href} className="font-medium text-[#111111] group-hover:text-[#063b32]">
                         {p.organisation_name}
                       </Link>
-                      {p.days_since_touch != null && p.days_since_touch >= 14 && !p.in_prospect_queue && (
+                      {p.is_client && (
+                        <span className="ml-2 rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-800">
+                          Now a client
+                        </span>
+                      )}
+                      {!p.is_client && p.days_since_touch != null && p.days_since_touch >= 14 && (
                         <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-800">
                           {p.days_since_touch}d idle
                         </span>

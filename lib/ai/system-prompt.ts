@@ -2,7 +2,7 @@ import type { ChatIntent } from "@/lib/ai/intent";
 
 const STAGE_GOALS: Record<string, string> = {
   outreach:
-    "Stage: Prospect Queue review. Help verify service fit using stored assessments, suggest checks, draft review notes, and prepare handoff to Prospect Outreach.",
+    "Stage: Prospect Finder review (Research, VAxAI support, Engagement guide). Use stored assessments and Knowledge Hub snippets first. Only suggest extra research when a gap blocks the task. Help verify fit, draft review notes, and prepare handoff — grounded in hub sectors, personas, and pain points.",
   prospect:
     "Stage: Prospect Outreach. Help with contact strategy, meeting prep, follow-ups, and readiness to advance — grounded in service-fit boundaries.",
   client:
