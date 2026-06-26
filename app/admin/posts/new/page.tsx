@@ -124,7 +124,7 @@ export default function NewPostPage() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Editor */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto bg-white">
           <PostEditor
             title={title}
             onTitleChange={setTitle}
