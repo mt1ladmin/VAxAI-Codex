@@ -160,14 +160,14 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
       if (!res.ok || !json.data) throw new Error(json.error ?? "Failed to create post");
       const postId = json.data.id;
 
-      // Store social content in sessionStorage for the post editor
+      // Store social content in localStorage for the post editor (persists across sessions)
       const socialData: Record<string, unknown> = {
         sharing_caption: blog.sharing_caption,
         hashtags: currentHashtags,
       };
       if ("linkedin_post" in blog) socialData.linkedin_post = (blog as AllResult).linkedin_post;
       if ("instagram_caption" in blog) socialData.instagram_caption = (blog as AllResult).instagram_caption;
-      sessionStorage.setItem(`vaxai_social_${postId}`, JSON.stringify(socialData));
+      localStorage.setItem(`vaxai_social_${postId}`, JSON.stringify(socialData));
 
       onClose();
       router.push(`/admin/posts/${postId}`);
@@ -233,8 +233,8 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
         setScheduledSocial(true);
       }
 
-      // Store social content in sessionStorage for post editor publish popup
-      sessionStorage.setItem(
+      // Store social content in localStorage for post editor publish popup (persists across sessions)
+      localStorage.setItem(
         `vaxai_social_${postId}`,
         JSON.stringify({
           sharing_caption: all.sharing_caption,

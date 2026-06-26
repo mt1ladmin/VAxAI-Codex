@@ -256,9 +256,9 @@ export default function EditPostPage() {
       setAuthors(authorsRes.data ?? []);
       setLoading(false);
 
-      // Read social draft from sessionStorage
+      // Read social draft from localStorage (persists across sessions)
       try {
-        const raw = sessionStorage.getItem(`vaxai_social_${id}`);
+        const raw = localStorage.getItem(`vaxai_social_${id}`);
         if (raw) {
           const draft = JSON.parse(raw) as SocialDraft;
           setSocialDraft(draft);
@@ -312,7 +312,7 @@ export default function EditPostPage() {
 
   const deletePost = async () => {
     await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
-    sessionStorage.removeItem(`vaxai_social_${id}`);
+    localStorage.removeItem(`vaxai_social_${id}`);
     router.push("/admin/posts");
   };
 
