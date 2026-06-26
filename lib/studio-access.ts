@@ -9,6 +9,7 @@ export type StudioMembership = {
 const MEMBER_PAGE_PREFIXES = [
   "/admin/enquiries",
   "/admin/calendar",
+  "/admin/create-content",
   "/admin/posts",
   "/admin/authors",
   "/admin/engagement/knowledge",
@@ -37,6 +38,7 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/knowledge-attachments",
   "/api/admin/engagement/ai",
   "/api/admin/engagement/activity-log",
+  "/api/admin/engagement/content-generate",
   "/api/admin/ai",
 ] as const;
 
