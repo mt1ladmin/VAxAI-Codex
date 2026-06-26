@@ -276,9 +276,23 @@ export async function POST(req: NextRequest) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
     const id = `${slug}-${Date.now().toString(36)}`;
+    const defaults = {
+      website: "",
+      employees: null,
+      annual_revenue_gbp: null,
+      revenue_basis: "",
+      need_rationale: "",
+      financial_source_url: "",
+      contact_source_url: "",
+      data_confidence: "Medium",
+      sector_tags: [],
+      pain_point_tags: [],
+      engagement_approach: "",
+      priority_region: "secondary",
+    };
     const { data, error } = await supabase
       .from("prospect_outreach_catalog")
-      .insert({ ...p, id, research_date: new Date().toISOString().slice(0, 10), updated_at: new Date().toISOString() })
+      .insert({ ...defaults, ...p, id, research_date: new Date().toISOString().slice(0, 10), updated_at: new Date().toISOString() })
       .select()
       .single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
