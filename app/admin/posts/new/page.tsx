@@ -7,12 +7,9 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   Check,
-  ChevronRight,
   Copy,
-  Facebook,
   Instagram,
   Linkedin,
-  Trash2,
   X,
 } from "lucide-react";
 
@@ -109,7 +106,7 @@ export default function NewPostPage() {
         <span className="text-sm text-[#6f6b62]">New post</span>
         <div className="ml-auto flex items-center gap-2">
           <button
-            onClick={() => save("draft")}
+            onClick={() => void save("draft")}
             disabled={saving}
             className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea] disabled:opacity-50"
           >
@@ -141,8 +138,8 @@ export default function NewPostPage() {
 
         {/* Publish panel */}
         {panelOpen && (
-          <div className="flex w-80 shrink-0 flex-col overflow-y-auto border-l border-[#111111]/10 bg-white">
-            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+          <div className="flex w-80 shrink-0 flex-col border-l border-[#111111]/10 bg-white">
+            <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6f6b62]">Publish post</p>
               <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
                 <X className="h-4 w-4" />
@@ -150,7 +147,7 @@ export default function NewPostPage() {
             </div>
 
             {published ? (
-              <div className="p-5">
+              <div className="flex-1 overflow-y-auto p-5">
                 <div className="mb-4 flex items-center gap-2 rounded-md bg-[#f3f9f5] p-3">
                   <Check className="h-4 w-4 text-[#063b32]" />
                   <p className="text-sm font-semibold text-[#063b32]">Published!</p>
@@ -160,10 +157,6 @@ export default function NewPostPage() {
                   <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`} target="_blank" rel="noreferrer"
                     className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-[#f7f4ea]">
                     <Linkedin className="h-4 w-4" /> Share on LinkedIn
-                  </a>
-                  <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`} target="_blank" rel="noreferrer"
-                    className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#1877F2] hover:bg-[#f7f4ea]">
-                    <Facebook className="h-4 w-4" /> Share on Facebook
                   </a>
                   <div className="flex items-center gap-2 rounded-md border border-[#111111]/10 px-3 py-2.5">
                     <Instagram className="h-4 w-4 shrink-0 text-[#E1306C]" />
@@ -182,154 +175,145 @@ export default function NewPostPage() {
                 </Link>
               </div>
             ) : (
-              <div className="flex-1 space-y-6 overflow-y-auto p-5">
-                {/* Slug */}
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">URL Slug</label>
-                  <div className="flex items-center rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs">
-                    <span className="mr-1 text-[#6f6b62]">/posts/</span>
-                    <input
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      className="flex-1 bg-transparent text-[#111111] outline-none"
-                    />
+              <>
+                <div className="flex-1 space-y-6 overflow-y-auto p-5">
+                  {/* Slug */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">URL Slug</label>
+                    <div className="flex items-center rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs">
+                      <span className="mr-1 text-[#6f6b62]">/posts/</span>
+                      <input
+                        value={slug}
+                        onChange={(e) => setSlug(e.target.value)}
+                        className="flex-1 bg-transparent text-[#111111] outline-none"
+                      />
+                    </div>
+                    <p className="mt-1 text-[10px] text-[#6f6b62]">Auto-generated from title. Edit to customise.</p>
                   </div>
-                  <p className="mt-1 text-[10px] text-[#6f6b62]">Auto-generated from title. Edit to customise.</p>
-                </div>
 
-                {/* Content type */}
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Type</label>
-                  <div className="flex flex-wrap gap-1.5">
-                    {PRESET_TYPES.map((t) => (
+                  {/* Content type */}
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Type</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {PRESET_TYPES.map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => { setContentType(t); setShowCustomType(false); }}
+                          className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                            activeType === t && !showCustomType
+                              ? "bg-[#063b32] text-white"
+                              : "border border-[#111111]/15 bg-white text-[#6f6b62] hover:border-[#063b32]/40"
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
                       <button
-                        key={t}
                         type="button"
-                        onClick={() => { setContentType(t); setShowCustomType(false); }}
+                        onClick={() => setShowCustomType(true)}
                         className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                          activeType === t && !showCustomType
+                          showCustomType
                             ? "bg-[#063b32] text-white"
-                            : "border border-[#111111]/15 bg-white text-[#6f6b62] hover:border-[#063b32]/40"
+                            : "border border-dashed border-[#111111]/20 text-[#6f6b62] hover:border-[#063b32]/40"
                         }`}
                       >
-                        {t}
+                        + Custom
                       </button>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setShowCustomType(true)}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                        showCustomType
-                          ? "bg-[#063b32] text-white"
-                          : "border border-dashed border-[#111111]/20 text-[#6f6b62] hover:border-[#063b32]/40"
-                      }`}
-                    >
-                      + Custom
-                    </button>
+                    </div>
+                    {showCustomType && (
+                      <input
+                        autoFocus
+                        value={customType}
+                        onChange={(e) => setCustomType(e.target.value)}
+                        placeholder="Custom type name…"
+                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      />
+                    )}
                   </div>
-                  {showCustomType && (
-                    <input
-                      autoFocus
-                      value={customType}
-                      onChange={(e) => setCustomType(e.target.value)}
-                      placeholder="Custom type name…"
-                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    />
-                  )}
-                </div>
 
-                {/* Tags */}
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Tags</label>
-                  <div className="flex flex-wrap gap-1.5 rounded-md border border-[#111111]/15 bg-[#f7f4ea] p-2">
-                    {tags.map((tag) => (
-                      <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#111111] shadow-sm">
-                        {tag}
-                        <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ))}
-                    <input
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
-                      placeholder={tags.length === 0 ? "Add tags…" : ""}
-                      className="flex-1 min-w-[80px] bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50"
-                    />
+                  {/* Tags */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Tags</label>
+                    <div className="flex flex-wrap gap-1.5 rounded-md border border-[#111111]/15 bg-[#f7f4ea] p-2">
+                      {tags.map((tag) => (
+                        <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#111111] shadow-sm">
+                          {tag}
+                          <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                      <input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
+                        placeholder={tags.length === 0 ? "Add tags…" : ""}
+                        className="flex-1 min-w-[80px] bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50"
+                      />
+                    </div>
+                    <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add a tag.</p>
                   </div>
-                  <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add a tag.</p>
-                </div>
 
-                {/* Author */}
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Author</label>
-                  <select
-                    value={authorId}
-                    onChange={(e) => setAuthorId(e.target.value)}
-                    className="w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  >
-                    <option value="">No author assigned</option>
-                    {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
-                  {authors.length === 0 && (
-                    <p className="mt-1 text-[10px] text-[#6f6b62]">
-                      <Link href="/admin/authors" className="underline">Add authors</Link> first.
-                    </p>
-                  )}
-                </div>
-
-                {/* Cover image */}
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Cover image</label>
-                  <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} aspectClass="aspect-video w-full" />
-                </div>
-
-                {/* SEO placeholder */}
-                <div>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between rounded-md border border-[#111111]/10 px-4 py-3 text-left"
-                  >
-                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">SEO &amp; Discovery</span>
-                    <ChevronRight className="h-4 w-4 text-[#6f6b62]" />
-                  </button>
-                  <p className="mt-1 text-[10px] text-[#6f6b62]">SEO fields coming soon.</p>
-                </div>
-
-                {/* Publish timing */}
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">When to publish</label>
-                  <div className="flex overflow-hidden rounded-md border border-[#111111]/15 text-xs font-semibold">
-                    <button
-                      type="button"
-                      onClick={() => setPublishMode("now")}
-                      className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
+                  {/* Author */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Author</label>
+                    <select
+                      value={authorId}
+                      onChange={(e) => setAuthorId(e.target.value)}
+                      className="w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                     >
-                      Publish now
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPublishMode("schedule")}
-                      className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
-                    >
-                      Schedule
-                    </button>
+                      <option value="">No author assigned</option>
+                      {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
+                    {authors.length === 0 && (
+                      <p className="mt-1 text-[10px] text-[#6f6b62]">
+                        <Link href="/admin/authors" className="underline">Add authors</Link> first.
+                      </p>
+                    )}
                   </div>
-                  {publishMode === "schedule" && (
-                    <input
-                      type="datetime-local"
-                      value={scheduledAt}
-                      onChange={(e) => setScheduledAt(e.target.value)}
-                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    />
-                  )}
+
+                  {/* Cover image */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Cover image</label>
+                    <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} aspectClass="aspect-video w-full" />
+                  </div>
+
+                  {/* Publish timing */}
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">When to publish</label>
+                    <div className="flex overflow-hidden rounded-md border border-[#111111]/15 text-xs font-semibold">
+                      <button
+                        type="button"
+                        onClick={() => setPublishMode("now")}
+                        className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
+                      >
+                        Publish now
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPublishMode("schedule")}
+                        className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
+                      >
+                        Schedule
+                      </button>
+                    </div>
+                    {publishMode === "schedule" && (
+                      <input
+                        type="datetime-local"
+                        value={scheduledAt}
+                        onChange={(e) => setScheduledAt(e.target.value)}
+                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      />
+                    )}
+                  </div>
                 </div>
 
-                <div className="border-t border-[#111111]/10 pt-4">
+                {/* Sticky publish footer */}
+                <div className="shrink-0 border-t border-[#111111]/10 px-5 py-4">
                   {publishMode === "now" ? (
                     <button
-                      onClick={() => save("published")}
+                      onClick={() => void save("published")}
                       disabled={saving}
                       className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
                     >
@@ -337,7 +321,7 @@ export default function NewPostPage() {
                     </button>
                   ) : (
                     <button
-                      onClick={() => save("scheduled")}
+                      onClick={() => void save("scheduled")}
                       disabled={saving || !scheduledAt}
                       className="w-full rounded-md bg-amber-500 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
                     >
@@ -345,7 +329,7 @@ export default function NewPostPage() {
                     </button>
                   )}
                 </div>
-              </div>
+              </>
             )}
           </div>
         )}

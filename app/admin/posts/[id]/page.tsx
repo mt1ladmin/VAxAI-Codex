@@ -259,7 +259,14 @@ export default function EditPostPage() {
       // Read social draft from sessionStorage
       try {
         const raw = sessionStorage.getItem(`vaxai_social_${id}`);
-        if (raw) setSocialDraft(JSON.parse(raw) as SocialDraft);
+        if (raw) {
+          const draft = JSON.parse(raw) as SocialDraft;
+          setSocialDraft(draft);
+          // Auto-open the panel so connected social posts are immediately visible
+          if (draft.linkedin_post || draft.instagram_caption || draft.sharing_caption) {
+            setPanelOpen(true);
+          }
+        }
       } catch { /* ignore */ }
     });
   }, [id]);
