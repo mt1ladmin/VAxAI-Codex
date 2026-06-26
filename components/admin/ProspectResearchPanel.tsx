@@ -234,13 +234,15 @@ export function ProspectResearchEvidenceCard({
 }
 
 export function ProspectTagList({ data }: { data: ProspectOutreachRecord }) {
-  if (!data.sector_tags.length && !data.pain_point_tags.length) return null;
+  const sectorTags = data.sector_tags ?? [];
+  const painTags = data.pain_point_tags ?? [];
+  if (!sectorTags.length && !painTags.length) return null;
   return (
     <div className="flex flex-wrap gap-2">
-      {data.sector_tags.map((t) => (
+      {sectorTags.map((t) => (
         <span key={t} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs text-[#063b32]">{t}</span>
       ))}
-      {data.pain_point_tags.map((t) => (
+      {painTags.map((t) => (
         <span key={t} className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs text-[#6f6b62]">{t}</span>
       ))}
     </div>

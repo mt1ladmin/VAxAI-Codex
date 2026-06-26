@@ -27,7 +27,7 @@ export function priorityLabel(needScore: number): string {
 }
 
 export function sectorLabel(record: ProspectOutreachRecord): string {
-  return record.sector_tags[0] || record.organisation_type || "—";
+  return record.sector_tags?.[0] || record.organisation_type || "—";
 }
 
 export function buildFinderWorkflow(
