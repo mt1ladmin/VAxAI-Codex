@@ -37,8 +37,12 @@ export type ProspectOutreachMeta = {
   available_count?: number;
   filtered_count?: number;
   queued_count?: number;
-  in_queue_count?: number;
   unassigned_count?: number;
+  with_tasks_count?: number;
+  preparing_to_engage_count?: number;
+  engagement_started_count?: number;
+  opportunity_identified_count?: number;
+  is_client_count?: number;
   page?: number;
   page_size?: number;
   total_pages?: number;

@@ -5,7 +5,6 @@ export const FINDER_ENGAGEMENT_STATUSES = [
   "Preparing to engage",
   "Engagement started",
   "Opportunity identified",
-  "In prospect queue",
   "Not progressing",
 ] as const;
 
@@ -17,7 +16,6 @@ export const FINDER_ENGAGEMENT_STATUS_LABELS: Record<FinderEngagementStatus, str
   "Preparing to engage": "Preparing to engage",
   "Engagement started": "Engagement started",
   "Opportunity identified": "Opportunity identified",
-  "In prospect queue": "In prospect queue",
   "Not progressing": "Not progressing",
 };
 

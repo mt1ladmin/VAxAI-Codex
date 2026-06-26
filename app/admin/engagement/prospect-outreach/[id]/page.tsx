@@ -2,8 +2,8 @@
 
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Send } from "lucide-react";
+import { useParams, useSearchParams } from "next/navigation";
+import { BookOpen, UserCheck } from "lucide-react";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
@@ -13,7 +13,6 @@ import { HubTasksTab } from "@/components/admin/HubTasksTab";
 import { JourneyStagePills } from "@/components/admin/JourneyStageBanner";
 
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
-import { MoveToProspectQueueModal } from "@/components/admin/MoveToProspectQueueModal";
 import {
   ProspectDecisionMakerCard,
   ProspectOrganisationCard,
@@ -33,11 +32,7 @@ import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { countNotes } from "@/lib/engagement/note-count";
 import { buildOutreachContextSummary } from "@/lib/ai/context-builders";
 import { FINDER_ENGAGEMENT_STATUSES, type FinderEngagementStatus } from "@/lib/engagement/engagement-status";
-import {
-  MOVE_TO_PROSPECT_QUEUE_LABEL,
-  PROSPECT_FINDER_LABEL,
-  prospectQueueDetailPath,
-} from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
@@ -47,7 +42,6 @@ import type { EngagementTask } from "@/lib/engagement/types";
 
 function ProspectFinderDetailContent() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const backQs = searchParams.get("back");
   const backHref = `/admin/engagement/prospect-outreach${backQs ? `?${backQs}` : ""}`;
@@ -61,7 +55,9 @@ function ProspectFinderDetailContent() {
   const [saving, setSaving] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [showAddNote, setShowAddNote] = useState(false);
-  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [clientNote, setClientNote] = useState("");
+  const [savingClient, setSavingClient] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
   const [taskForm, setTaskForm] = useState(DEFAULT_TASK_FORM);
   const [savingTask, setSavingTask] = useState(false);
@@ -82,12 +78,6 @@ function ProspectFinderDetailContent() {
   }, [id]);
 
   useEffect(() => { void load(); }, [load]);
-
-  useEffect(() => {
-    if (!loading && record?.in_prospect_queue && record.pipeline_contact_id) {
-      router.replace(prospectQueueDetailPath(record.pipeline_contact_id));
-    }
-  }, [loading, record, router]);
 
   useEffect(
     () =>
@@ -221,6 +211,18 @@ function ProspectFinderDetailContent() {
     await load({ silent: true });
   };
 
+  const logAsClient = async () => {
+    if (!clientNote.trim()) return;
+    setSavingClient(true);
+    try {
+      await patchWorkflow({ is_client: true, client_note: clientNote.trim() });
+      setShowClientModal(false);
+      setClientNote("");
+    } finally {
+      setSavingClient(false);
+    }
+  };
+
   if (loading && !record) return <HubDetailSkeleton />;
   if (!record) return <div className="p-8 text-sm text-[#6f6b62]">Prospect not found.</div>;
 
@@ -239,15 +241,42 @@ function ProspectFinderDetailContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      <MoveToProspectQueueModal
-        open={showMoveModal}
-        prospect={record}
-        teamMembers={teamMembers}
-        onClose={() => setShowMoveModal(false)}
-        onMoved={({ contact_id }) => {
-          router.push(prospectQueueDetailPath(contact_id));
-        }}
-      />
+      {showClientModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowClientModal(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100">
+                <UserCheck className="h-5 w-5 text-purple-700" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-[#111111]">Log as new client</h3>
+                <p className="text-xs text-[#6f6b62]">{record.organisation_name}</p>
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Services being provided *</label>
+              <textarea
+                value={clientNote}
+                onChange={(e) => setClientNote(e.target.value)}
+                rows={4}
+                autoFocus
+                placeholder="Describe the services VAxAI is providing to this client…"
+                className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500 resize-none"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setShowClientModal(false)}
+                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                Cancel
+              </button>
+              <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientNote.trim()}
+                className="flex-1 rounded-xl bg-purple-700 py-2.5 text-sm font-semibold text-white hover:bg-purple-800 disabled:opacity-50">
+                {savingClient ? "Saving…" : "Log as client"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <RecordBackNav
         href={backHref}
@@ -336,10 +365,9 @@ function ProspectFinderDetailContent() {
                   setRecord((prev) => (prev ? { ...prev, engagement_status: status } : prev));
                   void patchWorkflow({ engagement_status: status });
                 }}
-                disabled={record.in_prospect_queue}
-                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] appearance-none outline-none focus:border-[#063b32] disabled:cursor-not-allowed disabled:bg-[#f7f4ea]/20"
+                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] appearance-none outline-none focus:border-[#063b32]"
               >
-                {FINDER_ENGAGEMENT_STATUSES.filter((s) => s !== "In prospect queue" || record.in_prospect_queue).map((s) => (
+                {FINDER_ENGAGEMENT_STATUSES.map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
@@ -347,28 +375,26 @@ function ProspectFinderDetailContent() {
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Pipeline</p>
-            {record.engagement_status === "Opportunity identified" ? (
-              <button
-                type="button"
-                onClick={() => setShowMoveModal(true)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-              >
-                <Send className="h-4 w-4" /> {MOVE_TO_PROSPECT_QUEUE_LABEL}
-              </button>
+            {record.is_client ? (
+              <div>
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="rounded-full bg-purple-100 px-2.5 py-1 text-xs font-semibold text-purple-800">Now a client</span>
+                </div>
+                {record.client_note && (
+                  <p className="rounded-xl border border-purple-100 bg-purple-50 px-3 py-2 text-sm text-[#111111]">{record.client_note}</p>
+                )}
+              </div>
             ) : (
-              <div className="space-y-2">
+              <>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client</p>
                 <button
                   type="button"
-                  disabled
-                  className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-dashed border-[#063b32]/25 bg-[#063b32]/5 px-4 py-2.5 text-sm font-semibold text-[#063b32]/70"
+                  onClick={() => setShowClientModal(true)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-purple-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-purple-800"
                 >
-                  <Send className="h-4 w-4" /> {MOVE_TO_PROSPECT_QUEUE_LABEL}
+                  <UserCheck className="h-4 w-4" /> Log as new client
                 </button>
-                <p className="text-xs text-[#6f6b62]">
-                  Set engagement status to <span className="font-semibold text-[#111111]">Opportunity identified</span> first.
-                </p>
-              </div>
+              </>
             )}
           </div>
         </div>

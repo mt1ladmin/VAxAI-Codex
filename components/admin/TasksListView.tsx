@@ -6,7 +6,7 @@ import { TasksListSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { useUserEmail } from "@/lib/user-email-context";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
-import { Check, CheckSquare, Loader2, Pencil, Plus, Save, X } from "lucide-react";
+import { Check, CheckSquare, Loader2, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import {
   DUE_DATE_FILTER_OPTIONS,
   SOURCE_FILTER_OPTIONS,
@@ -140,6 +140,7 @@ export function TasksListView({
   const [editingTask, setEditingTask] = useState<EngagementTask | null>(null);
   const [editForm, setEditForm] = useState({ title: "", due_date: "", notes: "", priority: "medium", status: "todo" });
   const [savingEdit, setSavingEdit] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const studioAccess = useStudioAccessOptional();
   const allowClientLinks = true;
 
@@ -170,7 +171,10 @@ export function TasksListView({
   }, [load]);
 
   const filteredTasks = useMemo(
-    () => tasks.filter((t) => matchesDueDateFilter(t, dueDateFilter) && matchesTaskSourceFilter(t, sourceFilter)),
+    () => tasks.filter((t) =>
+      t.status === "done" ||
+      (matchesDueDateFilter(t, dueDateFilter) && matchesTaskSourceFilter(t, sourceFilter))
+    ),
     [tasks, dueDateFilter, sourceFilter],
   );
 
@@ -270,6 +274,14 @@ export function TasksListView({
     } finally {
       setSavingEdit(false);
     }
+  };
+
+  const deleteTask = async (taskId: string) => {
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    setEditingTask(null);
+    setConfirmDeleteId(null);
+    await fetch(`/api/admin/engagement/tasks/${taskId}`, { method: "DELETE" });
+    void load();
   };
 
   return (
@@ -535,24 +547,54 @@ export function TasksListView({
                   className={`${inputClass} resize-none`}
                 />
               </div>
-              <div className="flex gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => void saveEdit()}
-                  disabled={savingEdit || !editForm.title.trim()}
-                  className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60"
-                >
-                  {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  {savingEdit ? "Saving…" : "Save"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditingTask(null)}
-                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]"
-                >
-                  Cancel
-                </button>
-              </div>
+              {confirmDeleteId === editingTask?.id ? (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                  <p className="text-sm text-red-700 font-semibold mb-2">Delete this task?</p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void deleteTask(editingTask.id)}
+                      className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeleteId(null)}
+                      className="flex-1 rounded-lg border border-[#111111]/15 py-2 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => void saveEdit()}
+                    disabled={savingEdit || !editForm.title.trim()}
+                    className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60"
+                  >
+                    {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                    {savingEdit ? "Saving…" : "Save"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingTask(null)}
+                    className="flex-1 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDeleteId(editingTask?.id ?? null)}
+                    className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
+                    title="Delete task"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

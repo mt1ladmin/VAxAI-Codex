@@ -23,7 +23,7 @@ export type SourceFilter = "all" | "website_enquiry" | "prospect_queue";
 export const SOURCE_FILTER_OPTIONS: { value: SourceFilter; label: string }[] = [
   { value: "all", label: "All sources" },
   { value: "website_enquiry", label: "Website enquiry" },
-  { value: "prospect_queue", label: `${PROSPECT_FINDER_LABEL} / ${PROSPECT_QUEUE_LABEL}` },
+  { value: "prospect_queue", label: PROSPECT_FINDER_LABEL },
 ];
 
 export const TASK_FILTER_OPTIONS: { value: TaskFilter; label: string }[] = [

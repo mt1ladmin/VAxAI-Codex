@@ -84,6 +84,7 @@ export type FinderListFilters = {
   engagement_status?: string;
   my_prospects?: boolean;
   unassigned?: boolean;
+  is_client?: boolean;
 
   userEmail?: string | null;
   members: StudioTeamMember[];
@@ -111,8 +112,9 @@ export function filterFinderList(
   if (filters.unassigned) {
     filtered = filtered.filter((p) => !p.assigned_team_member_id);
   }
-  // Promoted prospects live in Prospect Queue only — never duplicate in Finder.
-  filtered = filtered.filter((p) => !p.in_prospect_queue);
+  if (filters.is_client !== undefined) {
+    filtered = filtered.filter((p) => p.is_client === filters.is_client);
+  }
   if (filters.my_prospects) {
     const me = teamMemberForUserEmail(filters.members, filters.userEmail);
     if (me) filtered = filtered.filter((p) => p.assigned_team_member_id === me.id);

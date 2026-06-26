@@ -66,8 +66,8 @@ function CustomSelect({
 }
 
 function statusTone(status: string): string {
-  if (status === "In prospect queue") return "text-[#063b32] font-medium";
-  if (status === "Opportunity identified") return "text-[#111111] font-medium";
+  if (status === "Opportunity identified") return "text-[#063b32] font-medium";
+  if (status === "Engagement started") return "text-[#111111] font-medium";
   if (status === "Not progressing") return "text-[#6f6b62]";
   if (status === "Not assigned") return "text-[#6f6b62]";
   return "text-[#111111]";
@@ -258,17 +258,11 @@ export default function ProspectFinderPage() {
         </div>
 
         {meta ? (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-              <p className="text-xs font-semibold text-[#6f6b62]">Total researched</p>
+              <p className="text-xs font-semibold text-[#6f6b62]">Total</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
             </div>
-            {hasActiveFilters ? (
-              <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3">
-                <p className="text-xs font-semibold text-[#063b32]/80">Matching filters</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{(meta.filtered_count ?? 0).toLocaleString()}</p>
-              </div>
-            ) : null}
             <button
               type="button"
               onClick={() => updateParams({ unassigned: "true", my_prospects: null, engagement_status: null })}
@@ -277,24 +271,45 @@ export default function ProspectFinderPage() {
               <p className="text-xs font-semibold text-amber-700">Unassigned</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{(meta.unassigned_count ?? 0).toLocaleString()}</p>
             </button>
+            <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
+              <p className="text-xs font-semibold text-[#6f6b62]">Have tasks</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{(meta.with_tasks_count ?? 0).toLocaleString()}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => updateParams({ engagement_status: "Preparing to engage", unassigned: null, my_prospects: null })}
+              className="rounded-xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50"
+            >
+              <p className="text-xs font-semibold text-sky-700">Preparing</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-sky-800">{(meta.preparing_to_engage_count ?? 0).toLocaleString()}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => updateParams({ engagement_status: "Engagement started", unassigned: null, my_prospects: null })}
+              className="rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-3 text-left transition-colors hover:border-blue-300 hover:bg-blue-50"
+            >
+              <p className="text-xs font-semibold text-blue-700">Engaged</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-blue-800">{(meta.engagement_started_count ?? 0).toLocaleString()}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => updateParams({ engagement_status: "Opportunity identified", unassigned: null, my_prospects: null })}
+              className="rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3 text-left transition-colors hover:border-emerald-300 hover:bg-emerald-50"
+            >
+              <p className="text-xs font-semibold text-emerald-700">Opportunity</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-800">{(meta.opportunity_identified_count ?? 0).toLocaleString()}</p>
+            </button>
           </div>
         ) : null}
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          {[
-            { label: "Unassigned", params: { unassigned: "true", my_prospects: null, engagement_status: null } },
-            { label: "Ready to move", params: { engagement_status: "Opportunity identified", unassigned: null, my_prospects: null } },
-          ].map((view) => (
-            <button
-              key={view.label}
-              type="button"
-              onClick={() => updateParams(view.params)}
-              className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-            >
-              {view.label}
-            </button>
-          ))}
-        </div>
+        {meta && (meta.is_client_count ?? 0) > 0 ? (
+          <div className="mt-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-4 py-1.5">
+              <span className="text-xs font-semibold text-purple-800">Clients logged</span>
+              <span className="text-sm font-bold tabular-nums text-purple-900">{(meta.is_client_count ?? 0)}</span>
+            </div>
+          </div>
+        ) : null}
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">
@@ -407,7 +422,12 @@ export default function ProspectFinderPage() {
                       <Link href={href} className="font-medium text-[#111111] group-hover:text-[#063b32]">
                         {p.organisation_name}
                       </Link>
-                      {p.days_since_touch != null && p.days_since_touch >= 14 && !p.in_prospect_queue && (
+                      {p.is_client && (
+                        <span className="ml-2 rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-800">
+                          Now a client
+                        </span>
+                      )}
+                      {!p.is_client && p.days_since_touch != null && p.days_since_touch >= 14 && (
                         <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-800">
                           {p.days_since_touch}d idle
                         </span>
