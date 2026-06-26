@@ -123,7 +123,7 @@ function inferEvidence(record: AssessInput): string {
   if (record.annual_revenue_gbp) {
     parts.push(`Annual income around £${record.annual_revenue_gbp.toLocaleString("en-GB")}.`);
   }
-  if (record.sector_tags.length) parts.push(`Sector signals: ${record.sector_tags.join(", ")}.`);
+  if (record.sector_tags?.length) parts.push(`Sector signals: ${record.sector_tags.join(", ")}.`);
   return parts.filter(Boolean).join(" ");
 }
 
@@ -169,7 +169,7 @@ function inferEngagementBasis(
 }
 
 function refineNeedScore(record: AssessInput, complexity: ComplexityLevel): number {
-  const text = `${record.need_rationale} ${record.pain_point_tags.join(" ")}`.toLowerCase();
+  const text = `${record.need_rationale} ${(record.pain_point_tags ?? []).join(" ")}`.toLowerCase();
   const adminSignals = ADMIN_HEAVY_TERMS.filter((t) => text.includes(t)).length;
   let score = record.need_score;
 

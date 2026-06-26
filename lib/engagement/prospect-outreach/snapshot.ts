@@ -41,7 +41,7 @@ export function snapshotToQueueFields(
     raw_email: snapshot.email || null,
     raw_phone: snapshot.phone || null,
     raw_website: snapshot.website || null,
-    raw_industry: snapshot.sector_tags[0] || snapshot.organisation_type,
+    raw_industry: snapshot.sector_tags?.[0] || snapshot.organisation_type,
     raw_location: `${snapshot.location}, ${snapshot.region}`,
     raw_notes: reviewNotes?.trim() || null,
     status: "Ready to contact",
@@ -49,7 +49,7 @@ export function snapshotToQueueFields(
       "prospect-outreach",
       snapshot.region,
       `need-${snapshot.need_score}`,
-      ...snapshot.sector_tags.slice(0, 2),
+      ...(snapshot.sector_tags ?? []).slice(0, 2),
     ].filter(Boolean),
   };
 }
@@ -82,8 +82,8 @@ export function outreachSummaryForConversion(snapshot: ProspectOutreachRecord): 
       ? `Revenue: £${snapshot.annual_revenue_gbp.toLocaleString("en-GB")}`
       : null,
     snapshot.revenue_basis ? `Revenue basis: ${snapshot.revenue_basis}` : null,
-    snapshot.sector_tags.length ? `Sectors: ${snapshot.sector_tags.join(", ")}` : null,
-    snapshot.pain_point_tags.length ? `Pain points: ${snapshot.pain_point_tags.join(", ")}` : null,
+    snapshot.sector_tags?.length ? `Sectors: ${snapshot.sector_tags.join(", ")}` : null,
+    snapshot.pain_point_tags?.length ? `Pain points: ${snapshot.pain_point_tags.join(", ")}` : null,
   ]
     .filter(Boolean)
     .join("\n");

@@ -94,8 +94,8 @@ export function buildOutreachContextSummary(
     `Research evidence: ${record.need_rationale}`,
     ...formatServiceFitBlock(record),
     record.engagement_approach ? `Engagement notes: ${record.engagement_approach}` : null,
-    record.sector_tags.length ? `Sector tags: ${record.sector_tags.join(", ")}` : null,
-    record.pain_point_tags.length ? `Pain tags: ${record.pain_point_tags.join(", ")}` : null,
+    record.sector_tags?.length ? `Sector tags: ${record.sector_tags.join(", ")}` : null,
+    record.pain_point_tags?.length ? `Pain tags: ${record.pain_point_tags.join(", ")}` : null,
     reviewNotes ? `Reviewer notes: ${reviewNotes}` : null,
     `YOUR FOCUS: Research, VAxAI support, and Engagement guide tabs are the source of truth — use stored evidence, support boundaries, and engagement approach before inferring. Draw on Knowledge Hub sectors/personas/pain points only when needed to complete the task. Do not suggest external research unless a specific gap blocks progress. Help verify fit, draft review notes, and assess readiness for ${PROSPECT_WORKFLOW_PAGE_LABEL}.`,
   ]
