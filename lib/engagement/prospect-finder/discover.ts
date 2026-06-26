@@ -166,7 +166,6 @@ export async function discoverProspects(
     )
     .join("\n");
 
-  const supabase = createServiceClient();
   const briefKeywords = input.brief
     .toLowerCase()
     .split(/\W+/)
