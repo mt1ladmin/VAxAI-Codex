@@ -1,12 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CalendarDays, Check, Copy, ExternalLink, Loader2, Sparkles, X } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { Check, Loader2, Sparkles, X } from "lucide-react";
+import { useState } from "react";
 
-type ContentType = "blog" | "linkedin" | "instagram";
+type ContentType = "blog" | "linkedin" | "instagram" | "all";
 
 type BlogResult = {
+  title: string;
+  seo_description: string;
+  body_html: string;
+  sharing_caption: string;
+  hashtags: string[];
+};
+
+type AllResult = {
   title: string;
   seo_description: string;
   body_html: string;
@@ -26,136 +34,38 @@ type InstagramResult = {
   hashtags: string[];
 };
 
-type GeneratedResult = BlogResult | LinkedInResult | InstagramResult;
+type GeneratedResult = BlogResult | AllResult | LinkedInResult | InstagramResult;
 
-function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <button
-      type="button"
-      onClick={() => void handleCopy()}
-      className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#6f6b62] hover:bg-[#f7f4ea] transition-colors"
-    >
-      {copied ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
-      {copied ? "Copied!" : label}
-    </button>
-  );
-}
-
-function Section({ label, children, copyText, actions }: { label: string; children: ReactNode; copyText?: string; actions?: ReactNode }) {
+function EditSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-      <div className="flex items-center justify-between bg-[#f7f4ea] px-4 py-2">
+      <div className="flex items-center bg-[#f7f4ea] px-4 py-2">
         <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">{label}</p>
-        <div className="flex items-center gap-2">
-          {actions}
-          {copyText && <CopyButton text={copyText} />}
-        </div>
       </div>
       <div className="px-4 py-3">{children}</div>
     </div>
   );
 }
 
-function SaveToCalendarInline({
-  content,
-  hashtags,
-  platform,
-  defaultTitle,
-  postId,
-}: {
-  content: string;
-  hashtags: string[];
-  platform: "linkedin" | "instagram";
-  defaultTitle: string;
-  postId?: string;
-}) {
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const save = async () => {
-    if (!date) return;
-    setSaving(true);
-    const fullContent = hashtags.length
-      ? `${content}\n\n${hashtags.map((h) => `#${h}`).join(" ")}`
-      : content;
-    await fetch("/api/admin/social-posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: `${defaultTitle} — ${platform === "linkedin" ? "LinkedIn" : "Instagram"}`,
-        platform,
-        content: fullContent,
-        scheduled_date: date,
-        link: postId ? `/admin/posts/${postId}` : null,
-      }),
-    });
-    setSaving(false);
-    setSaved(true);
-    setOpen(false);
-  };
-
-  if (saved) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
-        <Check className="h-3 w-3" /> Saved to calendar
-      </span>
-    );
-  }
-
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#6f6b62] hover:bg-[#f7f4ea]"
-      >
-        <CalendarDays className="h-3 w-3" /> Schedule
-      </button>
-    );
-  }
-
-  return (
-    <div className="inline-flex items-center gap-1.5">
-      <input
-        type="date"
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        className="rounded-md border border-[#111111]/15 px-2 py-0.5 text-xs outline-none focus:border-[#063b32]"
-      />
-      <button
-        type="button"
-        disabled={!date || saving}
-        onClick={() => void save()}
-        className="inline-flex items-center gap-1 rounded-md bg-[#063b32] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-      >
-        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
-        Save
-      </button>
-      <button type="button" onClick={() => setOpen(false)} className="text-[#6f6b62] hover:text-[#111111]">
-        <X className="h-3.5 w-3.5" />
-      </button>
-    </div>
-  );
-}
+const taClass =
+  "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y leading-relaxed";
+const inputClass =
+  "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]";
 
 const CONTENT_TYPES: { value: ContentType; label: string }[] = [
   { value: "blog", label: "Blog Post" },
   { value: "linkedin", label: "LinkedIn Post" },
   { value: "instagram", label: "Instagram Post" },
+  { value: "all", label: "All (Blog + Social)" },
 ];
 
 const PLACEHOLDERS: Record<ContentType, string> = {
   blog: "Describe the topic — e.g. 'How small charities can review their admin systems to find where AI and automation would save the most time'",
-  linkedin: "Describe the message — e.g. 'The value of reviewing your current systems before adopting AI — what you'll learn that no vendor demo can tell you'",
-  instagram: "Describe the idea — e.g. 'The moment you realise your systems are holding you back more than your workload is'",
+  linkedin:
+    "Describe the message — e.g. 'The value of reviewing your current systems before adopting AI — what you'll learn that no vendor demo can tell you'",
+  instagram:
+    "Describe the idea — e.g. 'The moment you realise your systems are holding you back more than your workload is'",
+  all: "Describe the topic — e.g. 'How small charities can review their admin systems to find where AI and automation would save the most time'",
 };
 
 export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -165,17 +75,26 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
   const [brief, setBrief] = useState("");
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<GeneratedResult | null>(null);
+
+  // Editable draft state — typed via contentType at render time
+  const [editableResult, setEditableResult] = useState<GeneratedResult | null>(null);
+  const [hashtagsInput, setHashtagsInput] = useState("");
+
+  // Actions
   const [converting, setConverting] = useState(false);
-  const [createdPostId, setCreatedPostId] = useState<string | undefined>(undefined);
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduling, setScheduling] = useState(false);
+  const [scheduledSocial, setScheduledSocial] = useState(false);
 
   const reset = () => {
     setStep("form");
     setBrief("");
-    setResult(null);
+    setEditableResult(null);
+    setHashtagsInput("");
     setError("");
     setContentType("blog");
-    setCreatedPostId(undefined);
+    setScheduleDate("");
+    setScheduledSocial(false);
   };
 
   const handleClose = () => {
@@ -194,7 +113,10 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
       });
       const json = (await res.json()) as { data?: GeneratedResult; error?: string };
       if (!res.ok || !json.data) throw new Error(json.error ?? "Generation failed");
-      setResult(json.data);
+      setEditableResult(json.data);
+      if ("hashtags" in json.data) {
+        setHashtagsInput((json.data.hashtags as string[]).join(", "));
+      }
       setStep("preview");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
@@ -203,9 +125,22 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
     }
   };
 
+  const currentHashtags = hashtagsInput
+    .split(",")
+    .map((h) => h.trim().replace(/^#/, ""))
+    .filter(Boolean);
+
+  const hashtagString = currentHashtags.map((h) => `#${h}`).join(" ");
+
+  const defaultTitle =
+    editableResult && "title" in editableResult
+      ? (editableResult as BlogResult).title
+      : brief.slice(0, 80);
+
+  // Create a blog/all draft post and navigate to post editor
   const convertToDraftPost = async () => {
-    if (!result || contentType !== "blog") return;
-    const blog = result as BlogResult;
+    if (!editableResult) return;
+    const blog = editableResult as BlogResult | AllResult;
     setConverting(true);
     setError("");
     try {
@@ -217,15 +152,25 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
           description: blog.seo_description,
           body_html: blog.body_html,
           content_type: "Article",
-          tags: blog.hashtags,
+          tags: currentHashtags,
           status: "draft",
         }),
       });
       const json = (await res.json()) as { data?: { id: string }; error?: string };
       if (!res.ok || !json.data) throw new Error(json.error ?? "Failed to create post");
-      setCreatedPostId(json.data.id);
+      const postId = json.data.id;
+
+      // Store social content in sessionStorage for the post editor
+      const socialData: Record<string, unknown> = {
+        sharing_caption: blog.sharing_caption,
+        hashtags: currentHashtags,
+      };
+      if ("linkedin_post" in blog) socialData.linkedin_post = (blog as AllResult).linkedin_post;
+      if ("instagram_caption" in blog) socialData.instagram_caption = (blog as AllResult).instagram_caption;
+      sessionStorage.setItem(`vaxai_social_${postId}`, JSON.stringify(socialData));
+
       onClose();
-      router.push(`/admin/posts/${json.data.id}`);
+      router.push(`/admin/posts/${postId}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to create post");
     } finally {
@@ -233,13 +178,134 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
     }
   };
 
+  // For "all" type: schedule both social posts then create draft post
+  const saveAll = async () => {
+    if (!editableResult) return;
+    const all = editableResult as AllResult;
+    setConverting(true);
+    setError("");
+    try {
+      // Create draft post
+      const res = await fetch("/api/admin/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: all.title,
+          description: all.seo_description,
+          body_html: all.body_html,
+          content_type: "Article",
+          tags: currentHashtags,
+          status: "draft",
+        }),
+      });
+      const json = (await res.json()) as { data?: { id: string }; error?: string };
+      if (!res.ok || !json.data) throw new Error(json.error ?? "Failed to create post");
+      const postId = json.data.id;
+
+      // Schedule social posts if date is set
+      if (scheduleDate) {
+        setScheduling(true);
+        await Promise.all([
+          fetch("/api/admin/social-posts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: `${defaultTitle} — LinkedIn`,
+              platform: "linkedin",
+              content: `${all.linkedin_post}\n\n${hashtagString}`,
+              scheduled_date: scheduleDate,
+              link: `/admin/posts/${postId}`,
+            }),
+          }),
+          fetch("/api/admin/social-posts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: `${defaultTitle} — Instagram`,
+              platform: "instagram",
+              content: `${all.instagram_caption}\n\n${hashtagString}`,
+              scheduled_date: scheduleDate,
+              link: `/admin/posts/${postId}`,
+            }),
+          }),
+        ]);
+        setScheduling(false);
+        setScheduledSocial(true);
+      }
+
+      // Store social content in sessionStorage for post editor publish popup
+      sessionStorage.setItem(
+        `vaxai_social_${postId}`,
+        JSON.stringify({
+          sharing_caption: all.sharing_caption,
+          linkedin_post: all.linkedin_post,
+          instagram_caption: all.instagram_caption,
+          hashtags: currentHashtags,
+        }),
+      );
+
+      onClose();
+      router.push(`/admin/posts/${postId}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to save");
+    } finally {
+      setConverting(false);
+      setScheduling(false);
+    }
+  };
+
+  // For individual linkedin/instagram types — schedule single platform
+  const [liScheduleDate, setLiScheduleDate] = useState("");
+  const [igScheduleDate, setIgScheduleDate] = useState("");
+  const [liSaved, setLiSaved] = useState(false);
+  const [igSaved, setIgSaved] = useState(false);
+  const [liSaving, setLiSaving] = useState(false);
+  const [igSaving, setIgSaving] = useState(false);
+
+  const saveLiToCalendar = async () => {
+    if (!liScheduleDate || !editableResult) return;
+    setLiSaving(true);
+    const li = editableResult as LinkedInResult;
+    await fetch("/api/admin/social-posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: `${brief.slice(0, 80)} — LinkedIn`,
+        platform: "linkedin",
+        content: `${li.post_text}\n\n${hashtagString}`,
+        scheduled_date: liScheduleDate,
+      }),
+    });
+    setLiSaving(false);
+    setLiSaved(true);
+  };
+
+  const saveIgToCalendar = async () => {
+    if (!igScheduleDate || !editableResult) return;
+    setIgSaving(true);
+    const ig = editableResult as InstagramResult;
+    await fetch("/api/admin/social-posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: `${brief.slice(0, 80)} — Instagram`,
+        platform: "instagram",
+        content: `${ig.caption}\n\n${hashtagString}`,
+        scheduled_date: igScheduleDate,
+      }),
+    });
+    setIgSaving(false);
+    setIgSaved(true);
+  };
+
   if (!open) return null;
 
-  const hashtagString = result && "hashtags" in result
-    ? (result.hashtags as string[]).map((h) => `#${h}`).join(" ")
-    : "";
+  const blog = editableResult as BlogResult | null;
+  const all = editableResult as AllResult | null;
+  const li = editableResult as LinkedInResult | null;
+  const ig = editableResult as InstagramResult | null;
 
-  const blogTitle = result && contentType === "blog" ? (result as BlogResult).title : brief;
+  const isBlogLike = contentType === "blog" || contentType === "all";
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4">
@@ -248,13 +314,19 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
         <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
           <div>
             <h2 className="text-base font-semibold text-[#111111]">
-              {step === "form" ? "Create content with AI" : `${CONTENT_TYPES.find(t => t.value === contentType)?.label} Preview`}
+              {step === "form"
+                ? "Create content with AI"
+                : `${CONTENT_TYPES.find((t) => t.value === contentType)?.label} — Edit & Save`}
             </h2>
             {step === "preview" && (
-              <p className="text-xs text-[#6f6b62] mt-0.5">Review, copy, schedule to calendar, or convert to a draft post</p>
+              <p className="text-xs text-[#6f6b62] mt-0.5">Edit the AI draft below, then save or schedule</p>
             )}
           </div>
-          <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#f7f4ea]">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#f7f4ea]"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -263,7 +335,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {step === "form" ? (
             <div className="space-y-4">
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {CONTENT_TYPES.map((t) => (
                   <button
                     key={t.value}
@@ -294,7 +366,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
               </div>
 
               <p className="text-xs text-[#6f6b62]">
-                The AI applies the MT1L VAT framework (Value, Alignment, Trust) as a natural lens through the content — embedding it where it strengthens the piece and referencing MT1L.com where advisory context is genuinely relevant.
+                The AI applies the MT1L VAT framework (Value, Alignment, Trust) as a natural lens through the content.
               </p>
 
               {error && <p className="text-sm text-red-600">{error}</p>}
@@ -303,132 +375,208 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
             <div className="space-y-3">
               {error && <p className="text-sm text-red-600">{error}</p>}
 
-              {contentType === "blog" && result && (() => {
-                const blog = result as BlogResult;
-                return (
-                  <>
-                    <Section label="Title" copyText={blog.title}>
-                      <p className="text-sm font-semibold text-[#111111]">{blog.title}</p>
-                    </Section>
+              {/* Blog / All — blog fields */}
+              {isBlogLike && blog && (
+                <>
+                  <EditSection label="Title">
+                    <input
+                      value={blog.title}
+                      onChange={(e) =>
+                        setEditableResult((prev) => (prev ? { ...prev, title: e.target.value } : prev))
+                      }
+                      className={inputClass}
+                    />
+                  </EditSection>
 
-                    <Section label="SEO Description" copyText={blog.seo_description}>
-                      <p className="text-sm text-[#111111]">{blog.seo_description}</p>
-                      <p className="mt-1 text-xs text-[#6f6b62]">{blog.seo_description.length} / 160 chars</p>
-                    </Section>
+                  <EditSection label="SEO Description">
+                    <textarea
+                      value={blog.seo_description}
+                      onChange={(e) =>
+                        setEditableResult((prev) =>
+                          prev ? { ...prev, seo_description: e.target.value } : prev,
+                        )
+                      }
+                      rows={2}
+                      className={taClass}
+                    />
+                    <p className="mt-1 text-[10px] text-[#6f6b62]">{blog.seo_description.length} / 160 chars</p>
+                  </EditSection>
 
-                    <Section label="Blog post body" copyText={blog.body_html}>
-                      <div
-                        className="prose prose-sm max-w-none text-[#111111] max-h-64 overflow-y-auto text-sm [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1 [&_ul]:list-disc [&_ul]:pl-4 [&_p]:mb-2"
-                        dangerouslySetInnerHTML={{ __html: blog.body_html }}
+                  <EditSection label="Blog post body">
+                    <div
+                      className="prose prose-sm max-w-none text-[#111111] max-h-48 overflow-y-auto text-sm [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1 [&_ul]:list-disc [&_ul]:pl-4 [&_p]:mb-2"
+                      dangerouslySetInnerHTML={{ __html: blog.body_html }}
+                    />
+                    <p className="mt-2 text-[10px] text-[#6f6b62]">
+                      Body is fully editable in the post editor after saving.
+                    </p>
+                  </EditSection>
+
+                  <EditSection label="Sharing caption">
+                    <textarea
+                      value={blog.sharing_caption}
+                      onChange={(e) =>
+                        setEditableResult((prev) =>
+                          prev ? { ...prev, sharing_caption: e.target.value } : prev,
+                        )
+                      }
+                      rows={3}
+                      className={taClass}
+                    />
+                  </EditSection>
+                </>
+              )}
+
+              {/* All type — social sections */}
+              {contentType === "all" && all && (
+                <>
+                  <EditSection label="LinkedIn post">
+                    <textarea
+                      value={all.linkedin_post}
+                      onChange={(e) =>
+                        setEditableResult((prev) =>
+                          prev ? { ...prev, linkedin_post: e.target.value } : prev,
+                        )
+                      }
+                      rows={6}
+                      className={taClass}
+                    />
+                  </EditSection>
+
+                  <EditSection label="Instagram caption">
+                    <textarea
+                      value={all.instagram_caption}
+                      onChange={(e) =>
+                        setEditableResult((prev) =>
+                          prev ? { ...prev, instagram_caption: e.target.value } : prev,
+                        )
+                      }
+                      rows={3}
+                      className={taClass}
+                    />
+                  </EditSection>
+                </>
+              )}
+
+              {/* LinkedIn only */}
+              {contentType === "linkedin" && li && (
+                <EditSection label="LinkedIn post">
+                  <textarea
+                    value={li.post_text}
+                    onChange={(e) =>
+                      setEditableResult((prev) => (prev ? { ...prev, post_text: e.target.value } : prev))
+                    }
+                    rows={8}
+                    className={taClass}
+                  />
+                </EditSection>
+              )}
+
+              {/* Instagram only */}
+              {contentType === "instagram" && ig && (
+                <EditSection label="Instagram caption">
+                  <textarea
+                    value={ig.caption}
+                    onChange={(e) =>
+                      setEditableResult((prev) => (prev ? { ...prev, caption: e.target.value } : prev))
+                    }
+                    rows={5}
+                    className={taClass}
+                  />
+                </EditSection>
+              )}
+
+              {/* Hashtags — shared across all versions */}
+              <EditSection label="Hashtags (added to all versions)">
+                <input
+                  value={hashtagsInput}
+                  onChange={(e) => setHashtagsInput(e.target.value)}
+                  placeholder="tag1, tag2, tag3"
+                  className={inputClass}
+                />
+                <p className="mt-1 text-[10px] text-[#6f6b62]">Comma-separated — no # needed.</p>
+              </EditSection>
+
+              {/* LinkedIn individual — schedule */}
+              {contentType === "linkedin" && (
+                <EditSection label="Schedule to calendar">
+                  {liSaved ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                      <Check className="h-3.5 w-3.5" /> Saved to calendar
+                    </span>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="date"
+                        value={liScheduleDate}
+                        onChange={(e) => setLiScheduleDate(e.target.value)}
+                        className="rounded-md border border-[#111111]/15 px-2 py-1.5 text-sm outline-none focus:border-[#063b32]"
                       />
-                    </Section>
+                      <button
+                        type="button"
+                        disabled={!liScheduleDate || liSaving}
+                        onClick={() => void saveLiToCalendar()}
+                        className="inline-flex items-center gap-1 rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                      >
+                        {liSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                        Save
+                      </button>
+                    </div>
+                  )}
+                </EditSection>
+              )}
 
-                    <Section label="Sharing caption" copyText={blog.sharing_caption}>
-                      <p className="text-sm text-[#111111] whitespace-pre-line">{blog.sharing_caption}</p>
-                    </Section>
+              {/* Instagram individual — schedule */}
+              {contentType === "instagram" && (
+                <EditSection label="Schedule to calendar">
+                  {igSaved ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                      <Check className="h-3.5 w-3.5" /> Saved to calendar
+                    </span>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="date"
+                        value={igScheduleDate}
+                        onChange={(e) => setIgScheduleDate(e.target.value)}
+                        className="rounded-md border border-[#111111]/15 px-2 py-1.5 text-sm outline-none focus:border-[#063b32]"
+                      />
+                      <button
+                        type="button"
+                        disabled={!igScheduleDate || igSaving}
+                        onClick={() => void saveIgToCalendar()}
+                        className="inline-flex items-center gap-1 rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                      >
+                        {igSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                        Save
+                      </button>
+                    </div>
+                  )}
+                </EditSection>
+              )}
 
-                    <Section
-                      label="LinkedIn version"
-                      copyText={`${blog.linkedin_post}\n\n${hashtagString}`}
-                      actions={
-                        <SaveToCalendarInline
-                          content={blog.linkedin_post}
-                          hashtags={blog.hashtags}
-                          platform="linkedin"
-                          defaultTitle={blogTitle}
-                          postId={createdPostId}
-                        />
-                      }
-                    >
-                      <p className="text-sm text-[#111111] whitespace-pre-line">{blog.linkedin_post}</p>
-                    </Section>
-
-                    <Section
-                      label="Instagram caption"
-                      copyText={`${blog.instagram_caption}\n\n${hashtagString}`}
-                      actions={
-                        <SaveToCalendarInline
-                          content={blog.instagram_caption}
-                          hashtags={blog.hashtags}
-                          platform="instagram"
-                          defaultTitle={blogTitle}
-                          postId={createdPostId}
-                        />
-                      }
-                    >
-                      <p className="text-sm text-[#111111] whitespace-pre-line">{blog.instagram_caption}</p>
-                    </Section>
-
-                    <Section label="Hashtags" copyText={hashtagString}>
-                      <div className="flex flex-wrap gap-1.5">
-                        {blog.hashtags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-xs text-[#6f6b62]">#{tag}</span>
-                        ))}
-                      </div>
-                    </Section>
-                  </>
-                );
-              })()}
-
-              {contentType === "linkedin" && result && (() => {
-                const li = result as LinkedInResult;
-                const fullPost = `${li.post_text}\n\n${hashtagString}`;
-                return (
-                  <>
-                    <Section
-                      label="LinkedIn post"
-                      copyText={fullPost}
-                      actions={
-                        <SaveToCalendarInline
-                          content={li.post_text}
-                          hashtags={li.hashtags}
-                          platform="linkedin"
-                          defaultTitle={brief.slice(0, 80)}
-                        />
-                      }
-                    >
-                      <p className="text-sm text-[#111111] whitespace-pre-line">{li.post_text}</p>
-                    </Section>
-                    <Section label="Hashtags" copyText={hashtagString}>
-                      <div className="flex flex-wrap gap-1.5">
-                        {li.hashtags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-xs text-[#6f6b62]">#{tag}</span>
-                        ))}
-                      </div>
-                    </Section>
-                  </>
-                );
-              })()}
-
-              {contentType === "instagram" && result && (() => {
-                const ig = result as InstagramResult;
-                const fullCaption = `${ig.caption}\n\n${hashtagString}`;
-                return (
-                  <>
-                    <Section
-                      label="Instagram caption"
-                      copyText={fullCaption}
-                      actions={
-                        <SaveToCalendarInline
-                          content={ig.caption}
-                          hashtags={ig.hashtags}
-                          platform="instagram"
-                          defaultTitle={brief.slice(0, 80)}
-                        />
-                      }
-                    >
-                      <p className="text-sm text-[#111111] whitespace-pre-line">{ig.caption}</p>
-                    </Section>
-                    <Section label="Hashtags" copyText={hashtagString}>
-                      <div className="flex flex-wrap gap-1.5">
-                        {ig.hashtags.map((tag) => (
-                          <span key={tag} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-xs text-[#6f6b62]">#{tag}</span>
-                        ))}
-                      </div>
-                    </Section>
-                  </>
-                );
-              })()}
+              {/* All type — single schedule date for both social posts */}
+              {contentType === "all" && (
+                <EditSection label="Schedule social posts (one date for both)">
+                  {scheduledSocial ? (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+                      <Check className="h-3.5 w-3.5" /> LinkedIn & Instagram scheduled
+                    </span>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <p className="text-xs text-[#6f6b62]">
+                        Optional — pick a date to schedule both LinkedIn and Instagram posts at the same time.
+                      </p>
+                      <input
+                        type="date"
+                        value={scheduleDate}
+                        onChange={(e) => setScheduleDate(e.target.value)}
+                        className="rounded-md border border-[#111111]/15 px-2 py-1.5 text-sm outline-none focus:border-[#063b32]"
+                      />
+                    </div>
+                  )}
+                </EditSection>
+              )}
             </div>
           )}
         </div>
@@ -437,7 +585,11 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
         <div className="flex items-center justify-between border-t border-[#111111]/10 px-5 py-4">
           {step === "form" ? (
             <>
-              <button type="button" onClick={handleClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]">
+              <button
+                type="button"
+                onClick={handleClose}
+                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]"
+              >
                 Cancel
               </button>
               <button
@@ -454,13 +606,24 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
             <>
               <button
                 type="button"
-                onClick={() => { setStep("form"); setResult(null); setError(""); setCreatedPostId(undefined); }}
+                onClick={() => {
+                  setStep("form");
+                  setEditableResult(null);
+                  setError("");
+                  setScheduledSocial(false);
+                  setLiSaved(false);
+                  setIgSaved(false);
+                }}
                 className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]"
               >
                 ← Start over
               </button>
               <div className="flex items-center gap-2">
-                <button type="button" onClick={handleClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]"
+                >
                   Close
                 </button>
                 {contentType === "blog" && (
@@ -470,8 +633,19 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                     onClick={() => void convertToDraftPost()}
                     className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
                   >
-                    {converting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />}
-                    Convert to draft post
+                    {converting && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Save as draft post
+                  </button>
+                )}
+                {contentType === "all" && (
+                  <button
+                    type="button"
+                    disabled={converting || scheduling}
+                    onClick={() => void saveAll()}
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                  >
+                    {(converting || scheduling) && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {scheduleDate ? "Schedule social & save post" : "Save as draft post"}
                   </button>
                 )}
               </div>

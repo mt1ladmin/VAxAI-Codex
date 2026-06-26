@@ -25,6 +25,23 @@ export function isFinderEngagementStatus(value: string): value is FinderEngageme
   return (FINDER_ENGAGEMENT_STATUSES as readonly string[]).includes(value);
 }
 
+/** Prospect Queue engagement statuses — post-opportunity-identified, post-engagement stages. */
+export const QUEUE_ENGAGEMENT_STATUSES = [
+  "Active engagement",
+  "Discovery call booked",
+  "Proposal stage",
+  "Awaiting decision",
+  "Won",
+  "On hold",
+  "Not progressing",
+] as const;
+
+export type QueueEngagementStatus = (typeof QUEUE_ENGAGEMENT_STATUSES)[number];
+
+export function isQueueEngagementStatus(value: string): value is QueueEngagementStatus {
+  return (QUEUE_ENGAGEMENT_STATUSES as readonly string[]).includes(value);
+}
+
 export function engagementStatusForAssignment(
   assignedTeamMemberId: string | null | undefined,
   current?: string | null,

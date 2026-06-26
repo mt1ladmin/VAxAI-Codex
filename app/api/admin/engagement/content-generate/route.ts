@@ -3,11 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// Haiku is used for all types — significantly faster than Sonnet with no meaningful quality drop
-// for structured content generation at this length.
 const MODEL = "claude-haiku-4-5-20251001";
 
-const BLOG_PROMPT = (brief: string) => `You are a content writer for VAxAI — a UK-based service offering virtual administration, AI and automation support, system reviews, and training to help small and medium organisations reduce admin burden and focus on what matters most.
+const BLOG_ONLY_PROMPT = (brief: string) => `You are a content writer for VAxAI — a UK-based service offering virtual administration, AI and automation support, system reviews, and training to help small and medium organisations reduce admin burden and focus on what matters most.
 
 Apply the MT1L VAT framework as a natural lens throughout this piece:
 - Value: make the concrete, practical value to the reader explicit
@@ -19,7 +17,30 @@ The writing should:
 - Reflect the UK small business, charity, and professional services context specifically
 - Treat AI, automation, and virtual support as practical tools — not transformational promises
 - Sound like a knowledgeable, helpful person — not a content machine
-- Where it adds genuine context (e.g. in a section about making good decisions on AI adoption), mention the MT1L VAT framework naturally and include: "For advisory support on applying these principles beyond admin and across your broader work, visit MT1L.com."
+- Where it adds genuine context, mention the MT1L VAT framework naturally and include: "For advisory support on applying these principles beyond admin and across your broader work, visit MT1L.com."
+
+Return JSON only with these exact fields:
+- title: string (compelling, SEO-friendly, naturally includes UK context where relevant)
+- seo_description: string (150-160 chars, search-intent aligned, includes a geographic or sector signal where it fits)
+- body_html: string (full blog post in HTML — use <h2>, <p>, <ul><li> tags; aim for 700-900 words; VAT lenses woven through naturally; include MT1L.com reference once where contextually appropriate)
+- sharing_caption: string (2-3 sentences for general social sharing — direct and useful)
+- hashtags: string[] (8-12 relevant hashtags without the # symbol)
+
+Brief: ${brief}`;
+
+const ALL_PROMPT = (brief: string) => `You are a content writer for VAxAI — a UK-based service offering virtual administration, AI and automation support, system reviews, and training to help small and medium organisations reduce admin burden and focus on what matters most.
+
+Apply the MT1L VAT framework as a natural lens throughout this piece:
+- Value: make the concrete, practical value to the reader explicit
+- Alignment: show how the approach fits with the reader's goals and values (not just efficiency)
+- Trust: build credibility through specific, honest claims — no hype, no vague promises
+
+The writing should:
+- Lead with something the reader can use or recognise immediately
+- Reflect the UK small business, charity, and professional services context specifically
+- Treat AI, automation, and virtual support as practical tools — not transformational promises
+- Sound like a knowledgeable, helpful person — not a content machine
+- Where it adds genuine context, mention the MT1L VAT framework naturally and include: "For advisory support on applying these principles beyond admin and across your broader work, visit MT1L.com."
 
 Return JSON only with these exact fields:
 - title: string (compelling, SEO-friendly, naturally includes UK context where relevant)
@@ -71,18 +92,20 @@ export async function POST(req: NextRequest) {
   const contentType = body.content_type;
   const brief = body.brief?.trim();
 
-  if (!brief || !contentType || !["blog", "linkedin", "instagram"].includes(contentType)) {
+  if (!brief || !contentType || !["blog", "linkedin", "instagram", "all"].includes(contentType)) {
     return NextResponse.json({ error: "content_type and brief required" }, { status: 400 });
   }
 
   const prompt =
     contentType === "blog"
-      ? BLOG_PROMPT(brief)
+      ? BLOG_ONLY_PROMPT(brief)
+      : contentType === "all"
+      ? ALL_PROMPT(brief)
       : contentType === "linkedin"
       ? LINKEDIN_PROMPT(brief)
       : INSTAGRAM_PROMPT(brief);
 
-  const maxTokens = contentType === "blog" ? 2500 : 1200;
+  const maxTokens = contentType === "blog" || contentType === "all" ? 2500 : 1200;
 
   const response = await anthropic.messages.create({
     model: MODEL,

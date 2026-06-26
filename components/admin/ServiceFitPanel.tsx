@@ -263,15 +263,21 @@ function EvidenceAndAssessment({
           </button>
         )}
       </div>
-      <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence</p>
-        <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">
-          {data.evidence_summary || data.need_rationale || "—"}
-        </p>
-      </div>
+      {data.evidence_summary && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence summary</p>
+          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">{data.evidence_summary}</p>
+        </div>
+      )}
+      {data.need_rationale && (
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Need rationale</p>
+          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">{data.need_rationale}</p>
+        </div>
+      )}
       {data.complexity_rationale && (
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity rationale</p>
           <p className="mt-1 text-sm text-[#111111]">{data.complexity_rationale}</p>
         </div>
       )}
@@ -279,25 +285,25 @@ function EvidenceAndAssessment({
         {data.admin_capacity && (
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Admin capacity</p>
-            <p className="mt-1 text-sm">{data.admin_capacity}</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.admin_capacity}</p>
           </div>
         )}
         {data.ai_automation_use && (
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">AI / automation use</p>
-            <p className="mt-1 text-sm">{data.ai_automation_use}</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.ai_automation_use}</p>
           </div>
         )}
         {data.data_sensitivity && (
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Data sensitivity</p>
-            <p className="mt-1 text-sm">{data.data_sensitivity}</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.data_sensitivity}</p>
           </div>
         )}
         {data.systems_landscape && (
           <div className="sm:col-span-2">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Systems landscape</p>
-            <p className="mt-1 text-sm">{data.systems_landscape}</p>
+            <p className="mt-1 text-sm text-[#111111]">{data.systems_landscape}</p>
           </div>
         )}
       </div>
@@ -308,6 +314,9 @@ function EvidenceAndAssessment({
             {data.open_questions!.map((q) => <li key={q}>{q}</li>)}
           </ul>
         </div>
+      )}
+      {!data.evidence_summary && !data.need_rationale && !data.complexity_rationale && !data.admin_capacity && !data.ai_automation_use && !data.data_sensitivity && !data.systems_landscape && !(data.open_questions?.length) && (
+        <p className="text-sm text-[#6f6b62]">—</p>
       )}
     </div>
   );
