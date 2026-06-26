@@ -111,7 +111,6 @@ export default function ProspectFinderPage() {
   const assignedTo = searchParams.get("assigned_to") || "";
   const engagementStatus = searchParams.get("engagement_status") || "";
   const myProspects = searchParams.get("my_prospects") === "true";
-  const unassigned = searchParams.get("unassigned") === "true";
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -145,7 +144,6 @@ export default function ProspectFinderPage() {
       params.set("my_prospects", "true");
       if (userEmail) params.set("user_email", userEmail);
     }
-    if (unassigned) params.set("unassigned", "true");
 
     const res = await fetch(`/api/admin/engagement/prospect-outreach?${params}`);
     const json = await res.json();
@@ -164,7 +162,6 @@ export default function ProspectFinderPage() {
     assignedTo,
     engagementStatus,
     myProspects,
-    unassigned,
     userEmail,
   ]);
 
@@ -229,7 +226,7 @@ export default function ProspectFinderPage() {
 
   const totalPages = meta?.total_pages ?? 1;
   const hasActiveFilters = Boolean(
-    region || needScore || confidence || orgType || search.trim() || assignedTo || engagementStatus || myProspects || unassigned,
+    region || needScore || confidence || orgType || search.trim() || assignedTo || engagementStatus || myProspects,
   );
 
   const memberOptions = useMemo(
@@ -258,7 +255,7 @@ export default function ProspectFinderPage() {
         </div>
 
         {meta ? (
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
               <p className="text-xs font-semibold text-[#6f6b62]">Total researched</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
@@ -269,14 +266,6 @@ export default function ProspectFinderPage() {
                 <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{(meta.filtered_count ?? 0).toLocaleString()}</p>
               </div>
             ) : null}
-            <button
-              type="button"
-              onClick={() => updateParams({ unassigned: "true", my_prospects: null, engagement_status: null })}
-              className="rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-left transition-colors hover:border-amber-300 hover:bg-amber-50"
-            >
-              <p className="text-xs font-semibold text-amber-700">Unassigned</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{(meta.unassigned_count ?? 0).toLocaleString()}</p>
-            </button>
             <Link
               href="/admin/engagement/prospect-queue"
               className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3 transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/8"
@@ -288,19 +277,13 @@ export default function ProspectFinderPage() {
         ) : null}
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {[
-            { label: "Unassigned", params: { unassigned: "true", my_prospects: null, engagement_status: null } },
-            { label: "Ready to move", params: { engagement_status: "Opportunity identified", unassigned: null, my_prospects: null } },
-          ].map((view) => (
-            <button
-              key={view.label}
-              type="button"
-              onClick={() => updateParams(view.params)}
-              className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-            >
-              {view.label}
-            </button>
-          ))}
+          <button
+            type="button"
+            onClick={() => updateParams({ engagement_status: "Opportunity identified", my_prospects: null })}
+            className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+          >
+            Ready to move
+          </button>
           <Link
             href="/admin/engagement/prospect-queue"
             className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
@@ -350,15 +333,6 @@ export default function ProspectFinderPage() {
               ...FINDER_ENGAGEMENT_STATUSES.map((s) => ({ value: s, label: s })),
             ]}
           />
-          <button
-            type="button"
-            onClick={() => updateParams({ unassigned: unassigned ? null : "true", my_prospects: null })}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              unassigned ? "border-[#063b32] bg-[#063b32] text-white" : "border-[#111111]/15 text-[#6f6b62] hover:bg-[#f7f4ea]"
-            }`}
-          >
-            Unassigned
-          </button>
           {isPlatformAdmin && selectedIds.size > 0 && (
             <button
               type="button"

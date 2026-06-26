@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { ExternalLink, Mail, Phone, User } from "lucide-react";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 import {
@@ -153,16 +154,21 @@ export function ProspectDecisionMakerCard({
   data,
   editable,
   onChange,
+  headerAction,
 }: {
   data: ProspectOutreachRecord;
   editable?: boolean;
   onChange?: PatchFn;
+  headerAction?: React.ReactNode;
 }) {
   const patch = (partial: Partial<ProspectOutreachRecord>) => onChange?.(partial);
 
   return (
     <div className="rounded-xl border border-[#111111]/10 p-4 space-y-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Decision maker</p>
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Decision maker</p>
+        {headerAction}
+      </div>
       {editable ? (
         <>
           <Field

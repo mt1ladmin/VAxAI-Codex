@@ -31,7 +31,6 @@ type PainPoint = { id: string; title: string; category: string; slug: string | n
 type PostItem = { id: string; title: string; status: string; scheduled_at?: string | null; content_type: string };
 
 type Stats = {
-  pendingQueue: number;
   activeProspectQueue: number;
   newEnquiries: number;
   overdueTasks: number;
@@ -80,7 +79,6 @@ export default function EngagementOverview() {
 
   const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
   const [stats, setStats] = useState<Stats>({
-    pendingQueue: 0,
     activeProspectQueue: 0,
     newEnquiries: 0,
     overdueTasks: 0,
@@ -101,13 +99,11 @@ export default function EngagementOverview() {
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
 
-      fetch("/api/admin/engagement/prospect-outreach?page_size=1").then((r) => r.json()).catch(() => ({ meta: {} })),
       fetch("/api/admin/engagement/prospect-queue").then((r) => r.json()).catch(() => ({ metrics: {} })),
       fetch("/api/admin/enquiries?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/posts?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([taskRes, finderRes, queueRes, enqRes, postRes]) => {
+    ]).then(([taskRes, queueRes, enqRes, postRes]) => {
       const taskData = (taskRes.data || []) as Array<{ due_date: string | null; status: string }>;
-      const finderMeta = (finderRes.meta || {}) as { unassigned_count?: number };
       const queueMetrics = (queueRes.metrics || {}) as { total?: number };
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
@@ -116,7 +112,6 @@ export default function EngagementOverview() {
       const isScheduled = (p: PostItem) => !!p.scheduled_at && p.status !== "published";
 
       setStats({
-        pendingQueue: finderMeta.unassigned_count ?? 0,
         activeProspectQueue: queueMetrics.total ?? 0,
         newEnquiries: enqData.filter((e) => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
@@ -160,10 +155,9 @@ export default function EngagementOverview() {
           </div>
 
         </div>
-        {!stats.loading && (stats.overdueTasks > 0 || stats.pendingQueue > 0 || stats.activeProspectQueue > 0 || stats.newEnquiries > 0) && (
+        {!stats.loading && (stats.overdueTasks > 0 || stats.activeProspectQueue > 0 || stats.newEnquiries > 0) && (
           <div className="mt-3 flex flex-wrap gap-2">
             <AlertPill count={stats.overdueTasks} label="overdue task(s)" href="/admin/engagement/pipeline" color="bg-red-100 text-red-700" />
-            <AlertPill count={stats.pendingQueue} label="unassigned prospect(s)" href="/admin/engagement/prospect-outreach?unassigned=true" color="bg-amber-100 text-amber-700" />
             <AlertPill count={stats.activeProspectQueue} label={`active ${PROSPECT_QUEUE_LABEL.toLowerCase()}`} href="/admin/engagement/prospect-queue" color="bg-[#063b32]/10 text-[#063b32]" />
             <AlertPill count={stats.newEnquiries} label="new enquiry(ies)" href="/admin/enquiries" color="bg-blue-100 text-blue-700" />
           </div>
@@ -171,9 +165,9 @@ export default function EngagementOverview() {
       </div>
 
       <div className="px-8 py-6 space-y-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {stats.loading
-            ? [1, 2, 3, 4].map((i) => (
+            ? [1, 2, 3].map((i) => (
                 <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
                   <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
                   <div className="mt-3 h-8 w-12 rounded bg-[#f7f4ea]/80" />
@@ -182,7 +176,6 @@ export default function EngagementOverview() {
             : [
                 { label: PROSPECT_QUEUE_LABEL, value: stats.activeProspectQueue, href: "/admin/engagement/prospect-queue", color: "text-[#063b32]" },
                 { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
-                { label: "Unassigned prospects", value: stats.pendingQueue, href: "/admin/engagement/prospect-outreach?unassigned=true", color: "text-amber-600" },
                 { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
               ].map(({ label, value, href, color }) => (
                 <Link key={label} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#063b32]/30 transition-colors">

@@ -3,15 +3,13 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, Send } from "lucide-react";
+import { Pencil, Send } from "lucide-react";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
-import { JourneyStagePills } from "@/components/admin/JourneyStageBanner";
-
 import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { MoveToProspectQueueModal } from "@/components/admin/MoveToProspectQueueModal";
 import {
@@ -44,6 +42,7 @@ import { activeTeamMemberOptions } from "@/lib/engagement/team-members";
 import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import type { EngagementTask } from "@/lib/engagement/types";
+import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 
 function ProspectFinderDetailContent() {
   const { id } = useParams<{ id: string }>();
@@ -67,6 +66,8 @@ function ProspectFinderDetailContent() {
   const [savingTask, setSavingTask] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const [chatActivityKey, setChatActivityKey] = useState(0);
+  const [dmEditing, setDmEditing] = useState(false);
+  const [dmSaving, setDmSaving] = useState(false);
 
   const load = useCallback(async (opts?: { silent?: boolean }) => {
     if (!opts?.silent) setLoading(true);
@@ -126,6 +127,22 @@ function ProspectFinderDetailContent() {
   const saveOutreachFields = async (fields: Record<string, string | string[]>) => {
     await patchWorkflow({ overrides: fields });
     setChatActivityKey((k) => k + 1);
+  };
+
+  const saveDm = async () => {
+    if (!record) return;
+    setDmSaving(true);
+    try {
+      await saveOutreachFields({
+        decision_maker_name: record.decision_maker_name ?? "",
+        decision_maker_role: record.decision_maker_role ?? "",
+        email: record.email ?? "",
+        phone: record.phone ?? "",
+      });
+      setDmEditing(false);
+    } finally {
+      setDmSaving(false);
+    }
   };
 
   const replaceNotes = async (notes: string) => {
@@ -297,8 +314,40 @@ function ProspectFinderDetailContent() {
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Summary</p>
             <ProspectProfileHeader data={record} />
             <ProspectOrganisationCard data={record} />
-            <ProspectDecisionMakerCard data={record} />
-            <JourneyStagePills currentStage="finder" />
+            <ProspectDecisionMakerCard
+              data={record}
+              editable={dmEditing}
+              onChange={(partial: Partial<ProspectOutreachRecord>) => setRecord((prev) => prev ? { ...prev, ...partial } as ProspectFinderListItem : prev)}
+              headerAction={
+                dmEditing ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setDmEditing(false); void load({ silent: true }); }}
+                      className="text-xs text-[#6f6b62] hover:text-[#111111]"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void saveDm()}
+                      disabled={dmSaving}
+                      className="text-xs font-semibold text-[#063b32] hover:underline disabled:opacity-50"
+                    >
+                      {dmSaving ? "Saving…" : "Save"}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setDmEditing(true)}
+                    className="flex items-center gap-1 text-xs text-[#6f6b62] hover:text-[#063b32]"
+                  >
+                    <Pencil className="h-3 w-3" /> Edit
+                  </button>
+                )
+              }
+            />
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
@@ -395,14 +444,6 @@ function ProspectFinderDetailContent() {
                 <ProspectTagList data={record} />
               </div>
 
-              <Link
-                href={`/admin/engagement/knowledge?tab=sectors&tags=${encodeURIComponent(record.sector_tags.join(","))}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-medium text-[#063b32] hover:underline"
-              >
-                <BookOpen className="h-4 w-4" /> Sector guidance
-              </Link>
             </>
           )}
 
