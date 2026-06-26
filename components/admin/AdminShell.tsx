@@ -44,12 +44,6 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
     ],
   },
   {
-    section: "KNOWLEDGE",
-    items: [
-      { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen },
-    ],
-  },
-  {
     section: "CONTENT",
     items: [
       { label: "Content Hub", href: "/admin/calendar", icon: CalendarDays },
@@ -69,10 +63,6 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
     ],
-  },
-  {
-    section: "KNOWLEDGE",
-    items: [{ label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen }],
   },
   {
     section: "CONTENT",
@@ -212,16 +202,28 @@ export default function AdminShell({
         {/* Bottom */}
         <div className="space-y-0.5 border-t border-white/10 px-2 py-3">
           {platformAdmin && (
-            <Link
-              href="/admin/engagement/settings"
-              title={!open ? "Settings" : undefined}
-              className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
-                pathname.startsWith("/admin/engagement/settings") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
-              } ${!open ? "justify-center" : ""}`}
-            >
-              <Settings className="h-4 w-4 shrink-0" />
-              {open && "Settings"}
-            </Link>
+            <>
+              <Link
+                href="/admin/engagement/knowledge"
+                title={!open ? "Knowledge Hub" : undefined}
+                className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+                  pathname.startsWith("/admin/engagement/knowledge") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
+                } ${!open ? "justify-center" : ""}`}
+              >
+                <BookOpen className="h-4 w-4 shrink-0" />
+                {open && "Knowledge Hub"}
+              </Link>
+              <Link
+                href="/admin/engagement/settings"
+                title={!open ? "Settings" : undefined}
+                className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+                  pathname.startsWith("/admin/engagement/settings") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
+                } ${!open ? "justify-center" : ""}`}
+              >
+                <Settings className="h-4 w-4 shrink-0" />
+                {open && "Settings"}
+              </Link>
+            </>
           )}
           <a
             href="/"
