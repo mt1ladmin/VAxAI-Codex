@@ -139,6 +139,9 @@ function ClientDetailContent() {
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [showAddNote, setShowAddNote] = useState(false);
   const [updatingStage, setUpdatingStage] = useState(false);
+  const [editingHandoffNote, setEditingHandoffNote] = useState(false);
+  const [handoffNoteForm, setHandoffNoteForm] = useState("");
+  const [savingHandoffNote, setSavingHandoffNote] = useState(false);
   // AI context — set once contact data is loaded
   const contactFullName = contact ? `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}` : null;
   useSetAIContext(
@@ -430,6 +433,28 @@ function ClientDetailContent() {
     }
   };
 
+  const saveHandoffNote = async () => {
+    setSavingHandoffNote(true);
+    try {
+      if (outreachRecord) {
+        await patchOutreachWorkflow({ opportunity_description: handoffNoteForm.trim() });
+      } else if (primaryOpp) {
+        const res = await fetch(`/api/admin/engagement/opportunities/${primaryOpp.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ desired_outcomes: handoffNoteForm.trim() }),
+        });
+        if (res.ok) {
+          const j = await res.json() as { data?: EngagementOpportunity };
+          if (j.data) handleOpportunityUpdated(j.data);
+        }
+      }
+      setEditingHandoffNote(false);
+    } finally {
+      setSavingHandoffNote(false);
+    }
+  };
+
   const replaceNotes = async (notes: string) => {
     setSavingNote(true);
     try {
@@ -625,7 +650,7 @@ function ClientDetailContent() {
                   setOutreachRecord((prev) => prev ? { ...prev, assigned_team_member_id: assignedId, assigned_team_member_name: assignedName } : prev);
                   void patchOutreachWorkflow({ assigned_team_member_id: assignedId });
                 }}
-                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32]"
+                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] appearance-none outline-none focus:border-[#063b32]"
               >
                 <option value="">Unassigned</option>
                 {activeTeamMemberOptions(teamMembers).map((opt) => (
@@ -641,7 +666,7 @@ function ClientDetailContent() {
                     setOutreachRecord((prev) => prev ? { ...prev, engagement_status: status } : prev);
                     void patchOutreachWorkflow({ engagement_status: status });
                   }}
-                  className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32]"
+                  className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] appearance-none outline-none focus:border-[#063b32]"
                 >
                   {FINDER_ENGAGEMENT_STATUSES.filter((s) => s !== "In prospect queue").map((s) => (
                     <option key={s} value={s}>{s}</option>
@@ -693,14 +718,50 @@ function ClientDetailContent() {
               {outreachRecord && (
                 <div className="space-y-4">
                   <ServiceFitPanel data={outreachRecord} mode="overview" editable onSaveFields={saveOutreachFields} />
-                  {handoffNote && (
+                  {(handoffNote || outreachRecord) && (
                     <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-4">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
-                        Move to queue note
-                      </p>
-                      <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">
-                        {handoffNote}
-                      </p>
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                          Move to queue note
+                        </p>
+                        {!editingHandoffNote && (outreachRecord || primaryOpp) && (
+                          <button
+                            type="button"
+                            onClick={() => { setHandoffNoteForm(handoffNote ?? ""); setEditingHandoffNote(true); }}
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                          >
+                            <Pencil className="h-3 w-3" /> {handoffNote ? "Edit" : "Add"}
+                          </button>
+                        )}
+                      </div>
+                      {editingHandoffNote ? (
+                        <>
+                          <textarea
+                            value={handoffNoteForm}
+                            onChange={(e) => setHandoffNoteForm(e.target.value)}
+                            rows={5}
+                            autoFocus
+                            className="w-full rounded-lg border border-amber-300/60 bg-white/70 px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32] resize-y leading-relaxed"
+                          />
+                          <div className="mt-2 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => void saveHandoffNote()}
+                              disabled={savingHandoffNote}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                            >
+                              {savingHandoffNote ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save
+                            </button>
+                            <button type="button" onClick={() => setEditingHandoffNote(false)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-amber-50">
+                              <X className="h-3.5 w-3.5" /> Cancel
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">
+                          {handoffNote ?? <span className="text-[#6f6b62]">No move-to-queue note yet.</span>}
+                        </p>
+                      )}
                     </div>
                   )}
                   <ProspectTagList data={outreachRecord} />

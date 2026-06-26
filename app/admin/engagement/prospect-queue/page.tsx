@@ -89,7 +89,9 @@ export default function ClientsPage() {
   const hasLoadedRef = useRef(false);
   const [stageFilter, setStageFilter] = useState("");
   const [search, setSearch] = useState("");
-  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingSelected, setDeletingSelected] = useState(false);
   const [showNewModal, setShowNewModal] = useState(false);
   const [savingNew, setSavingNew] = useState(false);
   const [newForm, setNewForm] = useState({ first_name: "", last_name: "", role: "", professional_email: "", phone: "" });
@@ -125,15 +127,30 @@ export default function ClientsPage() {
     router.push(`/admin/engagement/prospect-queue/${contact.id}`);
   };
 
-  const removeFromQueue = async (contactId: string, name: string) => {
-    if (!confirm(`Remove "${name}" from the prospect queue? This will mark their active opportunities as Lost.`)) return;
-    setRemovingId(contactId);
-    await fetch("/api/admin/engagement/prospect-queue", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contact_id: contactId }),
+  const toggleSelect = (id: string, e: React.MouseEvent | React.ChangeEvent) => {
+    "stopPropagation" in e && e.stopPropagation();
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
-    setRemovingId(null);
+  };
+
+  const removeSelected = async () => {
+    setDeletingSelected(true);
+    await Promise.all(
+      [...selected].map((contactId) =>
+        fetch("/api/admin/engagement/prospect-queue", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contact_id: contactId }),
+        }),
+      ),
+    );
+    setDeletingSelected(false);
+    setSelected(new Set());
+    setShowDeleteConfirm(false);
     void load();
   };
 
@@ -179,16 +196,18 @@ export default function ClientsPage() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Prospect Queue</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">
-          Live engagements — update pipeline stage and next action on each record. Nothing is active here until promoted from Finder or Enquiries.
-        </p>
-        <div className="mt-3">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
+            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Prospect Queue</h1>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">
+              Live engagements — update pipeline stage and next action on each record. Nothing is active here until promoted from Finder or Enquiries.
+            </p>
+          </div>
           <button
             type="button"
             onClick={() => setShowNewModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
           >
             <Plus className="h-4 w-4" /> New contact
           </button>
@@ -267,6 +286,16 @@ export default function ClientsPage() {
               </button>
             ))}
           </div>
+          {selected.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Remove {selected.size} from queue
+            </button>
+          )}
           <p className="ml-auto text-sm text-[#6f6b62]">
             {filtered.length} opportunit{filtered.length === 1 ? "y" : "ies"}
           </p>
@@ -313,8 +342,22 @@ export default function ClientsPage() {
                   onKeyDown={(ev) => {
                     if (ev.key === "Enter") router.push(`${PROSPECT_QUEUE_PATH}/${c.id}`);
                   }}
-                  className="flex cursor-pointer items-start gap-4 rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50 transition-colors group"
+                  className={`flex cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 transition-colors group ${
+                    selected.has(c.id)
+                      ? "border-red-200 bg-red-50/30"
+                      : "border-[#111111]/10 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/50"
+                  }`}
                 >
+                  {/* Checkbox */}
+                  <div className="flex items-center pt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(c.id)}
+                      onChange={(e) => toggleSelect(c.id, e)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="h-4 w-4 cursor-pointer rounded border-[#111111]/20 accent-[#063b32]"
+                    />
+                  </div>
                   {/* Avatar */}
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274]">
                     {initials || <Briefcase className="h-4 w-4" />}
@@ -392,18 +435,7 @@ export default function ClientsPage() {
                             Overdue tasks
                           </span>
                         )}
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            title="Remove from queue"
-                            onClick={(ev) => { ev.stopPropagation(); void removeFromQueue(c.id, fullName); }}
-                            disabled={removingId === c.id}
-                            className="rounded p-1 text-[#6f6b62]/40 transition-all hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
-                          >
-                            {removingId === c.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                          </button>
-                          <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
-                        </div>
+                        <ChevronRight className="h-4 w-4 text-[#6f6b62]/40 group-hover:text-[#063b32] transition-colors" />
                       </div>
                     </div>
                   </div>
@@ -413,6 +445,29 @@ export default function ClientsPage() {
           </div>
         )}
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[#111111]">Remove from queue?</h2>
+              <button type="button" onClick={() => setShowDeleteConfirm(false)} className="rounded-lg p-1 hover:bg-[#f7f4ea]"><X className="h-4 w-4 text-[#6f6b62]" /></button>
+            </div>
+            <p className="text-sm text-[#6f6b62]">
+              This will mark {selected.size === 1 ? "this contact's" : `${selected.size} contacts'`} active opportunities as Lost and remove {selected.size === 1 ? "them" : "them all"} from the queue. This cannot be undone.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button type="button" onClick={() => setShowDeleteConfirm(false)} className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                Cancel
+              </button>
+              <button type="button" onClick={() => void removeSelected()} disabled={deletingSelected} className="inline-flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">
+                {deletingSelected ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                Confirm removal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showNewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
