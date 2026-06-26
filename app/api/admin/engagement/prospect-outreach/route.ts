@@ -292,10 +292,13 @@ export async function POST(req: NextRequest) {
     };
     const { data, error } = await supabase
       .from("prospect_outreach_catalog")
-      .insert({ ...defaults, ...p, id, research_date: new Date().toISOString().slice(0, 10), updated_at: new Date().toISOString() })
+      .insert({ ...defaults, ...p, id, research_date: new Date().toISOString().slice(0, 10) })
       .select()
       .single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) {
+      console.error("[prospect POST] insert failed:", error.code, error.message, error.details);
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     return NextResponse.json({ data }, { status: 201 });
   }
 

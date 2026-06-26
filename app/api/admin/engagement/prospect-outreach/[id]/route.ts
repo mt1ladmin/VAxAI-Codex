@@ -18,6 +18,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
   const record = getFinderRecord(id, overrideMaps.rows, overrideMaps.overrides, members, catalog);
   if (!record) {
+    console.error(`[prospect GET] not found: id=${id}, catalog size=${catalog.length}`);
     return NextResponse.json({ error: "Prospect not found" }, { status: 404 });
   }
 
