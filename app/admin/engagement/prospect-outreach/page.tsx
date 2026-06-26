@@ -206,22 +206,29 @@ export default function ProspectFinderPage() {
   const createNewProspect = async () => {
     if (!addForm.organisation_name.trim()) return;
     setSavingAdd(true);
-    const res = await fetch("/api/admin/engagement/prospect-outreach", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prospect: { ...addForm, need_score: Number(addForm.need_score) } }),
-    });
-    if (res.ok) {
-      const { data } = await res.json() as { data: { id: string } };
-      setShowAddModal(false);
-      setAddForm({
-        organisation_name: "", organisation_type: "Charity", location: "",
-        region: OUTREACH_REGIONS[0], need_score: 3,
-        decision_maker_name: "", decision_maker_role: "", email: "", phone: "",
+    try {
+      const res = await fetch("/api/admin/engagement/prospect-outreach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prospect: { ...addForm, need_score: Number(addForm.need_score) } }),
       });
-      router.push(`/admin/engagement/prospect-outreach/${data.id}`);
+      const json = await res.json() as { data?: { id?: string }; error?: string };
+      if (res.ok && json.data?.id) {
+        setShowAddModal(false);
+        setAddForm({
+          organisation_name: "", organisation_type: "Charity", location: "",
+          region: OUTREACH_REGIONS[0], need_score: 3,
+          decision_maker_name: "", decision_maker_role: "", email: "", phone: "",
+        });
+        router.push(`/admin/engagement/prospect-outreach/${json.data.id}`);
+      } else {
+        alert(json.error || "Failed to create prospect — please try again.");
+      }
+    } catch {
+      alert("Network error — please try again.");
+    } finally {
+      setSavingAdd(false);
     }
-    setSavingAdd(false);
   };
 
   const totalPages = meta?.total_pages ?? 1;
