@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, Instagram, Linkedin, X } from "lucide-react";
+import { Check, Copy, ExternalLink, Facebook, Instagram, Linkedin, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export type CalendarBlogPreview = {
@@ -21,6 +21,8 @@ type SocialPost = {
   title: string;
   platform: "linkedin" | "instagram" | "facebook";
   scheduled_date: string;
+  content: string;
+  link?: string | null;
 };
 
 type Props = {
@@ -46,6 +48,7 @@ const STATUS_STYLES: Record<CalendarBlogPreview["status"], string> = {
 const PLATFORM_ICONS: Record<string, typeof Linkedin> = {
   linkedin: Linkedin,
   instagram: Instagram,
+  facebook: Facebook,
 };
 
 const PLATFORM_STYLES: Record<string, string> = {
@@ -53,6 +56,65 @@ const PLATFORM_STYLES: Record<string, string> = {
   instagram: "text-pink-600 bg-pink-50",
   facebook: "text-blue-600 bg-blue-50",
 };
+
+const PLATFORM_OPEN_URLS: Record<string, string> = {
+  linkedin: "https://www.linkedin.com/feed/",
+  instagram: "https://www.instagram.com/",
+  facebook: "https://www.facebook.com/",
+};
+
+function LinkedSocialCard({ social }: { social: SocialPost }) {
+  const [copied, setCopied] = useState(false);
+  const Icon = PLATFORM_ICONS[social.platform];
+  const style = PLATFORM_STYLES[social.platform] ?? "text-[#6f6b62] bg-[#f7f4ea]";
+  const openUrl = PLATFORM_OPEN_URLS[social.platform];
+
+  const copy = () => {
+    navigator.clipboard.writeText(social.content ?? "");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="rounded-lg border border-[#111111]/10 p-3 space-y-2.5">
+      <div className="flex items-center gap-2">
+        {Icon && (
+          <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md text-[10px] ${style}`}>
+            <Icon className="h-3.5 w-3.5" />
+          </span>
+        )}
+        <span className="flex-1 truncate text-xs font-semibold text-[#111111]">{social.title}</span>
+        <span className="shrink-0 text-[10px] text-[#6f6b62]">
+          {new Date(social.scheduled_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+        </span>
+      </div>
+      {social.content && (
+        <p className="text-xs leading-relaxed text-[#6f6b62] whitespace-pre-line line-clamp-4">{social.content}</p>
+      )}
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={copy}
+          className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-2.5 py-1.5 text-[10px] font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+        >
+          {copied ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+          {copied ? "Copied!" : "Copy text"}
+        </button>
+        {openUrl && (
+          <a
+            href={openUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[10px] font-semibold hover:opacity-80 border-[#111111]/15 ${style}`}
+          >
+            {Icon && <Icon className="h-3 w-3" />}
+            Open {social.platform.charAt(0).toUpperCase() + social.platform.slice(1)}
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export function CalendarItemPreviewModal({ post, onClose }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>([]);
@@ -145,25 +207,13 @@ export function CalendarItemPreviewModal({ post, onClose }: Props) {
 
           {linkedSocial.length > 0 && (
             <div>
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Linked social posts</p>
-              <div className="space-y-1.5">
-                {linkedSocial.map((s) => {
-                  const Icon = PLATFORM_ICONS[s.platform];
-                  const style = PLATFORM_STYLES[s.platform] ?? "text-[#6f6b62] bg-[#f7f4ea]";
-                  return (
-                    <div key={s.id} className="flex items-center gap-2 rounded-lg border border-[#111111]/10 px-3 py-2">
-                      {Icon && (
-                        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md text-[10px] ${style}`}>
-                          <Icon className="h-3.5 w-3.5" />
-                        </span>
-                      )}
-                      <span className="flex-1 truncate text-xs font-medium text-[#111111]">{s.title}</span>
-                      <span className="shrink-0 text-[10px] text-[#6f6b62]">
-                        {new Date(s.scheduled_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                      </span>
-                    </div>
-                  );
-                })}
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+                Linked social posts
+              </p>
+              <div className="space-y-2">
+                {linkedSocial.map((s) => (
+                  <LinkedSocialCard key={s.id} social={s} />
+                ))}
               </div>
             </div>
           )}

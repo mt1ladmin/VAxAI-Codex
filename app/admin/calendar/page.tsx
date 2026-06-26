@@ -6,11 +6,11 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  ExternalLink,
   Facebook,
   Instagram,
   Linkedin,
   Plus,
-  Share2,
   Trash2,
   X,
 } from "lucide-react";
@@ -247,9 +247,7 @@ function SocialPostDetail({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const shareUrl = post.link ?? window.location.href;
-  const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
-  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+  const isConnectedPost = post.link?.startsWith("/admin/posts/");
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -288,6 +286,19 @@ function SocialPostDetail({
           )}
         </div>
 
+        {/* Connected blog post */}
+        {isConnectedPost && (
+          <div>
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Connected blog post</p>
+            <a
+              href={post.link!}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-[#063b32] hover:bg-[#f7f4ea]"
+            >
+              <ExternalLink className="h-3.5 w-3.5" /> Open post editor
+            </a>
+          </div>
+        )}
+
         {post.description && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Description</p>
@@ -297,34 +308,39 @@ function SocialPostDetail({
 
         {post.content && (
           <div>
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Post copy</p>
-              <button onClick={copyContent} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600">
-                <Copy className="h-3 w-3" />
-                {copied ? "Copied!" : "Copy"}
-              </button>
-            </div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Post copy</p>
             <div className="rounded-lg bg-gray-50 p-4 text-sm leading-7 text-gray-700 whitespace-pre-wrap">{post.content}</div>
           </div>
         )}
 
-        {/* Share */}
+        {/* Post to platform */}
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Share</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Post to platform</p>
           <div className="flex flex-wrap gap-2">
-            <a href={linkedinUrl} target="_blank" rel="noreferrer"
-              className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-[#0077b5] hover:bg-[#0077b5]/5">
-              <Linkedin className="h-3.5 w-3.5" /> LinkedIn
-            </a>
-            <a href={facebookUrl} target="_blank" rel="noreferrer"
-              className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-50">
-              <Facebook className="h-3.5 w-3.5" /> Facebook
-            </a>
-            {post.link && (
-              <button onClick={copyContent}
-                className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50">
-                <Copy className="h-3.5 w-3.5" /> Copy link
-              </button>
+            <button
+              onClick={copyContent}
+              className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              {copied ? "Copied!" : "Copy post text"}
+            </button>
+            {post.platform === "linkedin" && (
+              <a href="https://www.linkedin.com/feed/" target="_blank" rel="noreferrer"
+                className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-[#0077b5] hover:bg-[#0077b5]/5">
+                <Linkedin className="h-3.5 w-3.5" /> Open LinkedIn
+              </a>
+            )}
+            {post.platform === "instagram" && (
+              <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"
+                className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-pink-600 hover:bg-pink-50">
+                <Instagram className="h-3.5 w-3.5" /> Open Instagram
+              </a>
+            )}
+            {post.platform === "facebook" && (
+              <a href="https://www.facebook.com/" target="_blank" rel="noreferrer"
+                className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-50">
+                <Facebook className="h-3.5 w-3.5" /> Open Facebook
+              </a>
             )}
           </div>
         </div>
