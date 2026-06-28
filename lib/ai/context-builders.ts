@@ -112,7 +112,7 @@ export function buildClientContextSummary(
   const primary = opportunities[0];
 
   return [
-    `JOURNEY STAGE: Prospect Queue (active engagement through client delivery)`,
+    `JOURNEY STAGE: Client delivery (active engagement)`,
     `Contact: ${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`,
     contact.role ? `Role: ${contact.role}` : null,
     contact.professional_email ? `Email: ${contact.professional_email}` : null,

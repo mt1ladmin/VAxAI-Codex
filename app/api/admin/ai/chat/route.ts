@@ -120,17 +120,6 @@ export async function POST(req: NextRequest) {
 
   const historyForModel = (recentMessages.data ?? []).reverse();
 
-  let linkedSummary: string | null = null;
-  if (session.linked_context_type && session.linked_context_id) {
-    const { data: linked } = await supabase
-      .from("ai_chat_sessions")
-      .select("summary")
-      .eq("context_type", session.linked_context_type)
-      .eq("context_id", session.linked_context_id)
-      .maybeSingle();
-    linkedSummary = linked?.summary ?? null;
-  }
-
   const knowledgeSnippets =
     depth === 2 && shouldLoadKnowledgeSnippets(contextType, intent, message)
       ? await loadKnowledgeSnippets(supabase, {
@@ -142,7 +131,6 @@ export async function POST(req: NextRequest) {
 
   const system = buildSystemBlocks(contextType, intent, assembled.package, {
     conversationSummary: session.summary as string | null,
-    linkedSummary,
     knowledgeSnippets,
   });
 

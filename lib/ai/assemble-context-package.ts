@@ -217,42 +217,6 @@ export async function assembleContextPackage(
     };
   }
 
-  if (contextType === "prospect") {
-    const loaded = await loadMergedOutreachRecord(supabase, contextId);
-    if (!loaded) {
-      return finalizeWithAccountState(supabase, contextType, contextId, {
-        label: "Unknown prospect",
-        package: "Prospect Finder record not found.",
-        keywords: [],
-        attachments: EMPTY_KNOWLEDGE_LINKS,
-      }, includeWorkingState);
-    }
-
-    const { record, reviewNotes } = loaded;
-    const core = buildOutreachContextSummary(record, reviewNotes);
-    const parts = [core];
-
-    if (depth >= 2) {
-      const attachments = await loadAttachments(supabase, { col: "outreach_id", val: contextId });
-      const notes = extractRecentNotes(reviewNotes);
-      if (notes.length) parts.push("REVIEWER NOTES:", ...notes.map((n) => `• ${n}`));
-      if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
-      return finalizeWithAccountState(supabase, contextType, contextId, {
-        label: record.organisation_name,
-        package: parts.join("\n"),
-        keywords: extractKnowledgeKeywords(core),
-        attachments,
-      }, includeWorkingState);
-    }
-
-    return {
-      label: record.organisation_name,
-      package: parts.join("\n"),
-      keywords: extractKnowledgeKeywords(core),
-      attachments: EMPTY_KNOWLEDGE_LINKS,
-    };
-  }
-
   if (contextType === "client") {
     const [contactRes, oppRes] = await Promise.all([
       supabase

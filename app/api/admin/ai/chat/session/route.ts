@@ -39,19 +39,7 @@ export async function GET(req: NextRequest) {
     .order("created_at", { ascending: true })
     .limit(40);
 
-  // If there's a linked prior session (e.g. enquiry → client), load its summary
-  let linkedSummary: string | null = null;
-  if (session.linked_context_type && session.linked_context_id) {
-    const { data: linked } = await supabase
-      .from("ai_chat_sessions")
-      .select("summary")
-      .eq("context_type", session.linked_context_type)
-      .eq("context_id", session.linked_context_id)
-      .maybeSingle();
-    linkedSummary = linked?.summary ?? null;
-  }
-
   return NextResponse.json({
-    data: { session, messages: messages ?? [], linkedSummary },
+    data: { session, messages: messages ?? [] },
   });
 }
