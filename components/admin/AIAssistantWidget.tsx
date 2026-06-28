@@ -349,6 +349,16 @@ function ChatPanel({
     };
     setMessages((prev) => [...prev, optimistic]);
 
+    // Placeholder for streaming assistant response
+    const streamingId = `stream-${Date.now()}`;
+    const streamingMsg: AIMessage = {
+      id: streamingId,
+      role: "assistant",
+      content: "",
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, streamingMsg]);
+
     try {
       const res = await fetch("/api/admin/ai/chat", {
         method: "POST",
@@ -360,34 +370,75 @@ function ChatPanel({
           model: model === "claude-haiku-4-5-20251001" ? undefined : model,
         }),
       });
-      const json = (await res.json()) as {
-        data?: {
-          userMessage: AIMessage;
-          assistantMessage: AIMessage;
-          session: AISession;
-        };
-        error?: string;
-      };
-      if (!res.ok || !json.data) {
-        setError(json.error ?? "Something went wrong — please try again.");
-        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+
+      if (!res.ok || !res.body) {
+        setError("Something went wrong — please try again.");
+        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id && m.id !== streamingId));
         return;
       }
-      setMessages((prev) => [
-        ...prev.filter((m) => m.id !== optimistic.id),
-        json.data!.userMessage,
-        json.data!.assistantMessage,
-      ]);
-      setSession(json.data.session);
-      const nextCount = json.data.session.message_count ?? 0;
-      snapshotRef.current = {
-        sessionId: json.data.session.id,
-        messageCount: nextCount,
-      };
-      onChatStarted?.();
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6).trim();
+          if (!payload) continue;
+          try {
+            const evt = JSON.parse(payload) as {
+              text?: string;
+              error?: string;
+              done?: boolean;
+              userMessage?: AIMessage;
+              assistantMessage?: AIMessage;
+              session?: AISession;
+              meta?: { intent: string; model: string; maxTokens: number };
+            };
+
+            if (evt.error) {
+              setError(evt.error);
+              setMessages((prev) => prev.filter((m) => m.id !== optimistic.id && m.id !== streamingId));
+              return;
+            }
+
+            if (evt.text) {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === streamingId ? { ...m, content: m.content + evt.text! } : m,
+                ),
+              );
+            }
+
+            if (evt.done && evt.userMessage && evt.assistantMessage && evt.session) {
+              setMessages((prev) => [
+                ...prev.filter((m) => m.id !== optimistic.id && m.id !== streamingId),
+                evt.userMessage!,
+                evt.assistantMessage!,
+              ]);
+              setSession(evt.session);
+              const nextCount = evt.session.message_count ?? 0;
+              snapshotRef.current = {
+                sessionId: evt.session.id,
+                messageCount: nextCount,
+              };
+              onChatStarted?.();
+            }
+          } catch {
+            /* malformed chunk — skip */
+          }
+        }
+      }
     } catch {
       setError("Network error — please try again.");
-      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id && m.id !== streamingId));
     } finally {
       setSending(false);
       inputRef.current?.focus();

@@ -112,15 +112,11 @@ export default function EnquiriesPage() {
     setLoading(true);
     const [enquiryRes, oppRes] = await Promise.all([
       fetch(`/api/admin/enquiries?status=${statusFilter}`),
-      fetch("/api/admin/engagement/opportunities?limit=500"),
+      fetch("/api/admin/engagement/opportunities?enquiry_ids_only=true"),
     ]);
     const json = await enquiryRes.json() as { data: Enquiry[] };
-    const oppJson = await oppRes.json() as { data?: Array<{ enquiry_id?: string | null }> };
-    const oppIds = new Set<string>();
-    for (const opp of oppJson.data || []) {
-      if (opp.enquiry_id) oppIds.add(opp.enquiry_id);
-    }
-    setEnquiryIdsWithOpportunity(oppIds);
+    const oppJson = await oppRes.json() as { enquiry_ids?: string[] };
+    setEnquiryIdsWithOpportunity(new Set(oppJson.enquiry_ids ?? []));
     setEnquiries(json.data ?? []);
     setSelected(new Set());
     setLoading(false);
