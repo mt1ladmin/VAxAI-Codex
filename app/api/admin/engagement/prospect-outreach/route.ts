@@ -110,16 +110,15 @@ export async function PATCH(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
-  const catalog = await loadCatalogRecords(supabase);
-  const base = catalog.find((p) => p.id === outreach_id);
+  const [baseRes, existingRes] = await Promise.all([
+    supabase.from("prospect_outreach_catalog").select("*").eq("id", outreach_id).maybeSingle(),
+    supabase.from("prospect_outreach_overrides").select("*").eq("outreach_id", outreach_id).maybeSingle(),
+  ]);
+  const base = baseRes.data as unknown as ProspectOutreachRecord | null;
   if (!base) {
     return NextResponse.json({ error: "Prospect not found in catalog" }, { status: 404 });
   }
-  const { data: existing } = await supabase
-    .from("prospect_outreach_overrides")
-    .select("*")
-    .eq("outreach_id", outreach_id)
-    .maybeSingle();
+  const existing = existingRes.data;
 
   const mergedOverrides = {
     ...((existing?.overrides as Record<string, unknown>) || {}),
@@ -205,24 +204,21 @@ export async function PATCH(req: NextRequest) {
   }
 
   const members = await loadTeamMembers(supabase);
-  const { overrides: overrideMap, rows } = await loadOverrideMaps(supabase);
-  const row = rows.get(outreach_id);
-  const merged = mergeProspectRecord(base, overrideMap.get(outreach_id));
+  const merged = mergeProspectRecord(base, upsertPayload.overrides as Record<string, unknown>);
+  const finalAssignedId = (upsertPayload.assigned_team_member_id ?? existing?.assigned_team_member_id ?? null) as string | null;
 
   return NextResponse.json({
     data: {
       ...merged,
-      review_notes: upsertPayload.review_notes ?? syncedReviewNotes ?? row?.review_notes ?? null,
-      assigned_team_member_id: row?.assigned_team_member_id ?? body.assigned_team_member_id ?? null,
-      engagement_status: upsertPayload.engagement_status ?? row?.engagement_status ?? "Not assigned",
-      opportunity_description: row?.opportunity_description ?? null,
-      next_action: row?.next_action ?? null,
-      next_action_date: row?.next_action_date ?? null,
-      opportunity_id: row?.opportunity_id ?? null,
-      pipeline_contact_id: row?.pipeline_contact_id ?? null,
-      assigned_team_member_name:
-        members.find((m) => m.id === (row?.assigned_team_member_id ?? body.assigned_team_member_id))?.display_name ??
-        null,
+      review_notes: (upsertPayload.review_notes ?? syncedReviewNotes ?? null) as string | null,
+      assigned_team_member_id: finalAssignedId,
+      engagement_status: (upsertPayload.engagement_status ?? existing?.engagement_status ?? "Not assigned") as string,
+      opportunity_description: (upsertPayload.opportunity_description ?? existing?.opportunity_description ?? null) as string | null,
+      next_action: (upsertPayload.next_action ?? existing?.next_action ?? null) as string | null,
+      next_action_date: (upsertPayload.next_action_date ?? existing?.next_action_date ?? null) as string | null,
+      opportunity_id: (existing?.opportunity_id ?? null) as string | null,
+      pipeline_contact_id: (existing?.pipeline_contact_id ?? null) as string | null,
+      assigned_team_member_name: members.find((m) => m.id === finalAssignedId)?.display_name ?? null,
     },
   });
 }
@@ -236,30 +232,29 @@ export async function DELETE(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
-  const [catalog, { data: existing }] = await Promise.all([
-    loadCatalogRecords(supabase),
-    supabase
-      .from("prospect_outreach_overrides")
-      .select("outreach_id, overrides")
-      .in("outreach_id", ids),
-  ]);
-  const catalogIds = new Set(catalog.map((p) => p.id));
-  const existingMap = new Map((existing || []).map((r) => [r.outreach_id, r]));
+  const { data: existing } = await supabase
+    .from("prospect_outreach_overrides")
+    .select("outreach_id, overrides")
+    .in("outreach_id", ids);
 
-  for (const outreach_id of ids) {
-    if (!catalogIds.has(outreach_id)) continue;
-    const row = existingMap.get(outreach_id);
-    const mergedOverrides = {
-      ...((row?.overrides as Record<string, unknown>) || {}),
-      archived: true,
-      archived_at: new Date().toISOString(),
-    };
-    await supabase.from("prospect_outreach_overrides").upsert({
-      outreach_id,
-      overrides: mergedOverrides,
-      updated_at: new Date().toISOString(),
-    });
-  }
+  const existingMap = new Map((existing || []).map((r) => [r.outreach_id, r]));
+  const now = new Date().toISOString();
+
+  await Promise.all(
+    ids.map((outreach_id) => {
+      const row = existingMap.get(outreach_id);
+      const mergedOverrides = {
+        ...((row?.overrides as Record<string, unknown>) || {}),
+        archived: true,
+        archived_at: now,
+      };
+      return supabase.from("prospect_outreach_overrides").upsert({
+        outreach_id,
+        overrides: mergedOverrides,
+        updated_at: now,
+      });
+    }),
+  );
 
   return NextResponse.json({ success: true, archived_count: ids.length });
 }
@@ -302,12 +297,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data }, { status: 201 });
   }
 
-  // Legacy compatibility
-  if (body.prospects?.length || body.ids?.length) {
-    return NextResponse.json(
-      { error: "Use POST /api/admin/engagement/prospect-outreach/move-to-queue instead" },
-      { status: 410 },
-    );
-  }
   return NextResponse.json({ error: "No prospects provided" }, { status: 400 });
 }

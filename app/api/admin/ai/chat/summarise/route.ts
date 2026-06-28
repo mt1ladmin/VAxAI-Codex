@@ -1,5 +1,4 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { assembleContextPackage } from "@/lib/ai/assemble-context-package";
 import { SUMMARISE_NOTE_PROMPT } from "@/lib/ai/system-prompt";
 import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
@@ -19,15 +18,12 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
-  const [assembled, sessionRes] = await Promise.all([
-    assembleContextPackage(supabase, contextType, contextId),
-    supabase
-      .from("ai_chat_sessions")
-      .select("id, summary")
-      .eq("context_type", contextType)
-      .eq("context_id", contextId)
-      .maybeSingle(),
-  ]);
+  const sessionRes = await supabase
+    .from("ai_chat_sessions")
+    .select("id, summary")
+    .eq("context_type", contextType)
+    .eq("context_id", contextId)
+    .maybeSingle();
 
   const session = sessionRes.data;
   if (!session) {
@@ -53,13 +49,9 @@ export async function POST(req: NextRequest) {
 
   const response = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 650,
+    max_tokens: 400,
     system: [
       { type: "text", text: SUMMARISE_NOTE_PROMPT, cache_control: { type: "ephemeral" } },
-      {
-        type: "text",
-        text: `Account context:\n${assembled.package}`,
-      },
     ],
     messages: [
       {
