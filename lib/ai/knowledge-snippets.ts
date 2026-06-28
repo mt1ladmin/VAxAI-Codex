@@ -34,7 +34,7 @@ export async function loadKnowledgeSnippets(
   if (opts.attached) {
     const { sector_ids, persona_ids, pain_point_ids } = opts.attached;
 
-    const queries: Promise<void>[] = [];
+    const queries: PromiseLike<void>[] = [];
 
     if (pain_point_ids.length) {
       queries.push(
