@@ -48,11 +48,6 @@ type SearchResult = {
   status: string | null;
 };
 
-const MODEL_OPTIONS = [
-  { id: "claude-haiku-4-5-20251001", label: "Auto", note: "Routes by task" },
-  { id: "claude-sonnet-4-6", label: "Sonnet 4.6", note: "Deeper analysis" },
-  { id: "claude-opus-4-8", label: "Opus 4.8", note: "Most capable" },
-];
 
 const TYPE_BADGE: Record<string, string> = {
   enquiry: "bg-violet-100 text-violet-700",
@@ -200,7 +195,6 @@ function ChatPanel({
   contextId,
   contextLabel,
   contextSummary,
-  allowModelUpgrade,
   onChangeContext,
   showContextSwitcher = true,
   showNewChatButton = false,
@@ -213,7 +207,6 @@ function ChatPanel({
   contextId: string;
   contextLabel: string;
   contextSummary: string;
-  allowModelUpgrade: boolean;
   onChangeContext: () => void;
   showContextSwitcher?: boolean;
   showNewChatButton?: boolean;
@@ -228,8 +221,6 @@ function ChatPanel({
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [model, setModel] = useState("claude-haiku-4-5-20251001");
-  const [showModelMenu, setShowModelMenu] = useState(false);
   const [error, setError] = useState("");
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [saveTitle, setSaveTitle] = useState("");
@@ -240,7 +231,6 @@ function ChatPanel({
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const modelMenuRef = useRef<HTMLDivElement>(null);
   const snapshotRef = useRef({ sessionId: "", messageCount: 0 });
   const lastUserMessageRef = useRef("");
 
@@ -321,16 +311,6 @@ function ChatPanel({
     inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 120)}px`;
   }, [input]);
 
-  useEffect(() => {
-    if (!showModelMenu) return;
-    const close = (e: MouseEvent) => {
-      if (modelMenuRef.current && !modelMenuRef.current.contains(e.target as Node)) {
-        setShowModelMenu(false);
-      }
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [showModelMenu]);
 
   const sendMessage = async () => {
     const text = input.trim();
@@ -367,7 +347,6 @@ function ChatPanel({
           contextType,
           contextId,
           message: text,
-          model: model === "claude-haiku-4-5-20251001" ? undefined : model,
         }),
       });
 
@@ -531,7 +510,6 @@ function ChatPanel({
   };
 
   const suggestedList = SUGGESTED[contextType] ?? SUGGESTED.default;
-  const selectedModel = MODEL_OPTIONS.find((m) => m.id === model) ?? MODEL_OPTIONS[0];
 
   const typeDot = TYPE_DOT[contextType] ?? "bg-gray-400";
 
@@ -587,37 +565,6 @@ function ChatPanel({
           </button>
         )}
 
-        <div className="relative shrink-0" ref={modelMenuRef}>
-          <button
-            type="button"
-            onClick={() => setShowModelMenu((v) => !v)}
-            className="flex items-center gap-1 rounded-lg px-2 py-1 text-[11px] text-[#6f6b62] hover:bg-[#111111]/[0.03] hover:text-[#111111]"
-          >
-            {selectedModel.label}
-            <ChevronDown className="h-3 w-3 opacity-60" />
-          </button>
-          {showModelMenu && (
-            <div className="absolute right-0 top-full z-20 mt-1 w-48 overflow-hidden rounded-xl border border-[#111111]/8 bg-white py-1 shadow-lg">
-              {MODEL_OPTIONS.filter(
-                (o) =>
-                  o.id === "claude-haiku-4-5-20251001" ||
-                  (allowModelUpgrade && o.id !== "claude-haiku-4-5-20251001"),
-              ).map((o) => (
-                <button
-                  key={o.id}
-                  type="button"
-                  onClick={() => { setModel(o.id); setShowModelMenu(false); }}
-                  className={`flex w-full items-center justify-between px-3 py-2 text-left text-xs hover:bg-[#faf9f6] ${
-                    model === o.id ? "bg-[#063b32]/5 text-[#063b32]" : "text-[#111111]"
-                  }`}
-                >
-                  <span className="font-medium">{o.label}</span>
-                  <span className="text-[10px] text-[#6f6b62]">{o.note}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Messages */}
@@ -890,8 +837,6 @@ export function AIAssistantWidget() {
   const hasAccountContext = activeType !== "general";
   const viewingDifferentAccount =
     pageContext.type !== "general" && !contextsEqual(context, pageContext);
-  const allowModelUpgrade = activeType === "client";
-
   const handleSelectContext = async (type: string, id: string, label: string) => {
     const detail = await fetchContextDetail(type, id);
     setManualContext(
@@ -1087,7 +1032,6 @@ export function AIAssistantWidget() {
                 contextId={activeId}
                 contextLabel={activeLabel}
                 contextSummary={activeSummary}
-                allowModelUpgrade={allowModelUpgrade}
                 onChangeContext={handleChangeContext}
                 showNewChatButton
                 onNewChat={handleNewChat}
@@ -1109,7 +1053,6 @@ export function AIChatHistory({
   contextId,
   contextLabel,
   contextSummary,
-  allowModelUpgrade,
   onNotesSaved,
   onActivityRecorded,
 }: {
@@ -1117,7 +1060,6 @@ export function AIChatHistory({
   contextId: string;
   contextLabel: string;
   contextSummary: string;
-  allowModelUpgrade?: boolean;
   onNotesSaved?: () => void;
   onActivityRecorded?: () => void;
 }) {
@@ -1139,7 +1081,6 @@ export function AIChatHistory({
           contextId={contextId}
           contextLabel={contextLabel}
           contextSummary={contextSummary}
-          allowModelUpgrade={allowModelUpgrade ?? false}
           onChangeContext={() => {}}
           showContextSwitcher={false}
           showNewChatButton

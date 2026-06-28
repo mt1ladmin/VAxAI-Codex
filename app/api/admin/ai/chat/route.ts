@@ -1,12 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { after } from "next/server";
 import { assembleContextPackage } from "@/lib/ai/assemble-context-package";
-import { detectIntent, resolveModelAndTokens } from "@/lib/ai/intent";
-import {
-  HAIKU_MODEL,
-  OUTREACH_CHAT_DEFAULT_MAX_TOKENS,
-  OUTREACH_CHAT_MAX_TOKENS,
-} from "@/lib/ai/research-config";
+import { detectIntent, resolveModelAndTokens, resolveContextDepth } from "@/lib/ai/intent";
 import { loadKnowledgeSnippets, shouldLoadKnowledgeSnippets } from "@/lib/ai/knowledge-snippets";
 import { buildSystemBlocks } from "@/lib/ai/system-prompt";
 import { logChatUsage } from "@/lib/ai/usage-log";
@@ -15,8 +10,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const RECENT_MSG_LIMIT = 6;
-const COMPRESS_AT = 18;
+const RECENT_MSG_LIMIT = 4;
+const COMPRESS_AT = 10;
 
 async function maybeCompress(
   supabase: ReturnType<typeof createServiceClient>,
@@ -24,7 +19,7 @@ async function maybeCompress(
   existingSummary: string | null,
   messageCount: number,
 ) {
-  if (messageCount < COMPRESS_AT || messageCount % 12 !== 0) return;
+  if (messageCount < COMPRESS_AT || messageCount % 6 !== 0) return;
 
   const { data: all } = await supabase
     .from("ai_chat_messages")
@@ -79,7 +74,6 @@ export async function POST(req: NextRequest) {
     contextType: string;
     contextId: string;
     message: string;
-    model?: string;
   };
 
   const { contextType, contextId, message } = body;
@@ -89,12 +83,8 @@ export async function POST(req: NextRequest) {
   }
 
   const intent = detectIntent(message);
-  const isOutreachResearch = contextType === "outreach";
-  const { model: routedModel, maxTokens: routedMax } = resolveModelAndTokens(intent, body.model);
-  const model = isOutreachResearch ? HAIKU_MODEL : routedModel;
-  const maxTokens = isOutreachResearch
-    ? (OUTREACH_CHAT_MAX_TOKENS[intent] ?? OUTREACH_CHAT_DEFAULT_MAX_TOKENS)
-    : routedMax;
+  const { model, maxTokens } = resolveModelAndTokens(intent);
+  const depth = resolveContextDepth(intent, message);
 
   const supabase = createServiceClient();
 
@@ -119,7 +109,7 @@ export async function POST(req: NextRequest) {
   }
 
   const [assembled, recentMessages] = await Promise.all([
-    assembleContextPackage(supabase, contextType, contextId),
+    assembleContextPackage(supabase, contextType, contextId, { depth }),
     supabase
       .from("ai_chat_messages")
       .select("role, content")
@@ -141,13 +131,14 @@ export async function POST(req: NextRequest) {
     linkedSummary = linked?.summary ?? null;
   }
 
-  const knowledgeSnippets = shouldLoadKnowledgeSnippets(contextType, intent, message)
-    ? await loadKnowledgeSnippets(supabase, {
-        keywords: [...assembled.keywords, ...message.toLowerCase().split(/\W+/).filter((w) => w.length > 3)],
-        attached: assembled.attachments,
-        intent,
-      })
-    : null;
+  const knowledgeSnippets =
+    depth === 2 && shouldLoadKnowledgeSnippets(contextType, intent, message)
+      ? await loadKnowledgeSnippets(supabase, {
+          keywords: [...assembled.keywords, ...message.toLowerCase().split(/\W+/).filter((w) => w.length > 3)],
+          attached: assembled.attachments,
+          intent,
+        })
+      : null;
 
   const system = buildSystemBlocks(contextType, intent, assembled.package, {
     conversationSummary: session.summary as string | null,

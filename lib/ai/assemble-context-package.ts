@@ -149,9 +149,11 @@ export async function assembleContextPackage(
   supabase: Supabase,
   contextType: string,
   contextId: string,
-  options?: { includeWorkingState?: boolean },
+  options?: { includeWorkingState?: boolean; depth?: 0 | 1 | 2 },
 ): Promise<AssembledContext> {
   const includeWorkingState = options?.includeWorkingState !== false;
+  // depth 0 = core only, 1 = core+tasks, 2 = full (default)
+  const depth = options?.depth ?? 2;
   const gaps: string[] = [];
 
   if (contextType === "enquiry") {
@@ -178,28 +180,41 @@ export async function assembleContextPackage(
 
     const opportunities = (oppRes.data ?? []) as EngagementOpportunity[];
     const core = buildEnquiryContextSummary(enquiry, opportunities);
-    const attachments = await loadAttachments(supabase, { col: "enquiry_id", val: contextId });
-    const [tasks, activity] = await Promise.all([
-      loadOpenTasks(supabase, [{ col: "enquiry_id", val: contextId }]),
-      loadRecentActivity(supabase, { col: "enquiry_id", val: contextId }),
-    ]);
-    const notes = extractRecentNotes(enquiry.admin_notes);
-    const primaryOpp = opportunities[0] ?? null;
-    const fees = formatFees(primaryOpp);
-
-    if (!enquiry.details?.trim() || enquiry.details.toLowerCase().includes("test")) {
-      gaps.push("Enquiry details look empty or like test data");
-    }
 
     const parts = [core];
-    appendSupplement(parts, tasks, activity, notes, fees, gaps);
 
-    return finalizeWithAccountState(supabase, contextType, contextId, {
+    if (depth >= 2) {
+      const attachments = await loadAttachments(supabase, { col: "enquiry_id", val: contextId });
+      const [tasks, activity] = await Promise.all([
+        loadOpenTasks(supabase, [{ col: "enquiry_id", val: contextId }]),
+        loadRecentActivity(supabase, { col: "enquiry_id", val: contextId }),
+      ]);
+      const notes = extractRecentNotes(enquiry.admin_notes);
+      const fees = formatFees(opportunities[0] ?? null);
+      if (!enquiry.details?.trim() || enquiry.details.toLowerCase().includes("test")) {
+        gaps.push("Enquiry details look empty or like test data");
+      }
+      appendSupplement(parts, tasks, activity, notes, fees, gaps);
+
+      return finalizeWithAccountState(supabase, contextType, contextId, {
+        label: enquiry.name || enquiry.email || "Enquiry",
+        package: parts.join("\n"),
+        keywords: extractKnowledgeKeywords(core),
+        attachments,
+      }, includeWorkingState);
+    }
+
+    if (depth === 1) {
+      const tasks = await loadOpenTasks(supabase, [{ col: "enquiry_id", val: contextId }]);
+      appendSupplement(parts, tasks, [], [], null, []);
+    }
+
+    return {
       label: enquiry.name || enquiry.email || "Enquiry",
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
-      attachments,
-    }, includeWorkingState);
+      attachments: EMPTY_KNOWLEDGE_LINKS,
+    };
   }
 
   if (contextType === "prospect") {
@@ -215,18 +230,27 @@ export async function assembleContextPackage(
 
     const { record, reviewNotes } = loaded;
     const core = buildOutreachContextSummary(record, reviewNotes);
-    const attachments = await loadAttachments(supabase, { col: "outreach_id", val: contextId });
-    const notes = extractRecentNotes(reviewNotes);
     const parts = [core];
-    if (notes.length) parts.push("REVIEWER NOTES:", ...notes.map((n) => `• ${n}`));
-    if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
 
-    return finalizeWithAccountState(supabase, contextType, contextId, {
+    if (depth >= 2) {
+      const attachments = await loadAttachments(supabase, { col: "outreach_id", val: contextId });
+      const notes = extractRecentNotes(reviewNotes);
+      if (notes.length) parts.push("REVIEWER NOTES:", ...notes.map((n) => `• ${n}`));
+      if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
+      return finalizeWithAccountState(supabase, contextType, contextId, {
+        label: record.organisation_name,
+        package: parts.join("\n"),
+        keywords: extractKnowledgeKeywords(core),
+        attachments,
+      }, includeWorkingState);
+    }
+
+    return {
       label: record.organisation_name,
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
-      attachments,
-    }, includeWorkingState);
+      attachments: EMPTY_KNOWLEDGE_LINKS,
+    };
   }
 
   if (contextType === "client") {
@@ -266,37 +290,42 @@ export async function assembleContextPackage(
       linkedOutreach,
       finderReviewNotes,
     );
-    const attachments = await loadAttachments(supabase, { col: "contact_id", val: contextId });
-
-    const taskFilters: Array<{ col: string; val: string }> = [{ col: "contact_id", val: contextId }];
-    if (contact.organisation_id) {
-      taskFilters.push({ col: "organisation_id", val: contact.organisation_id });
-    }
-    for (const opp of opportunities.slice(0, 2)) {
-      taskFilters.push({ col: "opportunity_id", val: opp.id });
-    }
-
-    const [tasks, activity] = await Promise.all([
-      loadOpenTasks(supabase, taskFilters),
-      loadRecentActivity(supabase, { col: "contact_id", val: contextId }),
-    ]);
-    const notes = extractRecentNotes(contact.notes);
-    const fees = formatFees(opportunities[0]);
-
-    if (!contact.notes?.trim() && !finderReviewNotes?.trim()) {
-      gaps.push("Limited recorded notes on this account");
-    }
-
-    const parts = [core];
-    appendSupplement(parts, tasks, activity, notes, fees, gaps);
-
     const fullName = `${contact.first_name}${contact.last_name ? ` ${contact.last_name}` : ""}`.trim();
-    return finalizeWithAccountState(supabase, contextType, contextId, {
+    const parts = [core];
+
+    if (depth >= 2) {
+      const attachments = await loadAttachments(supabase, { col: "contact_id", val: contextId });
+      const taskFilters: Array<{ col: string; val: string }> = [{ col: "contact_id", val: contextId }];
+      if (contact.organisation_id) taskFilters.push({ col: "organisation_id", val: contact.organisation_id });
+      for (const opp of opportunities.slice(0, 2)) taskFilters.push({ col: "opportunity_id", val: opp.id });
+      const [tasks, activity] = await Promise.all([
+        loadOpenTasks(supabase, taskFilters),
+        loadRecentActivity(supabase, { col: "contact_id", val: contextId }),
+      ]);
+      const notes = extractRecentNotes(contact.notes);
+      if (!contact.notes?.trim() && !finderReviewNotes?.trim()) gaps.push("Limited recorded notes on this account");
+      appendSupplement(parts, tasks, activity, notes, formatFees(opportunities[0]), gaps);
+      return finalizeWithAccountState(supabase, contextType, contextId, {
+        label: fullName || "Client",
+        package: parts.join("\n"),
+        keywords: extractKnowledgeKeywords(core),
+        attachments,
+      }, includeWorkingState);
+    }
+
+    if (depth === 1) {
+      const taskFilters: Array<{ col: string; val: string }> = [{ col: "contact_id", val: contextId }];
+      if (contact.organisation_id) taskFilters.push({ col: "organisation_id", val: contact.organisation_id });
+      const tasks = await loadOpenTasks(supabase, taskFilters);
+      appendSupplement(parts, tasks, [], [], null, []);
+    }
+
+    return {
       label: fullName || "Client",
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
-      attachments,
-    }, includeWorkingState);
+      attachments: EMPTY_KNOWLEDGE_LINKS,
+    };
   }
 
   if (contextType === "outreach") {
@@ -312,21 +341,28 @@ export async function assembleContextPackage(
 
     const { record, reviewNotes } = merged;
     const core = buildOutreachContextSummary(record, reviewNotes);
-    const attachments = await loadAttachments(supabase, { col: "outreach_id", val: contextId });
-    const notes = extractRecentNotes(reviewNotes);
-
-    if (record.data_confidence === "Low") gaps.push("Research confidence is low — verify before outreach");
-
     const parts = [core];
-    if (notes.length) parts.push("REVIEWER NOTES:", ...notes.map((n) => `• ${n}`));
-    if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
 
-    return finalizeWithAccountState(supabase, contextType, contextId, {
+    if (depth >= 2) {
+      const attachments = await loadAttachments(supabase, { col: "outreach_id", val: contextId });
+      const notes = extractRecentNotes(reviewNotes);
+      if (record.data_confidence === "Low") gaps.push("Research confidence is low — verify before outreach");
+      if (notes.length) parts.push("REVIEWER NOTES:", ...notes.map((n) => `• ${n}`));
+      if (gaps.length) parts.push("GAPS:", ...gaps.map((g) => `• ${g}`));
+      return finalizeWithAccountState(supabase, contextType, contextId, {
+        label: record.organisation_name,
+        package: parts.join("\n"),
+        keywords: extractKnowledgeKeywords(core),
+        attachments,
+      }, includeWorkingState);
+    }
+
+    return {
       label: record.organisation_name,
       package: parts.join("\n"),
       keywords: extractKnowledgeKeywords(core),
-      attachments,
-    }, includeWorkingState);
+      attachments: EMPTY_KNOWLEDGE_LINKS,
+    };
   }
 
   return finalizeWithAccountState(supabase, contextType, contextId, {

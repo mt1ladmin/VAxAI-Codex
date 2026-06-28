@@ -7,6 +7,13 @@ export type ChatIntent =
   | "analysis"
   | "general";
 
+/** How much DB context to load for each intent.
+ *  0 = core fields only (fast, cheap)
+ *  1 = core + open tasks
+ *  2 = full package (tasks, activity, notes, knowledge snippets)
+ */
+export type ContextDepth = 0 | 1 | 2;
+
 const PATTERNS: Array<{ intent: ChatIntent; re: RegExp }> = [
   { intent: "summarise", re: /\b(summar(?:y|ise|ize)|recap|overview of (?:the |this )?(?:chat|conversation|account))\b/i },
   { intent: "meeting_prep", re: /\b(call in|meeting prep|before (?:the |a )?call|prepare for|ahead of (?:the |a )?(?:call|meeting)|what do i need to know)\b/i },
@@ -16,20 +23,21 @@ const PATTERNS: Array<{ intent: ChatIntent; re: RegExp }> = [
   { intent: "factual", re: /^(?:what|who|when|where|how much|is there|do (?:we|they) have)\b/i },
 ];
 
-const ROUTING: Record<
-  ChatIntent,
-  { model: string; maxTokens: number; allowUpgrade: boolean }
-> = {
-  factual: { model: "claude-haiku-4-5-20251001", maxTokens: 280, allowUpgrade: false },
-  next_steps: { model: "claude-haiku-4-5-20251001", maxTokens: 400, allowUpgrade: false },
-  summarise: { model: "claude-haiku-4-5-20251001", maxTokens: 650, allowUpgrade: false },
-  general: { model: "claude-haiku-4-5-20251001", maxTokens: 500, allowUpgrade: false },
-  draft: { model: "claude-sonnet-4-6", maxTokens: 700, allowUpgrade: true },
-  meeting_prep: { model: "claude-sonnet-4-6", maxTokens: 850, allowUpgrade: true },
-  analysis: { model: "claude-sonnet-4-6", maxTokens: 1000, allowUpgrade: true },
+const ROUTING: Record<ChatIntent, { maxTokens: number; depth: ContextDepth }> = {
+  factual:      { maxTokens: 150, depth: 0 },
+  general:      { maxTokens: 250, depth: 0 },
+  next_steps:   { maxTokens: 250, depth: 1 },
+  summarise:    { maxTokens: 400, depth: 1 },
+  draft:        { maxTokens: 600, depth: 2 },
+  meeting_prep: { maxTokens: 700, depth: 2 },
+  analysis:     { maxTokens: 750, depth: 2 },
 };
 
-const UPGRADE_MODELS = new Set(["claude-sonnet-4-6", "claude-opus-4-8"]);
+// Keywords that escalate context depth by one level even on shallow intents
+const DEPTH_ESCALATION_RE =
+  /\b(sector|persona|research|knowledge|history|activity|task|notes|approach|engagement|pain|fit)\b/i;
+
+export const HAIKU = "claude-haiku-4-5-20251001";
 
 export function detectIntent(message: string): ChatIntent {
   const trimmed = message.trim();
@@ -42,15 +50,14 @@ export function detectIntent(message: string): ChatIntent {
 
 export function resolveModelAndTokens(
   intent: ChatIntent,
-  userModel?: string,
 ): { model: string; maxTokens: number; intent: ChatIntent } {
-  const route = ROUTING[intent];
-  if (userModel && UPGRADE_MODELS.has(userModel) && route.allowUpgrade) {
-    const maxTokens =
-      userModel === "claude-opus-4-8"
-        ? Math.min(route.maxTokens + 400, 1400)
-        : route.maxTokens;
-    return { model: userModel, maxTokens, intent };
+  return { model: HAIKU, maxTokens: ROUTING[intent].maxTokens, intent };
+}
+
+export function resolveContextDepth(intent: ChatIntent, message: string): ContextDepth {
+  const base = ROUTING[intent].depth;
+  if (base < 2 && DEPTH_ESCALATION_RE.test(message)) {
+    return (base + 1) as ContextDepth;
   }
-  return { model: route.model, maxTokens: route.maxTokens, intent };
+  return base;
 }
