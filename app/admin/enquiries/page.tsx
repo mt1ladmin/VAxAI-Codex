@@ -57,11 +57,6 @@ const DISCOVERY_CALL_FILTER_OPTIONS = [
   { value: "no" as const, label: "No discovery call" },
 ];
 
-const OPPORTUNITY_FILTER_OPTIONS = [
-  { value: "all" as const, label: "Opportunity: all" },
-  { value: "yes" as const, label: "Has opportunity" },
-  { value: "no" as const, label: "No opportunity" },
-];
 
 function LabeledField({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -100,8 +95,6 @@ export default function EnquiriesPage() {
   const [search, setSearch] = useState("");
   const [nextActionFilter, setNextActionFilter] = useState<TriFilter>("all");
   const [discoveryCallFilter, setDiscoveryCallFilter] = useState<TriFilter>("all");
-  const [opportunityFilter, setOpportunityFilter] = useState<TriFilter>("all");
-  const [enquiryIdsWithOpportunity, setEnquiryIdsWithOpportunity] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -110,13 +103,8 @@ export default function EnquiriesPage() {
 
   const fetch_ = useCallback(async () => {
     setLoading(true);
-    const [enquiryRes, oppRes] = await Promise.all([
-      fetch(`/api/admin/enquiries?status=${statusFilter}`),
-      fetch("/api/admin/engagement/opportunities?enquiry_ids_only=true"),
-    ]);
-    const json = await enquiryRes.json() as { data: Enquiry[] };
-    const oppJson = await oppRes.json() as { enquiry_ids?: string[] };
-    setEnquiryIdsWithOpportunity(new Set(oppJson.enquiry_ids ?? []));
+    const res = await fetch(`/api/admin/enquiries?status=${statusFilter}`);
+    const json = await res.json() as { data: Enquiry[] };
     setEnquiries(json.data ?? []);
     setSelected(new Set());
     setLoading(false);
@@ -129,9 +117,6 @@ export default function EnquiriesPage() {
     if (nextActionFilter === "no" && e.next_action) return false;
     if (discoveryCallFilter === "yes" && !e.wants_discovery_call) return false;
     if (discoveryCallFilter === "no" && e.wants_discovery_call) return false;
-    const hasOpportunity = enquiryIdsWithOpportunity.has(e.id);
-    if (opportunityFilter === "yes" && !hasOpportunity) return false;
-    if (opportunityFilter === "no" && hasOpportunity) return false;
 
     if (!search) return true;
     const q = search.toLowerCase();
@@ -143,12 +128,11 @@ export default function EnquiriesPage() {
       (e.next_action || "").toLowerCase().includes(q) ||
       (e.last_action || "").toLowerCase().includes(q)
     );
-  }), [enquiries, search, nextActionFilter, discoveryCallFilter, opportunityFilter, enquiryIdsWithOpportunity]);
+  }), [enquiries, search, nextActionFilter, discoveryCallFilter]);
 
   const hasActiveFilters =
     nextActionFilter !== "all" ||
     discoveryCallFilter !== "all" ||
-    opportunityFilter !== "all" ||
     search.trim().length > 0;
 
   const metrics = useMemo(() => {
@@ -302,11 +286,6 @@ export default function EnquiriesPage() {
             onChange={setDiscoveryCallFilter}
             options={DISCOVERY_CALL_FILTER_OPTIONS}
           />
-          <FilterSelect
-            value={opportunityFilter}
-            onChange={setOpportunityFilter}
-            options={OPPORTUNITY_FILTER_OPTIONS}
-          />
           {hasActiveFilters && (
             <button
               type="button"
@@ -314,7 +293,6 @@ export default function EnquiriesPage() {
                 setSearch("");
                 setNextActionFilter("all");
                 setDiscoveryCallFilter("all");
-                setOpportunityFilter("all");
               }}
               className="text-xs font-medium text-[#063b32] hover:underline"
             >
