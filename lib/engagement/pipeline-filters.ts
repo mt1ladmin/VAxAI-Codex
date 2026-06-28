@@ -1,5 +1,5 @@
 import { CLIENT_SERVICE_STAGES } from "@/lib/engagement/client-stages";
-import { PROSPECT_FINDER_LABEL, PROSPECT_QUEUE_LABEL } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import type { EngagementOpportunity, EngagementTask } from "@/lib/engagement/types";
 
 export const CLOSED_WON = CLIENT_SERVICE_STAGES;

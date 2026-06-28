@@ -1,4 +1,6 @@
-import { PROSPECT_QUEUE_PATH, PROSPECT_FINDER_PATH } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_PATH } from "@/lib/engagement/journey";
+
+const PIPELINE_PATH = "/admin/engagement/pipeline";
 import {
   buildFinderList,
   filterFinderList,
@@ -61,7 +63,7 @@ export async function GET(req: NextRequest) {
     let href = "/admin/engagement/pipeline";
     if (t.enquiry_id) href = `/admin/enquiries/${t.enquiry_id}`;
     else if (t.outreach_id) href = `/admin/engagement/prospect-outreach/${t.outreach_id}`;
-    else if (t.contact_id) href = `${PROSPECT_QUEUE_PATH}/${t.contact_id}?tab=tasks`;
+    else if (t.contact_id) href = PIPELINE_PATH;
     return {
       id: t.id,
       title: t.title,
@@ -95,7 +97,7 @@ export async function GET(req: NextRequest) {
       organisation: org?.name ?? null,
       stage: o.stage,
       next_action: o.next_action,
-      href: contact?.id ? `${PROSPECT_QUEUE_PATH}/${contact.id}` : PROSPECT_QUEUE_PATH,
+      href: PIPELINE_PATH,
     };
   });
 
