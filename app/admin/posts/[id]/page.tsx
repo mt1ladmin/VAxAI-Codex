@@ -477,11 +477,12 @@ export default function EditPostPage() {
                 </div>
               )}
 
-              {socialPreviews.length > 0 && (
+              {/* Connected social posts (linked records) */}
+              {linkedSocial.length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Social content</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
                   <div className="space-y-2">
-                    {socialPreviews.map((social) => (
+                    {linkedSocial.map((social) => (
                       <SocialPostSummaryCard
                         key={social.id}
                         social={social}
@@ -491,6 +492,57 @@ export default function EditPostPage() {
                   </div>
                 </div>
               )}
+
+              {/* Editable social content */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Social content</p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Share caption</label>
+                    <textarea
+                      value={socialDraft?.sharing_caption ?? ""}
+                      onChange={(e) => setSocialDraft((d) => ({ ...d, sharing_caption: e.target.value || undefined }))}
+                      rows={3}
+                      placeholder="Add a short sharing caption…"
+                      className="w-full rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs outline-none focus:border-[#063b32] resize-none"
+                    />
+                  </div>
+                  <div>
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <Linkedin className="h-3 w-3 text-[#0077B5]" />
+                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">LinkedIn post</label>
+                    </div>
+                    <textarea
+                      value={socialDraft?.linkedin_post ?? ""}
+                      onChange={(e) => setSocialDraft((d) => ({ ...d, linkedin_post: e.target.value || undefined }))}
+                      rows={4}
+                      placeholder="Write your LinkedIn post…"
+                      className="w-full rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs outline-none focus:border-[#0077B5] resize-none"
+                    />
+                  </div>
+                  <div>
+                    <div className="mb-1 flex items-center gap-1.5">
+                      <Instagram className="h-3 w-3 text-pink-600" />
+                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Instagram caption</label>
+                    </div>
+                    <textarea
+                      value={socialDraft?.instagram_caption ?? ""}
+                      onChange={(e) => setSocialDraft((d) => ({ ...d, instagram_caption: e.target.value || undefined }))}
+                      rows={4}
+                      placeholder="Write your Instagram caption…"
+                      className="w-full rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs outline-none focus:border-pink-400 resize-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    disabled={saving}
+                    onClick={() => void save(isPublished ? "published" : "draft")}
+                    className="w-full rounded-lg border border-[#063b32]/30 bg-[#063b32]/5 py-2 text-xs font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:opacity-50"
+                  >
+                    {saving ? "Saving…" : "Save social content"}
+                  </button>
+                </div>
+              </div>
 
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">URL Slug</label>
