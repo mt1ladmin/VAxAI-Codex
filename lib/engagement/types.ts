@@ -236,21 +236,6 @@ export type VatPrompt = {
   sort_order: number;
 };
 
-export type RecommendationRule = {
-  id: string;
-  title: string;
-  recommendation_type: string;
-  condition_field: string | null;
-  condition_operator: string | null;
-  condition_value: string | null;
-  priority: number;
-  reason: string | null;
-  evidence_needed: string | null;
-  risk_gate: boolean;
-  risk_gate_reason: string | null;
-  status: string;
-};
-
 export type EngagementScript = {
   id: string;
   title: string;
@@ -367,23 +352,6 @@ export const PAIN_POINT_CATEGORIES = [
   'Marketing and Content Operations','Team and Delivery Administration',
   'Founder, Freelancer and Consultant Administration',
 ];
-
-export const RECOMMENDATION_TYPES = [
-  'explore_further','process_improvement','use_existing_tools','integration',
-  'automation','ai_assistance','va_support','combined_approach','human_review_required',
-];
-
-export const RECOMMENDATION_LABELS: Record<string, string> = {
-  explore_further: 'Explore further',
-  process_improvement: 'Process improvement first',
-  use_existing_tools: 'Use existing tools better',
-  integration: 'Integrate existing systems',
-  automation: 'Pilot a low-risk automation',
-  ai_assistance: 'Introduce AI with review controls',
-  va_support: 'Add VA support',
-  combined_approach: 'Combine automation and VA support',
-  human_review_required: 'Human review required',
-};
 
 export const BADGE_COLORS: Record<string, string> = {
   Confirmed: 'bg-emerald-100 text-emerald-700',

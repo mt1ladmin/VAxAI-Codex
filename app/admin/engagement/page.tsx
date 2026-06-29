@@ -20,7 +20,6 @@ type WorkToday = {
   newEnquiries: Array<{ id: string; name: string; status: string; href: string }>;
 };
 
-type PainPoint = { id: string; title: string; category: string; slug: string | null };
 type PostItem = { id: string; title: string; status: string; scheduled_at?: string | null; content_type: string };
 
 type Stats = {
@@ -67,7 +66,6 @@ export default function EngagementOverview() {
   const userEmail = useUserEmail();
   const [workToday, setWorkToday] = useState<WorkToday | null>(null);
   const [workLoading, setWorkLoading] = useState(true);
-  const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
   const [stats, setStats] = useState<Stats>({
     newEnquiries: 0,
     overdueTasks: 0,
@@ -80,10 +78,6 @@ export default function EngagementOverview() {
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
-
-    fetch("/api/admin/engagement/pain-points?limit=8")
-      .then((r) => r.json())
-      .then((j) => setCommonPainPoints(j.data || []));
 
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
@@ -229,27 +223,6 @@ export default function EngagementOverview() {
           ))}
         </div>
 
-        <SectionCard
-          title="Common pain points"
-          action={
-            <Link href="/admin/engagement/pain-points" className="text-xs font-semibold text-[#063b32] hover:underline">
-              All pain points
-            </Link>
-          }
-        >
-          <div className="flex flex-wrap gap-2 px-5 py-4">
-            {commonPainPoints.map((pp) => (
-              <Link
-                key={pp.id}
-                href={`/admin/engagement/pain-points/${pp.id}`}
-                className="flex items-center gap-1.5 rounded-full border border-[#111111]/10 bg-white px-3 py-1.5 text-sm text-[#111111] hover:border-[#063b32]/30 hover:bg-[#f7f4ea] transition-colors"
-              >
-                <Zap className="h-3 w-3 text-amber-500" />
-                {pp.title}
-              </Link>
-            ))}
-          </div>
-        </SectionCard>
 
         <p className="text-sm font-semibold text-[#111111]">Content & publishing</p>
 
