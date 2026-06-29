@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -103,12 +104,13 @@ export default function ProspectFinderPage() {
     organisation_type: "Charity" as "Charity" | "Business" | "Social enterprise" | "Other",
     location: "",
     region: OUTREACH_REGIONS[0] as string,
-    need_score: 3,
+    website: "",
     decision_maker_name: "",
     decision_maker_role: "",
     email: "",
     phone: "",
   });
+  const [regionCustom, setRegionCustom] = useState(false);
   const hasLoadedRef = useRef(false);
   const studioAccess = useStudioAccessOptional();
   const isPlatformAdmin = studioAccess?.isPlatformAdmin ?? true;
@@ -248,14 +250,24 @@ export default function ProspectFinderPage() {
       const res = await fetch("/api/admin/engagement/prospect-outreach", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prospect: { ...addForm, need_score: Number(addForm.need_score) } }),
+        body: JSON.stringify({ prospect: { ...addForm, need_score: 3 } }),
       });
       const json = await res.json() as { data?: { id?: string }; error?: string; code?: string; hint?: string };
       if ((res.status === 200 || res.status === 201) && json.data?.id) {
+        const newId = json.data.id;
+        // Store website as an override since the RPC doesn't support it directly
+        if (addForm.website.trim()) {
+          await fetch("/api/admin/engagement/prospect-outreach", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ outreach_id: newId, overrides: { website: addForm.website.trim() } }),
+          });
+        }
         setShowAddModal(false);
+        setRegionCustom(false);
         setAddForm({
           organisation_name: "", organisation_type: "Charity", location: "",
-          region: OUTREACH_REGIONS[0], need_score: 3,
+          region: OUTREACH_REGIONS[0], website: "",
           decision_maker_name: "", decision_maker_role: "", email: "", phone: "",
         });
         router.refresh();
@@ -564,27 +576,51 @@ export default function ProspectFinderPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Type</label>
-                  <select
-                    value={addForm.organisation_type}
-                    onChange={(e) => setAddForm((f) => ({ ...f, organisation_type: e.target.value as typeof f.organisation_type }))}
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  >
-                    {(["Charity", "Business", "Social enterprise", "Other"] as const).map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={addForm.organisation_type}
+                      onChange={(e) => setAddForm((f) => ({ ...f, organisation_type: e.target.value as typeof f.organisation_type }))}
+                      className="w-full appearance-none rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32]"
+                    >
+                      {(["Charity", "Business", "Social enterprise", "Other"] as const).map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                  </div>
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Region</label>
-                  <select
-                    value={addForm.region}
-                    onChange={(e) => setAddForm((f) => ({ ...f, region: e.target.value }))}
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  >
-                    {OUTREACH_REGIONS.map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
+                  {regionCustom ? (
+                    <input
+                      autoFocus
+                      value={addForm.region}
+                      onChange={(e) => setAddForm((f) => ({ ...f, region: e.target.value }))}
+                      placeholder="Enter region…"
+                      className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    />
+                  ) : (
+                    <div className="relative">
+                      <select
+                        value={OUTREACH_REGIONS.includes(addForm.region as typeof OUTREACH_REGIONS[number]) ? addForm.region : "__custom__"}
+                        onChange={(e) => {
+                          if (e.target.value === "__custom__") {
+                            setRegionCustom(true);
+                            setAddForm((f) => ({ ...f, region: "" }));
+                          } else {
+                            setAddForm((f) => ({ ...f, region: e.target.value }));
+                          }
+                        }}
+                        className="w-full appearance-none rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32]"
+                      >
+                        {OUTREACH_REGIONS.map((r) => (
+                          <option key={r} value={r}>{r}</option>
+                        ))}
+                        <option value="__custom__">Other (type your own)…</option>
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -598,13 +634,12 @@ export default function ProspectFinderPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Need score (1–5)</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Website</label>
                   <input
-                    type="number"
-                    min={1}
-                    max={5}
-                    value={addForm.need_score}
-                    onChange={(e) => setAddForm((f) => ({ ...f, need_score: Number(e.target.value) }))}
+                    type="url"
+                    value={addForm.website}
+                    onChange={(e) => setAddForm((f) => ({ ...f, website: e.target.value }))}
+                    placeholder="https://…"
                     className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                   />
                 </div>

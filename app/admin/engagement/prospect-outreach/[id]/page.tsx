@@ -321,6 +321,10 @@ function ProspectFinderDetailContent() {
   const doneTasks = tasks.filter((t) => t.status === "done");
   const memberOptions = activeTeamMemberOptions(teamMembers);
   const notesCount = countNotes(reviewNotes);
+  // Most recently created open follow-up task (tasks arrive ordered by due_date; resort by created_at)
+  const latestFollowUpTask = [...openTasks]
+    .filter((t) => t.task_type === "follow_up")
+    .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))[0] ?? null;
 
 
   const hubQuickActions = (
@@ -539,6 +543,16 @@ function ProspectFinderDetailContent() {
               )}
             </div>
           </div>
+
+          {latestFollowUpTask && (
+            <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 space-y-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-orange-700">Next action</p>
+              <p className="text-sm text-[#111111]">{latestFollowUpTask.title}</p>
+              {latestFollowUpTask.due_date && (
+                <p className="text-xs text-orange-600">Due {new Date(latestFollowUpTask.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+              )}
+            </div>
+          )}
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             {record.is_client ? (
