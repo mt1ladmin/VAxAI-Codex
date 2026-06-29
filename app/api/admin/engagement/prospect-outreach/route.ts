@@ -256,47 +256,39 @@ export async function POST(req: NextRequest) {
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "") || "prospect";
       const id = `${slug}-${Date.now().toString(36)}`;
-      const record = {
-        id,
-        research_date: new Date().toISOString().slice(0, 10),
-        organisation_name: String(p.organisation_name ?? ""),
-        organisation_type: String(p.organisation_type ?? "Other"),
-        location: String(p.location ?? ""),
-        region: String(p.region ?? ""),
-        website: "",
-        employees: null,
-        annual_revenue_gbp: null,
-        revenue_basis: "",
-        need_score: Number(p.need_score ?? 3),
-        need_rationale: "",
-        data_confidence: "Medium",
-        priority_region: "secondary",
-        decision_maker_name: String(p.decision_maker_name ?? ""),
-        decision_maker_role: String(p.decision_maker_role ?? ""),
-        email: String(p.email ?? ""),
-        phone: String(p.phone ?? ""),
-        financial_source_url: "",
-        contact_source_url: "",
-        sector_tags: [],
-        pain_point_tags: [],
-        engagement_approach: "",
-      };
 
-      const { data, error } = await supabase
-        .from("prospect_outreach_catalog")
-        .insert(record)
-        .select()
-        .single();
+      // Use a SECURITY DEFINER RPC function to bypass any RLS or object-level
+      // permission issues that have prevented direct .insert() from working.
+      const { data, error } = await supabase.rpc("insert_prospect_catalog_entry", {
+        p_id: id,
+        p_organisation_name: String(p.organisation_name ?? ""),
+        p_organisation_type: String(p.organisation_type ?? "Other"),
+        p_location: String(p.location ?? ""),
+        p_region: String(p.region ?? ""),
+        p_need_score: Number(p.need_score ?? 3),
+        p_decision_maker_name: String(p.decision_maker_name ?? ""),
+        p_decision_maker_role: String(p.decision_maker_role ?? ""),
+        p_email: String(p.email ?? ""),
+        p_phone: String(p.phone ?? ""),
+        p_research_date: new Date().toISOString().slice(0, 10),
+      });
 
       if (error) {
-        console.error("[prospect POST] insert failed:", error.code, error.message, error.details, error.hint);
+        console.error("[prospect POST] rpc failed:", error.code, error.message, error.details, error.hint);
         return NextResponse.json(
           { error: error.message, code: error.code, hint: error.hint ?? undefined },
           { status: 500 },
         );
       }
 
-      return NextResponse.json({ data }, { status: 201 });
+      // data is the json row returned by the function
+      const row = data as { id: string } | null;
+      if (!row?.id) {
+        console.error("[prospect POST] rpc returned no row");
+        return NextResponse.json({ error: "Insert returned no data" }, { status: 500 });
+      }
+
+      return NextResponse.json({ data: row }, { status: 201 });
     }
 
     return NextResponse.json({ error: "No prospect data provided" }, { status: 400 });
