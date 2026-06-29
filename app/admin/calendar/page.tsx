@@ -109,22 +109,14 @@ function SocialPostForm({
   const [description, setDescription] = useState(initial?.description ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
   const [date, setDate] = useState(initial?.scheduled_date ?? defaultDate ?? "");
-  const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [link, setLink] = useState(initial?.link ?? "");
   const [saving, setSaving] = useState(false);
-
-  const addTag = () => {
-    const t = tagInput.trim();
-    if (t && !tags.includes(t)) setTags((p) => [...p, t]);
-    setTagInput("");
-  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title || !date) return;
     setSaving(true);
-    await onSave({ title, platform, description, content, scheduled_date: date, tags, link: link || null });
+    await onSave({ title, platform, description, content, scheduled_date: date, tags: [], link: link || null });
     setSaving(false);
   }
 
@@ -187,26 +179,6 @@ function SocialPostForm({
             placeholder="Paste the full post copy here…"
             className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
           <p className="mt-1 text-[10px] text-gray-400">{content.trim().split(/\s+/).filter(Boolean).length} words</p>
-        </div>
-
-        {/* Tags */}
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Tags</label>
-          <div className="flex flex-wrap gap-1.5 rounded-md border border-gray-200 bg-gray-50 p-2">
-            {tags.map((t) => (
-              <span key={t} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-gray-800 shadow-sm">
-                {t}
-                <button type="button" onClick={() => setTags(tags.filter((x) => x !== t))} className="text-gray-400 hover:text-red-500">
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-            <input value={tagInput} onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
-              placeholder={tags.length === 0 ? "Add tags…" : ""}
-              className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400" />
-          </div>
-          <p className="mt-1 text-[10px] text-gray-400">Press Enter or comma to add.</p>
         </div>
 
         {/* Link */}
