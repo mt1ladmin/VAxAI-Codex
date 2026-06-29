@@ -90,31 +90,18 @@ export async function POST(req: NextRequest) {
   ].join("\n");
 
   const message = await client.messages.create({
-    model: "claude-opus-4-8",
-    max_tokens: 800,
+    model: "claude-haiku-4-5-20251001",
+    max_tokens: 400,
+    system: [
+      {
+        type: "text" as const,
+        text: `You check whether an incoming prospect matches an existing CRM record. Score each candidate 0-100 for likelihood of being the same entity. Return JSON only: { "duplicates": [ { "id": "...", "type": "org|contact", "score": 85, "reason": "...", "action": "use_existing|investigate|likely_different" } ] }. Only include score >= 50. action: use_existing (85+), investigate (50-84), likely_different (<50 excluded).`,
+        cache_control: { type: "ephemeral" as const },
+      },
+    ],
     messages: [{
       role: "user",
-      content: `You are checking whether an incoming prospect is already in a CRM database.
-
-Incoming prospect:
-- Organisation name: "${orgName || "not provided"}"
-- Email: "${email || "not provided"}"
-- Phone: "${phone || "not provided"}"
-- Website: "${website || "not provided"}"
-
-Existing CRM records to compare against:
-${candidateList}
-
-Score each candidate for how likely it is the same organisation or contact. Consider name similarity, email/phone/domain matches.
-
-Return JSON: { "duplicates": [ { "id": "...", "type": "org|contact", "score": 85, "reason": "Same name and website domain", "action": "use_existing|investigate|likely_different" } ] }
-
-Only include records with score >= 50. "action" values:
-- "use_existing": almost certainly the same record (score 85+)
-- "investigate": worth checking manually (score 50-84)
-- "likely_different": low confidence match
-
-Return empty array if nothing scores >= 50.`,
+      content: `Incoming: org="${orgName || ""}" email="${email || ""}" phone="${phone || ""}" website="${website || ""}"\n\nCandidates:\n${candidateList}`,
     }],
   });
 

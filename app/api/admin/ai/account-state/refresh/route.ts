@@ -32,36 +32,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data: { refreshed: 0, skipped: 0, targets: [] } });
   }
 
+  const CONCURRENCY = 5;
   const results: Array<{ context_type: string; context_id: string; ok: boolean }> = [];
 
-  for (const target of targets) {
-    const assembled = await assembleContextPackage(
-      supabase,
-      target.context_type,
-      target.context_id,
-      { includeWorkingState: false },
+  for (let i = 0; i < targets.length; i += CONCURRENCY) {
+    const batch = targets.slice(i, i + CONCURRENCY);
+    const batchResults = await Promise.all(
+      batch.map(async (target) => {
+        const [assembled, sessionRes] = await Promise.all([
+          assembleContextPackage(supabase, target.context_type, target.context_id, {
+            includeWorkingState: false,
+          }),
+          supabase
+            .from("ai_chat_sessions")
+            .select("summary")
+            .eq("context_type", target.context_type)
+            .eq("context_id", target.context_id)
+            .maybeSingle(),
+        ]);
+
+        const ok = await refreshAccountStateFromPackage(
+          supabase,
+          target.context_type,
+          target.context_id,
+          assembled.package,
+          sessionRes.data?.summary ?? null,
+        );
+
+        return { context_type: target.context_type, context_id: target.context_id, ok };
+      }),
     );
-
-    const { data: session } = await supabase
-      .from("ai_chat_sessions")
-      .select("summary")
-      .eq("context_type", target.context_type)
-      .eq("context_id", target.context_id)
-      .maybeSingle();
-
-    const ok = await refreshAccountStateFromPackage(
-      supabase,
-      target.context_type,
-      target.context_id,
-      assembled.package,
-      session?.summary ?? null,
-    );
-
-    results.push({
-      context_type: target.context_type,
-      context_id: target.context_id,
-      ok,
-    });
+    results.push(...batchResults);
   }
 
   const refreshed = results.filter((r) => r.ok).length;

@@ -3,10 +3,8 @@ import type { ChatIntent } from "@/lib/ai/intent";
 const STAGE_GOALS: Record<string, string> = {
   outreach:
     "Stage: Prospect Finder review (Research, VAxAI support, Engagement guide). Use stored assessments and Knowledge Hub snippets first. Only suggest extra research when a gap blocks the task. Help verify fit, draft review notes, and prepare handoff — grounded in hub sectors, personas, and pain points.",
-  prospect:
-    "Stage: Prospect Outreach. Help with contact strategy, meeting prep, follow-ups, and readiness to advance — grounded in service-fit boundaries.",
   client:
-    "Stage: prospect/client delivery. Help with journey understanding, proposals, onboarding, risks, and next steps.",
+    "Stage: client delivery. Help with journey understanding, proposals, onboarding, risks, and next steps.",
   enquiry:
     "Stage: website enquiry. Help qualify the inbound need, plan response, and judge readiness for pre-sales.",
 };
@@ -71,7 +69,6 @@ export function buildSystemBlocks(
   contextPackage: string,
   extras?: {
     conversationSummary?: string | null;
-    linkedSummary?: string | null;
     knowledgeSnippets?: string | null;
   },
 ): SystemBlock[] {
@@ -99,7 +96,6 @@ export function buildSystemBlocks(
     extras?.conversationSummary
       ? `\nPRIOR CHAT SUMMARY:\n${extras.conversationSummary}`
       : null,
-    extras?.linkedSummary ? `\nPRIOR ACCOUNT HISTORY:\n${extras.linkedSummary}` : null,
     extras?.knowledgeSnippets ? `\nRELEVANT GUIDANCE:\n${extras.knowledgeSnippets}` : null,
   ]
     .filter(Boolean)

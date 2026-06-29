@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from 'react';
 
-export type AIContextType = 'outreach' | 'enquiry' | 'prospect' | 'client' | 'general';
+export type AIContextType = 'outreach' | 'enquiry' | 'client' | 'general';
 
 export interface AIContext {
   type: AIContextType;

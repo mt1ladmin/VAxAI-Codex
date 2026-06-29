@@ -2,7 +2,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 type SearchResult = {
-  type: "enquiry" | "client" | "prospect" | "outreach";
+  type: "enquiry" | "client" | "outreach";
   id: string;
   label: string;
   sublabel: string | null;

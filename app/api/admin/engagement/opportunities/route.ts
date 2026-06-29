@@ -5,6 +5,18 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);
+
+  // Lightweight mode: return only enquiry_ids that have an opportunity (for filter checkbox)
+  if (searchParams.get("enquiry_ids_only") === "true") {
+    const { data, error } = await supabase
+      .from("engagement_opportunities")
+      .select("enquiry_id")
+      .not("enquiry_id", "is", null);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const ids = [...new Set((data ?? []).map((r) => r.enquiry_id as string).filter(Boolean))];
+    return NextResponse.json({ enquiry_ids: ids });
+  }
+
   const q = searchParams.get("q") || "";
   const stage = searchParams.get("stage") || "";
   const org = searchParams.get("organisation_id") || "";
