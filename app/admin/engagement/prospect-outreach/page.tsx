@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  Check,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -15,7 +16,6 @@ import {
   X,
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
-import { BulkArchiveProspectsModal } from "@/components/admin/BulkArchiveProspectsModal";
 import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
@@ -84,8 +84,8 @@ export default function ProspectFinderPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
-  const [showArchiveModal, setShowArchiveModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [newlyAdded, setNewlyAdded] = useState<{ id: string; name: string } | null>(null);
   const [savingAdd, setSavingAdd] = useState(false);
   const [addForm, setAddForm] = useState({
     organisation_name: "",
@@ -186,14 +186,22 @@ export default function ProspectFinderPage() {
     });
   };
 
-  const bulkDelete = async () => {
-    if (!selectedIds.size || !isPlatformAdmin) return;
+  const toggleAll = () => {
+    if (selectedIds.size === prospects.length && prospects.length > 0) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(prospects.map((p) => p.id)));
+    }
+  };
+
+  const doDelete = async (ids: string[]) => {
+    if (!ids.length || !isPlatformAdmin) return;
     setDeleting(true);
     try {
       const res = await fetch("/api/admin/engagement/prospect-outreach", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ outreach_ids: [...selectedIds] }),
+        body: JSON.stringify({ outreach_ids: ids }),
       });
       if (!res.ok) throw new Error("Delete failed");
       setSelectedIds(new Set());
@@ -201,6 +209,19 @@ export default function ProspectFinderPage() {
     } finally {
       setDeleting(false);
     }
+  };
+
+  const bulkDelete = async () => {
+    if (!selectedIds.size || !isPlatformAdmin) return;
+    const count = selectedIds.size;
+    if (!confirm(`Permanently delete ${count} prospect${count === 1 ? "" : "s"}? This cannot be undone.`)) return;
+    await doDelete([...selectedIds]);
+  };
+
+  const deleteSingle = async (id: string, name: string) => {
+    if (!isPlatformAdmin) return;
+    if (!confirm(`Permanently delete "${name}"? This cannot be undone.`)) return;
+    await doDelete([id]);
   };
 
   const createNewProspect = async () => {
@@ -214,13 +235,15 @@ export default function ProspectFinderPage() {
       });
       const json = await res.json() as { data?: { id?: string }; error?: string };
       if (res.ok && json.data?.id) {
+        const name = addForm.organisation_name;
         setShowAddModal(false);
         setAddForm({
           organisation_name: "", organisation_type: "Charity", location: "",
           region: OUTREACH_REGIONS[0], need_score: 3,
           decision_maker_name: "", decision_maker_role: "", email: "", phone: "",
         });
-        router.push(`/admin/engagement/prospect-outreach/${json.data.id}`);
+        setNewlyAdded({ id: json.data.id, name });
+        await load({ forceSpinner: true });
       } else {
         alert(json.error || "Failed to create prospect — please try again.");
       }
@@ -346,25 +369,45 @@ export default function ProspectFinderPage() {
             ]}
           />
           {isPlatformAdmin && selectedIds.size > 0 && (
-            <button
-              type="button"
-              disabled={deleting}
-              onClick={() => setShowArchiveModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-              Archive {selectedIds.size} selected
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#6f6b62]">{selectedIds.size} selected</span>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => void bulkDelete()}
+                className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {deleting ? "Deleting…" : `Delete ${selectedIds.size} selected`}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+                className="grid h-7 w-7 place-items-center rounded-full border border-[#111111]/15 bg-white text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
           )}
         </div>
       </div>
 
-      <BulkArchiveProspectsModal
-        open={showArchiveModal}
-        count={selectedIds.size}
-        onClose={() => setShowArchiveModal(false)}
-        onConfirm={bulkDelete}
-      />
+      {newlyAdded && (
+        <div className="shrink-0 border-b border-emerald-200 bg-emerald-50 px-6 py-2.5 flex items-center justify-between">
+          <p className="text-sm text-emerald-800">
+            <span className="font-semibold">{newlyAdded.name}</span> added to Prospect Finder.{" "}
+            <Link
+              href={`/admin/engagement/prospect-outreach/${newlyAdded.id}`}
+              className="font-semibold underline hover:text-emerald-900"
+            >
+              View record →
+            </Link>
+          </p>
+          <button type="button" onClick={() => setNewlyAdded(null)} className="ml-4 text-emerald-600 hover:text-emerald-800">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       <div className="min-h-0 flex-1 overflow-auto">
         {loading && prospects.length === 0 ? (
@@ -375,7 +418,23 @@ export default function ProspectFinderPage() {
           <table className="w-full min-w-[900px] border-collapse text-sm">
             <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#f7f4ea]/90 backdrop-blur-sm">
               <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
-                {isPlatformAdmin && <th className="w-10 px-3 py-3" />}
+                {isPlatformAdmin && (
+                  <th className="w-10 px-3 py-3">
+                    <button
+                      type="button"
+                      onClick={toggleAll}
+                      className={`grid h-4 w-4 place-items-center rounded border ${
+                        selectedIds.size === prospects.length && prospects.length > 0
+                          ? "border-[#063b32] bg-[#063b32]"
+                          : "border-[#111111]/25 bg-white"
+                      }`}
+                    >
+                      {selectedIds.size === prospects.length && prospects.length > 0 && (
+                        <Check className="h-3 w-3 text-white" />
+                      )}
+                    </button>
+                  </th>
+                )}
                 <th className="px-6 py-3 font-semibold">Organisation</th>
                 <th className="px-3 py-3 font-semibold">Sector</th>
                 <th className="px-3 py-3 font-semibold">Location</th>
@@ -383,6 +442,7 @@ export default function ProspectFinderPage() {
                 <th className="px-3 py-3 font-semibold">Assigned to</th>
                 <th className="px-3 py-3 font-semibold">Status</th>
                 <th className="px-6 py-3 font-semibold">Next action</th>
+                {isPlatformAdmin && <th className="w-10 px-3 py-3" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-[#111111]/5">
@@ -393,13 +453,17 @@ export default function ProspectFinderPage() {
                   <tr key={p.id} className="group hover:bg-[#f7f4ea]/40">
                     {isPlatformAdmin && (
                       <td className="px-3 py-3.5">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.has(p.id)}
-                          onChange={() => toggleSelect(p.id)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="rounded border-[#111111]/20"
-                        />
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleSelect(p.id); }}
+                          className={`grid h-4 w-4 place-items-center rounded border ${
+                            selectedIds.has(p.id)
+                              ? "border-[#063b32] bg-[#063b32]"
+                              : "border-[#111111]/25 bg-white"
+                          }`}
+                        >
+                          {selectedIds.has(p.id) && <Check className="h-3 w-3 text-white" />}
+                        </button>
                       </td>
                     )}
                     <td className="px-6 py-3.5">
@@ -439,6 +503,19 @@ export default function ProspectFinderPage() {
                     <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#6f6b62]">
                       <span className="truncate block">{p.next_action || "—"}</span>
                     </td>
+                    {isPlatformAdmin && (
+                      <td className="px-3 py-3.5">
+                        <button
+                          type="button"
+                          disabled={deleting}
+                          onClick={(e) => { e.preventDefault(); void deleteSingle(p.id, p.organisation_name); }}
+                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 place-items-center rounded text-[#6f6b62] hover:bg-red-50 hover:text-red-600 disabled:opacity-30 transition-opacity"
+                          title="Delete prospect"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
