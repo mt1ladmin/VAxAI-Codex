@@ -378,13 +378,13 @@ export default function CalendarPage() {
 
   function postsOnDay(day: Date) {
     return posts.filter((p) => {
-      if (p.status === "draft") return false;
+      // Pure drafts with no scheduled date are work-in-progress — skip them.
+      if (p.status === "draft" && !p.scheduled_at) return false;
       // scheduled_at is a full UTC ISO timestamp — use new Date() so local
       // getters (.getDate etc.) return the correct local calendar day.
-      // Fall back to updated_at for older scheduled posts that lack scheduled_at.
       const dateStr = p.status === "published"
         ? (p.published_at ?? p.updated_at)
-        : (p.scheduled_at ?? p.updated_at);
+        : p.scheduled_at ?? null;
       if (!dateStr) return false;
       return isSameDay(new Date(dateStr), day);
     });

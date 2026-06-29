@@ -58,7 +58,7 @@ function slugify(text: string) {
   return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
 }
 
-function Toast({ message, visible }: { message: string; visible: boolean }) {
+function Toast({ message, visible, action }: { message: string; visible: boolean; action?: { label: string; href: string } }) {
   return (
     <div
       className={`fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 transition-all duration-300 ${
@@ -68,6 +68,11 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
       <div className="flex items-center gap-2 rounded-xl bg-[#111111] px-5 py-3 text-sm font-semibold text-white shadow-xl">
         <Check className="h-4 w-4 text-emerald-400" />
         {message}
+        {action && (
+          <a href={action.href} className="ml-1 underline underline-offset-2 opacity-80 hover:opacity-100">
+            {action.label}
+          </a>
+        )}
       </div>
     </div>
   );
@@ -234,6 +239,7 @@ export default function EditPostPage() {
   // Toast
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+  const [toastAction, setToastAction] = useState<{ label: string; href: string } | undefined>(undefined);
 
   // Tags collapsible
   const [tagsOpen, setTagsOpen] = useState(false);
@@ -248,10 +254,11 @@ export default function EditPostPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [activeSocialPreview, setActiveSocialPreview] = useState<SocialPostPreview | null>(null);
 
-  const showToast = (message: string) => {
+  const showToast = (message: string, action?: { label: string; href: string }) => {
     setToastMsg(message);
+    setToastAction(action);
     setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 3000);
+    setTimeout(() => setToastVisible(false), 4000);
   };
 
   useEffect(() => {
@@ -326,7 +333,7 @@ export default function EditPostPage() {
         author_id: authorId || null,
         slug: slug || slugify(title || "untitled"),
         status,
-        scheduled_at: status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
         sharing_caption: socialDraft?.sharing_caption ?? null,
         linkedin_post: socialDraft?.linkedin_post ?? null,
         instagram_caption: socialDraft?.instagram_caption ?? null,
@@ -350,7 +357,7 @@ export default function EditPostPage() {
     } else if (status === "draft") {
       showToast("Draft saved");
     } else if (status === "scheduled") {
-      showToast("Post scheduled");
+      showToast("Post scheduled", { label: "View calendar →", href: "/admin/calendar" });
     }
   }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft, isPublished]);
 
@@ -431,7 +438,7 @@ export default function EditPostPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Toast message={toastMsg} visible={toastVisible} />
+      <Toast message={toastMsg} visible={toastVisible} action={toastAction} />
 
       {showSocialPreview && socialDraft && (
         <SocialPreviewModal

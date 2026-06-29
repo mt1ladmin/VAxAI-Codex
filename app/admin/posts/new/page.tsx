@@ -75,7 +75,7 @@ export default function NewPostPage() {
         author_id: authorId || null,
         slug: slug || slugify(title || "untitled"),
         status,
-        scheduled_at: status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
         sharing_caption: sharingCaption.trim() || null,
       }),
     });

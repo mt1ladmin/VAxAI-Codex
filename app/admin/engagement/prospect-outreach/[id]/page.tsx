@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { Check, ChevronDown, Pencil, UserCheck } from "lucide-react";
+import { AppSelect } from "@/components/ui/AppSelect";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
@@ -139,6 +140,8 @@ function ProspectFinderDetailContent() {
   const [noteText, setNoteText] = useState("");
   const [showAddNote, setShowAddNote] = useState(false);
   const [showClientModal, setShowClientModal] = useState(false);
+  const [clientService, setClientService] = useState("");
+  const [clientServiceOther, setClientServiceOther] = useState("");
   const [clientNote, setClientNote] = useState("");
   const [savingClient, setSavingClient] = useState(false);
   const [addingTask, setAddingTask] = useState(false);
@@ -337,11 +340,15 @@ function ProspectFinderDetailContent() {
   };
 
   const logAsClient = async () => {
-    if (!clientNote.trim()) return;
+    if (!clientService) return;
     setSavingClient(true);
     try {
-      await patchWorkflow({ is_client: true, client_note: clientNote.trim() });
+      const service = clientService === "Other" ? clientServiceOther.trim() : clientService;
+      const note = [service, clientNote.trim()].filter(Boolean).join("\n\n");
+      await patchWorkflow({ is_client: true, client_note: note });
       setShowClientModal(false);
+      setClientService("");
+      setClientServiceOther("");
       setClientNote("");
     } finally {
       setSavingClient(false);
@@ -382,23 +389,51 @@ function ProspectFinderDetailContent() {
                 <p className="text-xs text-[#6f6b62]">{record.organisation_name}</p>
               </div>
             </div>
+            <div className="mb-3">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Service being provided *</label>
+              <AppSelect
+                value={clientService}
+                onChange={setClientService}
+                options={[
+                  { value: "Assessment", label: "Assessment" },
+                  { value: "Assessment + Strategy & Implementation", label: "Assessment + Strategy & Implementation" },
+                  { value: "Assessment + Ongoing Support", label: "Assessment + Ongoing Support" },
+                  { value: "Access to Work", label: "Access to Work" },
+                  { value: "General enquiry", label: "General enquiry" },
+                  { value: "Other", label: "Other (specify below)" },
+                ]}
+                placeholder="Select a service…"
+                size="sm"
+              />
+            </div>
+            {clientService === "Other" && (
+              <div className="mb-3">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Specify service</label>
+                <input
+                  type="text"
+                  value={clientServiceOther}
+                  onChange={(e) => setClientServiceOther(e.target.value)}
+                  placeholder="Enter service name…"
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500"
+                />
+              </div>
+            )}
             <div className="mb-4">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Services being provided *</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Additional notes</label>
               <textarea
                 value={clientNote}
                 onChange={(e) => setClientNote(e.target.value)}
-                rows={4}
-                autoFocus
-                placeholder="Describe the services VAxAI is providing to this client…"
+                rows={3}
+                placeholder="Any additional notes…"
                 className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500 resize-none"
               />
             </div>
             <div className="flex gap-3">
-              <button type="button" onClick={() => setShowClientModal(false)}
+              <button type="button" onClick={() => { setShowClientModal(false); setClientService(""); setClientServiceOther(""); setClientNote(""); }}
                 className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
                 Cancel
               </button>
-              <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientNote.trim()}
+              <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientService || (clientService === "Other" && !clientServiceOther.trim())}
                 className="flex-1 rounded-xl bg-purple-700 py-2.5 text-sm font-semibold text-white hover:bg-purple-800 disabled:opacity-50">
                 {savingClient ? "Saving…" : "Log as client"}
               </button>
