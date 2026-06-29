@@ -62,6 +62,7 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Website Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
+      { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen, subtitle: "Playbooks & prep" },
     ],
   },
   {
