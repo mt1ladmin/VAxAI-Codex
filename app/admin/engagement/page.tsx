@@ -8,7 +8,6 @@ import {
   BookOpen,
   Users,
   Send,
-  UserCheck,
   Zap,
 } from "lucide-react";
 import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
@@ -20,9 +19,6 @@ type WorkToday = {
   finderProspects: Array<{ id: string; organisation_name: string; engagement_status: string; next_action: string | null; href: string }>;
   newEnquiries: Array<{ id: string; name: string; status: string; href: string }>;
 };
-
-type ClientItem = { id: string; organisation_name: string; client_note: string | null };
-
 
 type PainPoint = { id: string; title: string; category: string; slug: string | null };
 type PostItem = { id: string; title: string; status: string; scheduled_at?: string | null; content_type: string };
@@ -71,10 +67,7 @@ export default function EngagementOverview() {
   const userEmail = useUserEmail();
   const [workToday, setWorkToday] = useState<WorkToday | null>(null);
   const [workLoading, setWorkLoading] = useState(true);
-  const [showContent, setShowContent] = useState(false);
-
   const [commonPainPoints, setCommonPainPoints] = useState<PainPoint[]>([]);
-  const [recentClients, setRecentClients] = useState<ClientItem[]>([]);
   const [stats, setStats] = useState<Stats>({
     newEnquiries: 0,
     overdueTasks: 0,
@@ -91,11 +84,6 @@ export default function EngagementOverview() {
     fetch("/api/admin/engagement/pain-points?limit=8")
       .then((r) => r.json())
       .then((j) => setCommonPainPoints(j.data || []));
-
-    fetch("/api/admin/engagement/prospect-outreach?is_client=true&page_size=10")
-      .then((r) => r.json())
-      .then((j: { data?: ClientItem[] }) => setRecentClients(j.data ?? []))
-      .catch(() => {});
 
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
@@ -263,18 +251,8 @@ export default function EngagementOverview() {
           </div>
         </SectionCard>
 
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold text-[#111111]">Content & publishing</p>
-          <button
-            type="button"
-            onClick={() => setShowContent((v) => !v)}
-            className="text-xs font-semibold text-[#063b32] hover:underline"
-          >
-            {showContent ? "Hide" : "Show"}
-          </button>
-        </div>
+        <p className="text-sm font-semibold text-[#111111]">Content & publishing</p>
 
-        {showContent && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <SectionCard
             title="Recent insights"
@@ -356,37 +334,6 @@ export default function EngagementOverview() {
             )}
           </SectionCard>
         </div>
-        )}
-
-        {recentClients.length > 0 && (
-          <SectionCard
-            title="Clients"
-            action={
-              <Link href="/admin/engagement/prospect-outreach?is_client=true" className="text-xs font-semibold text-[#063b32] hover:underline">
-                View all
-              </Link>
-            }
-          >
-            <div className="divide-y divide-[#111111]/5">
-              {recentClients.map((c) => (
-                <Link key={c.id} href={`/admin/engagement/prospect-outreach/${c.id}`} className="flex items-start gap-3 px-5 py-3 hover:bg-purple-50/40 transition-colors">
-                  <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-100">
-                    <UserCheck className="h-3 w-3 text-purple-700" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-[#111111] truncate">{c.organisation_name}</p>
-                      <span className="shrink-0 rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-800">Now a client</span>
-                    </div>
-                    {c.client_note && (
-                      <p className="mt-0.5 truncate text-xs text-[#6f6b62]">{c.client_note}</p>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </SectionCard>
-        )}
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {[
