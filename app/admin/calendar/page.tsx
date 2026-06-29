@@ -13,9 +13,16 @@ import {
   Linkedin,
   Plus,
   Trash2,
-  Twitter,
   X,
 } from "lucide-react";
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.261 5.636L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+    </svg>
+  );
+}
 
 type Post = {
   id: string;
@@ -44,7 +51,7 @@ const PLATFORMS = [
   { key: "linkedin", label: "LinkedIn", Icon: Linkedin, color: "#0077b5", bg: "bg-[#0077b5]/10", text: "text-[#0077b5]" },
   { key: "instagram", label: "Instagram", Icon: Instagram, color: "#E1306C", bg: "bg-pink-50", text: "text-pink-600" },
   { key: "facebook", label: "Facebook", Icon: Facebook, color: "#1877f2", bg: "bg-blue-50", text: "text-blue-600" },
-  { key: "twitter", label: "X", Icon: Twitter, color: "#000000", bg: "bg-gray-100", text: "text-gray-900" },
+  { key: "twitter", label: "X", Icon: XIcon, color: "#000000", bg: "bg-gray-100", text: "text-gray-900" },
 ];
 
 function platformInfo(key: string) {
@@ -337,6 +344,12 @@ function SocialPostDetail({
                 <Facebook className="h-3.5 w-3.5" /> Open Facebook
               </a>
             )}
+            {post.platform === "twitter" && (
+              <a href="https://x.com/i" target="_blank" rel="noreferrer"
+                className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-900 hover:bg-gray-50">
+                <XIcon className="h-3.5 w-3.5" /> Open X
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -386,9 +399,10 @@ export default function CalendarPage() {
   function postsOnDay(day: Date) {
     return posts.filter((p) => {
       if (p.status === "draft") return false;
+      if (p.status === "scheduled" && !p.scheduled_at) return false;
       const dateStr = p.status === "published"
         ? (p.published_at ?? p.updated_at)
-        : (p.scheduled_at ?? p.updated_at);
+        : p.scheduled_at!;
       return isSameDay(new Date(dateStr), day);
     });
   }
@@ -556,7 +570,7 @@ export default function CalendarPage() {
               </div>
               <div className="grid grid-cols-7 divide-x divide-y divide-gray-100">
                 {monthDays.map((day, i) => (
-                  <div key={i} className={!day ? "bg-gray-50/50 min-h-[110px]" : ""}>
+                  <div key={i} className={`overflow-hidden${!day ? " bg-gray-50/50 min-h-[110px]" : ""}`}>
                     {day && <DayCell day={day} />}
                   </div>
                 ))}
@@ -568,7 +582,7 @@ export default function CalendarPage() {
                 {weekDays.map((day) => {
                   const isToday = isSameDay(day, today);
                   return (
-                    <div key={day.toISOString()} className="min-h-[380px]">
+                    <div key={day.toISOString()} className="min-h-[380px] overflow-hidden">
                       <div className={`border-b border-gray-100 px-3 py-3 text-center ${isToday ? "bg-[#063b32]" : ""}`}>
                         <p className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${isToday ? "text-[#f5f274]" : "text-gray-400"}`}>
                           {DAYS[(day.getDay() + 6) % 7]}
@@ -596,7 +610,7 @@ export default function CalendarPage() {
                 href="/admin/posts/new"
                 className="flex items-center gap-1.5 rounded-md border border-[#063b32] px-3 py-1.5 text-xs font-semibold text-[#063b32] hover:bg-[#063b32]/5"
               >
-                <FileText className="h-3.5 w-3.5" /> New insight post
+                <FileText className="h-3.5 w-3.5" /> New blog post
               </a>
               <button onClick={() => openNewSocial(toDateStr(today))}
                 className="flex items-center gap-1.5 rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">

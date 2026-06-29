@@ -3,7 +3,7 @@ import { PROSPECT_QUEUE_STATUSES, PROSPECT_QUEUE_STATUS_COLORS } from "@/lib/eng
 export const ENQUIRY_DEFAULT_STATUS = "";
 
 export const ENQUIRY_STATUSES = [
-  { key: "all", label: "All" },
+  { key: "all", label: "Status: all" },
   { key: "needs_review", label: "Needs review" },
   ...PROSPECT_QUEUE_STATUSES.map((s) => ({ key: s, label: s })),
 ] as const;

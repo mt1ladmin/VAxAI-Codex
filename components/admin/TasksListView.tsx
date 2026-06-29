@@ -169,20 +169,6 @@ function TaskBoardCard({
         </button>
         <button
           type="button"
-          onClick={() => void onToggleStatus(task.id, task.status)}
-          title={task.status === "done" ? "Mark as not done" : "Mark done"}
-          className={`mt-0.5 h-4 w-4 shrink-0 rounded border-2 flex items-center justify-center ${
-            task.status === "done" ? "bg-emerald-500 border-emerald-500 hover:bg-emerald-600" : "border-[#111111]/20 hover:border-[#063b32]"
-          }`}
-        >
-          {task.status === "done" && (
-            <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          )}
-        </button>
-        <button
-          type="button"
           onClick={() => onEdit(task)}
           className="flex-1 min-w-0 text-left"
         >
@@ -240,6 +226,7 @@ export function TasksListView({
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [bulkMoving, setBulkMoving] = useState(false);
   const studioAccess = useStudioAccessOptional();
   const allowClientLinks = true;
 
@@ -404,6 +391,34 @@ export function TasksListView({
     void load();
   };
 
+  const bulkMoveTasks = async (status: string) => {
+    if (!selectedTaskIds.size) return;
+    setBulkMoving(true);
+    const ids = [...selectedTaskIds];
+    setTasks((prev) => prev.map((t) => ids.includes(t.id) ? { ...t, status } : t));
+    setSelectedTaskIds(new Set());
+    await Promise.all(ids.map((id) => fetch(`/api/admin/engagement/tasks/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    })));
+    setBulkMoving(false);
+    void load();
+  };
+
+  const selectAllInColumn = (colId: string) => {
+    const items = boardGroups[colId] ?? [];
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      const allSelected = items.every((t) => next.has((t as EngagementTask).id));
+      items.forEach((t) => {
+        if (allSelected) next.delete((t as EngagementTask).id);
+        else next.add((t as EngagementTask).id);
+      });
+      return next;
+    });
+  };
+
   return (
     <div className={embedded ? "" : "min-h-screen bg-white"}>
       {initialLoading ? (
@@ -465,21 +480,45 @@ export function TasksListView({
         </div>
 
         {selectedTaskIds.size > 0 && (
-          <div className="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5">
-            <span className="text-xs font-semibold text-red-700">{selectedTaskIds.size} task{selectedTaskIds.size === 1 ? "" : "s"} selected</span>
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-[#111111]/10 bg-[#f7f4ea] px-4 py-2.5">
+            <span className="text-xs font-semibold text-[#111111]">{selectedTaskIds.size} selected</span>
             <button
               type="button"
-              disabled={bulkDeleting}
+              disabled={bulkMoving || bulkDeleting}
+              onClick={() => void bulkMoveTasks("todo")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50"
+            >
+              To do
+            </button>
+            <button
+              type="button"
+              disabled={bulkMoving || bulkDeleting}
+              onClick={() => void bulkMoveTasks("in_progress")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50"
+            >
+              In progress
+            </button>
+            <button
+              type="button"
+              disabled={bulkMoving || bulkDeleting}
+              onClick={() => void bulkMoveTasks("done")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50"
+            >
+              Done
+            </button>
+            <button
+              type="button"
+              disabled={bulkDeleting || bulkMoving}
               onClick={() => void bulkDeleteTasks()}
               className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              {bulkDeleting ? "Deleting…" : `Delete ${selectedTaskIds.size} selected`}
+              {bulkDeleting ? "Deleting…" : "Delete"}
             </button>
             <button
               type="button"
               onClick={() => setSelectedTaskIds(new Set())}
-              className="ml-auto grid h-6 w-6 place-items-center rounded-full border border-red-200 text-red-500 hover:bg-red-100"
+              className="ml-auto grid h-6 w-6 place-items-center rounded-full border border-[#111111]/15 text-[#6f6b62] hover:bg-white"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -505,8 +544,28 @@ export function TasksListView({
                     dropTarget === col.id ? "border-[#063b32]/40 bg-[#063b32]/5" : "border-[#111111]/10 bg-[#f7f4ea]/30"
                   }`}
                 >
-                  <div className="border-b border-[#111111]/10 bg-[#f7f4ea] px-3.5 py-3 flex items-center justify-between">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${col.color}`}>{col.label}</span>
+                  <div className="border-b border-[#111111]/10 bg-[#f7f4ea] px-3.5 py-3 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {items.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => selectAllInColumn(col.id)}
+                          title={items.every((t) => selectedTaskIds.has((t as EngagementTask).id)) ? "Deselect all" : "Select all"}
+                          className={`h-3.5 w-3.5 shrink-0 rounded border flex items-center justify-center transition-colors ${
+                            items.every((t) => selectedTaskIds.has((t as EngagementTask).id))
+                              ? "border-[#063b32] bg-[#063b32]"
+                              : items.some((t) => selectedTaskIds.has((t as EngagementTask).id))
+                                ? "border-[#063b32] bg-[#063b32]/30"
+                                : "border-[#111111]/30 hover:border-[#063b32]"
+                          }`}
+                        >
+                          {items.every((t) => selectedTaskIds.has((t as EngagementTask).id)) && (
+                            <Check className="h-2 w-2 text-white" />
+                          )}
+                        </button>
+                      )}
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${col.color}`}>{col.label}</span>
+                    </div>
                     <span className="text-[10px] font-bold text-[#6f6b62] tabular-nums">{items.length}</span>
                   </div>
                   <div className="min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto p-2 space-y-2 scrollbar-subtle">

@@ -54,6 +54,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       name?: string;
       email?: string;
       telephone?: string | null;
+      support_type?: string;
+      details?: string;
     };
 
     const updates: Record<string, unknown> = {};
@@ -82,6 +84,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.name !== undefined && body.name.trim()) updates.name = body.name.trim();
     if (body.email !== undefined && body.email.trim()) updates.email = body.email.trim();
     if (body.telephone !== undefined) updates.telephone = body.telephone?.trim() || null;
+    if (body.support_type !== undefined && body.support_type.trim()) updates.support_type = body.support_type.trim();
+    if (body.details !== undefined) updates.details = body.details.trim();
 
     const db = createServiceClient();
 

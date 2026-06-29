@@ -44,10 +44,12 @@ type FullPost = Post & {
 const CONTENT_TYPES = ["All types", "Insight", "Research", "Article", "Guide", "Case Study", "Video", "Framework Comparison"];
 const STATUS_FILTERS = ["All statuses", "published", "draft"];
 
-function BlogViewModal({ postId, onClose }: { postId: string; onClose: () => void }) {
+function BlogViewModal({ postId, onClose, onPublished }: { postId: string; onClose: () => void; onPublished?: () => void }) {
   const [post, setPost] = useState<FullPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishedBanner, setPublishedBanner] = useState(false);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -71,6 +73,23 @@ function BlogViewModal({ postId, onClose }: { postId: string; onClose: () => voi
     await navigator.clipboard.writeText(postUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const publishPost = async () => {
+    if (!post) return;
+    setPublishing(true);
+    await fetch(`/api/admin/posts/${postId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "published" }),
+    });
+    const liveUrl = `${window.location.origin}/posts/${post.slug}`;
+    setPost((p) => p ? { ...p, status: "published" } : p);
+    setPublishing(false);
+    setPublishedBanner(true);
+    onPublished?.();
+    // Scroll to sharing section — just set the banner
+    void liveUrl;
   };
 
   return (
@@ -100,44 +119,62 @@ function BlogViewModal({ postId, onClose }: { postId: string; onClose: () => voi
             )}
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {postUrl && (
-              <>
-                <a
-                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-[#0077B5] hover:bg-[#0077B5]/5"
-                >
-                  <Linkedin className="h-3.5 w-3.5" />
-                  LinkedIn
-                </a>
-                <a
-                  href={`https://www.instagram.com/`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-pink-600 hover:bg-pink-50"
-                >
-                  <Instagram className="h-3.5 w-3.5" />
-                  Instagram
-                </a>
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50"
-                >
-                  <Facebook className="h-3.5 w-3.5" />
-                  Facebook
-                </a>
-                <button
-                  type="button"
-                  onClick={() => void copyLink()}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-                >
-                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? "Copied!" : "Copy link"}
-                </button>
-              </>
+            {(postUrl || publishedBanner) && (() => {
+              const liveUrl = postUrl ?? `${typeof window !== "undefined" ? window.location.origin : ""}/posts/${post?.slug ?? ""}`;
+              return (
+                <>
+                  {publishedBanner && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
+                      <Check className="h-3 w-3" /> Published!
+                    </span>
+                  )}
+                  <a
+                    href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(liveUrl)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-[#0077B5] hover:bg-[#0077B5]/5"
+                  >
+                    <Linkedin className="h-3.5 w-3.5" />
+                    LinkedIn
+                  </a>
+                  <a
+                    href="https://www.instagram.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-pink-600 hover:bg-pink-50"
+                  >
+                    <Instagram className="h-3.5 w-3.5" />
+                    Instagram
+                  </a>
+                  <a
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(liveUrl)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50"
+                  >
+                    <Facebook className="h-3.5 w-3.5" />
+                    Facebook
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => void copyLink()}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#111111]/15 px-2.5 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? "Copied!" : "Copy link"}
+                  </button>
+                </>
+              );
+            })()}
+            {post?.status === "draft" && !publishedBanner && (
+              <button
+                type="button"
+                onClick={() => void publishPost()}
+                disabled={publishing}
+                className="inline-flex items-center gap-1 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              >
+                {publishing ? "Publishing…" : "Publish"}
+              </button>
             )}
             {post && (
               <Link
@@ -299,7 +336,7 @@ export default function PostsPage() {
   return (
     <div className="min-h-screen bg-white">
       {viewPostId && (
-        <BlogViewModal postId={viewPostId} onClose={() => setViewPostId(null)} />
+        <BlogViewModal postId={viewPostId} onClose={() => setViewPostId(null)} onPublished={load} />
       )}
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
@@ -400,20 +437,20 @@ export default function PostsPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((post) => (
               <div key={post.id} className="group relative overflow-hidden rounded-md border border-[#111111]/10 bg-white shadow-sm">
-                {/* Checkbox */}
+                {/* Checkbox — always visible */}
                 <button
                   onClick={() => toggleSelect(post.id)}
-                  className={`absolute left-2.5 top-2.5 z-10 grid h-5 w-5 place-items-center rounded border-2 transition-opacity ${
+                  className={`absolute left-2.5 top-2.5 z-20 grid h-5 w-5 place-items-center rounded border-2 shadow-sm transition-colors ${
                     selected.has(post.id)
-                      ? "border-[#063b32] bg-[#063b32] opacity-100"
-                      : "border-white bg-white/80 opacity-0 group-hover:opacity-100"
+                      ? "border-[#063b32] bg-[#063b32]"
+                      : "border-white bg-white/90 hover:border-[#063b32]"
                   }`}
                 >
                   {selected.has(post.id) && <Check className="h-3 w-3 text-white" />}
                 </button>
 
-                {/* Type badge */}
-                <div className="absolute left-2.5 top-2.5 z-10">
+                {/* Type badge — offset so it doesn't overlap checkbox */}
+                <div className="absolute left-9 top-2.5 z-10">
                   {!selected.has(post.id) && (
                     <span className="rounded-full bg-[#063b32]/80 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
                       {post.content_type}

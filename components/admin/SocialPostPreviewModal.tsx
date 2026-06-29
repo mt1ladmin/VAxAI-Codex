@@ -1,6 +1,15 @@
 "use client";
 
-import { Check, Copy, Facebook, Instagram, Linkedin, Loader2, Pencil, Save, Share2, Twitter, X } from "lucide-react";
+import { Check, Copy, Facebook, Instagram, Linkedin, Loader2, Pencil, Save, Share2, Trash2, X } from "lucide-react";
+import type React from "react";
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.261 5.636L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+    </svg>
+  );
+}
 import { useEffect, useState } from "react";
 
 export type SocialPlatform = "linkedin" | "instagram" | "facebook" | "twitter" | "share";
@@ -37,9 +46,9 @@ const PLATFORM_META = {
   },
   twitter: {
     label: "X",
-    Icon: Twitter,
+    Icon: XIcon,
     style: "text-gray-900 bg-gray-100",
-    openUrl: "https://x.com/",
+    openUrl: "https://x.com/i",
   },
   share: {
     label: "Share text",
@@ -47,7 +56,7 @@ const PLATFORM_META = {
     style: "text-[#063b32] bg-[#063b32]/10",
     openUrl: null,
   },
-} satisfies Record<SocialPlatform, { label: string; Icon: typeof Linkedin; style: string; openUrl: string | null }>;
+} satisfies Record<SocialPlatform, { label: string; Icon: React.FC<{ className?: string }>; style: string; openUrl: string | null }>;
 
 function formatShortDate(value?: string | null) {
   if (!value) return null;
@@ -121,21 +130,23 @@ export function SocialPostSummaryCard({
   );
 }
 
-const EDIT_PLATFORMS: { key: SocialPlatform; label: string; Icon: typeof Linkedin }[] = [
+const EDIT_PLATFORMS: { key: SocialPlatform; label: string; Icon: React.FC<{ className?: string }> }[] = [
   { key: "linkedin", label: "LinkedIn", Icon: Linkedin },
   { key: "instagram", label: "Instagram", Icon: Instagram },
   { key: "facebook", label: "Facebook", Icon: Facebook },
-  { key: "twitter", label: "X", Icon: Twitter },
+  { key: "twitter", label: "X", Icon: XIcon },
 ];
 
 export function SocialPostPreviewModal({
   social,
   onClose,
   onSaved,
+  onDelete,
 }: {
   social: SocialPostPreview;
   onClose: () => void;
   onSaved?: (updated: SocialPostPreview) => void;
+  onDelete?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -317,14 +328,45 @@ export function SocialPostPreviewModal({
             </div>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto p-5">
-            <div className="rounded-xl bg-[#f7f4ea] p-4">
-              <p className="whitespace-pre-wrap text-sm leading-7 text-[#111111]">{localSocial.content || "No copy has been added yet."}</p>
+          <div className="flex-1 overflow-y-auto p-6 space-y-5">
+            {/* Publish date */}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Publish date</p>
+              <p className="mt-1 font-medium text-gray-800">
+                {localSocial.scheduled_date
+                  ? new Date(`${localSocial.scheduled_date.slice(0, 10)}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+                  : "Not scheduled"}
+              </p>
+            </div>
+
+            {/* Post copy */}
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Post copy</p>
+              <div className="rounded-lg bg-gray-50 p-4 text-sm leading-7 text-gray-700 whitespace-pre-wrap">
+                {localSocial.content || "No copy has been added yet."}
+              </div>
+            </div>
+
+            {/* Post to platform */}
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Post to platform</p>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => void copy()} className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-50">
+                  {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? "Copied!" : "Copy post text"}
+                </button>
+                {meta.openUrl && (
+                  <a href={meta.openUrl} target="_blank" rel="noreferrer" className={`flex items-center gap-2 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold hover:opacity-80 ${meta.style}`}>
+                    <meta.Icon className="h-3.5 w-3.5" />
+                    Open {meta.label}
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 border-t border-[#111111]/10 px-5 py-4">
+        <div className="flex gap-2 border-t border-gray-100 px-6 py-4">
           {editing ? (
             <>
               <button type="button" onClick={() => void saveEdit()} disabled={saving || !editForm.title || !editForm.scheduled_date}
@@ -339,20 +381,16 @@ export function SocialPostPreviewModal({
             </>
           ) : (
             <>
-              <button type="button" onClick={() => void copy()} className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
-                {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Copied!" : "Copy text"}
-              </button>
-              {meta.openUrl && (
-                <a href={meta.openUrl} target="_blank" rel="noreferrer" className={`inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold hover:opacity-80 ${meta.style}`}>
-                  <meta.Icon className="h-3.5 w-3.5" />
-                  Open {meta.label}
-                </a>
-              )}
               <button type="button" onClick={startEdit}
-                className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#063b32] hover:bg-[#f7f4ea]">
-                <Pencil className="h-3.5 w-3.5" /> Edit post
+                className="flex-1 rounded-md border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                Edit
               </button>
+              {onDelete && (
+                <button type="button" onClick={onDelete}
+                  className="rounded-md border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </>
           )}
         </div>
