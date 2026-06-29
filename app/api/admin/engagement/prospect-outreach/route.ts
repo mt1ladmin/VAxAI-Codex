@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { searchParams } = new URL(req.url);
 
-  const [overrideMaps, members, catalog, tasksRes] = await Promise.all([
+  const [overrideMaps, members, catalog, tasksRes, countRes] = await Promise.all([
     loadOverrideMaps(supabase),
     loadTeamMembers(supabase),
     loadCatalogRecords(supabase),
@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
       .select("outreach_id")
       .not("outreach_id", "is", null)
       .neq("status", "done"),
+    supabase.from("prospect_outreach_catalog").select("*", { count: "exact", head: true }),
   ]);
 
   const outreachIdsWithTasks = new Set(
@@ -75,7 +76,7 @@ export async function GET(req: NextRequest) {
       research_date: researchDate || new Date().toISOString().slice(0, 10),
       by_region: byRegion,
       by_need_score: byNeedScore,
-      total_count: all.length,
+      total_count: countRes.count ?? all.length,
       filtered_count: filtered.length,
       filtered_by_region: filteredByRegion,
       unassigned_count: all.filter((p) => !p.assigned_team_member_id).length,
