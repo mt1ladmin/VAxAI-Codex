@@ -7,15 +7,26 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   Check,
+  ChevronDown,
   Copy,
+  Facebook,
   Instagram,
   Linkedin,
+  Loader2,
+  Plus,
   Trash2,
   X,
 } from "lucide-react";
 
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.261 5.636L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+    </svg>
+  );
+}
+
 const PostEditor = dynamic(() => import("@/components/admin/PostEditor"), { ssr: false });
-import ImageUpload from "@/components/admin/ImageUpload";
 import {
   SocialPostPreviewModal as PlatformPreviewModal,
   SocialPostSummaryCard,
@@ -223,6 +234,14 @@ export default function EditPostPage() {
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
 
+  // Tags collapsible
+  const [tagsOpen, setTagsOpen] = useState(false);
+
+  // Add connected social post
+  const [showAddSocial, setShowAddSocial] = useState(false);
+  const [addSocialForm, setAddSocialForm] = useState<{ platform: string; title: string; content: string; scheduled_date: string }>({ platform: "linkedin", title: "", content: "", scheduled_date: "" });
+  const [addingSocial, setAddingSocial] = useState(false);
+
   // Modals
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -347,6 +366,36 @@ export default function EditPostPage() {
 
   const copyLink = () => { navigator.clipboard.writeText(postUrl); };
 
+  const addConnectedPost = async () => {
+    if (!addSocialForm.title || !addSocialForm.scheduled_date) return;
+    setAddingSocial(true);
+    await fetch("/api/admin/social-posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: addSocialForm.title,
+        platform: addSocialForm.platform,
+        content: addSocialForm.content,
+        description: "",
+        scheduled_date: addSocialForm.scheduled_date,
+        tags: [],
+        link: `/admin/posts/${id}`,
+      }),
+    });
+    setAddingSocial(false);
+    setShowAddSocial(false);
+    setAddSocialForm({ platform: "linkedin", title: "", content: "", scheduled_date: "" });
+    // Reload linked social posts
+    const res = await fetch("/api/admin/social-posts");
+    const json = await res.json() as { data: LinkedSocialPost[] };
+    setLinkedSocial((json.data ?? []).filter((social) => social.link === `/admin/posts/${id}`));
+  };
+
+  const deleteLinkedSocial = async (socialId: string) => {
+    await fetch(`/api/admin/social-posts/${socialId}`, { method: "DELETE" });
+    setLinkedSocial((prev) => prev.filter((s) => s.id !== socialId));
+  };
+
   const panelHashtagStr = (socialDraft?.hashtags ?? []).map((h) => `#${h}`).join(" ");
   const panelLiContent = [socialDraft?.linkedin_post, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
   const panelIgContent = [socialDraft?.instagram_caption, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
@@ -401,10 +450,94 @@ export default function EditPostPage() {
         />
       )}
 
+      {showAddSocial && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4" onClick={() => setShowAddSocial(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+              <h3 className="text-sm font-semibold text-[#111111]">Add connected post</h3>
+              <button type="button" onClick={() => setShowAddSocial(false)} className="grid h-8 w-8 place-items-center rounded-md hover:bg-gray-100">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-4 p-5">
+              {/* Platform */}
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Platform</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    { key: "linkedin", Icon: Linkedin, label: "LinkedIn", color: "#0077b5" },
+                    { key: "instagram", Icon: Instagram, label: "Instagram", color: "#E1306C" },
+                    { key: "facebook", Icon: Facebook, label: "Facebook", color: "#1877f2" },
+                    { key: "twitter", Icon: XIcon, label: "X", color: "#000" },
+                  ].map((p) => (
+                    <button
+                      key={p.key}
+                      type="button"
+                      onClick={() => setAddSocialForm((f) => ({ ...f, platform: p.key }))}
+                      className={`flex flex-col items-center gap-1 rounded-lg border py-2.5 text-[10px] font-semibold transition-colors ${addSocialForm.platform === p.key ? "border-current bg-gray-50" : "border-gray-200 text-gray-400 hover:border-gray-300"}`}
+                      style={addSocialForm.platform === p.key ? { color: p.color, borderColor: p.color } : {}}
+                    >
+                      <p.Icon className="h-4 w-4" />
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {/* Title */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Title <span className="text-red-500">*</span></label>
+                <input
+                  value={addSocialForm.title}
+                  onChange={(e) => setAddSocialForm((f) => ({ ...f, title: e.target.value }))}
+                  placeholder="A short label for this post"
+                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                />
+              </div>
+              {/* Date */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Publish date <span className="text-red-500">*</span></label>
+                <input
+                  type="date"
+                  value={addSocialForm.scheduled_date}
+                  onChange={(e) => setAddSocialForm((f) => ({ ...f, scheduled_date: e.target.value }))}
+                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                />
+              </div>
+              {/* Content */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Post content</label>
+                <textarea
+                  rows={4}
+                  value={addSocialForm.content}
+                  onChange={(e) => setAddSocialForm((f) => ({ ...f, content: e.target.value }))}
+                  placeholder="Paste the post copy here…"
+                  className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                />
+              </div>
+            </div>
+            <div className="border-t border-[#111111]/10 px-5 py-4">
+              <button
+                type="button"
+                disabled={addingSocial || !addSocialForm.title || !addSocialForm.scheduled_date}
+                onClick={() => void addConnectedPost()}
+                className="w-full rounded-lg bg-[#063b32] py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              >
+                {addingSocial ? <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Saving…</span> : "Save post"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeSocialPreview && (
         <PlatformPreviewModal
           social={activeSocialPreview}
           onClose={() => setActiveSocialPreview(null)}
+          onDelete={() => { void deleteLinkedSocial(activeSocialPreview.id); setActiveSocialPreview(null); }}
+          onSaved={(updated) => {
+            setLinkedSocial((prev) => prev.map((s) => s.id === updated.id ? { ...s, ...updated } : s));
+            setActiveSocialPreview(null);
+          }}
         />
       )}
 
@@ -461,27 +594,46 @@ export default function EditPostPage() {
             </div>
 
             <div className="flex-1 space-y-6 overflow-y-auto p-5">
+              {/* Share caption */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Share caption</label>
+                <textarea
+                  value={socialDraft?.sharing_caption ?? ""}
+                  onChange={(e) => setSocialDraft((d) => ({ ...d, sharing_caption: e.target.value || undefined }))}
+                  rows={3}
+                  placeholder="Add a short sharing caption…"
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32] resize-none"
+                />
+              </div>
+
+              {/* Share on LinkedIn + Copy link */}
               {isPublished && (
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Share</p>
                   <div className="space-y-2">
-                    <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`} target="_blank" rel="noreferrer"
-                      className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-[#f7f4ea]">
+                    <a
+                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-[#0077B5]/5"
+                    >
                       <Linkedin className="h-4 w-4" /> Share on LinkedIn
                     </a>
-                    <button onClick={copyLink}
-                      className="flex w-full items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
+                    <button
+                      onClick={copyLink}
+                      className="flex w-full items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-gray-50"
+                    >
                       <Copy className="h-4 w-4" /> Copy link
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Connected social posts (linked records) */}
-              {linkedSocial.length > 0 && (
-                <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
-                  <div className="space-y-2">
+              {/* Connected posts */}
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
+                {linkedSocial.length > 0 ? (
+                  <div className="space-y-2 mb-2">
                     {linkedSocial.map((social) => (
                       <SocialPostSummaryCard
                         key={social.id}
@@ -490,68 +642,28 @@ export default function EditPostPage() {
                       />
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Editable social content */}
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Social content</p>
-                <div className="space-y-3">
-                  <div>
-                    <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Share caption</label>
-                    <textarea
-                      value={socialDraft?.sharing_caption ?? ""}
-                      onChange={(e) => setSocialDraft((d) => ({ ...d, sharing_caption: e.target.value || undefined }))}
-                      rows={3}
-                      placeholder="Add a short sharing caption…"
-                      className="w-full rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs outline-none focus:border-[#063b32] resize-none"
-                    />
-                  </div>
-                  <div>
-                    <div className="mb-1 flex items-center gap-1.5">
-                      <Linkedin className="h-3 w-3 text-[#0077B5]" />
-                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">LinkedIn post</label>
-                    </div>
-                    <textarea
-                      value={socialDraft?.linkedin_post ?? ""}
-                      onChange={(e) => setSocialDraft((d) => ({ ...d, linkedin_post: e.target.value || undefined }))}
-                      rows={4}
-                      placeholder="Write your LinkedIn post…"
-                      className="w-full rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs outline-none focus:border-[#0077B5] resize-none"
-                    />
-                  </div>
-                  <div>
-                    <div className="mb-1 flex items-center gap-1.5">
-                      <Instagram className="h-3 w-3 text-pink-600" />
-                      <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Instagram caption</label>
-                    </div>
-                    <textarea
-                      value={socialDraft?.instagram_caption ?? ""}
-                      onChange={(e) => setSocialDraft((d) => ({ ...d, instagram_caption: e.target.value || undefined }))}
-                      rows={4}
-                      placeholder="Write your Instagram caption…"
-                      className="w-full rounded-lg border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs outline-none focus:border-pink-400 resize-none"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    disabled={saving}
-                    onClick={() => void save(isPublished ? "published" : "draft")}
-                    className="w-full rounded-lg border border-[#063b32]/30 bg-[#063b32]/5 py-2 text-xs font-semibold text-[#063b32] hover:bg-[#063b32]/10 disabled:opacity-50"
-                  >
-                    {saving ? "Saving…" : "Save social content"}
-                  </button>
-                </div>
+                ) : (
+                  <p className="mb-2 text-xs text-[#6f6b62]/70">No connected social posts yet.</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowAddSocial(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[#111111]/20 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:border-[#063b32]/40 hover:text-[#063b32]"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add connected post
+                </button>
               </div>
 
+              {/* URL Slug */}
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">URL Slug</label>
-                <div className="flex items-center rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs">
+                <div className="flex items-center rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-xs">
                   <span className="mr-1 text-[#6f6b62]">/posts/</span>
                   <input value={slug} onChange={(e) => setSlug(e.target.value)} className="flex-1 bg-transparent text-[#111111] outline-none" />
                 </div>
               </div>
 
+              {/* Type */}
               <div>
                 <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Type</label>
                 <div className="flex flex-wrap gap-1.5">
@@ -568,39 +680,47 @@ export default function EditPostPage() {
                 </div>
                 {showCustomType && (
                   <input autoFocus value={customType} onChange={(e) => setCustomType(e.target.value)} placeholder="Custom type…"
-                    className="mt-2 w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+                    className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
                 )}
               </div>
 
+              {/* Tags (collapsible) */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Tags</label>
-                <div className="flex flex-wrap gap-1.5 rounded-md border border-[#111111]/15 bg-[#f7f4ea] p-2">
-                  {tags.map((tag) => (
-                    <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#111111] shadow-sm">
-                      {tag}
-                      <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500"><X className="h-3 w-3" /></button>
-                    </span>
-                  ))}
-                  <input value={tagInput} onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
-                    placeholder={tags.length === 0 ? "Add tags…" : ""}
-                    className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50" />
-                </div>
-                <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add.</p>
+                <button
+                  type="button"
+                  onClick={() => setTagsOpen((o) => !o)}
+                  className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]"
+                >
+                  <span>Tags {tags.length > 0 && <span className="ml-1 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">{tags.length}</span>}</span>
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform ${tagsOpen ? "rotate-180" : ""}`} />
+                </button>
+                {tagsOpen && (
+                  <div className="mt-2">
+                    <div className="flex flex-wrap gap-1.5 rounded-md border border-[#111111]/15 bg-white p-2">
+                      {tags.map((tag) => (
+                        <span key={tag} className="flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">
+                          {tag}
+                          <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500"><X className="h-3 w-3" /></button>
+                        </span>
+                      ))}
+                      <input value={tagInput} onChange={(e) => setTagInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
+                        placeholder={tags.length === 0 ? "Add tags…" : ""}
+                        className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50" />
+                    </div>
+                    <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add.</p>
+                  </div>
+                )}
               </div>
 
+              {/* Author */}
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Author</label>
                 <select value={authorId} onChange={(e) => setAuthorId(e.target.value)}
-                  className="w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]">
+                  className="w-full appearance-none rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
                   <option value="">No author assigned</option>
                   {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
                 </select>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Cover image</label>
-                <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} aspectClass="aspect-video w-full" />
               </div>
 
               {/* Publish timing */}
@@ -619,7 +739,7 @@ export default function EditPostPage() {
                   </div>
                   {publishMode === "schedule" && (
                     <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)}
-                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
                   )}
                 </div>
               )}

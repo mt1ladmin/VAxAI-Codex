@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   SocialPostPreviewModal,
@@ -26,6 +26,7 @@ type SocialPost = SocialPostPreview & { scheduled_date: string };
 type Props = {
   post: CalendarBlogPreview;
   onClose: () => void;
+  onDelete?: () => void;
 };
 
 function formatDate(iso: string | null | undefined) {
@@ -43,7 +44,7 @@ const STATUS_STYLES: Record<CalendarBlogPreview["status"], string> = {
   draft: "bg-[#f5f274]/70 text-[#6f6b62]",
 };
 
-export function CalendarItemPreviewModal({ post, onClose }: Props) {
+export function CalendarItemPreviewModal({ post, onClose, onDelete }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>([]);
   const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
 
@@ -146,17 +147,37 @@ export function CalendarItemPreviewModal({ post, onClose }: Props) {
             </div>
           )}
 
-          <Link
-            href={`/admin/posts/${post.id}`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
-          >
-            Open full post
-            <ExternalLink className="h-3.5 w-3.5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/admin/posts/${post.id}`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            >
+              Open full post
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
+            {onDelete && (
+              <button
+                type="button"
+                onClick={onDelete}
+                className="grid h-9 w-9 place-items-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50"
+                title="Delete post"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
       {activeSocial && (
-        <SocialPostPreviewModal social={activeSocial} onClose={() => setActiveSocial(null)} />
+        <SocialPostPreviewModal
+          social={activeSocial}
+          onClose={() => setActiveSocial(null)}
+          onDelete={async () => {
+            await fetch(`/api/admin/social-posts/${activeSocial.id}`, { method: "DELETE" });
+            setLinkedSocial((prev) => prev.filter((s) => s.id !== activeSocial.id));
+            setActiveSocial(null);
+          }}
+        />
       )}
     </div>
   );
