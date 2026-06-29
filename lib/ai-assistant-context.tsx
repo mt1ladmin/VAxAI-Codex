@@ -154,9 +154,16 @@ export function AIAssistantContextProvider({ children }: { children: ReactNode }
   const setPageContext = useCallback((ctx: AIContext) => {
     setPageContextState(ctx);
 
-    // Follow the page account unless the user manually picked another or has an active chat
+    // Follow the page unless the user manually picked another or has an active chat
     if (!isManualOverrideRef.current && !hasActiveChatRef.current) {
       setWidgetContext(ctx);
+    } else {
+      // Even during active chat, keep label/summary in sync for the same record
+      setWidgetContext((prev) =>
+        prev.id === ctx.id && prev.type === ctx.type
+          ? { ...prev, label: ctx.label, summary: ctx.summary }
+          : prev,
+      );
     }
   }, []);
 

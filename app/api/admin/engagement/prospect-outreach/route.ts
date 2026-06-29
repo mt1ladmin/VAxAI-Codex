@@ -26,17 +26,25 @@ export async function GET(req: NextRequest) {
     loadCatalogRecords(supabase),
     supabase
       .from("engagement_tasks")
-      .select("outreach_id")
+      .select("outreach_id, task_type, title, due_date")
       .not("outreach_id", "is", null)
-      .neq("status", "done"),
+      .neq("status", "done")
+      .order("due_date", { ascending: true, nullsFirst: false }),
     supabase.from("prospect_outreach_catalog").select("*", { count: "exact", head: true }),
   ]);
 
-  const outreachIdsWithTasks = new Set(
-    (tasksRes.data ?? []).map((t) => t.outreach_id as string),
-  );
+  const tasks = tasksRes.data ?? [];
+  const outreachIdsWithTasks = new Set(tasks.map((t) => t.outreach_id as string));
 
-  const all = buildFinderList(overrideMaps.rows, overrideMaps.overrides, members, catalog);
+  // Build a map of outreach_id → title of first active follow_up task
+  const followUpTitles = new Map<string, string>();
+  for (const t of tasks) {
+    if (t.task_type === "follow_up" && t.outreach_id && !followUpTitles.has(t.outreach_id as string)) {
+      followUpTitles.set(t.outreach_id as string, t.title as string);
+    }
+  }
+
+  const all = buildFinderList(overrideMaps.rows, overrideMaps.overrides, members, catalog, followUpTitles);
   const filtered = filterFinderList(all, {
     q: searchParams.get("q") || undefined,
     region: searchParams.get("region") || undefined,

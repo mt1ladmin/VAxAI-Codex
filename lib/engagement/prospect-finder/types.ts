@@ -22,6 +22,7 @@ export type ProspectFinderListItem = ProspectOutreachRecord &
   ProspectFinderWorkflow & {
     sector_label: string;
     priority_label: string;
+    follow_up_task_title: string | null;
   };
 
 export type ProspectFinderListMeta = {
