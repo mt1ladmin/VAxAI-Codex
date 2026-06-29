@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
+import PublicContactModal from "@/components/PublicContactModal";
 
 type Post = {
   id: string;
@@ -28,6 +29,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
   const [search, setSearch] = useState("");
   const [activeType, setActiveType] = useState("");
   const [activeTag, setActiveTag] = useState("");
+  const [contactOpen, setContactOpen] = useState(false);
 
   const filtered = posts.filter((p) => {
     if (activeType && p.content_type !== activeType) return false;
@@ -207,6 +209,25 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
           })}
         </div>
       )}
+
+      {/* Get in touch CTA */}
+      <div className="mt-16 flex flex-col items-center rounded-3xl bg-[#063b32] px-8 py-14 text-center text-white">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f5f274]/80">Work with us</p>
+        <h2 className="text-2xl font-bold sm:text-3xl">Ready to work smarter?</h2>
+        <p className="mt-3 max-w-md text-sm leading-7 text-white/65">
+          Whether you have a specific challenge or just want to explore how VAxAI could help your team, we&apos;d love to hear from you.
+        </p>
+        <button
+          type="button"
+          onClick={() => setContactOpen(true)}
+          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#f5f274] px-6 py-3 text-sm font-bold text-[#063b32] transition hover:bg-[#f5f274]/90"
+        >
+          Get in touch
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      <PublicContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </div>
   );
 }

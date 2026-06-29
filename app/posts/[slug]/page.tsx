@@ -203,10 +203,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 </div>
               )}
 
-              {/* Contact form */}
-              <div className="mt-16 rounded-3xl border border-[#063b32]/10 bg-[#f7f4ea]/50 p-6 sm:p-8">
+              {/* Mobile-only Get in touch (hidden on lg where sidebar shows it) */}
+              <div className="mt-12 rounded-3xl border border-[#063b32]/10 bg-[#f7f4ea]/50 p-6 lg:hidden">
                 <h2 className="mb-1 text-xl font-bold text-gray-900">Get in touch</h2>
-                <p className="mb-5 max-w-xl text-sm leading-6 text-gray-500">
+                <p className="mb-5 text-sm leading-6 text-gray-500">
                   Have a question about this post or want to explore working together? Your enquiry will be linked to this content.
                 </p>
                 <PostContactForm postId={post.id} postTitle={post.title} />
@@ -248,6 +248,16 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     </div>
                   </div>
                 )}
+
+                {/* Get in touch — sidebar (desktop) */}
+                <div className="rounded-2xl border border-[#063b32]/10 bg-[#f7f4ea]/60 p-5">
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">Work with us</p>
+                  <h3 className="mb-2 text-sm font-bold text-gray-900">Get in touch</h3>
+                  <p className="mb-4 text-xs leading-5 text-gray-500">
+                    Have a question or want to explore working together? Your enquiry will be linked to this post.
+                  </p>
+                  <PostContactForm postId={post.id} postTitle={post.title} />
+                </div>
 
                 {/* Back to insights */}
                 <div>
