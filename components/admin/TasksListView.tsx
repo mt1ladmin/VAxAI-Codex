@@ -236,6 +236,7 @@ export function TasksListView({
     if (!hasLoadedRef.current) setInitialLoading(true);
     const params = new URLSearchParams();
     params.set("limit", "500");
+    params.set("status", "all");
     if (assigneeFilter) params.set("assigned_team_member_id", assigneeFilter);
     if (myTasksOnly) {
       params.set("my_tasks", "true");
