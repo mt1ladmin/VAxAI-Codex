@@ -16,7 +16,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { FINDER_ENGAGEMENT_STATUSES } from "@/lib/engagement/engagement-status";
+import { FINDER_ENGAGEMENT_STATUSES, type FinderEngagementStatus } from "@/lib/engagement/engagement-status";
 import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
@@ -253,7 +253,7 @@ export default function ProspectFinderPage() {
       : undefined;
     setProspects((prev) => prev.map((p) => p.id !== id ? p : {
       ...p,
-      ...(updates.engagement_status !== undefined ? { engagement_status: updates.engagement_status as string } : {}),
+      ...(updates.engagement_status !== undefined ? { engagement_status: updates.engagement_status as FinderEngagementStatus } : {}),
       ...(assigneeName !== undefined ? { assigned_team_member_id: updates.assigned_team_member_id as string | null, assigned_team_member_name: assigneeName } : {}),
       ...(updates.next_action !== undefined ? { next_action: updates.next_action as string | null } : {}),
     }));
