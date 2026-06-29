@@ -74,36 +74,36 @@ const PANEL_MIN = { width: 380, height: 420 };
 const PANEL_MAX = { width: 920, height: 900 };
 
 const TYPE_LABEL: Record<string, string> = {
-  outreach: "Outreach review",
+  outreach: "Prospect Finder",
   enquiry: "Enquiry",
-  client: "Prospect/Client",
-  prospect: "Prospect outreach",
+  client: "Contact",
+  prospect: "Prospect Finder",
 };
 
 const SUGGESTED: Record<string, string[]> = {
   outreach: [
-    "Is this prospect a good fit for VAxAI? What should I verify?",
-    "Draft review notes for the team before I add to queue",
-    "Which Knowledge Hub sectors and pain points apply?",
-    "Summarize the admin/AI need in plain language for outreach",
+    "Is this organisation a good fit for VAxAI? What should I verify?",
+    "Draft outreach notes for the team",
+    "Summarise the admin/AI need in plain language for first contact",
+    "What's the best approach for reaching out to this organisation?",
   ],
   enquiry: [
     "What are the key themes in this enquiry?",
-    "What's the best strategy to convert them?",
-    "Write me a summary to prepare for the prospect call",
+    "What's the best strategy to progress this?",
+    "Write me a summary to prepare for the call",
     "Write a next action summary based on this enquiry",
   ],
   client: [
-    "Summarize the full journey from first contact to now",
-    "What Knowledge Hub content applies to this client?",
+    "Summarise the full journey from first contact to now",
     "Draft a proposal outline from our notes and agreed scope",
     "What are the risks and next strategic actions?",
+    "What should the next step be based on where we are?",
   ],
   prospect: [
     "What's the best approach for first contact?",
     "They showed interest — what should the next step be?",
-    "Draft a follow-up email based on our research",
-    "Are they ready to advance to client work? What's missing?",
+    "Draft a follow-up message based on our notes",
+    "Summarise where we are and what needs to happen next",
   ],
   default: [
     "Search for an account above to get started.",
@@ -112,8 +112,8 @@ const SUGGESTED: Record<string, string[]> = {
 
 function guessSummaryTitle(userMessage: string | undefined): string {
   const lower = (userMessage ?? "").toLowerCase();
-  if (lower.includes("prospect call") || lower.includes("prepare for")) {
-    return "Prospect call prep summary";
+  if (lower.includes("call") || lower.includes("prepare for")) {
+    return "Call prep summary";
   }
   if (lower.includes("next action")) return "Next action summary";
   if (lower.includes("summary")) return "AI chat summary";
@@ -433,7 +433,7 @@ function ChatPanel({
   const confirmSaveToNotes = async (title: string, summary: string) => {
     if (contextType === "general" || contextId === "general") {
       throw new Error(
-        "Open an enquiry, prospect, client, or Prospect Queue record before saving to notes.",
+        "Open an enquiry, contact, or Prospect Finder record before saving to notes.",
       );
     }
 
@@ -719,7 +719,7 @@ function ContextPicker({
       <div>
         <p className="text-sm font-semibold text-[#111111]">Select an account</p>
         <p className="mt-0.5 text-xs text-[#6f6b62]">
-          Search for a client, enquiry, or prospect to start a conversation.
+          Search for an enquiry, contact, or Prospect Finder record to start a conversation.
         </p>
       </div>
       <div className="flex items-center gap-2 rounded-xl border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 focus-within:border-[#063b32]">

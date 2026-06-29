@@ -104,6 +104,9 @@ export default function ProspectFinderPage() {
 
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const search = searchParams.get("q") || "";
+  // Local input state — debounced before pushing to URL to prevent per-keystroke API calls
+  const [searchInput, setSearchInput] = useState(search);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const region = searchParams.get("region") || "";
   const needScore = searchParams.get("need_score") || "";
   const confidence = searchParams.get("confidence") || "";
@@ -166,6 +169,9 @@ export default function ProspectFinderPage() {
   ]);
 
   useEffect(() => { void load(); }, [load]);
+
+  // Keep local input in sync if URL param changes externally (e.g. back nav, redirect after add)
+  useEffect(() => { setSearchInput(search); }, [search]);
 
   useEffect(() => {
     const timer = setInterval(() => { void load({ silent: true }); }, 30_000);
@@ -331,8 +337,15 @@ export default function ProspectFinderPage() {
           <div className="relative min-w-[200px] flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
             <input
-              value={search}
-              onChange={(e) => updateParams({ q: e.target.value || null })}
+              value={searchInput}
+              onChange={(e) => {
+                const v = e.target.value;
+                setSearchInput(v);
+                if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+                searchDebounceRef.current = setTimeout(() => {
+                  updateParams({ q: v || null });
+                }, 350);
+              }}
               placeholder="Search organisation, sector, location, assignee…"
               className="w-full rounded-xl border border-[#111111]/15 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
             />

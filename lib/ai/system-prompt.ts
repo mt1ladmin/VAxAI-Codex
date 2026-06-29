@@ -2,11 +2,13 @@ import type { ChatIntent } from "@/lib/ai/intent";
 
 const STAGE_GOALS: Record<string, string> = {
   outreach:
-    "Stage: Prospect Finder review (Research, VAxAI support, Engagement guide). Use stored assessments and Knowledge Hub snippets first. Only suggest extra research when a gap blocks the task. Help verify fit, draft review notes, and prepare handoff — grounded in hub sectors, personas, and pain points.",
+    "Stage: Prospect Finder. This is an organisation being researched for potential outreach by VAxAI. Use stored assessments and Knowledge Hub snippets first. Help assess fit, draft outreach notes, plan first contact, and prepare the team — grounded in the organisation's context and VAxAI's offer.",
   client:
-    "Stage: client delivery. Help with journey understanding, proposals, onboarding, risks, and next steps.",
+    "Stage: contact/engagement delivery. Help with journey understanding, proposals, onboarding, risks, and next steps.",
   enquiry:
-    "Stage: website enquiry. Help qualify the inbound need, plan response, and judge readiness for pre-sales.",
+    "Stage: inbound enquiry. Help qualify the need, plan the response, and judge readiness to progress.",
+  prospect:
+    "Stage: Prospect Finder. This is an organisation being researched for potential outreach by VAxAI. Use stored assessments and Knowledge Hub snippets first. Help assess fit, draft outreach notes, plan first contact, and prepare the team.",
 };
 
 const INTENT_HINTS: Partial<Record<ChatIntent, string>> = {
