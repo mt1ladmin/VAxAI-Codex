@@ -161,7 +161,7 @@ export function HubTasksTab({
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
   const visibleLinked = tasksOnly ? [] : linkedNextActions;
-  const sortedLinked = sortByCreatedDesc(visibleLinked);
+  const sortedLinked = [...visibleLinked];
   const sortedOpen = sortByCreatedDesc(openTasks);
   const hasOpenWork = sortedOpen.length > 0 || sortedLinked.length > 0;
 
