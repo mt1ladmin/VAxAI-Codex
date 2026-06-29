@@ -52,6 +52,17 @@ type Enquiry = {
 
 type DateFilter = "all" | "today" | "3days" | "7days" | "30days";
 type DiscoveryFilter = "all" | "yes" | "no";
+type SourceFilter = "all" | "Website enquiry" | "Email" | "Direct approach" | "Phone" | "Event" | "Other";
+
+const SOURCE_FILTER_OPTIONS: { value: SourceFilter; label: string }[] = [
+  { value: "all", label: "Source: all" },
+  { value: "Website enquiry", label: "Website enquiry" },
+  { value: "Email", label: "Email" },
+  { value: "Direct approach", label: "Direct approach" },
+  { value: "Phone", label: "Phone" },
+  { value: "Event", label: "Event" },
+  { value: "Other", label: "Other" },
+];
 
 const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
   { value: "all", label: "Date received: all" },
@@ -124,6 +135,7 @@ export default function EnquiriesPage() {
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [discoveryFilter, setDiscoveryFilter] = useState<DiscoveryFilter>("all");
   const [supportTypeFilter, setSupportTypeFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
@@ -157,6 +169,15 @@ export default function EnquiriesPage() {
     if (discoveryFilter === "yes" && !e.wants_discovery_call) return false;
     if (discoveryFilter === "no" && e.wants_discovery_call) return false;
     if (supportTypeFilter !== "all" && e.support_type !== supportTypeFilter) return false;
+    if (sourceFilter !== "all") {
+      const src = e.source ?? "";
+      if (sourceFilter === "Other") {
+        const known = ["Website enquiry", "Email", "Direct approach", "Phone", "Event"];
+        if (known.includes(src) || !src) return false;
+      } else {
+        if (src !== sourceFilter) return false;
+      }
+    }
     if (!search) return true;
     const q = search.toLowerCase();
     return (
@@ -183,6 +204,7 @@ export default function EnquiriesPage() {
     dateFilter !== "all" ||
     discoveryFilter !== "all" ||
     supportTypeFilter !== "all" ||
+    sourceFilter !== "all" ||
     search.trim().length > 0;
 
   const toggleSelect = (id: string) => {
@@ -365,6 +387,11 @@ export default function EnquiriesPage() {
             options={DATE_FILTER_OPTIONS}
           />
           <FilterSelect
+            value={sourceFilter}
+            onChange={(v) => setSourceFilter(v as SourceFilter)}
+            options={SOURCE_FILTER_OPTIONS}
+          />
+          <FilterSelect
             value={discoveryFilter}
             onChange={(v) => setDiscoveryFilter(v as DiscoveryFilter)}
             options={DISCOVERY_FILTER_OPTIONS}
@@ -387,6 +414,7 @@ export default function EnquiriesPage() {
                 setDateFilter("all");
                 setDiscoveryFilter("all");
                 setSupportTypeFilter("all");
+                setSourceFilter("all");
                 setStatusFilter("all");
               }}
               className="text-xs font-medium text-[#063b32] hover:underline"
@@ -484,15 +512,10 @@ export default function EnquiriesPage() {
                         </span>
                       )}
                       <p className="truncate text-[11px] text-[#6f6b62]">{e.email}</p>
-                      {e.source && (
-                        <span className="mt-0.5 inline-block rounded-full bg-[#f7f4ea] px-1.5 py-0.5 text-[9px] font-medium text-[#6f6b62]">
-                          {e.source}
-                        </span>
-                      )}
                     </td>
                     <td className="px-3 py-3.5 text-[#6f6b62]">{e.organisation?.name || "—"}</td>
                     <td className="px-3 py-3.5">
-                      <span className="rounded-full bg-[#f5f274]/80 px-2 py-0.5 text-[10px] font-semibold text-[#111111]">
+                      <span className="text-xs text-[#111111]">
                         {e.support_type}
                       </span>
                     </td>
@@ -580,8 +603,11 @@ export default function EnquiriesPage() {
                     </td>
                     <td className="whitespace-nowrap px-3 py-3.5 text-xs text-[#6f6b62]">
                       {new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      {e.source && (
+                        <p className="mt-0.5 text-[10px] text-[#6f6b62]/70">{e.source}</p>
+                      )}
                       {e.wants_discovery_call && (
-                        <span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold text-sky-700">DC</span>
+                        <span className="mt-0.5 inline-block rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold text-sky-700">DC</span>
                       )}
                     </td>
                     <td className="px-3 py-3.5">
@@ -721,7 +747,7 @@ export default function EnquiriesPage() {
                 <select
                   value={addForm.support_type}
                   onChange={(e) => setAddForm((f) => ({ ...f, support_type: e.target.value }))}
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full appearance-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                 >
                   {SUPPORT_TYPES.map((t) => <option key={t}>{t}</option>)}
                 </select>
@@ -742,7 +768,7 @@ export default function EnquiriesPage() {
                   <select
                     value={addForm.preferred_contact}
                     onChange={(e) => setAddForm((f) => ({ ...f, preferred_contact: e.target.value }))}
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full appearance-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                   >
                     {PREFERRED_CONTACT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
                   </select>
@@ -765,7 +791,7 @@ export default function EnquiriesPage() {
                 <select
                   value={addForm.source}
                   onChange={(e) => setAddForm((f) => ({ ...f, source: e.target.value, source_other: "" }))}
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full appearance-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                 >
                   {SOURCE_OPTIONS.map((s) => <option key={s}>{s}</option>)}
                 </select>

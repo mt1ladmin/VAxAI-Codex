@@ -78,40 +78,46 @@ type Enquiry = {
   source: string | null;
 };
 
-function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; email: string; telephone: string | null }; onSave: (fields: Record<string, string | null>) => Promise<void> }) {
+const SUPPORT_TYPES_DETAIL = [
+  "Assessment",
+  "Assessment + Strategy & Implementation",
+  "Assessment + Ongoing Support",
+  "Access to Work",
+  "General enquiry",
+];
+
+function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; email: string; telephone: string | null; support_type: string; details: string }; onSave: (fields: Record<string, string | null>) => Promise<void> }) {
   const [name, setName] = useState(enquiry.name);
   const [email, setEmail] = useState(enquiry.email);
   const [telephone, setTelephone] = useState(enquiry.telephone ?? "");
+  const [supportType, setSupportType] = useState(enquiry.support_type);
+  const [details, setDetails] = useState(enquiry.details);
   const [saving, setSaving] = useState(false);
-  const dirty = name !== enquiry.name || email !== enquiry.email || telephone !== (enquiry.telephone ?? "");
+  const dirty = name !== enquiry.name || email !== enquiry.email || telephone !== (enquiry.telephone ?? "") || supportType !== enquiry.support_type || details !== enquiry.details;
+  const inputCls = "mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]";
   return (
     <div className="space-y-2">
       <div>
         <p className="text-[10px] text-[#6f6b62]">Name</p>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]"
-        />
+        <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
       </div>
       <div>
         <p className="text-[10px] text-[#6f6b62]">Email</p>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]"
-        />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
       </div>
       <div>
         <p className="text-[10px] text-[#6f6b62]">Telephone</p>
-        <input
-          type="tel"
-          value={telephone}
-          onChange={(e) => setTelephone(e.target.value)}
-          placeholder="—"
-          className="mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]"
-        />
+        <input type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} placeholder="—" className={inputCls} />
+      </div>
+      <div>
+        <p className="text-[10px] text-[#6f6b62]">Service interest</p>
+        <select value={supportType} onChange={(e) => setSupportType(e.target.value)} className={`${inputCls} appearance-none`}>
+          {SUPPORT_TYPES_DETAIL.map((t) => <option key={t}>{t}</option>)}
+        </select>
+      </div>
+      <div>
+        <p className="text-[10px] text-[#6f6b62]">Description</p>
+        <textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={3} className={`${inputCls} resize-none`} />
       </div>
       {dirty && (
         <button
@@ -119,12 +125,12 @@ function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; emai
           disabled={saving || !name.trim() || !email.trim()}
           onClick={async () => {
             setSaving(true);
-            await onSave({ name: name.trim(), email: email.trim(), telephone: telephone.trim() || null });
+            await onSave({ name: name.trim(), email: email.trim(), telephone: telephone.trim() || null, support_type: supportType, details });
             setSaving(false);
           }}
           className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
         >
-          {saving ? "Saving…" : "Save contact details"}
+          {saving ? "Saving…" : "Save details"}
         </button>
       )}
     </div>
@@ -238,6 +244,8 @@ function EnquiryDetailContent() {
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [showClientModal, setShowClientModal] = useState(false);
   const [clientNote, setClientNote] = useState("");
+  const [clientService, setClientService] = useState("");
+  const [clientServiceOther, setClientServiceOther] = useState("");
   const [savingClient, setSavingClient] = useState(false);
   const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
 
@@ -477,12 +485,16 @@ function EnquiryDetailContent() {
   };
 
   const logAsClient = async () => {
-    if (!clientNote.trim() || !enquiry) return;
+    const service = clientService === "Other" ? clientServiceOther.trim() : clientService;
+    if (!service || !enquiry) return;
     setSavingClient(true);
     try {
-      await patchEnquiry({ is_client: true, client_note: clientNote.trim() } as Partial<Enquiry>);
+      const note = [service, clientNote.trim()].filter(Boolean).join("\n\n");
+      await patchEnquiry({ is_client: true, client_note: note } as Partial<Enquiry>);
       setShowClientModal(false);
       setClientNote("");
+      setClientService("");
+      setClientServiceOther("");
     } finally {
       setSavingClient(false);
     }
@@ -547,23 +559,51 @@ function EnquiryDetailContent() {
                 <p className="text-xs text-[#6f6b62]">{enquiry.name}</p>
               </div>
             </div>
+            <div className="mb-3">
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Service being provided *</label>
+              <select
+                value={clientService}
+                onChange={(e) => setClientService(e.target.value)}
+                autoFocus
+                className="w-full appearance-none rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500 bg-white"
+              >
+                <option value="">Select a service…</option>
+                <option value="Assessment">Assessment</option>
+                <option value="Assessment + Strategy & Implementation">Assessment + Strategy &amp; Implementation</option>
+                <option value="Assessment + Ongoing Support">Assessment + Ongoing Support</option>
+                <option value="Access to Work">Access to Work</option>
+                <option value="General enquiry">General enquiry</option>
+                <option value="Other">Other (specify below)</option>
+              </select>
+            </div>
+            {clientService === "Other" && (
+              <div className="mb-3">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Specify service</label>
+                <input
+                  type="text"
+                  value={clientServiceOther}
+                  onChange={(e) => setClientServiceOther(e.target.value)}
+                  placeholder="Enter service name…"
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500"
+                />
+              </div>
+            )}
             <div className="mb-4">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Services being provided *</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Additional notes</label>
               <textarea
                 value={clientNote}
                 onChange={(e) => setClientNote(e.target.value)}
-                rows={4}
-                autoFocus
-                placeholder="Describe the services VAxAI is providing to this client…"
+                rows={3}
+                placeholder="Any additional notes…"
                 className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500 resize-none"
               />
             </div>
             <div className="flex gap-3">
-              <button type="button" onClick={() => setShowClientModal(false)}
+              <button type="button" onClick={() => { setShowClientModal(false); setClientService(""); setClientServiceOther(""); setClientNote(""); }}
                 className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
                 Cancel
               </button>
-              <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientNote.trim()}
+              <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientService || (clientService === "Other" && !clientServiceOther.trim())}
                 className="flex-1 rounded-xl bg-purple-700 py-2.5 text-sm font-semibold text-white hover:bg-purple-800 disabled:opacity-50">
                 {savingClient ? "Saving…" : "Log as client"}
               </button>
@@ -631,26 +671,33 @@ function EnquiryDetailContent() {
                     </a>
                   </div>
                 )}
+                <div className="border-t border-[#111111]/8 pt-3 space-y-3">
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62]">Service interest</p>
+                    <p className="text-sm text-[#111111]">{enquiry.support_type}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62]">Description</p>
+                    <CollapsibleNote content={enquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
+                  </div>
+                </div>
               </>
             ) : (
               <ContactDetailsForm enquiry={enquiry} onSave={async (fields) => { await patchEnquiry(fields as Partial<Enquiry>); }} />
             )}
             <div>
               <p className="text-[10px] text-[#6f6b62]">Received</p>
-              <p className="flex items-center gap-1.5 text-sm text-[#111111]">
-                <Calendar className="h-3.5 w-3.5 text-[#6f6b62]" />
-                {new Date(enquiry.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="flex items-center gap-1.5 text-sm text-[#111111]">
+                  <Calendar className="h-3.5 w-3.5 text-[#6f6b62]" />
+                  {new Date(enquiry.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                </p>
+                {enquiry.source && (
+                  <span className="rounded-full border border-[#111111]/10 px-2 py-0.5 text-[10px] font-medium text-[#6f6b62]">{enquiry.source}</span>
+                )}
+              </div>
             </div>
             <div className="border-t border-[#111111]/8 pt-3 space-y-3">
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Service interest</p>
-                <span className="mt-0.5 inline-block rounded-full bg-[#f5f274]/80 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">{enquiry.support_type}</span>
-              </div>
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Description</p>
-                <CollapsibleNote content={enquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
-              </div>
               {postTitle && (
                 <div>
                   <p className="text-[10px] text-[#6f6b62]">Related post</p>
