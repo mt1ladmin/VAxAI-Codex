@@ -123,6 +123,9 @@ export default function EnquiriesPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
   const [assigneeMenuId, setAssigneeMenuId] = useState<string | null>(null);
+  const [nextActionPopupId, setNextActionPopupId] = useState<string | null>(null);
+  const [nextActionDraft, setNextActionDraft] = useState("");
+  const [savingNextAction, setSavingNextAction] = useState(false);
   const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [deleting, setDeleting] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -132,18 +135,19 @@ export default function EnquiriesPage() {
   const load = useCallback(async () => {
     setLoading(true);
     const [enqRes, membersRes] = await Promise.all([
-      fetch(`/api/admin/enquiries?status=${statusFilter}`).then((r) => r.json() as Promise<{ data: Enquiry[] }>),
+      fetch(`/api/admin/enquiries?status=all`).then((r) => r.json() as Promise<{ data: Enquiry[] }>),
       fetch("/api/admin/engagement/team-members").then((r) => r.json() as Promise<{ data: StudioTeamMember[] }>),
     ]);
     setEnquiries(enqRes.data ?? []);
     setTeamMembers(membersRes.data ?? []);
     setSelected(new Set());
     setLoading(false);
-  }, [statusFilter]);
+  }, []);
 
   useEffect(() => { void load(); }, [load]);
 
   const filtered = useMemo(() => enquiries.filter((e) => {
+    if (statusFilter !== "all" && e.status !== statusFilter) return false;
     if (!matchesDateFilter(e, dateFilter)) return false;
     if (discoveryFilter === "yes" && !e.wants_discovery_call) return false;
     if (discoveryFilter === "no" && e.wants_discovery_call) return false;
@@ -157,10 +161,9 @@ export default function EnquiriesPage() {
       e.support_type.toLowerCase().includes(q) ||
       (e.organisation?.name || "").toLowerCase().includes(q) ||
       (e.next_action || "").toLowerCase().includes(q) ||
-      (e.follow_up_task_title || "").toLowerCase().includes(q) ||
       (e.assigned_team_member_name || "").toLowerCase().includes(q)
     );
-  }), [enquiries, search, dateFilter, discoveryFilter, supportTypeFilter]);
+  }), [enquiries, search, statusFilter, dateFilter, discoveryFilter, supportTypeFilter]);
 
   const metrics = useMemo(() => ({
     total: enquiries.length,
@@ -224,6 +227,7 @@ export default function EnquiriesPage() {
       ...e,
       ...(updates.status !== undefined ? { status: updates.status as string } : {}),
       ...(assigneeName !== undefined ? { assigned_team_member_id: updates.assigned_team_member_id as string | null, assigned_team_member_name: assigneeName } : {}),
+      ...(updates.next_action !== undefined ? { next_action: updates.next_action as string | null } : {}),
     }));
     const res = await fetch(`/api/admin/enquiries/${id}`, {
       method: "PATCH",
@@ -544,7 +548,19 @@ export default function EnquiriesPage() {
                       </div>
                     </td>
                     <td className="max-w-[200px] px-6 py-3.5 text-xs text-[#6f6b62]">
-                      <span className="block truncate">{e.follow_up_task_title || "—"}</span>
+                      <button
+                        type="button"
+                        onClick={(ev) => {
+                          ev.stopPropagation();
+                          setNextActionPopupId(e.id);
+                          setNextActionDraft(e.next_action || "");
+                          setStatusMenuId(null);
+                          setAssigneeMenuId(null);
+                        }}
+                        className="block w-full truncate text-left hover:text-[#063b32]"
+                      >
+                        {e.next_action || <span className="text-[#6f6b62]/50">Add next action…</span>}
+                      </button>
                     </td>
                     <td className="whitespace-nowrap px-3 py-3.5 text-xs text-[#6f6b62]">
                       {new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
@@ -581,6 +597,59 @@ export default function EnquiriesPage() {
 
       {(statusMenuId || assigneeMenuId) && (
         <div className="fixed inset-0 z-10" onClick={() => { setStatusMenuId(null); setAssigneeMenuId(null); }} />
+      )}
+
+      {nextActionPopupId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setNextActionPopupId(null)}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(ev) => ev.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="border-b border-[#111111]/10 px-5 py-4">
+              <p className="text-sm font-semibold text-[#111111]">Next action</p>
+              <p className="mt-0.5 text-xs text-[#6f6b62]">Saving will overwrite the previous next action note.</p>
+            </div>
+            <div className="p-5">
+              <textarea
+                value={nextActionDraft}
+                onChange={(e) => setNextActionDraft(e.target.value)}
+                rows={4}
+                placeholder="Describe the next action…"
+                className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                autoFocus
+              />
+            </div>
+            <div className="flex justify-end gap-2 border-t border-[#111111]/10 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => setNextActionPopupId(null)}
+                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={savingNextAction}
+                onClick={async () => {
+                  if (!nextActionPopupId) return;
+                  setSavingNextAction(true);
+                  await patchEnquiry(nextActionPopupId, { next_action: nextActionDraft || null });
+                  setSavingNextAction(false);
+                  setNextActionPopupId(null);
+                }}
+                className="rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                {savingNextAction ? "Saving…" : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Add enquiry modal */}

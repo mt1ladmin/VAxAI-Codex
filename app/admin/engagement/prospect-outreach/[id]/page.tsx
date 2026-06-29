@@ -38,6 +38,39 @@ import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import type { EngagementTask } from "@/lib/engagement/types";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
 
+function NextActionField({ value, onSave }: { value: string | null; onSave: (val: string | null) => Promise<void> }) {
+  const [draft, setDraft] = useState(value ?? "");
+  const [saving, setSaving] = useState(false);
+  const dirty = draft !== (value ?? "");
+  return (
+    <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
+      <textarea
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        rows={3}
+        placeholder="Add a next action note…"
+        className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+      />
+      <p className="text-[10px] text-[#6f6b62]">Saving will overwrite the previous next action note.</p>
+      {dirty && (
+        <button
+          type="button"
+          disabled={saving}
+          onClick={async () => {
+            setSaving(true);
+            await onSave(draft.trim() || null);
+            setSaving(false);
+          }}
+          className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Save next action"}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function AssignmentDropdown({
   value,
   options,
@@ -545,15 +578,12 @@ function ProspectFinderDetailContent() {
             </div>
           </div>
 
-          {latestFollowUpTask && (
-            <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 space-y-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-orange-700">Next action</p>
-              <p className="text-sm text-[#111111]">{latestFollowUpTask.title}</p>
-              {latestFollowUpTask.due_date && (
-                <p className="text-xs text-orange-600">Due {new Date(latestFollowUpTask.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
-              )}
-            </div>
-          )}
+          <NextActionField
+            value={record.next_action ?? null}
+            onSave={async (val) => {
+              await patchWorkflow({ next_action: val });
+            }}
+          />
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             {record.is_client ? (
