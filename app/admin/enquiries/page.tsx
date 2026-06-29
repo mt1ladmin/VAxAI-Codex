@@ -20,6 +20,7 @@ import {
   ENQUIRY_STATUS_OPTIONS,
   ENQUIRY_STATUSES,
   enquiryStatusLabel,
+  isUnreviewedEnquiry,
 } from "@/lib/enquiries/constants";
 
 type Enquiry = {
@@ -141,6 +142,7 @@ export default function EnquiriesPage() {
 
   const metrics = useMemo(() => ({
     total: filtered.length,
+    needsReview: filtered.filter((e) => isUnreviewedEnquiry(e.status)).length,
     conversationHeld: filtered.filter((e) => e.status === "Conversation held").length,
     followUpRequired: filtered.filter((e) => e.status === "Follow up required").length,
     opportunityIdentified: filtered.filter((e) => e.status === "Opportunity identified").length,
@@ -230,23 +232,43 @@ export default function EnquiriesPage() {
 
       <div className="px-8 py-6">
         {/* Metrics */}
-        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{loading ? "—" : metrics.total}</p>
           </div>
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("needs_review")}
+            className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left transition-colors hover:border-slate-300 hover:bg-slate-50"
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-600">Needs review</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-slate-700">{loading ? "—" : metrics.needsReview}</p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("Conversation held")}
+            className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 text-left transition-colors hover:border-emerald-300 hover:bg-emerald-50"
+          >
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-700">Conversation held</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-800">{loading ? "—" : metrics.conversationHeld}</p>
-          </div>
-          <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-4">
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("Follow up required")}
+            className="rounded-xl border border-orange-200 bg-orange-50/50 p-4 text-left transition-colors hover:border-orange-300 hover:bg-orange-50"
+          >
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-orange-700">Follow up required</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-orange-800">{loading ? "—" : metrics.followUpRequired}</p>
-          </div>
-          <div className="rounded-xl border border-teal-200 bg-teal-50/50 p-4">
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("Opportunity identified")}
+            className="rounded-xl border border-teal-200 bg-teal-50/50 p-4 text-left transition-colors hover:border-teal-300 hover:bg-teal-50"
+          >
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-700">Opportunity identified</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-teal-800">{loading ? "—" : metrics.opportunityIdentified}</p>
-          </div>
+          </button>
         </div>
         {!loading && metrics.isClient > 0 && (
           <div className="mb-6">
@@ -433,7 +455,7 @@ export default function EnquiriesPage() {
                           <button
                             type="button"
                             onClick={() => setStatusMenuId(statusMenuId === e.id ? null : e.id)}
-                            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ENQUIRY_STATUS_COLORS[e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
+                            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${ENQUIRY_STATUS_COLORS[isUnreviewedEnquiry(e.status) ? "" : e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
                           >
                             {enquiryStatusLabel(e.status)}
                             <ChevronDown className="h-3 w-3" />

@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
       research_date: researchDate || new Date().toISOString().slice(0, 10),
       by_region: byRegion,
       by_need_score: byNeedScore,
-      total_count: countRes.count ?? all.length,
+      total_count: all.length,
       filtered_count: filtered.length,
       filtered_by_region: filteredByRegion,
       unassigned_count: all.filter((p) => !p.assigned_team_member_id).length,
