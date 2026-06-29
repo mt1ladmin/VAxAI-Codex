@@ -18,7 +18,8 @@ export async function loadCatalogRecords(supabase: ServiceClient): Promise<Prosp
   const { data, error } = await supabase
     .from("prospect_outreach_catalog")
     .select("*")
-    .order("need_score", { ascending: false });
+    .order("need_score", { ascending: false })
+    .range(0, 9999);
   if (error) {
     console.error("Failed to load prospect catalog:", error.message);
     return [];

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Check,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -110,7 +109,6 @@ export default function ProspectFinderPage() {
     email: "",
     phone: "",
   });
-  const [regionCustom, setRegionCustom] = useState(false);
   const hasLoadedRef = useRef(false);
   const studioAccess = useStudioAccessOptional();
   const isPlatformAdmin = studioAccess?.isPlatformAdmin ?? true;
@@ -264,7 +262,6 @@ export default function ProspectFinderPage() {
           });
         }
         setShowAddModal(false);
-        setRegionCustom(false);
         setAddForm({
           organisation_name: "", organisation_type: "Charity", location: "",
           region: OUTREACH_REGIONS[0], website: "",
@@ -289,6 +286,20 @@ export default function ProspectFinderPage() {
     () => [{ value: "", label: "All assignees" }, ...teamMembers.map((m) => ({ value: m.id, label: m.display_name }))],
     [teamMembers],
   );
+
+  const regionOptions = useMemo(() => {
+    const preset = new Set<string>(OUTREACH_REGIONS);
+    const dataRegions = Object.keys(meta?.by_region ?? {}).filter((r) => r && !preset.has(r)).sort();
+    const allRegions = [...OUTREACH_REGIONS, ...dataRegions];
+    return [{ value: "", label: "All regions" }, ...allRegions.map((r) => ({ value: r, label: r }))];
+  }, [meta]);
+
+  const addRegionOptions = useMemo(() => {
+    const preset = new Set<string>(OUTREACH_REGIONS);
+    const dataRegions = Object.keys(meta?.by_region ?? {}).filter((r) => r && !preset.has(r)).sort();
+    const allRegions = [...OUTREACH_REGIONS, ...dataRegions];
+    return allRegions.map((r) => ({ value: r, label: r }));
+  }, [meta]);
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
@@ -378,7 +389,7 @@ export default function ProspectFinderPage() {
             value={region}
             onChange={(v) => updateParams({ region: v || null })}
             placeholder="All regions"
-            options={[{ value: "", label: "All regions" }, ...OUTREACH_REGIONS.map((r) => ({ value: r, label: r }))]}
+            options={regionOptions}
           />
           <CustomSelect
             value={assignedTo}
@@ -576,51 +587,21 @@ export default function ProspectFinderPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Type</label>
-                  <div className="relative">
-                    <select
-                      value={addForm.organisation_type}
-                      onChange={(e) => setAddForm((f) => ({ ...f, organisation_type: e.target.value as typeof f.organisation_type }))}
-                      className="w-full appearance-none rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32]"
-                    >
-                      {(["Charity", "Business", "Social enterprise", "Other"] as const).map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-                  </div>
+                  <CustomSelect
+                    value={addForm.organisation_type}
+                    onChange={(v) => setAddForm((f) => ({ ...f, organisation_type: v as typeof f.organisation_type }))}
+                    placeholder="Select type"
+                    options={(["Charity", "Business", "Social enterprise", "Other"] as const).map((t) => ({ value: t, label: t }))}
+                  />
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Region</label>
-                  {regionCustom ? (
-                    <input
-                      autoFocus
-                      value={addForm.region}
-                      onChange={(e) => setAddForm((f) => ({ ...f, region: e.target.value }))}
-                      placeholder="Enter region…"
-                      className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    />
-                  ) : (
-                    <div className="relative">
-                      <select
-                        value={OUTREACH_REGIONS.includes(addForm.region as typeof OUTREACH_REGIONS[number]) ? addForm.region : "__custom__"}
-                        onChange={(e) => {
-                          if (e.target.value === "__custom__") {
-                            setRegionCustom(true);
-                            setAddForm((f) => ({ ...f, region: "" }));
-                          } else {
-                            setAddForm((f) => ({ ...f, region: e.target.value }));
-                          }
-                        }}
-                        className="w-full appearance-none rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32]"
-                      >
-                        {OUTREACH_REGIONS.map((r) => (
-                          <option key={r} value={r}>{r}</option>
-                        ))}
-                        <option value="__custom__">Other (type your own)…</option>
-                      </select>
-                      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-                    </div>
-                  )}
+                  <CustomSelect
+                    value={addForm.region}
+                    onChange={(v) => setAddForm((f) => ({ ...f, region: v }))}
+                    placeholder="Select region"
+                    options={addRegionOptions}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
