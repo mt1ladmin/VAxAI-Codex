@@ -771,42 +771,71 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
             </div>
           ) : (
             <>
-              <div className="flex flex-wrap items-center gap-2">
+              {/* Header row: label + edit */}
+              <div className="flex items-center justify-between gap-2">
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
-                {data.complexity_level && (
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
-                      COMPLEXITY_COLORS[data.complexity_level] || "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {data.complexity_level} complexity
-                  </span>
-                )}
-                {data.engagement_basis && data.engagement_basis !== "unknown" && (
-                  <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62] capitalize">
-                    {data.engagement_basis.replace("_", " ")} support
-                  </span>
-                )}
-                {data.bespoke_build_fit === false && (
-                  <span className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
-                    Improve existing first
-                  </span>
-                )}
                 {editable && batchSave && (
                   <button
                     type="button"
                     onClick={startSummaryEdit}
-                    className="ml-auto inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                    className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
                   >
                     <Pencil className="h-3 w-3" /> Edit
                   </button>
                 )}
               </div>
-              <p className="mt-2 text-sm font-medium text-[#111111]">
-                {data.service_fit_summary || data.likely_need}
-              </p>
-              {resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary && (
-                <p className="mt-2 text-sm text-[#6f6b62]">{data.likely_need}</p>
+
+              {/* Pill badges row */}
+              {(data.complexity_level || (data.engagement_basis && data.engagement_basis !== "unknown") || data.bespoke_build_fit === false) && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {data.complexity_level && (
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${
+                        COMPLEXITY_COLORS[data.complexity_level] || "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      <span className="opacity-60">Complexity</span>
+                      <span className="h-2.5 w-px bg-current opacity-30" />
+                      {data.complexity_level}
+                    </span>
+                  )}
+                  {data.engagement_basis && data.engagement_basis !== "unknown" && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32] capitalize">
+                      <span className="opacity-60">Basis</span>
+                      <span className="h-2.5 w-px bg-[#063b32] opacity-20" />
+                      {data.engagement_basis.replace(/_/g, " ")} support
+                    </span>
+                  )}
+                  {data.bespoke_build_fit === false && (
+                    <span className="rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                      Improve existing first
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Summary / likely need */}
+              {(data.service_fit_summary || data.likely_need) && (
+                <div className="mt-2.5 overflow-hidden rounded-lg border border-[#063b32]/10 bg-white">
+                  {data.service_fit_summary && (
+                    <div className={`px-3 py-2.5${resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary ? " border-b border-[#063b32]/8" : ""}`}>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Summary</p>
+                      <p className="text-sm leading-relaxed text-[#111111]">{data.service_fit_summary}</p>
+                    </div>
+                  )}
+                  {resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary && (
+                    <div className="px-3 py-2.5">
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
+                      <p className="text-sm leading-relaxed text-[#6f6b62]">{data.likely_need}</p>
+                    </div>
+                  )}
+                  {!data.service_fit_summary && data.likely_need && (
+                    <div className="px-3 py-2.5">
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
+                      <p className="text-sm leading-relaxed text-[#111111]">{data.likely_need}</p>
+                    </div>
+                  )}
+                </div>
               )}
             </>
           )}
