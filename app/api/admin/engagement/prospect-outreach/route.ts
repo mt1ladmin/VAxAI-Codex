@@ -245,42 +245,64 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  // Create a new catalog entry manually
-  if (body.prospect && typeof body.prospect === "object") {
-    const supabase = createServiceClient();
-    const p = body.prospect as Record<string, unknown>;
-    const slug = String(p.organisation_name ?? "unknown")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    const id = `${slug}-${Date.now().toString(36)}`;
-    const defaults = {
-      website: "",
-      employees: null,
-      annual_revenue_gbp: null,
-      revenue_basis: "",
-      need_rationale: "",
-      financial_source_url: "",
-      contact_source_url: "",
-      data_confidence: "Medium",
-      sector_tags: [],
-      pain_point_tags: [],
-      engagement_approach: "",
-      priority_region: "secondary",
-    };
-    const { data, error } = await supabase
-      .from("prospect_outreach_catalog")
-      .insert({ ...defaults, ...p, id, research_date: new Date().toISOString().slice(0, 10) })
-      .select()
-      .single();
-    if (error) {
-      console.error("[prospect POST] insert failed:", error.code, error.message, error.details);
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (body.prospect && typeof body.prospect === "object") {
+      const supabase = createServiceClient();
+      const p = body.prospect as Record<string, unknown>;
+      const slug = String(p.organisation_name ?? "unknown")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "prospect";
+      const id = `${slug}-${Date.now().toString(36)}`;
+      const record = {
+        id,
+        research_date: new Date().toISOString().slice(0, 10),
+        organisation_name: String(p.organisation_name ?? ""),
+        organisation_type: String(p.organisation_type ?? "Other"),
+        location: String(p.location ?? ""),
+        region: String(p.region ?? ""),
+        website: "",
+        employees: null,
+        annual_revenue_gbp: null,
+        revenue_basis: "",
+        need_score: Number(p.need_score ?? 3),
+        need_rationale: "",
+        data_confidence: "Medium",
+        priority_region: "secondary",
+        decision_maker_name: String(p.decision_maker_name ?? ""),
+        decision_maker_role: String(p.decision_maker_role ?? ""),
+        email: String(p.email ?? ""),
+        phone: String(p.phone ?? ""),
+        financial_source_url: "",
+        contact_source_url: "",
+        sector_tags: [],
+        pain_point_tags: [],
+        engagement_approach: "",
+      };
+
+      const { data, error } = await supabase
+        .from("prospect_outreach_catalog")
+        .insert(record)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("[prospect POST] insert failed:", error.code, error.message, error.details, error.hint);
+        return NextResponse.json(
+          { error: error.message, code: error.code, hint: error.hint ?? undefined },
+          { status: 500 },
+        );
+      }
+
+      return NextResponse.json({ data }, { status: 201 });
     }
-    return NextResponse.json({ data }, { status: 201 });
-  }
 
-  return NextResponse.json({ error: "No prospects provided" }, { status: 400 });
+    return NextResponse.json({ error: "No prospect data provided" }, { status: 400 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : "Unexpected error";
+    console.error("[prospect POST] unexpected error:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
 }
