@@ -5,30 +5,42 @@ import { Lightbulb, X } from "lucide-react";
 import { ContentCreateModal } from "@/components/admin/ContentCreateModal";
 
 const BLOG_PROMPTS = [
-  "How small charities can review their existing admin systems to find where AI and automation could save the most time — and what to consider before making any changes",
-  "What AI and automation training actually looks like for non-technical teams in UK social enterprises — and why the learning curve is shorter than most people think",
-  "The case for a virtual assistant in a growing professional services firm: what to delegate, how to brief them, and what good looks like",
-  "Why reviewing your current systems before adopting AI is the step most organisations skip — and what it costs them",
-  "How to use the MT1L VAT framework to decide whether AI, automation, or virtual admin support is the right fit for your organisation right now",
-  "Five signs your admin systems are holding your mission back — and what to do about each one",
+  "Your team is busy, but is admin the real problem? How to tell whether you need better processes, automation or more human support",
+  "What should you automate first? A practical way for small organisations to identify the tasks worth changing",
+  "When automation creates more work: five warning signs that a process is not ready for AI",
+  "A virtual assistant, an AI tool or both? How to choose the right support for the work that keeps piling up",
+  "Why your team keeps avoiding the new system—and what that may be telling you about the system itself",
+  "The hidden cost of workarounds: how spreadsheets, inboxes and informal processes quietly drain your team's time",
+  "What happens after the AI demonstration? The practical work needed to make a new tool useful in everyday operations",
+  "Should this task be automated at all? A Value, Alignment and Trust checklist for small teams",
+  "From “we need AI” to a clearer problem: how to define what your organisation is actually trying to improve",
+  "What good virtual assistance looks like when the work cannot be reduced to a task list",
 ];
 
 const LINKEDIN_PROMPTS = [
-  "The value of reviewing your current admin systems before jumping to AI — what you'll learn that no vendor demo can tell you",
-  "What genuine alignment looks like when you're adopting AI in a mission-driven organisation — and why it matters more than efficiency",
-  "Why building trust with your team before implementing automation is the step most leaders skip",
-  "How a virtual assistant changes the shape of your week — not just by doing tasks, but by thinking ahead",
-  "AI and automation training that sticks: what it actually takes to help a small team feel confident with new tools",
-  "Before asking 'which AI tool should we use', ask 'what are we actually trying to fix' — the MT1L VAT framework explained simply",
+  "Not every repetitive task should be automated. Some are repetitive because the process itself needs fixing.",
+  "“We need AI” is often the proposed solution—not the original problem.",
+  "The best place to find an automation opportunity may be the task your team has quietly created three workarounds for.",
+  "If a new system only works when one person remembers every step, it is not really a system.",
+  "A virtual assistant should not become another person you have to chase. Good support reduces the need to remember, follow up and hold everything together.",
+  "Teams do not resist change only because they fear technology. Sometimes they can see problems the decision-makers have missed.",
+  "Saving five minutes on a task means little if the new process creates uncertainty, duplication or extra checking.",
+  "Before automating a process, ask the person who actually does the work what makes it difficult.",
+  "The question is not simply, “Can AI do this?” It is, “What happens to the work, the people and the outcome if it does?”",
+  "Sometimes the most useful AI decision is deciding not to introduce another tool.",
 ];
 
 const INSTAGRAM_PROMPTS = [
-  "The moment you realise your systems are holding you back more than your workload is",
-  "A good VA doesn't just tick boxes — they think ahead so you don't have to",
-  "AI training isn't about the tools. It's about helping your team feel confident with something new",
-  "Before asking what AI to use — ask what you're actually trying to fix",
-  "When your admin finally reflects how your organisation actually works",
-  "Small team reminder: you don't have to figure out automation alone",
+  "You may not need another tool. You may need a clearer process.",
+  "Repetitive does not always mean ready to automate.",
+  "A system that depends on memory is not a system.",
+  "Start with the task everyone avoids.",
+  "Good support should reduce follow-up—not create more of it.",
+  "The workaround is often where the real problem is hiding.",
+  "Automate the right work, not simply the easiest work.",
+  "Ask the person doing the task before changing the task.",
+  "Sometimes the best automation decision is “not yet.”",
+  "Less admin is good. Better admin is the goal.",
 ];
 
 export default function CreateContentPage() {
@@ -56,7 +68,7 @@ export default function CreateContentPage() {
           </button>
         </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:mx-auto lg:max-w-2xl">
           <button type="button" onClick={() => setShowExamples(true)} className="rounded-xl border border-[#111111]/10 p-5 text-left transition-colors hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/40">
             <div className="flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-[#063b32]" />
@@ -67,7 +79,7 @@ export default function CreateContentPage() {
           <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-5">
             <p className="text-sm font-semibold text-[#063b32]">A simple way to find an idea</p>
             <p className="mt-2 text-sm leading-relaxed text-[#6f6b62]">
-              Think of a relevant admin issue, where AI, automation or a VA could—or should not—help, then ask how the change creates value, aligns with how people work, and builds trust.
+              Start with an admin frustration, workaround or task people avoid. Ask whether a VA, AI or automation could help—or make things worse—then explore the value, fit and trust behind the decision.
             </p>
           </div>
         </div>
