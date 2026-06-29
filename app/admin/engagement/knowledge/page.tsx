@@ -5,12 +5,27 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, BookOpen, ChevronDown, Search } from "lucide-react";
 import {
+  ObjectionsPanel,
+  PricingBandsPanel,
+  ScriptsBlocksPanel,
+} from "@/components/admin/KnowledgeSalesTools";
+import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
-type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts";
+type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "pricing" | "scripts" | "objections";
 
-const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts"];
+const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts", "pricing", "scripts", "objections"];
+
+const TAB_META: Record<Tab, { label: string; title: string; description: string }> = {
+  sectors: { label: "Sectors", title: "Sectors", description: "Sector context for workflow pressure, admin burden, and realistic VAxAI support." },
+  personas: { label: "Personas", title: "Personas", description: "Personas to interpret who may feel admin, system, or automation strain." },
+  pain_points: { label: "Pain points", title: "Pain Points", description: "Pain points linked to review, training, virtual assistance, and improvement — not default new builds." },
+  vat_prompts: { label: "VAT prompts", title: "VAT Prompts", description: "VAT prompts for Value, Alignment, and Trust in AI decisions." },
+  pricing: { label: "Pricing bands", title: "Pricing Bands", description: "Internal pricing bands used to generate indicative value estimates. Not shown to clients." },
+  scripts: { label: "Scripts & blocks", title: "Scripts & Blocks", description: "Approved outreach scripts and reusable message blocks for every channel." },
+  objections: { label: "Objections", title: "Objections", description: "Approved responses for handling common objections consistently." },
+};
 
 function CustomSelect({
   value,
@@ -149,13 +164,8 @@ function KnowledgePageInner() {
       <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
         <div className="flex items-center gap-2 text-sm">
           <span className="font-semibold text-[#111111]">Knowledge</span>
-          <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
-            {([
-              ["sectors", "Sectors"],
-              ["personas", "Personas"],
-              ["pain_points", "Pain points"],
-              ["vat_prompts", "VAT prompts"],
-            ] as [Tab, string][]).map(([key, label]) => (
+          <div className="ml-3 flex flex-wrap overflow-hidden rounded-lg border border-[#111111]/15">
+            {TAB_KEYS.map((key) => (
               <button
                 key={key}
                 onClick={() => { setTab(key); setSearch(""); setCategory(""); setDimension(""); }}
@@ -163,7 +173,7 @@ function KnowledgePageInner() {
                   tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"
                 }`}
               >
-                {label}
+                {TAB_META[key].label}
               </button>
             ))}
           </div>
@@ -174,15 +184,16 @@ function KnowledgePageInner() {
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{tab === "sectors" ? "Sectors" : tab === "personas" ? "Personas" : tab === "pain_points" ? "Pain Points" : "VAT Prompts"}</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">{tab === "sectors" ? "Sector context for workflow pressure, admin burden, and realistic VAxAI support." : tab === "personas" ? "Personas to interpret who may feel admin, system, or automation strain." : tab === "pain_points" ? "Pain points linked to review, training, virtual assistance, and improvement — not default new builds." : "VAT prompts for Value, Alignment, and Trust in AI decisions."}</p>
+            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{TAB_META[tab].title}</h1>
+            <p className="mt-0.5 text-sm text-[#6f6b62]">{TAB_META[tab].description}</p>
           </div>
         </div>
       </div>
 
       <div className="px-8 py-6">
         {/* Search + filters */}
-        <div className="flex gap-3 mb-5">
+        {!(["pricing", "scripts", "objections"] as Tab[]).includes(tab) && (
+          <div className="flex gap-3 mb-5">
             {tab !== "vat_prompts" && (
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
@@ -225,6 +236,7 @@ function KnowledgePageInner() {
               </div>
             )}
           </div>
+        )}
 
         {loading ? (
           <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>
@@ -395,6 +407,10 @@ function KnowledgePageInner() {
                 </div>
               )
             )}
+
+            {tab === "pricing" && <PricingBandsPanel />}
+            {tab === "scripts" && <ScriptsBlocksPanel />}
+            {tab === "objections" && <ObjectionsPanel />}
           </>
         )}
       </div>
