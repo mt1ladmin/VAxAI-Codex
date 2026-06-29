@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Check,
@@ -255,6 +255,12 @@ export default function EditPostPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [activeSocialPreview, setActiveSocialPreview] = useState<SocialPostPreview | null>(null);
 
+  // Auto-save
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPublishedRef = useRef(false);
+  const stateRef = useRef({ title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft });
+
   const showToast = (message: string, action?: { label: string; href: string }, isError?: boolean) => {
     setToastMsg(message);
     setToastAction(action);
@@ -320,8 +326,60 @@ export default function EditPostPage() {
     });
   }, [id]);
 
+  // Keep stateRef in sync so auto-save always uses latest values
+  useEffect(() => {
+    stateRef.current = { title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft };
+  });
+  useEffect(() => { isPublishedRef.current = isPublished; }, [isPublished]);
+
+  // Auto-save: debounce 30s after any content change
+  useEffect(() => {
+    if (loading) return;
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    autoSaveTimer.current = setTimeout(async () => {
+      const s = stateRef.current;
+      const status = isPublishedRef.current ? "published" : "draft";
+      setAutoSaveStatus("saving");
+      try {
+        const res = await fetch(`/api/admin/posts/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: s.title || "Untitled",
+            description: s.description,
+            body_html: s.bodyHtml,
+            cover_image_url: s.coverImageUrl || null,
+            content_type: s.showCustomType && s.customType ? s.customType : s.contentType,
+            tags: s.tags,
+            author_id: s.authorId || null,
+            slug: s.slug || slugify(s.title || "untitled"),
+            status,
+            scheduled_at: s.scheduledAt ? new Date(s.scheduledAt).toISOString() : null,
+            sharing_caption: s.socialDraft?.sharing_caption ?? null,
+            linkedin_post: s.socialDraft?.linkedin_post ?? null,
+            instagram_caption: s.socialDraft?.instagram_caption ?? null,
+            social_hashtags: s.socialDraft?.hashtags ?? [],
+          }),
+        });
+        if (res.ok) {
+          setAutoSaveStatus("saved");
+          setTimeout(() => setAutoSaveStatus("idle"), 3000);
+        } else {
+          setAutoSaveStatus("idle");
+        }
+      } catch {
+        setAutoSaveStatus("idle");
+      }
+    }, 30_000);
+    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft, id]);
+
   const save = useCallback(async (status: "draft" | "published" | "scheduled") => {
     setSaving(true);
+    // Cancel any pending auto-save
+    if (autoSaveTimer.current) { clearTimeout(autoSaveTimer.current); autoSaveTimer.current = null; }
+    const wasAlreadyPublished = isPublished;
     let json: { data?: unknown; error?: string; hint?: string } = {};
     try {
       const res = await fetch(`/api/admin/posts/${id}`, {
@@ -361,11 +419,11 @@ export default function EditPostPage() {
       setIsPublished(true);
       setPostUrl(`${window.location.origin}/posts/${slug}`);
       setPanelOpen(true);
-      // Show social preview popup if social content exists
+      // Always show the confirmation toast immediately
+      showToast(wasAlreadyPublished ? "Post updated" : "Post published");
+      // Show social preview popup if social content exists (non-blocking)
       if (socialDraft?.linkedin_post || socialDraft?.instagram_caption) {
         setShowSocialPreview(true);
-      } else {
-        showToast("Post published");
       }
     } else if (status === "draft" && isPublished) {
       setIsPublished(false);
@@ -460,10 +518,7 @@ export default function EditPostPage() {
         <SocialPreviewModal
           social={socialDraft}
           postUrl={postUrl}
-          onClose={() => {
-            setShowSocialPreview(false);
-            showToast("Post published");
-          }}
+          onClose={() => setShowSocialPreview(false)}
         />
       )}
 
@@ -577,6 +632,16 @@ export default function EditPostPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <span className="text-sm text-[#6f6b62]">Edit post</span>
+        {autoSaveStatus === "saving" && (
+          <span className="ml-3 flex items-center gap-1 text-xs text-[#6f6b62]">
+            <Loader2 className="h-3 w-3 animate-spin" /> Auto-saving…
+          </span>
+        )}
+        {autoSaveStatus === "saved" && (
+          <span className="ml-3 flex items-center gap-1 text-xs text-emerald-600">
+            <Check className="h-3 w-3" /> Auto-saved
+          </span>
+        )}
         <div className="ml-auto flex items-center gap-2">
           <button onClick={() => setShowDeleteConfirm(true)} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600">
             <Trash2 className="h-4 w-4" />
@@ -589,11 +654,11 @@ export default function EditPostPage() {
             Save draft
           </button>
           <button
-            onClick={() => setPanelOpen(true)}
+            onClick={() => isPublished ? void save("published") : setPanelOpen(true)}
             disabled={saving}
             className="rounded-md bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
           >
-            {isPublished ? "Update" : "Publish"}
+            {saving ? "Saving…" : isPublished ? "Update" : "Publish"}
           </button>
         </div>
       </div>
