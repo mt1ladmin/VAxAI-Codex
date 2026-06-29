@@ -64,6 +64,8 @@ function ProspectFinderDetailContent() {
   const [dmEditing, setDmEditing] = useState(false);
   const [dmSaving, setDmSaving] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [summaryEditing, setSummaryEditing] = useState(false);
+  const [summarySaving, setSummarySaving] = useState(false);
 
   const load = useCallback(async (opts?: { silent?: boolean }) => {
     if (!opts?.silent) setLoading(true);
@@ -132,6 +134,26 @@ function ProspectFinderDetailContent() {
       setDmEditing(false);
     } finally {
       setDmSaving(false);
+    }
+  };
+
+  const saveSummary = async () => {
+    if (!record) return;
+    setSummarySaving(true);
+    try {
+      await saveOutreachFields({
+        organisation_name: record.organisation_name ?? "",
+        organisation_type: record.organisation_type ?? "",
+        location: record.location ?? "",
+        region: record.region ?? "",
+        website: record.website ?? "",
+        employees: record.employees?.toString() ?? "",
+        annual_revenue_gbp: record.annual_revenue_gbp?.toString() ?? "",
+        revenue_basis: record.revenue_basis ?? "",
+      });
+      setSummaryEditing(false);
+    } finally {
+      setSummarySaving(false);
     }
   };
 
@@ -340,9 +362,46 @@ function ProspectFinderDetailContent() {
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Summary</p>
-            <ProspectProfileHeader data={record} />
-            <ProspectOrganisationCard data={record} />
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Summary</p>
+              {summaryEditing ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setSummaryEditing(false); void load({ silent: true }); }}
+                    className="text-xs text-[#6f6b62] hover:text-[#111111]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void saveSummary()}
+                    disabled={summarySaving}
+                    className="text-xs font-semibold text-[#063b32] hover:underline disabled:opacity-50"
+                  >
+                    {summarySaving ? "Saving…" : "Save"}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setSummaryEditing(true)}
+                  className="flex items-center gap-1 text-xs text-[#6f6b62] hover:text-[#063b32]"
+                >
+                  <Pencil className="h-3 w-3" /> Edit
+                </button>
+              )}
+            </div>
+            <ProspectProfileHeader
+              data={record}
+              editable={summaryEditing}
+              onChange={(partial) => setRecord((prev) => prev ? { ...prev, ...partial } as ProspectFinderListItem : prev)}
+            />
+            <ProspectOrganisationCard
+              data={record}
+              editable={summaryEditing}
+              onChange={(partial) => setRecord((prev) => prev ? { ...prev, ...partial } as ProspectFinderListItem : prev)}
+            />
             <ProspectDecisionMakerCard
               data={record}
               editable={dmEditing}
