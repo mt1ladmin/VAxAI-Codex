@@ -206,11 +206,6 @@ function TaskBoardCard({
         </button>
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={`h-2 w-2 rounded-full ${PRIORITY_DOT[task.priority] || "bg-gray-300"}`} />
-          {task.task_type && task.task_type !== "other" && (
-            <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${TASK_TYPE_BADGE[task.task_type] ?? "bg-[#111111]/8 text-[#6f6b62]"}`}>
-              {TASK_TYPE_LABEL[task.task_type] ?? task.task_type}
-            </span>
-          )}
         </div>
       </div>
     </div>
@@ -436,121 +431,33 @@ export function TasksListView({
         <div className="flex items-center justify-end gap-3">
           <button
             type="button"
-            onClick={() => setAdding((v) => !v)}
+            onClick={() => setAdding(true)}
             className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] transition-colors"
           >
-            {adding ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-            {adding ? "Cancel" : "Add task"}
+            <Plus className="h-4 w-4" />
+            Add task
           </button>
         </div>
       </div>
 
       <div className="px-8 pb-6">
-        {adding && (
-          <div className="mb-6 rounded-xl border border-[#063b32]/20 bg-[#f7f4ea] p-5">
-            <h2 className="text-sm font-semibold text-[#111111] mb-4">New task</h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Title *</label>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                  onKeyDown={(e) => e.key === "Enter" && void saveTask()}
-                  placeholder="What needs to be done?"
-                  autoFocus
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Priority</label>
-                <FormSelect
-                  value={form.priority}
-                  onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
-                  options={[
-                    { value: "high", label: "High" },
-                    { value: "medium", label: "Medium" },
-                    { value: "low", label: "Low" },
-                  ]}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Type</label>
-                <FormSelect
-                  value={form.task_type}
-                  onChange={(v) => setForm((f) => ({ ...f, task_type: v }))}
-                  options={[
-                    { value: "follow_up", label: "Follow-up" },
-                    { value: "call", label: "Call" },
-                    { value: "email", label: "Email" },
-                    { value: "meeting", label: "Meeting" },
-                    { value: "research", label: "Research" },
-                    { value: "admin", label: "Admin" },
-                    { value: "other", label: "Other" },
-                  ]}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Due date</label>
-                <input type="date" value={form.due_date} onChange={(e) => setForm((f) => ({ ...f, due_date: e.target.value }))} className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Notes</label>
-                <input type="text" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} placeholder="Optional context…" className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Assignee</label>
-                <FormSelect
-                  value={form.assigned_team_member_id}
-                  onChange={(v) => setForm((f) => ({ ...f, assigned_team_member_id: v }))}
-                  placeholder="Unassigned"
-                  options={teamMembers.map((m) => ({ value: m.id, label: m.display_name }))}
-                />
-              </div>
-            </div>
-            {saveError && <p className="mt-3 text-sm text-red-600">{saveError}</p>}
-            <div className="mt-4 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => void saveTask()}
-                disabled={saving || !form.title.trim()}
-                className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60"
-              >
-                <Check className="h-4 w-4" /> {saving ? "Saving…" : "Save task"}
-              </button>
-              <button type="button" onClick={() => setAdding(false)} className="text-sm text-[#6f6b62] hover:text-[#111111]">
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
-
         <div className="mb-5 flex flex-wrap items-center gap-3">
-          <select value={dueDateFilter} onChange={(e) => setDueDateFilter(e.target.value as DueDateFilter)} className={selectClass}>
+          <select value={dueDateFilter} onChange={(e) => setDueDateFilter(e.target.value as DueDateFilter)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs text-[#111111] outline-none focus:border-[#063b32] appearance-none">
             {DUE_DATE_FILTER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
           <select
             value={assigneeFilter}
-            onChange={(e) => { setAssigneeFilter(e.target.value); setMyTasksOnly(false); }}
-            className={selectClass}
+            onChange={(e) => setAssigneeFilter(e.target.value)}
+            className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs text-[#111111] outline-none focus:border-[#063b32] appearance-none"
           >
             <option value="">All assignees</option>
             {teamMembers.map((m) => (
               <option key={m.id} value={m.id}>{m.display_name}</option>
             ))}
           </select>
-          <button
-            type="button"
-            onClick={() => { setMyTasksOnly((v) => !v); setAssigneeFilter(""); }}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-semibold ${
-              myTasksOnly ? "border-[#063b32] bg-[#063b32] text-white" : "border-[#111111]/15 text-[#6f6b62]"
-            }`}
-          >
-            My tasks
-          </button>
-          <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value as SourceFilter)} className={selectClass}>
+          <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value as SourceFilter)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs text-[#111111] outline-none focus:border-[#063b32] appearance-none">
             {SOURCE_FILTER_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
@@ -619,6 +526,109 @@ export function TasksListView({
         )}
       </div>
         </>
+      )}
+
+      {adding && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setAdding(false)}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+              <p className="text-sm font-semibold text-[#111111]">New task</p>
+              <button
+                type="button"
+                onClick={() => setAdding(false)}
+                className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-3 p-5">
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Title</label>
+                <input
+                  value={form.title}
+                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                  placeholder="Task title…"
+                  className={inputClass}
+                  autoFocus
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Priority</label>
+                  <select
+                    value={form.priority}
+                    onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}
+                    className={inputClass}
+                  >
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Due date</label>
+                  <input
+                    type="date"
+                    value={form.due_date}
+                    onChange={(e) => setForm((f) => ({ ...f, due_date: e.target.value }))}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Assign to</label>
+                <select
+                  value={form.assigned_team_member_id}
+                  onChange={(e) => setForm((f) => ({ ...f, assigned_team_member_id: e.target.value }))}
+                  className={inputClass}
+                >
+                  <option value="">Unassigned</option>
+                  {teamMembers.map((m) => (
+                    <option key={m.id} value={m.id}>{m.display_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Notes</label>
+                <textarea
+                  value={form.notes}
+                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                  rows={3}
+                  placeholder="Optional context…"
+                  className={`${inputClass} resize-none`}
+                />
+              </div>
+              {saveError && <p className="text-xs text-red-600">{saveError}</p>}
+            </div>
+            <div className="flex gap-2 border-t border-[#111111]/10 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => void saveTask()}
+                disabled={saving || !form.title.trim()}
+                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                Save task
+              </button>
+              <button
+                type="button"
+                onClick={() => setAdding(false)}
+                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {editingTask && (
