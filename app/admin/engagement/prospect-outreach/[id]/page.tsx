@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { Check, ChevronDown, Pencil, UserCheck } from "lucide-react";
@@ -37,6 +37,58 @@ import { DEFAULT_TASK_FORM } from "@/lib/engagement/task-ui";
 import { CRM_HUB_TABS, type CrmHubTab } from "@/lib/engagement/hub-tabs";
 import type { EngagementTask } from "@/lib/engagement/types";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
+
+function AssignmentDropdown({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+  const selected = options.find((o) => o.value === value);
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40"
+      >
+        <span className={selected?.value ? "text-[#111111]" : "text-[#6f6b62]"}>
+          {selected?.label || "Unassigned"}
+        </span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute z-30 mt-1 w-full overflow-hidden rounded-xl border border-[#111111]/15 bg-white shadow-lg">
+          {options.map((opt) => (
+            <button
+              key={opt.value || "__unassigned"}
+              type="button"
+              onClick={() => { setOpen(false); onChange(opt.value); }}
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
+                value === opt.value ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"
+              }`}
+            >
+              <span className="flex-1">{opt.label}</span>
+              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ProspectFinderDetailContent() {
   const { id } = useParams<{ id: string }>();
@@ -440,30 +492,18 @@ function ProspectFinderDetailContent() {
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Assignment</p>
-            <select
+            <AssignmentDropdown
               value={record.assigned_team_member_id || ""}
-              onChange={(e) => {
-                const assignedId = e.target.value || null;
-                const assignedName =
-                  memberOptions.find((opt) => opt.value === assignedId)?.label ?? null;
+              options={[{ value: "", label: "Unassigned" }, ...memberOptions]}
+              onChange={(assignedId) => {
+                const id = assignedId || null;
+                const assignedName = memberOptions.find((opt) => opt.value === id)?.label ?? null;
                 setRecord((prev) =>
-                  prev
-                    ? {
-                        ...prev,
-                        assigned_team_member_id: assignedId,
-                        assigned_team_member_name: assignedName,
-                      }
-                    : prev,
+                  prev ? { ...prev, assigned_team_member_id: id, assigned_team_member_name: assignedName } : prev,
                 );
-                void patchWorkflow({ assigned_team_member_id: assignedId });
+                void patchWorkflow({ assigned_team_member_id: id });
               }}
-              className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] appearance-none outline-none focus:border-[#063b32]"
-            >
-              <option value="">Unassigned</option>
-              {memberOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+            />
             <div className="relative">
               <p className="mb-1 text-[10px] text-[#6f6b62]">Engagement status</p>
               <button
