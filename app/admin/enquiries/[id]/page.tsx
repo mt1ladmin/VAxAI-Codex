@@ -194,15 +194,32 @@ function EnquiryDetailContent() {
       organisationId?: string | null,
       opps?: EngagementOpportunity[],
     ) => {
-      const { open, done } = await fetchHubTasks({
-        contactId,
-        organisationId,
-        opportunities: opps,
-      });
-      setOpenTasks(open);
-      setDoneTasks(done);
+      // Always fetch tasks directly linked to this enquiry, plus any linked via
+      // contact/organisation. fetchHubTasks doesn't query by enquiry_id so we
+      // do that separately and merge.
+      const [enquiryTasksRes, { open: hubOpen, done: hubDone }] = await Promise.all([
+        fetch(`/api/admin/engagement/tasks?enquiry_id=${id}&limit=100`).then((r) => r.json() as Promise<{ data?: EngagementTask[] }>),
+        fetchHubTasks({ contactId, organisationId, opportunities: opps }),
+      ]);
+
+      const openMap = new Map<string, EngagementTask>(hubOpen.map((t) => [t.id, t]));
+      const doneMap = new Map<string, EngagementTask>(hubDone.map((t) => [t.id, t]));
+      for (const t of enquiryTasksRes.data ?? []) {
+        if (t.status === "done") doneMap.set(t.id, t);
+        else openMap.set(t.id, t);
+      }
+
+      const byDue = (a: EngagementTask, b: EngagementTask) => {
+        if (!a.due_date && !b.due_date) return 0;
+        if (!a.due_date) return 1;
+        if (!b.due_date) return -1;
+        return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
+      };
+
+      setOpenTasks([...openMap.values()].sort(byDue));
+      setDoneTasks([...doneMap.values()].sort(byDue));
     },
-    [],
+    [id],
   );
 
   const load = useCallback(async () => {

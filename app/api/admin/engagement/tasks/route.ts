@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
   const org = searchParams.get("organisation_id") || "";
   const contact = searchParams.get("contact_id") || "";
   const opp = searchParams.get("opportunity_id") || "";
+  const enquiryId = searchParams.get("enquiry_id") || "";
   const due = searchParams.get("due_today") === "true";
   const assignee = searchParams.get("assigned_team_member_id") || "";
   const myTasks = searchParams.get("my_tasks") === "true";
@@ -49,6 +50,7 @@ export async function GET(req: NextRequest) {
   if (org) query = query.eq("organisation_id", org);
   if (contact) query = query.eq("contact_id", contact);
   if (opp) query = query.eq("opportunity_id", opp);
+  if (enquiryId) query = query.eq("enquiry_id", enquiryId);
   if (due) {
     const today = new Date().toISOString().split("T")[0];
     query = query.lte("due_date", today);

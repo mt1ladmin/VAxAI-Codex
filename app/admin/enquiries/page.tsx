@@ -230,7 +230,7 @@ export default function EnquiriesPage() {
 
       <div className="px-8 py-6">
         {/* Metrics */}
-        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{loading ? "—" : metrics.total}</p>
@@ -247,11 +247,15 @@ export default function EnquiriesPage() {
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-700">Opportunity identified</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-teal-800">{loading ? "—" : metrics.opportunityIdentified}</p>
           </div>
-          <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-purple-700">Clients</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-purple-800">{loading ? "—" : metrics.isClient}</p>
-          </div>
         </div>
+        {!loading && metrics.isClient > 0 && (
+          <div className="mb-6 rounded-xl border border-purple-200 bg-purple-50/50 p-4 flex items-center gap-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-purple-700">Clients</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-purple-800">{metrics.isClient}</p>
+            </div>
+          </div>
+        )}
 
         {/* Toolbar */}
         <div className="mb-4 flex flex-wrap items-center gap-3">
