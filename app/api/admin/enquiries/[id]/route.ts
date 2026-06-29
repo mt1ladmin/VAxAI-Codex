@@ -110,7 +110,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ? "Run the Supabase migration supabase/migrations/20260622_enquiry_workflow_fields.sql"
         : error.message.includes("check constraint") || error.message.includes("violates check")
           ? "Run the Supabase migration supabase/migrations/20260626_enquiry_status_constraint_fix.sql"
-          : undefined;
+          : error.message.includes("service_fit") || error.message.includes("likely_need") || error.message.includes("complexity_level") || error.message.includes("engagement_basis")
+            ? "Run the Supabase migration supabase/migrations/20260629_enquiry_service_fit_fields.sql"
+            : undefined;
       return NextResponse.json({ error: error.message, hint }, { status: 500 });
     }
 
