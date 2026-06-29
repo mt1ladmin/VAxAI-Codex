@@ -66,10 +66,11 @@ function CustomSelect({
 }
 
 function statusTone(status: string): string {
-  if (status === "Opportunity identified") return "text-[#063b32] font-medium";
-  if (status === "Engagement started") return "text-[#111111] font-medium";
-  if (status === "Not progressing") return "text-[#6f6b62]";
-  if (status === "Not assigned") return "text-[#6f6b62]";
+  if (status === "Opportunity identified") return "text-emerald-700 font-medium";
+  if (status === "Conversation held") return "text-blue-700 font-medium";
+  if (status === "Follow up required") return "text-amber-700 font-medium";
+  if (status === "Not suitable") return "text-[#6f6b62]";
+  if (status === "No response") return "text-[#6f6b62]";
   return "text-[#111111]";
 }
 
@@ -292,26 +293,26 @@ export default function ProspectFinderPage() {
             </div>
             <button
               type="button"
-              onClick={() => updateParams({ engagement_status: "Preparing to engage", my_prospects: null })}
+              onClick={() => updateParams({ engagement_status: "Conversation held", my_prospects: null })}
               className="rounded-xl border border-sky-200 bg-sky-50/60 px-4 py-3 text-left transition-colors hover:border-sky-300 hover:bg-sky-50"
             >
-              <p className="text-xs font-semibold text-sky-700">Preparing</p>
+              <p className="text-xs font-semibold text-sky-700">Conversation held</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-sky-800">{(meta.preparing_to_engage_count ?? 0).toLocaleString()}</p>
             </button>
             <button
               type="button"
-              onClick={() => updateParams({ engagement_status: "Engagement started", unassigned: null, my_prospects: null })}
-              className="rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-3 text-left transition-colors hover:border-blue-300 hover:bg-blue-50"
+              onClick={() => updateParams({ engagement_status: "Follow up required", unassigned: null, my_prospects: null })}
+              className="rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-left transition-colors hover:border-amber-300 hover:bg-amber-50"
             >
-              <p className="text-xs font-semibold text-blue-700">Engaged</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-blue-800">{(meta.engagement_started_count ?? 0).toLocaleString()}</p>
+              <p className="text-xs font-semibold text-amber-700">Follow up required</p>
+              <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{(meta.engagement_started_count ?? 0).toLocaleString()}</p>
             </button>
             <button
               type="button"
               onClick={() => updateParams({ engagement_status: "Opportunity identified", unassigned: null, my_prospects: null })}
               className="rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3 text-left transition-colors hover:border-emerald-300 hover:bg-emerald-50"
             >
-              <p className="text-xs font-semibold text-emerald-700">Opportunity</p>
+              <p className="text-xs font-semibold text-emerald-700">Opportunity identified</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-800">{(meta.opportunity_identified_count ?? 0).toLocaleString()}</p>
             </button>
           </div>
@@ -342,15 +343,6 @@ export default function ProspectFinderPage() {
             onChange={(v) => updateParams({ region: v || null })}
             placeholder="All regions"
             options={[{ value: "", label: "All regions" }, ...OUTREACH_REGIONS.map((r) => ({ value: r, label: r }))]}
-          />
-          <CustomSelect
-            value={needScore}
-            onChange={(v) => updateParams({ need_score: v || null })}
-            placeholder="All need"
-            options={[
-              { value: "", label: "All need scores" },
-              ...["5", "4", "3", "2"].map((s) => ({ value: s, label: `Need ${s}` })),
-            ]}
           />
           <CustomSelect
             value={assignedTo}
@@ -420,7 +412,6 @@ export default function ProspectFinderPage() {
                 <th className="px-6 py-3 font-semibold">Organisation</th>
                 <th className="px-3 py-3 font-semibold">Sector</th>
                 <th className="px-3 py-3 font-semibold">Location</th>
-                <th className="px-3 py-3 font-semibold">Fit</th>
                 <th className="px-3 py-3 font-semibold">Assigned to</th>
                 <th className="px-3 py-3 font-semibold">Status</th>
                 <th className="px-6 py-3 font-semibold">Next action</th>
@@ -465,10 +456,6 @@ export default function ProspectFinderPage() {
                     </td>
                     <td className="px-3 py-3.5 text-[#6f6b62]">{p.sector_label}</td>
                     <td className="px-3 py-3.5 text-[#6f6b62]">{p.location}</td>
-                    <td className="px-3 py-3.5">
-                      <span className="tabular-nums text-[#111111]">{p.need_score}</span>
-                      <span className="ml-1 text-xs text-[#6f6b62]">{p.priority_label}</span>
-                    </td>
                     <td className="px-3 py-3.5">
                       {p.assigned_team_member_name ? (
                         <span className="inline-flex items-center gap-1 text-[#111111]">

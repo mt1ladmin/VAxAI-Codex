@@ -1,22 +1,22 @@
 /** Prospect Finder engagement statuses — distinct from outreach queue statuses. */
 export const FINDER_ENGAGEMENT_STATUSES = [
-  "Not assigned",
-  "Assigned",
-  "Preparing to engage",
-  "Engagement started",
+  "Contact attempted",
+  "No response",
+  "Conversation held",
+  "Follow up required",
   "Opportunity identified",
-  "Not progressing",
+  "Not suitable",
 ] as const;
 
 export type FinderEngagementStatus = (typeof FINDER_ENGAGEMENT_STATUSES)[number];
 
 export const FINDER_ENGAGEMENT_STATUS_LABELS: Record<FinderEngagementStatus, string> = {
-  "Not assigned": "Not assigned",
-  Assigned: "Assigned",
-  "Preparing to engage": "Preparing to engage",
-  "Engagement started": "Engagement started",
+  "Contact attempted": "Contact attempted",
+  "No response": "No response",
+  "Conversation held": "Conversation held",
+  "Follow up required": "Follow up required",
   "Opportunity identified": "Opportunity identified",
-  "Not progressing": "Not progressing",
+  "Not suitable": "Not suitable",
 };
 
 export function isFinderEngagementStatus(value: string): value is FinderEngagementStatus {
@@ -44,7 +44,6 @@ export function engagementStatusForAssignment(
   assignedTeamMemberId: string | null | undefined,
   current?: string | null,
 ): FinderEngagementStatus {
-  if (!assignedTeamMemberId) return "Not assigned";
-  if (current && current !== "Not assigned") return current as FinderEngagementStatus;
-  return "Assigned";
+  if (current && isFinderEngagementStatus(current)) return current as FinderEngagementStatus;
+  return "Contact attempted";
 }

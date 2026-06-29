@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { Pencil, UserCheck } from "lucide-react";
+import { Check, ChevronDown, Pencil, UserCheck } from "lucide-react";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { HubMetricCard } from "@/components/admin/HubMetricCard";
@@ -63,6 +63,7 @@ function ProspectFinderDetailContent() {
   const [chatActivityKey, setChatActivityKey] = useState(0);
   const [dmEditing, setDmEditing] = useState(false);
   const [dmSaving, setDmSaving] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   const load = useCallback(async (opts?: { silent?: boolean }) => {
     if (!opts?.silent) setLoading(true);
@@ -404,21 +405,39 @@ function ProspectFinderDetailContent() {
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            <div>
+            <div className="relative">
               <p className="mb-1 text-[10px] text-[#6f6b62]">Engagement status</p>
-              <select
-                value={record.engagement_status}
-                onChange={(e) => {
-                  const status = e.target.value as FinderEngagementStatus;
-                  setRecord((prev) => (prev ? { ...prev, engagement_status: status } : prev));
-                  void patchWorkflow({ engagement_status: status });
-                }}
-                className="w-full rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] appearance-none outline-none focus:border-[#063b32]"
+              <button
+                type="button"
+                onClick={() => setStatusDropdownOpen((v) => !v)}
+                className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40"
               >
-                {FINDER_ENGAGEMENT_STATUSES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+                <span className="text-[#111111]">{record.engagement_status || "Select status"}</span>
+                <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+              {statusDropdownOpen && (
+                <div className="absolute z-30 mt-1 w-full min-w-[14rem] overflow-hidden rounded-xl border border-[#111111]/15 bg-white shadow-lg">
+                  {FINDER_ENGAGEMENT_STATUSES.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setStatusDropdownOpen(false);
+                        if (s !== record.engagement_status) {
+                          setRecord((prev) => (prev ? { ...prev, engagement_status: s } : prev));
+                          void patchWorkflow({ engagement_status: s });
+                        }
+                      }}
+                      className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
+                        record.engagement_status === s ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"
+                      }`}
+                    >
+                      <span className="flex-1">{s}</span>
+                      {record.engagement_status === s && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
