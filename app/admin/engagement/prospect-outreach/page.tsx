@@ -401,7 +401,7 @@ export default function ProspectFinderPage() {
                 if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
                 searchDebounceRef.current = setTimeout(() => {
                   updateParams({ q: v || null });
-                }, 350);
+                }, 150);
               }}
               placeholder="Search organisation, sector, location, assignee…"
               className="w-full rounded-xl border border-[#111111]/15 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"

@@ -247,7 +247,7 @@ export function HubTasksTab({
             placeholder="Task title…"
             className={fieldClass}
           />
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2">
             <FormSelect
               value={taskForm.priority}
               onChange={(v) => setTaskForm((f) => ({ ...f, priority: v }))}
@@ -255,18 +255,6 @@ export function HubTasksTab({
                 { value: "high", label: "High priority" },
                 { value: "medium", label: "Medium priority" },
                 { value: "low", label: "Low priority" },
-              ]}
-            />
-            <FormSelect
-              value={taskForm.task_type}
-              onChange={(v) => setTaskForm((f) => ({ ...f, task_type: v }))}
-              options={[
-                { value: "follow_up", label: "Follow-up" },
-                { value: "call", label: "Call" },
-                { value: "email", label: "Email" },
-                { value: "meeting", label: "Meeting" },
-                { value: "admin", label: "Admin" },
-                { value: "other", label: "Other" },
               ]}
             />
             <input
