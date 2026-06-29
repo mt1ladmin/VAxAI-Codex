@@ -509,23 +509,21 @@ export type KnowledgeDraft = {
 };
 
 export const PROSPECT_QUEUE_STATUSES = [
-  'Needs review', 'Ready to contact', 'Contact planned', 'Contact attempted',
-  'No response', 'Conversation held', 'Follow-up required', 'Opportunity',
-  'Not suitable', 'Do not contact', 'Closed',
+  'Contact attempted',
+  'No response',
+  'Conversation held',
+  'Follow up required',
+  'Opportunity identified',
+  'Not suitable',
 ] as const;
 
 export const PROSPECT_QUEUE_STATUS_COLORS: Record<string, string> = {
-  'Needs review': 'bg-amber-100 text-amber-700',
-  'Ready to contact': 'bg-blue-100 text-blue-700',
-  'Contact planned': 'bg-indigo-100 text-indigo-700',
   'Contact attempted': 'bg-violet-100 text-violet-700',
   'No response': 'bg-slate-100 text-slate-600',
   'Conversation held': 'bg-emerald-100 text-emerald-700',
-  'Follow-up required': 'bg-orange-100 text-orange-700',
-  'Opportunity': 'bg-[#063b32]/10 text-[#063b32]',
+  'Follow up required': 'bg-orange-100 text-orange-700',
+  'Opportunity identified': 'bg-teal-100 text-teal-700',
   'Not suitable': 'bg-gray-100 text-gray-500',
-  'Do not contact': 'bg-red-100 text-red-600',
-  'Closed': 'bg-gray-100 text-gray-500',
 };
 
 export type CallPreparationCard = {

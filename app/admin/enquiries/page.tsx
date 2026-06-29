@@ -39,6 +39,10 @@ type Enquiry = {
   next_action_date: string | null;
   last_action: string | null;
   last_action_date: string | null;
+  assigned_team_member_id: string | null;
+  assigned_team_member_name: string | null;
+  is_client: boolean;
+  follow_up_task_title: string | null;
   organisation?: { id: string; name: string } | null;
   posts?: { id: string; title: string; slug: string } | null;
 };
@@ -135,19 +139,13 @@ export default function EnquiriesPage() {
     discoveryCallFilter !== "all" ||
     search.trim().length > 0;
 
-  const metrics = useMemo(() => {
-    const needsReview = filtered.filter((e) =>
-      e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status,
-    ).length;
-    const withNextAction = filtered.filter((e) => e.next_action).length;
-    const discoveryCalls = filtered.filter((e) => e.wants_discovery_call).length;
-    return {
-      total: filtered.length,
-      needsReview,
-      withNextAction,
-      discoveryCalls,
-    };
-  }, [filtered]);
+  const metrics = useMemo(() => ({
+    total: filtered.length,
+    conversationHeld: filtered.filter((e) => e.status === "Conversation held").length,
+    followUpRequired: filtered.filter((e) => e.status === "Follow up required").length,
+    opportunityIdentified: filtered.filter((e) => e.status === "Opportunity identified").length,
+    isClient: filtered.filter((e) => e.is_client).length,
+  }), [filtered]);
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
@@ -232,22 +230,26 @@ export default function EnquiriesPage() {
 
       <div className="px-8 py-6">
         {/* Metrics */}
-        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Total</p>
             <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{loading ? "—" : metrics.total}</p>
           </div>
-          <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">Needs review</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-amber-800">{loading ? "—" : metrics.needsReview}</p>
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-700">Conversation held</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-800">{loading ? "—" : metrics.conversationHeld}</p>
           </div>
-          <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">With next action</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-[#063b32]">{loading ? "—" : metrics.withNextAction}</p>
+          <div className="rounded-xl border border-orange-200 bg-orange-50/50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-orange-700">Follow up required</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-orange-800">{loading ? "—" : metrics.followUpRequired}</p>
           </div>
-          <div className="rounded-xl border border-[#111111]/10 bg-white p-4">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Discovery calls</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{loading ? "—" : metrics.discoveryCalls}</p>
+          <div className="rounded-xl border border-teal-200 bg-teal-50/50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-teal-700">Opportunity identified</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-teal-800">{loading ? "—" : metrics.opportunityIdentified}</p>
+          </div>
+          <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-purple-700">Clients</p>
+            <p className="mt-1 text-2xl font-bold tabular-nums text-purple-800">{loading ? "—" : metrics.isClient}</p>
           </div>
         </div>
 
@@ -399,11 +401,11 @@ export default function EnquiriesPage() {
                             {new Date(e.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                           </span>
                         </LabeledField>
-                        <LabeledField label="Discovery call">
-                          {e.wants_discovery_call ? (
-                            <span className="inline-flex rounded-full bg-[#063b32] px-2 py-0.5 text-xs font-semibold text-[#f5f274]">Yes</span>
+                        <LabeledField label="Assigned to">
+                          {e.assigned_team_member_name ? (
+                            <span className="text-[#111111]">{e.assigned_team_member_name}</span>
                           ) : (
-                            <span className="text-[#6f6b62]">No</span>
+                            <span className="text-[#6f6b62]">—</span>
                           )}
                         </LabeledField>
                         <LabeledField label="Organisation">{e.organisation?.name || "—"}</LabeledField>
@@ -412,23 +414,14 @@ export default function EnquiriesPage() {
                             {e.support_type}
                           </span>
                         </LabeledField>
-                        <LabeledField label="Related post">
-                          {postTitle ? (
-                            postId ? (
-                              <Link
-                                href={`/admin/posts/${postId}`}
-                                onClick={(ev) => ev.stopPropagation()}
-                                className="line-clamp-2 text-[#063b32] hover:underline"
-                              >
-                                {postTitle}
-                              </Link>
-                            ) : (
-                              <span className="line-clamp-2">{postTitle}</span>
-                            )
-                          ) : (
-                            "—"
-                          )}
+                        <LabeledField label="Next action">
+                          <span className="text-[#6f6b62]">{e.follow_up_task_title || "—"}</span>
                         </LabeledField>
+                        {e.is_client && (
+                          <LabeledField label="Client">
+                            <span className="inline-flex rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800">Now a client</span>
+                          </LabeledField>
+                        )}
                       </div>
 
                       <div className="flex shrink-0 flex-col items-end gap-2" onClick={(ev) => ev.stopPropagation()}>

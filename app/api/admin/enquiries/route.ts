@@ -12,17 +12,47 @@ export async function GET(req: NextRequest) {
     await assertAuth();
     const status = req.nextUrl.searchParams.get("status");
     const contactId = req.nextUrl.searchParams.get("contact_id");
-    const includeClosed = req.nextUrl.searchParams.get("include_closed") === "true";
     const db = createServiceClient();
     let query = db
       .from("enquiries")
       .select("*, posts(id, title, slug), organisation:organisation_id(id, name)")
       .order("created_at", { ascending: false });
     if (status && status !== "all") query = query.eq("status", status);
-    else if (!contactId && !includeClosed) query = query.neq("status", "Closed");
     if (contactId) query = query.eq("contact_id", contactId);
-    const { data, error } = await query;
-    if (error) throw error;
+
+    const [enquiriesRes, tasksRes, membersRes] = await Promise.all([
+      query,
+      db
+        .from("engagement_tasks")
+        .select("enquiry_id, title")
+        .eq("task_type", "follow_up")
+        .neq("status", "done")
+        .not("enquiry_id", "is", null)
+        .order("due_date", { ascending: true, nullsFirst: false }),
+      db.from("studio_team_members").select("id, display_name").eq("is_active", true),
+    ]);
+
+    if (enquiriesRes.error) throw enquiriesRes.error;
+
+    const followUpTitles = new Map<string, string>();
+    for (const t of tasksRes.data ?? []) {
+      if (t.enquiry_id && !followUpTitles.has(t.enquiry_id as string)) {
+        followUpTitles.set(t.enquiry_id as string, t.title as string);
+      }
+    }
+    const memberNames = new Map<string, string>();
+    for (const m of membersRes.data ?? []) {
+      memberNames.set(m.id as string, m.display_name as string);
+    }
+
+    const data = (enquiriesRes.data ?? []).map((e) => ({
+      ...e,
+      follow_up_task_title: followUpTitles.get(e.id as string) ?? null,
+      assigned_team_member_name: e.assigned_team_member_id
+        ? (memberNames.get(e.assigned_team_member_id as string) ?? null)
+        : null,
+    }));
+
     return NextResponse.json({ data });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error";
@@ -57,7 +87,7 @@ export async function POST(req: NextRequest) {
         preferred_contact: preferred_contact ?? "Email",
         telephone: telephone?.trim() || null,
         wants_discovery_call: wants_discovery_call === true,
-        status: "Needs review",
+        status: "",
       })
       .select("id")
       .single();
