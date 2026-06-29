@@ -482,8 +482,8 @@ export default function Home() {
       </section>
 
       <div className="px-4 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <GeometricDivider />
+        <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl">
+          <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
         </div>
       </div>
 
@@ -497,55 +497,20 @@ export default function Home() {
           />
           <div className="mt-12 grid gap-5 md:grid-cols-2">
             {caseStudies.map((study, i) => (
-              <article key={i} className="overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
-                <button
-                  type="button"
-                  onClick={() => setOpenCase(openCase === i ? null : i)}
-                  className="w-full p-5 text-left"
-                  aria-expanded={openCase === i}
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <h3 className="text-lg font-semibold text-paper">{study.title}</h3>
-                    <ChevronDown className={`mt-1 h-4 w-4 shrink-0 text-paper/60 transition-transform duration-200 ${openCase === i ? "rotate-180" : ""}`} />
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  {openCase !== i && !study.placeholder && (
-                    <p className="mt-3 text-xs font-semibold text-acid">Click to see the results →</p>
+              <article key={i} className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+                <div className="flex flex-1 flex-col p-5">
+                  <h3 className="text-lg font-semibold text-paper">{study.title}</h3>
+                  <p className="mt-3 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
+                  {!study.placeholder && (
+                    <button
+                      type="button"
+                      onClick={() => setOpenCase(i)}
+                      className="mt-4 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid hover:underline"
+                    >
+                      Click to see the results →
+                    </button>
                   )}
-                </button>
-                {openCase === i && !study.placeholder && (
-                  <div className="border-t border-white/10 px-5 pb-5 pt-4">
-                    {study.paragraphs?.map((p, pi) => (
-                      <p key={pi} className="mt-3 text-sm leading-6 text-paper/68">{p}</p>
-                    ))}
-                    {study.workflowPoints && (
-                      <ul className="mt-3 grid gap-2">
-                        {study.workflowPoints.map((pt) => (
-                          <li key={pt} className="flex gap-3 text-sm leading-6 text-paper/68">
-                            <span className="mt-0.5 shrink-0 text-paper/40">—</span>
-                            {pt}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    {study.results && (
-                      <>
-                        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-acid">Result</p>
-                        <ul className="mt-3 grid gap-2">
-                          {study.results.map((r) => (
-                            <li key={r} className="flex gap-3 text-sm leading-6 text-paper/68">
-                              <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                              {r}
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
-                    {study.closing && (
-                      <p className="mt-5 text-sm leading-6 text-paper/68 italic">{study.closing}</p>
-                    )}
-                  </div>
-                )}
+                </div>
               </article>
             ))}
           </div>
@@ -984,6 +949,81 @@ export default function Home() {
               )}
             </div>
           )}
+        </div>
+      ) : null}
+
+      {openCase !== null && caseStudies[openCase] && !caseStudies[openCase].placeholder ? (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setOpenCase(null); }}
+        >
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Case study</p>
+                <h2 className="mt-3 max-w-xl text-2xl font-semibold leading-tight">{caseStudies[openCase].title}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpenCase(null)}
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6 md:p-10">
+              <p className="text-sm leading-7 text-muted">{caseStudies[openCase].teaser}</p>
+              {caseStudies[openCase].paragraphs?.map((p, pi) => (
+                <p key={pi} className="mt-4 text-sm leading-7 text-muted">{p}</p>
+              ))}
+              {caseStudies[openCase].workflowPoints && (
+                <ul className="mt-4 grid gap-2 rounded-md border border-ink/10 bg-cream p-4">
+                  {caseStudies[openCase].workflowPoints!.map((pt) => (
+                    <li key={pt} className="flex gap-3 text-sm leading-6 text-muted">
+                      <span className="mt-0.5 shrink-0 text-ink/40">—</span>
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {caseStudies[openCase].results && (
+                <div className="mt-6">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Results</p>
+                  <ul className="mt-3 grid gap-2">
+                    {caseStudies[openCase].results!.map((r) => (
+                      <li key={r} className="flex gap-3 text-sm leading-6 text-muted">
+                        <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {caseStudies[openCase].closing && (
+                <p className="mt-6 text-sm leading-7 text-muted italic">{caseStudies[openCase].closing}</p>
+              )}
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setOpenCase(null); setIsContactModalOpen(true); }}
+                  className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
+                >
+                  Work with us
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpenCase(null)}
+                  className="inline-flex items-center rounded-md border border-ink/15 px-5 py-3 text-sm font-semibold text-ink"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       ) : null}
 
