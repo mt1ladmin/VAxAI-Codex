@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { isUnreviewedEnquiry } from "@/lib/enquiries/constants";
 import {
   AlertCircle,
   ArrowRight,
@@ -88,7 +89,7 @@ export default function EngagementOverview() {
       const isUpcoming = (p: PostItem) => !!p.scheduled_at && p.status !== "published" && p.scheduled_at > now;
 
       setStats({
-        newEnquiries: enqData.filter((e) => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
+        newEnquiries: enqData.filter((e) => isUnreviewedEnquiry(e.status as string)).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
         openTasks: taskData.filter((t) => t.status !== "done").length,
         recentPosts: postData.slice(0, 5),

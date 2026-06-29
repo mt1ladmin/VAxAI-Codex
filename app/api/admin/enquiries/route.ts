@@ -17,7 +17,8 @@ export async function GET(req: NextRequest) {
       .from("enquiries")
       .select("*, posts(id, title, slug), organisation:organisation_id(id, name)")
       .order("created_at", { ascending: false });
-    if (status && status !== "all") query = query.eq("status", status);
+    if (status === "needs_review") query = query.eq("status", "");
+    else if (status && status !== "all") query = query.eq("status", status);
     if (contactId) query = query.eq("contact_id", contactId);
 
     const [enquiriesRes, tasksRes, membersRes] = await Promise.all([
