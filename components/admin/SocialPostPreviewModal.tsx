@@ -1,9 +1,9 @@
 "use client";
 
-import { Check, Copy, ExternalLink, Facebook, Instagram, Linkedin, Share2, X } from "lucide-react";
+import { Check, Copy, Facebook, Instagram, Linkedin, Loader2, Pencil, Save, Share2, Twitter, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export type SocialPlatform = "linkedin" | "instagram" | "facebook" | "share";
+export type SocialPlatform = "linkedin" | "instagram" | "facebook" | "twitter" | "share";
 
 export type SocialPostPreview = {
   id: string;
@@ -13,6 +13,7 @@ export type SocialPostPreview = {
   scheduled_date?: string | null;
   description?: string | null;
   link?: string | null;
+  tags?: string[];
 };
 
 const PLATFORM_META = {
@@ -33,6 +34,12 @@ const PLATFORM_META = {
     Icon: Facebook,
     style: "text-blue-600 bg-blue-50",
     openUrl: "https://www.facebook.com/",
+  },
+  twitter: {
+    label: "X",
+    Icon: Twitter,
+    style: "text-gray-900 bg-gray-100",
+    openUrl: "https://x.com/",
   },
   share: {
     label: "Share text",
@@ -58,12 +65,17 @@ export function SocialPostSummaryCard({
   onOpen: () => void;
 }) {
   const meta = PLATFORM_META[social.platform];
+  const [copied, setCopied] = useState(false);
+
+  const copyText = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await navigator.clipboard.writeText(social.content || social.description || "");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="w-full rounded-lg border border-[#111111]/10 p-3 text-left transition-colors hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/40"
-    >
+    <div className="rounded-lg border border-[#111111]/10 p-3 transition-colors hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/20">
       <div className="flex items-center gap-2">
         <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md ${meta.style}`}>
           <meta.Icon className="h-3.5 w-3.5" />
@@ -76,46 +88,147 @@ export function SocialPostSummaryCard({
           {social.content || social.description}
         </p>
       )}
-      <span className={`mt-2 inline-flex items-center gap-1 text-[10px] font-semibold ${meta.style.split(" ")[0]}`}>
-        Open {meta.label}
-        <ExternalLink className="h-3 w-3" />
-      </span>
-    </button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onOpen(); }}
+          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+        >
+          Open post
+        </button>
+        <button
+          type="button"
+          onClick={copyText}
+          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+        >
+          {copied ? <Check className="h-2.5 w-2.5 text-emerald-600" /> : <Copy className="h-2.5 w-2.5" />}
+          {copied ? "Copied!" : "Copy text"}
+        </button>
+        {meta.openUrl && (
+          <a
+            href={meta.openUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className={`inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold hover:opacity-80 ${meta.style}`}
+          >
+            <meta.Icon className="h-2.5 w-2.5" />
+            Open {meta.label}
+          </a>
+        )}
+      </div>
+    </div>
   );
 }
+
+const EDIT_PLATFORMS: { key: SocialPlatform; label: string; Icon: typeof Linkedin }[] = [
+  { key: "linkedin", label: "LinkedIn", Icon: Linkedin },
+  { key: "instagram", label: "Instagram", Icon: Instagram },
+  { key: "facebook", label: "Facebook", Icon: Facebook },
+  { key: "twitter", label: "X", Icon: Twitter },
+];
 
 export function SocialPostPreviewModal({
   social,
   onClose,
+  onSaved,
 }: {
   social: SocialPostPreview;
   onClose: () => void;
+  onSaved?: (updated: SocialPostPreview) => void;
 }) {
   const [copied, setCopied] = useState(false);
-  const meta = PLATFORM_META[social.platform];
+  const [editing, setEditing] = useState(false);
+  const [localSocial, setLocalSocial] = useState(social);
+  const [editForm, setEditForm] = useState({
+    title: social.title,
+    platform: social.platform,
+    content: social.content,
+    scheduled_date: social.scheduled_date ?? "",
+    link: social.link ?? "",
+    tagInput: "",
+    tags: social.tags ?? [],
+  });
+  const [saving, setSaving] = useState(false);
+  const meta = PLATFORM_META[localSocial.platform];
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") { if (editing) setEditing(false); else onClose(); }
     };
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [onClose]);
+  }, [onClose, editing]);
 
   const copy = async () => {
-    await navigator.clipboard.writeText(social.content || social.description || "");
+    await navigator.clipboard.writeText(localSocial.content || localSocial.description || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const startEdit = () => {
+    setEditForm({
+      title: localSocial.title,
+      platform: localSocial.platform,
+      content: localSocial.content,
+      scheduled_date: localSocial.scheduled_date ?? "",
+      link: localSocial.link ?? "",
+      tagInput: "",
+      tags: localSocial.tags ?? [],
+    });
+    setEditing(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editForm.title || !editForm.scheduled_date) return;
+    setSaving(true);
+    try {
+      await fetch(`/api/admin/social-posts/${localSocial.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editForm.title,
+          platform: editForm.platform,
+          content: editForm.content,
+          scheduled_date: editForm.scheduled_date,
+          link: editForm.link || null,
+          tags: editForm.tags,
+          description: localSocial.description ?? "",
+        }),
+      });
+      const updated: SocialPostPreview = {
+        ...localSocial,
+        title: editForm.title,
+        platform: editForm.platform,
+        content: editForm.content,
+        scheduled_date: editForm.scheduled_date,
+        link: editForm.link || null,
+        tags: editForm.tags,
+      };
+      setLocalSocial(updated);
+      onSaved?.(updated);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addTag = () => {
+    const t = editForm.tagInput.trim();
+    if (t && !editForm.tags.includes(t)) setEditForm((f) => ({ ...f, tags: [...f.tags, t] }));
+    setEditForm((f) => ({ ...f, tagInput: "" }));
+  };
+
+  const inputCls = "w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]";
+
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4" onClick={onClose} role="presentation">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4" onClick={editing ? undefined : onClose} role="presentation">
       <div
-        className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-[#111111]/10 bg-white shadow-2xl"
+        className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-[#111111]/10 bg-white shadow-2xl"
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={`social-preview-${social.id}`}
+        aria-labelledby={`social-preview-${localSocial.id}`}
       >
         <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
           <div className="flex min-w-0 items-center gap-3">
@@ -123,9 +236,9 @@ export function SocialPostPreviewModal({
               <meta.Icon className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <p id={`social-preview-${social.id}`} className="truncate text-sm font-semibold text-[#111111]">{social.title}</p>
+              <p id={`social-preview-${localSocial.id}`} className="truncate text-sm font-semibold text-[#111111]">{localSocial.title}</p>
               <p className={`text-xs font-semibold ${meta.style.split(" ")[0]}`}>
-                {meta.label}{formatShortDate(social.scheduled_date) ? ` · ${formatShortDate(social.scheduled_date)}` : " · Draft"}
+                {meta.label}{formatShortDate(localSocial.scheduled_date) ? ` · ${formatShortDate(localSocial.scheduled_date)}` : " · Draft"}
               </p>
             </div>
           </div>
@@ -134,23 +247,113 @@ export function SocialPostPreviewModal({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-5">
-          {social.description && <p className="mb-4 text-sm text-[#6f6b62]">{social.description}</p>}
-          <div className="rounded-xl bg-[#f7f4ea] p-4">
-            <p className="whitespace-pre-wrap text-sm leading-7 text-[#111111]">{social.content || "No copy has been added yet."}</p>
+        {editing ? (
+          <div className="flex-1 space-y-4 overflow-y-auto p-5">
+            {/* Platform */}
+            <div>
+              <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Platform</label>
+              <div className="flex gap-2">
+                {EDIT_PLATFORMS.map((p) => {
+                  const pm = PLATFORM_META[p.key];
+                  return (
+                    <button
+                      key={p.key}
+                      type="button"
+                      onClick={() => setEditForm((f) => ({ ...f, platform: p.key }))}
+                      className={`flex flex-1 flex-col items-center gap-1.5 rounded-lg border py-2.5 text-xs font-semibold transition-colors ${
+                        editForm.platform === p.key ? `${pm.style}` : "border-gray-200 text-gray-400 hover:border-gray-300"
+                      }`}
+                    >
+                      <p.Icon className="h-4 w-4" />
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Title */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Post title <span className="text-red-500">*</span></label>
+              <input value={editForm.title} onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))} className={inputCls} autoFocus />
+            </div>
+            {/* Date */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Publish date <span className="text-red-500">*</span></label>
+              <input type="date" value={editForm.scheduled_date} onChange={(e) => setEditForm((f) => ({ ...f, scheduled_date: e.target.value }))} className={inputCls} />
+            </div>
+            {/* Content */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Written post content</label>
+              <textarea rows={6} value={editForm.content} onChange={(e) => setEditForm((f) => ({ ...f, content: e.target.value }))}
+                placeholder="Paste the full post copy here…" className={`${inputCls} resize-y`} />
+              <p className="mt-1 text-[10px] text-gray-400">{editForm.content.trim().split(/\s+/).filter(Boolean).length} words</p>
+            </div>
+            {/* Tags */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Tags</label>
+              <div className="flex flex-wrap gap-1.5 rounded-md border border-gray-200 bg-gray-50 p-2">
+                {editForm.tags.map((t) => (
+                  <span key={t} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-gray-800 shadow-sm">
+                    {t}
+                    <button type="button" onClick={() => setEditForm((f) => ({ ...f, tags: f.tags.filter((x) => x !== t) }))} className="text-gray-400 hover:text-red-500">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  value={editForm.tagInput}
+                  onChange={(e) => setEditForm((f) => ({ ...f, tagInput: e.target.value }))}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
+                  placeholder={editForm.tags.length === 0 ? "Add tags…" : ""}
+                  className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
+                />
+              </div>
+              <p className="mt-1 text-[10px] text-gray-400">Press Enter or comma to add.</p>
+            </div>
+            {/* Link */}
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Link (optional)</label>
+              <input type="url" value={editForm.link} onChange={(e) => setEditForm((f) => ({ ...f, link: e.target.value }))} placeholder="https://…" className={inputCls} />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-5">
+            <div className="rounded-xl bg-[#f7f4ea] p-4">
+              <p className="whitespace-pre-wrap text-sm leading-7 text-[#111111]">{localSocial.content || "No copy has been added yet."}</p>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-2 border-t border-[#111111]/10 px-5 py-4">
-          <button type="button" onClick={() => void copy()} className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
-            {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-            {copied ? "Copied!" : "Copy text"}
-          </button>
-          {meta.openUrl && (
-            <a href={meta.openUrl} target="_blank" rel="noreferrer" className={`inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold hover:opacity-80 ${meta.style}`}>
-              <meta.Icon className="h-3.5 w-3.5" />
-              Open {meta.label}
-            </a>
+          {editing ? (
+            <>
+              <button type="button" onClick={() => void saveEdit()} disabled={saving || !editForm.title || !editForm.scheduled_date}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
+                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                {saving ? "Saving…" : "Save"}
+              </button>
+              <button type="button" onClick={() => setEditing(false)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" onClick={() => void copy()} className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copied!" : "Copy text"}
+              </button>
+              {meta.openUrl && (
+                <a href={meta.openUrl} target="_blank" rel="noreferrer" className={`inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold hover:opacity-80 ${meta.style}`}>
+                  <meta.Icon className="h-3.5 w-3.5" />
+                  Open {meta.label}
+                </a>
+              )}
+              <button type="button" onClick={startEdit}
+                className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#063b32] hover:bg-[#f7f4ea]">
+                <Pencil className="h-3.5 w-3.5" /> Edit post
+              </button>
+            </>
           )}
         </div>
       </div>

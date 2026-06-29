@@ -8,10 +8,12 @@ import {
   Copy,
   ExternalLink,
   Facebook,
+  FileText,
   Instagram,
   Linkedin,
   Plus,
   Trash2,
+  Twitter,
   X,
 } from "lucide-react";
 
@@ -30,7 +32,7 @@ type Post = {
 type SocialPost = {
   id: string;
   title: string;
-  platform: "linkedin" | "instagram" | "facebook";
+  platform: "linkedin" | "instagram" | "facebook" | "twitter";
   description: string;
   content: string;
   scheduled_date: string;
@@ -42,6 +44,7 @@ const PLATFORMS = [
   { key: "linkedin", label: "LinkedIn", Icon: Linkedin, color: "#0077b5", bg: "bg-[#0077b5]/10", text: "text-[#0077b5]" },
   { key: "instagram", label: "Instagram", Icon: Instagram, color: "#E1306C", bg: "bg-pink-50", text: "text-pink-600" },
   { key: "facebook", label: "Facebook", Icon: Facebook, color: "#1877f2", bg: "bg-blue-50", text: "text-blue-600" },
+  { key: "twitter", label: "X", Icon: Twitter, color: "#000000", bg: "bg-gray-100", text: "text-gray-900" },
 ];
 
 function platformInfo(key: string) {
@@ -167,14 +170,6 @@ function SocialPostForm({
             Publish date <span className="text-red-500">*</span>
           </label>
           <input required type="date" value={date} onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Brief description</label>
-          <input value={description} onChange={(e) => setDescription(e.target.value)}
-            placeholder="Short summary of what this post is about"
             className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
         </div>
 
@@ -390,11 +385,10 @@ export default function CalendarPage() {
 
   function postsOnDay(day: Date) {
     return posts.filter((p) => {
+      if (p.status === "draft") return false;
       const dateStr = p.status === "published"
         ? (p.published_at ?? p.updated_at)
-        : p.status === "scheduled"
-        ? (p.scheduled_at ?? p.updated_at)
-        : p.updated_at;
+        : (p.scheduled_at ?? p.updated_at);
       return isSameDay(new Date(dateStr), day);
     });
   }
@@ -593,14 +587,22 @@ export default function CalendarPage() {
           <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-gray-500">
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#063b32]/20" /> Blog — published</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-amber-100" /> Blog — scheduled</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#f5f274]" /> Blog — draft</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#0077b5]/15" /> LinkedIn</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-pink-100" /> Instagram</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-blue-100" /> Facebook</span>
-            <button onClick={() => openNewSocial(toDateStr(today))}
-              className="ml-auto flex items-center gap-1.5 rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
-              <Plus className="h-3.5 w-3.5" /> Add social post
-            </button>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-gray-200" /> X</span>
+            <div className="ml-auto flex items-center gap-2">
+              <a
+                href="/admin/posts/new"
+                className="flex items-center gap-1.5 rounded-md border border-[#063b32] px-3 py-1.5 text-xs font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+              >
+                <FileText className="h-3.5 w-3.5" /> New insight post
+              </a>
+              <button onClick={() => openNewSocial(toDateStr(today))}
+                className="flex items-center gap-1.5 rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
+                <Plus className="h-3.5 w-3.5" /> Add social post
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -612,7 +614,7 @@ export default function CalendarPage() {
           role="presentation"
         >
           <div
-            className="relative flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
