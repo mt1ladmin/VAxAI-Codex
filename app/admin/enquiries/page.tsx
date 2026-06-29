@@ -703,7 +703,7 @@ export default function EnquiriesPage() {
           role="presentation"
         >
           <div
-            className="relative w-full max-w-lg overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            className="relative w-full max-w-lg rounded-xl border border-[#111111]/10 bg-white shadow-xl"
             onClick={(ev) => ev.stopPropagation()}
             role="dialog"
             aria-modal="true"

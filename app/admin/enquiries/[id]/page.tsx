@@ -77,6 +77,10 @@ type Enquiry = {
   client_note: string | null;
   posts?: { id: string; title: string; slug: string } | null;
   source: string | null;
+  service_fit_summary: string | null;
+  likely_need: string | null;
+  complexity_level: string | null;
+  engagement_basis: string | null;
 };
 
 const SUPPORT_TYPES_DETAIL = [
@@ -251,6 +255,11 @@ function EnquiryDetailContent() {
   const [clientService, setClientService] = useState("");
   const [clientServiceOther, setClientServiceOther] = useState("");
   const [savingClient, setSavingClient] = useState(false);
+
+  const [editingServiceFit, setEditingServiceFit] = useState(false);
+  const [serviceFitForm, setServiceFitForm] = useState({ service_fit_summary: "", likely_need: "", complexity_level: "", engagement_basis: "" });
+  const [savingServiceFit, setSavingServiceFit] = useState(false);
+
   const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
 
   useSetAIContext(
@@ -768,17 +777,147 @@ function EnquiryDetailContent() {
 
         <div className="lg:col-span-2 space-y-4">
           {activeTab === "overview" && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <HubMetricCard
-                value={openWorkCount}
-                label="Open tasks & actions"
-                onClick={() => openTab("tasks")}
-              />
-              <HubMetricCard
-                value={notesCount}
-                label="Notes"
-                onClick={() => openTab("notes")}
-              />
+            <div className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <HubMetricCard
+                  value={openWorkCount}
+                  label="Open tasks & actions"
+                  onClick={() => openTab("tasks")}
+                />
+                <HubMetricCard
+                  value={notesCount}
+                  label="Notes"
+                  onClick={() => openTab("notes")}
+                />
+              </div>
+
+              {/* Service fit section */}
+              <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Service fit</p>
+                  {!editingServiceFit && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setServiceFitForm({
+                          service_fit_summary: enquiry.service_fit_summary ?? "",
+                          likely_need: enquiry.likely_need ?? "",
+                          complexity_level: enquiry.complexity_level ?? "",
+                          engagement_basis: enquiry.engagement_basis ?? "",
+                        });
+                        setEditingServiceFit(true);
+                      }}
+                      className="text-[10px] font-semibold text-[#063b32] hover:underline"
+                    >
+                      {enquiry.service_fit_summary || enquiry.likely_need ? "Edit" : "+ Add"}
+                    </button>
+                  )}
+                </div>
+
+                {editingServiceFit ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Service fit summary</label>
+                      <textarea
+                        value={serviceFitForm.service_fit_summary}
+                        onChange={(e) => setServiceFitForm((f) => ({ ...f, service_fit_summary: e.target.value }))}
+                        rows={3}
+                        className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        autoFocus
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Likely need</label>
+                      <textarea
+                        value={serviceFitForm.likely_need}
+                        onChange={(e) => setServiceFitForm((f) => ({ ...f, likely_need: e.target.value }))}
+                        rows={3}
+                        className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Complexity level</label>
+                        <input
+                          value={serviceFitForm.complexity_level}
+                          onChange={(e) => setServiceFitForm((f) => ({ ...f, complexity_level: e.target.value }))}
+                          placeholder="e.g. Moderate"
+                          className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement basis</label>
+                        <input
+                          value={serviceFitForm.engagement_basis}
+                          onChange={(e) => setServiceFitForm((f) => ({ ...f, engagement_basis: e.target.value }))}
+                          placeholder="e.g. project, retainer"
+                          className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        type="button"
+                        disabled={savingServiceFit}
+                        onClick={async () => {
+                          setSavingServiceFit(true);
+                          await patchEnquiry({
+                            service_fit_summary: serviceFitForm.service_fit_summary.trim() || null,
+                            likely_need: serviceFitForm.likely_need.trim() || null,
+                            complexity_level: serviceFitForm.complexity_level.trim() || null,
+                            engagement_basis: serviceFitForm.engagement_basis.trim() || null,
+                          } as Partial<Enquiry>);
+                          setSavingServiceFit(false);
+                          setEditingServiceFit(false);
+                        }}
+                        className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                      >
+                        {savingServiceFit ? "Saving…" : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingServiceFit(false)}
+                        className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : enquiry.service_fit_summary || enquiry.likely_need || enquiry.complexity_level || enquiry.engagement_basis ? (
+                  <div className="space-y-3">
+                    {enquiry.service_fit_summary && (
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Service fit summary</p>
+                        <p className="mt-1 text-sm leading-relaxed text-[#111111]">{enquiry.service_fit_summary}</p>
+                      </div>
+                    )}
+                    {enquiry.likely_need && (
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
+                        <p className="mt-1 text-sm leading-relaxed text-[#111111]">{enquiry.likely_need}</p>
+                      </div>
+                    )}
+                    {(enquiry.complexity_level || enquiry.engagement_basis) && (
+                      <div className="grid grid-cols-2 gap-3">
+                        {enquiry.complexity_level && (
+                          <div className="rounded-lg border border-[#111111]/10 px-3 py-2">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity level</p>
+                            <p className="mt-0.5 text-sm text-[#111111]">{enquiry.complexity_level}</p>
+                          </div>
+                        )}
+                        {enquiry.engagement_basis && (
+                          <div className="rounded-lg border border-[#111111]/10 px-3 py-2">
+                            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement basis</p>
+                            <p className="mt-0.5 text-sm text-[#111111]">{enquiry.engagement_basis}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#6f6b62]">No service fit assessment yet.</p>
+                )}
+              </div>
             </div>
           )}
 

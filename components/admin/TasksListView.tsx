@@ -597,7 +597,7 @@ export function TasksListView({
           role="presentation"
         >
           <div
-            className="w-full max-w-md overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            className="w-full max-w-md rounded-xl border border-[#111111]/10 bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
