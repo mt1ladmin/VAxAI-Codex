@@ -489,48 +489,76 @@ export default function Home() {
             copy="Every client challenge is different. Here are some examples of how we have helped organisations reduce admin, create clarity and keep work moving."
             narrow
           />
-          <div className="mt-12 grid gap-5 md:grid-cols-2">
-            {caseStudies.slice(0, 2).map((study, i) => (
-              <article key={i} className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+          {/* 3-col layout: left cards | centre image | right cards */}
+          <div className="mt-12 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
+
+            {/* Card 01 — row 1, col 1 */}
+            {(() => { const study = caseStudies[0]; return (
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
-                  <h3 className="text-lg font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-3 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
+                  <span className="mb-3 text-[10px] font-bold text-acid/70">01</span>
+                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
+                  <button type="button" onClick={() => setOpenCase(0)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
+                    Click to see the results →
+                  </button>
+                </div>
+              </article>
+            ); })()}
+
+            {/* Centre image — spans both rows */}
+            <div className="hidden overflow-hidden rounded-md md:row-span-2 md:block">
+              <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
+            </div>
+
+            {/* Card 02 — row 1, col 3 */}
+            {(() => { const study = caseStudies[1]; return (
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="mb-3 text-[10px] font-bold text-acid/70">02</span>
+                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
+                  <button type="button" onClick={() => setOpenCase(1)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
+                    Click to see the results →
+                  </button>
+                </div>
+              </article>
+            ); })()}
+
+            {/* Card 03 — row 2, col 1 */}
+            {(() => { const study = caseStudies[2]; return (
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="mb-3 text-[10px] font-bold text-acid/70">03</span>
+                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
+                  <button type="button" onClick={() => setOpenCase(2)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
+                    Click to see the results →
+                  </button>
+                </div>
+              </article>
+            ); })()}
+
+            {/* Card 04 — row 2, col 3 */}
+            {(() => { const study = caseStudies[3]; return (
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="mb-3 text-[10px] font-bold text-acid/70">04</span>
+                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
                   {!study.placeholder && (
-                    <button
-                      type="button"
-                      onClick={() => setOpenCase(i)}
-                      className="mt-4 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid hover:underline"
-                    >
+                    <button type="button" onClick={() => setOpenCase(3)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
                       Click to see the results →
                     </button>
                   )}
                 </div>
               </article>
-            ))}
-          </div>
+            ); })()}
 
-          <div className="mt-5 overflow-hidden rounded-md">
-            <PhotoCard src={image.expert} className="aspect-[16/6] w-full" />
-          </div>
-
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
-            {caseStudies.slice(2).map((study, i) => (
-              <article key={i + 2} className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
-                <div className="flex flex-1 flex-col p-5">
-                  <h3 className="text-lg font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-3 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  {!study.placeholder && (
-                    <button
-                      type="button"
-                      onClick={() => setOpenCase(i + 2)}
-                      className="mt-4 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid hover:underline"
-                    >
-                      Click to see the results →
-                    </button>
-                  )}
-                </div>
-              </article>
-            ))}
+            {/* Mobile-only image (shown between the two rows of cards on small screens) */}
+            <div className="overflow-hidden rounded-md md:hidden">
+              <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
+            </div>
           </div>
 
           <motion.div
