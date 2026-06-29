@@ -71,7 +71,7 @@ export function CalendarItemPreviewModal({ post, onClose }: Props) {
       role="presentation"
     >
       <div
-        className="relative w-full max-w-lg overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+        className="relative w-full max-w-2xl overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
