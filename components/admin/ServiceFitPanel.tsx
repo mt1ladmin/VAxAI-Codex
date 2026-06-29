@@ -58,21 +58,74 @@ function CollapsibleSection({
   );
 }
 
-function TagList({ items, tone }: { items: string[]; tone?: "primary" | "muted" }) {
-  if (!items.length) return <p className="text-sm text-[#6f6b62]">—</p>;
+function ReadableTextBlock({
+  title,
+  text,
+  tone = "default",
+}: {
+  title: string;
+  text: string;
+  tone?: "default" | "highlight" | "warning";
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const lineCount = text.split("\n").length;
+  const isLong = text.length > 320 || lineCount > 6;
+  const toneClass = tone === "highlight"
+    ? "border-[#063b32]/15 bg-[#063b32]/5"
+    : tone === "warning"
+      ? "border-amber-200/80 bg-amber-50/50"
+      : "border-[#111111]/10 bg-white";
+
   return (
-    <ul className="space-y-1.5">
-      {items.map((item) => (
-        <li
-          key={item}
-          className={`rounded-lg px-3 py-2 text-sm ${
-            tone === "muted" ? "border border-[#111111]/10 text-[#6f6b62]" : "bg-[#063b32]/5 text-[#063b32]"
-          }`}
-        >
-          {item}
-        </li>
-      ))}
-    </ul>
+    <div className={`rounded-xl border p-4 ${toneClass}`}>
+      <div className="flex items-center justify-between gap-3">
+        <p className={`text-[10px] font-semibold uppercase tracking-wider ${tone === "warning" ? "text-amber-800" : tone === "highlight" ? "text-[#063b32]" : "text-[#6f6b62]"}`}>
+          {title}
+        </p>
+        {isLong && (
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+          >
+            {expanded ? "Minimise" : "Expand"}
+            <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </button>
+        )}
+      </div>
+      <p className={`mt-2 whitespace-pre-wrap text-sm leading-relaxed text-[#111111] ${isLong && !expanded ? "line-clamp-4" : ""}`}>
+        {text}
+      </p>
+    </div>
+  );
+}
+
+function TagList({ items, tone }: { items: string[]; tone?: "primary" | "muted" }) {
+  const [expanded, setExpanded] = useState(false);
+  if (!items.length) return <p className="text-sm text-[#6f6b62]">—</p>;
+  const isLong = items.length > 4 || items.some((item) => item.length > 220);
+  const visibleItems = isLong && !expanded ? items.slice(0, 4) : items;
+  return (
+    <div>
+      <ul className="space-y-1.5">
+        {visibleItems.map((item) => (
+          <li
+            key={item}
+            className={`rounded-lg px-3 py-2 text-sm ${
+              tone === "muted" ? "border border-[#111111]/10 text-[#6f6b62]" : "bg-[#063b32]/5 text-[#063b32]"
+            }`}
+          >
+            {item}
+          </li>
+        ))}
+      </ul>
+      {isLong && (
+        <button type="button" onClick={() => setExpanded((value) => !value)} className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+          {expanded ? "Minimise list" : `Show all ${items.length}`}
+          <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -120,6 +173,7 @@ export function hasVaxaiSupportContent(data: ProspectOutreachRecord): boolean {
 export function hasResearchAssessmentContent(data: ProspectOutreachRecord): boolean {
   return !!(
     data.evidence_summary?.trim() ||
+    data.need_rationale?.trim() ||
     data.complexity_rationale?.trim() ||
     data.admin_capacity?.trim() ||
     data.ai_automation_use?.trim() ||
@@ -264,51 +318,41 @@ function EvidenceAndAssessment({
         )}
       </div>
       {data.evidence_summary && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Evidence summary</p>
-          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">{data.evidence_summary}</p>
-        </div>
+        <ReadableTextBlock title="Evidence summary" text={data.evidence_summary} tone="highlight" />
       )}
       {data.need_rationale && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Need rationale</p>
-          <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">{data.need_rationale}</p>
-        </div>
+        <ReadableTextBlock title="Need rationale" text={data.need_rationale} />
       )}
       {data.complexity_rationale && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity rationale</p>
-          <p className="mt-1 text-sm text-[#111111]">{data.complexity_rationale}</p>
-        </div>
+        <ReadableTextBlock title="Complexity rationale" text={data.complexity_rationale} />
       )}
       <div className="grid gap-3 sm:grid-cols-2">
         {data.admin_capacity && (
-          <div>
+          <div className="rounded-lg border border-[#111111]/10 p-3">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Admin capacity</p>
             <p className="mt-1 text-sm text-[#111111]">{data.admin_capacity}</p>
           </div>
         )}
         {data.ai_automation_use && (
-          <div>
+          <div className="rounded-lg border border-[#111111]/10 p-3">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">AI / automation use</p>
             <p className="mt-1 text-sm text-[#111111]">{data.ai_automation_use}</p>
           </div>
         )}
         {data.data_sensitivity && (
-          <div>
+          <div className="rounded-lg border border-[#111111]/10 p-3">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Data sensitivity</p>
             <p className="mt-1 text-sm text-[#111111]">{data.data_sensitivity}</p>
           </div>
         )}
         {data.systems_landscape && (
           <div className="sm:col-span-2">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Systems landscape</p>
-            <p className="mt-1 text-sm text-[#111111]">{data.systems_landscape}</p>
+            <ReadableTextBlock title="Systems landscape" text={data.systems_landscape} />
           </div>
         )}
       </div>
       {(data.open_questions?.length ?? 0) > 0 && (
-        <div>
+        <div className="rounded-xl border border-[#111111]/10 p-4">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Open questions</p>
           <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-[#111111]">
             {data.open_questions!.map((q) => <li key={q}>{q}</li>)}
@@ -444,16 +488,10 @@ function VaxaiSupportAndBoundaries({
         </div>
       )}
       {data.capability_boundaries && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Capability boundaries</p>
-          <p className="mt-1 text-sm text-[#111111]">{data.capability_boundaries}</p>
-        </div>
+        <ReadableTextBlock title="Capability boundaries" text={data.capability_boundaries} />
       )}
       {data.bespoke_build_note && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Build vs improve</p>
-          <p className="mt-1 text-sm text-[#111111]">{data.bespoke_build_note}</p>
-        </div>
+        <ReadableTextBlock title="Build vs improve" text={data.bespoke_build_note} />
       )}
     </>
   );
@@ -564,25 +602,16 @@ function RecommendedEngagement({
         )}
       </div>
       {data.recommended_engagement && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Recommended engagement</p>
-          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{data.recommended_engagement}</p>
-        </div>
+        <ReadableTextBlock title="Recommended engagement" text={data.recommended_engagement} tone="highlight" />
       )}
       {data.engagement_approach && (
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</p>
-          <p className="text-sm text-[#111111] whitespace-pre-wrap leading-relaxed">{data.engagement_approach}</p>
-        </div>
+        <ReadableTextBlock title="Engagement guide" text={data.engagement_approach} />
       )}
       {!data.engagement_approach && !data.recommended_engagement && (
         <p className="text-sm text-[#6f6b62]">—</p>
       )}
       {data.accessibility_considerations && (
-        <div className="rounded-lg border border-amber-200/80 bg-amber-50/50 p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-800">Accessibility note</p>
-          <p className="mt-1 text-sm text-amber-900">{data.accessibility_considerations}</p>
-        </div>
+        <ReadableTextBlock title="Accessibility note" text={data.accessibility_considerations} tone="warning" />
       )}
     </div>
   );

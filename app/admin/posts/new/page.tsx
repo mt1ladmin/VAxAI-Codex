@@ -7,14 +7,15 @@ import { useCallback, useEffect, useState } from "react";
 import {
   ArrowLeft,
   Check,
+  ChevronDown,
   Copy,
   Instagram,
   Linkedin,
+  Plus,
   X,
 } from "lucide-react";
 
 const PostEditor = dynamic(() => import("@/components/admin/PostEditor"), { ssr: false });
-import ImageUpload from "@/components/admin/ImageUpload";
 
 type Author = { id: string; name: string; avatar_url: string | null };
 
@@ -44,6 +45,8 @@ export default function NewPostPage() {
   const [postUrl, setPostUrl] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
   const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
+  const [sharingCaption, setSharingCaption] = useState("");
+  const [tagsOpen, setTagsOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/authors").then((r) => r.json()).then((j: { data: Author[] }) => setAuthors(j.data ?? []));
@@ -72,6 +75,7 @@ export default function NewPostPage() {
         slug: slug || slugify(title || "untitled"),
         status,
         scheduled_at: status === "scheduled" && scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        sharing_caption: sharingCaption.trim() || null,
       }),
     });
     const json = await res.json() as { data: { id: string; slug: string } };
@@ -84,7 +88,7 @@ export default function NewPostPage() {
         router.push(`/admin/posts/${json.data.id}`);
       }
     }
-  }, [title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, router]);
+  }, [title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, sharingCaption, router]);
 
   const addTag = () => {
     const t = tagInput.trim();
@@ -177,10 +181,36 @@ export default function NewPostPage() {
             ) : (
               <>
                 <div className="flex-1 space-y-6 overflow-y-auto p-5">
+                  {/* Share caption */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Share caption</label>
+                    <textarea
+                      value={sharingCaption}
+                      onChange={(e) => setSharingCaption(e.target.value)}
+                      rows={3}
+                      placeholder="Add a short sharing caption…"
+                      className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32]"
+                    />
+                  </div>
+
+                  {/* Connected posts */}
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
+                    <p className="mb-2 text-xs text-[#6f6b62]/70">No connected social posts yet.</p>
+                    <button
+                      type="button"
+                      onClick={() => void save("draft")}
+                      disabled={saving}
+                      className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[#111111]/20 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:border-[#063b32]/40 hover:text-[#063b32] disabled:opacity-50"
+                    >
+                      <Plus className="h-3.5 w-3.5" /> Save draft to add connected post
+                    </button>
+                  </div>
+
                   {/* Slug */}
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">URL Slug</label>
-                    <div className="flex items-center rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-xs">
+                    <div className="flex items-center rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-xs">
                       <span className="mr-1 text-[#6f6b62]">/posts/</span>
                       <input
                         value={slug}
@@ -227,32 +257,31 @@ export default function NewPostPage() {
                         value={customType}
                         onChange={(e) => setCustomType(e.target.value)}
                         placeholder="Custom type name…"
-                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                       />
                     )}
                   </div>
 
                   {/* Tags */}
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Tags</label>
-                    <div className="flex flex-wrap gap-1.5 rounded-md border border-[#111111]/15 bg-[#f7f4ea] p-2">
-                      {tags.map((tag) => (
-                        <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#111111] shadow-sm">
-                          {tag}
-                          <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500">
-                            <X className="h-3 w-3" />
-                          </button>
-                        </span>
-                      ))}
-                      <input
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
-                        placeholder={tags.length === 0 ? "Add tags…" : ""}
-                        className="flex-1 min-w-[80px] bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50"
-                      />
-                    </div>
-                    <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add a tag.</p>
+                    <button type="button" onClick={() => setTagsOpen((value) => !value)} className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                      <span>Tags {tags.length > 0 && <span className="ml-1 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">{tags.length}</span>}</span>
+                      <ChevronDown className={`h-3.5 w-3.5 transition-transform ${tagsOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {tagsOpen && (
+                      <div className="mt-2">
+                        <div className="flex flex-wrap gap-1.5 rounded-md border border-[#111111]/15 bg-white p-2">
+                          {tags.map((tag) => (
+                            <span key={tag} className="flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">
+                              {tag}
+                              <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500"><X className="h-3 w-3" /></button>
+                            </span>
+                          ))}
+                          <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} placeholder={tags.length === 0 ? "Add tags…" : ""} className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50" />
+                        </div>
+                        <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add.</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Author */}
@@ -261,7 +290,7 @@ export default function NewPostPage() {
                     <select
                       value={authorId}
                       onChange={(e) => setAuthorId(e.target.value)}
-                      className="w-full rounded-md border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      className="w-full appearance-none rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                     >
                       <option value="">No author assigned</option>
                       {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
@@ -271,12 +300,6 @@ export default function NewPostPage() {
                         <Link href="/admin/authors" className="underline">Add authors</Link> first.
                       </p>
                     )}
-                  </div>
-
-                  {/* Cover image */}
-                  <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Cover image</label>
-                    <ImageUpload value={coverImageUrl} onChange={setCoverImageUrl} aspectClass="aspect-video w-full" />
                   </div>
 
                   {/* Publish timing */}
@@ -303,7 +326,7 @@ export default function NewPostPage() {
                         type="datetime-local"
                         value={scheduledAt}
                         onChange={(e) => setScheduledAt(e.target.value)}
-                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
                       />
                     )}
                   </div>
