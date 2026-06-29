@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import {
   AlertCircle,
   ArrowRight,
-  BookOpen,
   Users,
   Send,
   Zap,
@@ -26,9 +25,8 @@ type Stats = {
   newEnquiries: number;
   overdueTasks: number;
   openTasks: number;
-  recentInsightPosts: PostItem[];
-  upcomingSocialPosts: PostItem[];
-  upcomingBlogPosts: PostItem[];
+  recentPosts: PostItem[];
+  upcomingPosts: PostItem[];
   loading: boolean;
 };
 
@@ -70,9 +68,8 @@ export default function EngagementOverview() {
     newEnquiries: 0,
     overdueTasks: 0,
     openTasks: 0,
-    recentInsightPosts: [],
-    upcomingSocialPosts: [],
-    upcomingBlogPosts: [],
+    recentPosts: [],
+    upcomingPosts: [],
     loading: true,
   });
 
@@ -88,22 +85,17 @@ export default function EngagementOverview() {
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
 
-      const isSocial = (p: PostItem) => (p.content_type || "").toLowerCase().includes("social");
-      const isScheduled = (p: PostItem) => !!p.scheduled_at && p.status !== "published";
+      const isUpcoming = (p: PostItem) => !!p.scheduled_at && p.status !== "published" && p.scheduled_at > now;
 
       setStats({
         newEnquiries: enqData.filter((e) => e.status === "Needs review" || e.status === "new" || e.status === "open" || !e.status).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
         openTasks: taskData.filter((t) => t.status !== "done").length,
-        recentInsightPosts: postData.filter((p) => p.status === "published" && !isSocial(p)).slice(0, 3),
-        upcomingSocialPosts: postData
-          .filter((p) => isSocial(p) && isScheduled(p))
+        recentPosts: postData.slice(0, 5),
+        upcomingPosts: postData
+          .filter(isUpcoming)
           .sort((a, b) => (a.scheduled_at || "").localeCompare(b.scheduled_at || ""))
-          .slice(0, 4),
-        upcomingBlogPosts: postData
-          .filter((p) => !isSocial(p) && isScheduled(p))
-          .sort((a, b) => (a.scheduled_at || "").localeCompare(b.scheduled_at || ""))
-          .slice(0, 4),
+          .slice(0, 5),
         loading: false,
       });
     });
@@ -120,7 +112,6 @@ export default function EngagementOverview() {
   }, [userEmail]);
 
   const now = new Date().toISOString();
-  const todayStr = now.split("T")[0];
 
   return (
     <div className="min-h-screen bg-white">
@@ -207,8 +198,8 @@ export default function EngagementOverview() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {[
             { label: PROSPECT_FINDER_LABEL, desc: "Researched organisations — assign, qualify, and move opportunities to the queue", href: "/admin/engagement/prospect-outreach", icon: Send },
-            { label: "Prepare for a prospect", desc: "Sector guidance, personas, and VAT-informed prompts", href: "/admin/engagement/knowledge", icon: Users },
-            { label: "Help with a pain point", desc: "Phrase-led support for workflow and admin pressure", href: "/admin/engagement/pain-points", icon: Zap },
+            { label: "Prepare for a prospect", desc: "Sectors, personas, objections, and VAT-informed prompts to help you prepare for a conversation", href: "/admin/engagement/knowledge", icon: Users },
+            { label: "Knowledge library", desc: "Full playbook — pain points, scripts, pricing bands, and approved outreach blocks", href: "/admin/engagement/knowledge", icon: Zap },
           ].map(({ label, desc, href, icon: Icon }) => (
             <Link key={href} href={href} className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3.5 hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/40 transition-colors">
               <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#063b32]/8 text-[#063b32]">
@@ -226,51 +217,28 @@ export default function EngagementOverview() {
 
         <p className="text-sm font-semibold text-[#111111]">Content & publishing</p>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <SectionCard
-            title="Recent insights"
+            title="Recent posts"
             action={<Link href="/admin/posts" className="text-xs font-semibold text-[#063b32] hover:underline">All posts</Link>}
           >
             {stats.loading ? (
               <p className="px-5 py-6 text-sm text-[#6f6b62]">Loading…</p>
-            ) : stats.recentInsightPosts.length === 0 ? (
+            ) : stats.recentPosts.length === 0 ? (
               <p className="px-5 py-6 text-sm text-[#6f6b62]">
-                No published posts yet. <Link href="/admin/posts/new" className="text-[#063b32] underline">Write one</Link>
+                No posts yet. <Link href="/admin/posts/new" className="text-[#063b32] underline">Write one</Link>
               </p>
             ) : (
               <div className="divide-y divide-[#111111]/5">
-                {stats.recentInsightPosts.map((p) => (
-                  <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors">
-                    <span className="text-sm font-semibold text-[#111111] truncate">{p.title}</span>
-                    <span className="ml-2 shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">Published</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-
-          <SectionCard
-            title="Upcoming social"
-            action={<Link href="/admin/calendar" className="text-xs font-semibold text-[#063b32] hover:underline">Calendar</Link>}
-          >
-            {stats.loading ? (
-              <p className="px-5 py-6 text-sm text-[#6f6b62]">Loading…</p>
-            ) : stats.upcomingSocialPosts.length === 0 ? (
-              <p className="px-5 py-6 text-sm text-[#6f6b62]">
-                No scheduled social posts. <Link href="/admin/posts/new" className="text-[#063b32] underline">Create one</Link>
-              </p>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {stats.upcomingSocialPosts.map((p) => {
-                  const overdue = p.scheduled_at && p.scheduled_at < now;
+                {stats.recentPosts.map((p) => {
+                  const statusColor =
+                    p.status === "published" ? "bg-emerald-100 text-emerald-700"
+                    : p.status === "scheduled" ? "bg-blue-100 text-blue-700"
+                    : "bg-[#f7f4ea] text-[#6f6b62]";
                   return (
                     <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors">
                       <span className="text-sm font-semibold text-[#111111] truncate">{p.title}</span>
-                      {p.scheduled_at && (
-                        <span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${overdue ? "bg-red-100 text-red-700" : "bg-blue-100 text-blue-700"}`}>
-                          {overdue ? "Overdue" : new Date(p.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                        </span>
-                      )}
+                      <span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${statusColor}`}>{p.status}</span>
                     </Link>
                   );
                 })}
@@ -279,25 +247,28 @@ export default function EngagementOverview() {
           </SectionCard>
 
           <SectionCard
-            title="Upcoming blog"
+            title="Upcoming posts"
             action={<Link href="/admin/calendar" className="text-xs font-semibold text-[#063b32] hover:underline">Calendar</Link>}
           >
             {stats.loading ? (
               <p className="px-5 py-6 text-sm text-[#6f6b62]">Loading…</p>
-            ) : stats.upcomingBlogPosts.length === 0 ? (
+            ) : stats.upcomingPosts.length === 0 ? (
               <p className="px-5 py-6 text-sm text-[#6f6b62]">
-                No scheduled blog posts. <Link href="/admin/posts/new" className="text-[#063b32] underline">Schedule one</Link>
+                No upcoming scheduled posts. <Link href="/admin/posts/new" className="text-[#063b32] underline">Schedule one</Link>
               </p>
             ) : (
               <div className="divide-y divide-[#111111]/5">
-                {stats.upcomingBlogPosts.map((p) => {
-                  const overdue = p.scheduled_at && p.scheduled_at < now;
+                {stats.upcomingPosts.map((p) => {
+                  const isSocial = (p.content_type || "").toLowerCase().includes("social");
                   return (
                     <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors">
-                      <span className="text-sm font-semibold text-[#111111] truncate">{p.title}</span>
+                      <div className="min-w-0">
+                        <span className="block text-sm font-semibold text-[#111111] truncate">{p.title}</span>
+                        <span className="text-[10px] text-[#6f6b62]">{isSocial ? "Social" : "Blog"}</span>
+                      </div>
                       {p.scheduled_at && (
-                        <span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${overdue ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}>
-                          {overdue ? "Overdue" : new Date(p.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                        <span className="ml-2 shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
+                          {new Date(p.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
                         </span>
                       )}
                     </Link>
@@ -306,23 +277,6 @@ export default function EngagementOverview() {
               </div>
             )}
           </SectionCard>
-        </div>
-
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {[
-            { label: "Knowledge Library", href: "/admin/engagement/knowledge", icon: BookOpen, desc: "Playbooks, sectors and scripts" },
-            { label: "Website Enquiries", href: "/admin/enquiries", icon: Users, desc: "Contact form submissions" },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-xl border border-[#111111]/10 bg-white p-4 hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/40 transition-colors"
-            >
-              <item.icon className="h-5 w-5 text-[#063b32]" />
-              <p className="mt-2 text-sm font-semibold text-[#111111]">{item.label}</p>
-              <p className="mt-0.5 text-xs text-[#6f6b62]">{item.desc}</p>
-            </Link>
-          ))}
         </div>
       </div>
     </div>
