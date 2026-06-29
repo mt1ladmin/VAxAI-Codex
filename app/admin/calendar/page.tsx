@@ -87,6 +87,14 @@ function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
+// Parse an ISO date/datetime string into a LOCAL Date so timezone offsets never
+// shift the calendar day. "2025-07-15T09:00:00Z" → local July 15, not July 14.
+function parseLocalDay(isoStr: string): Date {
+  const datePart = isoStr.slice(0, 10); // "YYYY-MM-DD"
+  const [y, m, d] = datePart.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
 function toDateStr(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -375,15 +383,14 @@ export default function CalendarPage() {
       const dateStr = p.status === "published"
         ? (p.published_at ?? p.updated_at)
         : p.scheduled_at!;
-      return isSameDay(new Date(dateStr), day);
+      return isSameDay(parseLocalDay(dateStr), day);
     });
   }
 
   function socialOnDay(day: Date) {
     return socialPosts.filter((s) => {
       if (s.link?.startsWith("/admin/posts/")) return false;
-      const d = new Date(s.scheduled_date + "T00:00:00");
-      return isSameDay(d, day);
+      return isSameDay(parseLocalDay(s.scheduled_date), day);
     });
   }
 
