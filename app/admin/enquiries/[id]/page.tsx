@@ -389,6 +389,9 @@ function EnquiryDetailContent() {
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
   const notesCount = countNotes(enquiry.admin_notes);
   const linkedNextActions = collectLinkedNextActions({ enquiry, opportunities });
+  const latestFollowUpTask = [...openTasks]
+    .filter((t) => t.task_type === "follow_up")
+    .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))[0] ?? null;
   const openWorkCount = countOpenWorkItems(openTasks, linkedNextActions);
 
   const handleSaveLinkedNextAction = async (
@@ -440,13 +443,13 @@ function EnquiryDetailContent() {
               </div>
             </div>
             <div className="mb-4">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">How they converted *</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Services being provided *</label>
               <textarea
                 value={clientNote}
                 onChange={(e) => setClientNote(e.target.value)}
                 rows={4}
                 autoFocus
-                placeholder="Describe how this enquiry converted to a client…"
+                placeholder="Describe the services VAxAI is providing to this client…"
                 className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500 resize-none"
               />
             </div>
@@ -562,6 +565,16 @@ function EnquiryDetailContent() {
               <p className="mt-2 text-xs text-red-600 whitespace-pre-wrap">{statusError}</p>
             )}
           </div>
+
+          {latestFollowUpTask && (
+            <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 space-y-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-orange-700">Next action</p>
+              <p className="text-sm text-[#111111]">{latestFollowUpTask.title}</p>
+              {latestFollowUpTask.due_date && (
+                <p className="text-xs text-orange-600">Due {new Date(latestFollowUpTask.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</p>
+              )}
+            </div>
+          )}
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             {enquiry.is_client ? (

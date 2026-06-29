@@ -43,24 +43,29 @@ export default function SettingsPage() {
   const [copied, setCopied] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
 
+  function dedup<T extends { id: string }>(items: T[]): T[] {
+    const seen = new Set<string>();
+    return items.filter((i) => (seen.has(i.id) ? false : (seen.add(i.id), true)));
+  }
+
   const load = useCallback(async () => {
     setLoading(true);
     if (tab === "rec_rules") {
       const res = await fetch("/api/admin/engagement/rec-rules?limit=100");
       const json = await res.json() as { data: RecommendationRule[] };
-      setRecRules(json.data || []);
+      setRecRules(dedup(json.data || []));
     } else if (tab === "pricing") {
       const res = await fetch("/api/admin/engagement/pricing?limit=50");
       const json = await res.json() as { data: PricingRule[] };
-      setPricing(json.data || []);
+      setPricing(dedup(json.data || []));
     } else if (tab === "vat_prompts") {
       const res = await fetch("/api/admin/engagement/vat-prompts?limit=200");
       const json = await res.json() as { data: VatPrompt[] };
-      setVatPrompts(json.data || []);
+      setVatPrompts(dedup(json.data || []));
     } else if (tab === "team_members") {
       const res = await fetch("/api/admin/engagement/team-members?active_only=false");
       const json = await res.json() as { data: StudioTeamMember[] };
-      setTeamMembers(json.data || []);
+      setTeamMembers(dedup(json.data || []));
     } else if (tab === "scripts") {
       const params = new URLSearchParams();
       if (search) params.set("q", search);
@@ -68,7 +73,7 @@ export default function SettingsPage() {
       params.set("limit", "100");
       const res = await fetch(`/api/admin/engagement/scripts?${params}`);
       const json = await res.json() as { data: EngagementScript[] };
-      setScripts(json.data || []);
+      setScripts(dedup(json.data || []));
     } else if (tab === "objections") {
       const params = new URLSearchParams();
       if (search) params.set("q", search);
@@ -76,7 +81,7 @@ export default function SettingsPage() {
       params.set("limit", "100");
       const res = await fetch(`/api/admin/engagement/objections?${params}`);
       const json = await res.json() as { data: Objection[] };
-      setObjections(json.data || []);
+      setObjections(dedup(json.data || []));
     }
     setLoading(false);
   }, [tab, search, channel, category]);
