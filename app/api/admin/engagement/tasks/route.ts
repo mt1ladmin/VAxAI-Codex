@@ -44,8 +44,8 @@ export async function GET(req: NextRequest) {
     .order("due_date", { ascending: true })
     .limit(limit);
 
-  if (status) query = query.eq("status", status);
-  else query = query.neq("status", "done");
+  if (status && status !== "all") query = query.eq("status", status);
+  else if (!status) query = query.neq("status", "done");
   if (priority) query = query.eq("priority", priority);
   if (org) query = query.eq("organisation_id", org);
   if (contact) query = query.eq("contact_id", contact);
