@@ -108,36 +108,51 @@ export function HubNotesTab({
       )}
 
       {showAddNote && (
-        <div className="rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 p-4 space-y-3">
-          <textarea
-            value={noteText}
-            onChange={(e) => onNoteTextChange(e.target.value)}
-            placeholder={placeholder}
-            rows={4}
-            className={inputClass}
-            autoFocus
-          />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => void onSave()}
-              disabled={saving || !noteText.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-            >
-              {saving ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Save className="h-3.5 w-3.5" />
-              )}
-              Save note
-            </button>
-            <button
-              type="button"
-              onClick={onHideAddNote}
-              className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-            >
-              <X className="h-3.5 w-3.5" /> Cancel
-            </button>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={onHideAddNote}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+              <p className="text-sm font-semibold text-[#111111]">New note</p>
+              <button type="button" onClick={onHideAddNote} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-5">
+              <textarea
+                value={noteText}
+                onChange={(e) => onNoteTextChange(e.target.value)}
+                placeholder={placeholder}
+                rows={5}
+                className={inputClass}
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-2 border-t border-[#111111]/10 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => void onSave()}
+                disabled={saving || !noteText.trim()}
+                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                Save note
+              </button>
+              <button
+                type="button"
+                onClick={onHideAddNote}
+                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

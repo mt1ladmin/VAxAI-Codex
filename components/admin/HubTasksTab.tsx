@@ -240,62 +240,82 @@ export function HubTasksTab({
       </div>
 
       {addingTask && (
-        <div className="rounded-xl border border-[#063b32]/20 bg-white p-5 space-y-3">
-          <input
-            value={taskForm.title}
-            onChange={(e) => setTaskForm((f) => ({ ...f, title: e.target.value }))}
-            placeholder="Task title…"
-            className={fieldClass}
-          />
-          <div className="grid grid-cols-2 gap-2">
-            <FormSelect
-              value={taskForm.priority}
-              onChange={(v) => setTaskForm((f) => ({ ...f, priority: v }))}
-              options={[
-                { value: "high", label: "High priority" },
-                { value: "medium", label: "Medium priority" },
-                { value: "low", label: "Low priority" },
-              ]}
-            />
-            <input
-              type="date"
-              value={taskForm.due_date}
-              onChange={(e) => setTaskForm((f) => ({ ...f, due_date: e.target.value }))}
-              className={fieldClass}
-            />
-          </div>
-          {teamMembers.length > 0 && (
-            <FormSelect
-              value={taskForm.assigned_team_member_id}
-              onChange={(v) => setTaskForm((f) => ({ ...f, assigned_team_member_id: v }))}
-              placeholder="Assign to…"
-              options={teamMembers.map((m) => ({ value: m.id, label: m.display_name }))}
-            />
-          )}
-          <textarea
-            value={taskForm.notes}
-            onChange={(e) => setTaskForm((f) => ({ ...f, notes: e.target.value }))}
-            placeholder="Notes (optional)…"
-            rows={2}
-            className={`${fieldClass} resize-none`}
-          />
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => void onCreateTask()}
-              disabled={savingTask || !taskForm.title.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
-            >
-              {savingTask ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              Save task
-            </button>
-            <button
-              type="button"
-              onClick={() => setAddingTask(false)}
-              className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
-            >
-              Cancel
-            </button>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setAddingTask(false)}
+          role="presentation"
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-xl border border-[#111111]/10 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+              <p className="text-sm font-semibold text-[#111111]">New task — {entityLabel}</p>
+              <button type="button" onClick={() => setAddingTask(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+                <Plus className="h-4 w-4 rotate-45" />
+              </button>
+            </div>
+            <div className="space-y-3 p-5">
+              <input
+                value={taskForm.title}
+                onChange={(e) => setTaskForm((f) => ({ ...f, title: e.target.value }))}
+                placeholder="Task title…"
+                className={fieldClass}
+                autoFocus
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <FormSelect
+                  value={taskForm.priority}
+                  onChange={(v) => setTaskForm((f) => ({ ...f, priority: v }))}
+                  options={[
+                    { value: "high", label: "High priority" },
+                    { value: "medium", label: "Medium priority" },
+                    { value: "low", label: "Low priority" },
+                  ]}
+                />
+                <input
+                  type="date"
+                  value={taskForm.due_date}
+                  onChange={(e) => setTaskForm((f) => ({ ...f, due_date: e.target.value }))}
+                  className={fieldClass}
+                />
+              </div>
+              {teamMembers.length > 0 && (
+                <FormSelect
+                  value={taskForm.assigned_team_member_id}
+                  onChange={(v) => setTaskForm((f) => ({ ...f, assigned_team_member_id: v }))}
+                  placeholder="Assign to…"
+                  options={teamMembers.map((m) => ({ value: m.id, label: m.display_name }))}
+                />
+              )}
+              <textarea
+                value={taskForm.notes}
+                onChange={(e) => setTaskForm((f) => ({ ...f, notes: e.target.value }))}
+                placeholder="Notes (optional)…"
+                rows={2}
+                className={`${fieldClass} resize-none`}
+              />
+            </div>
+            <div className="flex gap-2 border-t border-[#111111]/10 px-5 py-4">
+              <button
+                type="button"
+                onClick={() => void onCreateTask()}
+                disabled={savingTask || !taskForm.title.trim()}
+                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                {savingTask ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                Save task
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddingTask(false)}
+                className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -458,11 +478,6 @@ export function HubTasksTab({
                         {t.assignee.display_name}
                       </span>
                     )}
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${TASK_TYPE_BADGE[t.task_type ?? "other"] ?? "bg-[#111111]/8 text-[#6f6b62]"}`}
-                    >
-                      {TASK_TYPE_LABEL[t.task_type ?? "other"] ?? t.task_type ?? "Task"}
-                    </span>
                     {t.due_date && (
                       <span
                         className={`shrink-0 flex items-center gap-1 text-xs ${isOverdue ? "text-red-600 font-semibold" : "text-[#6f6b62]"}`}
