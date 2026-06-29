@@ -249,10 +249,10 @@ export default function EnquiriesPage() {
           </div>
         </div>
         {!loading && metrics.isClient > 0 && (
-          <div className="mb-6 rounded-xl border border-purple-200 bg-purple-50/50 p-4 flex items-center gap-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-purple-700">Clients</p>
-              <p className="mt-1 text-2xl font-bold tabular-nums text-purple-800">{metrics.isClient}</p>
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-purple-50 px-4 py-1.5">
+              <span className="text-xs font-semibold text-purple-800">Clients logged</span>
+              <span className="text-sm font-bold tabular-nums text-purple-900">{metrics.isClient}</span>
             </div>
           </div>
         )}

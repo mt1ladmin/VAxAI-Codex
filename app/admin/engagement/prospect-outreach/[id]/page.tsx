@@ -285,6 +285,7 @@ function ProspectFinderDetailContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" }),
     });
+    setShowDone(true);
     await load({ silent: true });
   };
 
