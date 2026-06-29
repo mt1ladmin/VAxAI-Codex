@@ -162,7 +162,7 @@ function ProspectFinderDetailContent() {
     const json = await res.json();
     if (!res.ok) throw new Error(json.error || "Failed to save");
     if (json.data) {
-      setRecord(json.data);
+      setRecord((prev) => prev ? { ...prev, ...json.data } as ProspectFinderListItem : json.data);
       setReviewNotes(json.data.review_notes || "");
     }
     return json.data;
