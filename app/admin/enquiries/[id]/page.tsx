@@ -347,6 +347,7 @@ function EnquiryDetailContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" }),
     });
+    setShowDone(true);
     if (enquiry) {
       void loadTasks(enquiry.contact_id, enquiry.organisation_id, opportunities);
     }

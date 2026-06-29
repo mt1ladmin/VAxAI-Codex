@@ -121,15 +121,10 @@ type HubTasksTabProps = {
   setShowDone: (value: boolean) => void;
 };
 
-function sortByDue<T extends { dueDate?: string | null; due_date?: string | null }>(items: T[]): T[] {
-  return [...items].sort((a, b) => {
-    const aDue = a.dueDate ?? a.due_date ?? null;
-    const bDue = b.dueDate ?? b.due_date ?? null;
-    if (!aDue && !bDue) return 0;
-    if (!aDue) return 1;
-    if (!bDue) return -1;
-    return new Date(aDue).getTime() - new Date(bDue).getTime();
-  });
+function sortByCreatedDesc<T extends { created_at?: string | null }>(items: T[]): T[] {
+  return [...items].sort((a, b) =>
+    (b.created_at ?? "").localeCompare(a.created_at ?? ""),
+  );
 }
 
 export function HubTasksTab({
@@ -166,8 +161,8 @@ export function HubTasksTab({
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
   const visibleLinked = tasksOnly ? [] : linkedNextActions;
-  const sortedLinked = sortByDue(visibleLinked);
-  const sortedOpen = sortByDue(openTasks);
+  const sortedLinked = sortByCreatedDesc(visibleLinked);
+  const sortedOpen = sortByCreatedDesc(openTasks);
   const hasOpenWork = sortedOpen.length > 0 || sortedLinked.length > 0;
 
   const startEditLinked = (item: LinkedNextAction) => {
