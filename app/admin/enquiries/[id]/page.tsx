@@ -9,7 +9,6 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
-import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import { CollapsibleNote } from "@/components/admin/CollapsibleNote";
 import { HubNotesTab } from "@/components/admin/HubNotesTab";
 import { HubDetailSkeleton } from "@/components/admin/HubDetailSkeleton";
@@ -494,7 +493,6 @@ function EnquiryDetailContent() {
                 onSave={saveNote}
                 onReplaceNotes={replaceNotes}
                 placeholder="What happened? What was discussed?"
-                header={<KnowledgeAttachPicker enquiryId={id} onSaved={bumpTimeline} />}
               />
             </div>
           )}
