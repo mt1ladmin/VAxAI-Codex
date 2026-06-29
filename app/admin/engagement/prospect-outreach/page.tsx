@@ -241,7 +241,7 @@ export default function ProspectFinderPage() {
           decision_maker_name: "", decision_maker_role: "", email: "", phone: "",
         });
         router.refresh();
-        router.push(`/admin/engagement/prospect-outreach/${json.data.id}`);
+        router.push(`/admin/engagement/prospect-outreach?q=${encodeURIComponent(addForm.organisation_name.trim())}`);
       } else {
         const detail = [json.error, json.hint].filter(Boolean).join(" — ");
         alert(detail || "Failed to create prospect — please try again.");
