@@ -884,33 +884,38 @@ function EnquiryDetailContent() {
                     </div>
                   </div>
                 ) : enquiry.service_fit_summary || enquiry.likely_need || enquiry.complexity_level || enquiry.engagement_basis ? (
-                  <div className="space-y-3">
-                    {enquiry.service_fit_summary && (
-                      <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Service fit summary</p>
-                        <p className="mt-1 text-sm leading-relaxed text-[#111111]">{enquiry.service_fit_summary}</p>
-                      </div>
-                    )}
-                    {enquiry.likely_need && (
-                      <div>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
-                        <p className="mt-1 text-sm leading-relaxed text-[#111111]">{enquiry.likely_need}</p>
-                      </div>
-                    )}
+                  <div className="overflow-hidden rounded-lg border border-[#063b32]/12">
+                    {/* Complexity + engagement pill bar */}
                     {(enquiry.complexity_level || enquiry.engagement_basis) && (
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-wrap gap-2 border-b border-[#063b32]/10 bg-[#063b32]/5 px-3 py-2.5">
                         {enquiry.complexity_level && (
-                          <div className="rounded-lg border border-[#111111]/10 px-3 py-2">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Complexity level</p>
-                            <p className="mt-0.5 text-sm text-[#111111]">{enquiry.complexity_level}</p>
-                          </div>
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                            <span className="text-[#6f6b62] font-medium">Complexity</span>
+                            <span className="h-2.5 w-px bg-[#063b32]/20" />
+                            {enquiry.complexity_level}
+                          </span>
                         )}
                         {enquiry.engagement_basis && (
-                          <div className="rounded-lg border border-[#111111]/10 px-3 py-2">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement basis</p>
-                            <p className="mt-0.5 text-sm text-[#111111]">{enquiry.engagement_basis}</p>
-                          </div>
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32] capitalize">
+                            <span className="text-[#6f6b62] font-medium">Basis</span>
+                            <span className="h-2.5 w-px bg-[#063b32]/20" />
+                            {enquiry.engagement_basis.replace(/_/g, " ")}
+                          </span>
                         )}
+                      </div>
+                    )}
+                    {/* Service fit summary */}
+                    {enquiry.service_fit_summary && (
+                      <div className={`px-4 py-3${enquiry.likely_need ? " border-b border-[#063b32]/8" : ""}`}>
+                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Service fit summary</p>
+                        <p className="text-sm leading-relaxed text-[#111111]">{enquiry.service_fit_summary}</p>
+                      </div>
+                    )}
+                    {/* Likely need */}
+                    {enquiry.likely_need && (
+                      <div className="px-4 py-3">
+                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
+                        <p className="text-sm leading-relaxed text-[#111111]">{enquiry.likely_need}</p>
                       </div>
                     )}
                   </div>

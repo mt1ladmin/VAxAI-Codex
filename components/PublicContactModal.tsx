@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, Check, X } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
 
@@ -29,6 +30,9 @@ export default function PublicContactModal({ open, onClose }: Props) {
     };
   }, [open, onClose]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   if (!open) return null;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -55,7 +59,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
   const fieldClass =
     "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10";
 
-  return (
+  const modal = (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm"
       role="dialog"
@@ -151,4 +155,6 @@ export default function PublicContactModal({ open, onClose }: Props) {
       </div>
     </div>
   );
+
+  return mounted ? createPortal(modal, document.body) : null;
 }
