@@ -26,10 +26,11 @@ export async function GET(req: NextRequest) {
     loadCatalogRecords(supabase),
     supabase
       .from("engagement_tasks")
-      .select("outreach_id, task_type, title, due_date")
+      .select("outreach_id, task_type, title, due_date, created_at")
       .not("outreach_id", "is", null)
       .neq("status", "done")
-      .order("due_date", { ascending: true, nullsFirst: false }),
+      .eq("task_type", "follow_up")
+      .order("created_at", { ascending: false }),
     supabase.from("prospect_outreach_catalog").select("*", { count: "exact", head: true }),
   ]);
 
