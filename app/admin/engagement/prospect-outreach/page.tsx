@@ -232,8 +232,8 @@ export default function ProspectFinderPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prospect: { ...addForm, need_score: Number(addForm.need_score) } }),
       });
-      const json = await res.json() as { data?: { id?: string }; error?: string };
-      if (res.ok && json.data?.id) {
+      const json = await res.json() as { data?: { id?: string }; error?: string; code?: string; hint?: string };
+      if ((res.status === 200 || res.status === 201) && json.data?.id) {
         setShowAddModal(false);
         setAddForm({
           organisation_name: "", organisation_type: "Charity", location: "",
@@ -243,7 +243,8 @@ export default function ProspectFinderPage() {
         router.refresh();
         router.push(`/admin/engagement/prospect-outreach/${json.data.id}`);
       } else {
-        alert(json.error || "Failed to create prospect — please try again.");
+        const detail = [json.error, json.hint].filter(Boolean).join(" — ");
+        alert(detail || "Failed to create prospect — please try again.");
       }
     } catch {
       alert("Network error — please try again.");
