@@ -85,7 +85,6 @@ export default function ProspectFinderPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newlyAdded, setNewlyAdded] = useState<{ id: string; name: string } | null>(null);
   const [savingAdd, setSavingAdd] = useState(false);
   const [addForm, setAddForm] = useState({
     organisation_name: "",
@@ -235,15 +234,14 @@ export default function ProspectFinderPage() {
       });
       const json = await res.json() as { data?: { id?: string }; error?: string };
       if (res.ok && json.data?.id) {
-        const name = addForm.organisation_name;
         setShowAddModal(false);
         setAddForm({
           organisation_name: "", organisation_type: "Charity", location: "",
           region: OUTREACH_REGIONS[0], need_score: 3,
           decision_maker_name: "", decision_maker_role: "", email: "", phone: "",
         });
-        setNewlyAdded({ id: json.data.id, name });
-        await load({ forceSpinner: true });
+        router.refresh();
+        router.push(`/admin/engagement/prospect-outreach/${json.data.id}`);
       } else {
         alert(json.error || "Failed to create prospect — please try again.");
       }
@@ -391,23 +389,6 @@ export default function ProspectFinderPage() {
           )}
         </div>
       </div>
-
-      {newlyAdded && (
-        <div className="shrink-0 border-b border-emerald-200 bg-emerald-50 px-6 py-2.5 flex items-center justify-between">
-          <p className="text-sm text-emerald-800">
-            <span className="font-semibold">{newlyAdded.name}</span> added to Prospect Finder.{" "}
-            <Link
-              href={`/admin/engagement/prospect-outreach/${newlyAdded.id}`}
-              className="font-semibold underline hover:text-emerald-900"
-            >
-              View record →
-            </Link>
-          </p>
-          <button type="button" onClick={() => setNewlyAdded(null)} className="ml-4 text-emerald-600 hover:text-emerald-800">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      )}
 
       <div className="min-h-0 flex-1 overflow-auto">
         {loading && prospects.length === 0 ? (
