@@ -36,7 +36,7 @@ export function buildFinderWorkflow(
 ): ProspectFinderWorkflow {
   const engagementStatus = row?.engagement_status && isFinderEngagementStatus(row.engagement_status)
     ? row.engagement_status
-    : ("Not assigned" as FinderEngagementStatus);
+    : ("" as FinderEngagementStatus);
 
   const touchedAt = row?.updated_at ? new Date(row.updated_at) : null;
   const daysSinceTouch = touchedAt
