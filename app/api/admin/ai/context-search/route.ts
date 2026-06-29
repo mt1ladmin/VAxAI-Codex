@@ -2,7 +2,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { NextRequest, NextResponse } from "next/server";
 
 type SearchResult = {
-  type: "enquiry" | "client" | "outreach";
+  type: "enquiry" | "outreach";
   id: string;
   label: string;
   sublabel: string | null;
@@ -21,38 +21,32 @@ export async function GET(req: NextRequest) {
 
   type OverrideFields = { organisation_name?: string; decision_maker_name?: string };
 
-  const [enquiryRes, contactRes, catalogRes, overrideOrgRes, overrideDmRes] = await Promise.all([
+  const [enquiryRes, catalogRes, overrideOrgRes, overrideDmRes] = await Promise.all([
     supabase
       .from("enquiries")
       .select("id, name, email, support_type, status")
       .or(`name.ilike.${search},email.ilike.${search}`)
-      .limit(8),
-
-    supabase
-      .from("engagement_contacts")
-      .select("id, first_name, last_name, professional_email, role, organisation:organisation_id(name)")
-      .or(`first_name.ilike.${search},last_name.ilike.${search},professional_email.ilike.${search}`)
-      .limit(8),
+      .limit(6),
 
     supabase
       .from("prospect_outreach_catalog")
       .select("id, organisation_name, decision_maker_name, email, location")
       .or(`organisation_name.ilike.${search},decision_maker_name.ilike.${search},email.ilike.${search},location.ilike.${search}`)
-      .limit(8),
+      .limit(6),
 
     // Search overridden org names via JSONB path — Postgres does the filtering
     supabase
       .from("prospect_outreach_overrides")
       .select("outreach_id, overrides")
       .ilike("overrides->>organisation_name", search)
-      .limit(8),
+      .limit(6),
 
     // Search overridden decision maker names via JSONB path
     supabase
       .from("prospect_outreach_overrides")
       .select("outreach_id, overrides")
       .ilike("overrides->>decision_maker_name", search)
-      .limit(8),
+      .limit(6),
   ]);
 
   // Build a map of outreach_id → effective overrides from the targeted override queries
@@ -75,18 +69,6 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  for (const c of contactRes.data ?? []) {
-    const rawOrg = c.organisation as unknown;
-    const org = (Array.isArray(rawOrg) ? rawOrg[0] : rawOrg) as { name: string } | null | undefined;
-    results.push({
-      type: "client",
-      id: c.id,
-      label: `${c.first_name} ${c.last_name ?? ""}`.trim(),
-      sublabel: org?.name ?? (c.professional_email as string | null),
-      status: null,
-    });
-  }
-
   // Prospects matched by original catalog name (show effective/overridden label)
   const seenOutreachIds = new Set<string>();
   for (const p of catalogRes.data ?? []) {
@@ -97,13 +79,24 @@ export async function GET(req: NextRequest) {
     results.push({ type: "outreach", id: p.id as string, label, sublabel, status: null });
   }
 
-  // Prospects matched only by their overridden name (not returned by catalog query)
-  for (const [outreachId, ov] of overrideMap) {
+  // Resolve override-only matches against the live Finder catalogue. Deleted
+  // catalogue rows are intentionally excluded even if an old override remains.
+  const overrideOnlyIds = [...overrideMap.keys()].filter((id) => !seenOutreachIds.has(id));
+  const { data: liveOverrideMatches } = overrideOnlyIds.length
+    ? await supabase
+        .from("prospect_outreach_catalog")
+        .select("id, organisation_name, decision_maker_name, email")
+        .in("id", overrideOnlyIds)
+    : { data: [] };
+
+  for (const prospect of liveOverrideMatches ?? []) {
+    const outreachId = prospect.id as string;
+    const ov = overrideMap.get(outreachId) ?? {};
     if (seenOutreachIds.has(outreachId)) continue;
-    const label = ov.organisation_name ?? "";
-    const sublabel = ov.decision_maker_name ?? null;
-    results.push({ type: "outreach", id: outreachId, label: label || outreachId, sublabel, status: null });
+    const label = ov.organisation_name ?? (prospect.organisation_name as string);
+    const sublabel = ov.decision_maker_name ?? (prospect.decision_maker_name as string | null) ?? (prospect.email as string | null);
+    results.push({ type: "outreach", id: outreachId, label, sublabel, status: null });
   }
 
-  return NextResponse.json({ data: results });
+  return NextResponse.json({ data: results.slice(0, 10) });
 }

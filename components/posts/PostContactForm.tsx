@@ -6,6 +6,7 @@ import { ArrowRight, Check } from "lucide-react";
 type Props = { postId: string; postTitle: string };
 
 export default function PostContactForm({ postId, postTitle }: Props) {
+  const [expanded, setExpanded] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -47,6 +48,19 @@ export default function PostContactForm({ postId, postTitle }: Props) {
     );
   }
 
+  if (!expanded) {
+    return (
+      <button
+        type="button"
+        onClick={() => setExpanded(true)}
+        className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+      >
+        Get in touch
+        <ArrowRight className="h-4 w-4" />
+      </button>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
       <div>
@@ -55,7 +69,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#063b32]"
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10"
           placeholder="Your name"
         />
       </div>
@@ -66,7 +80,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#063b32]"
+          className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10"
           placeholder="you@example.com"
         />
       </div>
@@ -77,7 +91,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
           rows={4}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full resize-none rounded-lg border border-gray-200 px-4 py-3 text-sm outline-none focus:border-[#063b32]"
+          className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10"
           placeholder="What would you like to discuss?"
         />
       </div>
@@ -88,7 +102,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? "Sending…" : "Send message"}
           <ArrowRight className="h-4 w-4" />

@@ -50,17 +50,17 @@ type SearchResult = {
 
 
 const TYPE_BADGE: Record<string, string> = {
-  enquiry: "bg-violet-100 text-violet-700",
-  client: "bg-[#063b32]/10 text-[#063b32]",
-  prospect: "bg-amber-100 text-amber-700",
-  outreach: "bg-amber-100 text-amber-700",
+  enquiry: "bg-[#f7f4ea] text-[#6f6b62]",
+  client: "bg-[#f7f4ea] text-[#6f6b62]",
+  prospect: "bg-[#f7f4ea] text-[#6f6b62]",
+  outreach: "bg-[#f7f4ea] text-[#6f6b62]",
 };
 
 const TYPE_DOT: Record<string, string> = {
   enquiry: "bg-violet-500",
   client: "bg-[#063b32]",
-  prospect: "bg-amber-500",
-  outreach: "bg-amber-500",
+  prospect: "bg-[#063b32]",
+  outreach: "bg-[#063b32]",
 };
 
 type PanelSize = "large" | "xl";
@@ -719,10 +719,10 @@ function ContextPicker({
       <div className="shrink-0">
         <p className="text-sm font-semibold text-[#111111]">Select an account</p>
         <p className="mt-0.5 text-xs text-[#6f6b62]">
-          Search for an enquiry, contact, or Prospect Finder record to start a conversation.
+          Search current Website Enquiries or Prospect Finder records to start a conversation.
         </p>
       </div>
-      <div className="flex items-center gap-2 rounded-xl border border-[#111111]/15 bg-[#f7f4ea] px-3 py-2 focus-within:border-[#063b32]">
+      <div className="flex items-center gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 shadow-sm focus-within:border-[#063b32] focus-within:ring-2 focus-within:ring-[#063b32]/8">
         <Search className="h-4 w-4 shrink-0 text-[#6f6b62]" />
         <input
           autoFocus
@@ -735,26 +735,23 @@ function ContextPicker({
       </div>
 
       {results.length > 0 && (
-        <div className="space-y-1">
+        <div className="overflow-hidden rounded-xl border border-[#111111]/10 bg-white">
           {results.map((r) => (
             <button
               key={`${r.type}-${r.id}`}
               type="button"
               onClick={() => onSelect(r.type, r.id, r.label)}
-              className="flex w-full items-center gap-3 rounded-xl border border-[#111111]/10 px-3 py-2.5 text-left hover:border-[#063b32]/20 hover:bg-[#f7f4ea] transition-colors"
+              className="flex w-full items-center gap-3 border-b border-[#111111]/8 px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#f7f4ea]/50"
             >
-              <span className={`shrink-0 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase ${TYPE_BADGE[r.type] ?? "bg-gray-100 text-gray-600"}`}>
-                {TYPE_LABEL[r.type]}
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[10px] font-bold uppercase ${TYPE_BADGE[r.type] ?? "bg-[#f7f4ea] text-[#6f6b62]"}`}>
+                {r.label.slice(0, 1)}
               </span>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-[#111111]">{r.label}</p>
-                {r.sublabel && (
-                  <p className="truncate text-xs text-[#6f6b62]">{r.sublabel}</p>
-                )}
+                <p className="truncate text-xs text-[#6f6b62]">
+                  {TYPE_LABEL[r.type]}{r.sublabel ? ` · ${r.sublabel}` : ""}{r.status ? ` · ${r.status}` : ""}
+                </p>
               </div>
-              {r.status && (
-                <span className="ml-auto shrink-0 text-[10px] text-[#6f6b62]">{r.status}</span>
-              )}
             </button>
           ))}
         </div>
@@ -1009,9 +1006,9 @@ export function AIAssistantWidget() {
           {/* Body */}
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {viewingDifferentAccount && hasAccountContext && (
-              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-amber-200/80 bg-amber-50 px-3 py-2">
-                <p className="text-[11px] text-amber-900">
-                  Chatting about a different account than this page
+              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#111111]/10 bg-[#f7f4ea]/60 px-3 py-2">
+                <p className="text-[11px] text-[#6f6b62]">
+                  Viewing another account
                 </p>
                 <button
                   type="button"

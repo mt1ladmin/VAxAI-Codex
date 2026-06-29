@@ -204,9 +204,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               )}
 
               {/* Contact form */}
-              <div className="mt-16 rounded-2xl border border-gray-100 bg-gray-50 p-6 sm:p-8">
+              <div className="mt-16 rounded-3xl border border-[#063b32]/10 bg-[#f7f4ea]/50 p-6 sm:p-8">
                 <h2 className="mb-1 text-xl font-bold text-gray-900">Get in touch</h2>
-                <p className="mb-6 text-sm text-gray-500">
+                <p className="mb-5 max-w-xl text-sm leading-6 text-gray-500">
                   Have a question about this post or want to explore working together? Your enquiry will be linked to this content.
                 </p>
                 <PostContactForm postId={post.id} postTitle={post.title} />
