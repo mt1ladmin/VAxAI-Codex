@@ -137,12 +137,16 @@ function TaskBoardCard({
   onDragStart,
   onEdit,
   allowClientLinks,
+  selected,
+  onToggleSelect,
 }: {
   task: EngagementTask;
   onToggleStatus: (id: string, currentStatus: string) => void;
   onDragStart: (taskId: string) => void;
   onEdit: (task: EngagementTask) => void;
   allowClientLinks: boolean;
+  selected: boolean;
+  onToggleSelect: (id: string) => void;
 }) {
   const recordHref = taskRecordHref(task, allowClientLinks);
 
@@ -150,9 +154,19 @@ function TaskBoardCard({
     <div
       draggable
       onDragStart={() => onDragStart(task.id)}
-      className="cursor-grab rounded-lg border border-[#111111]/10 bg-white p-3 shadow-sm active:cursor-grabbing"
+      className={`cursor-grab rounded-lg border bg-white p-3 shadow-sm active:cursor-grabbing transition-colors ${selected ? "border-[#063b32]/40 bg-[#063b32]/5" : "border-[#111111]/10"}`}
     >
       <div className="flex items-start gap-2">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleSelect(task.id); }}
+          className={`mt-0.5 h-4 w-4 shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
+            selected ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/20 hover:border-[#063b32]"
+          }`}
+          title={selected ? "Deselect" : "Select"}
+        >
+          {selected && <Check className="h-2.5 w-2.5 text-white" />}
+        </button>
         <button
           type="button"
           onClick={() => void onToggleStatus(task.id, task.status)}
@@ -229,6 +243,8 @@ export function TasksListView({
   const [editForm, setEditForm] = useState({ title: "", due_date: "", notes: "", priority: "medium", status: "todo" });
   const [savingEdit, setSavingEdit] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const studioAccess = useStudioAccessOptional();
   const allowClientLinks = true;
 
@@ -373,6 +389,26 @@ export function TasksListView({
     void load();
   };
 
+  const toggleTaskSelect = (id: string) => {
+    setSelectedTaskIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const bulkDeleteTasks = async () => {
+    if (!selectedTaskIds.size) return;
+    if (!confirm(`Delete ${selectedTaskIds.size} task${selectedTaskIds.size === 1 ? "" : "s"}? This cannot be undone.`)) return;
+    setBulkDeleting(true);
+    const ids = [...selectedTaskIds];
+    setTasks((prev) => prev.filter((t) => !ids.includes(t.id)));
+    setSelectedTaskIds(new Set());
+    await Promise.all(ids.map((id) => fetch(`/api/admin/engagement/tasks/${id}`, { method: "DELETE" })));
+    setBulkDeleting(false);
+    void load();
+  };
+
   return (
     <div className={embedded ? "" : "min-h-screen bg-white"}>
       {initialLoading ? (
@@ -390,7 +426,7 @@ export function TasksListView({
             <div>
               <h1 className="text-lg font-semibold text-[#111111]">Tasks Tracker</h1>
               <p className="text-sm text-[#6f6b62]">
-                Master task list across Prospect Finder and Website Enquiries
+                Master task list across Prospect Finder and Enquiries
               </p>
             </div>
           </div>
@@ -521,6 +557,28 @@ export function TasksListView({
           </select>
         </div>
 
+        {selectedTaskIds.size > 0 && (
+          <div className="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5">
+            <span className="text-xs font-semibold text-red-700">{selectedTaskIds.size} task{selectedTaskIds.size === 1 ? "" : "s"} selected</span>
+            <button
+              type="button"
+              disabled={bulkDeleting}
+              onClick={() => void bulkDeleteTasks()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              {bulkDeleting ? "Deleting…" : `Delete ${selectedTaskIds.size} selected`}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedTaskIds(new Set())}
+              className="ml-auto grid h-6 w-6 place-items-center rounded-full border border-red-200 text-red-500 hover:bg-red-100"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+
         {filteredTasks.length === 0 ? (
           <div className="rounded-xl border border-[#111111]/10 py-16 text-center">
             <CheckSquare className="mx-auto h-8 w-8 text-[#6f6b62]/40 mb-3" />
@@ -546,7 +604,7 @@ export function TasksListView({
                   </div>
                   <div className="min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto p-2 space-y-2 scrollbar-subtle">
                     {items.map((t) => (
-                      <TaskBoardCard key={t.id} task={t} onToggleStatus={toggleTaskStatus} onDragStart={setDraggingId} onEdit={openEdit} allowClientLinks={allowClientLinks} />
+                      <TaskBoardCard key={(t as EngagementTask).id} task={t as EngagementTask} onToggleStatus={(id, s) => { void toggleTaskStatus(id, s); }} onDragStart={(id: string) => { setDraggingId(id); }} onEdit={openEdit} allowClientLinks={allowClientLinks} selected={Boolean(selectedTaskIds.has((t as EngagementTask).id))} onToggleSelect={toggleTaskSelect} />
                     ))}
                     {items.length === 0 && (
                       <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-[#111111]/10 text-[11px] text-[#6f6b62]/50">
