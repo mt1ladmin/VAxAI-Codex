@@ -49,7 +49,7 @@ type SocialDraft = {
   hashtags?: string[];
 };
 
-type LinkedSocialPost = SocialPostPreview & { scheduled_date: string };
+type LinkedSocialPost = Omit<SocialPostPreview, "scheduled_date"> & { scheduled_date: string };
 
 const PRESET_TYPES = ["Insight", "Research", "Article", "Guide", "Case Study", "Video", "Framework Comparison"];
 
@@ -535,7 +535,13 @@ export default function EditPostPage() {
           onClose={() => setActiveSocialPreview(null)}
           onDelete={() => { void deleteLinkedSocial(activeSocialPreview.id); setActiveSocialPreview(null); }}
           onSaved={(updated) => {
-            setLinkedSocial((prev) => prev.map((s) => s.id === updated.id ? { ...s, ...updated } : s));
+            setLinkedSocial((prev) =>
+              prev.map((s) =>
+                s.id === updated.id
+                  ? { ...s, ...updated, scheduled_date: updated.scheduled_date ?? s.scheduled_date }
+                  : s
+              )
+            );
             setActiveSocialPreview(null);
           }}
         />
