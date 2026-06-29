@@ -59,6 +59,7 @@ export function buildFinderList(
   overrides: Map<string, Record<string, unknown>>,
   members: StudioTeamMember[],
   catalog: ProspectOutreachRecord[],
+  followUpTitles?: Map<string, string>,
 ): ProspectFinderListItem[] {
   const source = catalog;
   return source.filter((base) => !isArchivedProspect(overrides.get(base.id))).map((base) => {
@@ -70,6 +71,7 @@ export function buildFinderList(
       ...workflow,
       sector_label: sectorLabel(merged),
       priority_label: priorityLabel(merged.need_score),
+      follow_up_task_title: followUpTitles?.get(base.id) ?? null,
     };
   });
 }
@@ -166,6 +168,7 @@ export function getFinderRecord(
     ...workflow,
     sector_label: sectorLabel(merged),
     priority_label: priorityLabel(merged.need_score),
+    follow_up_task_title: null,
   };
 }
 

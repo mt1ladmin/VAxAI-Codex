@@ -494,7 +494,7 @@ export default function ProspectFinderPage() {
                       {p.engagement_status || "—"}
                     </td>
                     <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#6f6b62]">
-                      <span className="truncate block">{p.next_action || "—"}</span>
+                      <span className="truncate block">{p.follow_up_task_title || "—"}</span>
                     </td>
                     {isPlatformAdmin && (
                       <td className="px-3 py-3.5">
