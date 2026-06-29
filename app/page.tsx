@@ -55,26 +55,73 @@ const tools = [
   
 ];
 
-const features = [
+type CaseStudy = {
+  title: string;
+  teaser: string;
+  paragraphs?: string[];
+  workflowPoints?: string[];
+  results?: string[];
+  closing?: string;
+  placeholder?: boolean;
+};
+
+const caseStudies: CaseStudy[] = [
   {
-    mark: "01",
-    title: "Find where admin is building up",
-    copy: "We review your inboxes, records, tools, processes and follow-ups to understand what is taking time, creating delays or being missed.",
+    title: "Here's how we saved a founder 10 hours per week",
+    teaser: "A busy professional was spending several hours each week manually managing emails, scheduling meetings, tracking actions and following up outstanding tasks.",
+    paragraphs: [
+      "After reviewing their workflow, we introduced a combination of process improvements, automation and ongoing support.",
+    ],
+    results: [
+      "Significant reduction in time spent on admin",
+      "Fewer missed follow-ups and outstanding actions",
+      "Better visibility of priorities and workload",
+      "More time available for revenue-generating and client-facing work",
+    ],
+    closing: "No complicated systems. No unnecessary technology. Just a practical solution that worked for the way they already operated.",
   },
   {
-    mark: "02",
-    title: "Make better use of what you have",
-    copy: "We identify where existing tools, clearer processes, training, automation or AI support could reduce repetitive work.",
+    title: "How we helped a client create clarity across multiple systems",
+    teaser: "A growing start-up was using several different tools to manage projects, documents, conversations and client information.",
+    paragraphs: [
+      "Over time, it became unclear where information should be stored, where tasks should be created, and which platform should be used for communication.",
+      "As the team grew, information was being duplicated, conversations were happening in different places, and people were spending unnecessary time searching for files and updates.",
+      "We reviewed the existing systems and designed a clear workflow that defined:",
+    ],
+    workflowPoints: [
+      "Where confidential information should be stored",
+      "Where project tasks should be managed",
+      "Which communication channels should be used for different purposes",
+      "How information should move between systems",
+    ],
+    results: [
+      "Clear ownership of information and processes",
+      "Reduced duplication across systems",
+      "Faster onboarding for new team members",
+      "Less time spent searching for information",
+      "Greater confidence that sensitive information was stored appropriately",
+    ],
   },
   {
-    mark: "03",
-    title: "Keep everyday admin moving",
-    copy: "Messages, calendars, documents, data entry, reports and follow-ups stay organised and up to date.",
+    title: "We supported a founder in bringing all communication into one place",
+    teaser: "A business was receiving messages, requests and updates from multiple sources including email, project management tools, messaging platforms and client channels.",
+    paragraphs: [
+      "Important information was becoming fragmented across different systems, making it difficult to maintain visibility and respond consistently.",
+      "Following a workflow review, we implemented a centralised communication process supported by automation and AI tools. Information from multiple channels was brought together, categorised and routed to the appropriate location, while human oversight remained in place for important decisions and follow-up actions.",
+    ],
+    results: [
+      "Improved visibility across all incoming communications",
+      "Faster response times",
+      "Reduced risk of missed messages or actions",
+      "Less manual administration",
+      "A single source for communication and task management",
+    ],
+    closing: "Technology handled the repetitive sorting and organisation, while people remained in control of the decisions that mattered.",
   },
   {
-    mark: "04",
-    title: "Add human support where needed",
-    copy: "Trained VA support manages follow-through, handles exceptions and makes sure important work reaches the right person.",
+    title: "More examples coming soon",
+    teaser: "We are adding more client examples to this section. Each one will illustrate a different challenge and how a practical combination of process, automation and human support helped resolve it.",
+    placeholder: true,
   },
 ];
 
@@ -288,6 +335,7 @@ function GeometricDivider() {
 export default function Home() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [openCase, setOpenCase] = useState<number | null>(null);
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
   const [supportType, setSupportType] = useState("Assessment");
@@ -364,10 +412,10 @@ export default function Home() {
         <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div {...reveal}>
             <h1 className="max-w-2xl text-5xl font-semibold leading-[1] md:text-7xl">
-              When admin takes over, VAxAI steps in
+              Reduce admin. Keep the human touch.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
-              We help small businesses, charities, solo founders and busy teams reduce repetitive admin by making everyday tasks, follow-ups and information easier to manage, track and complete.
+              We help small businesses, charities, founders and busy teams reduce repetitive admin through a practical mix of AI, automation and human virtual support.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
@@ -384,21 +432,50 @@ export default function Home() {
 
       <section className="px-4 py-16 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <motion.div {...reveal} className="grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-start">
+          <motion.div {...reveal}>
             <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
-              Does any of this sound familiar?
+              What working with VAxAI looks like
             </h2>
-            <div className="grid gap-3">
-              {[
-                "Too much time is being spent on emails, follow-ups, scheduling, reporting and other essential admin that leaves less capacity for strategic, client-facing or service-delivery work.",
-                "Work keeps falling between the cracks because information, responsibilities or processes are spread across too many places.",
-                "You know there must be a better way of working but are unsure whether the answer is new technology, better processes, additional support or a combination of all three.",
-              ].map((item) => (
-                <div key={item} className="flex gap-4 rounded-md border border-ink/10 bg-white p-4">
-                  <span className="mt-1 shrink-0 text-sm font-semibold text-ink">→</span>
-                  <p className="text-sm leading-6 text-muted">{item}</p>
-                </div>
-              ))}
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
+              Whether you&apos;re drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving.
+            </p>
+          </motion.div>
+          <motion.div {...reveal} className="mt-8 grid gap-5 md:grid-cols-2">
+            <div className="rounded-md border border-ink/10 bg-white p-5">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Before VAxAI</p>
+              <div className="grid gap-3">
+                {[
+                  "Inboxes full of unread emails",
+                  "Follow-ups being missed or delayed",
+                  "Information spread across multiple systems",
+                  "Manual reporting taking hours each week",
+                  "Team members unsure who owns what",
+                  "Valuable time spent on repetitive admin instead of meaningful work",
+                ].map((item) => (
+                  <div key={item} className="flex gap-3">
+                    <span className="mt-0.5 shrink-0 text-sm font-semibold text-ink/40">—</span>
+                    <p className="text-sm leading-6 text-muted">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-md border border-[#063b32]/15 bg-[#f3f9f5] p-5">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
+              <div className="grid gap-3">
+                {[
+                  "Inboxes organised and prioritised",
+                  "Follow-ups tracked and completed on time",
+                  "Clear processes everyone can follow",
+                  "Reporting streamlined and easier to manage",
+                  "Better visibility of responsibilities and workload",
+                  "More time for clients, projects and strategic work",
+                ].map((item) => (
+                  <div key={item} className="flex gap-3">
+                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
+                    <p className="text-sm leading-6 text-muted">{item}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
@@ -414,36 +491,63 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
-            title="How VAxAI helps you get admin under control"
-            copy="From enquiries and diary management to files, records, reports and follow-ups, we help you create workable systems your team can understand, use and maintain."
+            title="Real results from working with VAxAI"
+            copy="Every client challenge is different. Here are some examples of how we have helped organisations reduce admin, create clarity and keep work moving."
             narrow
           />
-          <div className="mt-12 grid gap-5 lg:grid-cols-[1fr_1.1fr_1fr] lg:items-center">
-            <div className="grid gap-5">
-              {features.slice(0, 2).map((feature) => (
-                <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-semibold text-ink">{feature.mark}</span>
-                  <h3 className="mt-8 text-lg font-semibold">{feature.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
-                </article>
-              ))}
-            </div>
-            <motion.div {...reveal} className="relative">
-              <PhotoCard src={image.expert} className="aspect-[0.78] rounded-md" />
-              <div className="absolute bottom-4 left-4 right-4 rounded-md bg-paper p-4 text-ink">
-                <p className="text-sm font-semibold">AI admin support that stays human</p>
-                <p className="mt-1 text-xs text-muted">Technology supports the work. Trained VAs keep people in control.</p>
-              </div>
-            </motion.div>
-            <div className="grid gap-5">
-              {features.slice(2).map((feature) => (
-                <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-semibold text-ink">{feature.mark}</span>
-                  <h3 className="mt-8 text-lg font-semibold">{feature.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
-                </article>
-              ))}
-            </div>
+          <div className="mt-12 grid gap-5 md:grid-cols-2">
+            {caseStudies.map((study, i) => (
+              <article key={i} className="overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+                <button
+                  type="button"
+                  onClick={() => setOpenCase(openCase === i ? null : i)}
+                  className="w-full p-5 text-left"
+                  aria-expanded={openCase === i}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-lg font-semibold text-paper">{study.title}</h3>
+                    <ChevronDown className={`mt-1 h-4 w-4 shrink-0 text-paper/60 transition-transform duration-200 ${openCase === i ? "rotate-180" : ""}`} />
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-paper/68">{study.teaser}</p>
+                  {openCase !== i && !study.placeholder && (
+                    <p className="mt-3 text-xs font-semibold text-acid">Click to see the results →</p>
+                  )}
+                </button>
+                {openCase === i && !study.placeholder && (
+                  <div className="border-t border-white/10 px-5 pb-5 pt-4">
+                    {study.paragraphs?.map((p, pi) => (
+                      <p key={pi} className="mt-3 text-sm leading-6 text-paper/68">{p}</p>
+                    ))}
+                    {study.workflowPoints && (
+                      <ul className="mt-3 grid gap-2">
+                        {study.workflowPoints.map((pt) => (
+                          <li key={pt} className="flex gap-3 text-sm leading-6 text-paper/68">
+                            <span className="mt-0.5 shrink-0 text-paper/40">—</span>
+                            {pt}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {study.results && (
+                      <>
+                        <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-acid">Result</p>
+                        <ul className="mt-3 grid gap-2">
+                          {study.results.map((r) => (
+                            <li key={r} className="flex gap-3 text-sm leading-6 text-paper/68">
+                              <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
+                              {r}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                    {study.closing && (
+                      <p className="mt-5 text-sm leading-6 text-paper/68 italic">{study.closing}</p>
+                    )}
+                  </div>
+                )}
+              </article>
+            ))}
           </div>
 
           <motion.div
