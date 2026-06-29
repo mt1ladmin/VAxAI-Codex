@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
 
   const search = `%${q}%`;
 
-  const [enquiryRes, contactRes, catalogRes] = await Promise.all([
+  const [enquiryRes, contactRes, catalogRes, overrideRes] = await Promise.all([
     supabase
       .from("enquiries")
       .select("id, name, email, support_type, status")
@@ -37,7 +37,23 @@ export async function GET(req: NextRequest) {
       .select("id, organisation_name, decision_maker_name, email, location")
       .or(`organisation_name.ilike.${search},decision_maker_name.ilike.${search},email.ilike.${search},location.ilike.${search}`)
       .limit(8),
+
+    // Also search overridden names stored in the overrides JSON blob
+    supabase
+      .from("prospect_outreach_overrides")
+      .select("outreach_id, overrides")
+      .limit(200),
   ]);
+
+  // Build a map of outreach_id → effective name/decision_maker from overrides
+  type OverrideFields = { organisation_name?: string; decision_maker_name?: string };
+  const overrideMap = new Map<string, OverrideFields>();
+  for (const row of overrideRes.data ?? []) {
+    const ov = (row.overrides as OverrideFields | null) ?? {};
+    if (ov.organisation_name || ov.decision_maker_name) {
+      overrideMap.set(row.outreach_id as string, ov);
+    }
+  }
 
   const results: SearchResult[] = [];
 
@@ -63,14 +79,31 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  const seenOutreachIds = new Set<string>();
+
   for (const p of catalogRes.data ?? []) {
-    results.push({
-      type: "outreach",
-      id: p.id as string,
-      label: p.organisation_name as string,
-      sublabel: (p.decision_maker_name as string | null) || (p.email as string | null) || null,
-      status: null,
-    });
+    const ov = overrideMap.get(p.id as string) ?? {};
+    const label = (ov.organisation_name ?? p.organisation_name) as string;
+    const sublabel = ((ov.decision_maker_name ?? p.decision_maker_name) as string | null) || (p.email as string | null) || null;
+    seenOutreachIds.add(p.id as string);
+    results.push({ type: "outreach", id: p.id as string, label, sublabel, status: null });
+  }
+
+  // Find prospects matched only by their overridden name (not in catalog results above)
+  const lq = q.toLowerCase();
+  for (const [outreachId, ov] of overrideMap) {
+    if (seenOutreachIds.has(outreachId)) continue;
+    const name = ov.organisation_name ?? "";
+    const dm = ov.decision_maker_name ?? "";
+    if (name.toLowerCase().includes(lq) || dm.toLowerCase().includes(lq)) {
+      results.push({
+        type: "outreach",
+        id: outreachId,
+        label: name || outreachId,
+        sublabel: dm || null,
+        status: null,
+      });
+    }
   }
 
   return NextResponse.json({ data: results });

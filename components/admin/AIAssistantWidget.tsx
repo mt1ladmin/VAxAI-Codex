@@ -715,8 +715,8 @@ function ContextPicker({
   }, [query]);
 
   return (
-    <div className="flex flex-col gap-3 px-4 py-4">
-      <div>
+    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+      <div className="shrink-0">
         <p className="text-sm font-semibold text-[#111111]">Select an account</p>
         <p className="mt-0.5 text-xs text-[#6f6b62]">
           Search for an enquiry, contact, or Prospect Finder record to start a conversation.
@@ -735,7 +735,7 @@ function ContextPicker({
       </div>
 
       {results.length > 0 && (
-        <div className="max-h-72 overflow-y-auto space-y-1">
+        <div className="space-y-1">
           {results.map((r) => (
             <button
               key={`${r.type}-${r.id}`}
