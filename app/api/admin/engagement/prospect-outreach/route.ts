@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { appendNextActionToNotes } from "@/lib/engagement/append-note";
 import { logActivity } from "@/lib/engagement/activity-log";
 import { engagementStatusForAssignment, isFinderEngagementStatus } from "@/lib/engagement/engagement-status";
