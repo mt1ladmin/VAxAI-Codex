@@ -1,6 +1,6 @@
 import { PROSPECT_QUEUE_STATUSES, PROSPECT_QUEUE_STATUS_COLORS } from "@/lib/engagement/types";
 
-export const ENQUIRY_DEFAULT_STATUS = "Needs review";
+export const ENQUIRY_DEFAULT_STATUS = "";
 
 export const ENQUIRY_STATUSES = [
   { key: "all", label: "All" },

@@ -47,11 +47,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       sector_snapshot?: Record<string, unknown> | null;
       persona_snapshot?: Record<string, unknown> | null;
       pain_points_snapshot?: Record<string, unknown>[] | null;
+      assigned_team_member_id?: string | null;
+      is_client?: boolean;
+      client_note?: string | null;
     };
 
     const updates: Record<string, unknown> = {};
     if (body.status !== undefined) {
-      if (!VALID_STATUSES.has(body.status)) {
+      if (body.status !== "" && !VALID_STATUSES.has(body.status)) {
         return NextResponse.json({ error: `Invalid status: ${body.status}` }, { status: 400 });
       }
       updates.status = body.status;
@@ -68,6 +71,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.sector_snapshot !== undefined) updates.sector_snapshot = body.sector_snapshot;
     if (body.persona_snapshot !== undefined) updates.persona_snapshot = body.persona_snapshot;
     if (body.pain_points_snapshot !== undefined) updates.pain_points_snapshot = body.pain_points_snapshot;
+    if (body.assigned_team_member_id !== undefined) updates.assigned_team_member_id = body.assigned_team_member_id;
+    if (body.is_client !== undefined) updates.is_client = body.is_client;
+    if (body.client_note !== undefined) updates.client_note = body.client_note;
 
     const db = createServiceClient();
 
@@ -99,7 +105,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           metadata: { from: before.status, to: updates.status },
         });
 
-        if (updates.status === "Opportunity") {
+        if (updates.status === "Opportunity" || updates.status === "Opportunity identified") {
           await ensurePreSalesOpportunity(db, {
             source: "enquiry",
             sourceId: id,
