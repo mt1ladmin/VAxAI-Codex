@@ -223,7 +223,7 @@ export async function PATCH(req: NextRequest) {
   });
 }
 
-/** Archive prospects from Finder (platform admin only). */
+/** Delete prospects from Finder (platform admin only). */
 export async function DELETE(req: NextRequest) {
   const body = (await req.json()) as { outreach_ids?: string[] };
   const ids = body.outreach_ids?.filter(Boolean) ?? [];
@@ -232,31 +232,16 @@ export async function DELETE(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
-  const { data: existing } = await supabase
-    .from("prospect_outreach_overrides")
-    .select("outreach_id, overrides")
-    .in("outreach_id", ids);
 
-  const existingMap = new Map((existing || []).map((r) => [r.outreach_id, r]));
-  const now = new Date().toISOString();
+  // Remove overrides first to avoid FK constraint issues
+  await supabase.from("prospect_outreach_overrides").delete().in("outreach_id", ids);
 
-  await Promise.all(
-    ids.map((outreach_id) => {
-      const row = existingMap.get(outreach_id);
-      const mergedOverrides = {
-        ...((row?.overrides as Record<string, unknown>) || {}),
-        archived: true,
-        archived_at: now,
-      };
-      return supabase.from("prospect_outreach_overrides").upsert({
-        outreach_id,
-        overrides: mergedOverrides,
-        updated_at: now,
-      });
-    }),
-  );
+  const { error } = await supabase.from("prospect_outreach_catalog").delete().in("id", ids);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
-  return NextResponse.json({ success: true, archived_count: ids.length });
+  return NextResponse.json({ success: true, deleted_count: ids.length });
 }
 
 export async function POST(req: NextRequest) {
