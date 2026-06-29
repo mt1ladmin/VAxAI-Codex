@@ -10,7 +10,6 @@ import { HubMetricCard } from "@/components/admin/HubMetricCard";
 import { HubQuickActions } from "@/components/admin/HubQuickActions";
 import { HubTabNav } from "@/components/admin/HubTabNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
-import { KnowledgeAttachPicker } from "@/components/admin/KnowledgeAttachPicker";
 import {
   ProspectDecisionMakerCard,
   ProspectOrganisationCard,
@@ -524,7 +523,6 @@ function ProspectFinderDetailContent() {
                 onSave={saveNote}
                 onReplaceNotes={replaceNotes}
                 placeholder="Reviewer notes, call outcomes, and handoff context…"
-                header={<KnowledgeAttachPicker outreachId={record.id} />}
               />
             </div>
           )}
