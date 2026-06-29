@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import PublicContactModal from "@/components/PublicContactModal";
 
 type Props = {
   variant?: "dark" | "light";
@@ -9,6 +10,7 @@ type Props = {
 
 export default function SiteNav({ variant = "dark" }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const isDark = variant === "dark";
 
@@ -24,6 +26,7 @@ export default function SiteNav({ variant = "dark" }: Props) {
   const mobileLinkClass = isDark ? "text-paper/80 hover:text-paper" : "text-gray-600 hover:text-gray-900";
 
   return (
+    <>
     <nav className="relative mx-auto flex max-w-6xl items-center justify-between py-1">
       {/* Logo */}
       <a href="/" className={`flex items-center gap-2 font-semibold ${isDark ? "text-paper" : "text-gray-900"}`}>
@@ -45,12 +48,13 @@ export default function SiteNav({ variant = "dark" }: Props) {
       </div>
 
       {/* Desktop CTA */}
-      <a
-        href="/#contact"
+      <button
+        type="button"
+        onClick={() => setContactOpen(true)}
         className={`hidden rounded-md px-4 py-2 text-xs font-semibold md:inline-flex ${ctaClass}`}
       >
         Get in touch
-      </a>
+      </button>
 
       {/* Mobile hamburger */}
       <button
@@ -76,12 +80,14 @@ export default function SiteNav({ variant = "dark" }: Props) {
               {label}
             </a>
           ))}
-          <a href="/#contact" onClick={() => setMobileOpen(false)}
+          <button type="button" onClick={() => { setMobileOpen(false); setContactOpen(true); }}
             className={`mt-2 rounded-md px-4 py-2.5 text-center text-sm font-semibold ${ctaClass}`}>
             Get in touch
-          </a>
+          </button>
         </div>
       )}
     </nav>
+    <PublicContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
+    </>
   );
 }
