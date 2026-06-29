@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowRight, Check, X } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
 
 type Props = {
@@ -12,16 +12,19 @@ type Props = {
 
 export default function PublicContactModal({ open, onClose }: Props) {
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("");
-  const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState(false);
+  const [supportType, setSupportType] = useState("Assessment");
+  const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState<"form" | "submitted" | "calendly">("form");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (!open) {
       setStep("form");
-      setWantsDiscoveryCall(false);
-      setSupportType("");
+      setWantsDiscoveryCall(null);
+      setSupportType("Assessment");
       setPreferredContact("Email");
       return;
     }
@@ -52,40 +55,40 @@ export default function PublicContactModal({ open, onClose }: Props) {
     }
   }, [step]);
 
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   if (!open) return null;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitting(true);
     const data = new FormData(event.currentTarget);
-    const response = await fetch("/api/enquiry", {
+    const payload = {
+      name: String(data.get("name")),
+      email: String(data.get("email")),
+      supportType: String(data.get("supportType")),
+      preferredContact,
+      telephone: String(data.get("telephone") ?? ""),
+      details: String(data.get("details")),
+      wantsDiscoveryCall: wantsDiscoveryCall === true,
+    };
+    await fetch("/api/enquiry", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: String(data.get("name")),
-        email: String(data.get("email")),
-        supportType: String(data.get("supportType")),
-        preferredContact,
-        telephone: String(data.get("telephone") ?? ""),
-        details: String(data.get("details")),
-        wantsDiscoveryCall,
-      }),
-    }).catch(() => null);
+      body: JSON.stringify(payload),
+    }).catch(() => {});
     setSubmitting(false);
-    if (response?.ok) {
-      setStep(wantsDiscoveryCall ? "calendly" : "submitted");
+    if (wantsDiscoveryCall === true) {
+      setStep("calendly");
+    } else {
+      setStep("submitted");
     }
   }
 
   const fieldClass =
-    "w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10";
+    "rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]";
 
   const modal = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="contact-modal-title"
@@ -94,15 +97,14 @@ export default function PublicContactModal({ open, onClose }: Props) {
       }}
     >
       {step === "calendly" ? (
-        <div className="flex h-full max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
-          <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-white sm:px-7">
+        <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+          <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-paper md:px-10">
             <div>
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f5f274]">VAxAI</p>
-              <h2 id="contact-modal-title" className="text-xl font-bold">Book a discovery call</h2>
-              <p className="mt-1 text-sm text-white/65">Pick a time that works for you.</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Discovery call</p>
+              <h2 id="contact-modal-title" className="mt-1 text-xl font-semibold leading-tight">Book a time with us</h2>
             </div>
-            <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Close">
-              <X className="h-4 w-4" />
+            <button type="button" onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper" aria-label="Close">
+              <X className="h-5 w-5" />
             </button>
           </div>
           <div className="min-h-0 flex-1">
@@ -114,90 +116,123 @@ export default function PublicContactModal({ open, onClose }: Props) {
           </div>
         </div>
       ) : (
-      <div className="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between gap-6 rounded-t-3xl bg-[#063b32] px-6 py-5 text-white sm:px-7">
-          <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f5f274]">VAxAI</p>
-            <h2 id="contact-modal-title" className="text-2xl font-bold">Let&apos;s talk</h2>
-            <p className="mt-1 text-sm text-white/65">Tell us what you need help with. A short note is plenty.</p>
+        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
+          <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Contact VAxAI</p>
+              <h2 id="contact-modal-title" className="mt-3 text-3xl font-semibold leading-tight">
+                {step === "submitted" ? "Enquiry sent" : "Tell us what support you need"}
+              </h2>
+            </div>
+            <button type="button" onClick={onClose} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper" aria-label="Close contact form">
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Close contact form">
-            <X className="h-4 w-4" />
-          </button>
-        </div>
 
-        {step === "submitted" ? (
-          <div className="p-7 text-center sm:p-10">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#063b32]">
-              <Check className="h-6 w-6 text-[#f5f274]" />
-            </div>
-            <h3 className="mt-4 text-xl font-bold text-gray-900">Message sent</h3>
-            <p className="mt-2 text-sm text-gray-500">Thanks — the VAxAI team will be in touch shortly.</p>
-            <button type="button" onClick={onClose} className="mt-6 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white">Close</button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="grid gap-4 p-6 sm:grid-cols-2 sm:p-7">
-            <label className="text-xs font-semibold text-gray-600">
-              Name
-              <input required name="name" className={`${fieldClass} mt-1.5`} placeholder="Your name" />
-            </label>
-            <label className="text-xs font-semibold text-gray-600">
-              Email
-              <input required type="email" name="email" className={`${fieldClass} mt-1.5`} placeholder="you@example.com" />
-            </label>
-            <div className="text-xs font-semibold text-gray-600">
-              Support type
-              <AppSelect
-                value={supportType}
-                onChange={setSupportType}
-                options={[
-                  { value: "Virtual assistant support", label: "Virtual assistant support" },
-                  { value: "AI & automation", label: "AI & automation" },
-                  { value: "Admin & operations", label: "Admin & operations" },
-                  { value: "General enquiry", label: "General enquiry" },
-                ]}
-                placeholder="Select support"
-                name="supportType"
-                required
-                className="mt-1.5"
-              />
-            </div>
-            <div className="text-xs font-semibold text-gray-600">
-              Preferred contact
-              <AppSelect
-                value={preferredContact}
-                onChange={setPreferredContact}
-                options={[{ value: "Email", label: "Email" }, { value: "Telephone", label: "Telephone" }]}
-                name="preferredContact"
-                className="mt-1.5"
-              />
-            </div>
-            {preferredContact === "Telephone" && (
-              <label className="text-xs font-semibold text-gray-600 sm:col-span-2">
-                Telephone
-                <input required name="telephone" type="tel" className={`${fieldClass} mt-1.5`} placeholder="Your telephone number" />
-              </label>
-            )}
-            <label className="text-xs font-semibold text-gray-600 sm:col-span-2">
-              How can we help?
-              <textarea required name="details" rows={3} className={`${fieldClass} mt-1.5 resize-none`} placeholder="A few lines about what you would like to explore…" />
-            </label>
-            <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-[#063b32]/10 bg-[#f7f4ea]/60 p-4 sm:col-span-2">
-              <input type="checkbox" checked={wantsDiscoveryCall} onChange={(event) => setWantsDiscoveryCall(event.target.checked)} className="mt-0.5 h-4 w-4 accent-[#063b32]" />
-              <span>
-                <span className="block text-sm font-semibold text-gray-800">I&apos;d also like a discovery call</span>
-                <span className="mt-0.5 block text-xs text-gray-500">Optional — we can arrange a suitable time after reviewing your message.</span>
-              </span>
-            </label>
-            <div className="sm:col-span-2">
-              <button type="submit" disabled={submitting} className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
-                {submitting ? "Sending…" : "Send message"}
-                <ArrowRight className="h-4 w-4" />
+          {step === "submitted" ? (
+            <div className="p-6 md:p-10">
+              <p className="text-sm leading-7 text-muted">
+                Thank you — we have received your message and will be in touch shortly.
+              </p>
+              <button
+                type="button"
+                onClick={onClose}
+                className="mt-6 inline-flex items-center rounded-md border border-ink/15 px-5 py-3 text-sm font-semibold text-ink"
+              >
+                Close
               </button>
             </div>
-          </form>
-        )}
-      </div>
+          ) : (
+            <form
+              className="grid gap-5 p-6 md:grid-cols-2 md:p-10"
+              onSubmit={handleSubmit}
+            >
+              <label className="grid gap-2 text-sm font-semibold">
+                Name
+                <input required name="name" autoComplete="name" className={fieldClass} />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold">
+                Email address
+                <input required type="email" name="email" autoComplete="email" className={fieldClass} />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold">
+                Support type
+                <AppSelect
+                  value={supportType}
+                  onChange={setSupportType}
+                  options={[
+                    { value: "Assessment", label: "Assessment" },
+                    { value: "Assessment + Strategy & Implementation", label: "Assessment + Strategy & Implementation" },
+                    { value: "Assessment + Ongoing Support", label: "Assessment + Ongoing Support" },
+                    { value: "Access to Work", label: "Access to Work" },
+                    { value: "General enquiry", label: "General enquiry" },
+                  ]}
+                  name="supportType"
+                  required
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold">
+                Preferred method of contact
+                <AppSelect
+                  value={preferredContact}
+                  onChange={setPreferredContact}
+                  options={[{ value: "Email", label: "Email" }, { value: "Telephone", label: "Telephone" }]}
+                  name="preferredContact"
+                />
+              </label>
+              {preferredContact === "Telephone" && (
+                <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+                  Telephone number
+                  <input required type="tel" name="telephone" autoComplete="tel" className={fieldClass} />
+                </label>
+              )}
+              <label className="grid gap-2 text-sm font-semibold md:col-span-2">
+                Tell us more
+                <textarea required name="details" rows={5} className={`${fieldClass} resize-y`} />
+              </label>
+              <div className="rounded-md border border-[#063b32]/20 bg-[#f3f9f5] p-5 md:col-span-2">
+                <p className="font-semibold text-ink">Would you like to book a discovery call?</p>
+                <p className="mt-1 text-sm leading-6 text-muted">
+                  A 30-minute conversation to explore your challenge and whether we are the right fit.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setWantsDiscoveryCall(true)}
+                    className={`rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                      wantsDiscoveryCall === true
+                        ? "border-[#063b32] bg-[#063b32] text-acid"
+                        : "border-ink/15 bg-white text-ink hover:border-[#063b32]/40"
+                    }`}
+                  >
+                    Yes, book a call
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWantsDiscoveryCall(false)}
+                    className={`rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                      wantsDiscoveryCall === false
+                        ? "border-ink bg-ink text-paper"
+                        : "border-ink/15 bg-white text-ink hover:border-ink/30"
+                    }`}
+                  >
+                    No, just send my message
+                  </button>
+                </div>
+              </div>
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper disabled:opacity-50"
+                >
+                  {submitting ? "Sending…" : wantsDiscoveryCall === true ? "Continue to book a call" : "Send my message"}
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
       )}
     </div>
   );
