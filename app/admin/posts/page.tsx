@@ -23,7 +23,7 @@ type Post = {
   description: string;
   content_type: string;
   tags: string[];
-  status: "draft" | "published";
+  status: "draft" | "published" | "scheduled";
   cover_image_url: string | null;
   updated_at: string;
   published_at: string | null;
@@ -31,7 +31,7 @@ type Post = {
 };
 
 const CONTENT_TYPES = ["All types", "Insight", "Research", "Article", "Guide", "Case Study", "Video", "Framework Comparison"];
-const STATUS_FILTERS = ["All statuses", "published", "draft"];
+const STATUS_FILTERS = ["All statuses", "published", "scheduled", "draft"];
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -109,6 +109,7 @@ export default function PostsPage() {
 
   const publishedCount = posts.filter((p) => p.status === "published").length;
   const draftCount = posts.filter((p) => p.status === "draft").length;
+  const scheduledCount = posts.filter((p) => p.status === "scheduled").length;
 
   return (
     <div className="min-h-screen bg-white">
@@ -118,7 +119,7 @@ export default function PostsPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
             <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Posts</h1>
             <p className="mt-0.5 text-sm text-[#6f6b62]">
-              {posts.length} items · {publishedCount} published · {draftCount} drafts
+              {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
             </p>
           </div>
           <Link
@@ -284,9 +285,9 @@ export default function PostsPage() {
                   </p>
                   <div className="mt-2 flex items-center justify-between">
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                      post.status === "published"
-                        ? "bg-[#063b32]/10 text-[#063b32]"
-                        : "bg-[#f5f274]/60 text-[#6f6b62]"
+                      post.status === "published" ? "bg-[#063b32]/10 text-[#063b32]" :
+                      post.status === "scheduled" ? "bg-amber-100 text-amber-700" :
+                      "bg-[#f5f274]/60 text-[#6f6b62]"
                     }`}>
                       {post.status}
                     </span>
@@ -339,7 +340,9 @@ export default function PostsPage() {
                   <p className="text-xs text-[#6f6b62]">{post.content_type} · Edited {new Date(post.updated_at).toLocaleDateString("en-GB")}</p>
                 </div>
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                  post.status === "published" ? "bg-[#063b32]/10 text-[#063b32]" : "bg-[#f5f274]/60 text-[#6f6b62]"
+                  post.status === "published" ? "bg-[#063b32]/10 text-[#063b32]" :
+                  post.status === "scheduled" ? "bg-amber-100 text-amber-700" :
+                  "bg-[#f5f274]/60 text-[#6f6b62]"
                 }`}>{post.status}</span>
                 <div className="flex shrink-0 gap-1 opacity-0 group-hover:opacity-100">
                   <Link href={`/admin/posts/${post.id}`} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]" title="Edit">
