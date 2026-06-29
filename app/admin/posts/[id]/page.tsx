@@ -16,6 +16,11 @@ import {
 
 const PostEditor = dynamic(() => import("@/components/admin/PostEditor"), { ssr: false });
 import ImageUpload from "@/components/admin/ImageUpload";
+import {
+  SocialPostPreviewModal as PlatformPreviewModal,
+  SocialPostSummaryCard,
+  type SocialPostPreview,
+} from "@/components/admin/SocialPostPreviewModal";
 
 type Author = { id: string; name: string; avatar_url: string | null };
 type Post = {
@@ -32,6 +37,8 @@ type SocialDraft = {
   instagram_caption?: string;
   hashtags?: string[];
 };
+
+type LinkedSocialPost = SocialPostPreview & { scheduled_date: string };
 
 const PRESET_TYPES = ["Insight", "Research", "Article", "Guide", "Case Study", "Video", "Framework Comparison"];
 
@@ -207,6 +214,7 @@ export default function EditPostPage() {
   const [postUrl, setPostUrl] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
   const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
+  const [linkedSocial, setLinkedSocial] = useState<LinkedSocialPost[]>([]);
 
   // Social draft from sessionStorage (set by ContentCreateModal)
   const [socialDraft, setSocialDraft] = useState<SocialDraft | null>(null);
@@ -215,13 +223,10 @@ export default function EditPostPage() {
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
 
-  // Panel social copy state
-  const [copiedLiPanel, setCopiedLiPanel] = useState(false);
-  const [copiedIgPanel, setCopiedIgPanel] = useState(false);
-
   // Modals
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeSocialPreview, setActiveSocialPreview] = useState<SocialPostPreview | null>(null);
 
   const showToast = (message: string) => {
     setToastMsg(message);
@@ -233,7 +238,8 @@ export default function EditPostPage() {
     Promise.all([
       fetch(`/api/admin/posts/${id}`).then((r) => r.json() as Promise<{ data: Post }>),
       fetch("/api/admin/authors").then((r) => r.json() as Promise<{ data: Author[] }>),
-    ]).then(([postRes, authorsRes]) => {
+      fetch("/api/admin/social-posts").then((r) => r.json() as Promise<{ data: LinkedSocialPost[] }>),
+    ]).then(([postRes, authorsRes, socialRes]) => {
       const p = postRes.data;
       if (p) {
         setTitle(p.title);
@@ -256,6 +262,7 @@ export default function EditPostPage() {
         }
       }
       setAuthors(authorsRes.data ?? []);
+      setLinkedSocial((socialRes.data ?? []).filter((social) => social.link === `/admin/posts/${id}`));
 
       // Load social content from DB, fall back to localStorage for posts created before DB persistence
       if (p && (p.sharing_caption || p.linkedin_post || p.instagram_caption)) {
@@ -340,15 +347,31 @@ export default function EditPostPage() {
 
   const copyLink = () => { navigator.clipboard.writeText(postUrl); };
 
-  const copyInPanel = async (text: string, which: "li" | "ig") => {
-    await navigator.clipboard.writeText(text);
-    if (which === "li") { setCopiedLiPanel(true); setTimeout(() => setCopiedLiPanel(false), 2000); }
-    else { setCopiedIgPanel(true); setTimeout(() => setCopiedIgPanel(false), 2000); }
-  };
-
   const panelHashtagStr = (socialDraft?.hashtags ?? []).map((h) => `#${h}`).join(" ");
   const panelLiContent = [socialDraft?.linkedin_post, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
   const panelIgContent = [socialDraft?.instagram_caption, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
+  const linkedPlatforms = new Set(linkedSocial.map((social) => social.platform));
+  const socialPreviews: SocialPostPreview[] = [
+    ...(socialDraft?.sharing_caption ? [{
+      id: `share-${id}`,
+      title: "Share text",
+      platform: "share" as const,
+      content: socialDraft.sharing_caption,
+    }] : []),
+    ...linkedSocial,
+    ...(socialDraft?.linkedin_post && !linkedPlatforms.has("linkedin") ? [{
+      id: `linkedin-${id}`,
+      title: `${title || "Post"} — LinkedIn`,
+      platform: "linkedin" as const,
+      content: panelLiContent,
+    }] : []),
+    ...(socialDraft?.instagram_caption && !linkedPlatforms.has("instagram") ? [{
+      id: `instagram-${id}`,
+      title: `${title || "Post"} — Instagram`,
+      platform: "instagram" as const,
+      content: panelIgContent,
+    }] : []),
+  ];
 
   const activeType = showCustomType && customType ? customType : contentType;
 
@@ -375,6 +398,13 @@ export default function EditPostPage() {
         <DeleteConfirmModal
           onConfirm={() => { setShowDeleteConfirm(false); void deletePost(); }}
           onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
+
+      {activeSocialPreview && (
+        <PlatformPreviewModal
+          social={activeSocialPreview}
+          onClose={() => setActiveSocialPreview(null)}
         />
       )}
 
@@ -447,61 +477,18 @@ export default function EditPostPage() {
                 </div>
               )}
 
-              {/* Social versions — always visible when present */}
-              {socialDraft?.sharing_caption && (
+              {socialPreviews.length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Sharing caption</p>
-                  <p className="rounded-md border border-[#111111]/10 bg-[#f7f4ea] px-3 py-2 text-sm text-[#111111]">
-                    {socialDraft.sharing_caption}
-                  </p>
-                </div>
-              )}
-              {socialDraft?.linkedin_post && (
-                <div className="rounded-xl border border-[#111111]/10 p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Linkedin className="h-4 w-4 text-[#0077B5]" />
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">LinkedIn post</p>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <a href="https://www.linkedin.com/feed/" target="_blank" rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-md border border-[#0077B5]/30 px-2 py-1 text-[10px] font-medium text-[#0077B5] hover:bg-[#0077B5]/5">
-                        <Linkedin className="h-3 w-3" /> Post
-                      </a>
-                      <button type="button" onClick={() => void copyInPanel(panelLiContent, "li")}
-                        className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2 py-1 text-[10px] font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
-                        {copiedLiPanel ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
-                        {copiedLiPanel ? "Copied!" : "Copy"}
-                      </button>
-                    </div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Social content</p>
+                  <div className="space-y-2">
+                    {socialPreviews.map((social) => (
+                      <SocialPostSummaryCard
+                        key={social.id}
+                        social={social}
+                        onOpen={() => setActiveSocialPreview(social)}
+                      />
+                    ))}
                   </div>
-                  <p className="text-sm text-[#111111] whitespace-pre-line">{socialDraft.linkedin_post}</p>
-                  {postUrl && <p className="mt-2 text-xs text-[#0077B5] break-all">{postUrl}</p>}
-                  {panelHashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{panelHashtagStr}</p>}
-                </div>
-              )}
-              {socialDraft?.instagram_caption && (
-                <div className="rounded-xl border border-[#111111]/10 p-4">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <Instagram className="h-4 w-4 text-[#E1306C]" />
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Instagram caption</p>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-md border border-[#E1306C]/30 px-2 py-1 text-[10px] font-medium text-[#E1306C] hover:bg-[#E1306C]/5">
-                        <Instagram className="h-3 w-3" /> Post
-                      </a>
-                      <button type="button" onClick={() => void copyInPanel(panelIgContent, "ig")}
-                        className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2 py-1 text-[10px] font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
-                        {copiedIgPanel ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
-                        {copiedIgPanel ? "Copied!" : "Copy"}
-                      </button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-[#111111] whitespace-pre-line">{socialDraft.instagram_caption}</p>
-                  {postUrl && <p className="mt-2 text-xs text-[#E1306C] break-all">{postUrl}</p>}
-                  {panelHashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{panelHashtagStr}</p>}
                 </div>
               )}
 

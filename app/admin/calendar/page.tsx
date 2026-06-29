@@ -401,6 +401,7 @@ export default function CalendarPage() {
 
   function socialOnDay(day: Date) {
     return socialPosts.filter((s) => {
+      if (s.link?.startsWith("/admin/posts/")) return false;
       const d = new Date(s.scheduled_date + "T00:00:00");
       return isSameDay(d, day);
     });
