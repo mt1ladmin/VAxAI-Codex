@@ -16,6 +16,7 @@ import {
   type SourceFilter,
 } from "@/lib/engagement/pipeline-filters";
 import type { EngagementTask } from "@/lib/engagement/types";
+import { AppSelect } from "@/components/ui/AppSelect";
 
 const PRIORITY_DOT: Record<string, string> = {
   high: "bg-red-500",
@@ -457,26 +458,28 @@ export function TasksListView({
 
       <div className="px-8 pb-6">
         <div className="mb-5 flex flex-wrap items-center gap-3">
-          <select value={dueDateFilter} onChange={(e) => setDueDateFilter(e.target.value as DueDateFilter)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs text-[#111111] outline-none focus:border-[#063b32] appearance-none">
-            {DUE_DATE_FILTER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <select
+          <AppSelect
+            value={dueDateFilter}
+            onChange={(v) => setDueDateFilter(v as DueDateFilter)}
+            options={DUE_DATE_FILTER_OPTIONS.map((opt) => ({ value: opt.value, label: opt.label }))}
+            size="sm"
+            className="min-w-[9rem]"
+          />
+          <AppSelect
             value={assigneeFilter}
-            onChange={(e) => setAssigneeFilter(e.target.value)}
-            className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs text-[#111111] outline-none focus:border-[#063b32] appearance-none"
-          >
-            <option value="">All assignees</option>
-            {teamMembers.map((m) => (
-              <option key={m.id} value={m.id}>{m.display_name}</option>
-            ))}
-          </select>
-          <select value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value as SourceFilter)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs text-[#111111] outline-none focus:border-[#063b32] appearance-none">
-            {SOURCE_FILTER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+            onChange={setAssigneeFilter}
+            options={teamMembers.map((m) => ({ value: m.id, label: m.display_name }))}
+            placeholder="All assignees"
+            size="sm"
+            className="min-w-[9rem]"
+          />
+          <AppSelect
+            value={sourceFilter}
+            onChange={(v) => setSourceFilter(v as SourceFilter)}
+            options={SOURCE_FILTER_OPTIONS.map((opt) => ({ value: opt.value, label: opt.label }))}
+            size="sm"
+            className="min-w-[9rem]"
+          />
         </div>
 
         {selectedTaskIds.size > 0 && (
@@ -623,15 +626,12 @@ export function TasksListView({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Priority</label>
-                  <select
+                  <AppSelect
                     value={form.priority}
-                    onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}
-                    className={inputClass}
-                  >
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                  </select>
+                    onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
+                    options={[{ value: "high", label: "High" }, { value: "medium", label: "Medium" }, { value: "low", label: "Low" }]}
+                    size="sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Due date</label>
@@ -645,16 +645,13 @@ export function TasksListView({
               </div>
               <div>
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Assign to</label>
-                <select
+                <AppSelect
                   value={form.assigned_team_member_id}
-                  onChange={(e) => setForm((f) => ({ ...f, assigned_team_member_id: e.target.value }))}
-                  className={inputClass}
-                >
-                  <option value="">Unassigned</option>
-                  {teamMembers.map((m) => (
-                    <option key={m.id} value={m.id}>{m.display_name}</option>
-                  ))}
-                </select>
+                  onChange={(v) => setForm((f) => ({ ...f, assigned_team_member_id: v }))}
+                  options={teamMembers.map((m) => ({ value: m.id, label: m.display_name }))}
+                  placeholder="Unassigned"
+                  size="sm"
+                />
               </div>
               <div>
                 <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Notes</label>
@@ -725,27 +722,21 @@ export function TasksListView({
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Priority</label>
-                  <select
+                  <AppSelect
                     value={editForm.priority}
-                    onChange={(e) => setEditForm((f) => ({ ...f, priority: e.target.value }))}
-                    className={inputClass}
-                  >
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
-                  </select>
+                    onChange={(v) => setEditForm((f) => ({ ...f, priority: v }))}
+                    options={[{ value: "high", label: "High" }, { value: "medium", label: "Medium" }, { value: "low", label: "Low" }]}
+                    size="sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Status</label>
-                  <select
+                  <AppSelect
                     value={editForm.status}
-                    onChange={(e) => setEditForm((f) => ({ ...f, status: e.target.value }))}
-                    className={inputClass}
-                  >
-                    <option value="todo">To do</option>
-                    <option value="in_progress">In progress</option>
-                    <option value="done">Done</option>
-                  </select>
+                    onChange={(v) => setEditForm((f) => ({ ...f, status: v }))}
+                    options={[{ value: "todo", label: "To do" }, { value: "in_progress", label: "In progress" }, { value: "done", label: "Done" }]}
+                    size="sm"
+                  />
                 </div>
               </div>
               <div>

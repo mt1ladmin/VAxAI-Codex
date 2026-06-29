@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 const PostEditor = dynamic(() => import("@/components/admin/PostEditor"), { ssr: false });
+import { AppSelect } from "@/components/ui/AppSelect";
 
 type Author = { id: string; name: string; avatar_url: string | null };
 
@@ -287,14 +288,13 @@ export default function NewPostPage() {
                   {/* Author */}
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Author</label>
-                    <select
+                    <AppSelect
                       value={authorId}
-                      onChange={(e) => setAuthorId(e.target.value)}
-                      className="w-full appearance-none rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                    >
-                      <option value="">No author assigned</option>
-                      {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                    </select>
+                      onChange={setAuthorId}
+                      options={authors.map((a) => ({ value: a.id, label: a.name }))}
+                      placeholder="No author assigned"
+                      size="sm"
+                    />
                     {authors.length === 0 && (
                       <p className="mt-1 text-[10px] text-[#6f6b62]">
                         <Link href="/admin/authors" className="underline">Add authors</Link> first.

@@ -12,6 +12,7 @@ import {
   SlidersHorizontal,
   X,
 } from "lucide-react";
+import { AppSelect } from "@/components/ui/AppSelect";
 
 const image = {
   hero:
@@ -289,6 +290,7 @@ export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
+  const [supportType, setSupportType] = useState("Assessment");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
 
@@ -805,20 +807,28 @@ export default function Home() {
                   </label>
                   <label className="grid gap-2 text-sm font-semibold">
                     Support type
-                    <select required name="supportType" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]">
-                      <option>Assessment</option>
-                      <option>Assessment + Strategy &amp; Implementation</option>
-                      <option>Assessment + Ongoing Support</option>
-                      <option>Access to Work</option>
-                      <option>General enquiry</option>
-                    </select>
+                    <AppSelect
+                      value={supportType}
+                      onChange={setSupportType}
+                      options={[
+                        { value: "Assessment", label: "Assessment" },
+                        { value: "Assessment + Strategy & Implementation", label: "Assessment + Strategy & Implementation" },
+                        { value: "Assessment + Ongoing Support", label: "Assessment + Ongoing Support" },
+                        { value: "Access to Work", label: "Access to Work" },
+                        { value: "General enquiry", label: "General enquiry" },
+                      ]}
+                      name="supportType"
+                      required
+                    />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold">
                     Preferred method of contact
-                    <select name="preferredContact" value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]">
-                      <option>Email</option>
-                      <option>Telephone</option>
-                    </select>
+                    <AppSelect
+                      value={preferredContact}
+                      onChange={setPreferredContact}
+                      options={[{ value: "Email", label: "Email" }, { value: "Telephone", label: "Telephone" }]}
+                      name="preferredContact"
+                    />
                   </label>
                   {preferredContact === "Telephone" ? (
                     <label className="grid gap-2 text-sm font-semibold md:col-span-2">

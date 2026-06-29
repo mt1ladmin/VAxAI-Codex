@@ -13,6 +13,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { AppSelect } from "@/components/ui/AppSelect";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 
 type Post = {
   id: string;
@@ -39,7 +41,7 @@ export default function PostsPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All types");
   const [statusFilter, setStatusFilter] = useState("All statuses");
-  const [tagFilter, setTagFilter] = useState("");
+  const [tagFilters, setTagFilters] = useState<string[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,10 +57,11 @@ export default function PostsPage() {
   const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));
 
   const filtered = posts.filter((p) => {
-    if (search && !p.title.toLowerCase().includes(search.toLowerCase())) return false;
+    const q = search.toLowerCase();
+    if (search && !p.title.toLowerCase().includes(q) && !p.tags.some((t) => t.toLowerCase().includes(q))) return false;
     if (typeFilter !== "All types" && p.content_type !== typeFilter) return false;
     if (statusFilter !== "All statuses" && p.status !== statusFilter) return false;
-    if (tagFilter && !p.tags.includes(tagFilter)) return false;
+    if (tagFilters.length > 0 && !tagFilters.every((t) => p.tags.includes(t))) return false;
     return true;
   });
 
@@ -140,30 +143,30 @@ export default function PostsPage() {
               className="w-52 rounded-md border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
             />
           </div>
-          <select
+          <AppSelect
             value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-          >
-            {CONTENT_TYPES.map((t) => <option key={t}>{t}</option>)}
-          </select>
+            onChange={setTypeFilter}
+            options={CONTENT_TYPES.map((t) => ({ value: t, label: t }))}
+            size="sm"
+            className="min-w-[10rem]"
+          />
           {allTags.length > 0 && (
-            <select
-              value={tagFilter || "All tags"}
-              onChange={(e) => setTagFilter(e.target.value === "All tags" ? "" : e.target.value)}
-              className="rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-            >
-              <option>All tags</option>
-              {allTags.map((t) => <option key={t}>{t}</option>)}
-            </select>
+            <MultiSelect
+              values={tagFilters}
+              onChange={setTagFilters}
+              options={allTags}
+              placeholder="All tags"
+              size="sm"
+              className="min-w-[10rem]"
+            />
           )}
-          <select
+          <AppSelect
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-          >
-            {STATUS_FILTERS.map((s) => <option key={s}>{s}</option>)}
-          </select>
+            onChange={setStatusFilter}
+            options={STATUS_FILTERS.map((s) => ({ value: s, label: s }))}
+            size="sm"
+            className="min-w-[9rem]"
+          />
 
           <div className="ml-auto flex items-center gap-2">
             {selected.size > 0 && (

@@ -17,6 +17,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { AppSelect } from "@/components/ui/AppSelect";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -722,11 +723,13 @@ export default function EditPostPage() {
               {/* Author */}
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Author</label>
-                <select value={authorId} onChange={(e) => setAuthorId(e.target.value)}
-                  className="w-full appearance-none rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
-                  <option value="">No author assigned</option>
-                  {authors.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
+                <AppSelect
+                  value={authorId}
+                  onChange={setAuthorId}
+                  options={authors.map((a) => ({ value: a.id, label: a.name }))}
+                  placeholder="No author assigned"
+                  size="sm"
+                />
               </div>
 
               {/* Publish timing */}

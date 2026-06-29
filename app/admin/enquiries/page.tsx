@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { FilterSelect } from "@/components/admin/FilterSelect";
+import { AppSelect } from "@/components/ui/AppSelect";
 import {
   ENQUIRY_STATUS_COLORS,
   ENQUIRY_STATUS_OPTIONS,
@@ -744,13 +745,12 @@ export default function EnquiriesPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-[#111111]">Support type <span className="text-red-500">*</span></label>
-                <select
+                <AppSelect
                   value={addForm.support_type}
-                  onChange={(e) => setAddForm((f) => ({ ...f, support_type: e.target.value }))}
-                  className="w-full appearance-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                >
-                  {SUPPORT_TYPES.map((t) => <option key={t}>{t}</option>)}
-                </select>
+                  onChange={(v) => setAddForm((f) => ({ ...f, support_type: v }))}
+                  options={SUPPORT_TYPES.map((t) => ({ value: t, label: t }))}
+                  size="sm"
+                />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-[#111111]">Details <span className="text-red-500">*</span></label>
@@ -765,13 +765,12 @@ export default function EnquiriesPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-1 block text-xs font-semibold text-[#111111]">Preferred contact</label>
-                  <select
+                  <AppSelect
                     value={addForm.preferred_contact}
-                    onChange={(e) => setAddForm((f) => ({ ...f, preferred_contact: e.target.value }))}
-                    className="w-full appearance-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                  >
-                    {PREFERRED_CONTACT_OPTIONS.map((o) => <option key={o}>{o}</option>)}
-                  </select>
+                    onChange={(v) => setAddForm((f) => ({ ...f, preferred_contact: v }))}
+                    options={PREFERRED_CONTACT_OPTIONS.map((o) => ({ value: o, label: o }))}
+                    size="sm"
+                  />
                 </div>
                 {addForm.preferred_contact === "Telephone" && (
                   <div>
@@ -788,13 +787,12 @@ export default function EnquiriesPage() {
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-[#111111]">How did they get in touch?</label>
-                <select
+                <AppSelect
                   value={addForm.source}
-                  onChange={(e) => setAddForm((f) => ({ ...f, source: e.target.value, source_other: "" }))}
-                  className="w-full appearance-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
-                >
-                  {SOURCE_OPTIONS.map((s) => <option key={s}>{s}</option>)}
-                </select>
+                  onChange={(v) => setAddForm((f) => ({ ...f, source: v, source_other: "" }))}
+                  options={SOURCE_OPTIONS.map((s) => ({ value: s, label: s }))}
+                  size="sm"
+                />
                 {addForm.source === "Other" && (
                   <input
                     type="text"
