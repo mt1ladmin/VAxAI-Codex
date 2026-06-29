@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
     connected_post_id: connected_post_id ?? null,
     connected_post_title: connected_post_title ?? null,
     status: "Needs review",
+    source: "Website enquiry",
   });
 
   if (error) {

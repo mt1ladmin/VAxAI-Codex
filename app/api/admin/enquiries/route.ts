@@ -72,8 +72,9 @@ export async function POST(req: NextRequest) {
       preferred_contact?: string;
       telephone?: string | null;
       wants_discovery_call?: boolean;
+      source?: string | null;
     };
-    const { name, email, support_type, details, preferred_contact, telephone, wants_discovery_call } = body;
+    const { name, email, support_type, details, preferred_contact, telephone, wants_discovery_call, source } = body;
     if (!name?.trim() || !email?.trim() || !support_type?.trim() || !details?.trim()) {
       return NextResponse.json({ error: "name, email, support_type, and details are required" }, { status: 400 });
     }
@@ -89,6 +90,7 @@ export async function POST(req: NextRequest) {
         telephone: telephone?.trim() || null,
         wants_discovery_call: wants_discovery_call === true,
         status: "",
+        source: source?.trim() || null,
       })
       .select("id")
       .single();

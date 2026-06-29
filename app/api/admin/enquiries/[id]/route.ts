@@ -50,6 +50,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       assigned_team_member_id?: string | null;
       is_client?: boolean;
       client_note?: string | null;
+      source?: string | null;
+      name?: string;
+      email?: string;
+      telephone?: string | null;
     };
 
     const updates: Record<string, unknown> = {};
@@ -74,6 +78,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (body.assigned_team_member_id !== undefined) updates.assigned_team_member_id = body.assigned_team_member_id;
     if (body.is_client !== undefined) updates.is_client = body.is_client;
     if (body.client_note !== undefined) updates.client_note = body.client_note;
+    if (body.source !== undefined) updates.source = body.source;
+    if (body.name !== undefined && body.name.trim()) updates.name = body.name.trim();
+    if (body.email !== undefined && body.email.trim()) updates.email = body.email.trim();
+    if (body.telephone !== undefined) updates.telephone = body.telephone?.trim() || null;
 
     const db = createServiceClient();
 

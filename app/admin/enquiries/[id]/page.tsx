@@ -75,7 +75,61 @@ type Enquiry = {
   is_client: boolean;
   client_note: string | null;
   posts?: { id: string; title: string; slug: string } | null;
+  source: string | null;
 };
+
+function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; email: string; telephone: string | null }; onSave: (fields: Record<string, string | null>) => Promise<void> }) {
+  const [name, setName] = useState(enquiry.name);
+  const [email, setEmail] = useState(enquiry.email);
+  const [telephone, setTelephone] = useState(enquiry.telephone ?? "");
+  const [saving, setSaving] = useState(false);
+  const dirty = name !== enquiry.name || email !== enquiry.email || telephone !== (enquiry.telephone ?? "");
+  return (
+    <div className="space-y-2">
+      <div>
+        <p className="text-[10px] text-[#6f6b62]">Name</p>
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]"
+        />
+      </div>
+      <div>
+        <p className="text-[10px] text-[#6f6b62]">Email</p>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]"
+        />
+      </div>
+      <div>
+        <p className="text-[10px] text-[#6f6b62]">Telephone</p>
+        <input
+          type="tel"
+          value={telephone}
+          onChange={(e) => setTelephone(e.target.value)}
+          placeholder="—"
+          className="mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]"
+        />
+      </div>
+      {dirty && (
+        <button
+          type="button"
+          disabled={saving || !name.trim() || !email.trim()}
+          onClick={async () => {
+            setSaving(true);
+            await onSave({ name: name.trim(), email: email.trim(), telephone: telephone.trim() || null });
+            setSaving(false);
+          }}
+          className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+        >
+          {saving ? "Saving…" : "Save contact details"}
+        </button>
+      )}
+    </div>
+  );
+}
 
 function NextActionField({ value, onSave }: { value: string | null; onSave: (val: string | null) => Promise<void> }) {
   const [draft, setDraft] = useState(value ?? "");
@@ -551,24 +605,35 @@ function EnquiryDetailContent() {
       <div className="px-8 py-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-4">
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact details</p>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Name</p>
-              <p className="text-sm font-semibold text-[#111111]">{enquiry.name}</p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact details</p>
+              {enquiry.source && (
+                <span className="rounded-full bg-[#f7f4ea] px-2 py-0.5 text-[10px] font-medium text-[#6f6b62]">{enquiry.source}</span>
+              )}
             </div>
-            <div>
-              <p className="text-[10px] text-[#6f6b62]">Email</p>
-              <a href={emailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
-                <Mail className="h-3.5 w-3.5" /> {enquiry.email}
-              </a>
-            </div>
-            {enquiry.telephone && (
-              <div>
-                <p className="text-[10px] text-[#6f6b62]">Telephone</p>
-                <a href={`tel:${enquiry.telephone}`} className="flex items-center gap-1.5 text-sm text-[#111111]">
-                  <Phone className="h-3.5 w-3.5" /> {enquiry.telephone}
-                </a>
-              </div>
+            {enquiry.source === "Website enquiry" ? (
+              <>
+                <div>
+                  <p className="text-[10px] text-[#6f6b62]">Name</p>
+                  <p className="text-sm font-semibold text-[#111111]">{enquiry.name}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[#6f6b62]">Email</p>
+                  <a href={emailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
+                    <Mail className="h-3.5 w-3.5" /> {enquiry.email}
+                  </a>
+                </div>
+                {enquiry.telephone && (
+                  <div>
+                    <p className="text-[10px] text-[#6f6b62]">Telephone</p>
+                    <a href={`tel:${enquiry.telephone}`} className="flex items-center gap-1.5 text-sm text-[#111111]">
+                      <Phone className="h-3.5 w-3.5" /> {enquiry.telephone}
+                    </a>
+                  </div>
+                )}
+              </>
+            ) : (
+              <ContactDetailsForm enquiry={enquiry} onSave={async (fields) => { await patchEnquiry(fields as Partial<Enquiry>); }} />
             )}
             <div>
               <p className="text-[10px] text-[#6f6b62]">Received</p>

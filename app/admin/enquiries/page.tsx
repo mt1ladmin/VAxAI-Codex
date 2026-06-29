@@ -45,6 +45,7 @@ type Enquiry = {
   assigned_team_member_name: string | null;
   is_client: boolean;
   follow_up_task_title: string | null;
+  source: string | null;
   organisation?: { id: string; name: string } | null;
   posts?: { id: string; title: string; slug: string } | null;
 };
@@ -81,6 +82,8 @@ const SUPPORT_TYPE_OPTIONS = [
 
 const PREFERRED_CONTACT_OPTIONS = ["Email", "Telephone"];
 
+const SOURCE_OPTIONS = ["Email", "Direct approach", "Phone", "Event", "Other"] as const;
+
 const BLANK_ENQUIRY_FORM = {
   name: "",
   email: "",
@@ -89,6 +92,8 @@ const BLANK_ENQUIRY_FORM = {
   preferred_contact: "Email",
   telephone: "",
   wants_discovery_call: false,
+  source: "Email",
+  source_other: "",
 };
 
 function statusTone(status: string): string {
@@ -253,8 +258,14 @@ export default function EnquiriesPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ...addForm,
+        name: addForm.name,
+        email: addForm.email,
+        support_type: addForm.support_type,
+        details: addForm.details,
+        preferred_contact: addForm.preferred_contact,
         telephone: addForm.preferred_contact === "Telephone" ? addForm.telephone : null,
+        wants_discovery_call: addForm.wants_discovery_call,
+        source: addForm.source === "Other" ? (addForm.source_other.trim() || "Other") : addForm.source,
       }),
     });
     const json = await res.json() as { data?: { id: string }; error?: string };
@@ -275,7 +286,7 @@ export default function EnquiriesPage() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
-            <h1 className="mt-1 font-serif text-2xl text-[#111111]">Website Enquiries</h1>
+            <h1 className="mt-1 font-serif text-2xl text-[#111111]">Enquiries</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
               Inbound interest — qualify against VAxAI wraparound support.
             </p>
@@ -473,6 +484,11 @@ export default function EnquiriesPage() {
                         </span>
                       )}
                       <p className="truncate text-[11px] text-[#6f6b62]">{e.email}</p>
+                      {e.source && (
+                        <span className="mt-0.5 inline-block rounded-full bg-[#f7f4ea] px-1.5 py-0.5 text-[9px] font-medium text-[#6f6b62]">
+                          {e.source}
+                        </span>
+                      )}
                     </td>
                     <td className="px-3 py-3.5 text-[#6f6b62]">{e.organisation?.name || "—"}</td>
                     <td className="px-3 py-3.5">
@@ -742,6 +758,25 @@ export default function EnquiriesPage() {
                       placeholder="+44 7700 900000"
                     />
                   </div>
+                )}
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[#111111]">How did they get in touch?</label>
+                <select
+                  value={addForm.source}
+                  onChange={(e) => setAddForm((f) => ({ ...f, source: e.target.value, source_other: "" }))}
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                >
+                  {SOURCE_OPTIONS.map((s) => <option key={s}>{s}</option>)}
+                </select>
+                {addForm.source === "Other" && (
+                  <input
+                    type="text"
+                    value={addForm.source_other}
+                    onChange={(e) => setAddForm((f) => ({ ...f, source_other: e.target.value }))}
+                    placeholder="Describe how they got in touch…"
+                    className="mt-2 w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  />
                 )}
               </div>
               <label className="flex cursor-pointer items-center gap-2.5">
