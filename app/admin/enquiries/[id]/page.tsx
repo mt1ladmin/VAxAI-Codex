@@ -259,6 +259,7 @@ function EnquiryDetailContent() {
   const [editingServiceFit, setEditingServiceFit] = useState(false);
   const [serviceFitForm, setServiceFitForm] = useState({ service_fit_summary: "", likely_need: "", complexity_level: "", engagement_basis: "" });
   const [savingServiceFit, setSavingServiceFit] = useState(false);
+  const [serviceFitError, setServiceFitError] = useState<string | null>(null);
 
   const hubTabs = CRM_HUB_TABS_PRE_CLIENT;
 
@@ -855,20 +856,29 @@ function EnquiryDetailContent() {
                         />
                       </div>
                     </div>
+                    {serviceFitError && (
+                      <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">{serviceFitError}</p>
+                    )}
                     <div className="flex gap-2 pt-1">
                       <button
                         type="button"
                         disabled={savingServiceFit}
                         onClick={async () => {
                           setSavingServiceFit(true);
-                          await patchEnquiry({
-                            service_fit_summary: serviceFitForm.service_fit_summary.trim() || null,
-                            likely_need: serviceFitForm.likely_need.trim() || null,
-                            complexity_level: serviceFitForm.complexity_level.trim() || null,
-                            engagement_basis: serviceFitForm.engagement_basis.trim() || null,
-                          } as Partial<Enquiry>);
-                          setSavingServiceFit(false);
-                          setEditingServiceFit(false);
+                          setServiceFitError(null);
+                          try {
+                            await patchEnquiry({
+                              service_fit_summary: serviceFitForm.service_fit_summary.trim() || null,
+                              likely_need: serviceFitForm.likely_need.trim() || null,
+                              complexity_level: serviceFitForm.complexity_level.trim() || null,
+                              engagement_basis: serviceFitForm.engagement_basis.trim() || null,
+                            } as Partial<Enquiry>);
+                            setEditingServiceFit(false);
+                          } catch (e) {
+                            setServiceFitError(e instanceof Error ? e.message : "Save failed");
+                          } finally {
+                            setSavingServiceFit(false);
+                          }
                         }}
                         className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
                       >
@@ -876,7 +886,7 @@ function EnquiryDetailContent() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setEditingServiceFit(false)}
+                        onClick={() => { setEditingServiceFit(false); setServiceFitError(null); }}
                         className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
                       >
                         Cancel
