@@ -108,17 +108,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           <BackButton fallbackHref="/insights" label="Back to Insights" />
         </div>
 
-        {/* Cover image — full width up to max */}
-        {post.cover_image_url && (
-          <div className="mx-auto max-w-5xl px-4 pt-10 sm:px-8">
-            <img
-              src={post.cover_image_url}
-              alt={post.title}
-              className="h-64 w-full rounded-2xl object-cover sm:h-80 md:h-[420px]"
-            />
-          </div>
-        )}
-
         <div className="mx-auto max-w-5xl px-4 pb-24 pt-10 sm:px-8">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_260px]">
 
