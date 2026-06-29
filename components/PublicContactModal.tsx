@@ -15,10 +15,16 @@ export default function PublicContactModal({ open, onClose }: Props) {
   const [supportType, setSupportType] = useState("");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [step, setStep] = useState<"form" | "submitted" | "calendly">("form");
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setStep("form");
+      setWantsDiscoveryCall(false);
+      setSupportType("");
+      setPreferredContact("Email");
+      return;
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
@@ -29,6 +35,22 @@ export default function PublicContactModal({ open, onClose }: Props) {
       document.body.style.overflow = "";
     };
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (step !== "calendly") return;
+    if (!document.querySelector('link[href*="calendly.com/assets"]')) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "https://assets.calendly.com/assets/external/widget.css";
+      document.head.appendChild(link);
+    }
+    if (!document.querySelector('script[src*="calendly.com/assets"]')) {
+      const script = document.createElement("script");
+      script.src = "https://assets.calendly.com/assets/external/widget.js";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  }, [step]);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -53,7 +75,9 @@ export default function PublicContactModal({ open, onClose }: Props) {
       }),
     }).catch(() => null);
     setSubmitting(false);
-    if (response?.ok) setSubmitted(true);
+    if (response?.ok) {
+      setStep(wantsDiscoveryCall ? "calendly" : "submitted");
+    }
   }
 
   const fieldClass =
@@ -69,6 +93,27 @@ export default function PublicContactModal({ open, onClose }: Props) {
         if (event.target === event.currentTarget) onClose();
       }}
     >
+      {step === "calendly" ? (
+        <div className="flex h-full max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+          <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-white sm:px-7">
+            <div>
+              <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f5f274]">VAxAI</p>
+              <h2 id="contact-modal-title" className="text-xl font-bold">Book a discovery call</h2>
+              <p className="mt-1 text-sm text-white/65">Pick a time that works for you.</p>
+            </div>
+            <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20" aria-label="Close">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="min-h-0 flex-1">
+            <div
+              className="calendly-inline-widget h-full w-full"
+              data-url="https://calendly.com/thesia-mt1l"
+              style={{ minHeight: "660px" }}
+            />
+          </div>
+        </div>
+      ) : (
       <div className="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
         <div className="flex items-start justify-between gap-6 rounded-t-3xl bg-[#063b32] px-6 py-5 text-white sm:px-7">
           <div>
@@ -81,7 +126,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
           </button>
         </div>
 
-        {submitted ? (
+        {step === "submitted" ? (
           <div className="p-7 text-center sm:p-10">
             <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#063b32]">
               <Check className="h-6 w-6 text-[#f5f274]" />
@@ -153,6 +198,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
           </form>
         )}
       </div>
+      )}
     </div>
   );
 
