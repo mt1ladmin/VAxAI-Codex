@@ -13,18 +13,27 @@ import type { createServiceClient } from "@/lib/supabase";
 
 type ServiceClient = ReturnType<typeof createServiceClient>;
 
-/** Load all prospect records from Supabase. Returns [] on error. */
+/** Load all prospect records from Supabase, batching to bypass the server-side row cap. */
 export async function loadCatalogRecords(supabase: ServiceClient): Promise<ProspectOutreachRecord[]> {
-  const { data, error } = await supabase
-    .from("prospect_outreach_catalog")
-    .select("*")
-    .order("need_score", { ascending: false })
-    .range(0, 9999);
-  if (error) {
-    console.error("Failed to load prospect catalog:", error.message);
-    return [];
+  const BATCH = 1000;
+  const all: ProspectOutreachRecord[] = [];
+  let from = 0;
+  while (true) {
+    const { data, error } = await supabase
+      .from("prospect_outreach_catalog")
+      .select("*")
+      .order("need_score", { ascending: false })
+      .range(from, from + BATCH - 1);
+    if (error) {
+      console.error("Failed to load prospect catalog:", error.message);
+      return all;
+    }
+    const batch = (data || []) as unknown as ProspectOutreachRecord[];
+    all.push(...batch);
+    if (batch.length < BATCH) break;
+    from += BATCH;
   }
-  return (data || []) as unknown as ProspectOutreachRecord[];
+  return all;
 }
 
 export async function loadOverrideMaps(supabase: ServiceClient) {

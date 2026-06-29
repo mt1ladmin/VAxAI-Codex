@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -96,6 +97,11 @@ export default function ProspectFinderPage() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
+  const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
+  const [assigneeMenuId, setAssigneeMenuId] = useState<string | null>(null);
+  const [nextActionPopupId, setNextActionPopupId] = useState<string | null>(null);
+  const [nextActionDraft, setNextActionDraft] = useState("");
+  const [savingNextAction, setSavingNextAction] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [savingAdd, setSavingAdd] = useState(false);
   const [addForm, setAddForm] = useState({
@@ -240,6 +246,23 @@ export default function ProspectFinderPage() {
     if (!confirm(`Permanently delete "${name}"? This cannot be undone.`)) return;
     await doDelete([id]);
   };
+
+  const patchProspect = useCallback(async (id: string, updates: Record<string, unknown>) => {
+    const assigneeName = updates.assigned_team_member_id !== undefined
+      ? (teamMembers.find((m) => m.id === updates.assigned_team_member_id)?.display_name ?? null)
+      : undefined;
+    setProspects((prev) => prev.map((p) => p.id !== id ? p : {
+      ...p,
+      ...(updates.engagement_status !== undefined ? { engagement_status: updates.engagement_status as string } : {}),
+      ...(assigneeName !== undefined ? { assigned_team_member_id: updates.assigned_team_member_id as string | null, assigned_team_member_name: assigneeName } : {}),
+      ...(updates.next_action !== undefined ? { next_action: updates.next_action as string | null } : {}),
+    }));
+    await fetch("/api/admin/engagement/prospect-outreach", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ outreach_id: id, ...updates }),
+    });
+  }, [teamMembers]);
 
   const createNewProspect = async () => {
     if (!addForm.organisation_name.trim()) return;
@@ -504,20 +527,79 @@ export default function ProspectFinderPage() {
                     <td className="px-3 py-3.5 text-[#6f6b62]">{p.sector_label}</td>
                     <td className="px-3 py-3.5 text-[#6f6b62]">{p.location}</td>
                     <td className="px-3 py-3.5">
-                      {p.assigned_team_member_name ? (
-                        <span className="inline-flex items-center gap-1 text-[#111111]">
-                          <User className="h-3.5 w-3.5 text-[#6f6b62]" />
-                          {p.assigned_team_member_name}
-                        </span>
-                      ) : (
-                        <span className="text-[#6f6b62]">—</span>
-                      )}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(ev) => { ev.stopPropagation(); setAssigneeMenuId(assigneeMenuId === p.id ? null : p.id); setStatusMenuId(null); }}
+                          className="flex items-center gap-1 text-sm hover:opacity-70"
+                        >
+                          {p.assigned_team_member_name ? (
+                            <>
+                              <User className="h-3.5 w-3.5 text-[#6f6b62]" />
+                              <span className="text-[#111111]">{p.assigned_team_member_name}</span>
+                            </>
+                          ) : (
+                            <span className="text-[#6f6b62]">—</span>
+                          )}
+                          <ChevronDown className="h-3 w-3 text-[#6f6b62] opacity-50" />
+                        </button>
+                        {assigneeMenuId === p.id && (
+                          <div className="absolute left-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
+                            <button
+                              type="button"
+                              onClick={() => { void patchProspect(p.id, { assigned_team_member_id: null }); setAssigneeMenuId(null); }}
+                              className="w-full px-3 py-2 text-left text-xs text-[#6f6b62] hover:bg-[#f7f4ea]"
+                            >
+                              Unassigned
+                            </button>
+                            {teamMembers.map((m) => (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => { void patchProspect(p.id, { assigned_team_member_id: m.id }); setAssigneeMenuId(null); }}
+                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-[#f7f4ea]"
+                              >
+                                {m.display_name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </td>
-                    <td className={`px-3 py-3.5 text-xs ${statusTone(p.engagement_status)}`}>
-                      {p.engagement_status || "—"}
+                    <td className="px-3 py-3.5">
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(ev) => { ev.stopPropagation(); setStatusMenuId(statusMenuId === p.id ? null : p.id); setAssigneeMenuId(null); }}
+                          className={`flex items-center gap-0.5 text-xs hover:opacity-70 ${statusTone(p.engagement_status)}`}
+                        >
+                          {p.engagement_status || "Not assigned"}
+                          <ChevronDown className="h-3 w-3 opacity-50" />
+                        </button>
+                        {statusMenuId === p.id && (
+                          <div className="absolute left-0 top-full z-20 mt-1 w-52 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
+                            {FINDER_ENGAGEMENT_STATUSES.map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => { void patchProspect(p.id, { engagement_status: s }); setStatusMenuId(null); }}
+                                className={`w-full px-3 py-2 text-left text-xs hover:bg-[#f7f4ea] ${statusTone(s)}`}
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#6f6b62]">
-                      <span className="truncate block">{p.follow_up_task_title || "—"}</span>
+                      <button
+                        type="button"
+                        onClick={(ev) => { ev.stopPropagation(); setNextActionPopupId(p.id); setNextActionDraft(p.next_action || p.follow_up_task_title || ""); setStatusMenuId(null); setAssigneeMenuId(null); }}
+                        className="block truncate text-left hover:text-[#063b32] hover:underline"
+                      >
+                        {p.next_action || p.follow_up_task_title || "—"}
+                      </button>
                     </td>
                     {isPlatformAdmin && (
                       <td className="px-3 py-3.5">
@@ -564,6 +646,51 @@ export default function ProspectFinderPage() {
           </button>
         </div>
       </div>
+
+      {(statusMenuId || assigneeMenuId) && (
+        <div className="fixed inset-0 z-10" onClick={() => { setStatusMenuId(null); setAssigneeMenuId(null); }} />
+      )}
+
+      {nextActionPopupId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setNextActionPopupId(null)}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="font-semibold text-[#111111]">Next action</h3>
+              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded p-1 hover:bg-[#f7f4ea]">
+                <X className="h-4 w-4 text-[#6f6b62]" />
+              </button>
+            </div>
+            <textarea
+              value={nextActionDraft}
+              onChange={(e) => setNextActionDraft(e.target.value)}
+              rows={3}
+              placeholder="Describe the next action…"
+              className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+              autoFocus
+            />
+            <div className="mt-3 flex justify-end gap-2">
+              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]">
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={savingNextAction}
+                onClick={async () => {
+                  if (!nextActionPopupId) return;
+                  setSavingNextAction(true);
+                  await patchProspect(nextActionPopupId, { next_action: nextActionDraft.trim() || null });
+                  setSavingNextAction(false);
+                  setNextActionPopupId(null);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+              >
+                {savingNextAction && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">

@@ -14,6 +14,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { FilterSelect } from "@/components/admin/FilterSelect";
 import {
   ENQUIRY_STATUS_COLORS,
@@ -90,6 +91,15 @@ const BLANK_ENQUIRY_FORM = {
   wants_discovery_call: false,
 };
 
+function statusTone(status: string): string {
+  if (status === "Opportunity identified") return "text-emerald-700 font-medium";
+  if (status === "Conversation held") return "text-sky-700 font-medium";
+  if (status === "Follow up required") return "text-amber-700 font-medium";
+  if (status === "Contact attempted") return "text-blue-700";
+  if (status === "Not suitable" || status === "No response") return "text-[#6f6b62]";
+  return "text-[#6f6b62]";
+}
+
 function matchesDateFilter(e: Enquiry, filter: DateFilter): boolean {
   if (filter === "all") return true;
   const diffMs = Date.now() - new Date(e.created_at).getTime();
@@ -112,6 +122,8 @@ export default function EnquiriesPage() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [statusMenuId, setStatusMenuId] = useState<string | null>(null);
+  const [assigneeMenuId, setAssigneeMenuId] = useState<string | null>(null);
+  const [teamMembers, setTeamMembers] = useState<StudioTeamMember[]>([]);
   const [deleting, setDeleting] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [savingAdd, setSavingAdd] = useState(false);
@@ -119,9 +131,12 @@ export default function EnquiriesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/admin/enquiries?status=${statusFilter}`);
-    const json = await res.json() as { data: Enquiry[] };
-    setEnquiries(json.data ?? []);
+    const [enqRes, membersRes] = await Promise.all([
+      fetch(`/api/admin/enquiries?status=${statusFilter}`).then((r) => r.json() as Promise<{ data: Enquiry[] }>),
+      fetch("/api/admin/engagement/team-members").then((r) => r.json() as Promise<{ data: StudioTeamMember[] }>),
+    ]);
+    setEnquiries(enqRes.data ?? []);
+    setTeamMembers(membersRes.data ?? []);
     setSelected(new Set());
     setLoading(false);
   }, [statusFilter]);
@@ -201,19 +216,30 @@ export default function EnquiriesPage() {
     await doDelete([id]);
   };
 
-  const updateStatus = async (id: string, status: string) => {
-    setStatusMenuId(null);
+  const patchEnquiry = useCallback(async (id: string, updates: Record<string, unknown>) => {
+    const assigneeName = updates.assigned_team_member_id !== undefined
+      ? (teamMembers.find((m) => m.id === updates.assigned_team_member_id)?.display_name ?? null)
+      : undefined;
+    setEnquiries((prev) => prev.map((e) => e.id !== id ? e : {
+      ...e,
+      ...(updates.status !== undefined ? { status: updates.status as string } : {}),
+      ...(assigneeName !== undefined ? { assigned_team_member_id: updates.assigned_team_member_id as string | null, assigned_team_member_name: assigneeName } : {}),
+    }));
     const res = await fetch(`/api/admin/enquiries/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(updates),
     });
     if (!res.ok) {
       const j = await res.json() as { error?: string; hint?: string };
-      window.alert(j.hint ? `${j.error}\n\n${j.hint}` : (j.error || "Failed to update status"));
-      return;
+      window.alert(j.hint ? `${j.error}\n\n${j.hint}` : (j.error || "Failed to update"));
+      void load();
     }
-    void load();
+  }, [teamMembers, load]);
+
+  const updateStatus = async (id: string, status: string) => {
+    setStatusMenuId(null);
+    await patchEnquiry(id, { status });
   };
 
   const createEnquiry = async () => {
@@ -405,10 +431,10 @@ export default function EnquiriesPage() {
                 <th className="px-6 py-3 font-semibold">Contact</th>
                 <th className="px-3 py-3 font-semibold">Organisation</th>
                 <th className="px-3 py-3 font-semibold">Support type</th>
-                <th className="px-6 py-3 font-semibold">Next action</th>
-                <th className="px-3 py-3 font-semibold">Received</th>
                 <th className="px-3 py-3 font-semibold">Assigned to</th>
                 <th className="px-3 py-3 font-semibold">Status</th>
+                <th className="px-6 py-3 font-semibold">Next action</th>
+                <th className="px-3 py-3 font-semibold">Received</th>
                 <th className="w-10 px-3 py-3" />
               </tr>
             </thead>
@@ -450,34 +476,55 @@ export default function EnquiriesPage() {
                         {e.support_type}
                       </span>
                     </td>
-                    <td className="max-w-[200px] px-6 py-3.5 text-xs text-[#6f6b62]">
-                      <span className="block truncate">{e.follow_up_task_title || "—"}</span>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3.5 text-xs text-[#6f6b62]">
-                      {new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                      {e.wants_discovery_call && (
-                        <span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold text-sky-700">DC</span>
-                      )}
-                    </td>
                     <td className="px-3 py-3.5">
-                      {e.assigned_team_member_name ? (
-                        <span className="inline-flex items-center gap-1 text-[#111111]">
-                          <User className="h-3.5 w-3.5 text-[#6f6b62]" />
-                          {e.assigned_team_member_name}
-                        </span>
-                      ) : (
-                        <span className="text-[#6f6b62]">—</span>
-                      )}
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(ev) => { ev.stopPropagation(); setAssigneeMenuId(assigneeMenuId === e.id ? null : e.id); setStatusMenuId(null); }}
+                          className="flex items-center gap-1 text-sm hover:opacity-70"
+                        >
+                          {e.assigned_team_member_name ? (
+                            <>
+                              <User className="h-3.5 w-3.5 text-[#6f6b62]" />
+                              <span className="text-[#111111]">{e.assigned_team_member_name}</span>
+                            </>
+                          ) : (
+                            <span className="text-[#6f6b62]">—</span>
+                          )}
+                          <ChevronDown className="h-3 w-3 text-[#6f6b62] opacity-50" />
+                        </button>
+                        {assigneeMenuId === e.id && (
+                          <div className="absolute left-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
+                            <button
+                              type="button"
+                              onClick={() => { void patchEnquiry(e.id, { assigned_team_member_id: null }); setAssigneeMenuId(null); }}
+                              className="w-full px-3 py-2 text-left text-xs text-[#6f6b62] hover:bg-[#f7f4ea]"
+                            >
+                              Unassigned
+                            </button>
+                            {teamMembers.map((m) => (
+                              <button
+                                key={m.id}
+                                type="button"
+                                onClick={() => { void patchEnquiry(e.id, { assigned_team_member_id: m.id }); setAssigneeMenuId(null); }}
+                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-[#f7f4ea]"
+                              >
+                                {m.display_name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-3.5">
                       <div className="relative">
                         <button
                           type="button"
-                          onClick={(ev) => { ev.stopPropagation(); setStatusMenuId(statusMenuId === e.id ? null : e.id); }}
-                          className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${ENQUIRY_STATUS_COLORS[isUnreviewedEnquiry(e.status) ? "" : e.status] ?? "bg-[#111111]/10 text-[#6f6b62]"}`}
+                          onClick={(ev) => { ev.stopPropagation(); setStatusMenuId(statusMenuId === e.id ? null : e.id); setAssigneeMenuId(null); }}
+                          className={`flex items-center gap-0.5 text-xs hover:opacity-70 ${statusTone(e.status)}`}
                         >
                           {enquiryStatusLabel(e.status)}
-                          <ChevronDown className="h-3 w-3" />
+                          <ChevronDown className="h-3 w-3 opacity-50" />
                         </button>
                         {statusMenuId === e.id && (
                           <div className="absolute left-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
@@ -495,6 +542,15 @@ export default function EnquiriesPage() {
                           </div>
                         )}
                       </div>
+                    </td>
+                    <td className="max-w-[200px] px-6 py-3.5 text-xs text-[#6f6b62]">
+                      <span className="block truncate">{e.follow_up_task_title || "—"}</span>
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-3.5 text-xs text-[#6f6b62]">
+                      {new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      {e.wants_discovery_call && (
+                        <span className="ml-1.5 rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold text-sky-700">DC</span>
+                      )}
                     </td>
                     <td className="px-3 py-3.5">
                       <button
@@ -523,8 +579,8 @@ export default function EnquiriesPage() {
         </p>
       </div>
 
-      {statusMenuId && (
-        <div className="fixed inset-0 z-10" onClick={() => setStatusMenuId(null)} />
+      {(statusMenuId || assigneeMenuId) && (
+        <div className="fixed inset-0 z-10" onClick={() => { setStatusMenuId(null); setAssigneeMenuId(null); }} />
       )}
 
       {/* Add enquiry modal */}
