@@ -56,7 +56,6 @@ export function CollapsibleNote({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <ToggleBar expanded={expanded} onToggle={toggle} />
       <p
         className={`whitespace-pre-wrap ${textClassName} ${
           expanded ? "" : "line-clamp-6"
@@ -64,7 +63,7 @@ export function CollapsibleNote({
       >
         {content}
       </p>
-      {expanded ? <ToggleBar expanded={expanded} onToggle={toggle} /> : null}
+      <ToggleBar expanded={expanded} onToggle={toggle} />
     </div>
   );
 }

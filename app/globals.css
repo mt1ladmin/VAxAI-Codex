@@ -20,6 +20,16 @@ body {
   background: #f7f4ea;
 }
 
+select,
+select option {
+  background-color: #ffffff;
+  color: #111111;
+}
+
+select {
+  color-scheme: light;
+}
+
 a {
   color: inherit;
   text-decoration: none;

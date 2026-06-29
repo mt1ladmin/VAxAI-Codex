@@ -206,10 +206,18 @@ export default function PostsPage() {
         ) : view === "grid" ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((post) => (
-              <div key={post.id} className="group relative overflow-hidden rounded-md border border-[#111111]/10 bg-white shadow-sm">
+              <div
+                key={post.id}
+                onClick={(event) => {
+                  if (selected.size === 0) return;
+                  event.preventDefault();
+                  toggleSelect(post.id);
+                }}
+                className={`group relative overflow-hidden rounded-md border bg-white shadow-sm ${selected.size > 0 ? "cursor-pointer" : ""} ${selected.has(post.id) ? "border-[#063b32] ring-1 ring-[#063b32]/20" : "border-[#111111]/10"}`}
+              >
                 {/* Checkbox — always visible */}
                 <button
-                  onClick={() => toggleSelect(post.id)}
+                  onClick={(event) => { event.stopPropagation(); toggleSelect(post.id); }}
                   className={`absolute left-2.5 top-2.5 z-20 grid h-5 w-5 place-items-center rounded border-2 shadow-sm transition-colors ${
                     selected.has(post.id)
                       ? "border-[#063b32] bg-[#063b32]"
@@ -238,7 +246,7 @@ export default function PostsPage() {
                     <Edit2 className="h-3.5 w-3.5" />
                   </Link>
                   <button
-                    onClick={() => deletePost(post.id)}
+                    onClick={(event) => { event.stopPropagation(); void deletePost(post.id); }}
                     className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-white"
                     title="Delete post"
                   >
@@ -290,9 +298,17 @@ export default function PostsPage() {
         ) : (
           <div className="overflow-hidden rounded-md border border-[#111111]/10 bg-white">
             {filtered.map((post, i) => (
-              <div key={post.id} className={`group flex items-center gap-4 px-5 py-4 ${i < filtered.length - 1 ? "border-b border-[#111111]/8" : ""}`}>
+              <div
+                key={post.id}
+                onClick={(event) => {
+                  if (selected.size === 0) return;
+                  event.preventDefault();
+                  toggleSelect(post.id);
+                }}
+                className={`group flex items-center gap-4 px-5 py-4 ${selected.size > 0 ? "cursor-pointer" : ""} ${selected.has(post.id) ? "bg-[#063b32]/5" : ""} ${i < filtered.length - 1 ? "border-b border-[#111111]/8" : ""}`}
+              >
                 <button
-                  onClick={() => toggleSelect(post.id)}
+                  onClick={(event) => { event.stopPropagation(); toggleSelect(post.id); }}
                   className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${
                     selected.has(post.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25"
                   }`}
@@ -326,7 +342,7 @@ export default function PostsPage() {
                   <Link href={`/admin/posts/${post.id}`} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]" title="Edit">
                     <Edit2 className="h-3.5 w-3.5" />
                   </Link>
-                  <button onClick={() => deletePost(post.id)} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600" title="Delete">
+                  <button onClick={(event) => { event.stopPropagation(); void deletePost(post.id); }} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600" title="Delete">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
