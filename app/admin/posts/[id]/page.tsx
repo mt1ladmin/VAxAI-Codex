@@ -58,15 +58,15 @@ function slugify(text: string) {
   return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
 }
 
-function Toast({ message, visible, action }: { message: string; visible: boolean; action?: { label: string; href: string } }) {
+function Toast({ message, visible, action, isError }: { message: string; visible: boolean; action?: { label: string; href: string }; isError?: boolean }) {
   return (
     <div
       className={`fixed bottom-6 left-1/2 z-[100] -translate-x-1/2 transition-all duration-300 ${
         visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
       }`}
     >
-      <div className="flex items-center gap-2 rounded-xl bg-[#111111] px-5 py-3 text-sm font-semibold text-white shadow-xl">
-        <Check className="h-4 w-4 text-emerald-400" />
+      <div className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-xl ${isError ? "bg-red-600" : "bg-[#111111]"}`}>
+        <Check className={`h-4 w-4 ${isError ? "text-red-200" : "text-emerald-400"}`} />
         {message}
         {action && (
           <a href={action.href} className="ml-1 underline underline-offset-2 opacity-80 hover:opacity-100">
@@ -240,6 +240,7 @@ export default function EditPostPage() {
   const [toastMsg, setToastMsg] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [toastAction, setToastAction] = useState<{ label: string; href: string } | undefined>(undefined);
+  const [toastIsError, setToastIsError] = useState(false);
 
   // Tags collapsible
   const [tagsOpen, setTagsOpen] = useState(false);
@@ -254,11 +255,12 @@ export default function EditPostPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [activeSocialPreview, setActiveSocialPreview] = useState<SocialPostPreview | null>(null);
 
-  const showToast = (message: string, action?: { label: string; href: string }) => {
+  const showToast = (message: string, action?: { label: string; href: string }, isError?: boolean) => {
     setToastMsg(message);
     setToastAction(action);
+    setToastIsError(!!isError);
     setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 4000);
+    setTimeout(() => setToastVisible(false), isError ? 6000 : 4000);
   };
 
   useEffect(() => {
@@ -320,26 +322,40 @@ export default function EditPostPage() {
 
   const save = useCallback(async (status: "draft" | "published" | "scheduled") => {
     setSaving(true);
-    await fetch(`/api/admin/posts/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: title || "Untitled",
-        description,
-        body_html: bodyHtml,
-        cover_image_url: coverImageUrl || null,
-        content_type: showCustomType && customType ? customType : contentType,
-        tags,
-        author_id: authorId || null,
-        slug: slug || slugify(title || "untitled"),
-        status,
-        scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
-        sharing_caption: socialDraft?.sharing_caption ?? null,
-        linkedin_post: socialDraft?.linkedin_post ?? null,
-        instagram_caption: socialDraft?.instagram_caption ?? null,
-        social_hashtags: socialDraft?.hashtags ?? [],
-      }),
-    });
+    let json: { data?: unknown; error?: string; hint?: string } = {};
+    try {
+      const res = await fetch(`/api/admin/posts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title || "Untitled",
+          description,
+          body_html: bodyHtml,
+          cover_image_url: coverImageUrl || null,
+          content_type: showCustomType && customType ? customType : contentType,
+          tags,
+          author_id: authorId || null,
+          slug: slug || slugify(title || "untitled"),
+          status,
+          scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+          sharing_caption: socialDraft?.sharing_caption ?? null,
+          linkedin_post: socialDraft?.linkedin_post ?? null,
+          instagram_caption: socialDraft?.instagram_caption ?? null,
+          social_hashtags: socialDraft?.hashtags ?? [],
+        }),
+      });
+      json = await res.json() as typeof json;
+      if (!res.ok || json.error) {
+        const msg = json.hint ? `${json.error} — ${json.hint}` : (json.error ?? "Save failed");
+        showToast(msg, undefined, true);
+        setSaving(false);
+        return;
+      }
+    } catch {
+      showToast("Save failed — check your connection", undefined, true);
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     if (status === "published") {
       setIsPublished(true);
@@ -438,7 +454,7 @@ export default function EditPostPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Toast message={toastMsg} visible={toastVisible} action={toastAction} />
+      <Toast message={toastMsg} visible={toastVisible} action={toastAction} isError={toastIsError} />
 
       {showSocialPreview && socialDraft && (
         <SocialPreviewModal
