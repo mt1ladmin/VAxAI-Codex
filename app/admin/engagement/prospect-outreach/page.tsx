@@ -71,8 +71,19 @@ function statusTone(status: string): string {
   if (status === "Follow up required") return "text-amber-700 font-medium";
   if (status === "Not suitable") return "text-[#6f6b62]";
   if (status === "No response") return "text-[#6f6b62]";
+  if (!status) return "text-[#6f6b62]";
   return "text-[#111111]";
 }
+
+const TASK_TYPE_LABEL: Record<string, string> = {
+  follow_up: "Follow-up",
+  call: "Call",
+  email: "Email",
+  meeting: "Meeting",
+  admin: "Admin",
+  research: "Research",
+  other: "Other",
+};
 
 export default function ProspectFinderPage() {
   const router = useRouter();
@@ -480,7 +491,7 @@ export default function ProspectFinderPage() {
                       )}
                     </td>
                     <td className={`px-3 py-3.5 text-xs ${statusTone(p.engagement_status)}`}>
-                      {p.engagement_status}
+                      {p.engagement_status || "—"}
                     </td>
                     <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#6f6b62]">
                       <span className="truncate block">{p.next_action || "—"}</span>

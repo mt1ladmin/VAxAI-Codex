@@ -6,7 +6,7 @@ import { TasksListSkeleton } from "@/components/admin/HubDetailSkeleton";
 import { useUserEmail } from "@/lib/user-email-context";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
-import { Check, CheckSquare, Loader2, Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { Check, CheckSquare, ChevronDown, Loader2, Pencil, Plus, Save, Trash2, X } from "lucide-react";
 import {
   DUE_DATE_FILTER_OPTIONS,
   SOURCE_FILTER_OPTIONS,
@@ -23,6 +23,26 @@ const PRIORITY_DOT: Record<string, string> = {
   low: "bg-gray-300",
 };
 
+const TASK_TYPE_LABEL: Record<string, string> = {
+  follow_up: "Follow-up",
+  call: "Call",
+  email: "Email",
+  meeting: "Meeting",
+  admin: "Admin",
+  research: "Research",
+  other: "Other",
+};
+
+const TASK_TYPE_BADGE: Record<string, string> = {
+  follow_up: "bg-amber-100 text-amber-700",
+  call: "bg-sky-100 text-sky-700",
+  email: "bg-violet-100 text-violet-700",
+  meeting: "bg-blue-100 text-blue-700",
+  admin: "bg-[#111111]/8 text-[#6f6b62]",
+  research: "bg-teal-100 text-teal-700",
+  other: "bg-[#111111]/8 text-[#6f6b62]",
+};
+
 const BOARD_COLUMNS = [
   { id: "todo", label: "To do", color: "bg-gray-100 text-gray-700" },
   { id: "in_progress", label: "In progress", color: "bg-blue-100 text-blue-700" },
@@ -34,6 +54,67 @@ const inputClass =
 
 const selectClass =
   "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32] appearance-none";
+
+function FormSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+  const selected = options.find((o) => o.value === value);
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-left text-sm text-[#111111] outline-none transition-colors hover:border-[#063b32]/40"
+      >
+        <span className={selected ? "text-[#111111]" : "text-[#6f6b62]"}>
+          {selected?.label || placeholder || "Select…"}
+        </span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute z-40 mt-1 w-full min-w-[10rem] overflow-hidden rounded-lg border border-[#111111]/15 bg-white shadow-lg">
+          {placeholder && (
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onChange(""); }}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] ${!value ? "font-semibold text-[#063b32]" : "text-[#6f6b62]"}`}
+            >
+              {placeholder}
+            </button>
+          )}
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { setOpen(false); onChange(opt.value); }}
+              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] ${value === opt.value ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"}`}
+            >
+              <span>{opt.label}</span>
+              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function taskRecordHref(task: EngagementTask, allowClientLinks: boolean): string | null {
   const enquiryId = task.enquiry_id ?? task.opportunity?.enquiry_id;
@@ -109,7 +190,14 @@ function TaskBoardCard({
             </Link>
           )}
         </button>
-        <div className={`h-2 w-2 rounded-full shrink-0 ${PRIORITY_DOT[task.priority] || "bg-gray-300"}`} />
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <div className={`h-2 w-2 rounded-full ${PRIORITY_DOT[task.priority] || "bg-gray-300"}`} />
+          {task.task_type && task.task_type !== "other" && (
+            <span className={`rounded-full px-1.5 py-0.5 text-[9px] font-semibold ${TASK_TYPE_BADGE[task.task_type] ?? "bg-[#111111]/8 text-[#6f6b62]"}`}>
+              {TASK_TYPE_LABEL[task.task_type] ?? task.task_type}
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -339,23 +427,31 @@ export function TasksListView({
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Priority</label>
-                <select value={form.priority} onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))} className={inputClass}>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
+                <FormSelect
+                  value={form.priority}
+                  onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
+                  options={[
+                    { value: "high", label: "High" },
+                    { value: "medium", label: "Medium" },
+                    { value: "low", label: "Low" },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Type</label>
-                <select value={form.task_type} onChange={(e) => setForm((f) => ({ ...f, task_type: e.target.value }))} className={inputClass}>
-                  <option value="follow_up">Follow-up</option>
-                  <option value="call">Call</option>
-                  <option value="email">Email</option>
-                  <option value="meeting">Meeting</option>
-                  <option value="research">Research</option>
-                  <option value="admin">Admin</option>
-                  <option value="other">Other</option>
-                </select>
+                <FormSelect
+                  value={form.task_type}
+                  onChange={(v) => setForm((f) => ({ ...f, task_type: v }))}
+                  options={[
+                    { value: "follow_up", label: "Follow-up" },
+                    { value: "call", label: "Call" },
+                    { value: "email", label: "Email" },
+                    { value: "meeting", label: "Meeting" },
+                    { value: "research", label: "Research" },
+                    { value: "admin", label: "Admin" },
+                    { value: "other", label: "Other" },
+                  ]}
+                />
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Due date</label>
@@ -367,16 +463,12 @@ export function TasksListView({
               </div>
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Assignee</label>
-                <select
+                <FormSelect
                   value={form.assigned_team_member_id}
-                  onChange={(e) => setForm((f) => ({ ...f, assigned_team_member_id: e.target.value }))}
-                  className={inputClass}
-                >
-                  <option value="">Unassigned</option>
-                  {teamMembers.map((m) => (
-                    <option key={m.id} value={m.id}>{m.display_name}</option>
-                  ))}
-                </select>
+                  onChange={(v) => setForm((f) => ({ ...f, assigned_team_member_id: v }))}
+                  placeholder="Unassigned"
+                  options={teamMembers.map((m) => ({ value: m.id, label: m.display_name }))}
+                />
               </div>
             </div>
             {saveError && <p className="mt-3 text-sm text-red-600">{saveError}</p>}

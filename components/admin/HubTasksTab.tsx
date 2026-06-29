@@ -1,15 +1,96 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Calendar, Check, ChevronDown, Loader2, Plus, Save, Target, Trash2 } from "lucide-react";
 import type { LinkedNextAction } from "@/lib/engagement/linked-next-actions";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import type { EngagementTask } from "@/lib/engagement/types";
 import { DEFAULT_TASK_FORM, PRIORITY_DOT, STATUS_BADGE } from "@/lib/engagement/task-ui";
 
+const TASK_TYPE_LABEL: Record<string, string> = {
+  follow_up: "Follow-up",
+  call: "Call",
+  email: "Email",
+  meeting: "Meeting",
+  admin: "Admin",
+  research: "Research",
+  other: "Other",
+};
+
+const TASK_TYPE_BADGE: Record<string, string> = {
+  follow_up: "bg-amber-100 text-amber-700",
+  call: "bg-sky-100 text-sky-700",
+  email: "bg-violet-100 text-violet-700",
+  meeting: "bg-blue-100 text-blue-700",
+  admin: "bg-[#111111]/8 text-[#6f6b62]",
+  research: "bg-teal-100 text-teal-700",
+  other: "bg-[#111111]/8 text-[#6f6b62]",
+};
+
 const fieldClass =
   "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32] appearance-none";
+
+function FormSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+  const selected = options.find((o) => o.value === value);
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-left text-sm text-[#111111] outline-none transition-colors hover:border-[#063b32]/40"
+      >
+        <span className={selected ? "text-[#111111]" : "text-[#6f6b62]"}>
+          {selected?.label || placeholder || "Select…"}
+        </span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute z-40 mt-1 w-full min-w-[10rem] overflow-hidden rounded-lg border border-[#111111]/15 bg-white shadow-lg">
+          {placeholder && (
+            <button
+              type="button"
+              onClick={() => { setOpen(false); onChange(""); }}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] ${!value ? "font-semibold text-[#063b32]" : "text-[#6f6b62]"}`}
+            >
+              {placeholder}
+            </button>
+          )}
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { setOpen(false); onChange(opt.value); }}
+              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] ${value === opt.value ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"}`}
+            >
+              <span>{opt.label}</span>
+              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 type TaskForm = typeof DEFAULT_TASK_FORM;
 
@@ -172,27 +253,27 @@ export function HubTasksTab({
             className={fieldClass}
           />
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <select
+            <FormSelect
               value={taskForm.priority}
-              onChange={(e) => setTaskForm((f) => ({ ...f, priority: e.target.value }))}
-              className={fieldClass}
-            >
-              <option value="high">High priority</option>
-              <option value="medium">Medium priority</option>
-              <option value="low">Low priority</option>
-            </select>
-            <select
+              onChange={(v) => setTaskForm((f) => ({ ...f, priority: v }))}
+              options={[
+                { value: "high", label: "High priority" },
+                { value: "medium", label: "Medium priority" },
+                { value: "low", label: "Low priority" },
+              ]}
+            />
+            <FormSelect
               value={taskForm.task_type}
-              onChange={(e) => setTaskForm((f) => ({ ...f, task_type: e.target.value }))}
-              className={fieldClass}
-            >
-              <option value="follow_up">Follow-up</option>
-              <option value="call">Call</option>
-              <option value="email">Email</option>
-              <option value="meeting">Meeting</option>
-              <option value="admin">Admin</option>
-              <option value="other">Other</option>
-            </select>
+              onChange={(v) => setTaskForm((f) => ({ ...f, task_type: v }))}
+              options={[
+                { value: "follow_up", label: "Follow-up" },
+                { value: "call", label: "Call" },
+                { value: "email", label: "Email" },
+                { value: "meeting", label: "Meeting" },
+                { value: "admin", label: "Admin" },
+                { value: "other", label: "Other" },
+              ]}
+            />
             <input
               type="date"
               value={taskForm.due_date}
@@ -201,16 +282,12 @@ export function HubTasksTab({
             />
           </div>
           {teamMembers.length > 0 && (
-            <select
+            <FormSelect
               value={taskForm.assigned_team_member_id}
-              onChange={(e) => setTaskForm((f) => ({ ...f, assigned_team_member_id: e.target.value }))}
-              className={fieldClass}
-            >
-              <option value="">Assign to…</option>
-              {teamMembers.map((m) => (
-                <option key={m.id} value={m.id}>{m.display_name}</option>
-              ))}
-            </select>
+              onChange={(v) => setTaskForm((f) => ({ ...f, assigned_team_member_id: v }))}
+              placeholder="Assign to…"
+              options={teamMembers.map((m) => ({ value: m.id, label: m.display_name }))}
+            />
           )}
           <textarea
             value={taskForm.notes}
@@ -399,9 +476,9 @@ export function HubTasksTab({
                       </span>
                     )}
                     <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${STATUS_BADGE[t.status] ?? "bg-gray-100 text-gray-600"}`}
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${TASK_TYPE_BADGE[t.task_type ?? "other"] ?? "bg-[#111111]/8 text-[#6f6b62]"}`}
                     >
-                      {t.status.replace("_", " ")}
+                      {TASK_TYPE_LABEL[t.task_type ?? "other"] ?? t.task_type ?? "Task"}
                     </span>
                     {t.due_date && (
                       <span
