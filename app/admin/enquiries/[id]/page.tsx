@@ -23,6 +23,7 @@ import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { HubTasksTab } from "@/components/admin/HubTasksTab";
 
 import { StatusSelect } from "@/components/admin/StatusSelect";
+import { AppSelect } from "@/components/ui/AppSelect";
 import { useSetAIContext } from "@/lib/ai-assistant-context";
 import { subscribeNotesSaved } from "@/lib/engagement/activity-events";
 import { buildEnquiryContextSummary } from "@/lib/ai/context-builders";
@@ -111,9 +112,12 @@ function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; emai
       </div>
       <div>
         <p className="text-[10px] text-[#6f6b62]">Service interest</p>
-        <select value={supportType} onChange={(e) => setSupportType(e.target.value)} className={`${inputCls} appearance-none`}>
-          {SUPPORT_TYPES_DETAIL.map((t) => <option key={t}>{t}</option>)}
-        </select>
+        <AppSelect
+          value={supportType}
+          onChange={setSupportType}
+          options={SUPPORT_TYPES_DETAIL.map((t) => ({ value: t, label: t }))}
+          size="sm"
+        />
       </div>
       <div>
         <p className="text-[10px] text-[#6f6b62]">Description</p>
@@ -561,20 +565,20 @@ function EnquiryDetailContent() {
             </div>
             <div className="mb-3">
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Service being provided *</label>
-              <select
+              <AppSelect
                 value={clientService}
-                onChange={(e) => setClientService(e.target.value)}
-                autoFocus
-                className="w-full appearance-none rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-purple-500 bg-white"
-              >
-                <option value="">Select a service…</option>
-                <option value="Assessment">Assessment</option>
-                <option value="Assessment + Strategy & Implementation">Assessment + Strategy &amp; Implementation</option>
-                <option value="Assessment + Ongoing Support">Assessment + Ongoing Support</option>
-                <option value="Access to Work">Access to Work</option>
-                <option value="General enquiry">General enquiry</option>
-                <option value="Other">Other (specify below)</option>
-              </select>
+                onChange={setClientService}
+                options={[
+                  { value: "Assessment", label: "Assessment" },
+                  { value: "Assessment + Strategy & Implementation", label: "Assessment + Strategy & Implementation" },
+                  { value: "Assessment + Ongoing Support", label: "Assessment + Ongoing Support" },
+                  { value: "Access to Work", label: "Access to Work" },
+                  { value: "General enquiry", label: "General enquiry" },
+                  { value: "Other", label: "Other (specify below)" },
+                ]}
+                placeholder="Select a service…"
+                size="sm"
+              />
             </div>
             {clientService === "Other" && (
               <div className="mb-3">

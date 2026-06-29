@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
+import { AppSelect } from "@/components/ui/AppSelect";
 
 type Props = {
   open: boolean;
@@ -10,6 +11,7 @@ type Props = {
 
 export default function PublicContactModal({ open, onClose }: Props) {
   const [preferredContact, setPreferredContact] = useState("Email");
+  const [supportType, setSupportType] = useState("");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -94,23 +96,33 @@ export default function PublicContactModal({ open, onClose }: Props) {
               Email
               <input required type="email" name="email" className={`${fieldClass} mt-1.5`} placeholder="you@example.com" />
             </label>
-            <label className="text-xs font-semibold text-gray-600">
+            <div className="text-xs font-semibold text-gray-600">
               Support type
-              <select required name="supportType" defaultValue="" className={`${fieldClass} mt-1.5`}>
-                <option value="" disabled>Select support</option>
-                <option>Virtual assistant support</option>
-                <option>AI &amp; automation</option>
-                <option>Admin &amp; operations</option>
-                <option>General enquiry</option>
-              </select>
-            </label>
-            <label className="text-xs font-semibold text-gray-600">
+              <AppSelect
+                value={supportType}
+                onChange={setSupportType}
+                options={[
+                  { value: "Virtual assistant support", label: "Virtual assistant support" },
+                  { value: "AI & automation", label: "AI & automation" },
+                  { value: "Admin & operations", label: "Admin & operations" },
+                  { value: "General enquiry", label: "General enquiry" },
+                ]}
+                placeholder="Select support"
+                name="supportType"
+                required
+                className="mt-1.5"
+              />
+            </div>
+            <div className="text-xs font-semibold text-gray-600">
               Preferred contact
-              <select value={preferredContact} onChange={(event) => setPreferredContact(event.target.value)} className={`${fieldClass} mt-1.5`}>
-                <option>Email</option>
-                <option>Telephone</option>
-              </select>
-            </label>
+              <AppSelect
+                value={preferredContact}
+                onChange={setPreferredContact}
+                options={[{ value: "Email", label: "Email" }, { value: "Telephone", label: "Telephone" }]}
+                name="preferredContact"
+                className="mt-1.5"
+              />
+            </div>
             {preferredContact === "Telephone" && (
               <label className="text-xs font-semibold text-gray-600 sm:col-span-2">
                 Telephone

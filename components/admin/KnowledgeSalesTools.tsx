@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Copy, Search, X } from "lucide-react";
 import type { EngagementScript, Objection, PricingRule } from "@/lib/engagement/types";
+import { AppSelect } from "@/components/ui/AppSelect";
 
 const CHANNEL_COLORS: Record<string, string> = {
   email: "bg-purple-50 text-purple-700",
@@ -224,10 +225,14 @@ export function ScriptsBlocksPanel() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
           <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search scripts…" className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]" />
         </div>
-        <select value={channel} onChange={(e) => setChannel(e.target.value)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
-          <option value="">All channels</option>
-          {["email", "linkedin", "phone", "in-person", "general"].map((item) => <option key={item} value={item}>{item.charAt(0).toUpperCase() + item.slice(1)}</option>)}
-        </select>
+        <AppSelect
+          value={channel}
+          onChange={setChannel}
+          options={["email", "linkedin", "phone", "in-person", "general"].map((item) => ({ value: item, label: item.charAt(0).toUpperCase() + item.slice(1) }))}
+          placeholder="All channels"
+          size="sm"
+          className="min-w-[9rem]"
+        />
       </div>
       {loading ? <Loading /> : scripts.length === 0 ? <Empty>No scripts found.</Empty> : (
         <div className="space-y-3">
@@ -288,10 +293,14 @@ export function ObjectionsPanel() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
           <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search objections…" className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]" />
         </div>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]">
-          <option value="">All categories</option>
-          {["Cost", "Trust", "Relevance", "Timing", "AI concerns", "Process", "General"].map((item) => <option key={item} value={item}>{item}</option>)}
-        </select>
+        <AppSelect
+          value={category}
+          onChange={setCategory}
+          options={["Cost", "Trust", "Relevance", "Timing", "AI concerns", "Process", "General"].map((item) => ({ value: item, label: item }))}
+          placeholder="All categories"
+          size="sm"
+          className="min-w-[9rem]"
+        />
       </div>
       {loading ? <Loading /> : objections.length === 0 ? <Empty>No objections found.</Empty> : (
         <div className="space-y-3">

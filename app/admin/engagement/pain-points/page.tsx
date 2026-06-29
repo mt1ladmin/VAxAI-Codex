@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronRight, Search, Zap } from "lucide-react";
 import { PAIN_POINT_CATEGORIES, type PainPoint } from "@/lib/engagement/types";
+import { AppSelect } from "@/components/ui/AppSelect";
 
 export default function PainPointNavigator() {
   const [search, setSearch] = useState("");
@@ -81,16 +82,14 @@ export default function PainPointNavigator() {
               </button>
             )}
           </div>
-          <select
+          <AppSelect
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#063b32]"
-          >
-            <option value="">All categories</option>
-            {PAIN_POINT_CATEGORIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+            onChange={setCategory}
+            options={PAIN_POINT_CATEGORIES.map((c) => ({ value: c, label: c }))}
+            placeholder="All categories"
+            size="sm"
+            className="min-w-[9rem]"
+          />
         </div>
 
         {loading ? (
