@@ -3,10 +3,6 @@
 import type React from "react";
 import { ExternalLink, Mail, Phone, User } from "lucide-react";
 import type { ProspectOutreachRecord } from "@/lib/engagement/prospect-outreach/types";
-import {
-  CONFIDENCE_COLORS,
-  NEED_SCORE_COLORS,
-} from "@/lib/engagement/prospect-outreach/types";
 import { formatRevenue } from "@/lib/engagement/prospect-outreach/snapshot";
 import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
 
@@ -80,12 +76,6 @@ export function ProspectProfileHeader({
         ) : (
           <h2 className="font-serif text-lg text-[#111111]">{data.organisation_name}</h2>
         )}
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${NEED_SCORE_COLORS[data.need_score]}`}>
-          Need {data.need_score}/5
-        </span>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${CONFIDENCE_COLORS[data.data_confidence]}`}>
-          {data.data_confidence}
-        </span>
       </div>
       <p className="text-xs text-[#6f6b62]">
         {data.organisation_type} · {data.location}, {data.region}
