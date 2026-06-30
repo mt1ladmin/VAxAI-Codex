@@ -10,71 +10,205 @@ export default function TermsPage() {
   return (
     <PolicyPage title="Terms of Service" lastUpdated="June 2025">
       <div className="callout">
-        <strong>Plain English summary.</strong> These terms govern how we work together. They protect both sides: you get clarity on what to expect from us, and we get clarity on how the engagement is structured. If anything is unclear, please ask before we begin.
+        <strong>Important.</strong> By engaging VAxAI or submitting an enquiry, you agree to be bound by these terms. Please read them before we begin working together. If anything is unclear, contact us at <a href="mailto:hello@mt1l.com">hello@mt1l.com</a> before proceeding.
       </div>
 
-      <h2>About VAxAI</h2>
+      <h2>1. Introduction</h2>
       <p>
-        VAxAI is a service provided by MT1L. References to &ldquo;VAxAI&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo; or &ldquo;our&rdquo; in these terms mean MT1L operating under the VAxAI service. Our registered address and company information are available on request at <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
+        1.1 VAxAI is a service provided by MT1L (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;). These terms govern the relationship between us and any individual or organisation (&ldquo;you&rdquo;, &ldquo;your&rdquo;, &ldquo;the Client&rdquo;) that engages our services or uses this website.
+      </p>
+      <p>
+        1.2 Our contact address is <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>. Further company information is available on request.
+      </p>
+      <p>
+        1.3 These terms apply to all engagements unless varied in writing by both parties. In the event of any conflict between these terms and a written proposal or statement of work, the proposal or statement of work takes precedence.
       </p>
 
-      <h2>Our services</h2>
-      <p>VAxAI provides AI and automation consultancy, virtual assistant (VA) support and related services. Our three core service tiers are:</p>
+      <h2>2. Definitions</h2>
+      <p>In these terms:</p>
       <ul>
-        <li><strong>Assess</strong> — a structured review of your current AI and automation landscape, identifying where change would create genuine value and where it would not.</li>
+        <li><strong>&ldquo;Engagement&rdquo;</strong> means any piece of work, project or ongoing service we agree to provide, as set out in a written proposal or statement of work.</li>
+        <li><strong>&ldquo;Proposal&rdquo;</strong> means a written document setting out the scope, deliverables, fees and timeline for a specific Engagement.</li>
+        <li><strong>&ldquo;Deliverables&rdquo;</strong> means the outputs, documents, tools or other materials we create specifically for your Engagement.</li>
+        <li><strong>&ldquo;Confidential Information&rdquo;</strong> means any information disclosed by one party to the other that is marked as confidential or is clearly sensitive by its nature.</li>
+        <li><strong>&ldquo;VAT Framework&rdquo;</strong> means our methodology for evaluating AI and automation initiatives against the criteria of Value, Alignment and Trust.</li>
+      </ul>
+
+      <h2>3. Our services</h2>
+      <p>
+        3.1 VAxAI provides AI and automation consultancy, virtual assistant support and related services. Our core service tiers are:
+      </p>
+      <ul>
+        <li><strong>Assess</strong> — a structured review of your AI and automation landscape, identifying where change would create genuine value and where it would not.</li>
         <li><strong>Assess &amp; Implement</strong> — everything in Assess, plus hands-on implementation of agreed tools, workflows or processes.</li>
-        <li><strong>Assess, Implement &amp; Support</strong> — everything in Assess &amp; Implement, plus ongoing process optimisation, team guidance and dedicated support hours within your agreed package.</li>
+        <li><strong>Assess, Implement &amp; Support</strong> — everything in Assess &amp; Implement, plus ongoing optimisation, team guidance and dedicated support within your agreed package.</li>
       </ul>
-      <p>The specific scope, deliverables, timeline and fees for each engagement are set out in a separate written proposal or statement of work agreed before work begins.</p>
+      <p>
+        3.2 The specific scope, deliverables, timeline and fees for each Engagement are set out in a Proposal agreed before work begins.
+      </p>
+      <p>
+        3.3 Submitting an enquiry or booking a discovery call does not create a contract or any obligation on either side. An Engagement begins only once both parties have agreed a Proposal in writing.
+      </p>
+      <p>
+        3.4 We do not provide legal, financial, medical or regulated professional advice. Our services are consultancy in nature and should be reviewed with appropriately qualified advisers before acting in those domains.
+      </p>
 
-      <h2>Enquiries and discovery</h2>
-      <p>Submitting a contact enquiry or booking a discovery call does not create a contract or obligation on either side. An engagement begins only once both parties have agreed the scope and fees in writing.</p>
+      <h2>4. Our obligations</h2>
+      <p>
+        4.1 We will carry out our services with reasonable care and skill, and in accordance with the agreed Proposal.
+      </p>
+      <p>
+        4.2 We will apply the VAT Framework to our work — focusing on changes that create genuine Value, fit your organisation (Alignment), and can be Trusted by the people they affect. This means we may advise against a course of action you have requested if we believe it does not meet those standards.
+      </p>
+      <p>
+        4.3 We will keep you reasonably informed of progress and flag any issues that may affect the delivery of an Engagement as soon as we are aware of them.
+      </p>
+      <p>
+        4.4 We will comply with applicable data protection law in handling any personal information. For full details, see our <a href="/privacy">Privacy Policy</a>.
+      </p>
 
-      <h2>Fees and payment</h2>
-      <p>Fees are agreed in writing before work begins and set out in your proposal or statement of work. Unless otherwise stated:</p>
-      <ul>
-        <li>Invoices are due within 14 days of the invoice date.</li>
-        <li>Late payment may attract statutory interest under the Late Payment of Commercial Debts (Interest) Act 1998.</li>
-        <li>We reserve the right to pause work if invoices remain unpaid beyond the agreed terms.</li>
-      </ul>
+      <h2>5. Your obligations</h2>
+      <p>
+        5.1 You agree to provide us, in a timely manner, with all information, access and materials we reasonably need to carry out our services. Delays caused by the late provision of these may affect delivery timelines, and we accept no liability for such delays.
+      </p>
+      <p>
+        5.2 You are responsible for ensuring that any information you provide to us is accurate and that you have the right to share it with us.
+      </p>
+      <p>
+        5.3 You agree to use our Deliverables only for lawful purposes and in accordance with these terms.
+      </p>
+      <p>
+        5.4 You agree to pay our fees in accordance with clause 6.
+      </p>
 
-      <h2>What we deliver and how</h2>
-      <p>We work in line with the VAT Framework, ensuring that what we recommend and implement creates genuine Value, fits your organisation (Alignment) and can be Trusted by the people it affects. This means we may advise against a course of action even if you have requested it, if we believe it would not serve those standards.</p>
-      <p>We do not provide legal, financial, medical or regulated professional advice. Anything we produce is consultancy and should be reviewed with appropriately qualified advisers before acting on it where those domains are engaged.</p>
+      <h2>6. Fees and payment</h2>
+      <p>
+        6.1 Fees are agreed in writing before work begins and set out in the relevant Proposal.
+      </p>
+      <p>
+        6.2 Unless otherwise agreed in writing, invoices are due within 14 days of the invoice date.
+      </p>
+      <p>
+        6.3 Late payment may attract statutory interest under the Late Payment of Commercial Debts (Interest) Act 1998.
+      </p>
+      <p>
+        6.4 We reserve the right to pause or suspend work if invoices remain unpaid beyond the agreed payment terms.
+      </p>
+      <p>
+        6.5 All fees are exclusive of VAT, which will be added where applicable.
+      </p>
 
-      <h2>Intellectual property</h2>
-      <p>On full payment of agreed fees:</p>
-      <ul>
-        <li>Deliverables created specifically for your engagement become your property.</li>
-        <li>We retain ownership of our underlying methodology, frameworks (including the VAT Framework), tools, templates and know-how. Nothing in these terms transfers those to you.</li>
-        <li>We may reference the existence of the engagement in our own materials (for example, as a case study) unless you ask us in writing not to.</li>
-      </ul>
+      <h2>7. Intellectual property</h2>
+      <p>
+        7.1 Subject to full payment of agreed fees, Deliverables created specifically for your Engagement become your property on completion.
+      </p>
+      <p>
+        7.2 We retain ownership of our underlying methodology, frameworks (including the VAT Framework), proprietary tools, templates and know-how developed independently of your Engagement. Nothing in these terms transfers ownership of those to you.
+      </p>
+      <p>
+        7.3 Where we use third-party tools, software or content in delivering our services, ownership remains with those third parties and is subject to their respective licences.
+      </p>
+      <p>
+        7.4 We may refer to the existence of an Engagement in our own marketing materials (for example, as a case study or in a portfolio context) unless you ask us in writing not to do so.
+      </p>
 
-      <h2>Confidentiality</h2>
-      <p>Both parties agree to keep confidential any information disclosed during the engagement that is marked as confidential or is clearly sensitive in nature. This obligation does not apply to information that is publicly available, already known to the receiving party or required to be disclosed by law.</p>
+      <h2>8. Confidentiality</h2>
+      <p>
+        8.1 Each party agrees to keep the other&rsquo;s Confidential Information strictly confidential and not to disclose it to any third party without prior written consent.
+      </p>
+      <p>
+        8.2 Each party may share Confidential Information only with its own personnel who need it to carry out the Engagement, provided those individuals are bound by equivalent confidentiality obligations.
+      </p>
+      <p>
+        8.3 This obligation does not apply to information that: (a) is or becomes publicly available other than through a breach of this clause; (b) was already known to the receiving party before disclosure; (c) is independently developed by the receiving party; or (d) is required to be disclosed by law or a court order.
+      </p>
+      <p>
+        8.4 Confidentiality obligations survive the end of an Engagement.
+      </p>
 
-      <h2>Limitation of liability</h2>
-      <p>To the extent permitted by law, our total liability to you in connection with any engagement will not exceed the fees paid by you for that engagement. We are not liable for indirect, consequential or special losses, loss of profits or loss of data.</p>
-      <p>Nothing in these terms limits liability for death or personal injury caused by negligence, fraud, or any other liability that cannot be excluded by law.</p>
+      <h2>9. Limitation of liability</h2>
+      <p>
+        9.1 To the extent permitted by law, our total liability to you arising out of or in connection with any Engagement will not exceed the total fees paid by you for that Engagement.
+      </p>
+      <p>
+        9.2 We are not liable for any indirect, consequential or special losses, loss of profit, loss of revenue, loss of data or loss of goodwill, whether arising in contract, tort or otherwise.
+      </p>
+      <p>
+        9.3 Nothing in these terms limits or excludes liability for death or personal injury caused by our negligence, fraud or fraudulent misrepresentation, or any other liability that cannot be excluded or limited by law.
+      </p>
+      <p>
+        9.4 You are responsible for taking appropriate steps to safeguard your own data and systems. We are not liable for losses arising from your failure to do so.
+      </p>
 
-      <h2>Termination</h2>
-      <p>Either party may end an engagement by giving written notice as specified in the relevant proposal. Where work is in progress, you will be invoiced for work completed up to the termination date. Fees already paid for future work that cannot be delivered will be refunded pro-rata where reasonable.</p>
+      <h2>10. Data protection</h2>
+      <p>
+        10.1 We each agree to comply with our respective obligations under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
+      </p>
+      <p>
+        10.2 For details of how we collect, use and protect personal information in connection with our services and this website, please see our <a href="/privacy">Privacy Policy</a>.
+      </p>
+      <p>
+        10.3 Where we process personal data on your behalf as part of an Engagement, the parties will agree any necessary data processing arrangements in writing.
+      </p>
 
-      <h2>Governing law</h2>
-      <p>These terms and any engagement are governed by the law of England and Wales. Any dispute will be subject to the exclusive jurisdiction of the courts of England and Wales.</p>
+      <h2>11. Termination</h2>
+      <p>
+        11.1 Either party may end an Engagement by giving written notice as specified in the relevant Proposal.
+      </p>
+      <p>
+        11.2 Either party may terminate an Engagement immediately by written notice if the other party materially breaches these terms and (where the breach is capable of remedy) fails to remedy it within 14 days of written notice to do so.
+      </p>
+      <p>
+        11.3 On termination, you will be invoiced for all work completed up to the termination date. Fees already paid for work that cannot be delivered will be refunded on a pro-rata basis where reasonable.
+      </p>
+      <p>
+        11.4 Clauses 7 (Intellectual property), 8 (Confidentiality), 9 (Limitation of liability) and 12 (Governing law) survive the end of any Engagement.
+      </p>
 
-      <h2>The VAT Framework and how we work</h2>
-      <p>Our approach to every engagement is shaped by the VAT Framework:</p>
-      <ul>
-        <li><strong>Value</strong> — we focus on changes that create genuine, measurable benefit.</li>
-        <li><strong>Alignment</strong> — we check that what we recommend fits your organisation, culture and people.</li>
-        <li><strong>Trust</strong> — we are transparent about what we are doing and why, and we keep human judgement at the centre.</li>
-      </ul>
+      <h2>12. Force majeure</h2>
+      <p>
+        12.1 Neither party is in breach of these terms, or liable for any delay or failure to perform, to the extent caused by circumstances beyond its reasonable control, including but not limited to acts of God, natural disasters, pandemic, governmental action, failure of third-party services, or internet or communications failure.
+      </p>
+      <p>
+        12.2 The affected party will notify the other as soon as reasonably practicable, and both parties will use reasonable efforts to mitigate the impact.
+      </p>
 
-      <h2>Changes to these terms</h2>
-      <p>We may update these terms from time to time. The version that applies to your engagement is the one in effect when your proposal or statement of work is agreed. The current version is always posted here with the date above.</p>
+      <h2>13. Governing law and disputes</h2>
+      <p>
+        13.1 These terms and any Engagement are governed by the law of England and Wales.
+      </p>
+      <p>
+        13.2 Any dispute arising out of or in connection with these terms will be subject to the exclusive jurisdiction of the courts of England and Wales.
+      </p>
+      <p>
+        13.3 Before commencing formal proceedings, both parties agree to attempt in good faith to resolve any dispute through direct discussion.
+      </p>
 
-      <p>Questions: <a href="mailto:hello@mt1l.com">hello@mt1l.com</a></p>
+      <h2>14. General</h2>
+      <p>
+        14.1 <strong>Entire agreement.</strong> These terms, together with the relevant Proposal, constitute the entire agreement between the parties and supersede all prior discussions, representations and agreements relating to the same subject matter.
+      </p>
+      <p>
+        14.2 <strong>Variation.</strong> No variation to these terms is effective unless agreed in writing by both parties.
+      </p>
+      <p>
+        14.3 <strong>Waiver.</strong> A failure or delay by either party to exercise any right or remedy does not constitute a waiver of that right or remedy.
+      </p>
+      <p>
+        14.4 <strong>Severance.</strong> If any provision of these terms is found to be invalid or unenforceable, it will be severed to the minimum extent necessary, and the remaining provisions will continue in full force and effect.
+      </p>
+      <p>
+        14.5 <strong>No third-party rights.</strong> These terms do not confer any rights on third parties under the Contracts (Rights of Third Parties) Act 1999.
+      </p>
+      <p>
+        14.6 <strong>Changes to these terms.</strong> We may update these terms from time to time. The version that applies to an Engagement is the one in effect when the Proposal is agreed. The current version is always published here with the date above.
+      </p>
+
+      <div className="callout">
+        <strong>The VAT Framework and how we work.</strong> Our approach is guided by the VAT Framework: we focus on changes that create genuine <em>Value</em>, fit your organisation (<em>Alignment</em>), and can be <em>Trusted</em> by the people they affect. These terms are written in that spirit — to be clear, fair and useful to both sides.
+      </div>
+
+      <p>Questions about these terms: <a href="mailto:hello@mt1l.com">hello@mt1l.com</a></p>
     </PolicyPage>
   );
 }
