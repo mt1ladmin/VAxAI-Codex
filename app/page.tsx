@@ -172,9 +172,9 @@ const plans = [
 ];
 
 const vatPrinciples = [
-  ["01", "Value", "Will this meaningfully reduce admin pressure, save time or create more capacity for the work your organisation needs to do?"],
-  ["02", "Alignment", "Will it fit your existing tools, data, processes, people and ways of working without creating more complexity?"],
-  ["03", "Trust", "Will the people using it understand how it works, know when human judgement is involved and feel confident that your work and information are protected?"],
+  ["01", "Value", "We focus on changes that create genuine, measurable benefit — reducing admin pressure, freeing up time and creating capacity for the work that actually matters. Not change for its own sake."],
+  ["02", "Alignment", "We check that what we recommend fits how your organisation actually works — its people, tools, data and ways of doing things — without adding complexity or asking people to work against the grain."],
+  ["03", "Trust", "We are transparent about how things work, keep human judgement at the centre, and make sure the people affected understand and feel confident in the result. AI supports the work; it never replaces the people behind it."],
 ];
 
 const faqs = [
@@ -636,6 +636,31 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="vat-framework" className="bg-[#063b32] px-4 pt-16 pb-16 text-paper md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <SectionTitle
+            light
+            title="The values behind our work"
+            copy="Three connected principles guide how we develop our services, how we work with clients and how we use AI and automation. They are not a checklist — they are how we think."
+            narrow
+          />
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {vatPrinciples.map(([step, title, copy]) => (
+              <article key={step} className="rounded-md border border-white/12 bg-white/[0.06] p-6">
+                <p className="text-sm font-semibold text-acid">{step}</p>
+                <h3 className="mt-10 text-xl font-semibold">{title}</h3>
+                <p className="mt-4 text-sm leading-6 text-paper/68">{copy}</p>
+              </article>
+            ))}
+          </div>
+          <motion.div {...reveal} className="mx-auto mt-10 max-w-3xl text-center">
+            <p className="text-sm leading-6 text-paper/70">
+              We do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, fits how your organisation works and can be used with confidence by the people it affects.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       <section id="pricing" className="px-4 pb-20 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
@@ -694,36 +719,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <section id="vat-framework" className="bg-[#063b32] px-4 pt-24 pb-20 text-paper md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <SectionTitle
-            light
-            title="Value, Alignment and Trust"
-            copy="VAxAI uses the MT1L VAT Framework to decide whether existing tools, new systems, AI, automation or human support are the right fit."
-            narrow
-          />
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {vatPrinciples.map(([step, title, copy]) => (
-              <article key={step} className="rounded-md border border-white/12 bg-white/[0.06] p-6">
-                <p className="text-sm font-semibold text-acid">{step}</p>
-                <h3 className="mt-10 text-xl font-semibold">{title}</h3>
-                <p className="mt-4 text-sm leading-6 text-paper/68">{copy}</p>
-              </article>
-            ))}
-          </div>
-          <motion.div {...reveal} className="mx-auto mt-10 max-w-3xl text-center">
-            <p className="text-sm leading-6 text-paper/70">
-              We do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, fits your organisation and can be used with confidence.
-            </p>
-            <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-acid">
-              Want to learn more about MT1L and the VAT Framework? Check us out
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </motion.div>
-        </div>
-      </section>
-
 
       <section id="faq" className="px-4 py-20 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
