@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, ChevronDown, Search, X } from "lucide-react";
 import PublicContactModal from "@/components/PublicContactModal";
 
 type Post = {
@@ -25,15 +25,109 @@ type Props = {
   allTypes: string[];
 };
 
+function MultiDropdown({
+  label,
+  options,
+  selected,
+  onToggle,
+  onClear,
+}: {
+  label: string;
+  options: string[];
+  selected: string[];
+  onToggle: (v: string) => void;
+  onClear: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const displayLabel = selected.length === 0
+    ? label
+    : selected.length === 1
+    ? selected[0]
+    : `${selected[0]} +${selected.length - 1}`;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+          selected.length > 0
+            ? "border-[#063b32] bg-[#063b32] text-white"
+            : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+        }`}
+      >
+        <span className="max-w-[140px] truncate">{displayLabel}</span>
+        {selected.length > 0 ? (
+          <span
+            role="button"
+            tabIndex={0}
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); onClear(); } }}
+            className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-white/20 hover:bg-white/40"
+            aria-label={`Clear ${label}`}
+          >
+            <X className="h-2.5 w-2.5" />
+          </span>
+        ) : (
+          <ChevronDown className={`h-3.5 w-3.5 shrink-0 transition-transform ${open ? "rotate-180" : ""}`} />
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full z-30 mt-1 min-w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+          {options.map((opt) => {
+            const checked = selected.includes(opt);
+            return (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => onToggle(opt)}
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <span className={`grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors ${
+                  checked ? "border-[#063b32] bg-[#063b32]" : "border-gray-300 bg-white"
+                }`}>
+                  {checked && (
+                    <svg viewBox="0 0 10 8" className="h-2.5 w-2.5 text-white" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <path d="M1 4l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Props) {
   const [search, setSearch] = useState("");
-  const [activeType, setActiveType] = useState("");
-  const [activeTag, setActiveTag] = useState("");
+  const [activeTypes, setActiveTypes] = useState<string[]>([]);
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [contactOpen, setContactOpen] = useState(false);
 
+  const toggleType = (t: string) =>
+    setActiveTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+  const toggleTag = (t: string) =>
+    setActiveTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+
   const filtered = posts.filter((p) => {
-    if (activeType && p.content_type !== activeType) return false;
-    if (activeTag && !(p.tags ?? []).includes(activeTag)) return false;
+    if (activeTypes.length > 0 && !activeTypes.includes(p.content_type ?? "")) return false;
+    if (activeTags.length > 0 && !activeTags.some((t) => (p.tags ?? []).includes(t))) return false;
     if (search) {
       const q = search.toLowerCase();
       return (
@@ -45,84 +139,67 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
     return true;
   });
 
-  const hasActiveFilter = !!(search || activeType || activeTag);
+  const hasActiveFilter = !!(search || activeTypes.length || activeTags.length);
 
   return (
     <div>
-      {/* Filter bar */}
-      <div className="mb-6 space-y-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
-        {/* Search + count */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search insights…"
-              className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
-            />
-          </div>
-          <span className="text-xs text-gray-400">
-            {filtered.length} {filtered.length === 1 ? "insight" : "insights"}
-          </span>
-          {hasActiveFilter && (
+      {/* ── Filter bar — single line ── */}
+      <div className="mb-8 flex flex-wrap items-center gap-2">
+        {/* Search */}
+        <div className="relative min-w-[200px] flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search insights…"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-8 text-sm outline-none focus:border-[#063b32] transition-colors"
+          />
+          {search && (
             <button
-              onClick={() => { setSearch(""); setActiveType(""); setActiveTag(""); }}
-              className="text-xs font-semibold text-[#063b32] hover:underline"
+              type="button"
+              onClick={() => setSearch("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label="Clear search"
             >
-              Clear filters
+              <X className="h-3.5 w-3.5" />
             </button>
           )}
         </div>
 
-        {/* Type filter */}
+        {/* Content type dropdown */}
         {allTypes.length > 0 && (
-          <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">Type</p>
-            <div className="flex flex-wrap gap-1.5">
-              <button
-                onClick={() => setActiveType("")}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  !activeType ? "bg-[#063b32] text-white" : "border border-gray-200 bg-white text-gray-500 hover:border-[#063b32]/50"
-                }`}
-              >
-                All
-              </button>
-              {allTypes.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setActiveType(activeType === t ? "" : t)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    activeType === t ? "bg-[#063b32] text-white" : "border border-gray-200 bg-white text-gray-500 hover:border-[#063b32]/50"
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
+          <MultiDropdown
+            label="Content type"
+            options={allTypes}
+            selected={activeTypes}
+            onToggle={toggleType}
+            onClear={() => setActiveTypes([])}
+          />
         )}
 
-        {/* Tag filter */}
+        {/* Tags dropdown */}
         {allTags.length > 0 && (
-          <div>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-gray-400">Tags</p>
-            <div className="flex flex-wrap gap-1.5">
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => setActiveTag(activeTag === tag ? "" : tag)}
-                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                    activeTag === tag
-                      ? "bg-gray-900 text-white"
-                      : "border border-gray-200 bg-white text-gray-500 hover:border-gray-400"
-                  }`}
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          </div>
+          <MultiDropdown
+            label="Tags"
+            options={allTags}
+            selected={activeTags}
+            onToggle={toggleTag}
+            onClear={() => setActiveTags([])}
+          />
+        )}
+
+        {/* Count + clear */}
+        <span className="text-xs text-gray-400">
+          {filtered.length} {filtered.length === 1 ? "insight" : "insights"}
+        </span>
+        {hasActiveFilter && (
+          <button
+            type="button"
+            onClick={() => { setSearch(""); setActiveTypes([]); setActiveTags([]); }}
+            className="text-xs font-semibold text-[#063b32] hover:underline"
+          >
+            Clear all
+          </button>
         )}
       </div>
 
