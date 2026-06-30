@@ -346,6 +346,7 @@ export default function Home() {
   const [supportType, setSupportType] = useState("Assessment");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/posts?limit=3")
@@ -394,10 +395,46 @@ export default function Home() {
           <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
             Get in touch
           </button>
-          <button className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden" aria-label="Open menu">
-            <Menu className="h-4 w-4" />
+          <button
+            onClick={() => setMobileNavOpen((o) => !o)}
+            className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden"
+            aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
         </nav>
+
+        {/* Mobile menu */}
+        {mobileNavOpen && (
+          <div className="mx-auto max-w-6xl md:hidden">
+            <div className="mt-2 flex flex-col gap-1 rounded-xl border border-white/10 bg-[#052d25] p-4">
+              {[
+                { label: "Services", href: "#pricing" },
+                { label: "About", href: "#experts" },
+                { label: "VAT Framework", href: "#vat-framework" },
+                { label: "Access to Work", href: "#access-to-work" },
+                { label: "FAQ", href: "#faq" },
+                { label: "Insights & Resources", href: "/insights" },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="rounded-md px-4 py-2.5 text-sm font-semibold text-paper/80 hover:bg-white/10 hover:text-paper"
+                >
+                  {label}
+                </a>
+              ))}
+              <button
+                type="button"
+                onClick={() => { setMobileNavOpen(false); setIsContactModalOpen(true); }}
+                className="mt-2 rounded-md bg-acid px-4 py-2.5 text-center text-sm font-semibold text-ink"
+              >
+                Get in touch
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div {...reveal}>

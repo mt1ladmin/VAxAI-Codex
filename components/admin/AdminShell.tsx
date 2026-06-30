@@ -11,12 +11,14 @@ import {
   Handshake,
   Search,
   LogOut,
+  Menu,
   MessageSquare,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
   Send,
   Settings,
+  X,
 } from "lucide-react";
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
@@ -82,11 +84,13 @@ export default function AdminShell({
   studioRole?: StudioRole | null;
 }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Default: open on desktop, closed on mobile
+    setOpen(window.innerWidth >= 768);
   }, []);
 
   if (pathname === "/admin/login" || pathname === "/admin/forbidden") return <>{children}</>;
@@ -102,11 +106,22 @@ export default function AdminShell({
 
   const shell = (
     <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
-      {/* Sidebar */}
+      {/* Mobile backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setOpen(false)}
+          aria-hidden
+        />
+      )}
+
+      {/* Sidebar — drawer on mobile, inline on desktop */}
       <aside
-        className={`flex h-full shrink-0 flex-col bg-[#0a1f18] text-white transition-all duration-200 ${
-          open ? "w-60" : "w-14"
-        }`}
+        className={`flex h-full flex-col bg-[#0a1f18] text-white transition-all duration-200
+          fixed inset-y-0 left-0 z-50
+          md:relative md:z-auto md:shrink-0
+          ${open ? "w-60 translate-x-0" : "-translate-x-full md:translate-x-0 md:w-14"}
+        `}
       >
         {/* Logo */}
         <div className={`flex h-14 items-center border-b border-white/10 px-3 ${open ? "justify-between" : "justify-center"}`}>
@@ -132,8 +147,10 @@ export default function AdminShell({
             <button
               onClick={() => setOpen(false)}
               className="grid h-8 w-8 place-items-center rounded-md text-white/40 hover:bg-white/10 hover:text-white"
+              aria-label="Close sidebar"
             >
-              <PanelLeftClose className="h-4 w-4" />
+              <X className="h-4 w-4 md:hidden" />
+              <PanelLeftClose className="hidden h-4 w-4 md:block" />
             </button>
           )}
         </div>
@@ -241,8 +258,24 @@ export default function AdminShell({
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto bg-white">
+        {/* Mobile top bar — always visible, shows hamburger + open sidebar button on desktop */}
+        <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-[#111111]/10 bg-white px-4 py-2 md:hidden">
+          <button
+            onClick={() => setOpen(true)}
+            className="grid h-8 w-8 place-items-center rounded-md border border-[#111111]/15 text-[#063b32]"
+            aria-label="Open menu"
+          >
+            <Menu className="h-4 w-4" />
+          </button>
+          <Link href={homeHref} className="flex items-center gap-2">
+            <span className="grid h-6 w-6 place-items-center rounded-full bg-[#063b32] text-[9px] font-black text-[#f5f274]">VA</span>
+            <span className="text-sm font-semibold text-[#111111]">VAxAI Studio</span>
+          </Link>
+        </div>
+
+        {/* Desktop open sidebar button */}
         {!open && (
-          <div className="px-4 pt-2">
+          <div className="hidden px-4 pt-2 md:block">
             <button
               onClick={() => setOpen(true)}
               className="flex items-center gap-1.5 rounded-md border border-[#111111]/15 bg-white px-2.5 py-1 text-xs font-medium text-[#063b32] hover:bg-[#f7f4ea]"
@@ -255,13 +288,13 @@ export default function AdminShell({
         )}
 
         {(pathname === "/admin/calendar" || pathname === "/admin/posts" || pathname === "/admin/authors" || pathname === "/admin/create-content") && (
-          <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
-            <div className="flex items-center gap-2 text-sm">
+          <div className="sticky top-[41px] z-20 border-b border-[#111111]/10 bg-white px-4 py-3 md:top-0 md:px-8">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="font-semibold text-[#111111]">Content Hub</span>
-              <div className="ml-3 flex overflow-hidden rounded-lg border border-[#111111]/15">
+              <div className="flex overflow-x-auto overflow-y-hidden rounded-lg border border-[#111111]/15 scrollbar-none">
                 <Link
                   href="/admin/calendar"
-                  className={`px-4 py-1.5 text-xs font-semibold ${
+                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/calendar")
                       ? "bg-[#063b32] text-white"
                       : "text-[#6f6b62] hover:bg-[#f7f4ea]"
@@ -271,7 +304,7 @@ export default function AdminShell({
                 </Link>
                 <Link
                   href="/admin/create-content"
-                  className={`px-4 py-1.5 text-xs font-semibold ${
+                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/create-content")
                       ? "bg-[#063b32] text-white"
                       : "text-[#6f6b62] hover:bg-[#f7f4ea]"
@@ -281,7 +314,7 @@ export default function AdminShell({
                 </Link>
                 <Link
                   href="/admin/posts"
-                  className={`px-4 py-1.5 text-xs font-semibold ${
+                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/posts")
                       ? "bg-[#063b32] text-white"
                       : "text-[#6f6b62] hover:bg-[#f7f4ea]"
@@ -291,7 +324,7 @@ export default function AdminShell({
                 </Link>
                 <Link
                   href="/admin/authors"
-                  className={`px-4 py-1.5 text-xs font-semibold ${
+                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/authors")
                       ? "bg-[#063b32] text-white"
                       : "text-[#6f6b62] hover:bg-[#f7f4ea]"
