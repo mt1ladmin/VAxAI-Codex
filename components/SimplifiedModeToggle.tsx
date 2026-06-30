@@ -108,7 +108,7 @@ export default function SimplifiedModeToggle() {
   const anyActive = Object.values(state).some(Boolean);
 
   return (
-    <div ref={panelRef} className="simplified-toggle fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2">
+    <div ref={panelRef} className="simplified-toggle fixed bottom-5 right-5 z-40 flex flex-col items-end gap-1.5">
       {/* Panel */}
       {open && (
         <div className="a11y-panel w-[calc(100vw-2.5rem)] max-w-[288px] rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_40px_rgba(17,17,17,0.14)]">
