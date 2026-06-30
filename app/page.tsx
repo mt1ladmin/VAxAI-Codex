@@ -1235,12 +1235,34 @@ export default function Home() {
         .simplified-mode .simplified-toggle *,
         .simplified-mode .simplified-toggle *::before,
         .simplified-mode .simplified-toggle *::after {
-          background-color: revert !important;
-          border-color: revert !important;
-          color: revert !important;
+          background-color: transparent !important;
+          border-color: #d1d5db !important;
+          color: #111111 !important;
           text-decoration: none !important;
-          box-shadow: revert !important;
+          box-shadow: none !important;
           filter: none !important;
+        }
+        .simplified-mode .simplified-toggle .a11y-active {
+          background-color: #063b32 !important;
+          border-color: #063b32 !important;
+          color: #ffffff !important;
+        }
+        .simplified-mode .simplified-toggle .a11y-active * {
+          color: #ffffff !important;
+          border-color: #ffffff !important;
+          background-color: transparent !important;
+        }
+        .simplified-mode .simplified-toggle .a11y-panel {
+          background-color: #ffffff !important;
+          box-shadow: 0 8px 40px rgba(17,17,17,0.14) !important;
+        }
+        .simplified-mode .simplified-toggle .a11y-trigger {
+          background-color: #ffffff !important;
+          box-shadow: 0 14px 35px rgba(17,17,17,0.18) !important;
+        }
+        .simplified-mode .simplified-toggle .a11y-trigger.a11y-active {
+          background-color: #063b32 !important;
+          color: #ffffff !important;
         }
       `}</style>
       <SimplifiedModeToggle />
