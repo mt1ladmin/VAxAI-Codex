@@ -9,21 +9,17 @@ export const metadata: Metadata = {
 export default function EdiPolicyPage() {
   return (
     <PolicyPage title="EDI & Social Mobility Policy" lastUpdated="June 2025">
-      <div className="callout">
-        VAxAI is a service by MT1L — More Than 1 Label. The name is a deliberate recognition that people, and the organisations they belong to, are not defined by a single label. They are complex, layered and shaped by many experiences at once. This policy reflects that.
-      </div>
-
-      <h2>Our commitment</h2>
+      <h2>More than one label</h2>
       <p>
-        We are committed to fairness, to treating everyone with dignity and respect, and to meeting our responsibilities under the Equality Act 2010. That commitment extends across all nine protected characteristics: age, disability, gender reassignment, marriage and civil partnership, pregnancy and maternity, race, religion or belief, sex and sexual orientation.
+        VAxAI is a service provided by MT1L — More Than 1 Label. The name is a deliberate recognition that people, and the organisations they belong to, are not defined by a single label. They are complex, layered and shaped by many experiences at once, and we work within that complexity rather than reducing anyone to a category.
       </p>
       <p>
-        Our commitment goes further than compliance. It is about understanding people and organisations as they really are — complex and shaped by many identities at once — and working within that complexity rather than reducing anyone to a category.
+        This is why, for us, equality, diversity and inclusion reach beyond any fixed set of characteristics. We are committed to fairness, to treating everyone with dignity and respect, and to meeting our responsibilities under the Equality Act 2010. Our commitment goes further than compliance: it is about understanding people and organisations as they really are.
       </p>
 
       <h2>Embedded, not separate</h2>
       <p>
-        We do not treat EDI and social mobility as an isolated workstream or a one-off exercise. They are part of how we think, how we work and what we help organisations achieve. Rather than adding inclusion at the end, we build it in from the start — in how we design services, how we engage with clients and how we recruit and work with collaborators.
+        We do not treat EDI and social mobility as an isolated workstream or a one-off exercise. They are part of how we think, how we work and what we help organisations achieve, and they run through everything we do. Rather than adding inclusion at the end, we build it in from the start — in how we design services, how we engage with clients and how we recruit and work with collaborators.
       </p>
 
       <h2>Embedded in the VAT Framework</h2>
@@ -65,12 +61,15 @@ export default function EdiPolicyPage() {
         <li>engage collaborators and clients on the basis of their skills, values and fit — not background, characteristics or connections;</li>
         <li>price our services in a way that does not systematically exclude smaller organisations or those with limited budgets;</li>
         <li>be transparent about how we work and who we are; and</li>
-        <li>keep our own use of AI fair, transparent and subject to human oversight (see our <a href="/ai-use-policy">AI Use Policy</a>).</li>
+        <li>keep our own use of AI fair, transparent and subject to human oversight — see our <a href="/ai-use-policy">AI Use Policy</a>.</li>
       </ul>
 
       <h2>Accessibility</h2>
       <p>
-        Inclusion includes how you experience this website. We aim to write in plain language and to design for accessibility in line with WCAG 2.2. Every page offers an Accessibility panel allowing you to switch to a high-contrast simplified view, increase text size, reduce motion and apply dyslexia-friendly spacing. If you find anything difficult to use, please tell us so we can improve it.
+        Inclusion includes how you experience this website. We aim to write in plain language and to design for accessibility. Every page offers an Accessibility panel — allowing you to switch to a high-contrast simplified view, increase text size, reduce motion and apply dyslexia-friendly spacing. These options are available via the Accessibility button in the bottom corner of every page.
+      </p>
+      <p>
+        If you find anything difficult to use, please tell us so we can improve it: <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
       </p>
 
       <h2>Our ongoing commitment</h2>
@@ -80,6 +79,10 @@ export default function EdiPolicyPage() {
       <p>
         If you have feedback on this policy or how we work: <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>
       </p>
+
+      <div className="callout">
+        <strong>How this reflects the VAT Framework.</strong> The VAT Framework asks whether something creates genuine <em>Value</em>, fits the organisation&rsquo;s values (<em>Alignment</em>) and can be <em>Trusted</em> by the people it affects. EDI and social mobility are not separate from that test — they are embedded within it. &ldquo;Value, for whom?&rdquo; is a question about inclusion. Alignment means working in a way that reflects our commitment to fairness. And trust, by definition, requires that everyone is genuinely considered.
+      </div>
     </PolicyPage>
   );
 }

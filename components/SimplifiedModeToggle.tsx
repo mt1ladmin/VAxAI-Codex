@@ -83,13 +83,17 @@ export default function SimplifiedModeToggle() {
 
   useEffect(() => {
     if (!open) return;
-    function handler(e: MouseEvent) {
+    function handler(e: MouseEvent | TouchEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setOpen(false);
       }
     }
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
   }, [open]);
 
   function toggle(key: keyof A11yState) {
@@ -104,10 +108,10 @@ export default function SimplifiedModeToggle() {
   const anyActive = Object.values(state).some(Boolean);
 
   return (
-    <div ref={panelRef} className="simplified-toggle fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2">
+    <div ref={panelRef} className="simplified-toggle fixed bottom-5 right-5 z-40 flex flex-col items-end gap-1.5">
       {/* Panel */}
       {open && (
-        <div className="w-72 rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_40px_rgba(17,17,17,0.14)]">
+        <div className="a11y-panel w-[calc(100vw-2.5rem)] max-w-[288px] rounded-2xl border border-gray-200 bg-white p-4 shadow-[0_8px_40px_rgba(17,17,17,0.14)]">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">Accessibility</p>
             <button
@@ -128,7 +132,7 @@ export default function SimplifiedModeToggle() {
                   type="button"
                   onClick={() => toggle(key)}
                   className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
-                    active ? "bg-[#063b32] text-white" : "hover:bg-gray-50 text-gray-800"
+                    active ? "a11y-active bg-[#063b32] text-white" : "hover:bg-gray-50 text-gray-800"
                   }`}
                 >
                   {/* Toggle pill */}
@@ -166,9 +170,9 @@ export default function SimplifiedModeToggle() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
+        className={`a11y-trigger inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
           anyActive
-            ? "border-[#063b32] bg-[#063b32] text-white"
+            ? "a11y-active border-[#063b32] bg-[#063b32] text-white"
             : "border-gray-200 bg-white text-gray-800"
         }`}
         aria-expanded={open}
