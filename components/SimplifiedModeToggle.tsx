@@ -133,16 +133,16 @@ export default function SimplifiedModeToggle() {
                 >
                   {/* Toggle pill */}
                   <span
-                    className={`mt-0.5 flex h-5 w-9 shrink-0 items-center rounded-full border transition-colors ${
+                    className={`mt-0.5 flex h-5 w-9 shrink-0 items-center rounded-full border-2 transition-colors ${
                       active
-                        ? "border-white/30 bg-white/25"
+                        ? "border-white bg-white/20"
                         : "border-gray-300 bg-gray-100"
                     }`}
                   >
                     <span
                       className={`h-3.5 w-3.5 rounded-full transition-transform ${
                         active
-                          ? "translate-x-4 bg-white"
+                          ? "translate-x-[18px] bg-white shadow-sm"
                           : "translate-x-0.5 bg-gray-400"
                       }`}
                     />

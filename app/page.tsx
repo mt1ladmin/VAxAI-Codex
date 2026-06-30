@@ -9,7 +9,6 @@ import {
   MailCheck,
   Menu,
   ShieldCheck,
-  SlidersHorizontal,
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
@@ -346,8 +345,8 @@ export default function Home() {
   const [preferredContact, setPreferredContact] = useState("Email");
   const [supportType, setSupportType] = useState("Assessment");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
-  const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/posts?limit=3")
@@ -356,17 +355,6 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("vaxai-simplified") === "true";
-    if (saved) { setIsSimplifiedMode(true); document.documentElement.classList.add("simplified-mode"); }
-  }, []);
-
-  const toggleSimplified = () => {
-    const next = !isSimplifiedMode;
-    setIsSimplifiedMode(next);
-    localStorage.setItem("vaxai-simplified", String(next));
-    document.documentElement.classList.toggle("simplified-mode", next);
-  };
 
   useEffect(() => {
     if (contactStep !== "calendly") return;
@@ -391,19 +379,7 @@ export default function Home() {
   }
 
   return (
-    <main id="top" className={`min-h-screen bg-paper text-ink ${isSimplifiedMode ? "simplified-mode" : ""}`}>
-      <button
-        type="button"
-        onClick={toggleSimplified}
-        className={`simplified-toggle fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
-          isSimplifiedMode ? "border-ink bg-ink text-paper" : "border-ink/10 bg-white text-ink"
-        }`}
-        aria-pressed={isSimplifiedMode}
-        aria-label={isSimplifiedMode ? "Turn full colour mode back on" : "Turn simplified black and white mode on"}
-      >
-        <SlidersHorizontal className="h-4 w-4" />
-        <span className="hidden sm:inline">{isSimplifiedMode ? "Show colour" : "Simplified mode"}</span>
-      </button>
+    <main id="top" className="min-h-screen bg-paper text-ink">
 
       <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
         <nav className="mx-auto flex max-w-6xl items-center justify-between">
@@ -419,10 +395,46 @@ export default function Home() {
           <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
             Get in touch
           </button>
-          <button className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden" aria-label="Open menu">
-            <Menu className="h-4 w-4" />
+          <button
+            onClick={() => setMobileNavOpen((o) => !o)}
+            className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden"
+            aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
         </nav>
+
+        {/* Mobile menu */}
+        {mobileNavOpen && (
+          <div className="mx-auto max-w-6xl md:hidden">
+            <div className="mt-2 flex flex-col gap-1 rounded-xl border border-white/10 bg-[#052d25] p-4">
+              {[
+                { label: "Services", href: "#pricing" },
+                { label: "About", href: "#experts" },
+                { label: "VAT Framework", href: "#vat-framework" },
+                { label: "Access to Work", href: "#access-to-work" },
+                { label: "FAQ", href: "#faq" },
+                { label: "Insights & Resources", href: "/insights" },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="rounded-md px-4 py-2.5 text-sm font-semibold text-paper/80 hover:bg-white/10 hover:text-paper"
+                >
+                  {label}
+                </a>
+              ))}
+              <button
+                type="button"
+                onClick={() => { setMobileNavOpen(false); setIsContactModalOpen(true); }}
+                className="mt-2 rounded-md bg-acid px-4 py-2.5 text-center text-sm font-semibold text-ink"
+              >
+                Get in touch
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div {...reveal}>
@@ -809,9 +821,9 @@ export default function Home() {
             <div>
               <p className="mb-5 font-semibold">Services</p>
               <div className="grid gap-4 text-muted">
-                <a href="#pricing">Assessment</a>
-                <a href="#services">AI and Automation</a>
-                <a href="#services">VA Support</a>
+                <a href="#pricing">Assess</a>
+                <a href="#pricing">Assess &amp; Implement</a>
+                <a href="#pricing">Assess, Implement &amp; Support</a>
               </div>
             </div>
             <div>
@@ -840,12 +852,16 @@ export default function Home() {
             <div>
               <p className="mb-5 font-semibold">Legal</p>
               <div className="grid gap-4 text-muted">
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Privacy</button>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Terms</button>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">EDI policy</button>
+                <a href="/privacy">Privacy</a>
+                <a href="/terms">Terms</a>
+                <a href="/edi-policy">EDI &amp; Social Mobility</a>
+                <a href="/ai-use-policy">AI Use</a>
                 <a href="/admin/login" className="mt-1 w-fit text-xs text-muted/50 hover:text-muted">VAxAI Studio</a>
               </div>
             </div>
+          </div>
+          <div className="mt-14 border-t border-ink/10 pt-6 text-xs text-muted">
+            © {new Date().getFullYear()} VAxAI — a service by MT1L. All rights reserved.
           </div>
         </div>
       </footer>
