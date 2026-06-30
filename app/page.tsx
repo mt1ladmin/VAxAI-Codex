@@ -475,7 +475,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
+      <section id="services" className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
@@ -662,7 +662,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#063b32] px-4 py-20 text-paper md:px-8">
+      <section id="vat-framework" className="bg-[#063b32] px-4 py-20 text-paper md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
