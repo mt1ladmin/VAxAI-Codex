@@ -85,7 +85,7 @@ function MultiDropdown({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-1 min-w-[200px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg">
+        <div className="absolute left-0 top-full z-30 mt-1 min-w-[200px] max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
           {options.map((opt) => {
             const checked = selected.includes(opt);
             return (
@@ -114,16 +114,23 @@ function MultiDropdown({
   );
 }
 
+const PAGE_SIZE = 9;
+
 export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Props) {
   const [search, setSearch] = useState("");
   const [activeTypes, setActiveTypes] = useState<string[]>([]);
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [contactOpen, setContactOpen] = useState(false);
+  const [page, setPage] = useState(0);
 
-  const toggleType = (t: string) =>
+  const toggleType = (t: string) => {
     setActiveTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
-  const toggleTag = (t: string) =>
+    setPage(0);
+  };
+  const toggleTag = (t: string) => {
     setActiveTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]));
+    setPage(0);
+  };
 
   const filtered = posts.filter((p) => {
     if (activeTypes.length > 0 && !activeTypes.includes(p.content_type ?? "")) return false;
@@ -139,6 +146,9 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
     return true;
   });
 
+  const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
+  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
   const hasActiveFilter = !!(search || activeTypes.length || activeTags.length);
 
   return (
@@ -150,7 +160,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             placeholder="Search insights…"
             className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-8 text-sm outline-none focus:border-[#063b32] transition-colors"
           />
@@ -195,7 +205,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
         {hasActiveFilter && (
           <button
             type="button"
-            onClick={() => { setSearch(""); setActiveTypes([]); setActiveTags([]); }}
+            onClick={() => { setSearch(""); setActiveTypes([]); setActiveTags([]); setPage(0); }}
             className="text-xs font-semibold text-[#063b32] hover:underline"
           >
             Clear all
@@ -207,7 +217,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
         <div className="py-24 text-center text-gray-400">No posts match your filters.</div>
       ) : (
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((post) => {
+          {paged.map((post) => {
             const author = post.author_id ? authorMap[post.author_id] : null;
             const date = post.published_at
               ? new Date(post.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
@@ -248,7 +258,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
 
                   {/* Description */}
                   {post.description && (
-                    <p className="mb-3 line-clamp-2 flex-1 text-sm leading-6 text-gray-500">
+                    <p className="mb-3 flex-1 text-sm leading-6 text-gray-500">
                       {post.description}
                     </p>
                   )}
@@ -284,6 +294,31 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
               </a>
             );
           })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {pageCount > 1 && (
+        <div className="mt-10 flex items-center justify-between">
+          <button
+            type="button"
+            disabled={page === 0}
+            onClick={() => { setPage((p) => p - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            className="rounded-lg border border-gray-200 px-5 py-2 text-sm font-semibold text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            ← Back
+          </button>
+          <span className="text-xs text-gray-400">
+            Page {page + 1} of {pageCount}
+          </span>
+          <button
+            type="button"
+            disabled={page >= pageCount - 1}
+            onClick={() => { setPage((p) => p + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+            className="rounded-lg border border-gray-200 px-5 py-2 text-sm font-semibold text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Next →
+          </button>
         </div>
       )}
 

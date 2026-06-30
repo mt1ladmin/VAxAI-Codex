@@ -127,10 +127,43 @@ html.simplified-mode .simplified-photo {
   filter: grayscale(1) contrast(1.12) !important;
 }
 html.simplified-mode img { filter: grayscale(1) contrast(1.25) !important; }
-html.simplified-mode .simplified-toggle {
+html.simplified-mode .simplified-toggle,
+html.simplified-mode .simplified-toggle > * {
   background: #000 !important;
   border-color: #000 !important;
   color: #fff !important;
   text-decoration: none;
+  box-shadow: none !important;
 }
-html.simplified-mode .simplified-toggle * { color: #fff !important; }
+html.simplified-mode .simplified-toggle button,
+html.simplified-mode .simplified-toggle span { background: transparent !important; color: #fff !important; }
+
+/* Large text */
+html.large-text { font-size: 112% !important; }
+html.large-text p,
+html.large-text li,
+html.large-text span { line-height: 1.85 !important; }
+html.large-text .prose-vaxai { font-size: 1.15rem !important; line-height: 1.9 !important; }
+
+/* Reduce motion */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Dyslexia-friendly */
+html.dyslexia-friendly body { letter-spacing: 0.04em; word-spacing: 0.12em; }
+html.dyslexia-friendly p,
+html.dyslexia-friendly li,
+html.dyslexia-friendly h1,
+html.dyslexia-friendly h2,
+html.dyslexia-friendly h3,
+html.dyslexia-friendly h4 {
+  line-height: 1.95 !important;
+  letter-spacing: 0.04em !important;
+  word-spacing: 0.12em !important;
+}

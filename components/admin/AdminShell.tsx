@@ -41,6 +41,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
+      { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen, subtitle: "Playbooks & prep" },
     ],
   },
   {
@@ -204,16 +205,6 @@ export default function AdminShell({
         <div className="space-y-0.5 border-t border-white/10 px-2 py-3">
           {platformAdmin && (
             <>
-              <Link
-                href="/admin/engagement/knowledge"
-                title={!open ? "Knowledge Hub" : undefined}
-                className={`flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
-                  pathname.startsWith("/admin/engagement/knowledge") ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
-                } ${!open ? "justify-center" : ""}`}
-              >
-                <BookOpen className="h-4 w-4 shrink-0" />
-                {open && "Knowledge Hub"}
-              </Link>
               <Link
                 href="/admin/engagement/settings"
                 title={!open ? "Settings" : undefined}

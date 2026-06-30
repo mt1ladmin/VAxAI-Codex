@@ -4,6 +4,7 @@ import { Linkedin } from "lucide-react";
 import ReadingProgress from "@/components/posts/ReadingProgress";
 import PostContactForm from "@/components/posts/PostContactForm";
 import ShareButton from "@/components/posts/ShareButton";
+import PostTags from "@/components/posts/PostTags";
 import BackButton from "@/components/posts/BackButton";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
@@ -114,35 +115,6 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             {/* ── Main column ── */}
             <div className="min-w-0">
 
-              {/* Author — above the title */}
-              {author && (
-                <div className="mb-6 flex items-center gap-3">
-                  {author.avatar_url ? (
-                    <img src={author.avatar_url} alt={author.name} className="h-10 w-10 shrink-0 rounded-full object-cover ring-2 ring-gray-100" />
-                  ) : (
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274]">
-                      {author.name[0].toUpperCase()}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-gray-900">{author.name}</p>
-                      {author.linkedin_url && (
-                        <a href={author.linkedin_url} target="_blank" rel="noopener noreferrer"
-                          className="text-gray-300 hover:text-[#0077b5]" aria-label="LinkedIn">
-                          <Linkedin className="h-3.5 w-3.5" />
-                        </a>
-                      )}
-                    </div>
-                    {author.bio && (
-                      <p className="truncate text-xs text-gray-400">{author.bio}</p>
-                    )}
-                  </div>
-                  {publishedDate && (
-                    <span className="ml-auto shrink-0 text-xs text-gray-400">{publishedDate}</span>
-                  )}
-                </div>
-              )}
 
               {/* Content type badge */}
               {post.content_type && (
@@ -161,11 +133,33 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <p className="mt-4 text-lg leading-8 text-gray-500">{post.description}</p>
               )}
 
-              {/* Share row */}
+              {/* Share row — author on left, share button on right */}
               <div className="mt-6 flex items-center justify-between border-b border-t border-gray-100 py-3">
-                <span className="text-xs text-gray-400">
-                  {!author && publishedDate ? publishedDate : ""}
-                </span>
+                {author ? (
+                  <div className="flex items-center gap-2.5">
+                    {author.avatar_url ? (
+                      <img src={author.avatar_url} alt={author.name} className="h-8 w-8 shrink-0 rounded-full object-cover ring-2 ring-gray-100" />
+                    ) : (
+                      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#063b32] text-xs font-bold text-[#f5f274]">
+                        {author.name[0].toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold text-gray-900">{author.name}</p>
+                        {author.linkedin_url && (
+                          <a href={author.linkedin_url} target="_blank" rel="noopener noreferrer"
+                            className="text-gray-300 hover:text-[#0077b5]" aria-label="LinkedIn">
+                            <Linkedin className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                      {publishedDate && <p className="text-xs text-gray-400">{publishedDate}</p>}
+                    </div>
+                  </div>
+                ) : (
+                  <span className="text-xs text-gray-400">{publishedDate ?? ""}</span>
+                )}
                 <ShareButton url={postUrl} title={post.title} />
               </div>
 
@@ -183,13 +177,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
               {/* Tags */}
               {post.tags && post.tags.length > 0 && (
-                <div className="mt-10 flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <span key={tag} className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-500">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+                <PostTags tags={post.tags} />
               )}
 
               {/* Mobile-only Get in touch (hidden on lg where sidebar shows it) */}
