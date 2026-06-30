@@ -258,7 +258,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
 
                   {/* Description */}
                   {post.description && (
-                    <p className="mb-3 line-clamp-2 flex-1 text-sm leading-6 text-gray-500">
+                    <p className="mb-3 flex-1 text-sm leading-6 text-gray-500">
                       {post.description}
                     </p>
                   )}
