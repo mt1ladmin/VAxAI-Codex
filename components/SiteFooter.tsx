@@ -21,9 +21,9 @@ export default function SiteFooter() {
             <div>
               <p className="mb-5 font-semibold text-gray-900">Services</p>
               <div className="grid gap-4 text-gray-500">
-                <a href="/#pricing" className="hover:text-gray-900">Assessment</a>
-                <a href="/#services" className="hover:text-gray-900">AI &amp; Automation</a>
-                <a href="/#services" className="hover:text-gray-900">VA Support</a>
+                <a href="/#pricing" className="hover:text-gray-900">Assess</a>
+                <a href="/#pricing" className="hover:text-gray-900">Assess &amp; Implement</a>
+                <a href="/#pricing" className="hover:text-gray-900">Assess, Implement &amp; Support</a>
               </div>
             </div>
             <div>
@@ -53,16 +53,17 @@ export default function SiteFooter() {
             <div>
               <p className="mb-5 font-semibold text-gray-900">Legal</p>
               <div className="grid gap-4 text-gray-500">
-                <a href="/" className="hover:text-gray-900">Privacy</a>
-                <a href="/" className="hover:text-gray-900">Terms</a>
-                <a href="/" className="hover:text-gray-900">EDI policy</a>
+                <a href="/privacy" className="hover:text-gray-900">Privacy</a>
+                <a href="/terms" className="hover:text-gray-900">Terms</a>
+                <a href="/edi-policy" className="hover:text-gray-900">EDI &amp; Social Mobility</a>
+                <a href="/ai-use-policy" className="hover:text-gray-900">AI Use</a>
                 <a href="/admin/login" className="mt-1 text-xs text-gray-400 hover:text-gray-500">VAxAI Studio</a>
               </div>
             </div>
           </div>
 
           <div className="mt-14 border-t border-gray-100 pt-6 text-xs text-gray-400">
-            © {new Date().getFullYear()} VAxAI. All rights reserved.
+            © {new Date().getFullYear()} VAxAI — a service by MT1L. All rights reserved.
           </div>
         </div>
       </footer>
