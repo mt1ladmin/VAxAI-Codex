@@ -119,24 +119,25 @@ html.simplified-mode *::after {
   color: #000 !important;
   text-shadow: none !important;
 }
-html.simplified-mode a,
-html.simplified-mode button { text-decoration: underline; }
 html.simplified-mode .simplified-hide { display: none !important; }
 html.simplified-mode .simplified-photo {
   border: 1px solid #000 !important;
   filter: grayscale(1) contrast(1.12) !important;
 }
 html.simplified-mode img { filter: grayscale(1) contrast(1.25) !important; }
+
+/* Accessibility panel stays fully legible in all modes */
 html.simplified-mode .simplified-toggle,
-html.simplified-mode .simplified-toggle > * {
-  background: #000 !important;
-  border-color: #000 !important;
-  color: #fff !important;
-  text-decoration: none;
-  box-shadow: none !important;
+html.simplified-mode .simplified-toggle *,
+html.simplified-mode .simplified-toggle *::before,
+html.simplified-mode .simplified-toggle *::after {
+  background-color: revert !important;
+  border-color: revert !important;
+  color: revert !important;
+  text-decoration: none !important;
+  box-shadow: revert !important;
+  filter: none !important;
 }
-html.simplified-mode .simplified-toggle button,
-html.simplified-mode .simplified-toggle span { background: transparent !important; color: #fff !important; }
 
 /* Large text */
 html.large-text { font-size: 112% !important; }

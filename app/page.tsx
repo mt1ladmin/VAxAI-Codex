@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
+import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 
 const image = {
   hero:
@@ -1201,11 +1202,6 @@ export default function Home() {
           text-shadow: none !important;
         }
 
-        .simplified-mode a,
-        .simplified-mode button {
-          text-decoration: underline;
-        }
-
         .simplified-mode .simplified-hide {
           display: none !important;
         }
@@ -1219,19 +1215,19 @@ export default function Home() {
           filter: grayscale(1) contrast(1.25) !important;
         }
 
-        .simplified-mode .simplified-toggle {
-          background: #000 !important;
-          border-color: #000 !important;
-          color: #fff !important;
-          text-decoration: none;
-        }
-
-        .simplified-mode .simplified-toggle * {
-          background: transparent !important;
-          border-color: #fff !important;
-          color: #fff !important;
+        .simplified-mode .simplified-toggle,
+        .simplified-mode .simplified-toggle *,
+        .simplified-mode .simplified-toggle *::before,
+        .simplified-mode .simplified-toggle *::after {
+          background-color: revert !important;
+          border-color: revert !important;
+          color: revert !important;
+          text-decoration: none !important;
+          box-shadow: revert !important;
+          filter: none !important;
         }
       `}</style>
+      <SimplifiedModeToggle />
     </main>
   );
 }
