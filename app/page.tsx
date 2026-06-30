@@ -186,12 +186,6 @@ const faqs = [
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
 
-const whyPrinciples = [
-  ["01", "One team throughout", "The people supporting your day-to-day work understand the decisions and setup behind it, reducing repeated explanations and disconnected handovers."],
-  ["02", "You stay in control", "We explain recommendations clearly, document what is introduced and make sure you approve the tools and changes affecting your organisation."],
-  ["03", "Designed to stay useful", "Your setup is shaped around your organisation rather than a fixed package, so it can be adjusted as your workload, team or priorities change."],
-  ["04", "Capacity when you need it", "You can increase or reduce your VA support as your needs change. When additional capacity is required, we bring in trusted partners and train them on your setup at no additional cost."],
-];
 
 const reveal = {
   initial: { opacity: 0, y: 18 },
@@ -697,55 +691,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-20 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <SectionTitle
-            title="Why choose VAxAI?"
-            copy="We are not here to force a technical solution where it does not fit. Our priority is helping you choose, use and sustain the right mix of support, systems and tools for your organisation."
-            narrow
-          />
-          <div className="mt-10 overflow-hidden rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
-            <div className="grid gap-3 lg:grid-cols-[0.9fr_1.35fr]">
-              <div className="relative overflow-hidden rounded-md border border-[#063b32]/20 bg-[#f3f9f5] p-7 md:p-8">
-                <div className="simplified-hide absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/70" />
-                <div className="simplified-hide absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#4479a8]/18" />
-                <div className="relative">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI support</p>
-                  <h3 className="mt-5 max-w-sm text-3xl font-semibold leading-[1.08] text-ink">
-                    Support that stays useful as your needs change.
-                  </h3>
-                  <p className="mt-5 max-w-sm text-sm leading-6 text-muted">
-                    One team understands your systems and provides the capacity needed to keep work moving.
-                  </p>
-                  <div className="mt-8 grid grid-cols-3 gap-2 text-center text-xs font-semibold">
-                    {["Continuity", "Ownership", "Capacity"].map((item) => (
-                      <span key={item} className="rounded-md border border-[#063b32]/15 bg-white px-2 py-3 text-[#063b32] shadow-[0_8px_22px_rgba(17,17,17,0.04)]">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div className="grid gap-3">
-                {whyPrinciples.map(([number, title, copy]) => (
-                  <article key={number} className="grid gap-4 rounded-md border border-ink/10 bg-white p-6 sm:grid-cols-[64px_1fr] md:p-7">
-                    <span className="grid h-12 w-12 place-items-center rounded-full bg-cream text-sm font-semibold text-[#063b32]">
-                      {number}
-                    </span>
-                    <div>
-                      <h3 className="text-lg font-semibold">{title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-muted">{copy}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <div className="mt-3 rounded-md border border-[#063b32]/15 bg-[#f7ff6a]/35 px-6 py-4 text-sm font-semibold text-[#063b32] md:px-8">
-              Continuity · clear ownership · documented systems · support that can grow
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section id="faq" className="px-4 pb-20 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
