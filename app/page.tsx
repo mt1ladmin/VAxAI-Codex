@@ -407,7 +407,12 @@ export default function Home() {
       <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
         <nav className="mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
-          <div className="hidden items-center gap-7 text-xs font-semibold text-paper/70 md:flex">
+          <div className="hidden items-center gap-5 text-xs font-semibold text-paper/70 md:flex">
+            <a href="#pricing" className="hover:text-paper">Services</a>
+            <a href="#experts" className="hover:text-paper">About</a>
+            <a href="#vat-framework" className="hover:text-paper">VAT Framework</a>
+            <a href="#access-to-work" className="hover:text-paper">Access to Work</a>
+            <a href="#faq" className="hover:text-paper">FAQ</a>
             <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights & Resources</a>
           </div>
           <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
@@ -733,8 +738,7 @@ export default function Home() {
           <motion.div {...reveal} className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Insights &amp; Resources</p>
-              <h2 className="mt-3 max-w-lg text-3xl font-semibold leading-[1.08] md:text-4xl">Thinking about AI for your business?</h2>
-              <p className="mt-4 max-w-xl text-sm leading-6 text-muted">
+              <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
                 Our insights cover practical approaches to AI, automation and admin — written for people who want clarity, not jargon.
                 If something resonates, you can attach it to your enquiry when you get in touch.
               </p>
@@ -794,53 +798,51 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-ink/10 px-4 py-10 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1fr_1.2fr]">
-          <div>
-            <div className="flex items-center gap-3 text-2xl font-semibold">
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm text-acid">VA</span>
-              <span>VAxAI</span>
-            </div>
+      <footer className="border-t border-ink/10 px-4 py-16 md:px-8 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-12 flex items-center gap-3 text-2xl font-semibold">
+            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm text-acid">VA</span>
+            <span>VAxAI</span>
           </div>
-          <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-10 text-sm sm:grid-cols-3 lg:grid-cols-5">
             <div>
-              <p className="font-semibold">Services</p>
-              <div className="mt-4 grid gap-3 text-muted">
+              <p className="mb-5 font-semibold">Services</p>
+              <div className="grid gap-4 text-muted">
                 <a href="#pricing">Assessment</a>
                 <a href="#services">AI and Automation</a>
                 <a href="#services">VA Support</a>
               </div>
             </div>
             <div>
-              <p className="font-semibold">Company</p>
-              <div className="mt-4 grid gap-3 text-muted">
+              <p className="mb-5 font-semibold">Company</p>
+              <div className="grid gap-4 text-muted">
                 <a href="#experts">About</a>
                 <a href="https://www.mt1l.com" target="_blank" rel="noreferrer">MT1L</a>
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Contact</button>
               </div>
             </div>
             <div>
-              <p className="font-semibold">Support</p>
-              <div className="mt-4 grid gap-3 text-muted">
+              <p className="mb-5 font-semibold">Support</p>
+              <div className="grid gap-4 text-muted">
                 <a href="#faq">FAQ</a>
                 <a href="#access-to-work">Access to Work</a>
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Workflow consultation</button>
               </div>
             </div>
             <div>
-              <p className="font-semibold">Insights</p>
-              <div className="mt-4 grid gap-3 text-muted">
+              <p className="mb-5 font-semibold">Insights</p>
+              <div className="grid gap-4 text-muted">
                 <a href="/insights">Insights &amp; Resources</a>
                 <a href="/#vat-framework">VAT Framework</a>
               </div>
             </div>
             <div>
-              <p className="font-semibold">Legal</p>
-              <div className="mt-4 grid gap-3 text-muted">
+              <p className="mb-5 font-semibold">Legal</p>
+              <div className="grid gap-4 text-muted">
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Privacy</button>
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Terms</button>
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">EDI policy</button>
-                <a href="/admin/login" className="mt-2 w-fit text-xs text-muted/50 hover:text-muted">VAxAI Studio</a>
+                <a href="/admin/login" className="mt-1 w-fit text-xs text-muted/50 hover:text-muted">VAxAI Studio</a>
               </div>
             </div>
           </div>
