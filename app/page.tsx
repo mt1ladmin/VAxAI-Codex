@@ -326,6 +326,17 @@ function GeometricDivider() {
   );
 }
 
+type PostPreview = {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  cover_image_url?: string;
+  content_type?: string;
+  tags?: string[];
+  published_at?: string;
+};
+
 export default function Home() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -335,6 +346,14 @@ export default function Home() {
   const [supportType, setSupportType] = useState("Assessment");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [isSimplifiedMode, setIsSimplifiedMode] = useState(false);
+  const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
+
+  useEffect(() => {
+    fetch("/api/posts?limit=3")
+      .then((r) => r.json())
+      .then(({ data }) => { if (Array.isArray(data)) setPreviewPosts(data); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("vaxai-simplified") === "true";
@@ -662,7 +681,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="vat-framework" className="bg-[#063b32] px-4 py-20 text-paper md:px-8">
+      <section id="vat-framework" className="bg-[#063b32] px-4 pt-24 pb-20 text-paper md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
@@ -692,7 +711,7 @@ export default function Home() {
       </section>
 
 
-      <section id="faq" className="px-4 pb-20 md:px-8">
+      <section id="faq" className="px-4 py-20 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
           <motion.div {...reveal}>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
@@ -710,6 +729,55 @@ export default function Home() {
               </details>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      <section className="px-4 pb-20 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <motion.div {...reveal} className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Insights &amp; Resources</p>
+              <h2 className="mt-3 max-w-lg text-3xl font-semibold leading-[1.08] md:text-4xl">Thinking about AI for your business?</h2>
+              <p className="mt-4 max-w-xl text-sm leading-6 text-muted">
+                Our insights cover practical approaches to AI, automation and admin — written for people who want clarity, not jargon.
+                If something resonates, you can attach it to your enquiry when you get in touch.
+              </p>
+            </div>
+            <a href="/insights" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-md border border-ink/15 px-4 py-2.5 text-sm font-semibold text-ink md:mt-0">
+              View all insights
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </motion.div>
+          {previewPosts.length > 0 && (
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {previewPosts.map((post) => (
+                <motion.a
+                  key={post.id}
+                  href={`/insights/${post.slug}`}
+                  {...reveal}
+                  className="group flex flex-col overflow-hidden rounded-md border border-ink/10 bg-white transition hover:shadow-[0_8px_30px_rgba(17,17,17,0.1)]"
+                >
+                  {post.cover_image_url && (
+                    <div className="aspect-[16/9] w-full overflow-hidden bg-ink/5">
+                      <img src={post.cover_image_url} alt="" className="h-full w-full object-cover transition group-hover:scale-[1.02]" loading="lazy" />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col p-5">
+                    {post.content_type && (
+                      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted">{post.content_type}</p>
+                    )}
+                    <h3 className="text-sm font-semibold leading-snug text-ink">{post.title}</h3>
+                    {post.description && (
+                      <p className="mt-2 flex-1 text-xs leading-5 text-muted line-clamp-3">{post.description}</p>
+                    )}
+                    <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#063b32]">
+                      Read more <ArrowRight className="h-3 w-3" />
+                    </span>
+                  </div>
+                </motion.a>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -738,7 +806,7 @@ export default function Home() {
               <span>VAxAI</span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-3 lg:grid-cols-6">
             <div>
               <p className="font-semibold">Services</p>
               <div className="mt-4 grid gap-3 text-muted">
@@ -761,6 +829,13 @@ export default function Home() {
                 <a href="#faq">FAQ</a>
                 <a href="#access-to-work">Access to Work</a>
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Workflow consultation</button>
+              </div>
+            </div>
+            <div>
+              <p className="font-semibold">Insights</p>
+              <div className="mt-4 grid gap-3 text-muted">
+                <a href="/insights">Insights &amp; Resources</a>
+                <a href="/#vat-framework">VAT Framework</a>
               </div>
             </div>
             <div>
