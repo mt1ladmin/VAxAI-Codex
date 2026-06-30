@@ -766,7 +766,7 @@ export default function Home() {
               {previewPosts.map((post) => (
                 <motion.a
                   key={post.id}
-                  href={`/insights/${post.slug}`}
+                  href={`/posts/${post.slug}`}
                   {...reveal}
                   className="group flex flex-col overflow-hidden rounded-md border border-ink/10 bg-white transition hover:shadow-[0_8px_30px_rgba(17,17,17,0.1)]"
                 >
