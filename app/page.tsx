@@ -146,7 +146,7 @@ const plans = [
     title: "Assessment",
     label: "Assess",
     copy: [
-      "A focused review of your admin workload, tools, processes and team — identifying where pressure is building and what the right response looks like.",
+      "A focused review of your admin workload, tools, processes and team, identifying where pressure is building and what the right response looks like.",
     ],
     items: ["VAT Framework review", "AI value and risk map", "Workflow and capacity review", "Practical recommendations and next steps"],
   },
@@ -155,7 +155,7 @@ const plans = [
     title: "Strategy, Implementation & Capability Building",
     label: "Assess + Implement",
     copy: [
-      "We put the right solution in place based on your assessment — improving processes, making better use of existing tools, introducing new systems or training your team.",
+      "We put the right solution in place based on your assessment, improving processes, making better use of existing tools, introducing new systems or training your team.",
     ],
     items: ["Everything included in Assess", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
   },
@@ -165,16 +165,16 @@ const plans = [
     label: "Assess + Implement + Support",
     featured: true,
     copy: [
-      "Continued support after implementation — VA assistance, system monitoring and ongoing adjustments as your workload and priorities change.",
+      "Continued support after implementation: VA assistance, system monitoring and ongoing adjustments as your workload and priorities change.",
     ],
     items: ["Everything included in Assess and Implement", "Process and system optimisation", "Team support and guidance", "Dedicated support hours within your package"],
   },
 ];
 
 const vatPrinciples = [
-  ["01", "Value", "Will this meaningfully reduce admin pressure, save time or create more capacity for the work your organisation needs to do?"],
-  ["02", "Alignment", "Will it fit your existing tools, data, processes, people and ways of working without creating more complexity?"],
-  ["03", "Trust", "Will the people using it understand how it works, know when human judgement is involved and feel confident that your work and information are protected?"],
+  ["01", "Value", "We focus on changes that create genuine, measurable benefit, reducing admin pressure, freeing up time and creating capacity for the work that actually matters. Not change for its own sake."],
+  ["02", "Alignment", "We check that what we recommend fits how your organisation actually works, including its people, tools, data and ways of doing things, without adding complexity or asking people to work against the grain."],
+  ["03", "Trust", "We are transparent about how things work, keep human judgement at the centre, and make sure the people affected understand and feel confident in the result. AI supports the work; it never replaces the people behind it."],
 ];
 
 const faqs = [
@@ -480,7 +480,7 @@ export default function Home() {
                   "Valuable time spent on repetitive admin instead of meaningful work",
                 ].map((item) => (
                   <div key={item} className="flex gap-3">
-                    <span className="mt-0.5 shrink-0 text-sm font-semibold text-ink/40">—</span>
+                    <span className="mt-0.5 shrink-0 text-sm font-semibold text-ink/40">·</span>
                     <p className="text-sm leading-6 text-muted">{item}</p>
                   </div>
                 ))}
@@ -519,7 +519,7 @@ export default function Home() {
           {/* 3-col layout: left cards | centre image | right cards */}
           <div className="mt-12 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
 
-            {/* Card 01 — row 1, col 1 */}
+            {/* Card 01: row 1, col 1 */}
             {(() => { const study = caseStudies[0]; return (
               <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
@@ -533,12 +533,12 @@ export default function Home() {
               </article>
             ); })()}
 
-            {/* Centre image — spans both rows */}
+            {/* Centre image: spans both rows */}
             <div className="hidden overflow-hidden rounded-md md:row-span-2 md:block">
               <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
             </div>
 
-            {/* Card 02 — row 1, col 3 */}
+            {/* Card 02: row 1, col 3 */}
             {(() => { const study = caseStudies[1]; return (
               <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
@@ -552,7 +552,7 @@ export default function Home() {
               </article>
             ); })()}
 
-            {/* Card 03 — row 2, col 1 */}
+            {/* Card 03: row 2, col 1 */}
             {(() => { const study = caseStudies[2]; return (
               <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
@@ -566,7 +566,7 @@ export default function Home() {
               </article>
             ); })()}
 
-            {/* Card 04 — row 2, col 3 */}
+            {/* Card 04: row 2, col 3 */}
             {(() => { const study = caseStudies[3]; return (
               <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
@@ -640,7 +640,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Three ways to work with us"
-            copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix — whether that means improving existing systems, implementing new ones, or combining technology with human support."
+            copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix, whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
           <div className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
@@ -700,7 +700,7 @@ export default function Home() {
           <SectionTitle
             light
             title="Value, Alignment and Trust"
-            copy="VAxAI uses the MT1L VAT Framework to decide whether existing tools, new systems, AI, automation or human support are the right fit."
+            copy="Our work is guided by the VAT Framework, developed by MT1L and VAxAI founder Thesia Gervelie Kouloungou-Nkoula. It shapes how we develop services, how we work with clients and how we use AI and automation."
             narrow
           />
           <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -723,7 +723,6 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
-
 
       <section id="faq" className="px-4 py-20 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
@@ -752,7 +751,7 @@ export default function Home() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Insights &amp; Resources</p>
               <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-                Our insights cover practical approaches to AI, automation and admin — written for people who want clarity, not jargon.
+                Our insights cover practical approaches to AI, automation and admin, written for people who want clarity, not jargon.
                 If something resonates, you can attach it to your enquiry when you get in touch.
               </p>
             </div>
@@ -861,7 +860,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-14 border-t border-ink/10 pt-6 text-xs text-muted">
-            © {new Date().getFullYear()} VAxAI — a service by MT1L. All rights reserved.
+            © {new Date().getFullYear()} VAxAI, a service by MT1L. All rights reserved.
           </div>
         </div>
       </footer>
@@ -909,7 +908,7 @@ export default function Home() {
               {contactStep === "submitted" ? (
                 <div className="p-6 md:p-10">
                   <p className="text-sm leading-7 text-muted">
-                    Thank you — we have received your message and will be in touch shortly.
+                    Thank you. We have received your message and will be in touch shortly.
                   </p>
                   <button
                     type="button"
@@ -1064,7 +1063,7 @@ export default function Home() {
                 <ul className="mt-4 grid gap-2 rounded-md border border-ink/10 bg-cream p-4">
                   {caseStudies[openCase].workflowPoints!.map((pt) => (
                     <li key={pt} className="flex gap-3 text-sm leading-6 text-muted">
-                      <span className="mt-0.5 shrink-0 text-ink/40">—</span>
+                      <span className="mt-0.5 shrink-0 text-ink/40">·</span>
                       {pt}
                     </li>
                   ))}
