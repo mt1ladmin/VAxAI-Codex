@@ -97,8 +97,8 @@ export default function PublicContactModal({ open, onClose }: Props) {
       }}
     >
       {step === "calendly" ? (
-        <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-          <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-paper md:px-10">
+        <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+          <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-paper md:px-10 rounded-t-3xl">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Discovery call</p>
               <h2 id="contact-modal-title" className="mt-1 text-xl font-semibold leading-tight">Book a time with us</h2>
@@ -116,8 +116,8 @@ export default function PublicContactModal({ open, onClose }: Props) {
           </div>
         </div>
       ) : (
-        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-          <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+          <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Contact VAxAI</p>
               <h2 id="contact-modal-title" className="mt-3 text-3xl font-semibold leading-tight">
@@ -190,7 +190,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
                 Tell us more
                 <textarea required name="details" rows={5} className={`${fieldClass} resize-y`} />
               </label>
-              <div className="rounded-md border border-[#063b32]/20 bg-[#f3f9f5] p-5 md:col-span-2">
+              <div className="rounded-2xl border border-[#063b32]/20 bg-[#f3f9f5] p-5 md:col-span-2">
                 <p className="font-semibold text-ink">Would you like to book a discovery call?</p>
                 <p className="mt-1 text-sm leading-6 text-muted">
                   A 30-minute conversation to explore your challenge and whether we are the right fit.

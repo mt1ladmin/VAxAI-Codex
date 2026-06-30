@@ -408,11 +408,7 @@ export default function Home() {
         <nav className="mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
           <div className="hidden items-center gap-7 text-xs font-semibold text-paper/70 md:flex">
-            <a href="#services">Services</a>
-            <a href="#experts">About</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-            <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights</a>
+            <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights & Resources</a>
           </div>
           <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
             Get in touch
@@ -577,7 +573,7 @@ export default function Home() {
           <motion.div
             {...reveal}
             id="access-to-work"
-            className="mt-12 flex flex-col gap-5 rounded-md border border-white/12 bg-white/[0.07] p-6 md:flex-row md:items-center md:justify-between"
+            className="mt-12 flex flex-col gap-5 rounded-2xl border border-white/12 bg-white/[0.07] p-6 md:flex-row md:items-center md:justify-between"
           >
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
@@ -782,7 +778,7 @@ export default function Home() {
       </section>
 
       <section className="px-4 pb-16 md:px-8">
-        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-md border border-ink/10 bg-white shadow-[0_14px_45px_rgba(17,17,17,0.05)] md:grid-cols-[1fr_0.85fr]">
+        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-[0_14px_45px_rgba(17,17,17,0.05)] md:grid-cols-[1fr_0.85fr]">
           <div className="p-8 md:p-10">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI support to book</p>
             <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] text-ink md:text-5xl">Admin support that can grow with you</h2>
@@ -859,8 +855,8 @@ export default function Home() {
           aria-labelledby="contact-title"
         >
           {contactStep === "calendly" ? (
-            <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-              <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-paper md:px-10">
+            <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+              <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-paper md:px-10 rounded-t-3xl">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Discovery call</p>
                   <h2 className="mt-1 text-xl font-semibold leading-tight">Book a time with us</h2>
@@ -878,8 +874,8 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-              <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+              <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Contact VAxAI</p>
                   <h2 id="contact-title" className="mt-3 text-3xl font-semibold leading-tight">
@@ -975,7 +971,7 @@ export default function Home() {
                     Tell us more
                     <textarea required name="details" rows={5} className="resize-y rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
                   </label>
-                  <div className="rounded-md border border-[#063b32]/20 bg-[#f3f9f5] p-5 md:col-span-2">
+                  <div className="rounded-2xl border border-[#063b32]/20 bg-[#f3f9f5] p-5 md:col-span-2">
                     <p className="font-semibold text-ink">Would you like to book a discovery call?</p>
                     <p className="mt-1 text-sm leading-6 text-muted">
                       A 30-minute conversation to explore your challenge and whether we are the right fit.
@@ -1025,8 +1021,8 @@ export default function Home() {
           aria-modal="true"
           onMouseDown={(e) => { if (e.target === e.currentTarget) setOpenCase(null); }}
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Case study</p>
                 <h2 className="mt-3 max-w-xl text-2xl font-semibold leading-tight">{caseStudies[openCase].title}</h2>
@@ -1100,8 +1096,8 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="access-work-title"
         >
-          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-md bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.35)]">
-            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
                 <h2 id="access-work-title" className="mt-3 max-w-2xl text-3xl font-semibold leading-tight md:text-4xl">
