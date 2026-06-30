@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, BookOpen, Check, ChevronDown, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import {
@@ -14,6 +14,7 @@ import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
 } from "@/lib/engagement/types";
+import { useSetAIContext } from "@/lib/ai-assistant-context";
 
 type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "pricing" | "scripts" | "objections";
 
@@ -458,6 +459,14 @@ function KnowledgePageInner() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const reload = () => setReloadTick((t) => t + 1);
+
+  const aiContext = useMemo(() => ({
+    type: "general" as const,
+    id: `knowledge-${tab}`,
+    label: `Knowledge Hub — ${TAB_META[tab].title}`,
+    summary: TAB_META[tab].description,
+  }), [tab]);
+  useSetAIContext(aiContext);
 
   const load = useCallback(async () => {
     setLoading(true);

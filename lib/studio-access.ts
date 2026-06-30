@@ -14,6 +14,7 @@ const MEMBER_PAGE_PREFIXES = [
   "/admin/authors",
   "/admin/engagement/prospect-outreach",
   "/admin/engagement/pipeline",
+  "/admin/engagement/knowledge",
 ] as const;
 
 /** API routes a studio member may call */
@@ -35,6 +36,9 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/prospect-outreach",
   "/api/admin/engagement/prospect-finder",
   "/api/admin/engagement/knowledge-attachments",
+  "/api/admin/engagement/scripts",
+  "/api/admin/engagement/objections",
+  "/api/admin/engagement/pricing",
   "/api/admin/engagement/ai",
   "/api/admin/engagement/activity-log",
   "/api/admin/engagement/content-generate",
