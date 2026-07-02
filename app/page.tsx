@@ -155,18 +155,31 @@ const plans = [
     title: "Assessment",
     label: "Assess",
     copy: [
-      "A focused review of your admin workload, tools, processes and team, identifying where pressure is building and what the right response looks like.",
+      "We review your admin workload, processes, tools and team capacity to identify where pressure is building and what type of support or improvement would make the greatest difference.",
     ],
-    items: ["VAT Framework review", "AI value and risk map", "Workflow and capacity review", "Practical recommendations and next steps"],
+    items: [
+      "VAT Framework review",
+      "Admin, workflow and capacity review",
+      "AI, automation and process opportunities",
+      "Risks, gaps and priorities",
+      "Practical recommendations and next steps",
+    ],
   },
   {
     step: "02",
-    title: "Strategy, Implementation & Capability Building",
+    title: "Strategy, Implementation & Team Training",
     label: "Assess + Implement",
     copy: [
-      "We put the right solution in place based on your assessment, improving processes, making better use of existing tools, introducing new systems or training your team.",
+      "Using the findings from your assessment, we help put the right solution in place. This may include improving existing processes, making better use of your current tools, introducing new systems, automating repetitive tasks or training your team.",
     ],
-    items: ["Everything included in Assess", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
+    items: [
+      "Everything included in Assess",
+      "Process and workflow improvement",
+      "Tool selection, setup and implementation",
+      "AI and automation support where appropriate",
+      "Team training",
+      "Documentation and handover",
+    ],
   },
   {
     step: "03",
@@ -174,9 +187,16 @@ const plans = [
     label: "Assess + Implement + Support",
     featured: true,
     copy: [
-      "Continued support after implementation: VA assistance, system monitoring and ongoing adjustments as your workload and priorities change.",
+      "We continue to support you after implementation, helping your processes and systems remain useful as your workload, team and priorities change. This can include virtual assistance, system monitoring, team support and ongoing improvements.",
     ],
-    items: ["Everything included in Assess and Implement", "Process and system optimisation", "Team support and guidance", "Dedicated support hours within your package"],
+    items: [
+      "Everything included in Assess and Implement",
+      "Ongoing process and system optimisation",
+      "Virtual assistance where human support is still needed",
+      "Team guidance and troubleshooting",
+      "Monitoring and ongoing adjustments",
+      "Dedicated support hours within your package",
+    ],
   },
 ];
 
