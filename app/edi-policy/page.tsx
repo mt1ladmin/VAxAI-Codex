@@ -11,10 +11,10 @@ export default function EdiPolicyPage() {
     <PolicyPage title="EDI & Social Mobility Policy" lastUpdated="June 2025">
       <h2>More than one label</h2>
       <p>
-        VAxAI is a service provided by MT1L — More Than 1 Label. The name is a deliberate recognition that people, and the organisations they belong to, are not defined by a single label. They are complex, layered and shaped by many experiences at once, and we work within that complexity rather than reducing anyone to a category.
+        VAxAI is a service provided by MT1L — More Than 1 Label. The name is a deliberate recognition that people, and the organisations they belong to, are not defined by a single label. They are complex, layered and shaped by many experiences at once, and we work within that complexity.
       </p>
       <p>
-        This is why, for us, equality, diversity and inclusion reach beyond any fixed set of characteristics. We are committed to fairness, to treating everyone with dignity and respect, and to meeting our responsibilities under the Equality Act 2010. Our commitment goes further than compliance: it is about understanding people and organisations as they really are.
+        We are committed to fairness, to treating everyone with dignity and respect, and to meeting our responsibilities under the Equality Act 2010. Our commitment goes further than compliance: it is about understanding people and organisations as they really are.
       </p>
 
       <h2>Embedded, not separate</h2>
@@ -48,9 +48,7 @@ export default function EdiPolicyPage() {
       <p>In practice, this means we aim to:</p>
       <ul>
         <li>keep asking &ldquo;for whom?&rdquo; throughout our work, so that value and fairness are considered together;</li>
-        <li>see people and organisations in the round, rather than reducing them to a single label or category;</li>
         <li>work <em>with</em>, not just <em>for</em>, the people affected by a decision, drawing on co-production wherever we can;</li>
-        <li>be informed by safeguarding and inclusion, taking care over who could be harmed or left out;</li>
         <li>help organisations build cultures and services that are fairer, more inclusive and more trusted; and</li>
         <li>challenge AI and automation proposals that risk embedding or amplifying existing inequalities.</li>
       </ul>
@@ -58,7 +56,6 @@ export default function EdiPolicyPage() {
       <h2>Our own practice</h2>
       <p>Within our own operations we aim to:</p>
       <ul>
-        <li>engage collaborators and clients on the basis of their skills, values and fit — not background, characteristics or connections;</li>
         <li>price our services in a way that does not systematically exclude smaller organisations or those with limited budgets;</li>
         <li>be transparent about how we work and who we are; and</li>
         <li>keep our own use of AI fair, transparent and subject to human oversight — see our <a href="/ai-use-policy">AI Use Policy</a>.</li>
