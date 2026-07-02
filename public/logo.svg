@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240" fill="none">
+  <!-- Dark green rounded rectangle -->
+  <rect x="38" y="12" width="248" height="216" rx="26" fill="#114a38"/>
+
+  <!-- V: two thick diagonal strokes meeting at bottom -->
+  <!-- Left stroke of V (extends past box) -->
+  <polygon points="6,48 38,48 90,186 58,186" fill="#ede631"/>
+  <!-- Right stroke of V -->
+  <polygon points="58,186 90,186 142,48 110,48" fill="#ede631"/>
+
+  <!-- A: shares center with V, right leg becomes arrow -->
+  <!-- Left stroke of A (overlaps with V right stroke) -->
+  <polygon points="120,48 152,48 204,186 172,186" fill="#ede631"/>
+
+  <!-- Right stroke of A + arrow as unified shape -->
+  <path d="
+    M 172,186
+    L 204,186
+    L 240,100
+    L 240,124
+    L 278,86
+    L 240,48
+    L 240,72
+    L 222,72
+    Z
+  " fill="#ede631"/>
+
+  <!-- A crossbar (green cutout) -->
+  <polygon points="146,130 158,160 216,160 204,130" fill="#114a38"/>
+</svg>

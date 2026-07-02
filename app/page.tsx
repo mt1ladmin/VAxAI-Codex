@@ -222,9 +222,7 @@ function PhotoCard({
 function MiniLogo() {
   return (
     <a href="#top" className="flex items-center gap-2 font-semibold text-paper">
-      <span className="grid h-6 w-6 place-items-center rounded-full bg-acid text-[11px] font-bold text-ink">
-        VA
-      </span>
+      <img src="/logo.svg" alt="VAxAI" className="h-6 w-auto" />
       <span className="text-sm tracking-tight">VAxAI</span>
     </a>
   );

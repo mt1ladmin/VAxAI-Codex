@@ -30,9 +30,7 @@ export default function SiteNav({ variant = "dark" }: Props) {
     <nav className="relative mx-auto flex max-w-6xl items-center justify-between py-1">
       {/* Logo */}
       <a href="/" className={`flex items-center gap-2 font-semibold ${isDark ? "text-paper" : "text-gray-900"}`}>
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-[#f5f274] text-[11px] font-bold text-[#111111]">
-          VA
-        </span>
+        <img src="/logo.svg" alt="VAxAI" className="h-6 w-auto" />
         <span className="text-sm tracking-tight">VAxAI</span>
       </a>
 

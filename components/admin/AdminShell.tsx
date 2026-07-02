@@ -127,9 +127,7 @@ export default function AdminShell({
         <div className={`flex h-14 items-center border-b border-white/10 px-3 ${open ? "justify-between" : "justify-center"}`}>
           {open && (
             <Link href={homeHref} className="flex items-center gap-2.5">
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
-                VA
-              </span>
+              <img src="/logo.svg" alt="VAxAI" className="h-7 w-auto" />
               <div className="leading-none">
                 <span className="block text-sm font-semibold text-white">VAxAI</span>
                 <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/40">Studio</span>
@@ -138,9 +136,7 @@ export default function AdminShell({
           )}
           {!open && (
             <Link href={homeHref}>
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
-                VA
-              </span>
+              <img src="/logo.svg" alt="VAxAI" className="h-7 w-auto" />
             </Link>
           )}
           {open && (
