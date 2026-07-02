@@ -119,9 +119,17 @@ const caseStudies: CaseStudy[] = [
     closing: "Technology handled the repetitive sorting and organisation, while people remained in control of the decisions that mattered.",
   },
   {
-    title: "More examples coming soon",
-    teaser: "We are adding more client examples to this section. Each one will illustrate a different challenge and how a practical combination of process, automation and human support helped resolve it.",
-    placeholder: true,
+    title: "How we helped a team scale without growing admin",
+    teaser: "As a business expanded, different team members had developed their own ways of managing clients, files and daily tasks. There was no consistent process, which made it difficult to hand work over or maintain quality as the team grew.",
+    paragraphs: [
+      "We reviewed their existing workflows, documented key processes and introduced practical automations alongside clear guidance for the team.",
+    ],
+    results: [
+      "Consistent ways of working across the business",
+      "Faster onboarding of new staff",
+      "Reduced reliance on individual team members",
+      "More confidence that work wouldn't fall through the cracks",
+    ],
   },
 ];
 
@@ -513,7 +521,7 @@ export default function Home() {
           <SectionTitle
             light
             title="Real results from working with VAxAI"
-            copy="Every client challenge is different. Here are some examples of how we have helped organisations reduce admin, create clarity and keep work moving."
+            copy="Every organisation works differently, but the goal is always the same: less admin, clearer processes and more time for the work that matters. Here are a few examples of how we've helped clients achieve that."
             narrow
           />
           {/* 3-col layout: left cards | centre image | right cards */}
@@ -573,11 +581,9 @@ export default function Home() {
                   <span className="mb-3 text-[10px] font-bold text-acid/70">04</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
                   <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  {!study.placeholder && (
-                    <button type="button" onClick={() => setOpenCase(3)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                      Click to see the results →
-                    </button>
-                  )}
+                  <button type="button" onClick={() => setOpenCase(3)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
+                    Click to see the results →
+                  </button>
                 </div>
               </article>
             ); })()}
@@ -636,7 +642,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="px-4 pb-20 md:px-8">
+      <section id="pricing" className="px-4 pb-20 pt-12 md:px-8 md:pt-16">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Three ways to work with us"
@@ -765,7 +771,7 @@ export default function Home() {
               {previewPosts.map((post) => (
                 <motion.a
                   key={post.id}
-                  href={`/posts/${post.slug}`}
+                  href={`/posts/${encodeURIComponent(post.slug)}`}
                   {...reveal}
                   className="group flex flex-col overflow-hidden rounded-md border border-ink/10 bg-white transition hover:shadow-[0_8px_30px_rgba(17,17,17,0.1)]"
                 >
