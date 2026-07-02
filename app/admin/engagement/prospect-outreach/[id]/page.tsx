@@ -584,11 +584,27 @@ function ProspectFinderDetailContent() {
                 onClick={() => setStatusDropdownOpen((v) => !v)}
                 className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40"
               >
-                <span className="text-[#111111]">{record.engagement_status || "Select status"}</span>
+                <span className="text-[#111111]">{record.engagement_status || "Not assigned"}</span>
                 <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {statusDropdownOpen && (
                 <div className="absolute z-30 mt-1 w-full min-w-[14rem] overflow-hidden rounded-xl border border-[#111111]/15 bg-white shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusDropdownOpen(false);
+                      if (record.engagement_status) {
+                        setRecord((prev) => (prev ? { ...prev, engagement_status: "" as FinderEngagementStatus } : prev));
+                        void patchWorkflow({ engagement_status: null });
+                      }
+                    }}
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
+                      !record.engagement_status ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#6f6b62]"
+                    }`}
+                  >
+                    <span className="flex-1">Not assigned</span>
+                    {!record.engagement_status && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+                  </button>
                   {FINDER_ENGAGEMENT_STATUSES.map((s) => (
                     <button
                       key={s}

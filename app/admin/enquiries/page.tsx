@@ -572,6 +572,16 @@ export default function EnquiriesPage() {
                         </button>
                         {statusMenuId === e.id && (
                           <div className="absolute left-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
+                            <button
+                              type="button"
+                              onClick={() => void updateStatus(e.id, "")}
+                              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-[#f7f4ea] ${
+                                isUnreviewedEnquiry(e.status) ? "font-semibold text-[#063b32]" : "text-[#6f6b62]"
+                              }`}
+                            >
+                              <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
+                              Needs review
+                            </button>
                             {ENQUIRY_STATUS_OPTIONS.map((s) => (
                               <button
                                 key={s.key}

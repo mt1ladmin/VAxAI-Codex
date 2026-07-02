@@ -111,7 +111,7 @@ export async function PATCH(req: NextRequest) {
     overrides?: Partial<ProspectOutreachRecord>;
     review_notes?: string | null;
     assigned_team_member_id?: string | null;
-    engagement_status?: string;
+    engagement_status?: string | null;
     opportunity_description?: string | null;
     next_action?: string | null;
     next_action_date?: string | null;
@@ -163,10 +163,13 @@ export async function PATCH(req: NextRequest) {
     );
   }
   if (body.engagement_status !== undefined) {
-    if (!isFinderEngagementStatus(body.engagement_status)) {
+    if (body.engagement_status === null || body.engagement_status === "") {
+      upsertPayload.engagement_status = null;
+    } else if (!isFinderEngagementStatus(body.engagement_status)) {
       return NextResponse.json({ error: "Invalid engagement_status" }, { status: 400 });
+    } else {
+      upsertPayload.engagement_status = body.engagement_status;
     }
-    upsertPayload.engagement_status = body.engagement_status;
   }
   if (body.opportunity_description !== undefined) {
     upsertPayload.opportunity_description = body.opportunity_description;

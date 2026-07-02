@@ -56,7 +56,7 @@ export function StatusSelect({
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${triggerColor}`}
         >
-          {value || "Select status"}
+          {value || "Needs review"}
         </span>
         {loading ? (
           <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#6f6b62]" />
@@ -68,6 +68,17 @@ export function StatusSelect({
       </button>
       {open && (
         <div className="absolute z-30 mt-1 max-h-64 w-full min-w-[12rem] overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg">
+          <button
+            type="button"
+            onClick={() => handleSelect("")}
+            className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
+              !value ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"
+            }`}
+          >
+            <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
+            <span className="flex-1">Needs review</span>
+            {!value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+          </button>
           {PROSPECT_QUEUE_STATUSES.map((status) => (
             <button
               key={status}

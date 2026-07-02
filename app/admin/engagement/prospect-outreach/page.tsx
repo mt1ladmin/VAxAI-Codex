@@ -253,7 +253,7 @@ export default function ProspectFinderPage() {
       : undefined;
     setProspects((prev) => prev.map((p) => p.id !== id ? p : {
       ...p,
-      ...(updates.engagement_status !== undefined ? { engagement_status: updates.engagement_status as FinderEngagementStatus } : {}),
+      ...(updates.engagement_status !== undefined ? { engagement_status: (updates.engagement_status ?? "") as FinderEngagementStatus } : {}),
       ...(assigneeName !== undefined ? { assigned_team_member_id: updates.assigned_team_member_id as string | null, assigned_team_member_name: assigneeName } : {}),
       ...(updates.next_action !== undefined ? { next_action: updates.next_action as string | null } : {}),
     }));
@@ -304,6 +304,26 @@ export default function ProspectFinderPage() {
   };
 
   const totalPages = meta?.total_pages ?? 1;
+
+  const hasActiveFilters = Boolean(
+    search || region || needScore || confidence || orgType || assignedTo || engagementStatus || myProspects,
+  );
+
+  const clearFilters = () => {
+    setSearchInput("");
+    updateParams({
+      q: null,
+      region: null,
+      need_score: null,
+      confidence: null,
+      type: null,
+      assigned_to: null,
+      engagement_status: null,
+      my_prospects: null,
+      unassigned: null,
+      page: null,
+    });
+  };
 
   const memberOptions = useMemo(
     () => [{ value: "", label: "All assignees" }, ...teamMembers.map((m) => ({ value: m.id, label: m.display_name }))],
@@ -429,6 +449,15 @@ export default function ProspectFinderPage() {
               ...FINDER_ENGAGEMENT_STATUSES.map((s) => ({ value: s, label: s })),
             ]}
           />
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-xs font-medium text-[#063b32] hover:underline"
+            >
+              Clear filters
+            </button>
+          )}
           {isPlatformAdmin && selectedIds.size > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-[#6f6b62]">{selectedIds.size} selected</span>
@@ -578,6 +607,13 @@ export default function ProspectFinderPage() {
                         </button>
                         {statusMenuId === p.id && (
                           <div className="absolute left-0 top-full z-20 mt-1 w-52 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
+                            <button
+                              type="button"
+                              onClick={() => { void patchProspect(p.id, { engagement_status: null }); setStatusMenuId(null); }}
+                              className={`w-full px-3 py-2 text-left text-xs hover:bg-[#f7f4ea] ${!p.engagement_status ? "font-semibold text-[#063b32]" : "text-[#6f6b62]"}`}
+                            >
+                              Not assigned
+                            </button>
                             {FINDER_ENGAGEMENT_STATUSES.map((s) => (
                               <button
                                 key={s}
