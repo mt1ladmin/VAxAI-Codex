@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
+import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 
 const image = {
@@ -816,60 +817,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-ink/10 px-4 py-16 md:px-8 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-12 flex items-center gap-3 text-2xl font-semibold">
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm text-acid">VA</span>
-            <span>VAxAI</span>
-          </div>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-10 text-sm sm:grid-cols-3 lg:grid-cols-5">
-            <div>
-              <p className="mb-5 font-semibold">Services</p>
-              <div className="grid gap-4 text-muted">
-                <a href="#pricing">Assess</a>
-                <a href="#pricing">Assess &amp; Implement</a>
-                <a href="#pricing">Assess, Implement &amp; Support</a>
-              </div>
-            </div>
-            <div>
-              <p className="mb-5 font-semibold">Company</p>
-              <div className="grid gap-4 text-muted">
-                <a href="#experts">About</a>
-                <a href="https://www.mt1l.com" target="_blank" rel="noreferrer">MT1L</a>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Contact</button>
-              </div>
-            </div>
-            <div>
-              <p className="mb-5 font-semibold">Support</p>
-              <div className="grid gap-4 text-muted">
-                <a href="#faq">FAQ</a>
-                <a href="#access-to-work">Access to Work</a>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Workflow consultation</button>
-              </div>
-            </div>
-            <div>
-              <p className="mb-5 font-semibold">Insights</p>
-              <div className="grid gap-4 text-muted">
-                <a href="/insights">Insights &amp; Resources</a>
-                <a href="/#vat-framework">VAT Framework</a>
-              </div>
-            </div>
-            <div>
-              <p className="mb-5 font-semibold">Legal</p>
-              <div className="grid gap-4 text-muted">
-                <a href="/privacy">Privacy</a>
-                <a href="/terms">Terms</a>
-                <a href="/edi-policy">EDI &amp; Social Mobility</a>
-                <a href="/ai-use-policy">AI Use</a>
-                <a href="/admin/login" className="mt-1 w-fit text-xs text-muted/50 hover:text-muted">VAxAI Studio</a>
-              </div>
-            </div>
-          </div>
-          <div className="mt-14 border-t border-ink/10 pt-6 text-xs text-muted">
-            © {new Date().getFullYear()} VAxAI, a service by MT1L. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       {isContactModalOpen ? (
         <div
