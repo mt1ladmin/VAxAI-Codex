@@ -785,8 +785,8 @@ export default function Home() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Insights &amp; Resources</p>
               <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-                Our insights cover practical approaches to AI, automation and admin, written for people who want clarity, not jargon.
-                If something resonates, you can attach it to your enquiry when you get in touch.
+                Our insights cover practical approaches to AI, automation and admin. If something
+                resonates, you can attach it to your enquiry when you get in touch.
               </p>
             </div>
             <a href="/insights" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-md border border-ink/15 px-4 py-2.5 text-sm font-semibold text-ink md:mt-0">
