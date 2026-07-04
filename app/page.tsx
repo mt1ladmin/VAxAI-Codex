@@ -756,6 +756,14 @@ export default function Home() {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
             <h2 className="mt-3 text-3xl font-semibold leading-[1.08] md:text-5xl">Questions about VAxAI?</h2>
             <p className="mt-5 text-sm leading-6 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
+            <button
+              type="button"
+              onClick={() => setIsContactModalOpen(true)}
+              className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
+            >
+              Book a discovery call
+              <MailCheck className="h-4 w-4" />
+            </button>
           </motion.div>
           <motion.div {...reveal} className="divide-y divide-ink/10 rounded-md border border-ink/10 bg-white">
             {faqs.map(([question, answer]) => (
@@ -816,23 +824,6 @@ export default function Home() {
               ))}
             </div>
           )}
-        </div>
-      </section>
-
-      <section className="px-4 pb-16 md:px-8">
-        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-[0_14px_45px_rgba(17,17,17,0.05)] md:grid-cols-[1fr_0.85fr]">
-          <div className="p-8 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI support to book</p>
-            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] text-ink md:text-5xl">Admin support that can grow with you</h2>
-            <p className="mt-5 max-w-lg text-sm leading-6 text-muted">Start with a workflow call and leave with a clearer sense of what should be automated, what should stay human, and what support your small business or charity actually needs.</p>
-            <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
-              Book a discovery call
-              <MailCheck className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="bg-cream p-3 md:p-4">
-            <PhotoCard src={image.cta} className="min-h-[320px] rounded-md" />
-          </div>
         </div>
       </section>
 
