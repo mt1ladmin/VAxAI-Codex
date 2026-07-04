@@ -77,7 +77,7 @@ export default function AiUsePolicyPage() {
 
       <h2>Fairness and inclusion</h2>
       <p>
-        We review our AI-assisted work to reduce the risk of unfair, biased or misleading output. AI can reflect and amplify historical bias if trained on data that contains stereotypes or structural inequalities, so we apply human oversight to catch and correct this. This sits alongside our broader commitment to EDI and social mobility — the same questions we ask about any change apply here: who benefits, who might be left out, and who carries any risk. See our <a href="/edi-policy">EDI &amp; Social Mobility Policy</a> for more.
+        We review our AI-assisted work to reduce the risk of unfair, biased or misleading output. AI can reflect and amplify historical bias if trained on data that contains stereotypes or structural inequalities, so we apply human oversight to catch and correct this. This sits alongside our broader commitment to Justice, Equity and Fairness (JEF). The same questions we ask about any change apply here: who benefits, who might be left out, and who carries any risk. See our <a href="/edi-policy">JEF Policy</a> for more.
       </p>
 
       <h2>The VAT Framework and our AI use</h2>

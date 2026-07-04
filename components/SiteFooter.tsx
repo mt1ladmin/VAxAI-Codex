@@ -55,7 +55,7 @@ export default function SiteFooter() {
               <div className="grid gap-4 text-gray-500">
                 <a href="/privacy" className="hover:text-gray-900">Privacy</a>
                 <a href="/terms" className="hover:text-gray-900">Terms</a>
-                <a href="/edi-policy" className="hover:text-gray-900">EDI &amp; Social Mobility</a>
+                <a href="/edi-policy" className="hover:text-gray-900">JEF Policy</a>
                 <a href="/ai-use-policy" className="hover:text-gray-900">AI Use</a>
                 <a href="/admin/login" className="mt-1 text-xs text-gray-400 hover:text-gray-500">VAxAI Studio</a>
               </div>

@@ -158,7 +158,6 @@ const plans = [
       "We review your admin workload, processes, tools and team capacity to identify where pressure is building and what type of support or improvement would make the greatest difference.",
     ],
     items: [
-      "VAT Framework review",
       "Admin, workflow and capacity review",
       "AI, automation and process opportunities",
       "Risks, gaps and priorities",
