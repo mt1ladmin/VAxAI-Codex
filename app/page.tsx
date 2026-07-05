@@ -137,14 +137,14 @@ const caseStudies: CaseStudy[] = [
 const experts = [
   {
     name: "Thesia Kouloungou",
-    role: "AI & Workflow Lead",
-    copy: "Hi, I am the founder and CEO of MT1L and VAxAI. I lead our AI consultations and workflow reviews, helping you decide where automation creates meaningful value, where it does not, and what needs human judgement.",
+    role: "Founder and CEO, MT1L and VAxAI",
+    copy: "Hi, I’m Thesia. I lead our AI consultations and workflow reviews, using the VAT Framework™ to help you make clearer decisions about AI, automation and the way work gets done. My role is to help you see where AI can genuinely help, where existing tools and workflows could work better, and where human judgement should remain central.",
     photo: image.thesia,
   },
   {
     name: "Rebecca Bradshaw",
-    role: "Virtual Assistance Lead",
-    copy: "Hi, I am Rebecca. I lead the virtual assistance side of VAxAI, taking care of the tasks that should not be left to AI and helping monitor your automations so everything works as it should. When extra capacity is needed, I help coordinate trained and vetted VA partners who understand your setup.",
+    role: "Co-founder and VA Operations Lead",
+    copy: "Hi, I’m Rebecca. I lead the virtual assistance side of VAxAI, helping you put the right human support around the work that should not be left to AI. That includes keeping tasks, follow-ups and processes moving, and monitoring automations so they continue to work as intended. When additional capacity is needed, I help with the VA recruitment, vetting and onboarding process.",
     photo: image.rebecca,
   },
 ];
