@@ -144,7 +144,7 @@ const experts = [
   {
     name: "Rebecca Bradshaw",
     role: "Co-founder and VA Operations Lead",
-    copy: "Hi, I’m Rebecca. I lead the virtual assistance side of VAxAI, helping clients put the right human support around the work that should not be left to AI and automation. That includes keeping tasks, follow-ups and processes moving, and monitoring automations so they continue to work as intended. When additional capacity is needed, I help with the VA recruitment, vetting and onboarding process.",
+    copy: "Hi, I’m Rebecca. I lead the virtual assistance side of VAxAI, helping you put the right human support around the work that should not be left to AI. That includes keeping tasks, follow-ups and processes moving, and monitoring automations so they continue to work as intended. When additional capacity is needed, I help with the VA recruitment, vetting and onboarding process.",
     photo: image.rebecca,
   },
 ];
