@@ -10,6 +10,11 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 
+// Render on every request so studio edits (updated cover images, body and
+// other published content) appear immediately instead of being frozen at
+// build time.
+export const dynamic = "force-dynamic";
+
 type Post = {
   id: string;
   title: string;

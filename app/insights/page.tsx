@@ -4,6 +4,11 @@ import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import ContentGrid from "@/components/posts/ContentGrid";
 
+// Render on every request so studio edits (new posts, updated cover images,
+// tags and other published content) appear immediately instead of being
+// frozen at build time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Insights | VAxAI",
   description: "Insights, guides and resources from the VAxAI team on admin, automation and working smarter.",
