@@ -693,14 +693,6 @@ export default function Home() {
                       <p key={paragraph}>{paragraph}</p>
                     ))}
                   </div>
-                  <ul className="mt-8 space-y-3 border-t border-ink/10 pt-6 text-sm">
-                  {plan.items.map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
                 {plan.featured ? (
                   <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper">
                     Book a discovery call
