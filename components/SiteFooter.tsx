@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import PublicContactModal from "@/components/PublicContactModal";
+import NewsletterForm from "@/components/NewsletterForm";
+import CookieSettingsButton from "@/components/CookieSettingsButton";
 
 export default function SiteFooter() {
   const [contactOpen, setContactOpen] = useState(false);
@@ -10,12 +12,13 @@ export default function SiteFooter() {
     <>
       <footer className="border-t border-gray-200 bg-white px-4 py-16 md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-12 flex items-center gap-3 text-2xl font-semibold text-gray-900">
+          <div className="mb-4 flex items-center gap-3 text-2xl font-semibold text-gray-900">
             <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274]">
               VA
             </span>
             <span>VAxAI</span>
           </div>
+          <NewsletterForm />
 
           <div className="grid grid-cols-2 gap-x-8 gap-y-10 text-sm sm:grid-cols-3 lg:grid-cols-5">
             <div>
@@ -57,6 +60,7 @@ export default function SiteFooter() {
                 <a href="/terms" className="hover:text-gray-900">Terms</a>
                 <a href="/edi-policy" className="hover:text-gray-900">JEF Policy</a>
                 <a href="/ai-use-policy" className="hover:text-gray-900">AI Use</a>
+                <CookieSettingsButton />
                 <a href="/admin/login" className="mt-1 text-xs text-gray-400 hover:text-gray-500">VAxAI Studio</a>
               </div>
             </div>

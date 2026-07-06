@@ -138,6 +138,58 @@ html.simplified-mode .simplified-photo {
 }
 html.simplified-mode img { filter: grayscale(1) contrast(1.25) !important; }
 
+/* Cookie consent banner and newsletter popup stay styled in all accessibility modes */
+html.simplified-mode .cookie-banner__backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+html.simplified-mode .cookie-banner__backdrop *,
+html.simplified-mode .cookie-banner__backdrop *::before,
+html.simplified-mode .cookie-banner__backdrop *::after {
+  background-color: transparent !important;
+  color: #111111 !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+  box-shadow: none !important;
+}
+html.simplified-mode .cookie-banner__panel {
+  background-color: #ffffff !important;
+}
+html.simplified-mode .cookie-banner__btn-primary {
+  background-color: #063b32 !important;
+  color: #ffffff !important;
+  border-color: #063b32 !important;
+}
+html.simplified-mode .cookie-banner__btn-primary * { color: #ffffff !important; }
+html.simplified-mode .cookie-banner__btn-secondary {
+  background-color: transparent !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+html.simplified-mode .newsletter-popup__backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+html.simplified-mode .newsletter-popup__backdrop *,
+html.simplified-mode .newsletter-popup__backdrop *::before,
+html.simplified-mode .newsletter-popup__backdrop *::after {
+  background-color: transparent !important;
+  color: #111111 !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  box-shadow: none !important;
+}
+html.simplified-mode .newsletter-popup__panel {
+  background-color: #ffffff !important;
+  border: 2px solid #000 !important;
+}
+html.simplified-mode .newsletter-popup__btn {
+  background-color: #063b32 !important;
+  color: #ffffff !important;
+}
+html.simplified-mode .newsletter-popup__btn * { color: #ffffff !important; }
+html.simplified-mode .newsletter-popup__input {
+  background-color: #ffffff !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+
 /* Accessibility panel stays fully legible in all modes */
 html.simplified-mode .simplified-toggle,
 html.simplified-mode .simplified-toggle *,

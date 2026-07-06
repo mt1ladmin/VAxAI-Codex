@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <PolicyPage title="Privacy Policy" lastUpdated="June 2025">
+    <PolicyPage title="Privacy Policy" lastUpdated="July 2026">
       <h2>Who we are</h2>
       <p>
         VAxAI is a service provided by MT1L. MT1L (&ldquo;MT1L&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is the data controller for the personal information described in this policy. We handle it in line with UK data protection law, including the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
@@ -46,11 +46,38 @@ export default function PrivacyPolicyPage() {
       </p>
       <p><em>Basis: Performance of Contract; Legitimate Interests.</em></p>
 
+      <h3>When you sign up to our newsletter</h3>
+      <p>
+        If you sign up to our newsletter — whether through the form in the footer or the sign-up prompt on the site — we collect your email address (and, where you choose to provide it, your name) to send you VAxAI insights, practical admin support thinking and relevant updates about our work.
+      </p>
+      <p>
+        We will only add you to the list after you actively submit your email address. No pre-selected opt-ins are used. Every newsletter email includes a clear link to unsubscribe. Alternatively, you can ask us to remove you at any time by emailing <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
+      </p>
+      <p><em>Basis: Consent.</em> Withdrawal of consent does not affect the lawfulness of any processing carried out before you withdrew it.</p>
+
       <h3>VAxAI Studio</h3>
       <p>
         VAxAI Studio is the platform used by the VAxAI team to manage client engagements, content and internal operations. If you have Studio access, we process your login credentials and usage activity to operate and secure the platform.
       </p>
       <p><em>Basis: Performance of Contract; Legitimate Interests (platform security and operation).</em></p>
+
+      <h3>Website analytics</h3>
+      <p>
+        Where you consent to analytics cookies, we collect limited, privacy-friendly analytics about how the site is used, such as aggregate page views. This does not identify you, and we do not use advertising or cross-site tracking. Analytics are only activated after you have accepted them in the cookie preference panel. <em>Basis: Consent.</em>
+      </p>
+
+      <h3>Cookies and browser storage</h3>
+      <p>
+        We use cookies and similar browser storage to make this website work and to understand how it is used. When you first visit the site, a cookie preference panel explains the categories in use and allows you to choose what you are comfortable with. You can revisit your preferences at any time using the <strong>Cookie settings</strong> link in the footer.
+      </p>
+      <ul>
+        <li><strong>Strictly necessary</strong> — Required for core functions such as security, session management, and storing your accessibility and cookie preferences. These are always active and cannot be disabled. <em>No separate consent required.</em></li>
+        <li><strong>Analytics</strong> — Where you consent, we use Vercel Analytics to collect anonymised, aggregate data about how pages are used. No individual is identified and no advertising network receives this data. <em>Basis: Consent.</em></li>
+        <li><strong>Marketing and communications</strong> — Where you consent, we may use information about your use of the site to tailor newsletter communications and measure their effectiveness. <em>Basis: Consent.</em></li>
+      </ul>
+      <p>
+        Your cookie preferences are stored in your browser&rsquo;s local storage (not a server-set cookie) so that the preference panel does not reappear on every visit. No personal information is sent to us as part of this storage.
+      </p>
 
       <h3>Legal obligation</h3>
       <p>We may also need to process information in any of the above contexts to comply with a legal obligation to which we are subject.</p>
@@ -66,6 +93,12 @@ export default function PrivacyPolicyPage() {
       <p>
         We use third-party service providers to support our operations. A limited amount of your information may be processed by those providers on our behalf. We do not sell your data or share it with third parties for their own purposes.
       </p>
+      <p>These may include:</p>
+      <ul>
+        <li>privacy-friendly website analytics (only where you have consented);</li>
+        <li>transactional email delivery, if you subscribe to our newsletter; and</li>
+        <li>AI processing where we use it in our work (see our <a href="/ai-use-policy">AI Use Policy</a>).</li>
+      </ul>
       <p>
         Some providers may be based outside the UK or European Economic Area. Where this is the case, we ensure appropriate safeguards are in place in line with UK GDPR — for example, standard contractual clauses or equivalent protections. Contact us if you would like further detail.
       </p>
@@ -77,6 +110,7 @@ export default function PrivacyPolicyPage() {
         <li><strong>Client data</strong> — for the duration of the engagement and then five years.</li>
         <li><strong>B2B research records</strong> — reviewed regularly; removed when no longer relevant, when contact has concluded, or when you ask us to stop.</li>
         <li><strong>Studio access data</strong> — for the duration of access and a reasonable period after it ends.</li>
+        <li><strong>Newsletter subscriber data</strong> — for as long as you remain subscribed. On unsubscribing, your email address will be removed within 30 days.</li>
       </ul>
 
       <h2>Your rights</h2>

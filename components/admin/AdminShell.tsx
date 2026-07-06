@@ -102,7 +102,11 @@ export default function AdminShell({
   const isActive = (href: string) =>
     exactMatchRoutes.has(href) ? pathname === href : pathname.startsWith(href);
 
-  const isContentActive = pathname.startsWith("/admin/posts") || pathname.startsWith("/admin/calendar") || pathname.startsWith("/admin/authors");
+  const isContentActive =
+    pathname.startsWith("/admin/posts") ||
+    pathname.startsWith("/admin/calendar") ||
+    pathname.startsWith("/admin/authors") ||
+    pathname.startsWith("/admin/newsletter");
 
   const shell = (
     <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
@@ -287,7 +291,7 @@ export default function AdminShell({
           </div>
         )}
 
-        {(pathname === "/admin/calendar" || pathname === "/admin/posts" || pathname === "/admin/authors" || pathname === "/admin/create-content") && (
+        {(pathname === "/admin/calendar" || pathname === "/admin/posts" || pathname === "/admin/authors" || pathname === "/admin/create-content" || pathname === "/admin/newsletter") && (
           <div className="sticky top-[41px] z-20 border-b border-[#111111]/10 bg-white px-4 py-3 md:top-0 md:px-8">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="font-semibold text-[#111111]">Content Hub</span>
@@ -331,6 +335,16 @@ export default function AdminShell({
                   }`}
                 >
                   Authors
+                </Link>
+                <Link
+                  href="/admin/newsletter"
+                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
+                    pathname.startsWith("/admin/newsletter")
+                      ? "bg-[#063b32] text-white"
+                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  }`}
+                >
+                  Newsletter
                 </Link>
               </div>
             </div>

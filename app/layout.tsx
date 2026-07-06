@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import CookieConsent from "@/components/CookieConsent";
+import NewsletterPopup from "@/components/NewsletterPopup";
+import AnalyticsConsent from "@/components/AnalyticsConsent";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <CookieConsent />
+        <NewsletterPopup />
+        {process.env.NODE_ENV === "production" && <AnalyticsConsent />}
+      </body>
     </html>
   );
 }
