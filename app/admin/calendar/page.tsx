@@ -344,6 +344,7 @@ type ConnectedScheduleEntry = {
 
 type ConnectedDisplayItem = SocialPostPreview & {
   pending: boolean;
+  scheduled: boolean;
   scheduleEntry?: ConnectedScheduleEntry;
   posted?: boolean;
 };
@@ -376,6 +377,7 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
       link: `/admin/posts/${post.id}`,
       pending: !post.linkedin_posted_at,
       posted: !!post.linkedin_posted_at,
+      scheduled: false,
     });
   }
   if (post.instagram_caption?.trim() && !existingPlatforms.has("instagram")) {
@@ -388,6 +390,7 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
       link: `/admin/posts/${post.id}`,
       pending: !post.instagram_posted_at,
       posted: !!post.instagram_posted_at,
+      scheduled: false,
     });
   }
   if (post.sharing_caption?.trim()) {
@@ -400,6 +403,7 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
       link: `/admin/posts/${post.id}`,
       pending: !post.sharing_posted_at,
       posted: !!post.sharing_posted_at,
+      scheduled: false,
     });
   }
   return out;
@@ -418,18 +422,17 @@ function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): Con
       { key: "share", label: "Share text" },
     ];
 
-    const pendingEntries: ConnectedScheduleEntry[] = [];
+    const trackerEntries: ConnectedScheduleEntry[] = [];
     for (const { key, label } of inlinePlatforms) {
       const body = inlineBodyForPlatform(post, key);
       if (!body) continue;
       if (inlinePostedAt(post, key)) continue;
       if (linkedByPlatform.has(key as SocialPost["platform"])) continue;
-      pendingEntries.push({ post, kind: "inline", platform: key, label, preview: body });
+      trackerEntries.push({ post, kind: "inline", platform: key, label, preview: body });
     }
     for (const social of linked) {
       if (social.posted_at) continue;
-      if (social.scheduled_date?.trim()) continue;
-      pendingEntries.push({
+      trackerEntries.push({
         post,
         social,
         kind: "social",
@@ -439,46 +442,47 @@ function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): Con
       });
     }
 
-    const hasConnectedCopy =
-      !!post.linkedin_post?.trim() ||
-      !!post.instagram_caption?.trim() ||
-      !!post.sharing_caption?.trim() ||
-      linked.length > 0;
+    if (trackerEntries.length === 0) continue;
 
-    if (!hasConnectedCopy || pendingEntries.length === 0) continue;
-
-    const pendingByKey = new Map(
-      pendingEntries.map((e) => [`${e.kind}-${e.social?.id ?? e.platform}`, e]),
+    const entryByKey = new Map(
+      trackerEntries.map((e) => [`${e.kind}-${e.social?.id ?? e.platform}`, e]),
     );
 
-    const displayItems: ConnectedDisplayItem[] = linked.map((social) => {
-      const isPending = !social.posted_at && !social.scheduled_date?.trim();
-      const entry = pendingByKey.get(`social-${social.id}`);
-      return {
+    const displayItems: ConnectedDisplayItem[] = [];
+
+    for (const social of linked) {
+      if (social.posted_at) continue;
+      const entry = entryByKey.get(`social-${social.id}`);
+      displayItems.push({
         id: social.id,
         title: social.title,
         platform: social.platform,
         content: social.content || social.description || "",
         scheduled_date: social.scheduled_date,
         link: social.link,
-        pending: isPending,
-        posted: !!social.posted_at,
-        scheduleEntry: entry,
-      };
-    });
-
-    for (const inline of buildInlineSocialPreview(post, new Set(linked.map((s) => s.platform)))) {
-      const entry = pendingByKey.get(`inline-${inline.platform}`);
-      displayItems.push({
-        ...inline,
+        pending: true,
+        posted: false,
+        scheduled: hasValidDate(social.scheduled_date),
         scheduleEntry: entry,
       });
     }
 
+    for (const inline of buildInlineSocialPreview(post, new Set(linked.map((s) => s.platform)))) {
+      if (inline.posted) continue;
+      const entry = entryByKey.get(`inline-${inline.platform}`);
+      displayItems.push({
+        ...inline,
+        scheduled: false,
+        scheduleEntry: entry,
+      });
+    }
+
+    if (displayItems.length === 0) continue;
+
     groups.push({
       post,
       items: displayItems,
-      pendingCount: pendingEntries.length,
+      pendingCount: displayItems.length,
     });
   }
 
@@ -833,13 +837,14 @@ function ConnectedItemActions({
 }) {
   const entry = item.scheduleEntry;
   const isShareText = item.platform === "share";
+  const needsSchedule = !item.scheduled && !isShareText;
   const [date, setDate] = useState("");
 
-  if (!item.pending || !entry) return null;
+  if (item.posted || !entry) return null;
 
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-      {!isShareText && (
+      {needsSchedule && (
         <>
           <input
             type="datetime-local"
@@ -862,7 +867,7 @@ function ConnectedItemActions({
         type="button"
         onClick={(e) => { e.stopPropagation(); onMarkPosted(entry); }}
         disabled={busy}
-        className="rounded-md border border-gray-200 px-2 py-1 text-[10px] font-semibold text-gray-600 hover:border-gray-400 disabled:opacity-40"
+        className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
       >
         Mark as posted
       </button>
@@ -913,8 +918,9 @@ function ConnectedPostCard({
       </button>
 
       {items.length > 0 && (
-        <div className="space-y-1.5 px-3 py-2.5">
+        <div className="px-3 py-2.5">
           <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-gray-400">Connected posts</p>
+          <div className="mt-1.5 max-h-44 space-y-1.5 overflow-y-auto pr-0.5">
           {items.map((item) => {
             const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
             const isShare = item.platform === "share";
@@ -922,18 +928,17 @@ function ConnectedPostCard({
             return (
               <div
                 key={item.id}
-                className={`group/item relative rounded-md border px-2.5 py-2 ${platformChipClasses(item.platform, { posted: item.posted })} border-current/10`}
+                className={`group/item relative rounded-md border px-2.5 py-2 ${platformChipClasses(item.platform)} border-current/10`}
               >
                 <div className="flex items-center gap-1.5">
                   <span className={`grid h-5 w-5 shrink-0 place-items-center rounded ${isShare ? "bg-gray-100 text-gray-600" : platformChipClasses(item.platform)}`}>
                     {isShare ? <FileText className="h-3 w-3" /> : <info.Icon className="h-3 w-3" />}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-[10px] font-semibold">{item.title}</span>
-                  {item.posted && (
-                    <span className="shrink-0 text-[9px] font-medium text-gray-500">Posted</span>
-                  )}
-                  {item.pending && (
-                    <span className="shrink-0 text-[9px] font-medium text-gray-500">Pending</span>
+                  {item.scheduled ? (
+                    <span className="shrink-0 rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-600">Scheduled</span>
+                  ) : (
+                    <span className="shrink-0 rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-700">Not posted</span>
                   )}
                   {canDelete && (
                     <button
@@ -955,6 +960,7 @@ function ConnectedPostCard({
               </div>
             );
           })}
+          </div>
         </div>
       )}
     </li>
@@ -986,8 +992,10 @@ function SchedulingPanel({
 }) {
   const [tab, setTab] = useState<SchedulingTab>("todo");
 
+  const unpostedConnectedCount = connectedPostGroups.reduce((n, g) => n + g.items.length, 0);
+
   return (
-    <aside className="flex h-full min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
+    <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
       <div className="shrink-0 border-b border-gray-100 px-4 py-3.5">
         <div className="flex w-fit items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
           <button
@@ -1010,18 +1018,18 @@ function SchedulingPanel({
           </button>
         </div>
         <h3 className="mt-3 text-sm font-semibold text-gray-900">
-          {tab === "todo" ? "No date set" : "Connected content to schedule"}
+          {tab === "todo" ? "No date set" : "Posting tracker"}
         </h3>
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
           {tab === "todo"
             ? "Blog drafts and standalone social posts with no date yet. Add a date from the editor or schedule here."
-            : "Published posts whose connected social copy has not been scheduled or posted yet."}
+            : "All connected content still to post. Mark as posted when live, or schedule items without a date. Posted items leave this list."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedPostGroups.length}
+          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : unpostedConnectedCount}
         </span>
       </div>
-      <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-3">
+      <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
         {tab === "todo" ? (
           unscheduledPosts.length === 0 && unscheduledSocial.length === 0 ? (
             <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
@@ -1086,7 +1094,7 @@ function SchedulingPanel({
           )
         ) : connectedPostGroups.length === 0 ? (
           <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-            All connected content has been scheduled or posted
+            All connected content has been posted
           </li>
         ) : (
           connectedPostGroups.map((group) => (
@@ -1584,7 +1592,7 @@ export default function CalendarPage() {
 
         <div className="px-8 py-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-start">
-            <div className="order-2 lg:order-1 lg:sticky lg:top-4">
+            <div className="order-2 lg:order-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-5rem)]">
               <SchedulingPanel
                 unscheduledPosts={unscheduledPosts}
                 unscheduledSocial={unscheduledSocial}
