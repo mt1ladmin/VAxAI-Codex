@@ -41,6 +41,7 @@ type Post = {
   id: string; title: string; description: string; body_html: string;
   cover_image_url: string | null; content_type: string; tags: string[];
   author_id: string | null; slug: string; status: string; scheduled_at: string | null;
+  published_at: string | null;
   sharing_caption: string | null; linkedin_post: string | null;
   instagram_caption: string | null; social_hashtags: string[];
 };
@@ -243,6 +244,8 @@ export default function EditPostPage() {
   const [isPublished, setIsPublished] = useState(false);
   const [postUrl, setPostUrl] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
+  const [publishedAt, setPublishedAt] = useState("");
+  const [publishedAtSaved, setPublishedAtSaved] = useState(false);
   const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
   const [linkedSocial, setLinkedSocial] = useState<LinkedSocialPost[]>([]);
 
@@ -304,6 +307,11 @@ export default function EditPostPage() {
         setSlug(p.slug ?? "");
         setIsPublished(p.status === "published");
         if (p.status === "published") setPostUrl(`${window.location.origin}/posts/${p.slug}`);
+        if (p.published_at) {
+          const dt = new Date(p.published_at);
+          const pad = (n: number) => String(n).padStart(2, "0");
+          setPublishedAt(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`);
+        }
         if (p.status === "scheduled" && p.scheduled_at) {
           const dt = new Date(p.scheduled_at);
           const pad = (n: number) => String(n).padStart(2, "0");
@@ -390,6 +398,25 @@ export default function EditPostPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft, id]);
 
+  const savePublishedAt = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/posts/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          published_at: publishedAt ? new Date(publishedAt).toISOString() : null,
+        }),
+      });
+      if (res.ok) {
+        setPublishedAtSaved(true);
+        setTimeout(() => setPublishedAtSaved(false), 3000);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const save = useCallback(async (status: "draft" | "published" | "scheduled") => {
     setSaving(true);
     // Cancel any pending auto-save
@@ -411,6 +438,7 @@ export default function EditPostPage() {
           slug: slug || slugify(title || "untitled"),
           status,
           scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+          ...(publishedAt ? { published_at: new Date(publishedAt).toISOString() } : {}),
           sharing_caption: socialDraft?.sharing_caption ?? null,
           linkedin_post: socialDraft?.linkedin_post ?? null,
           instagram_caption: socialDraft?.instagram_caption ?? null,
@@ -448,7 +476,7 @@ export default function EditPostPage() {
     } else if (status === "scheduled") {
       showToast("Post scheduled", { label: "View calendar →", href: "/admin/calendar" });
     }
-  }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft, isPublished]);
+  }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, publishedAt, socialDraft, isPublished]);
 
   const deletePost = async () => {
     await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
@@ -919,6 +947,49 @@ export default function EditPostPage() {
                   placeholder="No author assigned"
                   size="sm"
                 />
+              </div>
+
+              {/* Publication date shown on site */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                  Publication date
+                </label>
+                <p className="mb-2 text-[11px] leading-relaxed text-[#6f6b62]/70">
+                  The date shown on the article and across listings. Set this to reflect when the post first went live.
+                </p>
+                <input
+                  type="datetime-local"
+                  value={publishedAt}
+                  onChange={(e) => { setPublishedAt(e.target.value); setPublishedAtSaved(false); }}
+                  className="w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                />
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void savePublishedAt()}
+                    disabled={saving || !publishedAt}
+                    className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 ${publishedAtSaved ? "bg-emerald-50 text-emerald-700" : "bg-[#063b32] text-white hover:opacity-90"}`}
+                  >
+                    {publishedAtSaved ? "Saved" : "Save date"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const now = new Date();
+                      const pad = (n: number) => String(n).padStart(2, "0");
+                      setPublishedAt(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
+                      setPublishedAtSaved(false);
+                    }}
+                    className="text-xs text-[#6f6b62] hover:text-[#063b32]"
+                  >
+                    Use now
+                  </button>
+                </div>
+                {!isPublished && (
+                  <p className="mt-2 text-[10px] text-[#6f6b62]/60">
+                    For a draft, this becomes the publication date when you publish.
+                  </p>
+                )}
               </div>
 
               {/* Publish timing */}
