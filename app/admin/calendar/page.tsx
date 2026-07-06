@@ -832,80 +832,22 @@ function SocialPostDetail({
   );
 }
 
-function ConnectedItemActions({
-  item,
-  onSchedule,
-  onMarkPosted,
-  busy,
-}: {
-  item: ConnectedDisplayItem;
-  onSchedule: (entry: ConnectedScheduleEntry, value: string) => void;
-  onMarkPosted: (entry: ConnectedScheduleEntry) => void;
-  busy: boolean;
-}) {
-  const entry = item.scheduleEntry;
-  const isShareText = item.platform === "share";
-  const needsSchedule = !item.scheduled && !isShareText;
-  const [date, setDate] = useState("");
-
-  if (item.posted || !entry) return null;
-
-  return (
-    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-      {needsSchedule && (
-        <>
-          <input
-            type="datetime-local"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
-            className="rounded-md border border-gray-200 px-2 py-1 text-[10px] text-gray-700 outline-none focus:border-gray-400"
-          />
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onSchedule(entry, date); }}
-            disabled={!date || busy}
-            className="rounded-md bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white hover:bg-gray-800 disabled:opacity-40"
-          >
-            Schedule
-          </button>
-        </>
-      )}
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onMarkPosted(entry); }}
-        disabled={busy}
-        className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
-      >
-        Mark as posted
-      </button>
-    </div>
-  );
-}
-
 function ConnectedPostCard({
   group,
   onSelectPost,
-  onSchedule,
-  onMarkPosted,
-  onDeleteSocial,
-  busy,
 }: {
   group: ConnectedPostGroup;
   onSelectPost: (post: Post) => void;
-  onSchedule: (entry: ConnectedScheduleEntry, value: string) => void;
-  onMarkPosted: (entry: ConnectedScheduleEntry) => void;
-  onDeleteSocial: (id: string) => void;
-  busy: boolean;
 }) {
   const { post, items } = group;
+  const pendingCount = items.length;
 
   return (
-    <li className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <li>
       <button
         type="button"
         onClick={() => onSelectPost(post)}
-        className="block w-full border-b border-gray-100 px-3 py-2.5 text-left transition-colors hover:bg-gray-50"
+        className="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
       >
         {post.cover_image_url ? (
           <div className="mb-2 aspect-[16/7] overflow-hidden rounded-md bg-gray-100">
@@ -919,58 +861,19 @@ function ConnectedPostCard({
         {post.description ? (
           <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-gray-500">{post.description}</p>
         ) : null}
-        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
-          <FileText className="h-2.5 w-2.5" />
-          Published blog post
-        </span>
-      </button>
-
-      {items.length > 0 && (
-        <div className="px-3 py-2.5">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-gray-400">Connected posts</p>
-          <div className="mt-1.5 max-h-44 space-y-1.5 overflow-y-auto pr-0.5">
-          {items.map((item) => {
-            const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
-            const isShare = item.platform === "share";
-            const canDelete = !item.id.startsWith("inline-");
-            return (
-              <div
-                key={item.id}
-                className={`group/item relative rounded-md border px-2.5 py-2 ${platformChipClasses(item.platform)} border-current/10`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className={`grid h-5 w-5 shrink-0 place-items-center rounded ${isShare ? "bg-gray-100 text-gray-600" : platformChipClasses(item.platform)}`}>
-                    {isShare ? <FileText className="h-3 w-3" /> : <info.Icon className="h-3 w-3" />}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate text-[10px] font-semibold">{item.title}</span>
-                  {item.scheduled ? (
-                    <span className="shrink-0 rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-600">Scheduled</span>
-                  ) : (
-                    <span className="shrink-0 rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-700">Not posted</span>
-                  )}
-                  {canDelete && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onDeleteSocial(item.id); }}
-                      aria-label={`Delete ${item.title}`}
-                      className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover/item:opacity-100"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-                {(item.content || item.description) && (
-                  <p className="mt-1 line-clamp-2 whitespace-pre-line text-[10px] leading-relaxed opacity-80">
-                    {item.content || item.description}
-                  </p>
-                )}
-                <ConnectedItemActions item={item} onSchedule={onSchedule} onMarkPosted={onMarkPosted} busy={busy} />
-              </div>
-            );
-          })}
-          </div>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
+            <FileText className="h-2.5 w-2.5" />
+            Published blog post
+          </span>
+          {pendingCount > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
+              <Link2 className="h-2.5 w-2.5" />
+              {pendingCount} to post
+            </span>
+          )}
         </div>
-      )}
+      </button>
     </li>
   );
 }
@@ -981,26 +884,18 @@ function SchedulingPanel({
   connectedPostGroups,
   onSelectPost,
   onSelectSocial,
-  onScheduleConnected,
-  onMarkConnectedPosted,
   onDeletePost,
   onDeleteSocial,
-  connectedBusy,
 }: {
   unscheduledPosts: Post[];
   unscheduledSocial: SocialPost[];
   connectedPostGroups: ConnectedPostGroup[];
   onSelectPost: (post: Post) => void;
   onSelectSocial: (social: SocialPost) => void;
-  onScheduleConnected: (entry: ConnectedScheduleEntry, value: string) => void;
-  onMarkConnectedPosted: (entry: ConnectedScheduleEntry) => void;
   onDeletePost: (post: Post) => void;
   onDeleteSocial: (id: string) => void;
-  connectedBusy: boolean;
 }) {
   const [tab, setTab] = useState<SchedulingTab>("todo");
-
-  const unpostedConnectedCount = connectedPostGroups.reduce((n, g) => n + g.items.length, 0);
 
   return (
     <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
@@ -1031,10 +926,10 @@ function SchedulingPanel({
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
           {tab === "todo"
             ? "Blog drafts and standalone social posts with no date yet. Add a date from the editor or schedule here."
-            : "All connected content still to post. Mark as posted when live, or schedule items without a date. Posted items leave this list."}
+            : "Published posts with connected content still to post. Click a post to view, schedule, or mark connected items as posted."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : unpostedConnectedCount}
+          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedPostGroups.length}
         </span>
       </div>
       <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
@@ -1110,10 +1005,6 @@ function SchedulingPanel({
               key={group.post.id}
               group={group}
               onSelectPost={onSelectPost}
-              onSchedule={onScheduleConnected}
-              onMarkPosted={onMarkConnectedPosted}
-              onDeleteSocial={onDeleteSocial}
-              busy={connectedBusy}
             />
           ))
         )}
@@ -1714,11 +1605,8 @@ export default function CalendarPage() {
                   setActiveSocial(social);
                   setPanelMode("view-social");
                 }}
-                onScheduleConnected={scheduleConnectedEntry}
-                onMarkConnectedPosted={markConnectedEntryPosted}
                 onDeletePost={deleteUnscheduledPost}
                 onDeleteSocial={deleteSocialById}
-                connectedBusy={connectedBusy}
               />
             </div>
 
