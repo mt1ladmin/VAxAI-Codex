@@ -14,7 +14,10 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
+import {
+  SocialPostPreviewModal,
+  type SocialPostPreview,
+} from "@/components/admin/SocialPostPreviewModal";
 
 export type CalendarBlogPreview = {
   id: string;
@@ -160,18 +163,18 @@ const CONNECTED_PLATFORM_META = {
 
 function ConnectedPostRow({
   row,
-  postId,
   busy,
   calendarDay,
   onSchedule,
   onMarkPosted,
+  onOpen,
 }: {
   row: ConnectedRow;
-  postId: string;
   busy?: boolean;
   calendarDay?: string;
   onSchedule?: (target: ConnectedTarget, iso: string) => Promise<void>;
   onMarkPosted?: (target: ConnectedTarget) => Promise<void>;
+  onOpen: () => void;
 }) {
   const [date, setDate] = useState(() =>
     defaultScheduleValue(calendarDay, row.scheduled_date || null),
@@ -199,13 +202,14 @@ function ConnectedPostRow({
         )}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <Link
-          href={`/admin/posts/${postId}`}
+        <button
+          type="button"
+          onClick={onOpen}
           className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#f7f4ea]"
         >
           Open post
           <ExternalLink className="h-2.5 w-2.5" />
-        </Link>
+        </button>
         {!row.isPosted && onMarkPosted && (
           <button
             type="button"
@@ -251,6 +255,7 @@ export function CalendarItemPreviewModal({
   onMarkConnectedPosted,
 }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>(linkedSocialProp ?? []);
+  const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
   const [fullPost, setFullPost] = useState<CalendarBlogPreview | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [blogScheduleDate, setBlogScheduleDate] = useState("");
@@ -458,11 +463,11 @@ export function CalendarItemPreviewModal({
                   <ConnectedPostRow
                     key={row.id}
                     row={row}
-                    postId={displayPost.id}
                     busy={busy}
                     calendarDay={calendarDay}
                     onSchedule={onScheduleConnected}
                     onMarkPosted={onMarkConnectedPosted}
+                    onOpen={() => setActiveSocial(row)}
                   />
                 ))}
               </div>
@@ -490,6 +495,23 @@ export function CalendarItemPreviewModal({
           </div>
         </div>
       </div>
+      {activeSocial && !activeSocial.id.startsWith("inline-") && (
+        <SocialPostPreviewModal
+          social={activeSocial}
+          onClose={() => setActiveSocial(null)}
+          onDelete={async () => {
+            await fetch(`/api/admin/social-posts/${activeSocial.id}`, { method: "DELETE" });
+            setLinkedSocial((prev) => prev.filter((s) => s.id !== activeSocial.id));
+            setActiveSocial(null);
+          }}
+        />
+      )}
+      {activeSocial && activeSocial.id.startsWith("inline-") && (
+        <SocialPostPreviewModal
+          social={activeSocial}
+          onClose={() => setActiveSocial(null)}
+        />
+      )}
     </div>
   );
 }
