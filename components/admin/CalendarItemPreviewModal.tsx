@@ -5,16 +5,16 @@ import {
   CalendarClock,
   CheckCircle2,
   ExternalLink,
+  Facebook,
+  Instagram,
+  Linkedin,
   MoreVertical,
+  Share2,
   Trash2,
   X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  SocialPostPreviewModal,
-  SocialPostSummaryCard,
-  type SocialPostPreview,
-} from "@/components/admin/SocialPostPreviewModal";
+import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
 
 export type CalendarBlogPreview = {
   id: string;
@@ -150,44 +150,73 @@ type ConnectedRow = SocialPost & {
   target: ConnectedTarget;
 };
 
+const CONNECTED_PLATFORM_META = {
+  linkedin: { label: "LinkedIn", Icon: Linkedin, style: "text-[#0077b5] bg-[#0077b5]/10" },
+  instagram: { label: "Instagram", Icon: Instagram, style: "text-pink-600 bg-pink-50" },
+  facebook: { label: "Facebook", Icon: Facebook, style: "text-blue-600 bg-blue-50" },
+  twitter: { label: "X", Icon: X, style: "text-gray-900 bg-gray-100" },
+  share: { label: "Share text", Icon: Share2, style: "text-[#063b32] bg-[#063b32]/10" },
+} as const;
+
 function ConnectedPostRow({
   row,
+  postId,
   busy,
   calendarDay,
   onSchedule,
   onMarkPosted,
-  onOpen,
 }: {
   row: ConnectedRow;
+  postId: string;
   busy?: boolean;
   calendarDay?: string;
   onSchedule?: (target: ConnectedTarget, iso: string) => Promise<void>;
   onMarkPosted?: (target: ConnectedTarget) => Promise<void>;
-  onOpen: () => void;
 }) {
   const [date, setDate] = useState(() =>
     defaultScheduleValue(calendarDay, row.scheduled_date || null),
   );
+  const meta = CONNECTED_PLATFORM_META[row.platform as keyof typeof CONNECTED_PLATFORM_META]
+    ?? CONNECTED_PLATFORM_META.share;
+  const canSchedule = !row.isPosted && row.platform !== "share" && onSchedule;
+
+  useEffect(() => {
+    setDate(defaultScheduleValue(calendarDay, row.scheduled_date || null));
+  }, [row.scheduled_date, calendarDay]);
 
   return (
-    <div>
-      <SocialPostSummaryCard social={row} onOpen={onOpen} />
-      <div className="mt-1.5 flex flex-wrap items-center gap-2 px-1">
-        {row.isPosted ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+    <div className="rounded-lg border border-[#111111]/10 p-3">
+      <div className="flex items-center gap-2">
+        <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md ${meta.style}`}>
+          <meta.Icon className="h-3.5 w-3.5" />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-xs font-semibold text-[#111111]">{row.title}</span>
+        {row.isPosted && (
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
             <CheckCircle2 className="h-3 w-3" />
             Posted
           </span>
-        ) : row.isScheduled ? (
-          <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
-            Scheduled {formatShortDate(row.scheduled_date)}
-          </span>
-        ) : (
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-            Not scheduled
-          </span>
         )}
-        {!row.isPosted && !row.isScheduled && row.platform !== "share" && onSchedule && (
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <Link
+          href={`/admin/posts/${postId}`}
+          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+        >
+          Open post
+          <ExternalLink className="h-2.5 w-2.5" />
+        </Link>
+        {!row.isPosted && onMarkPosted && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void onMarkPosted(row.target)}
+            className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
+          >
+            Mark as posted
+          </button>
+        )}
+        {canSchedule && (
           <>
             <input
               type="datetime-local"
@@ -201,19 +230,9 @@ function ConnectedPostRow({
               onClick={() => void onSchedule(row.target, date)}
               className="rounded-md bg-[#063b32] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
             >
-              Schedule
+              {row.isScheduled ? "Update date" : "Set date"}
             </button>
           </>
-        )}
-        {!row.isPosted && onMarkPosted && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void onMarkPosted(row.target)}
-            className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
-          >
-            Mark as posted
-          </button>
         )}
       </div>
     </div>
@@ -232,7 +251,6 @@ export function CalendarItemPreviewModal({
   onMarkConnectedPosted,
 }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>(linkedSocialProp ?? []);
-  const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
   const [fullPost, setFullPost] = useState<CalendarBlogPreview | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [blogScheduleDate, setBlogScheduleDate] = useState("");
@@ -440,11 +458,11 @@ export function CalendarItemPreviewModal({
                   <ConnectedPostRow
                     key={row.id}
                     row={row}
+                    postId={displayPost.id}
                     busy={busy}
                     calendarDay={calendarDay}
                     onSchedule={onScheduleConnected}
                     onMarkPosted={onMarkConnectedPosted}
-                    onOpen={() => setActiveSocial(row)}
                   />
                 ))}
               </div>
@@ -472,23 +490,6 @@ export function CalendarItemPreviewModal({
           </div>
         </div>
       </div>
-      {activeSocial && !activeSocial.id.startsWith("inline-") && (
-        <SocialPostPreviewModal
-          social={activeSocial}
-          onClose={() => setActiveSocial(null)}
-          onDelete={async () => {
-            await fetch(`/api/admin/social-posts/${activeSocial.id}`, { method: "DELETE" });
-            setLinkedSocial((prev) => prev.filter((s) => s.id !== activeSocial.id));
-            setActiveSocial(null);
-          }}
-        />
-      )}
-      {activeSocial && activeSocial.id.startsWith("inline-") && (
-        <SocialPostPreviewModal
-          social={activeSocial}
-          onClose={() => setActiveSocial(null)}
-        />
-      )}
     </div>
   );
 }
