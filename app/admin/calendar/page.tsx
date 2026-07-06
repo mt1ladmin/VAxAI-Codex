@@ -131,6 +131,151 @@ function socialLinksToPost(link: string | null | undefined, postId: string) {
   return link.includes(`/admin/posts/${postId}`);
 }
 
+function postIdFromSocialLink(link: string | null | undefined): string | null {
+  if (!link) return null;
+  const match = link.match(/\/admin\/posts\/([^/?#]+)/);
+  return match?.[1] ?? null;
+}
+
+type DayCalendarGroup = {
+  post: Post;
+  connectedSocial: SocialPost[];
+  inlineItems: ConnectedDisplayItem[];
+};
+
+function postOnCalendarDay(post: Post, day: Date): boolean {
+  if (post.status === "draft" && !post.scheduled_at) return false;
+  const dateStr =
+    post.status === "published"
+      ? (post.published_at ?? post.updated_at)
+      : post.scheduled_at ?? null;
+  if (!dateStr) return false;
+  return isSameDay(new Date(dateStr), day);
+}
+
+function socialOnCalendarDay(social: SocialPost, day: Date): boolean {
+  if (social.posted_at) return false;
+  if (!social.scheduled_date?.trim()) return false;
+  return isSameDay(parseLocalDay(social.scheduled_date), day);
+}
+
+function buildDayCalendarGroups(
+  day: Date,
+  posts: Post[],
+  socialPosts: SocialPost[],
+): { groups: DayCalendarGroup[]; standaloneSocial: SocialPost[] } {
+  const dayPosts = posts.filter((p) => postOnCalendarDay(p, day));
+  const allDaySocial = socialPosts.filter((s) => socialOnCalendarDay(s, day));
+
+  const connectedByPostId = new Map<string, SocialPost[]>();
+  const standaloneSocial: SocialPost[] = [];
+
+  for (const s of allDaySocial) {
+    const postId = postIdFromSocialLink(s.link);
+    if (!postId || !isConnectedSocial(s)) {
+      standaloneSocial.push(s);
+      continue;
+    }
+    const list = connectedByPostId.get(postId) ?? [];
+    list.push(s);
+    connectedByPostId.set(postId, list);
+  }
+
+  const postIdsToShow = new Set<string>();
+  for (const p of dayPosts) postIdsToShow.add(p.id);
+  for (const postId of connectedByPostId.keys()) postIdsToShow.add(postId);
+
+  const groups: DayCalendarGroup[] = [];
+
+  for (const postId of postIdsToShow) {
+    const post = posts.find((p) => p.id === postId);
+    if (!post) continue;
+
+    const connectedSocial = connectedByPostId.get(postId) ?? [];
+    const linkedPlatforms = new Set(connectedSocial.map((s) => s.platform));
+    const postOnDay = dayPosts.some((p) => p.id === postId);
+
+    let inlineItems: ConnectedDisplayItem[] = [];
+    if (post.status === "published" && postOnDay) {
+      inlineItems = buildInlineSocialPreview(post, linkedPlatforms).filter((i) => !i.posted);
+    }
+
+    groups.push({ post, connectedSocial, inlineItems });
+  }
+
+  return { groups, standaloneSocial };
+}
+
+function CalendarBlogGroupCard({
+  group,
+  minimal,
+  onOpen,
+}: {
+  group: DayCalendarGroup;
+  minimal?: boolean;
+  onOpen: () => void;
+}) {
+  const { post, connectedSocial, inlineItems } = group;
+  const hasConnected = connectedSocial.length > 0 || inlineItems.length > 0;
+  const isScheduled = post.status === "scheduled";
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={`block w-full overflow-hidden rounded-md border text-left transition-colors hover:border-gray-400 ${
+        isScheduled ? "border-gray-300 bg-gray-50" : "border-gray-200 bg-white"
+      }`}
+    >
+      {post.cover_image_url ? (
+        <div className={`w-full overflow-hidden bg-gray-100 ${minimal ? "h-9" : "h-12"}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
+        </div>
+      ) : null}
+      <div className="px-1.5 py-1">
+        <div className="flex items-start gap-1">
+          {isScheduled && <CalendarClock className="mt-0.5 h-2.5 w-2.5 shrink-0 text-gray-500" />}
+          <p className="line-clamp-2 text-[10px] font-semibold leading-tight text-gray-900">
+            {post.title || "Untitled"}
+          </p>
+        </div>
+        {hasConnected && (
+          <div className="mt-1 space-y-0.5 border-t border-gray-100 pt-1">
+            {connectedSocial.map((s) => {
+              const info = platformInfo(s.platform);
+              return (
+                <div
+                  key={s.id}
+                  className={`flex items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold ${platformChipClasses(s.platform)}`}
+                >
+                  <info.Icon className="h-2.5 w-2.5 shrink-0" />
+                  <Link2 className="h-2 w-2 shrink-0 opacity-50" />
+                  <span className="truncate">{info.label}</span>
+                </div>
+              );
+            })}
+            {inlineItems.map((item) => {
+              const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
+              const isShare = item.platform === "share";
+              return (
+                <div
+                  key={item.id}
+                  className={`flex items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold ${platformChipClasses(item.platform)}`}
+                >
+                  {isShare ? <FileText className="h-2.5 w-2.5 shrink-0" /> : <info.Icon className="h-2.5 w-2.5 shrink-0" />}
+                  <Link2 className="h-2 w-2 shrink-0 opacity-50" />
+                  <span className="truncate">{isShare ? "Share" : info.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </button>
+  );
+}
+
 type ConnectedScheduleEntry = {
   post: Post;
   social?: SocialPost;
@@ -923,15 +1068,35 @@ export default function CalendarPage() {
   const [connectedBusy, setConnectedBusy] = useState(false);
   const [markingSocialPosted, setMarkingSocialPosted] = useState(false);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const load = useCallback(async () => {
     setLoading(true);
-    const [postsRes, socialRes] = await Promise.all([
-      fetch("/api/admin/posts").then((r) => r.json() as Promise<{ data: Post[] }>),
-      fetch("/api/admin/social-posts").then((r) => r.json() as Promise<{ data: SocialPost[] }>),
-    ]);
-    setPosts(postsRes.data ?? []);
-    setSocialPosts(socialRes.data ?? []);
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const [postsRes, socialRes] = await Promise.all([
+        fetch("/api/admin/posts").then((r) => r.json() as Promise<{ data?: Post[]; error?: string }>),
+        fetch("/api/admin/social-posts").then((r) => r.json() as Promise<{ data?: SocialPost[]; error?: string }>),
+      ]);
+      if (postsRes.error) {
+        setLoadError(postsRes.error);
+        setPosts([]);
+      } else {
+        setPosts(postsRes.data ?? []);
+      }
+      if (socialRes.error) {
+        setLoadError((prev) => prev ?? socialRes.error ?? null);
+        setSocialPosts([]);
+      } else {
+        setSocialPosts(socialRes.data ?? []);
+      }
+    } catch {
+      setLoadError("Could not load calendar data");
+      setPosts([]);
+      setSocialPosts([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -1161,19 +1326,8 @@ export default function CalendarPage() {
 
   function DayCell({ day, minimal }: { day: Date; minimal?: boolean }) {
     const isToday = isSameDay(day, today);
-    const dayPosts = postsOnDay(day);
-    const allDaySocial = socialOnDay(day);
+    const { groups, standaloneSocial } = buildDayCalendarGroups(day, posts, socialPosts);
     const ds = toDateStr(day);
-
-    const connectedIdsShown = new Set<string>();
-    for (const p of dayPosts) {
-      for (const s of allDaySocial) {
-        if (isConnectedSocial(s) && socialLinksToPost(s.link, p.id)) {
-          connectedIdsShown.add(s.id);
-        }
-      }
-    }
-    const standaloneSocial = allDaySocial.filter((s) => !connectedIdsShown.has(s.id));
 
     return (
       <div className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[120px]"} p-2.5`}>
@@ -1190,23 +1344,14 @@ export default function CalendarPage() {
           </button>
         </div>
         <div className="mt-1.5 space-y-1">
-          {dayPosts.map((p) => {
-            const linkedOnDay = allDaySocial.filter(
-              (s) => isConnectedSocial(s) && socialLinksToPost(s.link, p.id),
-            );
-            return (
-              <div key={p.id} className="space-y-0.5">
-                <PostChip post={p} />
-                {linkedOnDay.length > 0 && (
-                  <div className="space-y-0.5 border-l border-gray-200 pl-1">
-                    {linkedOnDay.map((s) => (
-                      <SocialChip key={s.id} sp={s} connected nested />
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {groups.map((group) => (
+            <CalendarBlogGroupCard
+              key={group.post.id}
+              group={group}
+              minimal={minimal}
+              onOpen={() => setPreviewPost(group.post)}
+            />
+          ))}
           {standaloneSocial.map((s) => (
             <SocialChip key={s.id} sp={s} />
           ))}
@@ -1279,7 +1424,11 @@ export default function CalendarPage() {
             </button>
           </div>
 
-          {loading ? (
+          {loadError ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-center text-sm text-red-700">
+              Could not load posts: {loadError}
+            </div>
+          ) : loading ? (
             <div className="py-20 text-center text-sm text-gray-400">Loading…</div>
           ) : view === "month" ? (
             <div className="overflow-hidden rounded-md border border-gray-200 bg-white">
