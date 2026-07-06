@@ -363,7 +363,7 @@ type ConnectedPostGroup = {
   pendingCount: number;
 };
 
-type SchedulingTab = "published" | "draft";
+type SchedulingTab = "published" | "draft" | "none";
 
 function hasValidDate(iso: string | null | undefined) {
   return !!iso && iso.trim() !== "";
@@ -417,10 +417,25 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
   return out;
 }
 
+function postHasConnectedContent(post: Post, socialPosts: SocialPost[]): boolean {
+  const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
+  if (linked.length > 0) return true;
+  if (post.linkedin_post?.trim()) return true;
+  if (post.instagram_caption?.trim()) return true;
+  if (post.sharing_caption?.trim()) return true;
+  return false;
+}
+
+function buildNoConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): ConnectedPostGroup[] {
+  return posts
+    .filter((post) => !postHasConnectedContent(post, socialPosts))
+    .map((post) => ({ post, items: [], pendingCount: 0 }));
+}
+
 function buildConnectedPostGroups(
   posts: Post[],
   socialPosts: SocialPost[],
-  tab: SchedulingTab,
+  tab: Exclude<SchedulingTab, "none">,
 ): ConnectedPostGroup[] {
   const groups: ConnectedPostGroup[] = [];
 
@@ -810,11 +825,17 @@ function ConnectedPostCard({
 }) {
   const { post, pendingCount } = group;
   const statusLabel =
-    tab === "published"
-      ? "Published blog post"
-      : post.status === "scheduled"
-        ? "Scheduled blog post"
-        : "Draft blog post";
+    tab === "none"
+      ? post.status === "published"
+        ? "Published blog post"
+        : post.status === "scheduled"
+          ? "Scheduled blog post"
+          : "Draft blog post"
+      : tab === "published"
+        ? "Published blog post"
+        : post.status === "scheduled"
+          ? "Scheduled blog post"
+          : "Draft blog post";
 
   return (
     <li>
@@ -855,14 +876,21 @@ function ConnectedPostCard({
 function SchedulingPanel({
   publishedConnectedGroups,
   draftConnectedGroups,
+  noConnectedGroups,
   onSelectPost,
 }: {
   publishedConnectedGroups: ConnectedPostGroup[];
   draftConnectedGroups: ConnectedPostGroup[];
+  noConnectedGroups: ConnectedPostGroup[];
   onSelectPost: (post: Post) => void;
 }) {
   const [tab, setTab] = useState<SchedulingTab>("published");
-  const activeGroups = tab === "published" ? publishedConnectedGroups : draftConnectedGroups;
+  const activeGroups =
+    tab === "published"
+      ? publishedConnectedGroups
+      : tab === "draft"
+        ? draftConnectedGroups
+        : noConnectedGroups;
 
   return (
     <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
@@ -886,12 +914,23 @@ function SchedulingPanel({
           >
             Drafts
           </button>
+          <button
+            type="button"
+            onClick={() => setTab("none")}
+            className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
+              tab === "none" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
+            }`}
+          >
+            No connected content
+          </button>
         </div>
         <h3 className="mt-3 text-sm font-semibold text-gray-900">Connected content</h3>
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
           {tab === "published"
             ? "Published posts with connected content still to post. Click a post to view, schedule, or mark items as posted."
-            : "Draft and scheduled posts with connected content still to post. Click a post to manage connected items."}
+            : tab === "draft"
+              ? "Draft and scheduled posts with connected content still to post. Click a post to manage connected items."
+              : "Posts with no connected social content yet. Click a post to open or set dates."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
           {activeGroups.length}
@@ -902,7 +941,9 @@ function SchedulingPanel({
           <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
             {tab === "published"
               ? "All connected content has been posted"
-              : "No draft posts with connected content to post"}
+              : tab === "draft"
+                ? "No draft posts with connected content to post"
+                : "All posts have connected content"}
           </li>
         ) : (
           activeGroups.map((group) => (
@@ -983,6 +1024,11 @@ export default function CalendarPage() {
 
   const draftConnectedGroups = useMemo(
     () => buildConnectedPostGroups(posts, socialPosts, "draft"),
+    [posts, socialPosts],
+  );
+
+  const noConnectedGroups = useMemo(
+    () => buildNoConnectedPostGroups(posts, socialPosts),
     [posts, socialPosts],
   );
 
@@ -1216,6 +1262,65 @@ export default function CalendarPage() {
       (r) => r.json() as Promise<{ data?: Post }>,
     );
     if (res.data) setPreviewPost(res.data);
+  };
+
+  const saveAllDatesFromPreview = async (iso: string) => {
+    if (!previewPost || !iso) return;
+    setConnectedBusy(true);
+    try {
+      const scheduledIso = new Date(iso).toISOString();
+      const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
+      const blogBody =
+        previewPost.status === "published"
+          ? { published_at: scheduledIso }
+          : { scheduled_at: scheduledIso, status: "scheduled" };
+      await fetch(`/api/admin/posts/${previewPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(blogBody),
+      });
+
+      const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
+      const linkedPlatforms = new Set(linked.map((s) => s.platform));
+
+      for (const social of linked) {
+        if (social.posted_at) continue;
+        await fetch(`/api/admin/social-posts/${social.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scheduled_date: scheduledIso }),
+        });
+      }
+
+      for (const platform of ["linkedin", "instagram"] as const) {
+        if (linkedPlatforms.has(platform)) continue;
+        if (!inlineBodyForPlatform(post, platform)) continue;
+        if (inlinePostedAt(post, platform)) continue;
+        const entry = buildConnectedEntry(post, { type: "inline", platform });
+        if (!entry) continue;
+        await fetch("/api/admin/social-posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: `${entry.post.title || "Post"} — ${entry.label}`,
+            platform: entry.platform,
+            description: "",
+            content: buildInlineSocialContent(entry.post, entry.platform),
+            scheduled_date: scheduledIso,
+            tags: [],
+            link: `/admin/posts/${entry.post.id}`,
+          }),
+        });
+      }
+
+      await load();
+      const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+        (r) => r.json() as Promise<{ data?: Post }>,
+      );
+      if (res.data) setPreviewPost(res.data);
+    } finally {
+      setConnectedBusy(false);
+    }
   };
 
   const markConnectedFromPreview = async (
@@ -1498,6 +1603,7 @@ export default function CalendarPage() {
               <SchedulingPanel
                 publishedConnectedGroups={publishedConnectedGroups}
                 draftConnectedGroups={draftConnectedGroups}
+                noConnectedGroups={noConnectedGroups}
                 onSelectPost={(post) => {
                   setPreviewPost(post);
                   setPreviewCalendarDay(null);
@@ -1638,8 +1744,7 @@ export default function CalendarPage() {
             setPreviewPost(null);
             setPreviewCalendarDay(null);
           }}
-          onScheduleBlog={scheduleBlogFromPreview}
-          onScheduleConnected={scheduleConnectedFromPreview}
+          onSaveAllDates={saveAllDatesFromPreview}
           onMarkConnectedPosted={markConnectedFromPreview}
         />
       ) : null}

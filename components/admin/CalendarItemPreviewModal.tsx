@@ -53,8 +53,7 @@ type Props = {
   busy?: boolean;
   onClose: () => void;
   onDelete?: () => void;
-  onScheduleBlog?: (iso: string) => Promise<void>;
-  onScheduleConnected?: (target: ConnectedTarget, iso: string) => Promise<void>;
+  onSaveAllDates?: (iso: string) => Promise<void>;
   onMarkConnectedPosted?: (target: ConnectedTarget) => Promise<void>;
 };
 
@@ -64,14 +63,6 @@ function formatDate(iso: string | null | undefined) {
     day: "numeric",
     month: "long",
     year: "numeric",
-  });
-}
-
-function formatShortDate(value?: string | null) {
-  if (!value) return null;
-  return new Date(`${value.slice(0, 10)}T00:00:00`).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
   });
 }
 
@@ -162,29 +153,17 @@ const CONNECTED_PLATFORM_META = {
 function ConnectedPostRow({
   row,
   busy,
-  calendarDay,
-  onSchedule,
   onMarkPosted,
   onOpen,
 }: {
   row: ConnectedRow;
   busy?: boolean;
-  calendarDay?: string;
-  onSchedule?: (target: ConnectedTarget, iso: string) => Promise<void>;
   onMarkPosted?: (target: ConnectedTarget) => Promise<void>;
   onOpen: () => void;
 }) {
-  const [date, setDate] = useState(() =>
-    defaultScheduleValue(calendarDay, row.scheduled_date || null),
-  );
   const [posted, setPosted] = useState(row.isPosted);
   const meta = CONNECTED_PLATFORM_META[row.platform as keyof typeof CONNECTED_PLATFORM_META]
     ?? CONNECTED_PLATFORM_META.share;
-  const canSchedule = !posted && row.platform !== "share" && onSchedule;
-
-  useEffect(() => {
-    setDate(defaultScheduleValue(calendarDay, row.scheduled_date || null));
-  }, [row.scheduled_date, calendarDay]);
 
   useEffect(() => {
     setPosted(row.isPosted);
@@ -225,24 +204,6 @@ function ConnectedPostRow({
             Mark as posted
           </button>
         ) : null}
-        {canSchedule && (
-          <>
-            <input
-              type="datetime-local"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="rounded-md border border-[#111111]/15 px-2 py-1 text-[10px] text-[#111111] outline-none focus:border-[#063b32]/40"
-            />
-            <button
-              type="button"
-              disabled={!date || busy}
-              onClick={() => void onSchedule(row.target, date)}
-              className="rounded-md bg-[#063b32] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
-            >
-              {row.isScheduled ? "Update date" : "Set date"}
-            </button>
-          </>
-        )}
       </div>
     </div>
   );
@@ -255,14 +216,13 @@ export function CalendarItemPreviewModal({
   busy,
   onClose,
   onDelete,
-  onScheduleBlog,
-  onScheduleConnected,
+  onSaveAllDates,
   onMarkConnectedPosted,
 }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>(linkedSocialProp ?? []);
   const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
   const [fullPost, setFullPost] = useState<CalendarBlogPreview | null>(null);
-  const [blogScheduleDate, setBlogScheduleDate] = useState("");
+  const [masterDate, setMasterDate] = useState("");
 
   useEffect(() => {
     if (linkedSocialProp) {
@@ -271,7 +231,6 @@ export function CalendarItemPreviewModal({
   }, [linkedSocialProp]);
 
   useEffect(() => {
-    const path = `/admin/posts/${post.id}`;
     Promise.all([
       fetch("/api/admin/social-posts").then((r) => r.json() as Promise<{ data: SocialPost[] }>),
       fetch(`/api/admin/posts/${post.id}`).then((r) => r.json() as Promise<{ data: CalendarBlogPreview }>),
@@ -291,7 +250,7 @@ export function CalendarItemPreviewModal({
       displayPost.status === "published"
         ? displayPost.published_at
         : displayPost.scheduled_at;
-    setBlogScheduleDate(defaultScheduleValue(calendarDay, existing));
+    setMasterDate(defaultScheduleValue(calendarDay, existing));
   }, [displayPost, calendarDay]);
 
   const connectedRows = useMemo((): ConnectedRow[] => {
@@ -325,7 +284,7 @@ export function CalendarItemPreviewModal({
         ? formatDate(displayPost.scheduled_at)
         : formatDate(displayPost.updated_at);
 
-  const publishingDateLabel =
+  const masterDateLabel =
     displayPost.status === "published" ? "Published date" : "Scheduled publishing date";
 
   return (
@@ -408,8 +367,6 @@ export function CalendarItemPreviewModal({
                     key={row.id}
                     row={row}
                     busy={busy}
-                    calendarDay={calendarDay}
-                    onSchedule={onScheduleConnected}
                     onMarkPosted={onMarkConnectedPosted}
                     onOpen={() => setActiveSocial(row)}
                   />
@@ -418,7 +375,7 @@ export function CalendarItemPreviewModal({
             </div>
           )}
 
-          <div className="flex flex-wrap items-end gap-3 pt-2">
+          <div className="flex flex-wrap items-end gap-3 border-t border-[#111111]/8 pt-4">
             <Link
               href={`/admin/posts/${displayPost.id}`}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
@@ -426,26 +383,26 @@ export function CalendarItemPreviewModal({
               Open full post
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
-            {onScheduleBlog && (
+            {onSaveAllDates && (
               <div className="flex flex-wrap items-end gap-2">
                 <label className="flex flex-col gap-1">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">
-                    {publishingDateLabel}
+                    {masterDateLabel} (all)
                   </span>
                   <input
                     type="datetime-local"
-                    value={blogScheduleDate}
-                    onChange={(e) => setBlogScheduleDate(e.target.value)}
+                    value={masterDate}
+                    onChange={(e) => setMasterDate(e.target.value)}
                     className="rounded-md border border-[#111111]/15 px-2.5 py-2 text-xs text-[#111111] outline-none focus:border-[#063b32]/40"
                   />
                 </label>
                 <button
                   type="button"
-                  disabled={!blogScheduleDate || busy}
-                  onClick={() => void onScheduleBlog(blogScheduleDate)}
-                  className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-40"
+                  disabled={!masterDate || busy}
+                  onClick={() => void onSaveAllDates(masterDate)}
+                  className="rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
                 >
-                  Update date
+                  Save all dates
                 </button>
               </div>
             )}
