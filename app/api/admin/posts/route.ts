@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const db = createServiceClient();
     let query = db
       .from("posts")
-      .select("id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id")
+      .select("id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,linkedin_post,instagram_caption,sharing_caption,social_hashtags")
       .order("updated_at", { ascending: false });
     if (status && status !== "all") query = query.eq("status", status);
     const { data, error } = await query;
