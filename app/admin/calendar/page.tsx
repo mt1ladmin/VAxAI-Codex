@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarItemPreviewModal } from "@/components/admin/CalendarItemPreviewModal";
+import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
 import {
   CalendarClock,
   CheckCircle2,
@@ -70,6 +71,15 @@ function platformInfo(key: string) {
   return PLATFORMS.find((p) => p.key === key) ?? PLATFORMS[0];
 }
 
+function platformChipClasses(platform: string, opts?: { posted?: boolean }) {
+  if (opts?.posted) return "bg-gray-100 text-gray-500 hover:bg-gray-100";
+  if (platform === "linkedin") return "bg-[#0077b5]/10 text-[#0077b5] hover:bg-[#0077b5]/18";
+  if (platform === "instagram") return "bg-pink-50 text-pink-600 hover:bg-pink-100";
+  if (platform === "facebook") return "bg-blue-50 text-blue-600 hover:bg-blue-100";
+  if (platform === "twitter") return "bg-gray-100 text-gray-900 hover:bg-gray-200";
+  return "bg-gray-50 text-gray-700 hover:bg-gray-100";
+}
+
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -130,7 +140,148 @@ type ConnectedScheduleEntry = {
   preview: string;
 };
 
+type ConnectedDisplayItem = SocialPostPreview & {
+  pending: boolean;
+  scheduleEntry?: ConnectedScheduleEntry;
+  posted?: boolean;
+};
+
+type ConnectedPostGroup = {
+  post: Post;
+  items: ConnectedDisplayItem[];
+  pendingCount: number;
+};
+
 type SchedulingTab = "todo" | "connected";
+
+function hasValidDate(iso: string | null | undefined) {
+  return !!iso && iso.trim() !== "";
+}
+
+function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): ConnectedDisplayItem[] {
+  const out: ConnectedDisplayItem[] = [];
+  const postUrl = post.slug ? `/posts/${post.slug}` : "";
+  const hashtags = (post.social_hashtags ?? []).map((h) => `#${h}`).join(" ");
+  const suffix = [postUrl || null, hashtags || null].filter(Boolean).join("\n\n");
+
+  if (post.linkedin_post?.trim() && !existingPlatforms.has("linkedin")) {
+    out.push({
+      id: `inline-linkedin-${post.id}`,
+      title: `${post.title || "Post"} — LinkedIn`,
+      platform: "linkedin",
+      content: [post.linkedin_post.trim(), suffix].filter(Boolean).join("\n\n"),
+      scheduled_date: "",
+      link: `/admin/posts/${post.id}`,
+      pending: !post.linkedin_posted_at,
+      posted: !!post.linkedin_posted_at,
+    });
+  }
+  if (post.instagram_caption?.trim() && !existingPlatforms.has("instagram")) {
+    out.push({
+      id: `inline-instagram-${post.id}`,
+      title: `${post.title || "Post"} — Instagram`,
+      platform: "instagram",
+      content: [post.instagram_caption.trim(), suffix].filter(Boolean).join("\n\n"),
+      scheduled_date: "",
+      link: `/admin/posts/${post.id}`,
+      pending: !post.instagram_posted_at,
+      posted: !!post.instagram_posted_at,
+    });
+  }
+  if (post.sharing_caption?.trim()) {
+    out.push({
+      id: `inline-share-${post.id}`,
+      title: "Share text",
+      platform: "share",
+      content: post.sharing_caption.trim(),
+      scheduled_date: "",
+      link: `/admin/posts/${post.id}`,
+      pending: !post.sharing_posted_at,
+      posted: !!post.sharing_posted_at,
+    });
+  }
+  return out;
+}
+
+function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): ConnectedPostGroup[] {
+  const groups: ConnectedPostGroup[] = [];
+
+  for (const post of posts) {
+    if (post.status !== "published") continue;
+    const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
+    const linkedByPlatform = new Map(linked.map((s) => [s.platform, s]));
+    const inlinePlatforms: Array<{ key: string; label: string }> = [
+      { key: "linkedin", label: "LinkedIn" },
+      { key: "instagram", label: "Instagram" },
+      { key: "share", label: "Share text" },
+    ];
+
+    const pendingEntries: ConnectedScheduleEntry[] = [];
+    for (const { key, label } of inlinePlatforms) {
+      const body = inlineBodyForPlatform(post, key);
+      if (!body) continue;
+      if (inlinePostedAt(post, key)) continue;
+      if (linkedByPlatform.has(key as SocialPost["platform"])) continue;
+      pendingEntries.push({ post, kind: "inline", platform: key, label, preview: body });
+    }
+    for (const social of linked) {
+      if (social.posted_at) continue;
+      if (social.scheduled_date?.trim()) continue;
+      pendingEntries.push({
+        post,
+        social,
+        kind: "social",
+        platform: social.platform,
+        label: platformInfo(social.platform).label,
+        preview: social.content || social.description || "",
+      });
+    }
+
+    const hasConnectedCopy =
+      !!post.linkedin_post?.trim() ||
+      !!post.instagram_caption?.trim() ||
+      !!post.sharing_caption?.trim() ||
+      linked.length > 0;
+
+    if (!hasConnectedCopy || pendingEntries.length === 0) continue;
+
+    const pendingByKey = new Map(
+      pendingEntries.map((e) => [`${e.kind}-${e.social?.id ?? e.platform}`, e]),
+    );
+
+    const displayItems: ConnectedDisplayItem[] = linked.map((social) => {
+      const isPending = !social.posted_at && !social.scheduled_date?.trim();
+      const entry = pendingByKey.get(`social-${social.id}`);
+      return {
+        id: social.id,
+        title: social.title,
+        platform: social.platform,
+        content: social.content || social.description || "",
+        scheduled_date: social.scheduled_date,
+        link: social.link,
+        pending: isPending,
+        posted: !!social.posted_at,
+        scheduleEntry: entry,
+      };
+    });
+
+    for (const inline of buildInlineSocialPreview(post, new Set(linked.map((s) => s.platform)))) {
+      const entry = pendingByKey.get(`inline-${inline.platform}`);
+      displayItems.push({
+        ...inline,
+        scheduleEntry: entry,
+      });
+    }
+
+    groups.push({
+      post,
+      items: displayItems,
+      pendingCount: pendingEntries.length,
+    });
+  }
+
+  return groups;
+}
 
 type ConnectedContentStatus = "none" | "pending" | "done";
 
@@ -467,75 +618,143 @@ function SocialPostDetail({
   );
 }
 
-function ConnectedScheduleRow({
-  entry,
-  onSelectPost,
-  onSelectSocial,
+function ConnectedItemActions({
+  item,
   onSchedule,
   onMarkPosted,
   busy,
 }: {
-  entry: ConnectedScheduleEntry;
-  onSelectPost: (post: Post) => void;
-  onSelectSocial: (social: SocialPost) => void;
+  item: ConnectedDisplayItem;
   onSchedule: (entry: ConnectedScheduleEntry, value: string) => void;
   onMarkPosted: (entry: ConnectedScheduleEntry) => void;
   busy: boolean;
 }) {
-  const info = platformInfo(entry.platform === "share" ? "linkedin" : entry.platform);
-  const isShareText = entry.platform === "share";
-  const [date, setDate] = useState(
-    entry.social?.scheduled_date?.trim() ? toDatetimeLocalValue(entry.social.scheduled_date) : "",
-  );
+  const entry = item.scheduleEntry;
+  const isShareText = item.platform === "share";
+  const [date, setDate] = useState("");
+
+  if (!item.pending || !entry) return null;
 
   return (
-    <li className="rounded-lg border border-gray-200 px-3 py-2.5">
+    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+      {!isShareText && (
+        <>
+          <input
+            type="datetime-local"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-md border border-gray-200 px-2 py-1 text-[10px] text-gray-700 outline-none focus:border-gray-400"
+          />
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onSchedule(entry, date); }}
+            disabled={!date || busy}
+            className="rounded-md bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white hover:bg-gray-800 disabled:opacity-40"
+          >
+            Schedule
+          </button>
+        </>
+      )}
       <button
         type="button"
-        onClick={() => {
-          if (entry.social) onSelectSocial(entry.social);
-          else onSelectPost(entry.post);
-        }}
-        className="block w-full text-left"
+        onClick={(e) => { e.stopPropagation(); onMarkPosted(entry); }}
+        disabled={busy}
+        className="rounded-md border border-gray-200 px-2 py-1 text-[10px] font-semibold text-gray-600 hover:border-gray-400 disabled:opacity-40"
       >
-        <p className="line-clamp-1 text-xs font-medium text-gray-900">{entry.post.title || "Untitled"}</p>
-        <span className={`mt-1 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${isShareText ? "text-gray-600" : info.text}`}>
-          {isShareText ? <FileText className="h-3 w-3" /> : <info.Icon className="h-3 w-3" />}
-          {entry.label}
-          <Link2 className="h-2.5 w-2.5 text-[#063b32]/50" />
-        </span>
-        <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-gray-500">
-          {entry.preview || "No copy yet."}
-        </p>
+        Mark as posted
       </button>
-      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-        {!isShareText && (
-          <>
-            <input
-              type="datetime-local"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="rounded-md border border-gray-200 px-2 py-1 text-[11px] text-gray-700 outline-none focus:border-[#063b32]/40"
-            />
-            <button
-              type="button"
-              onClick={() => onSchedule(entry, date)}
-              disabled={!date || busy}
-              className="rounded-md bg-[#063b32] px-2.5 py-1 text-[10.5px] font-semibold text-white hover:opacity-90 disabled:opacity-40"
-            >
-              Schedule
-            </button>
-          </>
-        )}
-        <button
-          type="button"
-          onClick={() => onMarkPosted(entry)}
-          disabled={busy}
-          className="rounded-md border border-gray-200 px-2.5 py-1 text-[10.5px] font-semibold text-gray-600 hover:border-[#063b32]/30 hover:text-[#063b32] disabled:opacity-40"
-        >
-          Mark as posted
-        </button>
-      </div>
+    </div>
+  );
+}
+
+function ConnectedPostCard({
+  group,
+  onSelectPost,
+  onSchedule,
+  onMarkPosted,
+  onDeleteSocial,
+  busy,
+}: {
+  group: ConnectedPostGroup;
+  onSelectPost: (post: Post) => void;
+  onSchedule: (entry: ConnectedScheduleEntry, value: string) => void;
+  onMarkPosted: (entry: ConnectedScheduleEntry) => void;
+  onDeleteSocial: (id: string) => void;
+  busy: boolean;
+}) {
+  const { post, items } = group;
+
+  return (
+    <li className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <button
+        type="button"
+        onClick={() => onSelectPost(post)}
+        className="block w-full border-b border-gray-100 px-3 py-2.5 text-left transition-colors hover:bg-gray-50"
+      >
+        {post.cover_image_url ? (
+          <div className="mb-2 aspect-[16/7] overflow-hidden rounded-md bg-gray-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
+          </div>
+        ) : null}
+        <p className="line-clamp-2 text-xs font-semibold leading-snug text-gray-900">
+          {post.title || "Untitled"}
+        </p>
+        {post.description ? (
+          <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-gray-500">{post.description}</p>
+        ) : null}
+        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
+          <FileText className="h-2.5 w-2.5" />
+          Published blog post
+        </span>
+      </button>
+
+      {items.length > 0 && (
+        <div className="space-y-1.5 px-3 py-2.5">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-gray-400">Connected posts</p>
+          {items.map((item) => {
+            const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
+            const isShare = item.platform === "share";
+            const canDelete = !item.id.startsWith("inline-");
+            return (
+              <div
+                key={item.id}
+                className={`group/item relative rounded-md border px-2.5 py-2 ${platformChipClasses(item.platform, { posted: item.posted })} border-current/10`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className={`grid h-5 w-5 shrink-0 place-items-center rounded ${isShare ? "bg-gray-100 text-gray-600" : platformChipClasses(item.platform)}`}>
+                    {isShare ? <FileText className="h-3 w-3" /> : <info.Icon className="h-3 w-3" />}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-[10px] font-semibold">{item.title}</span>
+                  {item.posted && (
+                    <span className="shrink-0 text-[9px] font-medium text-gray-500">Posted</span>
+                  )}
+                  {item.pending && (
+                    <span className="shrink-0 text-[9px] font-medium text-gray-500">Pending</span>
+                  )}
+                  {canDelete && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onDeleteSocial(item.id); }}
+                      aria-label={`Delete ${item.title}`}
+                      className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover/item:opacity-100"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+                {(item.content || item.description) && (
+                  <p className="mt-1 line-clamp-2 whitespace-pre-line text-[10px] leading-relaxed opacity-80">
+                    {item.content || item.description}
+                  </p>
+                )}
+                <ConnectedItemActions item={item} onSchedule={onSchedule} onMarkPosted={onMarkPosted} busy={busy} />
+              </div>
+            );
+          })}
+        </div>
+      )}
     </li>
   );
 }
@@ -543,20 +762,24 @@ function ConnectedScheduleRow({
 function SchedulingPanel({
   unscheduledPosts,
   unscheduledSocial,
-  connectedToSchedule,
+  connectedPostGroups,
   onSelectPost,
   onSelectSocial,
   onScheduleConnected,
   onMarkConnectedPosted,
+  onDeletePost,
+  onDeleteSocial,
   connectedBusy,
 }: {
   unscheduledPosts: Post[];
   unscheduledSocial: SocialPost[];
-  connectedToSchedule: ConnectedScheduleEntry[];
+  connectedPostGroups: ConnectedPostGroup[];
   onSelectPost: (post: Post) => void;
   onSelectSocial: (social: SocialPost) => void;
   onScheduleConnected: (entry: ConnectedScheduleEntry, value: string) => void;
   onMarkConnectedPosted: (entry: ConnectedScheduleEntry) => void;
+  onDeletePost: (post: Post) => void;
+  onDeleteSocial: (id: string) => void;
   connectedBusy: boolean;
 }) {
   const [tab, setTab] = useState<SchedulingTab>("todo");
@@ -593,7 +816,7 @@ function SchedulingPanel({
             : "Published posts whose connected social copy has not been scheduled or posted yet."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedToSchedule.length}
+          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedPostGroups.length}
         </span>
       </div>
       <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-3">
@@ -605,57 +828,73 @@ function SchedulingPanel({
           ) : (
             <>
               {unscheduledPosts.map((post) => (
-                <li key={`post-${post.id}`}>
+                <li key={`post-${post.id}`} className="group relative">
                   <button
                     type="button"
                     onClick={() => onSelectPost(post)}
-                    className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 text-left transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/5"
+                    className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 pr-9 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
                   >
                     <p className="line-clamp-2 text-xs font-medium leading-snug text-gray-900">
                       {post.title || "Untitled"}
                     </p>
-                    <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#f5f274]/70 px-2 py-0.5 text-[9.5px] font-semibold text-[#6f6b62]">
+                    <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9.5px] font-semibold text-gray-600">
                       <FileText className="h-2.5 w-2.5" />
                       Blog · {post.status}
                     </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDeletePost(post)}
+                    aria-label={`Delete ${post.title || "Untitled"}`}
+                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-md text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </li>
               ))}
               {unscheduledSocial.map((social) => {
                 const info = platformInfo(social.platform);
                 return (
-                  <li key={`social-${social.id}`}>
+                  <li key={`social-${social.id}`} className="group relative">
                     <button
                       type="button"
                       onClick={() => onSelectSocial(social)}
-                      className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 text-left transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/5"
+                      className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 pr-9 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
                     >
                       <p className="line-clamp-2 text-xs font-medium leading-snug text-gray-900">
                         {social.title || "Untitled"}
                       </p>
-                      <span className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-semibold ${info.bg} ${info.text}`}>
+                      <span className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-semibold ${platformChipClasses(social.platform)}`}>
                         <info.Icon className="h-2.5 w-2.5" />
                         {info.label} · no date
                       </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDeleteSocial(social.id)}
+                      aria-label={`Delete ${social.title || "Untitled"}`}
+                      className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-md text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </li>
                 );
               })}
             </>
           )
-        ) : connectedToSchedule.length === 0 ? (
+        ) : connectedPostGroups.length === 0 ? (
           <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
             All connected content has been scheduled or posted
           </li>
         ) : (
-          connectedToSchedule.map((entry) => (
-            <ConnectedScheduleRow
-              key={`${entry.post.id}-${entry.kind}-${entry.social?.id ?? entry.platform}`}
-              entry={entry}
+          connectedPostGroups.map((group) => (
+            <ConnectedPostCard
+              key={group.post.id}
+              group={group}
               onSelectPost={onSelectPost}
-              onSelectSocial={onSelectSocial}
               onSchedule={onScheduleConnected}
               onMarkPosted={onMarkConnectedPosted}
+              onDeleteSocial={onDeleteSocial}
               busy={connectedBusy}
             />
           ))
@@ -698,58 +937,19 @@ export default function CalendarPage() {
   useEffect(() => { load(); }, [load]);
 
   const unscheduledPosts = useMemo(
-    () => posts.filter((p) => p.status !== "published" && !p.scheduled_at),
+    () => posts.filter((p) => p.status !== "published" && !hasValidDate(p.scheduled_at)),
     [posts],
   );
 
   const unscheduledSocial = useMemo(
-    () => socialPosts.filter((s) => !isConnectedSocial(s) && !s.scheduled_date?.trim() && !s.posted_at),
+    () => socialPosts.filter((s) => !isConnectedSocial(s) && !hasValidDate(s.scheduled_date) && !s.posted_at),
     [socialPosts],
   );
 
-  const connectedToSchedule = useMemo<ConnectedScheduleEntry[]>(() => {
-    const out: ConnectedScheduleEntry[] = [];
-    const inlinePlatforms: Array<{ key: string; label: string }> = [
-      { key: "linkedin", label: "LinkedIn" },
-      { key: "instagram", label: "Instagram" },
-      { key: "share", label: "Share text" },
-    ];
-
-    for (const post of posts) {
-      if (post.status !== "published") continue;
-      const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
-      const linkedByPlatform = new Map(linked.map((s) => [s.platform, s]));
-
-      for (const { key, label } of inlinePlatforms) {
-        const body = inlineBodyForPlatform(post, key);
-        if (!body) continue;
-        if (inlinePostedAt(post, key)) continue;
-        const linkedSocial = linkedByPlatform.get(key as SocialPost["platform"]);
-        if (linkedSocial) continue;
-        out.push({
-          post,
-          kind: "inline",
-          platform: key,
-          label,
-          preview: body,
-        });
-      }
-
-      for (const social of linked) {
-        if (social.posted_at) continue;
-        if (social.scheduled_date?.trim()) continue;
-        out.push({
-          post,
-          social,
-          kind: "social",
-          platform: social.platform,
-          label: platformInfo(social.platform).label,
-          preview: social.content || social.description || "",
-        });
-      }
-    }
-    return out;
-  }, [posts, socialPosts]);
+  const connectedPostGroups = useMemo(
+    () => buildConnectedPostGroups(posts, socialPosts),
+    [posts, socialPosts],
+  );
 
   const linkedSocialForPost = useCallback(
     (postId: string) => socialPosts.filter((s) => socialLinksToPost(s.link, postId)),
@@ -892,11 +1092,20 @@ export default function CalendarPage() {
     load();
   };
 
-  const deleteSocial = async (id: string) => {
+  const deleteSocialById = async (id: string) => {
     if (!confirm("Delete this social post?")) return;
     await fetch(`/api/admin/social-posts/${id}`, { method: "DELETE" });
     setPanelMode("none");
-    load();
+    await load();
+  };
+
+  const deleteSocial = async (id: string) => deleteSocialById(id);
+
+  const deleteUnscheduledPost = async (post: Post) => {
+    if (!confirm(`Delete "${post.title || "Untitled"}"? This cannot be undone.`)) return;
+    await fetch(`/api/admin/posts/${post.id}`, { method: "DELETE" });
+    if (previewPost?.id === post.id) setPreviewPost(null);
+    await load();
   };
 
   function PostChip({ post }: { post: Post }) {
@@ -907,50 +1116,43 @@ export default function CalendarPage() {
       <button
         type="button"
         onClick={() => setPreviewPost(post)}
-        className={`flex w-full items-center gap-1 truncate rounded px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight ${
-          post.status === "published"
-            ? "bg-[#063b32]/10 text-[#063b32] hover:bg-[#063b32]/20"
-            : isScheduled
-            ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
-            : "bg-[#f5f274]/60 text-[#6f6b62] hover:bg-[#f5f274]"
+        className={`flex w-full items-center gap-1 truncate rounded border px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight ${
+          isScheduled
+            ? "border-gray-300 bg-gray-100 text-gray-800 hover:bg-gray-200"
+            : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
         }`}
       >
-        {isScheduled && <span className="shrink-0">⏰</span>}
+        {isScheduled && <CalendarClock className="h-2.5 w-2.5 shrink-0 text-gray-500" />}
         <span className="truncate">{post.title || "Untitled"}</span>
         {post.status === "published" && connStatus === "pending" && (
           <span title="Connected content pending" className="shrink-0">
-            <Link2 className="h-2.5 w-2.5 text-amber-600" />
+            <Link2 className="h-2.5 w-2.5 text-gray-500" />
           </span>
         )}
         {post.status === "published" && connStatus === "done" && (
           <span title="All connected content posted" className="shrink-0">
-            <CheckCircle2 className="h-2.5 w-2.5 text-emerald-600" />
+            <CheckCircle2 className="h-2.5 w-2.5 text-gray-500" />
           </span>
-        )}
-        {post.status === "published" && connStatus === "none" && (
-          <span className="shrink-0 text-[8px] font-medium text-gray-400" title="No connected content">—</span>
         )}
       </button>
     );
   }
 
-  function SocialChip({ sp, connected }: { sp: SocialPost; connected?: boolean }) {
+  function SocialChip({ sp, connected, nested }: { sp: SocialPost; connected?: boolean; nested?: boolean }) {
     const info = platformInfo(sp.platform);
     const isPosted = !!sp.posted_at;
     return (
       <button
         type="button"
         onClick={() => { setActiveSocial(sp); setPanelMode("view-social"); }}
-        className={`flex items-center gap-1 truncate rounded px-1.5 py-0.5 text-[10px] font-semibold leading-tight border ${
+        className={`flex items-center gap-1 truncate rounded px-1.5 py-0.5 text-[10px] font-semibold leading-tight ${
           isPosted
-            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-            : connected
-            ? "bg-[#063b32]/10 text-[#063b32] hover:bg-[#063b32]/18"
-            : `${info.bg} ${info.text} hover:opacity-80`
-        } border-transparent`}
+            ? "bg-gray-100 text-gray-500 hover:bg-gray-100"
+            : platformChipClasses(sp.platform)
+        } ${nested ? "ml-2" : ""}`}
       >
         <info.Icon className="h-2.5 w-2.5 shrink-0" />
-        {connected && <Link2 className="h-2 w-2 shrink-0 opacity-60" />}
+        {connected && <Link2 className="h-2 w-2 shrink-0 opacity-50" />}
         {isPosted && <CheckCircle2 className="h-2 w-2 shrink-0" />}
         <span className="truncate">{sp.title}</span>
       </button>
@@ -960,13 +1162,23 @@ export default function CalendarPage() {
   function DayCell({ day, minimal }: { day: Date; minimal?: boolean }) {
     const isToday = isSameDay(day, today);
     const dayPosts = postsOnDay(day);
-    const daySocial = socialOnDay(day);
+    const allDaySocial = socialOnDay(day);
     const ds = toDateStr(day);
+
+    const connectedIdsShown = new Set<string>();
+    for (const p of dayPosts) {
+      for (const s of allDaySocial) {
+        if (isConnectedSocial(s) && socialLinksToPost(s.link, p.id)) {
+          connectedIdsShown.add(s.id);
+        }
+      }
+    }
+    const standaloneSocial = allDaySocial.filter((s) => !connectedIdsShown.has(s.id));
 
     return (
       <div className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[120px]"} p-2.5`}>
         <div className="flex items-center justify-between">
-          <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-[#063b32] text-white" : "text-gray-500"}`}>
+          <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-gray-900 text-white" : "text-gray-500"}`}>
             {day.getDate()}
           </span>
           <button
@@ -979,31 +1191,24 @@ export default function CalendarPage() {
         </div>
         <div className="mt-1.5 space-y-1">
           {dayPosts.map((p) => {
-            const isPublished = p.status === "published";
-            const linked = linkedSocialForPost(p.id);
-            const connStatus = connectedContentStatus(p, linked);
+            const linkedOnDay = allDaySocial.filter(
+              (s) => isConnectedSocial(s) && socialLinksToPost(s.link, p.id),
+            );
             return (
               <div key={p.id} className="space-y-0.5">
                 <PostChip post={p} />
-                {isPublished && (
-                  <div className="flex items-center gap-0.5 pl-0.5 text-[9px] text-[#063b32]/50">
-                    <CheckCircle2 className="h-2.5 w-2.5 shrink-0" />
-                    <span className="truncate">
-                      {connStatus === "pending"
-                        ? "Connected content pending"
-                        : connStatus === "done"
-                        ? "All connected posted"
-                        : connStatus === "none"
-                        ? "No connected content"
-                        : "Published"}
-                    </span>
+                {linkedOnDay.length > 0 && (
+                  <div className="space-y-0.5 border-l border-gray-200 pl-1">
+                    {linkedOnDay.map((s) => (
+                      <SocialChip key={s.id} sp={s} connected nested />
+                    ))}
                   </div>
                 )}
               </div>
             );
           })}
-          {daySocial.map((s) => (
-            <SocialChip key={s.id} sp={s} connected={isConnectedSocial(s)} />
+          {standaloneSocial.map((s) => (
+            <SocialChip key={s.id} sp={s} />
           ))}
         </div>
       </div>
@@ -1039,7 +1244,7 @@ export default function CalendarPage() {
               <SchedulingPanel
                 unscheduledPosts={unscheduledPosts}
                 unscheduledSocial={unscheduledSocial}
-                connectedToSchedule={connectedToSchedule}
+                connectedPostGroups={connectedPostGroups}
                 onSelectPost={setPreviewPost}
                 onSelectSocial={(social) => {
                   setActiveSocial(social);
@@ -1047,6 +1252,8 @@ export default function CalendarPage() {
                 }}
                 onScheduleConnected={scheduleConnectedEntry}
                 onMarkConnectedPosted={markConnectedEntryPosted}
+                onDeletePost={deleteUnscheduledPost}
+                onDeleteSocial={deleteSocialById}
                 connectedBusy={connectedBusy}
               />
             </div>
@@ -1112,10 +1319,8 @@ export default function CalendarPage() {
 
           {/* Legend */}
           <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#063b32]/20" /> Blog — published</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-amber-100" /> Blog — scheduled</span>
-            <span className="flex items-center gap-1.5"><Link2 className="h-3 w-3 text-amber-600" /> Connected content pending</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3 text-emerald-600" /> All connected posted</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm border border-gray-300 bg-white" /> Blog post</span>
+            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-gray-200" /> Blog — scheduled</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#0077b5]/15" /> LinkedIn</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-pink-100" /> Instagram</span>
             <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-blue-100" /> Facebook</span>

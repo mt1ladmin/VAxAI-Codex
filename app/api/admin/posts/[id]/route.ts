@@ -29,7 +29,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       title?: string; description?: string; body_html?: string;
       content_type?: string; tags?: string[]; author_id?: string | null;
       cover_image_url?: string | null; status?: string; slug?: string;
-      scheduled_at?: string | null; sharing_caption?: string | null;
+      scheduled_at?: string | null; published_at?: string | null;
+      sharing_caption?: string | null;
       linkedin_post?: string | null; instagram_caption?: string | null;
       social_hashtags?: string[];
       linkedin_posted_at?: string | null; instagram_posted_at?: string | null;
@@ -37,11 +38,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     };
     const now = new Date().toISOString();
     const update: Record<string, unknown> = { ...body, updated_at: now };
+    const hasExplicitPublishedAt = Object.prototype.hasOwnProperty.call(body, "published_at");
     if (body.status === "published") {
       const db = createServiceClient();
       const { data: existing } = await db.from("posts").select("published_at,status").eq("id", id).single();
-      if (!existing?.published_at) update.published_at = now;
-    } else if (body.status === "draft") {
+      if (!existing?.published_at && !hasExplicitPublishedAt) update.published_at = now;
+    } else if (body.status === "draft" && !hasExplicitPublishedAt) {
       update.published_at = null;
     }
     const db = createServiceClient();
