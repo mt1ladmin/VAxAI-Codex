@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { CalendarItemPreviewModal } from "@/components/admin/CalendarItemPreviewModal";
 import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
 import {
@@ -214,18 +214,15 @@ function buildDayCalendarGroups(
     if (!post) continue;
 
     const connectedSocial = connectedByPostId.get(postId) ?? [];
-    const linkedPlatforms = new Set(connectedSocial.map((s) => s.platform));
-    const postOnDay = dayPosts.some((p) => p.id === postId);
-
-    let inlineItems: ConnectedDisplayItem[] = [];
-    if (post.status === "published" && postOnDay) {
-      inlineItems = buildInlineSocialPreview(post, linkedPlatforms).filter((i) => !i.posted);
-    }
-
-    groups.push({ post, connectedSocial, inlineItems });
+    groups.push({ post, connectedSocial, inlineItems: [] });
   }
 
   return { groups, standaloneSocial };
+}
+
+function beginCalendarDrag(e: DragEvent, id: string) {
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", id);
 }
 
 function CalendarBlogGroupCard({
@@ -251,12 +248,15 @@ function CalendarBlogGroupCard({
   const hasConnected = connectedSocial.length > 0 || inlineItems.length > 0;
   const isScheduled = post.status === "scheduled";
   const postOnSourceDay = postOnCalendarDay(post, parseLocalDay(sourceDay));
+  const didDragRef = useRef(false);
 
   return (
     <div
       draggable
       onDragStart={(e) => {
         e.stopPropagation();
+        didDragRef.current = false;
+        beginCalendarDrag(e, post.id);
         onDragStart({
           kind: "post-group",
           postId: post.id,
@@ -265,8 +265,15 @@ function CalendarBlogGroupCard({
           connectedSocialIds: connectedSocial.map((s) => s.id),
         });
       }}
-      onDragEnd={onDragEnd}
-      onClick={onOpen}
+      onDrag={() => { didDragRef.current = true; }}
+      onDragEnd={() => {
+        setTimeout(() => { didDragRef.current = false; }, 50);
+        onDragEnd();
+      }}
+      onClick={() => {
+        if (didDragRef.current) return;
+        onOpen();
+      }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
@@ -297,6 +304,7 @@ function CalendarBlogGroupCard({
                   draggable
                   onDragStart={(e) => {
                     e.stopPropagation();
+                    beginCalendarDrag(e, s.id);
                     onDragConnectedStart(s.id, sourceDay);
                   }}
                   onDragEnd={(e) => {
@@ -1130,7 +1138,9 @@ export default function CalendarPage() {
   const [panelDate, setPanelDate] = useState("");
   const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
+  const [previewCalendarDay, setPreviewCalendarDay] = useState<string | null>(null);
   const [connectedBusy, setConnectedBusy] = useState(false);
+  const draggingPayloadRef = useRef<CalendarDragPayload | null>(null);
   const [markingSocialPosted, setMarkingSocialPosted] = useState(false);
   const [draggingPayload, setDraggingPayload] = useState<CalendarDragPayload | null>(null);
   const [dropTargetDay, setDropTargetDay] = useState<string | null>(null);
@@ -1341,9 +1351,101 @@ export default function CalendarPage() {
     await load();
   };
 
+  const setDragPayload = (payload: CalendarDragPayload | null) => {
+    draggingPayloadRef.current = payload;
+    setDraggingPayload(payload);
+  };
+
   const clearDragState = () => {
+    draggingPayloadRef.current = null;
     setDraggingPayload(null);
     setDropTargetDay(null);
+  };
+
+  const buildConnectedEntry = (
+    post: Post,
+    target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
+  ): ConnectedScheduleEntry | null => {
+    const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
+    if (target.type === "social") {
+      const social = linked.find((s) => s.id === target.socialId);
+      if (!social) return null;
+      return {
+        post,
+        social,
+        kind: "social",
+        platform: social.platform,
+        label: platformInfo(social.platform).label,
+        preview: social.content || social.description || "",
+      };
+    }
+    const labels: Record<string, string> = {
+      linkedin: "LinkedIn",
+      instagram: "Instagram",
+      share: "Share text",
+    };
+    const body = inlineBodyForPlatform(post, target.platform);
+    if (!body) return null;
+    return {
+      post,
+      kind: "inline",
+      platform: target.platform,
+      label: labels[target.platform] ?? target.platform,
+      preview: body,
+    };
+  };
+
+  const scheduleBlogFromPreview = async (iso: string) => {
+    if (!previewPost || !iso) return;
+    setConnectedBusy(true);
+    try {
+      const scheduledIso = new Date(iso).toISOString();
+      const body =
+        previewPost.status === "published"
+          ? { published_at: scheduledIso }
+          : { scheduled_at: scheduledIso, status: "scheduled" };
+      await fetch(`/api/admin/posts/${previewPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      await load();
+      const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+        (r) => r.json() as Promise<{ data?: Post }>,
+      );
+      if (res.data) setPreviewPost(res.data);
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
+  const scheduleConnectedFromPreview = async (
+    target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
+    iso: string,
+  ) => {
+    if (!previewPost || !iso) return;
+    const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
+    const entry = buildConnectedEntry(post, target);
+    if (!entry) return;
+    await scheduleConnectedEntry(entry, iso);
+    const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+      (r) => r.json() as Promise<{ data?: Post }>,
+    );
+    if (res.data) setPreviewPost(res.data);
+  };
+
+  const markConnectedFromPreview = async (
+    target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
+  ) => {
+    if (!previewPost) return;
+    const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
+    const entry = buildConnectedEntry(post, target);
+    if (!entry) return;
+    await markConnectedEntryPosted(entry);
+    const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+      (r) => r.json() as Promise<{ data?: Post }>,
+    );
+    if (res.data) setPreviewPost(res.data);
   };
 
   const rescheduleToDay = async (payload: CalendarDragPayload, targetDayStr: string) => {
@@ -1428,7 +1530,10 @@ export default function CalendarPage() {
     return (
       <button
         type="button"
-        onClick={() => setPreviewPost(post)}
+        onClick={() => {
+          setPreviewPost(post);
+          setPreviewCalendarDay(null);
+        }}
         className={`flex w-full items-center gap-1 truncate rounded border px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight ${
           isScheduled
             ? "border-gray-300 bg-gray-100 text-gray-800 hover:bg-gray-200"
@@ -1475,7 +1580,8 @@ export default function CalendarPage() {
         onDragStart={(e) => {
           if (!draggable || !sourceDay || isPosted) return;
           e.stopPropagation();
-          setDraggingPayload({ kind: "social", socialId: sp.id, sourceDay });
+          beginCalendarDrag(e, sp.id);
+          setDragPayload({ kind: "social", socialId: sp.id, sourceDay });
         }}
         onDragEnd={clearDragState}
         onClick={() => { setActiveSocial(sp); setPanelMode("view-social"); }}
@@ -1507,9 +1613,9 @@ export default function CalendarPage() {
           isDropTarget ? "bg-gray-100 ring-2 ring-inset ring-gray-400" : ""
         }`}
         onDragOver={(e) => {
-          if (!draggingPayload) return;
           e.preventDefault();
-          setDropTargetDay(ds);
+          e.dataTransfer.dropEffect = "move";
+          if (draggingPayloadRef.current) setDropTargetDay(ds);
         }}
         onDragLeave={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -1518,7 +1624,7 @@ export default function CalendarPage() {
         }}
         onDrop={(e) => {
           e.preventDefault();
-          const payload = draggingPayload;
+          const payload = draggingPayloadRef.current;
           clearDragState();
           if (payload) void rescheduleToDay(payload, ds);
         }}
@@ -1542,11 +1648,14 @@ export default function CalendarPage() {
               group={group}
               minimal={minimal}
               sourceDay={ds}
-              onOpen={() => setPreviewPost(group.post)}
-              onDragStart={setDraggingPayload}
+              onOpen={() => {
+                setPreviewPost(group.post);
+                setPreviewCalendarDay(ds);
+              }}
+              onDragStart={setDragPayload}
               onDragEnd={clearDragState}
               onDragConnectedStart={(socialId, sourceDay) =>
-                setDraggingPayload({ kind: "social", socialId, sourceDay })
+                setDragPayload({ kind: "social", socialId, sourceDay })
               }
               isDragging={
                 draggingPayload?.kind === "post-group" && draggingPayload.postId === group.post.id
@@ -1597,7 +1706,10 @@ export default function CalendarPage() {
                 unscheduledPosts={unscheduledPosts}
                 unscheduledSocial={unscheduledSocial}
                 connectedPostGroups={connectedPostGroups}
-                onSelectPost={setPreviewPost}
+                onSelectPost={(post) => {
+                  setPreviewPost(post);
+                  setPreviewCalendarDay(null);
+                }}
                 onSelectSocial={(social) => {
                   setActiveSocial(social);
                   setPanelMode("view-social");
@@ -1737,7 +1849,15 @@ export default function CalendarPage() {
         <CalendarItemPreviewModal
           post={previewPost}
           linkedSocial={linkedSocialForPost(previewPost.id)}
-          onClose={() => setPreviewPost(null)}
+          calendarDay={previewCalendarDay ?? undefined}
+          busy={connectedBusy}
+          onClose={() => {
+            setPreviewPost(null);
+            setPreviewCalendarDay(null);
+          }}
+          onScheduleBlog={scheduleBlogFromPreview}
+          onScheduleConnected={scheduleConnectedFromPreview}
+          onMarkConnectedPosted={markConnectedFromPreview}
         />
       ) : null}
     </div>
