@@ -352,7 +352,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
               </div>
 
               <p className="text-xs text-[#6f6b62]">
-                The AI applies the MT1L VAT framework (Value, Alignment, Trust) as a natural lens through the content.
+                Content is shaped by practical value, contextual fit and trustworthy advice — focused on how VAxAI helps with admin relief, workflows and sensible use of AI and automation.
               </p>
 
               {error && <p className="text-sm text-red-600">{error}</p>}

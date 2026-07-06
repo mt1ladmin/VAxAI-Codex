@@ -14,6 +14,8 @@ import {
   Linkedin,
   Loader2,
   Plus,
+  Settings,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -56,6 +58,17 @@ const PRESET_TYPES = ["Insight", "Research", "Article", "Guide", "Case Study", "
 
 function slugify(text: string) {
   return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+}
+
+function htmlToPlainText(html: string) {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+\n/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function Toast({ message, visible, action, isError }: { message: string; visible: boolean; action?: { label: string; href: string }; isError?: boolean }) {
@@ -249,6 +262,8 @@ export default function EditPostPage() {
   const [showAddSocial, setShowAddSocial] = useState(false);
   const [addSocialForm, setAddSocialForm] = useState<{ platform: string; title: string; content: string; scheduled_date: string }>({ platform: "linkedin", title: "", content: "", scheduled_date: "" });
   const [addingSocial, setAddingSocial] = useState(false);
+  const [connectedGenerating, setConnectedGenerating] = useState(false);
+  const [connectedError, setConnectedError] = useState("");
 
   // Modals
   const [showSocialPreview, setShowSocialPreview] = useState(false);
@@ -447,6 +462,47 @@ export default function EditPostPage() {
   };
 
   const copyLink = () => { navigator.clipboard.writeText(postUrl); };
+
+  const generateConnected = async () => {
+    const bodyText = htmlToPlainText(bodyHtml);
+    if (!bodyText) {
+      setConnectedError("Write some post content first, then generate connected posts.");
+      return;
+    }
+    setConnectedError("");
+    setConnectedGenerating(true);
+    try {
+      const res = await fetch(`/api/admin/posts/${id}/generate-connected`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim() || undefined,
+          description: description.trim() || undefined,
+          body_text: bodyText,
+        }),
+      });
+      const json = await res.json() as {
+        data?: SocialDraft;
+        error?: string;
+      };
+      if (!res.ok || !json.data) {
+        throw new Error(json.error ?? "Generation failed");
+      }
+      setSocialDraft((prev) => ({
+        ...prev,
+        sharing_caption: json.data!.sharing_caption || prev?.sharing_caption,
+        linkedin_post: json.data!.linkedin_post || prev?.linkedin_post,
+        instagram_caption: json.data!.instagram_caption || prev?.instagram_caption,
+        hashtags: json.data!.hashtags?.length ? json.data!.hashtags : prev?.hashtags,
+      }));
+      setPanelOpen(true);
+      showToast("Connected social copy generated");
+    } catch (e) {
+      setConnectedError(e instanceof Error ? e.message : "Generation failed");
+    } finally {
+      setConnectedGenerating(false);
+    }
+  };
 
   const addConnectedPost = async () => {
     if (!addSocialForm.title || !addSocialForm.scheduled_date) return;
@@ -654,11 +710,13 @@ export default function EditPostPage() {
             Save draft
           </button>
           <button
-            onClick={() => isPublished ? void save("published") : setPanelOpen(true)}
+            type="button"
+            onClick={() => setPanelOpen(true)}
             disabled={saving}
-            className="rounded-md bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea] disabled:opacity-50"
           >
-            {saving ? "Saving…" : isPublished ? "Update" : "Publish"}
+            <Settings className="h-3.5 w-3.5" />
+            {isPublished ? "Settings" : "Publish"}
           </button>
         </div>
       </div>
@@ -726,7 +784,50 @@ export default function EditPostPage() {
 
               {/* Connected posts */}
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
+                  <button
+                    type="button"
+                    onClick={() => void generateConnected()}
+                    disabled={connectedGenerating}
+                    className="inline-flex items-center gap-1 rounded-md border border-[#063b32]/20 px-2 py-1 text-[10px] font-semibold text-[#063b32] hover:bg-[#063b32]/5 disabled:opacity-50"
+                  >
+                    {connectedGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                    {connectedGenerating ? "Generating…" : "Generate"}
+                  </button>
+                </div>
+                <p className="mb-2 text-[11px] leading-relaxed text-[#6f6b62]/80">
+                  Creates LinkedIn and Instagram copy from your current article draft.
+                </p>
+                {connectedError && (
+                  <p className="mb-2 text-[11px] text-red-600">{connectedError}</p>
+                )}
+                {(socialDraft?.linkedin_post || socialDraft?.instagram_caption) && (
+                  <div className="mb-3 space-y-3">
+                    {socialDraft?.linkedin_post && (
+                      <div>
+                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">LinkedIn post</label>
+                        <textarea
+                          value={socialDraft.linkedin_post}
+                          onChange={(e) => setSocialDraft((d) => ({ ...d, linkedin_post: e.target.value || undefined }))}
+                          rows={5}
+                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32]"
+                        />
+                      </div>
+                    )}
+                    {socialDraft?.instagram_caption && (
+                      <div>
+                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Instagram caption</label>
+                        <textarea
+                          value={socialDraft.instagram_caption}
+                          onChange={(e) => setSocialDraft((d) => ({ ...d, instagram_caption: e.target.value || undefined }))}
+                          rows={4}
+                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32]"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
                 {linkedSocial.length > 0 ? (
                   <div className="space-y-2 mb-2">
                     {linkedSocial.map((social) => (
