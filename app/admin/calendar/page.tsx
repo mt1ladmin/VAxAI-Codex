@@ -1323,6 +1323,23 @@ export default function CalendarPage() {
     }
   };
 
+  const deleteAllFromPreview = async () => {
+    if (!previewPost) return;
+    setConnectedBusy(true);
+    try {
+      const linked = socialPosts.filter((s) => socialLinksToPost(s.link, previewPost.id));
+      for (const social of linked) {
+        await fetch(`/api/admin/social-posts/${social.id}`, { method: "DELETE" });
+      }
+      await fetch(`/api/admin/posts/${previewPost.id}`, { method: "DELETE" });
+      setPreviewPost(null);
+      setPreviewCalendarDay(null);
+      await load();
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
   const markConnectedFromPreview = async (
     target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
   ) => {
@@ -1745,6 +1762,7 @@ export default function CalendarPage() {
             setPreviewCalendarDay(null);
           }}
           onSaveAllDates={saveAllDatesFromPreview}
+          onDeleteAll={deleteAllFromPreview}
           onMarkConnectedPosted={markConnectedFromPreview}
         />
       ) : null}

@@ -52,8 +52,8 @@ type Props = {
   calendarDay?: string;
   busy?: boolean;
   onClose: () => void;
-  onDelete?: () => void;
   onSaveAllDates?: (iso: string) => Promise<void>;
+  onDeleteAll?: () => Promise<void>;
   onMarkConnectedPosted?: (target: ConnectedTarget) => Promise<void>;
 };
 
@@ -215,14 +215,15 @@ export function CalendarItemPreviewModal({
   calendarDay,
   busy,
   onClose,
-  onDelete,
   onSaveAllDates,
+  onDeleteAll,
   onMarkConnectedPosted,
 }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>(linkedSocialProp ?? []);
   const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
   const [fullPost, setFullPost] = useState<CalendarBlogPreview | null>(null);
   const [masterDate, setMasterDate] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (linkedSocialProp) {
@@ -375,6 +376,37 @@ export function CalendarItemPreviewModal({
             </div>
           )}
 
+          {showDeleteConfirm && onDeleteAll && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+              <p className="text-sm font-semibold text-red-800">
+                Are you sure you want to delete all content?
+              </p>
+              <p className="mt-1.5 text-xs leading-relaxed text-red-700">
+                This will permanently delete this blog post and all connected social posts.
+                If you only want to delete one item, open that post and delete it individually instead.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#111111] hover:bg-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => {
+                    void onDeleteAll().then(() => setShowDeleteConfirm(false));
+                  }}
+                  className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-40"
+                >
+                  Delete all
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-wrap items-end gap-3 border-t border-[#111111]/8 pt-4">
             <Link
               href={`/admin/posts/${displayPost.id}`}
@@ -404,17 +436,19 @@ export function CalendarItemPreviewModal({
                 >
                   Save all dates
                 </button>
+                {onDeleteAll && (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="grid h-[34px] w-[34px] place-items-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 disabled:opacity-40"
+                    title="Delete all content"
+                    aria-label="Delete all content"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
               </div>
-            )}
-            {onDelete && (
-              <button
-                type="button"
-                onClick={onDelete}
-                className="grid h-9 w-9 place-items-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50"
-                title="Delete post"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
             )}
           </div>
         </div>
