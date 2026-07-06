@@ -717,25 +717,15 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
-            title="Value, Alignment and Trust"
-            copy="Our work is guided by the VAT Framework, developed by MT1L and VAxAI founder Thesia Gervelie Kouloungou-Nkoula. It shapes how we develop services, how we work with clients and how we use AI and automation."
+            title="Value, Alignment and Trust (vat)"
+            copy="Our work is guided by the MT1L VAT Framework™, developed by Thesia. It shapes how we design services, work with clients and use AI and automation. For VAxAI, this means we do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, aligns with the reality of how you work and can be trusted in practice."
             narrow
           />
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {vatPrinciples.map(([step, title, copy]) => (
-              <article key={step} className="rounded-md border border-white/12 bg-white/[0.06] p-6">
-                <p className="text-sm font-semibold text-acid">{step}</p>
-                <h3 className="mt-10 text-xl font-semibold">{title}</h3>
-                <p className="mt-4 text-sm leading-6 text-paper/68">{copy}</p>
-              </article>
-            ))}
-          </div>
+          
           <motion.div {...reveal} className="mx-auto mt-10 max-w-3xl text-center">
-            <p className="text-sm leading-6 text-paper/70">
-              We do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, fits your organisation and can be used with confidence.
-            </p>
+          
             <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-acid">
-              Want to learn more about MT1L and the VAT Framework? Check us out
+              Want to learn more about MT1L and the VAT Framework? Check our the main MT1L Website
               <ExternalLink className="h-4 w-4" />
             </a>
           </motion.div>
