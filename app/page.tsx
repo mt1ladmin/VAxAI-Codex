@@ -718,14 +718,12 @@ export default function Home() {
           <SectionTitle
             light
             title="Value, Alignment and Trust (vat)"
-            copy="Our work is guided by the MT1L VAT Framework™, developed by Thesia. It shapes how we design services, work with clients and use AI and automation."
+            copy="Our work is guided by the MT1L VAT Framework™, developed by Thesia. It shapes how we design services, work with clients and use AI and automation. For VAxAI, this means we do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, aligns with the reality of how you work and can be trusted in practice."
             narrow
           />
           
           <motion.div {...reveal} className="mx-auto mt-10 max-w-3xl text-center">
-            <p className="text-sm leading-6 text-paper/70">
-              For VAxAI, this means we do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, aligns with the reality of how you work and can be trusted in practice.
-            </p>
+          
             <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-acid">
               Want to learn more about MT1L and the VAT Framework? Check our the main MT1L Website
               <ExternalLink className="h-4 w-4" />
