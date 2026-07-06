@@ -21,14 +21,21 @@ export async function GET(req: NextRequest) {
     await assertAuth();
     const status = req.nextUrl.searchParams.get("status");
     const db = createServiceClient();
-    let query = db
-      .from("posts")
-      .select("id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,linkedin_post,instagram_caption,sharing_caption,social_hashtags,linkedin_posted_at,instagram_posted_at,sharing_posted_at")
-      .order("updated_at", { ascending: false });
-    if (status && status !== "all") query = query.eq("status", status);
-    const { data, error } = await query;
+    const baseColumns =
+      "id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,body_html,sharing_caption,linkedin_post,instagram_caption,social_hashtags";
+
+    const runQuery = (select: string) => {
+      let query = db.from("posts").select(select).order("updated_at", { ascending: false });
+      if (status && status !== "all") query = query.eq("status", status);
+      return query;
+    };
+
+    let { data, error } = await runQuery("*");
+    if (error && /column/i.test(error.message)) {
+      ({ data, error } = await runQuery(baseColumns));
+    }
     if (error) throw error;
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: data ?? [] });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error";
     return NextResponse.json({ error: msg }, { status: msg === "Unauthorized" ? 401 : 500 });

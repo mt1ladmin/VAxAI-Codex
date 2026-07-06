@@ -36,6 +36,7 @@ const STATUS_FILTERS = ["All statuses", "published", "scheduled", "draft"];
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
@@ -45,20 +46,33 @@ export default function PostsPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/admin/posts");
-    const json = await res.json() as { data: Post[] };
-    setPosts(json.data ?? []);
-    setSelected(new Set());
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const res = await fetch("/api/admin/posts");
+      const json = await res.json() as { data?: Post[]; error?: string };
+      if (!res.ok || json.error) {
+        setLoadError(json.error ?? "Failed to load posts");
+        setPosts([]);
+      } else {
+        setPosts(json.data ?? []);
+      }
+      setSelected(new Set());
+    } catch {
+      setLoadError("Could not load posts");
+      setPosts([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  const allTags = Array.from(new Set(posts.flatMap((p) => p.tags)));
+  const allTags = Array.from(new Set(posts.flatMap((p) => p.tags ?? [])));
 
   const filtered = posts.filter((p) => {
     const q = search.toLowerCase();
-    if (search && !p.title.toLowerCase().includes(q) && !p.tags.some((t) => t.toLowerCase().includes(q))) return false;
+    const tags = p.tags ?? [];
+    if (search && !p.title.toLowerCase().includes(q) && !tags.some((t) => t.toLowerCase().includes(q))) return false;
     if (typeFilter !== "All types" && p.content_type !== typeFilter) return false;
     if (statusFilter !== "All statuses" && p.status !== statusFilter) return false;
     if (tagFilters.length > 0 && !tagFilters.every((t) => p.tags.includes(t))) return false;
@@ -198,11 +212,23 @@ export default function PostsPage() {
           </div>
         </div>
 
-        {loading ? (
+        {loadError ? (
+          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-10 text-center">
+            <p className="text-sm font-medium text-red-700">Could not load posts</p>
+            <p className="mt-1 text-xs text-red-600">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="mt-4 rounded-md bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+            >
+              Retry
+            </button>
+          </div>
+        ) : loading ? (
           <div className="py-20 text-center text-sm text-[#6f6b62]">Loading…</div>
         ) : filtered.length === 0 ? (
           <div className="rounded-md border border-[#111111]/10 bg-white py-16 text-center">
-            <p className="text-sm text-[#6f6b62]">No posts yet.</p>
+            <p className="text-sm text-[#6f6b62]">{posts.length === 0 ? "No posts yet." : "No posts match your filters."}</p>
             <Link href="/admin/posts/new" className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">
               <Plus className="h-4 w-4" /> Create your first post
             </Link>

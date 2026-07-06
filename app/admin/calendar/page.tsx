@@ -122,6 +122,28 @@ function toDateStr(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+function moveIsoToDay(existingIso: string | null | undefined, targetDay: Date): string {
+  const time = existingIso ? new Date(existingIso) : new Date();
+  if (!existingIso) time.setHours(9, 0, 0, 0);
+  const moved = new Date(targetDay);
+  moved.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
+  return moved.toISOString();
+}
+
+type CalendarDragPayload =
+  | {
+      kind: "post-group";
+      postId: string;
+      sourceDay: string;
+      postOnSourceDay: boolean;
+      connectedSocialIds: string[];
+    }
+  | {
+      kind: "social";
+      socialId: string;
+      sourceDay: string;
+    };
+
 function isConnectedSocial(sp: SocialPost) {
   return !!sp.link?.includes("/admin/posts/");
 }
@@ -129,6 +151,186 @@ function isConnectedSocial(sp: SocialPost) {
 function socialLinksToPost(link: string | null | undefined, postId: string) {
   if (!link) return false;
   return link.includes(`/admin/posts/${postId}`);
+}
+
+function postIdFromSocialLink(link: string | null | undefined): string | null {
+  if (!link) return null;
+  const match = link.match(/\/admin\/posts\/([^/?#]+)/);
+  return match?.[1] ?? null;
+}
+
+type DayCalendarGroup = {
+  post: Post;
+  connectedSocial: SocialPost[];
+  inlineItems: ConnectedDisplayItem[];
+};
+
+function postOnCalendarDay(post: Post, day: Date): boolean {
+  if (post.status === "draft" && !post.scheduled_at) return false;
+  const dateStr =
+    post.status === "published"
+      ? (post.published_at ?? post.updated_at)
+      : post.scheduled_at ?? null;
+  if (!dateStr) return false;
+  return isSameDay(new Date(dateStr), day);
+}
+
+function socialOnCalendarDay(social: SocialPost, day: Date): boolean {
+  if (social.posted_at) return false;
+  if (!social.scheduled_date?.trim()) return false;
+  return isSameDay(parseLocalDay(social.scheduled_date), day);
+}
+
+function buildDayCalendarGroups(
+  day: Date,
+  posts: Post[],
+  socialPosts: SocialPost[],
+): { groups: DayCalendarGroup[]; standaloneSocial: SocialPost[] } {
+  const dayPosts = posts.filter((p) => postOnCalendarDay(p, day));
+  const allDaySocial = socialPosts.filter((s) => socialOnCalendarDay(s, day));
+
+  const connectedByPostId = new Map<string, SocialPost[]>();
+  const standaloneSocial: SocialPost[] = [];
+
+  for (const s of allDaySocial) {
+    const postId = postIdFromSocialLink(s.link);
+    if (!postId || !isConnectedSocial(s)) {
+      standaloneSocial.push(s);
+      continue;
+    }
+    const list = connectedByPostId.get(postId) ?? [];
+    list.push(s);
+    connectedByPostId.set(postId, list);
+  }
+
+  const postIdsToShow = new Set<string>();
+  for (const p of dayPosts) postIdsToShow.add(p.id);
+  for (const postId of connectedByPostId.keys()) postIdsToShow.add(postId);
+
+  const groups: DayCalendarGroup[] = [];
+
+  for (const postId of postIdsToShow) {
+    const post = posts.find((p) => p.id === postId);
+    if (!post) continue;
+
+    const connectedSocial = connectedByPostId.get(postId) ?? [];
+    const linkedPlatforms = new Set(connectedSocial.map((s) => s.platform));
+    const postOnDay = dayPosts.some((p) => p.id === postId);
+
+    let inlineItems: ConnectedDisplayItem[] = [];
+    if (post.status === "published" && postOnDay) {
+      inlineItems = buildInlineSocialPreview(post, linkedPlatforms).filter((i) => !i.posted);
+    }
+
+    groups.push({ post, connectedSocial, inlineItems });
+  }
+
+  return { groups, standaloneSocial };
+}
+
+function CalendarBlogGroupCard({
+  group,
+  minimal,
+  sourceDay,
+  onOpen,
+  onDragStart,
+  onDragEnd,
+  onDragConnectedStart,
+  isDragging,
+}: {
+  group: DayCalendarGroup;
+  minimal?: boolean;
+  sourceDay: string;
+  onOpen: () => void;
+  onDragStart: (payload: CalendarDragPayload) => void;
+  onDragEnd: () => void;
+  onDragConnectedStart: (socialId: string, sourceDay: string) => void;
+  isDragging?: boolean;
+}) {
+  const { post, connectedSocial, inlineItems } = group;
+  const hasConnected = connectedSocial.length > 0 || inlineItems.length > 0;
+  const isScheduled = post.status === "scheduled";
+  const postOnSourceDay = postOnCalendarDay(post, parseLocalDay(sourceDay));
+
+  return (
+    <div
+      draggable
+      onDragStart={(e) => {
+        e.stopPropagation();
+        onDragStart({
+          kind: "post-group",
+          postId: post.id,
+          sourceDay,
+          postOnSourceDay,
+          connectedSocialIds: connectedSocial.map((s) => s.id),
+        });
+      }}
+      onDragEnd={onDragEnd}
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
+      className={`block w-full cursor-grab overflow-hidden rounded-md border text-left transition-colors hover:border-gray-400 active:cursor-grabbing ${
+        isScheduled ? "border-gray-300 bg-gray-50" : "border-gray-200 bg-white"
+      } ${isDragging ? "opacity-50" : ""}`}
+    >
+      {post.cover_image_url ? (
+        <div className={`w-full overflow-hidden bg-gray-100 ${minimal ? "h-9" : "h-12"}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
+        </div>
+      ) : null}
+      <div className="px-1.5 py-1">
+        <div className="flex items-start gap-1">
+          {isScheduled && <CalendarClock className="mt-0.5 h-2.5 w-2.5 shrink-0 text-gray-500" />}
+          <p className="line-clamp-2 text-[10px] font-semibold leading-tight text-gray-900">
+            {post.title || "Untitled"}
+          </p>
+        </div>
+        {hasConnected && (
+          <div className="mt-1 space-y-0.5 border-t border-gray-100 pt-1">
+            {connectedSocial.map((s) => {
+              const info = platformInfo(s.platform);
+              return (
+                <div
+                  key={s.id}
+                  draggable
+                  onDragStart={(e) => {
+                    e.stopPropagation();
+                    onDragConnectedStart(s.id, sourceDay);
+                  }}
+                  onDragEnd={(e) => {
+                    e.stopPropagation();
+                    onDragEnd();
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className={`flex cursor-grab items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold active:cursor-grabbing ${platformChipClasses(s.platform)}`}
+                >
+                  <info.Icon className="h-2.5 w-2.5 shrink-0" />
+                  <Link2 className="h-2 w-2 shrink-0 opacity-50" />
+                  <span className="truncate">{info.label}</span>
+                </div>
+              );
+            })}
+            {inlineItems.map((item) => {
+              const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
+              const isShare = item.platform === "share";
+              return (
+                <div
+                  key={item.id}
+                  className={`flex items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold ${platformChipClasses(item.platform)}`}
+                >
+                  {isShare ? <FileText className="h-2.5 w-2.5 shrink-0" /> : <info.Icon className="h-2.5 w-2.5 shrink-0" />}
+                  <Link2 className="h-2 w-2 shrink-0 opacity-50" />
+                  <span className="truncate">{isShare ? "Share" : info.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 type ConnectedScheduleEntry = {
@@ -142,6 +344,7 @@ type ConnectedScheduleEntry = {
 
 type ConnectedDisplayItem = SocialPostPreview & {
   pending: boolean;
+  scheduled: boolean;
   scheduleEntry?: ConnectedScheduleEntry;
   posted?: boolean;
 };
@@ -174,6 +377,7 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
       link: `/admin/posts/${post.id}`,
       pending: !post.linkedin_posted_at,
       posted: !!post.linkedin_posted_at,
+      scheduled: false,
     });
   }
   if (post.instagram_caption?.trim() && !existingPlatforms.has("instagram")) {
@@ -186,6 +390,7 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
       link: `/admin/posts/${post.id}`,
       pending: !post.instagram_posted_at,
       posted: !!post.instagram_posted_at,
+      scheduled: false,
     });
   }
   if (post.sharing_caption?.trim()) {
@@ -198,6 +403,7 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
       link: `/admin/posts/${post.id}`,
       pending: !post.sharing_posted_at,
       posted: !!post.sharing_posted_at,
+      scheduled: false,
     });
   }
   return out;
@@ -216,18 +422,17 @@ function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): Con
       { key: "share", label: "Share text" },
     ];
 
-    const pendingEntries: ConnectedScheduleEntry[] = [];
+    const trackerEntries: ConnectedScheduleEntry[] = [];
     for (const { key, label } of inlinePlatforms) {
       const body = inlineBodyForPlatform(post, key);
       if (!body) continue;
       if (inlinePostedAt(post, key)) continue;
       if (linkedByPlatform.has(key as SocialPost["platform"])) continue;
-      pendingEntries.push({ post, kind: "inline", platform: key, label, preview: body });
+      trackerEntries.push({ post, kind: "inline", platform: key, label, preview: body });
     }
     for (const social of linked) {
       if (social.posted_at) continue;
-      if (social.scheduled_date?.trim()) continue;
-      pendingEntries.push({
+      trackerEntries.push({
         post,
         social,
         kind: "social",
@@ -237,46 +442,47 @@ function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): Con
       });
     }
 
-    const hasConnectedCopy =
-      !!post.linkedin_post?.trim() ||
-      !!post.instagram_caption?.trim() ||
-      !!post.sharing_caption?.trim() ||
-      linked.length > 0;
+    if (trackerEntries.length === 0) continue;
 
-    if (!hasConnectedCopy || pendingEntries.length === 0) continue;
-
-    const pendingByKey = new Map(
-      pendingEntries.map((e) => [`${e.kind}-${e.social?.id ?? e.platform}`, e]),
+    const entryByKey = new Map(
+      trackerEntries.map((e) => [`${e.kind}-${e.social?.id ?? e.platform}`, e]),
     );
 
-    const displayItems: ConnectedDisplayItem[] = linked.map((social) => {
-      const isPending = !social.posted_at && !social.scheduled_date?.trim();
-      const entry = pendingByKey.get(`social-${social.id}`);
-      return {
+    const displayItems: ConnectedDisplayItem[] = [];
+
+    for (const social of linked) {
+      if (social.posted_at) continue;
+      const entry = entryByKey.get(`social-${social.id}`);
+      displayItems.push({
         id: social.id,
         title: social.title,
         platform: social.platform,
         content: social.content || social.description || "",
         scheduled_date: social.scheduled_date,
         link: social.link,
-        pending: isPending,
-        posted: !!social.posted_at,
-        scheduleEntry: entry,
-      };
-    });
-
-    for (const inline of buildInlineSocialPreview(post, new Set(linked.map((s) => s.platform)))) {
-      const entry = pendingByKey.get(`inline-${inline.platform}`);
-      displayItems.push({
-        ...inline,
+        pending: true,
+        posted: false,
+        scheduled: hasValidDate(social.scheduled_date),
         scheduleEntry: entry,
       });
     }
 
+    for (const inline of buildInlineSocialPreview(post, new Set(linked.map((s) => s.platform)))) {
+      if (inline.posted) continue;
+      const entry = entryByKey.get(`inline-${inline.platform}`);
+      displayItems.push({
+        ...inline,
+        scheduled: false,
+        scheduleEntry: entry,
+      });
+    }
+
+    if (displayItems.length === 0) continue;
+
     groups.push({
       post,
       items: displayItems,
-      pendingCount: pendingEntries.length,
+      pendingCount: displayItems.length,
     });
   }
 
@@ -631,13 +837,14 @@ function ConnectedItemActions({
 }) {
   const entry = item.scheduleEntry;
   const isShareText = item.platform === "share";
+  const needsSchedule = !item.scheduled && !isShareText;
   const [date, setDate] = useState("");
 
-  if (!item.pending || !entry) return null;
+  if (item.posted || !entry) return null;
 
   return (
     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-      {!isShareText && (
+      {needsSchedule && (
         <>
           <input
             type="datetime-local"
@@ -660,7 +867,7 @@ function ConnectedItemActions({
         type="button"
         onClick={(e) => { e.stopPropagation(); onMarkPosted(entry); }}
         disabled={busy}
-        className="rounded-md border border-gray-200 px-2 py-1 text-[10px] font-semibold text-gray-600 hover:border-gray-400 disabled:opacity-40"
+        className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
       >
         Mark as posted
       </button>
@@ -711,8 +918,9 @@ function ConnectedPostCard({
       </button>
 
       {items.length > 0 && (
-        <div className="space-y-1.5 px-3 py-2.5">
+        <div className="px-3 py-2.5">
           <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-gray-400">Connected posts</p>
+          <div className="mt-1.5 max-h-44 space-y-1.5 overflow-y-auto pr-0.5">
           {items.map((item) => {
             const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
             const isShare = item.platform === "share";
@@ -720,18 +928,17 @@ function ConnectedPostCard({
             return (
               <div
                 key={item.id}
-                className={`group/item relative rounded-md border px-2.5 py-2 ${platformChipClasses(item.platform, { posted: item.posted })} border-current/10`}
+                className={`group/item relative rounded-md border px-2.5 py-2 ${platformChipClasses(item.platform)} border-current/10`}
               >
                 <div className="flex items-center gap-1.5">
                   <span className={`grid h-5 w-5 shrink-0 place-items-center rounded ${isShare ? "bg-gray-100 text-gray-600" : platformChipClasses(item.platform)}`}>
                     {isShare ? <FileText className="h-3 w-3" /> : <info.Icon className="h-3 w-3" />}
                   </span>
                   <span className="min-w-0 flex-1 truncate text-[10px] font-semibold">{item.title}</span>
-                  {item.posted && (
-                    <span className="shrink-0 text-[9px] font-medium text-gray-500">Posted</span>
-                  )}
-                  {item.pending && (
-                    <span className="shrink-0 text-[9px] font-medium text-gray-500">Pending</span>
+                  {item.scheduled ? (
+                    <span className="shrink-0 rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-600">Scheduled</span>
+                  ) : (
+                    <span className="shrink-0 rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-700">Not posted</span>
                   )}
                   {canDelete && (
                     <button
@@ -753,6 +960,7 @@ function ConnectedPostCard({
               </div>
             );
           })}
+          </div>
         </div>
       )}
     </li>
@@ -784,8 +992,10 @@ function SchedulingPanel({
 }) {
   const [tab, setTab] = useState<SchedulingTab>("todo");
 
+  const unpostedConnectedCount = connectedPostGroups.reduce((n, g) => n + g.items.length, 0);
+
   return (
-    <aside className="flex h-full min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
+    <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
       <div className="shrink-0 border-b border-gray-100 px-4 py-3.5">
         <div className="flex w-fit items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
           <button
@@ -808,18 +1018,18 @@ function SchedulingPanel({
           </button>
         </div>
         <h3 className="mt-3 text-sm font-semibold text-gray-900">
-          {tab === "todo" ? "No date set" : "Connected content to schedule"}
+          {tab === "todo" ? "No date set" : "Posting tracker"}
         </h3>
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
           {tab === "todo"
             ? "Blog drafts and standalone social posts with no date yet. Add a date from the editor or schedule here."
-            : "Published posts whose connected social copy has not been scheduled or posted yet."}
+            : "All connected content still to post. Mark as posted when live, or schedule items without a date. Posted items leave this list."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedPostGroups.length}
+          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : unpostedConnectedCount}
         </span>
       </div>
-      <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-3">
+      <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
         {tab === "todo" ? (
           unscheduledPosts.length === 0 && unscheduledSocial.length === 0 ? (
             <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
@@ -884,7 +1094,7 @@ function SchedulingPanel({
           )
         ) : connectedPostGroups.length === 0 ? (
           <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-            All connected content has been scheduled or posted
+            All connected content has been posted
           </li>
         ) : (
           connectedPostGroups.map((group) => (
@@ -922,16 +1132,39 @@ export default function CalendarPage() {
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const [connectedBusy, setConnectedBusy] = useState(false);
   const [markingSocialPosted, setMarkingSocialPosted] = useState(false);
+  const [draggingPayload, setDraggingPayload] = useState<CalendarDragPayload | null>(null);
+  const [dropTargetDay, setDropTargetDay] = useState<string | null>(null);
+  const [rescheduling, setRescheduling] = useState(false);
+
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [postsRes, socialRes] = await Promise.all([
-      fetch("/api/admin/posts").then((r) => r.json() as Promise<{ data: Post[] }>),
-      fetch("/api/admin/social-posts").then((r) => r.json() as Promise<{ data: SocialPost[] }>),
-    ]);
-    setPosts(postsRes.data ?? []);
-    setSocialPosts(socialRes.data ?? []);
-    setLoading(false);
+    setLoadError(null);
+    try {
+      const [postsRes, socialRes] = await Promise.all([
+        fetch("/api/admin/posts").then((r) => r.json() as Promise<{ data?: Post[]; error?: string }>),
+        fetch("/api/admin/social-posts").then((r) => r.json() as Promise<{ data?: SocialPost[]; error?: string }>),
+      ]);
+      if (postsRes.error) {
+        setLoadError(postsRes.error);
+        setPosts([]);
+      } else {
+        setPosts(postsRes.data ?? []);
+      }
+      if (socialRes.error) {
+        setLoadError((prev) => prev ?? socialRes.error ?? null);
+        setSocialPosts([]);
+      } else {
+        setSocialPosts(socialRes.data ?? []);
+      }
+    } catch {
+      setLoadError("Could not load calendar data");
+      setPosts([]);
+      setSocialPosts([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -1108,6 +1341,86 @@ export default function CalendarPage() {
     await load();
   };
 
+  const clearDragState = () => {
+    setDraggingPayload(null);
+    setDropTargetDay(null);
+  };
+
+  const rescheduleToDay = async (payload: CalendarDragPayload, targetDayStr: string) => {
+    if (payload.sourceDay === targetDayStr) return;
+    const targetDay = parseLocalDay(targetDayStr);
+    setRescheduling(true);
+
+    try {
+      if (payload.kind === "social") {
+        const social = socialPosts.find((s) => s.id === payload.socialId);
+        if (!social) return;
+        const scheduled_date = moveIsoToDay(social.scheduled_date, targetDay);
+        setSocialPosts((prev) =>
+          prev.map((s) => (s.id === social.id ? { ...s, scheduled_date } : s)),
+        );
+        await fetch(`/api/admin/social-posts/${social.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scheduled_date }),
+        });
+        return;
+      }
+
+      const post = posts.find((p) => p.id === payload.postId);
+      if (!post) return;
+
+      if (payload.postOnSourceDay) {
+        const scheduled_at =
+          post.status === "published"
+            ? undefined
+            : moveIsoToDay(post.scheduled_at, targetDay);
+        const published_at =
+          post.status === "published"
+            ? moveIsoToDay(post.published_at, targetDay)
+            : undefined;
+
+        setPosts((prev) =>
+          prev.map((p) => {
+            if (p.id !== post.id) return p;
+            return {
+              ...p,
+              ...(scheduled_at ? { scheduled_at, status: "scheduled" as const } : {}),
+              ...(published_at ? { published_at } : {}),
+            };
+          }),
+        );
+
+        await fetch(`/api/admin/posts/${post.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...(scheduled_at ? { scheduled_at, status: "scheduled" } : {}),
+            ...(published_at ? { published_at } : {}),
+          }),
+        });
+      }
+
+      const sourceDayDate = parseLocalDay(payload.sourceDay);
+      for (const socialId of payload.connectedSocialIds) {
+        const social = socialPosts.find((s) => s.id === socialId);
+        if (!social || !socialOnCalendarDay(social, sourceDayDate)) continue;
+        const scheduled_date = moveIsoToDay(social.scheduled_date, targetDay);
+        setSocialPosts((prev) =>
+          prev.map((s) => (s.id === social.id ? { ...s, scheduled_date } : s)),
+        );
+        await fetch(`/api/admin/social-posts/${social.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scheduled_date }),
+        });
+      }
+    } finally {
+      setRescheduling(false);
+      await load();
+    }
+  };
+
   function PostChip({ post }: { post: Post }) {
     const isScheduled = post.status === "scheduled";
     const linked = linkedSocialForPost(post.id);
@@ -1138,18 +1451,41 @@ export default function CalendarPage() {
     );
   }
 
-  function SocialChip({ sp, connected, nested }: { sp: SocialPost; connected?: boolean; nested?: boolean }) {
+  function SocialChip({
+    sp,
+    connected,
+    nested,
+    sourceDay,
+    draggable = false,
+    isDragging,
+  }: {
+    sp: SocialPost;
+    connected?: boolean;
+    nested?: boolean;
+    sourceDay?: string;
+    draggable?: boolean;
+    isDragging?: boolean;
+  }) {
     const info = platformInfo(sp.platform);
     const isPosted = !!sp.posted_at;
     return (
       <button
         type="button"
+        draggable={draggable && !isPosted}
+        onDragStart={(e) => {
+          if (!draggable || !sourceDay || isPosted) return;
+          e.stopPropagation();
+          setDraggingPayload({ kind: "social", socialId: sp.id, sourceDay });
+        }}
+        onDragEnd={clearDragState}
         onClick={() => { setActiveSocial(sp); setPanelMode("view-social"); }}
         className={`flex items-center gap-1 truncate rounded px-1.5 py-0.5 text-[10px] font-semibold leading-tight ${
           isPosted
             ? "bg-gray-100 text-gray-500 hover:bg-gray-100"
             : platformChipClasses(sp.platform)
-        } ${nested ? "ml-2" : ""}`}
+        } ${nested ? "ml-2" : ""} ${draggable && !isPosted ? "cursor-grab active:cursor-grabbing" : ""} ${
+          isDragging ? "opacity-50" : ""
+        }`}
       >
         <info.Icon className="h-2.5 w-2.5 shrink-0" />
         {connected && <Link2 className="h-2 w-2 shrink-0 opacity-50" />}
@@ -1161,22 +1497,32 @@ export default function CalendarPage() {
 
   function DayCell({ day, minimal }: { day: Date; minimal?: boolean }) {
     const isToday = isSameDay(day, today);
-    const dayPosts = postsOnDay(day);
-    const allDaySocial = socialOnDay(day);
+    const { groups, standaloneSocial } = buildDayCalendarGroups(day, posts, socialPosts);
     const ds = toDateStr(day);
-
-    const connectedIdsShown = new Set<string>();
-    for (const p of dayPosts) {
-      for (const s of allDaySocial) {
-        if (isConnectedSocial(s) && socialLinksToPost(s.link, p.id)) {
-          connectedIdsShown.add(s.id);
-        }
-      }
-    }
-    const standaloneSocial = allDaySocial.filter((s) => !connectedIdsShown.has(s.id));
+    const isDropTarget = dropTargetDay === ds && !!draggingPayload;
 
     return (
-      <div className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[120px]"} p-2.5`}>
+      <div
+        className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[120px]"} p-2.5 transition-colors ${
+          isDropTarget ? "bg-gray-100 ring-2 ring-inset ring-gray-400" : ""
+        }`}
+        onDragOver={(e) => {
+          if (!draggingPayload) return;
+          e.preventDefault();
+          setDropTargetDay(ds);
+        }}
+        onDragLeave={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setDropTargetDay((prev) => (prev === ds ? null : prev));
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const payload = draggingPayload;
+          clearDragState();
+          if (payload) void rescheduleToDay(payload, ds);
+        }}
+      >
         <div className="flex items-center justify-between">
           <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-gray-900 text-white" : "text-gray-500"}`}>
             {day.getDate()}
@@ -1190,25 +1536,31 @@ export default function CalendarPage() {
           </button>
         </div>
         <div className="mt-1.5 space-y-1">
-          {dayPosts.map((p) => {
-            const linkedOnDay = allDaySocial.filter(
-              (s) => isConnectedSocial(s) && socialLinksToPost(s.link, p.id),
-            );
-            return (
-              <div key={p.id} className="space-y-0.5">
-                <PostChip post={p} />
-                {linkedOnDay.length > 0 && (
-                  <div className="space-y-0.5 border-l border-gray-200 pl-1">
-                    {linkedOnDay.map((s) => (
-                      <SocialChip key={s.id} sp={s} connected nested />
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {groups.map((group) => (
+            <CalendarBlogGroupCard
+              key={`${group.post.id}-${ds}`}
+              group={group}
+              minimal={minimal}
+              sourceDay={ds}
+              onOpen={() => setPreviewPost(group.post)}
+              onDragStart={setDraggingPayload}
+              onDragEnd={clearDragState}
+              onDragConnectedStart={(socialId, sourceDay) =>
+                setDraggingPayload({ kind: "social", socialId, sourceDay })
+              }
+              isDragging={
+                draggingPayload?.kind === "post-group" && draggingPayload.postId === group.post.id
+              }
+            />
+          ))}
           {standaloneSocial.map((s) => (
-            <SocialChip key={s.id} sp={s} />
+            <SocialChip
+              key={s.id}
+              sp={s}
+              sourceDay={ds}
+              draggable
+              isDragging={draggingPayload?.kind === "social" && draggingPayload.socialId === s.id}
+            />
           ))}
         </div>
       </div>
@@ -1240,7 +1592,7 @@ export default function CalendarPage() {
 
         <div className="px-8 py-6">
           <div className="grid gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-start">
-            <div className="order-2 lg:order-1 lg:sticky lg:top-4">
+            <div className="order-2 lg:order-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-5rem)]">
               <SchedulingPanel
                 unscheduledPosts={unscheduledPosts}
                 unscheduledSocial={unscheduledSocial}
@@ -1279,7 +1631,11 @@ export default function CalendarPage() {
             </button>
           </div>
 
-          {loading ? (
+          {loadError ? (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-center text-sm text-red-700">
+              Could not load posts: {loadError}
+            </div>
+          ) : loading ? (
             <div className="py-20 text-center text-sm text-gray-400">Loading…</div>
           ) : view === "month" ? (
             <div className="overflow-hidden rounded-md border border-gray-200 bg-white">
