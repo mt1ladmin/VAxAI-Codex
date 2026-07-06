@@ -122,6 +122,28 @@ function toDateStr(d: Date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+function moveIsoToDay(existingIso: string | null | undefined, targetDay: Date): string {
+  const time = existingIso ? new Date(existingIso) : new Date();
+  if (!existingIso) time.setHours(9, 0, 0, 0);
+  const moved = new Date(targetDay);
+  moved.setHours(time.getHours(), time.getMinutes(), time.getSeconds(), time.getMilliseconds());
+  return moved.toISOString();
+}
+
+type CalendarDragPayload =
+  | {
+      kind: "post-group";
+      postId: string;
+      sourceDay: string;
+      postOnSourceDay: boolean;
+      connectedSocialIds: string[];
+    }
+  | {
+      kind: "social";
+      socialId: string;
+      sourceDay: string;
+    };
+
 function isConnectedSocial(sp: SocialPost) {
   return !!sp.link?.includes("/admin/posts/");
 }
@@ -209,23 +231,48 @@ function buildDayCalendarGroups(
 function CalendarBlogGroupCard({
   group,
   minimal,
+  sourceDay,
   onOpen,
+  onDragStart,
+  onDragEnd,
+  onDragConnectedStart,
+  isDragging,
 }: {
   group: DayCalendarGroup;
   minimal?: boolean;
+  sourceDay: string;
   onOpen: () => void;
+  onDragStart: (payload: CalendarDragPayload) => void;
+  onDragEnd: () => void;
+  onDragConnectedStart: (socialId: string, sourceDay: string) => void;
+  isDragging?: boolean;
 }) {
   const { post, connectedSocial, inlineItems } = group;
   const hasConnected = connectedSocial.length > 0 || inlineItems.length > 0;
   const isScheduled = post.status === "scheduled";
+  const postOnSourceDay = postOnCalendarDay(post, parseLocalDay(sourceDay));
 
   return (
-    <button
-      type="button"
+    <div
+      draggable
+      onDragStart={(e) => {
+        e.stopPropagation();
+        onDragStart({
+          kind: "post-group",
+          postId: post.id,
+          sourceDay,
+          postOnSourceDay,
+          connectedSocialIds: connectedSocial.map((s) => s.id),
+        });
+      }}
+      onDragEnd={onDragEnd}
       onClick={onOpen}
-      className={`block w-full overflow-hidden rounded-md border text-left transition-colors hover:border-gray-400 ${
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
+      className={`block w-full cursor-grab overflow-hidden rounded-md border text-left transition-colors hover:border-gray-400 active:cursor-grabbing ${
         isScheduled ? "border-gray-300 bg-gray-50" : "border-gray-200 bg-white"
-      }`}
+      } ${isDragging ? "opacity-50" : ""}`}
     >
       {post.cover_image_url ? (
         <div className={`w-full overflow-hidden bg-gray-100 ${minimal ? "h-9" : "h-12"}`}>
@@ -247,7 +294,17 @@ function CalendarBlogGroupCard({
               return (
                 <div
                   key={s.id}
-                  className={`flex items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold ${platformChipClasses(s.platform)}`}
+                  draggable
+                  onDragStart={(e) => {
+                    e.stopPropagation();
+                    onDragConnectedStart(s.id, sourceDay);
+                  }}
+                  onDragEnd={(e) => {
+                    e.stopPropagation();
+                    onDragEnd();
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className={`flex cursor-grab items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold active:cursor-grabbing ${platformChipClasses(s.platform)}`}
                 >
                   <info.Icon className="h-2.5 w-2.5 shrink-0" />
                   <Link2 className="h-2 w-2 shrink-0 opacity-50" />
@@ -272,7 +329,7 @@ function CalendarBlogGroupCard({
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -1067,6 +1124,9 @@ export default function CalendarPage() {
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
   const [connectedBusy, setConnectedBusy] = useState(false);
   const [markingSocialPosted, setMarkingSocialPosted] = useState(false);
+  const [draggingPayload, setDraggingPayload] = useState<CalendarDragPayload | null>(null);
+  const [dropTargetDay, setDropTargetDay] = useState<string | null>(null);
+  const [rescheduling, setRescheduling] = useState(false);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -1273,6 +1333,86 @@ export default function CalendarPage() {
     await load();
   };
 
+  const clearDragState = () => {
+    setDraggingPayload(null);
+    setDropTargetDay(null);
+  };
+
+  const rescheduleToDay = async (payload: CalendarDragPayload, targetDayStr: string) => {
+    if (payload.sourceDay === targetDayStr) return;
+    const targetDay = parseLocalDay(targetDayStr);
+    setRescheduling(true);
+
+    try {
+      if (payload.kind === "social") {
+        const social = socialPosts.find((s) => s.id === payload.socialId);
+        if (!social) return;
+        const scheduled_date = moveIsoToDay(social.scheduled_date, targetDay);
+        setSocialPosts((prev) =>
+          prev.map((s) => (s.id === social.id ? { ...s, scheduled_date } : s)),
+        );
+        await fetch(`/api/admin/social-posts/${social.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scheduled_date }),
+        });
+        return;
+      }
+
+      const post = posts.find((p) => p.id === payload.postId);
+      if (!post) return;
+
+      if (payload.postOnSourceDay) {
+        const scheduled_at =
+          post.status === "published"
+            ? undefined
+            : moveIsoToDay(post.scheduled_at, targetDay);
+        const published_at =
+          post.status === "published"
+            ? moveIsoToDay(post.published_at, targetDay)
+            : undefined;
+
+        setPosts((prev) =>
+          prev.map((p) => {
+            if (p.id !== post.id) return p;
+            return {
+              ...p,
+              ...(scheduled_at ? { scheduled_at, status: "scheduled" as const } : {}),
+              ...(published_at ? { published_at } : {}),
+            };
+          }),
+        );
+
+        await fetch(`/api/admin/posts/${post.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...(scheduled_at ? { scheduled_at, status: "scheduled" } : {}),
+            ...(published_at ? { published_at } : {}),
+          }),
+        });
+      }
+
+      const sourceDayDate = parseLocalDay(payload.sourceDay);
+      for (const socialId of payload.connectedSocialIds) {
+        const social = socialPosts.find((s) => s.id === socialId);
+        if (!social || !socialOnCalendarDay(social, sourceDayDate)) continue;
+        const scheduled_date = moveIsoToDay(social.scheduled_date, targetDay);
+        setSocialPosts((prev) =>
+          prev.map((s) => (s.id === social.id ? { ...s, scheduled_date } : s)),
+        );
+        await fetch(`/api/admin/social-posts/${social.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scheduled_date }),
+        });
+      }
+    } finally {
+      setRescheduling(false);
+      await load();
+    }
+  };
+
   function PostChip({ post }: { post: Post }) {
     const isScheduled = post.status === "scheduled";
     const linked = linkedSocialForPost(post.id);
@@ -1303,18 +1443,41 @@ export default function CalendarPage() {
     );
   }
 
-  function SocialChip({ sp, connected, nested }: { sp: SocialPost; connected?: boolean; nested?: boolean }) {
+  function SocialChip({
+    sp,
+    connected,
+    nested,
+    sourceDay,
+    draggable = false,
+    isDragging,
+  }: {
+    sp: SocialPost;
+    connected?: boolean;
+    nested?: boolean;
+    sourceDay?: string;
+    draggable?: boolean;
+    isDragging?: boolean;
+  }) {
     const info = platformInfo(sp.platform);
     const isPosted = !!sp.posted_at;
     return (
       <button
         type="button"
+        draggable={draggable && !isPosted}
+        onDragStart={(e) => {
+          if (!draggable || !sourceDay || isPosted) return;
+          e.stopPropagation();
+          setDraggingPayload({ kind: "social", socialId: sp.id, sourceDay });
+        }}
+        onDragEnd={clearDragState}
         onClick={() => { setActiveSocial(sp); setPanelMode("view-social"); }}
         className={`flex items-center gap-1 truncate rounded px-1.5 py-0.5 text-[10px] font-semibold leading-tight ${
           isPosted
             ? "bg-gray-100 text-gray-500 hover:bg-gray-100"
             : platformChipClasses(sp.platform)
-        } ${nested ? "ml-2" : ""}`}
+        } ${nested ? "ml-2" : ""} ${draggable && !isPosted ? "cursor-grab active:cursor-grabbing" : ""} ${
+          isDragging ? "opacity-50" : ""
+        }`}
       >
         <info.Icon className="h-2.5 w-2.5 shrink-0" />
         {connected && <Link2 className="h-2 w-2 shrink-0 opacity-50" />}
@@ -1328,9 +1491,30 @@ export default function CalendarPage() {
     const isToday = isSameDay(day, today);
     const { groups, standaloneSocial } = buildDayCalendarGroups(day, posts, socialPosts);
     const ds = toDateStr(day);
+    const isDropTarget = dropTargetDay === ds && !!draggingPayload;
 
     return (
-      <div className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[120px]"} p-2.5`}>
+      <div
+        className={`group relative ${minimal ? "min-h-[200px]" : "min-h-[120px]"} p-2.5 transition-colors ${
+          isDropTarget ? "bg-gray-100 ring-2 ring-inset ring-gray-400" : ""
+        }`}
+        onDragOver={(e) => {
+          if (!draggingPayload) return;
+          e.preventDefault();
+          setDropTargetDay(ds);
+        }}
+        onDragLeave={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setDropTargetDay((prev) => (prev === ds ? null : prev));
+          }
+        }}
+        onDrop={(e) => {
+          e.preventDefault();
+          const payload = draggingPayload;
+          clearDragState();
+          if (payload) void rescheduleToDay(payload, ds);
+        }}
+      >
         <div className="flex items-center justify-between">
           <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-gray-900 text-white" : "text-gray-500"}`}>
             {day.getDate()}
@@ -1346,14 +1530,29 @@ export default function CalendarPage() {
         <div className="mt-1.5 space-y-1">
           {groups.map((group) => (
             <CalendarBlogGroupCard
-              key={group.post.id}
+              key={`${group.post.id}-${ds}`}
               group={group}
               minimal={minimal}
+              sourceDay={ds}
               onOpen={() => setPreviewPost(group.post)}
+              onDragStart={setDraggingPayload}
+              onDragEnd={clearDragState}
+              onDragConnectedStart={(socialId, sourceDay) =>
+                setDraggingPayload({ kind: "social", socialId, sourceDay })
+              }
+              isDragging={
+                draggingPayload?.kind === "post-group" && draggingPayload.postId === group.post.id
+              }
             />
           ))}
           {standaloneSocial.map((s) => (
-            <SocialChip key={s.id} sp={s} />
+            <SocialChip
+              key={s.id}
+              sp={s}
+              sourceDay={ds}
+              draggable
+              isDragging={draggingPayload?.kind === "social" && draggingPayload.socialId === s.id}
+            />
           ))}
         </div>
       </div>
