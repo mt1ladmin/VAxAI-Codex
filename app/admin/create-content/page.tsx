@@ -12,7 +12,7 @@ const BLOG_PROMPTS = [
   "Why your team keeps avoiding the new system—and what that may be telling you about the system itself",
   "The hidden cost of workarounds: how spreadsheets, inboxes and informal processes quietly drain your team's time",
   "What happens after the AI demonstration? The practical work needed to make a new tool useful in everyday operations",
-  "Should this task be automated at all? A Value, Alignment and Trust checklist for small teams",
+  "Should this task be automated at all? A practical checklist for small teams before changing a process",
   "From “we need AI” to a clearer problem: how to define what your organisation is actually trying to improve",
   "What good virtual assistance looks like when the work cannot be reduced to a task list",
 ];
@@ -54,7 +54,7 @@ export default function CreateContentPage() {
         <div className="space-y-4 rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/60 px-8 py-8 text-center">
           <p className="text-lg font-semibold text-[#111111]">Create on-brand content using AI</p>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#6f6b62]">
-            Generate blog posts, LinkedIn posts, and Instagram captions grounded in VAxAI&apos;s full offer — virtual administration, AI and automation support, system reviews, and training. The AI applies the MT1L VAT framework (Value, Alignment, Trust) as a lens throughout, and every piece leads its call to action with how VAxAI could help — tailored to the content generated, including in the connected social posts — before any secondary MT1L.com reference. Tags are built for both Google and AI search, and always include the MT1L, VAT Framework, and VAxAI core tags so posts connect across the main page.
+            Generate blog posts, LinkedIn posts, and Instagram captions grounded in VAxAI&apos;s full offer — virtual administration, AI and automation support, system reviews, and training. The AI shapes each piece around practical value, contextual fit and trustworthy advice, without naming the VAT Framework unless your brief asks for it. Every piece leads its call to action with how VAxAI could help — tailored to the content generated, including in the connected social posts. Tags are built for both Google and AI search, with VAxAI always included.
           </p>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#6f6b62]">
             Blog posts include accompanying LinkedIn and Instagram copy. You can convert the post directly to a draft in your Posts section, and save the social versions to your content calendar with scheduled dates.
@@ -79,7 +79,7 @@ export default function CreateContentPage() {
           <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-5">
             <p className="text-sm font-semibold text-[#063b32]">A simple way to find an idea</p>
             <p className="mt-2 text-sm leading-relaxed text-[#6f6b62]">
-              Start with an admin frustration, workaround or task people avoid. Ask whether a VA, AI or automation could help—or make things worse—then explore the value, fit and trust behind the decision.
+              Start with an admin frustration, workaround or task people avoid. Ask whether a VA, AI or automation could help—or make things worse—then explore whether the advice is genuinely useful, fits how the team actually works, and would build confidence in practice.
             </p>
           </div>
         </div>
