@@ -295,7 +295,7 @@ export default function AdminShell({
           <div className="sticky top-[41px] z-20 border-b border-[#111111]/10 bg-white px-4 py-3 md:top-0 md:px-8">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="font-semibold text-[#111111]">Content Hub</span>
-              <div className="flex overflow-x-auto overflow-y-hidden rounded-lg border border-[#111111]/15 scrollbar-none">
+              <div className="relative z-30 flex max-w-full overflow-x-auto overflow-y-hidden rounded-lg border border-[#111111]/15 scrollbar-subtle">
                 <Link
                   href="/admin/calendar"
                   className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
