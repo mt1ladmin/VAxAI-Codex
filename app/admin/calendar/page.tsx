@@ -363,7 +363,7 @@ type ConnectedPostGroup = {
   pendingCount: number;
 };
 
-type SchedulingTab = "todo" | "connected";
+type SchedulingTab = "published" | "draft";
 
 function hasValidDate(iso: string | null | undefined) {
   return !!iso && iso.trim() !== "";
@@ -417,11 +417,17 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
   return out;
 }
 
-function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): ConnectedPostGroup[] {
+function buildConnectedPostGroups(
+  posts: Post[],
+  socialPosts: SocialPost[],
+  tab: SchedulingTab,
+): ConnectedPostGroup[] {
   const groups: ConnectedPostGroup[] = [];
 
   for (const post of posts) {
-    if (post.status !== "published") continue;
+    const isPublishedTab = tab === "published";
+    if (isPublishedTab && post.status !== "published") continue;
+    if (!isPublishedTab && post.status !== "draft" && post.status !== "scheduled") continue;
     const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
     const linkedByPlatform = new Map(linked.map((s) => [s.platform, s]));
     const inlinePlatforms: Array<{ key: string; label: string }> = [
@@ -835,12 +841,20 @@ function SocialPostDetail({
 function ConnectedPostCard({
   group,
   onSelectPost,
+  tab,
 }: {
   group: ConnectedPostGroup;
   onSelectPost: (post: Post) => void;
+  tab: SchedulingTab;
 }) {
   const { post, items } = group;
   const pendingCount = items.length;
+  const statusLabel =
+    tab === "published"
+      ? "Published blog post"
+      : post.status === "scheduled"
+        ? "Scheduled blog post"
+        : "Draft blog post";
 
   return (
     <li>
@@ -864,7 +878,7 @@ function ConnectedPostCard({
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
             <FileText className="h-2.5 w-2.5" />
-            Published blog post
+            {statusLabel}
           </span>
           {pendingCount > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
@@ -879,23 +893,16 @@ function ConnectedPostCard({
 }
 
 function SchedulingPanel({
-  unscheduledPosts,
-  unscheduledSocial,
-  connectedPostGroups,
+  publishedConnectedGroups,
+  draftConnectedGroups,
   onSelectPost,
-  onSelectSocial,
-  onDeletePost,
-  onDeleteSocial,
 }: {
-  unscheduledPosts: Post[];
-  unscheduledSocial: SocialPost[];
-  connectedPostGroups: ConnectedPostGroup[];
+  publishedConnectedGroups: ConnectedPostGroup[];
+  draftConnectedGroups: ConnectedPostGroup[];
   onSelectPost: (post: Post) => void;
-  onSelectSocial: (social: SocialPost) => void;
-  onDeletePost: (post: Post) => void;
-  onDeleteSocial: (id: string) => void;
 }) {
-  const [tab, setTab] = useState<SchedulingTab>("todo");
+  const [tab, setTab] = useState<SchedulingTab>("published");
+  const activeGroups = tab === "published" ? publishedConnectedGroups : draftConnectedGroups;
 
   return (
     <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
@@ -903,107 +910,46 @@ function SchedulingPanel({
         <div className="flex w-fit items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
           <button
             type="button"
-            onClick={() => setTab("todo")}
+            onClick={() => setTab("published")}
             className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
-              tab === "todo" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
+              tab === "published" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
             }`}
           >
-            To schedule
+            Published
           </button>
           <button
             type="button"
-            onClick={() => setTab("connected")}
+            onClick={() => setTab("draft")}
             className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
-              tab === "connected" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
+              tab === "draft" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
             }`}
           >
-            Connected content
+            Drafts
           </button>
         </div>
-        <h3 className="mt-3 text-sm font-semibold text-gray-900">
-          {tab === "todo" ? "No date set" : "Posting tracker"}
-        </h3>
+        <h3 className="mt-3 text-sm font-semibold text-gray-900">Connected content</h3>
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
-          {tab === "todo"
-            ? "Blog drafts and standalone social posts with no date yet. Add a date from the editor or schedule here."
-            : "Published posts with connected content still to post. Click a post to view, schedule, or mark connected items as posted."}
+          {tab === "published"
+            ? "Published posts with connected content still to post. Click a post to view, schedule, or mark items as posted."
+            : "Draft and scheduled posts with connected content still to post. Click a post to manage connected items."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedPostGroups.length}
+          {activeGroups.length}
         </span>
       </div>
       <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
-        {tab === "todo" ? (
-          unscheduledPosts.length === 0 && unscheduledSocial.length === 0 ? (
-            <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-              All caught up — everything has a date
-            </li>
-          ) : (
-            <>
-              {unscheduledPosts.map((post) => (
-                <li key={`post-${post.id}`} className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => onSelectPost(post)}
-                    className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 pr-9 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
-                  >
-                    <p className="line-clamp-2 text-xs font-medium leading-snug text-gray-900">
-                      {post.title || "Untitled"}
-                    </p>
-                    <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9.5px] font-semibold text-gray-600">
-                      <FileText className="h-2.5 w-2.5" />
-                      Blog · {post.status}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDeletePost(post)}
-                    aria-label={`Delete ${post.title || "Untitled"}`}
-                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-md text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
-              {unscheduledSocial.map((social) => {
-                const info = platformInfo(social.platform);
-                return (
-                  <li key={`social-${social.id}`} className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => onSelectSocial(social)}
-                      className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 pr-9 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
-                    >
-                      <p className="line-clamp-2 text-xs font-medium leading-snug text-gray-900">
-                        {social.title || "Untitled"}
-                      </p>
-                      <span className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-semibold ${platformChipClasses(social.platform)}`}>
-                        <info.Icon className="h-2.5 w-2.5" />
-                        {info.label} · no date
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDeleteSocial(social.id)}
-                      aria-label={`Delete ${social.title || "Untitled"}`}
-                      className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-md text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                );
-              })}
-            </>
-          )
-        ) : connectedPostGroups.length === 0 ? (
+        {activeGroups.length === 0 ? (
           <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-            All connected content has been posted
+            {tab === "published"
+              ? "All connected content has been posted"
+              : "No draft posts with connected content to post"}
           </li>
         ) : (
-          connectedPostGroups.map((group) => (
+          activeGroups.map((group) => (
             <ConnectedPostCard
               key={group.post.id}
               group={group}
+              tab={tab}
               onSelectPost={onSelectPost}
             />
           ))
@@ -1070,18 +1016,13 @@ export default function CalendarPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const unscheduledPosts = useMemo(
-    () => posts.filter((p) => p.status !== "published" && !hasValidDate(p.scheduled_at)),
-    [posts],
+  const publishedConnectedGroups = useMemo(
+    () => buildConnectedPostGroups(posts, socialPosts, "published"),
+    [posts, socialPosts],
   );
 
-  const unscheduledSocial = useMemo(
-    () => socialPosts.filter((s) => !isConnectedSocial(s) && !hasValidDate(s.scheduled_date) && !s.posted_at),
-    [socialPosts],
-  );
-
-  const connectedPostGroups = useMemo(
-    () => buildConnectedPostGroups(posts, socialPosts),
+  const draftConnectedGroups = useMemo(
+    () => buildConnectedPostGroups(posts, socialPosts, "draft"),
     [posts, socialPosts],
   );
 
@@ -1234,13 +1175,6 @@ export default function CalendarPage() {
   };
 
   const deleteSocial = async (id: string) => deleteSocialById(id);
-
-  const deleteUnscheduledPost = async (post: Post) => {
-    if (!confirm(`Delete "${post.title || "Untitled"}"? This cannot be undone.`)) return;
-    await fetch(`/api/admin/posts/${post.id}`, { method: "DELETE" });
-    if (previewPost?.id === post.id) setPreviewPost(null);
-    await load();
-  };
 
   const setDragPayload = (payload: CalendarDragPayload | null) => {
     draggingPayloadRef.current = payload;
@@ -1594,19 +1528,12 @@ export default function CalendarPage() {
           <div className="grid gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-start">
             <div className="order-2 lg:order-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-5rem)]">
               <SchedulingPanel
-                unscheduledPosts={unscheduledPosts}
-                unscheduledSocial={unscheduledSocial}
-                connectedPostGroups={connectedPostGroups}
+                publishedConnectedGroups={publishedConnectedGroups}
+                draftConnectedGroups={draftConnectedGroups}
                 onSelectPost={(post) => {
                   setPreviewPost(post);
                   setPreviewCalendarDay(null);
                 }}
-                onSelectSocial={(social) => {
-                  setActiveSocial(social);
-                  setPanelMode("view-social");
-                }}
-                onDeletePost={deleteUnscheduledPost}
-                onDeleteSocial={deleteSocialById}
               />
             </div>
 

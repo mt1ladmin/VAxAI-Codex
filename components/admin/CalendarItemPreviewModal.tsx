@@ -2,18 +2,16 @@
 
 import Link from "next/link";
 import {
-  CalendarClock,
   CheckCircle2,
   ExternalLink,
   Facebook,
   Instagram,
   Linkedin,
-  MoreVertical,
   Share2,
   Trash2,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   SocialPostPreviewModal,
   type SocialPostPreview,
@@ -257,9 +255,7 @@ export function CalendarItemPreviewModal({
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>(linkedSocialProp ?? []);
   const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
   const [fullPost, setFullPost] = useState<CalendarBlogPreview | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [blogScheduleDate, setBlogScheduleDate] = useState("");
-  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (linkedSocialProp) {
@@ -290,17 +286,6 @@ export function CalendarItemPreviewModal({
         : displayPost.scheduled_at;
     setBlogScheduleDate(defaultScheduleValue(calendarDay, existing));
   }, [displayPost, calendarDay]);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    const onDocClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, [menuOpen]);
 
   const connectedRows = useMemo((): ConnectedRow[] => {
     const fromTable = linkedSocial;
@@ -333,7 +318,8 @@ export function CalendarItemPreviewModal({
         ? formatDate(displayPost.scheduled_at)
         : formatDate(displayPost.updated_at);
 
-  const hasScheduleActions = Boolean(onScheduleBlog || onScheduleConnected);
+  const publishingDateLabel =
+    displayPost.status === "published" ? "Published date" : "Scheduled publishing date";
 
   return (
     <div
@@ -348,63 +334,14 @@ export function CalendarItemPreviewModal({
         aria-modal="true"
         aria-labelledby="calendar-preview-title"
       >
-        <div className="absolute right-3 top-3 z-10 flex items-center gap-1">
-          {hasScheduleActions && (
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setMenuOpen((v) => !v)}
-                className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
-                aria-label="Schedule options"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 mt-1 w-64 rounded-lg border border-[#111111]/10 bg-white p-3 shadow-lg">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
-                    Schedule
-                  </p>
-                  {onScheduleBlog && (
-                    <div className="mt-2 space-y-2">
-                      <p className="text-xs font-semibold text-[#111111]">Blog post</p>
-                      <input
-                        type="datetime-local"
-                        value={blogScheduleDate}
-                        onChange={(e) => setBlogScheduleDate(e.target.value)}
-                        className="w-full rounded-md border border-[#111111]/15 px-2 py-1.5 text-xs text-[#111111] outline-none focus:border-[#063b32]/40"
-                      />
-                      <button
-                        type="button"
-                        disabled={!blogScheduleDate || busy}
-                        onClick={() => {
-                          void onScheduleBlog(blogScheduleDate);
-                          setMenuOpen(false);
-                        }}
-                        className="flex w-full items-center justify-center gap-1.5 rounded-md bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
-                      >
-                        <CalendarClock className="h-3.5 w-3.5" />
-                        {displayPost.status === "published" ? "Set publish date" : "Schedule blog"}
-                      </button>
-                    </div>
-                  )}
-                  {calendarDay && (
-                    <p className="mt-2 text-[10px] text-[#6f6b62]">
-                      Defaults to {formatShortDate(calendarDay)} from calendar
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
-            aria-label="Close preview"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
+          aria-label="Close preview"
+        >
+          <X className="h-4 w-4" />
+        </button>
 
         {displayPost.cover_image_url ? (
           <div className="aspect-[16/9] w-full shrink-0 overflow-hidden bg-[#f7f4ea]">
@@ -418,7 +355,7 @@ export function CalendarItemPreviewModal({
         ) : null}
 
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-6">
-          <div className="flex flex-wrap items-center gap-2 pr-16">
+          <div className="flex flex-wrap items-center gap-2 pr-10">
             <span
               className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${STATUS_STYLES[displayPost.status]}`}
             >
@@ -474,7 +411,7 @@ export function CalendarItemPreviewModal({
             </div>
           )}
 
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex flex-wrap items-end gap-3 pt-2">
             <Link
               href={`/admin/posts/${displayPost.id}`}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
@@ -482,6 +419,29 @@ export function CalendarItemPreviewModal({
               Open full post
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
+            {onScheduleBlog && (
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="flex flex-col gap-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">
+                    {publishingDateLabel}
+                  </span>
+                  <input
+                    type="datetime-local"
+                    value={blogScheduleDate}
+                    onChange={(e) => setBlogScheduleDate(e.target.value)}
+                    className="rounded-md border border-[#111111]/15 px-2.5 py-2 text-xs text-[#111111] outline-none focus:border-[#063b32]/40"
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={!blogScheduleDate || busy}
+                  onClick={() => void onScheduleBlog(blogScheduleDate)}
+                  className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-40"
+                >
+                  Update date
+                </button>
+              </div>
+            )}
             {onDelete && (
               <button
                 type="button"
