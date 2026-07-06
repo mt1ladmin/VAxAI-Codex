@@ -177,13 +177,18 @@ function ConnectedPostRow({
   const [date, setDate] = useState(() =>
     defaultScheduleValue(calendarDay, row.scheduled_date || null),
   );
+  const [posted, setPosted] = useState(row.isPosted);
   const meta = CONNECTED_PLATFORM_META[row.platform as keyof typeof CONNECTED_PLATFORM_META]
     ?? CONNECTED_PLATFORM_META.share;
-  const canSchedule = !row.isPosted && row.platform !== "share" && onSchedule;
+  const canSchedule = !posted && row.platform !== "share" && onSchedule;
 
   useEffect(() => {
     setDate(defaultScheduleValue(calendarDay, row.scheduled_date || null));
   }, [row.scheduled_date, calendarDay]);
+
+  useEffect(() => {
+    setPosted(row.isPosted);
+  }, [row.isPosted]);
 
   return (
     <div className="rounded-lg border border-[#111111]/10 p-3">
@@ -192,12 +197,6 @@ function ConnectedPostRow({
           <meta.Icon className="h-3.5 w-3.5" />
         </span>
         <span className="min-w-0 flex-1 truncate text-xs font-semibold text-[#111111]">{row.title}</span>
-        {row.isPosted && (
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-            <CheckCircle2 className="h-3 w-3" />
-            Posted
-          </span>
-        )}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <button
@@ -208,16 +207,24 @@ function ConnectedPostRow({
           Open post
           <ExternalLink className="h-2.5 w-2.5" />
         </button>
-        {!row.isPosted && onMarkPosted && (
+        {posted ? (
+          <span className="inline-flex items-center gap-1 rounded-md border border-gray-200 bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-600">
+            <CheckCircle2 className="h-3 w-3" />
+            Posted
+          </span>
+        ) : onMarkPosted ? (
           <button
             type="button"
             disabled={busy}
-            onClick={() => void onMarkPosted(row.target)}
+            onClick={() => {
+              setPosted(true);
+              void onMarkPosted(row.target);
+            }}
             className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
           >
             Mark as posted
           </button>
-        )}
+        ) : null}
         {canSchedule && (
           <>
             <input

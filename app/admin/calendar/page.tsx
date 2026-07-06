@@ -436,67 +436,28 @@ function buildConnectedPostGroups(
       { key: "share", label: "Share text" },
     ];
 
-    const trackerEntries: ConnectedScheduleEntry[] = [];
-    for (const { key, label } of inlinePlatforms) {
+    let pendingCount = 0;
+    let hasConnectedContent = false;
+
+    for (const { key } of inlinePlatforms) {
       const body = inlineBodyForPlatform(post, key);
       if (!body) continue;
-      if (inlinePostedAt(post, key)) continue;
+      hasConnectedContent = true;
       if (linkedByPlatform.has(key as SocialPost["platform"])) continue;
-      trackerEntries.push({ post, kind: "inline", platform: key, label, preview: body });
+      if (!inlinePostedAt(post, key)) pendingCount += 1;
     }
-    for (const social of linked) {
-      if (social.posted_at) continue;
-      trackerEntries.push({
-        post,
-        social,
-        kind: "social",
-        platform: social.platform,
-        label: platformInfo(social.platform).label,
-        preview: social.content || social.description || "",
-      });
-    }
-
-    if (trackerEntries.length === 0) continue;
-
-    const entryByKey = new Map(
-      trackerEntries.map((e) => [`${e.kind}-${e.social?.id ?? e.platform}`, e]),
-    );
-
-    const displayItems: ConnectedDisplayItem[] = [];
 
     for (const social of linked) {
-      if (social.posted_at) continue;
-      const entry = entryByKey.get(`social-${social.id}`);
-      displayItems.push({
-        id: social.id,
-        title: social.title,
-        platform: social.platform,
-        content: social.content || social.description || "",
-        scheduled_date: social.scheduled_date,
-        link: social.link,
-        pending: true,
-        posted: false,
-        scheduled: hasValidDate(social.scheduled_date),
-        scheduleEntry: entry,
-      });
+      hasConnectedContent = true;
+      if (!social.posted_at) pendingCount += 1;
     }
 
-    for (const inline of buildInlineSocialPreview(post, new Set(linked.map((s) => s.platform)))) {
-      if (inline.posted) continue;
-      const entry = entryByKey.get(`inline-${inline.platform}`);
-      displayItems.push({
-        ...inline,
-        scheduled: false,
-        scheduleEntry: entry,
-      });
-    }
-
-    if (displayItems.length === 0) continue;
+    if (!hasConnectedContent || pendingCount === 0) continue;
 
     groups.push({
       post,
-      items: displayItems,
-      pendingCount: displayItems.length,
+      items: [],
+      pendingCount,
     });
   }
 
@@ -847,8 +808,7 @@ function ConnectedPostCard({
   onSelectPost: (post: Post) => void;
   tab: SchedulingTab;
 }) {
-  const { post, items } = group;
-  const pendingCount = items.length;
+  const { post, pendingCount } = group;
   const statusLabel =
     tab === "published"
       ? "Published blog post"
@@ -1094,7 +1054,6 @@ export default function CalendarPage() {
   };
 
   const markConnectedEntryPosted = async (entry: ConnectedScheduleEntry) => {
-    if (!confirm("Mark this connected post as posted? It will drop off the connected list.")) return;
     setConnectedBusy(true);
     try {
       const now = new Date().toISOString();
@@ -1266,11 +1225,20 @@ export default function CalendarPage() {
     const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
     const entry = buildConnectedEntry(post, target);
     if (!entry) return;
+    const now = new Date().toISOString();
+    if (target.type === "social") {
+      setSocialPosts((prev) =>
+        prev.map((s) => (s.id === target.socialId ? { ...s, posted_at: now } : s)),
+      );
+    } else {
+      const field = inlinePostedField(target.platform);
+      if (!field) return;
+      setPosts((prev) =>
+        prev.map((p) => (p.id === previewPost.id ? { ...p, [field]: now } : p)),
+      );
+      setPreviewPost((prev) => (prev ? { ...prev, [field]: now } : prev));
+    }
     await markConnectedEntryPosted(entry);
-    const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
-      (r) => r.json() as Promise<{ data?: Post }>,
-    );
-    if (res.data) setPreviewPost(res.data);
   };
 
   const rescheduleToDay = async (payload: CalendarDragPayload, targetDayStr: string) => {
