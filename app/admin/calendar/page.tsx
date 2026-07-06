@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { CalendarItemPreviewModal } from "@/components/admin/CalendarItemPreviewModal";
 import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
 import {
@@ -214,18 +214,15 @@ function buildDayCalendarGroups(
     if (!post) continue;
 
     const connectedSocial = connectedByPostId.get(postId) ?? [];
-    const linkedPlatforms = new Set(connectedSocial.map((s) => s.platform));
-    const postOnDay = dayPosts.some((p) => p.id === postId);
-
-    let inlineItems: ConnectedDisplayItem[] = [];
-    if (post.status === "published" && postOnDay) {
-      inlineItems = buildInlineSocialPreview(post, linkedPlatforms).filter((i) => !i.posted);
-    }
-
-    groups.push({ post, connectedSocial, inlineItems });
+    groups.push({ post, connectedSocial, inlineItems: [] });
   }
 
   return { groups, standaloneSocial };
+}
+
+function beginCalendarDrag(e: DragEvent, id: string) {
+  e.dataTransfer.effectAllowed = "move";
+  e.dataTransfer.setData("text/plain", id);
 }
 
 function CalendarBlogGroupCard({
@@ -251,12 +248,15 @@ function CalendarBlogGroupCard({
   const hasConnected = connectedSocial.length > 0 || inlineItems.length > 0;
   const isScheduled = post.status === "scheduled";
   const postOnSourceDay = postOnCalendarDay(post, parseLocalDay(sourceDay));
+  const didDragRef = useRef(false);
 
   return (
     <div
       draggable
       onDragStart={(e) => {
         e.stopPropagation();
+        didDragRef.current = false;
+        beginCalendarDrag(e, post.id);
         onDragStart({
           kind: "post-group",
           postId: post.id,
@@ -265,8 +265,15 @@ function CalendarBlogGroupCard({
           connectedSocialIds: connectedSocial.map((s) => s.id),
         });
       }}
-      onDragEnd={onDragEnd}
-      onClick={onOpen}
+      onDrag={() => { didDragRef.current = true; }}
+      onDragEnd={() => {
+        setTimeout(() => { didDragRef.current = false; }, 50);
+        onDragEnd();
+      }}
+      onClick={() => {
+        if (didDragRef.current) return;
+        onOpen();
+      }}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
@@ -297,6 +304,7 @@ function CalendarBlogGroupCard({
                   draggable
                   onDragStart={(e) => {
                     e.stopPropagation();
+                    beginCalendarDrag(e, s.id);
                     onDragConnectedStart(s.id, sourceDay);
                   }}
                   onDragEnd={(e) => {
@@ -824,80 +832,22 @@ function SocialPostDetail({
   );
 }
 
-function ConnectedItemActions({
-  item,
-  onSchedule,
-  onMarkPosted,
-  busy,
-}: {
-  item: ConnectedDisplayItem;
-  onSchedule: (entry: ConnectedScheduleEntry, value: string) => void;
-  onMarkPosted: (entry: ConnectedScheduleEntry) => void;
-  busy: boolean;
-}) {
-  const entry = item.scheduleEntry;
-  const isShareText = item.platform === "share";
-  const needsSchedule = !item.scheduled && !isShareText;
-  const [date, setDate] = useState("");
-
-  if (item.posted || !entry) return null;
-
-  return (
-    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-      {needsSchedule && (
-        <>
-          <input
-            type="datetime-local"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            onClick={(e) => e.stopPropagation()}
-            className="rounded-md border border-gray-200 px-2 py-1 text-[10px] text-gray-700 outline-none focus:border-gray-400"
-          />
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onSchedule(entry, date); }}
-            disabled={!date || busy}
-            className="rounded-md bg-gray-900 px-2 py-1 text-[10px] font-semibold text-white hover:bg-gray-800 disabled:opacity-40"
-          >
-            Schedule
-          </button>
-        </>
-      )}
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onMarkPosted(entry); }}
-        disabled={busy}
-        className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
-      >
-        Mark as posted
-      </button>
-    </div>
-  );
-}
-
 function ConnectedPostCard({
   group,
   onSelectPost,
-  onSchedule,
-  onMarkPosted,
-  onDeleteSocial,
-  busy,
 }: {
   group: ConnectedPostGroup;
   onSelectPost: (post: Post) => void;
-  onSchedule: (entry: ConnectedScheduleEntry, value: string) => void;
-  onMarkPosted: (entry: ConnectedScheduleEntry) => void;
-  onDeleteSocial: (id: string) => void;
-  busy: boolean;
 }) {
   const { post, items } = group;
+  const pendingCount = items.length;
 
   return (
-    <li className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+    <li>
       <button
         type="button"
         onClick={() => onSelectPost(post)}
-        className="block w-full border-b border-gray-100 px-3 py-2.5 text-left transition-colors hover:bg-gray-50"
+        className="block w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
       >
         {post.cover_image_url ? (
           <div className="mb-2 aspect-[16/7] overflow-hidden rounded-md bg-gray-100">
@@ -911,58 +861,19 @@ function ConnectedPostCard({
         {post.description ? (
           <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-gray-500">{post.description}</p>
         ) : null}
-        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
-          <FileText className="h-2.5 w-2.5" />
-          Published blog post
-        </span>
-      </button>
-
-      {items.length > 0 && (
-        <div className="px-3 py-2.5">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-gray-400">Connected posts</p>
-          <div className="mt-1.5 max-h-44 space-y-1.5 overflow-y-auto pr-0.5">
-          {items.map((item) => {
-            const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
-            const isShare = item.platform === "share";
-            const canDelete = !item.id.startsWith("inline-");
-            return (
-              <div
-                key={item.id}
-                className={`group/item relative rounded-md border px-2.5 py-2 ${platformChipClasses(item.platform)} border-current/10`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <span className={`grid h-5 w-5 shrink-0 place-items-center rounded ${isShare ? "bg-gray-100 text-gray-600" : platformChipClasses(item.platform)}`}>
-                    {isShare ? <FileText className="h-3 w-3" /> : <info.Icon className="h-3 w-3" />}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate text-[10px] font-semibold">{item.title}</span>
-                  {item.scheduled ? (
-                    <span className="shrink-0 rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-600">Scheduled</span>
-                  ) : (
-                    <span className="shrink-0 rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-medium text-amber-700">Not posted</span>
-                  )}
-                  {canDelete && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onDeleteSocial(item.id); }}
-                      aria-label={`Delete ${item.title}`}
-                      className="ml-auto flex h-5 w-5 shrink-0 items-center justify-center rounded text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 group-hover/item:opacity-100"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                  )}
-                </div>
-                {(item.content || item.description) && (
-                  <p className="mt-1 line-clamp-2 whitespace-pre-line text-[10px] leading-relaxed opacity-80">
-                    {item.content || item.description}
-                  </p>
-                )}
-                <ConnectedItemActions item={item} onSchedule={onSchedule} onMarkPosted={onMarkPosted} busy={busy} />
-              </div>
-            );
-          })}
-          </div>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
+            <FileText className="h-2.5 w-2.5" />
+            Published blog post
+          </span>
+          {pendingCount > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
+              <Link2 className="h-2.5 w-2.5" />
+              {pendingCount} to post
+            </span>
+          )}
         </div>
-      )}
+      </button>
     </li>
   );
 }
@@ -973,26 +884,18 @@ function SchedulingPanel({
   connectedPostGroups,
   onSelectPost,
   onSelectSocial,
-  onScheduleConnected,
-  onMarkConnectedPosted,
   onDeletePost,
   onDeleteSocial,
-  connectedBusy,
 }: {
   unscheduledPosts: Post[];
   unscheduledSocial: SocialPost[];
   connectedPostGroups: ConnectedPostGroup[];
   onSelectPost: (post: Post) => void;
   onSelectSocial: (social: SocialPost) => void;
-  onScheduleConnected: (entry: ConnectedScheduleEntry, value: string) => void;
-  onMarkConnectedPosted: (entry: ConnectedScheduleEntry) => void;
   onDeletePost: (post: Post) => void;
   onDeleteSocial: (id: string) => void;
-  connectedBusy: boolean;
 }) {
   const [tab, setTab] = useState<SchedulingTab>("todo");
-
-  const unpostedConnectedCount = connectedPostGroups.reduce((n, g) => n + g.items.length, 0);
 
   return (
     <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
@@ -1023,10 +926,10 @@ function SchedulingPanel({
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
           {tab === "todo"
             ? "Blog drafts and standalone social posts with no date yet. Add a date from the editor or schedule here."
-            : "All connected content still to post. Mark as posted when live, or schedule items without a date. Posted items leave this list."}
+            : "Published posts with connected content still to post. Click a post to view, schedule, or mark connected items as posted."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : unpostedConnectedCount}
+          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedPostGroups.length}
         </span>
       </div>
       <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
@@ -1102,10 +1005,6 @@ function SchedulingPanel({
               key={group.post.id}
               group={group}
               onSelectPost={onSelectPost}
-              onSchedule={onScheduleConnected}
-              onMarkPosted={onMarkConnectedPosted}
-              onDeleteSocial={onDeleteSocial}
-              busy={connectedBusy}
             />
           ))
         )}
@@ -1130,7 +1029,9 @@ export default function CalendarPage() {
   const [panelDate, setPanelDate] = useState("");
   const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
   const [previewPost, setPreviewPost] = useState<Post | null>(null);
+  const [previewCalendarDay, setPreviewCalendarDay] = useState<string | null>(null);
   const [connectedBusy, setConnectedBusy] = useState(false);
+  const draggingPayloadRef = useRef<CalendarDragPayload | null>(null);
   const [markingSocialPosted, setMarkingSocialPosted] = useState(false);
   const [draggingPayload, setDraggingPayload] = useState<CalendarDragPayload | null>(null);
   const [dropTargetDay, setDropTargetDay] = useState<string | null>(null);
@@ -1341,9 +1242,101 @@ export default function CalendarPage() {
     await load();
   };
 
+  const setDragPayload = (payload: CalendarDragPayload | null) => {
+    draggingPayloadRef.current = payload;
+    setDraggingPayload(payload);
+  };
+
   const clearDragState = () => {
+    draggingPayloadRef.current = null;
     setDraggingPayload(null);
     setDropTargetDay(null);
+  };
+
+  const buildConnectedEntry = (
+    post: Post,
+    target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
+  ): ConnectedScheduleEntry | null => {
+    const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
+    if (target.type === "social") {
+      const social = linked.find((s) => s.id === target.socialId);
+      if (!social) return null;
+      return {
+        post,
+        social,
+        kind: "social",
+        platform: social.platform,
+        label: platformInfo(social.platform).label,
+        preview: social.content || social.description || "",
+      };
+    }
+    const labels: Record<string, string> = {
+      linkedin: "LinkedIn",
+      instagram: "Instagram",
+      share: "Share text",
+    };
+    const body = inlineBodyForPlatform(post, target.platform);
+    if (!body) return null;
+    return {
+      post,
+      kind: "inline",
+      platform: target.platform,
+      label: labels[target.platform] ?? target.platform,
+      preview: body,
+    };
+  };
+
+  const scheduleBlogFromPreview = async (iso: string) => {
+    if (!previewPost || !iso) return;
+    setConnectedBusy(true);
+    try {
+      const scheduledIso = new Date(iso).toISOString();
+      const body =
+        previewPost.status === "published"
+          ? { published_at: scheduledIso }
+          : { scheduled_at: scheduledIso, status: "scheduled" };
+      await fetch(`/api/admin/posts/${previewPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      await load();
+      const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+        (r) => r.json() as Promise<{ data?: Post }>,
+      );
+      if (res.data) setPreviewPost(res.data);
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
+  const scheduleConnectedFromPreview = async (
+    target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
+    iso: string,
+  ) => {
+    if (!previewPost || !iso) return;
+    const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
+    const entry = buildConnectedEntry(post, target);
+    if (!entry) return;
+    await scheduleConnectedEntry(entry, iso);
+    const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+      (r) => r.json() as Promise<{ data?: Post }>,
+    );
+    if (res.data) setPreviewPost(res.data);
+  };
+
+  const markConnectedFromPreview = async (
+    target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
+  ) => {
+    if (!previewPost) return;
+    const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
+    const entry = buildConnectedEntry(post, target);
+    if (!entry) return;
+    await markConnectedEntryPosted(entry);
+    const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+      (r) => r.json() as Promise<{ data?: Post }>,
+    );
+    if (res.data) setPreviewPost(res.data);
   };
 
   const rescheduleToDay = async (payload: CalendarDragPayload, targetDayStr: string) => {
@@ -1428,7 +1421,10 @@ export default function CalendarPage() {
     return (
       <button
         type="button"
-        onClick={() => setPreviewPost(post)}
+        onClick={() => {
+          setPreviewPost(post);
+          setPreviewCalendarDay(null);
+        }}
         className={`flex w-full items-center gap-1 truncate rounded border px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight ${
           isScheduled
             ? "border-gray-300 bg-gray-100 text-gray-800 hover:bg-gray-200"
@@ -1475,7 +1471,8 @@ export default function CalendarPage() {
         onDragStart={(e) => {
           if (!draggable || !sourceDay || isPosted) return;
           e.stopPropagation();
-          setDraggingPayload({ kind: "social", socialId: sp.id, sourceDay });
+          beginCalendarDrag(e, sp.id);
+          setDragPayload({ kind: "social", socialId: sp.id, sourceDay });
         }}
         onDragEnd={clearDragState}
         onClick={() => { setActiveSocial(sp); setPanelMode("view-social"); }}
@@ -1507,9 +1504,9 @@ export default function CalendarPage() {
           isDropTarget ? "bg-gray-100 ring-2 ring-inset ring-gray-400" : ""
         }`}
         onDragOver={(e) => {
-          if (!draggingPayload) return;
           e.preventDefault();
-          setDropTargetDay(ds);
+          e.dataTransfer.dropEffect = "move";
+          if (draggingPayloadRef.current) setDropTargetDay(ds);
         }}
         onDragLeave={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node)) {
@@ -1518,7 +1515,7 @@ export default function CalendarPage() {
         }}
         onDrop={(e) => {
           e.preventDefault();
-          const payload = draggingPayload;
+          const payload = draggingPayloadRef.current;
           clearDragState();
           if (payload) void rescheduleToDay(payload, ds);
         }}
@@ -1542,11 +1539,14 @@ export default function CalendarPage() {
               group={group}
               minimal={minimal}
               sourceDay={ds}
-              onOpen={() => setPreviewPost(group.post)}
-              onDragStart={setDraggingPayload}
+              onOpen={() => {
+                setPreviewPost(group.post);
+                setPreviewCalendarDay(ds);
+              }}
+              onDragStart={setDragPayload}
               onDragEnd={clearDragState}
               onDragConnectedStart={(socialId, sourceDay) =>
-                setDraggingPayload({ kind: "social", socialId, sourceDay })
+                setDragPayload({ kind: "social", socialId, sourceDay })
               }
               isDragging={
                 draggingPayload?.kind === "post-group" && draggingPayload.postId === group.post.id
@@ -1597,16 +1597,16 @@ export default function CalendarPage() {
                 unscheduledPosts={unscheduledPosts}
                 unscheduledSocial={unscheduledSocial}
                 connectedPostGroups={connectedPostGroups}
-                onSelectPost={setPreviewPost}
+                onSelectPost={(post) => {
+                  setPreviewPost(post);
+                  setPreviewCalendarDay(null);
+                }}
                 onSelectSocial={(social) => {
                   setActiveSocial(social);
                   setPanelMode("view-social");
                 }}
-                onScheduleConnected={scheduleConnectedEntry}
-                onMarkConnectedPosted={markConnectedEntryPosted}
                 onDeletePost={deleteUnscheduledPost}
                 onDeleteSocial={deleteSocialById}
-                connectedBusy={connectedBusy}
               />
             </div>
 
@@ -1737,7 +1737,15 @@ export default function CalendarPage() {
         <CalendarItemPreviewModal
           post={previewPost}
           linkedSocial={linkedSocialForPost(previewPost.id)}
-          onClose={() => setPreviewPost(null)}
+          calendarDay={previewCalendarDay ?? undefined}
+          busy={connectedBusy}
+          onClose={() => {
+            setPreviewPost(null);
+            setPreviewCalendarDay(null);
+          }}
+          onScheduleBlog={scheduleBlogFromPreview}
+          onScheduleConnected={scheduleConnectedFromPreview}
+          onMarkConnectedPosted={markConnectedFromPreview}
         />
       ) : null}
     </div>
