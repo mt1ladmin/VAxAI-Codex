@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
 import SiteFooter from "@/components/SiteFooter";
+import VAxAILogo from "@/components/VAxAILogo";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 
 const image = {
@@ -240,11 +241,8 @@ function PhotoCard({
 
 function MiniLogo() {
   return (
-    <a href="#top" className="flex items-center gap-2 font-semibold text-paper">
-      <span className="grid h-6 w-6 place-items-center rounded-full bg-acid text-[11px] font-bold text-ink">
-        VA
-      </span>
-      <span className="text-sm tracking-tight">VAxAI</span>
+    <a href="#top" aria-label="VAxAI home">
+      <VAxAILogo className="h-7 w-24" priority />
     </a>
   );
 }

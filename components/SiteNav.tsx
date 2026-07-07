@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import PublicContactModal from "@/components/PublicContactModal";
+import VAxAILogo from "@/components/VAxAILogo";
 
 type Props = {
   variant?: "dark" | "light";
@@ -29,11 +30,8 @@ export default function SiteNav({ variant = "dark" }: Props) {
     <>
     <nav className="relative mx-auto flex max-w-6xl items-center justify-between py-1">
       {/* Logo */}
-      <a href="/" className={`flex items-center gap-2 font-semibold ${isDark ? "text-paper" : "text-gray-900"}`}>
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-[#f5f274] text-[11px] font-bold text-[#111111]">
-          VA
-        </span>
-        <span className="text-sm tracking-tight">VAxAI</span>
+      <a href="/" aria-label="VAxAI home">
+        <VAxAILogo className="h-7 w-24" priority />
       </a>
 
       {/* Desktop links */}
