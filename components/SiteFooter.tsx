@@ -4,6 +4,7 @@ import { useState } from "react";
 import PublicContactModal from "@/components/PublicContactModal";
 import NewsletterForm from "@/components/NewsletterForm";
 import CookieSettingsButton from "@/components/CookieSettingsButton";
+import VAxAILogo from "@/components/VAxAILogo";
 
 export default function SiteFooter() {
   const [contactOpen, setContactOpen] = useState(false);
@@ -12,11 +13,8 @@ export default function SiteFooter() {
     <>
       <footer className="border-t border-gray-200 bg-white px-4 py-16 md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
-          <div className="mb-4 flex items-center gap-3 text-2xl font-semibold text-gray-900">
-            <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274]">
-              VA
-            </span>
-            <span>VAxAI</span>
+          <div className="mb-4">
+            <VAxAILogo variant="dark" className="h-10 w-auto" />
           </div>
           <NewsletterForm />
 
