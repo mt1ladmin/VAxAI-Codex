@@ -583,6 +583,13 @@ function AccordionItem({
   );
 }
 
+const audienceCardStyles = [
+  { border: "border-pine-900/12", bg: "bg-pine-50", hover: "hover:bg-pine-50/90", accent: "text-pine-800" },
+  { border: "border-ink/8", bg: "bg-cream", hover: "hover:bg-cream/90", accent: "text-pine-900" },
+  { border: "border-pine-700/15", bg: "bg-gradient-to-br from-pine-50/90 to-cream/80", hover: "hover:from-pine-50 hover:to-cream/70", accent: "text-pine-800" },
+  { border: "border-acid/30", bg: "bg-[#f4f5e6]", hover: "hover:bg-[#eff0df]", accent: "text-pine-900" },
+];
+
 function SupportAudienceCard({
   study,
   index,
@@ -590,11 +597,13 @@ function SupportAudienceCard({
   study: CaseStudy;
   index: number;
 }) {
+  const style = audienceCardStyles[index % audienceCardStyles.length];
+
   return (
     <motion.div variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
       <Link
         href={study.href}
-        className="group flex h-full flex-col rounded-3xl border border-ink/5 bg-cream/50 p-6 transition-colors duration-500 hover:border-pine-900/15 hover:bg-cream/80 hover:shadow-card md:p-7"
+        className={`group flex h-full flex-col rounded-3xl border p-6 transition-colors duration-500 hover:shadow-card md:p-7 ${style.border} ${style.bg} ${style.hover}`}
       >
         <span className="text-[11px] font-bold tracking-[0.16em] text-pine-700/70">
           {String(index + 1).padStart(2, "0")}
@@ -603,12 +612,54 @@ function SupportAudienceCard({
           <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{study.title}</h3>
           <p className="mt-2 text-sm leading-6 text-muted">{study.subtitle}</p>
         </div>
-        <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-pine-800">
+        <span className={`mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold ${style.accent}`}>
           Explore how we help
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
         </span>
       </Link>
     </motion.div>
+  );
+}
+
+function ExpertProfileCard({
+  expert,
+  open,
+  onToggle,
+}: {
+  expert: (typeof experts)[number];
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <article className="group">
+      <PhotoCard src={expert.photo} className="aspect-[0.9] rounded-[28px]" />
+      <div className="relative z-10 mx-4 -mt-16 rounded-3xl border border-ink/5 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium group-hover:shadow-lift md:mx-6 md:p-7">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-700">{expert.role}</p>
+        <h3 className="mt-2 text-xl font-semibold tracking-tight">{expert.name}</h3>
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={open}
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-pine-800 transition-colors hover:text-pine-900"
+        >
+          {open ? "Show less" : "Read more"}
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        </button>
+        <AnimatePresence initial={false}>
+          {open ? (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.4, ease: EASE }}
+              className="overflow-hidden"
+            >
+              <p className="mt-4 text-sm leading-7 text-muted">{expert.copy}</p>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
+    </article>
   );
 }
 
@@ -689,6 +740,7 @@ export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [openCase, setOpenCase] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [openExpert, setOpenExpert] = useState<number | null>(null);
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
   const [supportType, setSupportType] = useState("Assessment");
@@ -807,7 +859,13 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We help organisations spend less time managing work and more time doing it by combining practical AI, better processes, automation and human support where each adds the most value.
+              Small businesses, charities, founders and neurodivergent professionals often feel admin the most. Emails, scheduling, follow-ups, files, reporting and repeated tasks can quietly take over the time needed for delivery, growth and real impact.
+            </motion.p>
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
+            >
+              VAxAI helps make everyday work easier to manage, using human support, clearer processes and AI only where it genuinely helps.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
@@ -855,15 +913,33 @@ export default function Home() {
       <section id="services" className="relative z-10 px-4 pb-16 md:px-8 md:pb-24">
         <div className="mx-auto -mt-20 max-w-6xl md:-mt-24">
           <Reveal className="rounded-[32px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
-            <div className="md:flex md:items-end md:justify-between md:gap-12">
-              <div className="max-w-xl">
-                <Eyebrow>What we do</Eyebrow>
-                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  How we ease the pressure on everyday work
-                </h2>
+            <div className="grid gap-10 md:grid-cols-2 md:gap-12">
+              <div>
+                <Eyebrow>Who we are</Eyebrow>
+                <p className="mt-4 text-sm leading-7 text-muted md:text-base md:leading-8">
+                  VAxAI is practical admin and workflow support for organisations and individuals whose work is being slowed down by too much admin.
+                </p>
               </div>
-              <p className="mt-5 max-w-md text-sm leading-7 text-muted md:mt-0">
-                Every organisation experiences pressure differently. For some it&apos;s overflowing inboxes. For others it&apos;s disconnected systems, manual reporting or work falling between the cracks. We start by understanding where work is becoming harder than it needs to be, then design practical improvements using the right mix of AI, automation, better processes and human support.
+              <div>
+                <Eyebrow>What we do</Eyebrow>
+                <p className="mt-4 text-sm leading-7 text-muted md:text-base md:leading-8">
+                  We help reduce the time spent managing emails, diaries, follow-ups, files, reporting and repeat tasks, so admin does not stop people doing the work that matters.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-12 border-t border-ink/5 pt-10">
+              <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                When admin starts getting in the way
+              </h2>
+              <p className="mt-5 max-w-3xl text-sm leading-7 text-muted md:text-base md:leading-8">
+                Every organisation and individual has different pressures, but admin often becomes the point where capacity is lost. For small businesses, founders, charities and neurodivergent professionals, the expectation to stay on top of everything can come at the cost of client work, service delivery, growth or impact. VAxAI exists to make sure admin does not become the thing that stops you doing the work.
+              </p>
+              <p className="mt-6 max-w-3xl text-sm leading-7 text-muted md:text-base md:leading-8">
+                Our process is always the same, regardless of context: we understand the work first, then shape the right support around what is actually needed.
+              </p>
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-muted md:text-base md:leading-8">
+                We start by understanding where work is becoming harder than it needs to be, then design practical improvements using the right mix of AI, automation, better processes and human support.
               </p>
             </div>
 
@@ -896,14 +972,11 @@ export default function Home() {
           <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-2">
             {experts.map((expert, index) => (
               <Reveal key={expert.name} className={index === 1 ? "md:mt-16" : ""}>
-                <article className="group">
-                  <PhotoCard src={expert.photo} className="aspect-[0.9] rounded-[28px]" />
-                  <div className="relative z-10 mx-4 -mt-16 rounded-3xl border border-ink/5 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium group-hover:shadow-lift md:mx-6 md:p-7">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-700">{expert.role}</p>
-                    <h3 className="mt-2 text-xl font-semibold tracking-tight">{expert.name}</h3>
-                    <p className="mt-3 text-sm leading-7 text-muted">{expert.copy}</p>
-                  </div>
-                </article>
+                <ExpertProfileCard
+                  expert={expert}
+                  open={openExpert === index}
+                  onToggle={() => setOpenExpert(openExpert === index ? null : index)}
+                />
               </Reveal>
             ))}
           </div>
