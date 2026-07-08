@@ -7,7 +7,6 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
-import type { AudienceWayOfWorking, WaysOfWorkingBlock } from "@/lib/seo/audience-pages";
 
 export type ServiceSection = {
   id: string;
@@ -27,78 +26,17 @@ type ServiceLandingPageProps = {
   title: string;
   intro: string;
   sections: ServiceSection[];
-  waysOfWorking: WaysOfWorkingBlock;
+  pricingNotes: string[];
   relatedLinks?: RelatedLink[];
-  showAccessToWork?: boolean;
 };
-
-function AudiencePlanCard({
-  plan,
-  onContact,
-}: {
-  plan: AudienceWayOfWorking;
-  onContact: () => void;
-}) {
-  const featured = Boolean(plan.featured);
-
-  return (
-    <article
-      className={`relative flex flex-col rounded-[28px] border p-7 md:p-8 ${
-        featured
-          ? "border-pine-900 bg-pine-900 text-paper shadow-lift lg:-mt-4"
-          : "border-ink/10 bg-white shadow-card"
-      }`}
-    >
-      <div className="flex min-h-7 items-center justify-between gap-4">
-        <span
-          className={`grid h-10 w-10 place-items-center rounded-full text-xs font-bold ${
-            featured
-              ? "border border-white/15 bg-white/10 text-acid"
-              : "border border-pine-900/15 bg-pine-50 text-pine-800"
-          }`}
-        >
-          {plan.step}
-        </span>
-        {featured ? (
-          <span className="rounded-full bg-acid px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
-            Recommended
-          </span>
-        ) : null}
-      </div>
-      <p
-        className={`mt-7 text-[11px] font-bold uppercase tracking-[0.16em] ${
-          featured ? "text-acid/80" : "text-muted"
-        }`}
-      >
-        {plan.title}
-      </p>
-      <h3 className="mt-3 text-2xl font-semibold leading-tight tracking-tight">{plan.label}</h3>
-      <div className={`mt-4 space-y-3 text-sm leading-7 ${featured ? "text-paper/70" : "text-muted"}`}>
-        {plan.copy.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
-      {featured ? (
-        <button
-          type="button"
-          onClick={onContact}
-          className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 hover:brightness-[1.04]"
-        >
-          Book a discovery call
-        </button>
-      ) : null}
-    </article>
-  );
-}
 
 export default function ServiceLandingPage({
   eyebrow,
   title,
   intro,
   sections,
-  waysOfWorking,
+  pricingNotes,
   relatedLinks,
-  showAccessToWork = false,
 }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
   const [accessOpen, setAccessOpen] = useState(false);
@@ -128,10 +66,10 @@ export default function ServiceLandingPage({
                   <ArrowRight className="h-4 w-4" />
                 </button>
                 <Link
-                  href="#ways-of-working"
+                  href="#access-to-work"
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/35 hover:bg-white"
                 >
-                  See how we work
+                  Learn about Access to Work
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -167,55 +105,33 @@ export default function ServiceLandingPage({
             </div>
           </section>
 
-          <section id="ways-of-working" className="border-t border-ink/5 bg-white px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-6xl">
-              <div className="mx-auto max-w-2xl text-center">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-700">
-                  {waysOfWorking.eyebrow}
-                </p>
-                <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] text-ink md:text-[2.75rem]">
-                  {waysOfWorking.title}
-                </h2>
-                <p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-muted md:text-base md:leading-8">
-                  {waysOfWorking.intro}
-                </p>
-              </div>
-
-              <div className="mt-14 grid gap-5 lg:grid-cols-3 lg:items-start">
-                {waysOfWorking.plans.map((plan) => (
-                  <AudiencePlanCard key={plan.step} plan={plan} onContact={() => setContactOpen(true)} />
-                ))}
-              </div>
-
-              <div className="mt-6 grid gap-4 rounded-3xl border border-pine-900/10 bg-pine-50/70 p-6 text-sm leading-7 text-muted md:grid-cols-2 md:gap-10 md:p-8">
-                {waysOfWorking.pricingNotes.map((note) => (
-                  <p key={note}>{note}</p>
-                ))}
-              </div>
+          <section className="px-4 md:px-8">
+            <div className="mx-auto grid max-w-6xl gap-4 rounded-3xl border border-pine-900/10 bg-pine-50/70 p-6 text-sm leading-7 text-muted md:grid-cols-2 md:gap-10 md:p-8">
+              {pricingNotes.map((note) => (
+                <p key={note}>{note}</p>
+              ))}
             </div>
           </section>
 
-          {showAccessToWork ? (
-            <section className="px-4 pb-4 md:px-8">
-              <div className="mx-auto flex max-w-6xl flex-col gap-6 rounded-3xl border border-pine-900/10 bg-pine-900 px-7 py-8 text-paper md:flex-row md:items-center md:justify-between md:p-9">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Access to Work</p>
-                  <h2 className="mt-4 max-w-xl text-2xl font-semibold leading-tight tracking-tight">
-                    Your VAxAI support could cost you nothing
-                  </h2>
-                  <p className="mt-2 text-sm leading-7 text-paper/65">Want to find out more?</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setAccessOpen(true)}
-                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 hover:brightness-[1.04]"
-                >
-                  Learn about Access to Work
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+          <section id="access-to-work" className="scroll-mt-24 px-4 pb-4 md:px-8">
+            <div className="mx-auto flex max-w-6xl flex-col gap-6 rounded-3xl border border-pine-900/10 bg-pine-900 px-7 py-8 text-paper md:flex-row md:items-center md:justify-between md:p-9">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Access to Work</p>
+                <h2 className="mt-4 max-w-xl text-2xl font-semibold leading-tight tracking-tight">
+                  Your VAxAI support could cost you nothing
+                </h2>
+                <p className="mt-2 text-sm leading-7 text-paper/65">Want to find out more?</p>
               </div>
-            </section>
-          ) : null}
+              <button
+                type="button"
+                onClick={() => setAccessOpen(true)}
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 hover:brightness-[1.04]"
+              >
+                Learn about Access to Work
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </section>
 
           {relatedLinks && relatedLinks.length > 0 ? (
             <section className="border-t border-ink/5 px-4 py-16 md:px-8">

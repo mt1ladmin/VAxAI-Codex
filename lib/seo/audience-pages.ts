@@ -1,21 +1,5 @@
 import type { ServiceSection } from "@/components/marketing/ServiceLandingPage";
 
-export type AudienceWayOfWorking = {
-  step: string;
-  title: string;
-  label: string;
-  copy: string[];
-  featured?: boolean;
-};
-
-export type WaysOfWorkingBlock = {
-  eyebrow: string;
-  title: string;
-  intro: string;
-  plans: AudienceWayOfWorking[];
-  pricingNotes: string[];
-};
-
 export type AudiencePage = {
   slug: string;
   metaTitle: string;
@@ -25,8 +9,7 @@ export type AudiencePage = {
   title: string;
   intro: string;
   sections: ServiceSection[];
-  waysOfWorking: WaysOfWorkingBlock;
-  showAccessToWork?: boolean;
+  pricingNotes: string[];
 };
 
 export const audiencePages: AudiencePage[] = [
@@ -82,43 +65,10 @@ export const audiencePages: AudiencePage[] = [
         paragraphs: [],
       },
     ],
-    waysOfWorking: {
-      eyebrow: "Ways of working",
-      title: "Three ways we can support you",
-      intro:
-        "Every founder works differently. We start by understanding your clients, tools and daily rhythm before recommending what should change, what should stay human, and what support will actually work in practice.",
-      plans: [
-        {
-          step: "01",
-          title: "Assessment",
-          label: "Assess",
-          copy: [
-            "We map how you currently manage your inbox, clients, scheduling, follow-ups and internal actions. Together we identify where admin is slowing growth, where priorities compete, and which improvements are likely to make the biggest difference before anything changes.",
-          ],
-        },
-        {
-          step: "02",
-          title: "Implementation",
-          label: "Assess + Implement",
-          copy: [
-            "Using what we learn, we put agreed improvements in place. That may mean simplifying how work flows day to day, better use of tools you already have, virtual assistance for high-friction tasks, or light automation where it reduces repetitive work without adding complexity.",
-          ],
-        },
-        {
-          step: "03",
-          title: "Ongoing Support",
-          label: "Assess + Implement + Support",
-          featured: true,
-          copy: [
-            "As your client base, offers and priorities shift, we continue refining how work happens. Ongoing support may include virtual assistance, process adjustments, system checks and practical guidance so admin stays manageable while you focus on growing the business.",
-          ],
-        },
-      ],
-      pricingNotes: [
-        "Pricing is tailored to your business stage, complexity and the level of support required.",
-        "Before any assessment begins, we discuss your needs and provide a clear quotation for the recommended scope of work.",
-      ],
-    },
+    pricingNotes: [
+      "Pricing is tailored to your business stage, client load, systems and the level of support you need.",
+      "If you may be eligible, Access to Work could cover some or all of your support — we can help you understand what that may involve.",
+    ],
   },
   {
     slug: "small-business",
@@ -173,43 +123,10 @@ export const audiencePages: AudiencePage[] = [
         paragraphs: [],
       },
     ],
-    waysOfWorking: {
-      eyebrow: "Ways of working",
-      title: "Three ways we can support your business",
-      intro:
-        "We start with how work happens in your business today — your customers, tools, team capacity and admin pressure — before recommending the right mix of support.",
-      plans: [
-        {
-          step: "01",
-          title: "Assessment",
-          label: "Assess",
-          copy: [
-            "We review how enquiries, bookings, invoices, documents, follow-ups and team coordination currently work. Together we identify where time is being lost, where information is duplicated, and which changes are likely to make the biggest practical difference.",
-          ],
-        },
-        {
-          step: "02",
-          title: "Implementation",
-          label: "Assess + Implement",
-          copy: [
-            "We implement the agreed improvements across your real working context. That may include clearer customer and document workflows, better use of existing tools, virtual assistance for recurring tasks, or automation where repetitive admin can be handled safely.",
-          ],
-        },
-        {
-          step: "03",
-          title: "Ongoing Support",
-          label: "Assess + Implement + Support",
-          featured: true,
-          copy: [
-            "As customer volume, staffing and priorities change, we keep refining how work happens. Ongoing support may include virtual assistance, process improvements, system checks and team guidance so your ways of working stay usable as the business grows.",
-          ],
-        },
-      ],
-      pricingNotes: [
-        "Pricing depends on your business complexity, systems, implementation needs and the level of ongoing support required.",
-        "Before any assessment begins, we discuss your requirements and provide a clear quotation for the recommended scope of work.",
-      ],
-    },
+    pricingNotes: [
+      "Pricing is tailored to your business complexity, team size, systems and the level of ongoing assistance required.",
+      "If you may be eligible, Access to Work could cover some or all of your support — we can help you understand what that may involve.",
+    ],
   },
   {
     slug: "charities-non-profits",
@@ -264,43 +181,10 @@ export const audiencePages: AudiencePage[] = [
         paragraphs: [],
       },
     ],
-    waysOfWorking: {
-      eyebrow: "Ways of working",
-      title: "Three ways we can support your organisation",
-      intro:
-        "Charities work under real constraints. We start by understanding your services, team shape, tools and admin pressure before recommending support that respects safeguarding, compliance and delivery priorities.",
-      plans: [
-        {
-          step: "01",
-          title: "Assessment",
-          label: "Assess",
-          copy: [
-            "We review how communication, reporting, volunteer coordination, records, follow-ups and service delivery admin currently happen. Together we identify where pressure is building and which improvements are likely to create the most capacity without adding risk.",
-          ],
-        },
-        {
-          step: "02",
-          title: "Implementation",
-          label: "Assess + Implement",
-          copy: [
-            "We implement agreed improvements in a way that fits your organisation's reality. That may include clearer information workflows, better use of existing tools, virtual assistance for recurring admin, or automation where repetitive organisation can be handled appropriately.",
-          ],
-        },
-        {
-          step: "03",
-          title: "Ongoing Support",
-          label: "Assess + Implement + Support",
-          featured: true,
-          copy: [
-            "As funding, staffing and service needs shift, we continue refining how work happens. Ongoing support may include virtual assistance, process adjustments, system checks and practical guidance so admin stays manageable while your team stays focused on delivery.",
-          ],
-        },
-      ],
-      pricingNotes: [
-        "Pricing is tailored to organisational complexity, safeguarding and reporting needs, and the level of ongoing support required.",
-        "Before any assessment begins, we discuss your requirements and provide a clear quotation for the recommended scope of work.",
-      ],
-    },
+    pricingNotes: [
+      "Pricing is tailored to your organisation's size, reporting needs, safeguarding requirements and the level of ongoing support required.",
+      "If you may be eligible, Access to Work could cover some or all of your support — we can help you understand what that may involve.",
+    ],
   },
   {
     slug: "neurodivergent-professionals",
@@ -312,7 +196,6 @@ export const audiencePages: AudiencePage[] = [
     title: "Support shaped around how your mind works",
     intro:
       "Neurodivergent professionals often face admin and organisation challenges that standard productivity advice does not solve — overwhelm, task switching, inconsistent follow-through, inbox build-up, scheduling friction and difficulty maintaining systems over time. VAxAI offers calm, practical support tailored to your working context, combining human assistance, accessible workflows, and AI or automation only where it genuinely helps.",
-    showAccessToWork: true,
     sections: [
       {
         id: "pressures",
@@ -357,43 +240,10 @@ export const audiencePages: AudiencePage[] = [
         paragraphs: [],
       },
     ],
-    waysOfWorking: {
-      eyebrow: "Ways of working",
-      title: "Three ways we can support you",
-      intro:
-        "We start by understanding your role, tools, admin friction points and the kind of support that will actually work for you — before recommending any change, automation or ongoing assistance.",
-      plans: [
-        {
-          step: "01",
-          title: "Assessment",
-          label: "Assess",
-          copy: [
-            "We explore how admin, communication, scheduling, follow-ups and planning currently work for you. Together we identify where overwhelm, inconsistency or task switching create pressure, and which forms of support are most likely to help in practice.",
-          ],
-        },
-        {
-          step: "02",
-          title: "Implementation",
-          label: "Assess + Implement",
-          copy: [
-            "We put agreed support in place around your real working context. That may include a calmer inbox workflow, human assistance for recurring tasks, clearer planning routines, or light automation where it reduces friction without making the system harder to trust or use.",
-          ],
-        },
-        {
-          step: "03",
-          title: "Ongoing Support",
-          label: "Assess + Implement + Support",
-          featured: true,
-          copy: [
-            "Because energy, workload and priorities can shift, ongoing support helps keep admin manageable over time. This may include virtual assistance, process adjustments, reminder support, system checks and practical guidance so your ways of working remain usable and steady.",
-          ],
-        },
-      ],
-      pricingNotes: [
-        "Pricing is tailored to your role, support needs and the level of ongoing assistance required.",
-        "If you may be eligible, Access to Work could cover some or all of your support — we can help you understand what that may involve.",
-      ],
-    },
+    pricingNotes: [
+      "Pricing is tailored to your role, support needs and the level of ongoing assistance required.",
+      "If you may be eligible, Access to Work could cover some or all of your support — we can help you understand what that may involve.",
+    ],
   },
 ];
 
