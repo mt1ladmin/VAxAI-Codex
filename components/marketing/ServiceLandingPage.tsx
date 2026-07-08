@@ -8,8 +8,17 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
-import type { AudiencePage, AudienceSection, JourneyStage } from "@/lib/seo/audience-pages";
-import { sharedPricingBenefits, sharedPricingPackages } from "@/lib/seo/audience-pages";
+import type {
+  AudiencePage,
+  AudiencePricing,
+  AudienceSection,
+  JourneyStage,
+} from "@/lib/seo/audience-pages";
+import {
+  sharedPricingBenefits,
+  sharedPricingIntro,
+  sharedPricingNotes,
+} from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
 type ServiceLandingPageProps = {
@@ -261,10 +270,12 @@ function ChangesPanelContent({
 const ACCESS_TO_WORK_URL = "https://www.gov.uk/access-to-work";
 
 function PricingPanelContent({
+  pricing,
   accessToWork,
   onContact,
   onViewBenefits,
 }: {
+  pricing: AudiencePricing;
   accessToWork?: { heading: string; paragraphs: string[] };
   onContact: () => void;
   onViewBenefits: () => void;
@@ -275,32 +286,31 @@ function PricingPanelContent({
       <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         Our Pricing Structure
       </h2>
+      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{sharedPricingIntro}</p>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
-        {sharedPricingPackages.map((pkg) => (
-          <div
-            key={pkg.title}
-            className="flex flex-col rounded-3xl border border-ink/5 bg-cream/40 px-5 py-6 md:px-6"
-          >
-            <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">{pkg.title}</h3>
-            {pkg.subtitle ? (
-              <p className="mt-1 text-sm font-medium text-pine-800">{pkg.subtitle}</p>
-            ) : null}
-            <p className="mt-3 text-sm font-semibold text-ink">{pkg.priceLabel}</p>
-            <p className="mt-4 text-sm leading-7 text-muted md:text-[15px]">{pkg.intro}</p>
-            <ul className="mt-4 space-y-3">
-              {pkg.bullets.map((item) => (
-                <li key={item} className="flex gap-3">
-                  <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-                    ✓
-                  </span>
-                  <span className="text-sm leading-7 text-muted md:text-[15px]">{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 text-sm leading-7 text-muted md:text-[15px]">{pkg.closing}</p>
-          </div>
-        ))}
+      <div className="mt-8 rounded-3xl border border-ink/5 bg-cream/40 px-5 py-6 md:px-7">
+        <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">{pricing.audienceLabel}</h3>
+        <div className="mt-6 space-y-4">
+          {pricing.tiers.map((tier) => (
+            <div key={tier.label} className="border-t border-ink/5 pt-4 first:border-t-0 first:pt-0">
+              <p className="text-sm font-semibold text-ink md:text-base">{tier.label}</p>
+              <p className="mt-1 text-sm leading-7 text-muted md:text-[15px]">{tier.price}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-6 text-sm font-medium text-pine-800 md:text-base">Example (8 hours per week):</p>
+        <p className="mt-2 text-sm leading-7 text-muted md:text-[15px]">{pricing.example}</p>
+      </div>
+
+      <div className="mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-5 py-6 md:px-7">
+        <p className="text-sm font-semibold text-ink md:text-base">Notes for all packages:</p>
+        <ul className="mt-4 space-y-3">
+          {sharedPricingNotes.map((note) => (
+            <li key={note} className="text-sm leading-7 text-muted md:text-[15px]">
+              {note}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <button type="button" onClick={onViewBenefits} className={`${btn.ghostLight} mt-8`}>
@@ -384,6 +394,7 @@ function AudienceTabbedSections({
   how,
   changes,
   pricingBenefits,
+  pricing,
   accessToWorkInPricing,
   onContact,
 }: {
@@ -391,6 +402,7 @@ function AudienceTabbedSections({
   how: AudienceSection;
   changes: AudienceSection;
   pricingBenefits: AudienceSection;
+  pricing: AudiencePricing;
   accessToWorkInPricing?: { heading: string; paragraphs: string[] };
   onContact: () => void;
 }) {
@@ -483,6 +495,7 @@ function AudienceTabbedSections({
         ) : null}
         {activeTab === "pricing" ? (
           <PricingPanelContent
+            pricing={pricing}
             accessToWork={accessToWorkInPricing}
             onContact={onContact}
             onViewBenefits={openBenefitsTab}
@@ -625,6 +638,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 how={how}
                 changes={changes}
                 pricingBenefits={sharedPricingBenefits}
+                pricing={page.pricing}
                 accessToWorkInPricing={page.accessToWork}
                 onContact={() => setContactOpen(true)}
               />
