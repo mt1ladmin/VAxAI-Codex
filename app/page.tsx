@@ -761,7 +761,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              VAxAI makes everyday work easier.
+              Reduce admin. Keep the human touch.
             </motion.h1>
             <motion.p
               variants={fadeUp}
@@ -774,6 +774,12 @@ export default function Home() {
               className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
               Emails, scheduling, follow-ups, reporting, and repetitive tasks can quietly eat up the time needed for growth, delivery, and real impact.
+            </motion.p>
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 max-w-xl text-base font-medium leading-7 text-paper md:text-lg md:leading-8"
+            >
+              VAxAI makes everyday work easier.
             </motion.p>
             <motion.p
               variants={fadeUp}
