@@ -3,10 +3,13 @@ export type JourneyStage = {
   paragraphs: string[];
 };
 
-export type PricingTier = {
+export type PricingPackage = {
   title: string;
+  subtitle: string;
   priceLabel: string;
-  description: string;
+  intro: string;
+  bullets: string[];
+  closing: string;
 };
 
 export type AudienceSection = {
@@ -19,77 +22,75 @@ export type AudienceSection = {
   closing?: string;
 };
 
-export const sharedPricingTiers: PricingTier[] = [
+export const sharedPricingPackages: PricingPackage[] = [
   {
-    title: "Discovery & Strategy",
-    priceLabel: "From £1,500",
-    description:
-      "Workflow reviews, AI opportunity assessment and practical recommendations. This stage helps clarify where time is being lost, what support would make the biggest difference, and whether AI, automation, process improvement or virtual human support is the right fit.",
+    title: "Full Setup Package",
+    subtitle: "Discovery, Strategy & Implementation",
+    priceLabel: "From £3,750 (fixed price)",
+    intro: "Includes everything needed to get you up and running:",
+    bullets: [
+      "Full workflow review and opportunity assessment",
+      "Practical strategy and prioritised recommendations",
+      "Design and implementation of your tailored solution (automation, tool optimisations, clearer processes, AI output management)",
+      "Training and handover",
+    ],
+    closing:
+      "A complete, done-with-you package with clear deliverables and timelines. Perfect if you want to improve your systems in one focused project.",
   },
   {
-    title: "Workflow Design",
-    priceLabel: "Fixed-price projects",
-    description:
-      "AI automation setup, tool integrations, AI output management, training and handover. Projects are shaped around your existing systems, capacity and ways of working, so the solution is practical, usable and easy to maintain.",
-  },
-  {
-    title: "Ongoing Support",
-    priceLabel: "From £30 per hour",
-    description:
-      "VA support, AI output review, automation maintenance and continued productivity optimisation. This is for clients who need ongoing help to manage outputs, keep workflows running smoothly and adapt support as needs change.",
+    title: "Ongoing Support Retainer",
+    subtitle: "",
+    priceLabel: "From £450 per month (or £30 per hour)",
+    intro:
+      "For clients who already have systems in place or have completed the Full Setup Package. This includes:",
+    bullets: [
+      "Regular virtual assistance",
+      "AI output review and quality checking",
+      "Automation maintenance",
+      "Ongoing optimisation and productivity support",
+    ],
+    closing:
+      "Flexible hours and monthly planning calls so the support evolves with your needs.",
   },
 ];
 
-export const sharedProposalNote =
-  "After your consultation, you’ll receive a clear written proposal with fixed costs, deliverables and timelines. No surprises.";
-
-export const sharedClientTypePricing: { label: string; summary: string }[] = [
-  {
-    label: "Founders & Entrepreneurs",
-    summary:
-      "AI automation for repetitive tasks, smarter tool connections, and VA support to manage outputs and boost productivity. Focused projects usually £1,500–£7,000.",
-  },
-  {
-    label: "Small Businesses",
-    summary:
-      "End-to-end workflow optimisation, AI task automation, team training and ongoing VA support. Projects typically £2,000–£12,000 depending on scope.",
-  },
-  {
-    label: "Charities",
-    summary:
-      "Practical, phased AI and automation support focused on high-impact repetitive tasks while staying budget-conscious and easy to maintain. Projects usually £1,200–£8,000, often delivered in stages.",
-  },
-  {
-    label: "Neurodivergent Professionals",
-    summary:
-      "Tailored AI automation, workflow support, output management and admin help. Many qualify for Access to Work funding (we assist with applications).",
-  },
-];
+export const sharedPricingBenefits: AudienceSection = {
+  heading: "Why This Is More Cost-Effective & Sustainable",
+  paragraphs: [
+    "For solo founders and small organisations with limited budgets, our approach is often significantly cheaper and more sustainable than traditional hiring:",
+  ],
+  bullets: [
+    "Much lower cost than employing someone — You avoid salary, National Insurance, pension contributions, holiday pay, sick pay and more.",
+    "You only pay for what you need — Thanks to the automation and process improvements we implement, most clients will need far fewer support hours than they originally expect.",
+    "No long-term commitment — Scale hours up or down depending on your workload.",
+    "Shared expertise — Your VA is trained by us on AI tools and modern workflows, so you benefit from specialist knowledge without having to source and train someone yourself.",
+    "Predictable budgeting — Especially valuable for charities and small businesses with tight or variable income.",
+  ],
+  closing:
+    "Realistic outcome for many clients: You get reliable, high-quality admin and AI support while keeping full flexibility.",
+};
 
 export const sharedHowSection: AudienceSection = {
-  heading: "How VAxAI Helps You",
-  paragraphs: ["We do not start with tools or software. We start with how your work actually gets done."],
-  journeyLabel: "Our Simple 3-Step Process",
+  heading: "",
+  paragraphs: [],
+  journeyLabel: "Our Process",
   journey: [
     {
       title: "Discovery & Strategy",
       paragraphs: [
-        "We take time to understand your workflows, pressure points, existing systems and the support you already have in place. From there, we design practical, human-centred support that helps reduce repetitive work without adding unnecessary complexity.",
-        "AI and automation are only recommended where they genuinely improve how work is managed. Human judgement stays central where it matters most.",
+        "We take time to understand how you currently work — your workflows, biggest pressure points, existing tools, and what support you already have. We then create a simple, practical strategy that uses AI and automation to reduce repetitive admin tasks, while keeping things human-centred and manageable. Human judgement stays central where it matters most.",
       ],
     },
     {
-      title: "Workflow Design",
+      title: "Design & Implementation",
       paragraphs: [
-        "We create a tailored solution shaped around the way you actually work.",
-        "This may include smarter use of your existing tools, targeted AI automation for repetitive tasks, clearer processes, better ways to manage AI outputs, and virtual assistance where human support adds the most value. We do not build complex custom software or large development projects. For those needs, we work with trusted partners.",
+        "We design and put in place straightforward solutions that fit the way you actually work. This may include smarter use of your current tools, targeted automation for repetitive tasks, clearer processes, better ways to handle AI outputs, and virtual assistance for the areas that need it most. Everything is kept simple — no complicated custom builds.",
       ],
     },
     {
-      title: "Ongoing Support",
+      title: "Ongoing Support & Optimisation",
       paragraphs: [
-        "We provide continued virtual assistance, AI output review, automation maintenance and productivity support so the improvements remain useful as your needs change.",
-        "This helps keep workflows running smoothly, manage outputs with care, and adapt support over time rather than leaving you with a system that is difficult to maintain.",
+        "We continue to support you with virtual assistance, AI output reviews, automation maintenance, and regular check-ins. This helps your workflows stay effective and manageable as your organisation or workload changes, without creating more complexity or overwhelm.",
       ],
     },
   ],

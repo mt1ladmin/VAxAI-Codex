@@ -9,7 +9,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
 import type { AudiencePage, AudienceSection, JourneyStage } from "@/lib/seo/audience-pages";
-import { sharedPricingTiers, sharedProposalNote } from "@/lib/seo/audience-pages";
+import { sharedPricingBenefits, sharedPricingPackages } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
 type ServiceLandingPageProps = {
@@ -105,7 +105,7 @@ function PressureBulletCard({ item, index }: { item: string; index: number }) {
   );
 }
 
-type AudienceTabId = "pressures" | "how" | "changes" | "pricing";
+type AudienceTabId = "pressures" | "how" | "changes" | "pricing" | "benefits";
 
 function SupportJourney({ stages }: { stages: JourneyStage[] }) {
   return (
@@ -172,19 +172,24 @@ function HowPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      {showIntro ? (
-        <>
-          <Eyebrow>{badge}</Eyebrow>
-          <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
-            {section.heading}
-          </h2>
-        </>
+      {showIntro ? <Eyebrow>{badge}</Eyebrow> : null}
+      {section.heading ? (
+        <h2
+          className={cn(
+            "text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl",
+            showIntro && "mt-4",
+          )}
+        >
+          {section.heading}
+        </h2>
       ) : null}
-      <div className={cn("space-y-4 text-base leading-8 text-muted", showIntro && "mt-6")}>
-        {section.paragraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
+      {section.paragraphs.length > 0 ? (
+        <div className={cn("space-y-4 text-base leading-8 text-muted", (showIntro || section.heading) && "mt-6")}>
+          {section.paragraphs.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      ) : null}
       {(section.journey ?? []).length > 0 ? (
         <>
           {section.journeyLabel ? (
@@ -258,9 +263,11 @@ const ACCESS_TO_WORK_URL = "https://www.gov.uk/access-to-work";
 function PricingPanelContent({
   accessToWork,
   onContact,
+  onViewBenefits,
 }: {
   accessToWork?: { heading: string; paragraphs: string[] };
   onContact: () => void;
+  onViewBenefits: () => void;
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
@@ -269,20 +276,37 @@ function PricingPanelContent({
         Our Pricing Structure
       </h2>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {sharedPricingTiers.map((tier) => (
+      <div className="mt-8 grid gap-6 md:grid-cols-2">
+        {sharedPricingPackages.map((pkg) => (
           <div
-            key={tier.title}
+            key={pkg.title}
             className="flex flex-col rounded-3xl border border-ink/5 bg-cream/40 px-5 py-6 md:px-6"
           >
-            <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">{tier.title}</h3>
-            <p className="mt-2 text-sm font-medium text-pine-800">{tier.priceLabel}</p>
-            <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">{tier.description}</p>
+            <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">{pkg.title}</h3>
+            {pkg.subtitle ? (
+              <p className="mt-1 text-sm font-medium text-pine-800">{pkg.subtitle}</p>
+            ) : null}
+            <p className="mt-3 text-sm font-semibold text-ink">{pkg.priceLabel}</p>
+            <p className="mt-4 text-sm leading-7 text-muted md:text-[15px]">{pkg.intro}</p>
+            <ul className="mt-4 space-y-3">
+              {pkg.bullets.map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                    ✓
+                  </span>
+                  <span className="text-sm leading-7 text-muted md:text-[15px]">{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-sm leading-7 text-muted md:text-[15px]">{pkg.closing}</p>
           </div>
         ))}
       </div>
 
-      <p className="mt-8 max-w-3xl text-base leading-8 text-muted md:text-lg">{sharedProposalNote}</p>
+      <button type="button" onClick={onViewBenefits} className={`${btn.ghostLight} mt-8`}>
+        The benefits of our pricing strategy
+        <ArrowRight className="h-4 w-4" />
+      </button>
 
       {accessToWork ? (
         <div
@@ -324,16 +348,49 @@ function PricingPanelContent({
   );
 }
 
+function PricingBenefitsPanelContent({ section }: { section: AudienceSection }) {
+  return (
+    <div className="px-6 py-7 md:px-8 md:py-8">
+      <Eyebrow>Pricing benefits</Eyebrow>
+      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+        {section.heading}
+      </h2>
+      <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-muted">
+        {section.paragraphs.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+      {(section.bullets ?? []).length > 0 ? (
+        <div className="mt-8 grid gap-4">
+          {(section.bullets ?? []).map((item) => (
+            <div key={item} className="flex gap-3 rounded-2xl border border-ink/5 bg-cream/40 px-5 py-4">
+              <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                ✓
+              </span>
+              <p className="text-sm leading-7 text-muted md:text-[15px]">{item}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {section.closing ? (
+        <p className="mt-8 max-w-3xl text-base font-medium leading-8 text-pine-800">{section.closing}</p>
+      ) : null}
+    </div>
+  );
+}
+
 function AudienceTabbedSections({
   pressures,
   how,
   changes,
+  pricingBenefits,
   accessToWorkInPricing,
   onContact,
 }: {
   pressures: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
+  pricingBenefits: AudienceSection;
   accessToWorkInPricing?: { heading: string; paragraphs: string[] };
   onContact: () => void;
 }) {
@@ -341,6 +398,10 @@ function AudienceTabbedSections({
 
   useEffect(() => {
     function syncTabFromHash() {
+      if (window.location.hash === "#pricing-benefits") {
+        setActiveTab("benefits");
+        return;
+      }
       if (accessToWorkInPricing && window.location.hash === "#access-to-work") {
         setActiveTab("pricing");
       }
@@ -356,6 +417,7 @@ function AudienceTabbedSections({
     { id: "how", label: "How we help" },
     { id: "changes", label: changes.heading },
     { id: "pricing", label: "Pricing" },
+    { id: "benefits", label: "Why our pricing" },
   ];
 
   const panelClassName: Record<AudienceTabId, string> = {
@@ -364,7 +426,13 @@ function AudienceTabbedSections({
     changes:
       "rounded-[28px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-paper to-cream/60 text-ink",
     pricing: "rounded-[28px] border border-ink/5 bg-white text-ink",
+    benefits: "rounded-[28px] border border-ink/5 bg-white text-ink",
   };
+
+  function openBenefitsTab() {
+    setActiveTab("benefits");
+    window.history.replaceState(null, "", "#pricing-benefits");
+  }
 
   return (
     <div>
@@ -414,8 +482,13 @@ function AudienceTabbedSections({
           <ChangesPanelContent badge={changes.heading} section={changes} />
         ) : null}
         {activeTab === "pricing" ? (
-          <PricingPanelContent accessToWork={accessToWorkInPricing} onContact={onContact} />
+          <PricingPanelContent
+            accessToWork={accessToWorkInPricing}
+            onContact={onContact}
+            onViewBenefits={openBenefitsTab}
+          />
         ) : null}
+        {activeTab === "benefits" ? <PricingBenefitsPanelContent section={pricingBenefits} /> : null}
       </motion.div>
     </div>
   );
@@ -551,6 +624,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 pressures={pressures}
                 how={how}
                 changes={changes}
+                pricingBenefits={sharedPricingBenefits}
                 accessToWorkInPricing={page.accessToWork}
                 onContact={() => setContactOpen(true)}
               />
