@@ -79,7 +79,6 @@ export const sharedHowSection: AudienceSection = {
       title: "Discovery, Strategy & Implementation",
       paragraphs: [
         "We take time to understand how you currently work — your workflows, biggest pressure points, existing tools, and current support. From there, we create a practical strategy and then design and implement straightforward solutions that fit the way you actually work.",
-        "This includes smarter use of your current tools, targeted automation for repetitive tasks, clearer processes, better AI output handling, and virtual assistance where it adds the most value. Everything is kept simple, human-centred, and easy to manage — with no complicated custom builds.",
       ],
     },
     {
