@@ -184,7 +184,7 @@ const plans = [
   {
     step: "03",
     title: "Recommended: Ongoing Support",
-    label: "Support",
+    label: "Strategic Ongoing Support",
     featured: true,
     buildsOn: "Implement",
     copy: [
@@ -222,6 +222,177 @@ const reveal = {
   viewport: { once: true, margin: "-60px" },
   transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
 };
+
+const BEFORE_ITEMS = [
+  "Inboxes full of unread emails",
+  "Follow-ups being missed or delayed",
+  "Information spread across multiple systems",
+  "Manual reporting taking hours each week",
+  "Team members unsure who owns what",
+  "Valuable time spent on repetitive admin instead of meaningful work",
+];
+
+const AFTER_ITEMS = [
+  "Inboxes organised and prioritised",
+  "Follow-ups tracked and completed on time",
+  "Clear processes everyone can follow",
+  "Reporting streamlined and easier to manage",
+  "Better visibility of responsibilities and workload",
+  "More time for clients, projects and strategic work",
+];
+
+const PANEL_HEIGHT = "h-[22rem]";
+
+function DualPanelToggle({
+  active,
+  onSelect,
+}: {
+  active: "before" | "after" | null;
+  onSelect: (panel: "before" | "after") => void;
+}) {
+  return (
+    <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-stretch gap-3 md:gap-4">
+      <button
+        type="button"
+        onClick={() => onSelect("before")}
+        aria-expanded={active === "before"}
+        className={`vax-panel flex ${PANEL_HEIGHT} flex-col overflow-hidden text-left ${active === "before" ? "vax-panel--active" : "hover:border-ink/14"}`}
+      >
+        <div className="flex shrink-0 items-center justify-between border-b border-ink/6 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Before VAxAI</p>
+          <ChevronDown className={`h-4 w-4 text-muted transition-transform duration-300 ${active === "before" ? "rotate-180" : ""}`} />
+        </div>
+        {active === "before" ? (
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+            <div className="grid gap-3">
+              {BEFORE_ITEMS.map((item) => (
+                <div key={item} className="flex gap-3">
+                  <span className="mt-0.5 shrink-0 text-sm font-semibold text-ink/35">·</span>
+                  <p className="text-sm leading-6 text-muted">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1" aria-hidden="true" />
+        )}
+      </button>
+
+      <div className={`flex ${PANEL_HEIGHT} w-10 shrink-0 items-center justify-center md:w-12`} aria-hidden="true">
+        <span className="grid h-9 w-9 place-items-center rounded-full border border-ink/8 bg-white text-forest shadow-[0_2px_12px_rgba(17,17,17,0.05)]">
+          <ArrowRight className="h-4 w-4" />
+        </span>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onSelect("after")}
+        aria-expanded={active === "after"}
+        className={`vax-panel flex ${PANEL_HEIGHT} flex-col overflow-hidden text-left ${active === "after" ? "vax-panel--active vax-panel--after-active" : "hover:border-ink/14"}`}
+      >
+        <div className="flex shrink-0 items-center justify-between border-b border-ink/6 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
+          <ChevronDown className={`h-4 w-4 text-forest/60 transition-transform duration-300 ${active === "after" ? "rotate-180" : ""}`} />
+        </div>
+        {active === "after" ? (
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+            <div className="grid gap-3">
+              {AFTER_ITEMS.map((item) => (
+                <div key={item} className="flex gap-3">
+                  <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid/80 text-[10px] font-black text-ink">✓</span>
+                  <p className="text-sm leading-6 text-muted">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1" aria-hidden="true" />
+        )}
+      </button>
+    </div>
+  );
+}
+
+function PathwayAccordion({
+  openIndex,
+  onSelect,
+  onContact,
+}: {
+  openIndex: number;
+  onSelect: (index: number) => void;
+  onContact: () => void;
+}) {
+  return (
+    <div className="vax-card overflow-hidden">
+      <div className="grid divide-y divide-ink/8 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+        {plans.map((plan, index) => {
+          const isOpen = openIndex === index;
+          return (
+            <div key={plan.title} className="flex min-h-0 flex-col bg-white">
+              <button
+                type="button"
+                onClick={() => onSelect(index)}
+                aria-expanded={isOpen}
+                className={`flex w-full items-center justify-between gap-3 px-5 py-5 text-left transition-colors ${isOpen ? "bg-[#f3f9f5]/50" : "hover:bg-paper/60"}`}
+              >
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{plan.step}</p>
+                  <h3 className="mt-1 text-lg font-semibold leading-tight text-ink md:text-xl">{plan.label}</h3>
+                  {plan.featured ? (
+                    <span className="mt-2 inline-flex rounded-full bg-acid/70 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                      Recommended
+                    </span>
+                  ) : null}
+                </div>
+                <ChevronDown className={`h-4 w-4 shrink-0 text-forest/50 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+              </button>
+              <div
+                className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+              >
+                <div className="min-h-0">
+                  <div className="space-y-4 border-t border-ink/8 px-5 pb-6 pt-4">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
+                    {plan.buildsOn ? (
+                      <p className="text-xs font-medium text-muted">Builds on {plan.buildsOn}</p>
+                    ) : null}
+                    {plan.copy.map((paragraph) => (
+                      <p key={paragraph} className="text-sm leading-6 text-muted">{paragraph}</p>
+                    ))}
+                    <ul className="space-y-2.5 border-t border-ink/8 pt-4 text-sm">
+                      {plan.items.map((item) => (
+                        <li key={item} className="flex gap-3">
+                          <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid/80 text-[10px] font-black text-ink">✓</span>
+                          <span className="leading-6 text-muted">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    {plan.featured ? (
+                      <button
+                        type="button"
+                        onClick={onContact}
+                        className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper transition-opacity hover:opacity-90"
+                      >
+                        Book a discovery call
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="grid gap-3 border-t border-ink/8 bg-[#f3f9f5]/40 p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
+        <p>
+          Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
+        </p>
+        <p>
+          Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 function PhotoCard({
   src,
@@ -349,6 +520,12 @@ export default function Home() {
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [workflowPanel, setWorkflowPanel] = useState<"before" | "after" | null>(null);
+  const [openPlanIndex, setOpenPlanIndex] = useState(0);
+
+  function selectWorkflowPanel(panel: "before" | "after") {
+    setWorkflowPanel(panel);
+  }
 
   useEffect(() => {
     fetch("/api/posts?limit=3")
@@ -459,7 +636,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-16 md:px-8 md:py-20">
+      <section className="section-connect px-4 py-16 md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
           <motion.div {...reveal}>
             <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
@@ -469,61 +646,25 @@ export default function Home() {
               Whether you&apos;re drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving.
             </p>
           </motion.div>
-          <motion.div {...reveal} className="mt-8 grid gap-5 md:grid-cols-2">
-            <div className="rounded-md border border-ink/10 bg-white p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Before VAxAI</p>
-              <div className="grid gap-3">
-                {[
-                  "Inboxes full of unread emails",
-                  "Follow-ups being missed or delayed",
-                  "Information spread across multiple systems",
-                  "Manual reporting taking hours each week",
-                  "Team members unsure who owns what",
-                  "Valuable time spent on repetitive admin instead of meaningful work",
-                ].map((item) => (
-                  <div key={item} className="flex gap-3">
-                    <span className="mt-0.5 shrink-0 text-sm font-semibold text-ink/40">·</span>
-                    <p className="text-sm leading-6 text-muted">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-md border border-[#063b32]/15 bg-[#f3f9f5] p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
-              <div className="grid gap-3">
-                {[
-                  "Inboxes organised and prioritised",
-                  "Follow-ups tracked and completed on time",
-                  "Clear processes everyone can follow",
-                  "Reporting streamlined and easier to manage",
-                  "Better visibility of responsibilities and workload",
-                  "More time for clients, projects and strategic work",
-                ].map((item) => (
-                  <div key={item} className="flex gap-3">
-                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                    <p className="text-sm leading-6 text-muted">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <motion.div {...reveal}>
+            <DualPanelToggle active={workflowPanel} onSelect={selectWorkflowPanel} />
           </motion.div>
         </div>
       </section>
 
       <section id="services" className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <SectionTitle
-            light
-            title="Real results from working with VAxAI"
-            copy="Every organisation works differently, but the goal is always the same: less admin, clearer processes and more time for the work that matters. Here are a few examples of how we've helped clients achieve that."
-            narrow
-          />
+          <motion.div {...reveal} className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-semibold leading-[1.08] text-paper md:text-5xl">
+              Real results from working with VAxAI
+            </h2>
+          </motion.div>
           {/* 3-col layout: left cards | centre image | right cards */}
           <div className="mt-12 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
 
             {/* Card 01: row 1, col 1 */}
             {(() => { const study = caseStudies[0]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">01</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -542,7 +683,7 @@ export default function Home() {
 
             {/* Card 02: row 1, col 3 */}
             {(() => { const study = caseStudies[1]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">02</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -556,7 +697,7 @@ export default function Home() {
 
             {/* Card 03: row 2, col 1 */}
             {(() => { const study = caseStudies[2]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">03</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -570,7 +711,7 @@ export default function Home() {
 
             {/* Card 04: row 2, col 3 */}
             {(() => { const study = caseStudies[3]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
+              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">04</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -612,12 +753,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="experts" className="px-4 py-20 md:px-8">
+      <section id="experts" className="section-connect px-4 py-20 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle title="Meet the people behind VAxAI" narrow />
           <div className="mt-10 grid gap-5 md:grid-cols-2">
             {experts.map((expert, index) => (
-              <motion.article key={expert.name} {...reveal} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
+              <motion.article key={expert.name} {...reveal} className="vax-card p-3">
                 {expert.photo ? (
                   <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-md" />
                 ) : (
@@ -636,64 +777,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="px-4 pb-20 pt-12 md:px-8 md:pt-16">
+      <section id="pricing" className="section-connect px-4 pb-20 pt-12 md:px-8 md:pt-16">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Three ways to work with us"
             copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix, whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
-          <motion.div {...reveal} className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
-            <div className="grid gap-3 lg:grid-cols-3">
-              {plans.map((plan) => (
-                <article
-                  key={plan.title}
-                  className={`relative flex flex-col rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#f7ff6a]/20" : "border-ink/10 bg-white"}`}
-                >
-                  <div className="flex min-h-6 items-center justify-between gap-4">
-                    <span className="grid h-9 w-9 place-items-center rounded-full border border-[#063b32]/25 bg-white text-xs font-bold text-[#063b32]">
-                      {plan.step}
-                    </span>
-                    {plan.featured ? (
-                      <span className="rounded-full bg-acid px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
-                        Recommended
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
-                  <h3 className="mt-3 text-2xl font-semibold leading-tight">{plan.label}</h3>
-                  {plan.buildsOn ? (
-                    <p className="mt-2 text-xs font-medium text-muted">Builds on {plan.buildsOn}</p>
-                  ) : null}
-                  <div className="mt-4 min-h-20 space-y-3 text-sm leading-6 text-muted">
-                    {plan.copy.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
-                    ))}
-                  </div>
-                  <ul className="mt-6 flex-1 space-y-3 border-t border-ink/10 pt-5 text-sm">
-                    {plan.items.map((item) => (
-                      <li key={item} className="flex gap-3">
-                        <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                {plan.featured ? (
-                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper">
-                    Book a discovery call
-                  </button>
-                ) : null}
-              </article>
-              ))}
-            </div>
-            <div className="mt-3 grid gap-3 rounded-md border border-ink/10 bg-[#f3f9f5] p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
-              <p>
-                Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
-              </p>
-              <p>
-                Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
-              </p>
-            </div>
+          <motion.div {...reveal} className="mt-10">
+            <PathwayAccordion
+              openIndex={openPlanIndex}
+              onSelect={setOpenPlanIndex}
+              onContact={() => setIsContactModalOpen(true)}
+            />
           </motion.div>
         </div>
       </section>
@@ -717,7 +813,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="faq" className="px-4 py-20 md:px-8">
+      <section id="faq" className="section-connect px-4 py-20 md:px-8">
         <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
           <motion.div {...reveal}>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
@@ -732,7 +828,7 @@ export default function Home() {
               <MailCheck className="h-4 w-4" />
             </button>
           </motion.div>
-          <motion.div {...reveal} className="divide-y divide-ink/10 rounded-md border border-ink/10 bg-white">
+          <motion.div {...reveal} className="vax-card divide-y divide-ink/8 overflow-hidden">
             {faqs.map(([question, answer]) => (
               <details key={question} className="group p-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold">
@@ -746,7 +842,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 pb-20 md:px-8">
+      <section className="section-connect px-4 pb-20 md:px-8">
         <div className="mx-auto max-w-6xl">
           <motion.div {...reveal} className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
@@ -768,7 +864,7 @@ export default function Home() {
                   key={post.id}
                   href={`/posts/${encodeURIComponent(post.slug)}`}
                   {...reveal}
-                  className="group flex flex-col overflow-hidden rounded-md border border-ink/10 bg-white transition hover:shadow-[0_8px_30px_rgba(17,17,17,0.1)]"
+                  className="vax-card group flex flex-col overflow-hidden"
                 >
                   {post.cover_image_url && (
                     <div className="aspect-[16/9] w-full overflow-hidden bg-ink/5">
@@ -970,7 +1066,7 @@ export default function Home() {
           aria-modal="true"
           onMouseDown={(e) => { if (e.target === e.currentTarget) setOpenCase(null); }}
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
             <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Case study</p>
@@ -985,13 +1081,13 @@ export default function Home() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-6 md:p-10">
+            <div className="bg-white p-6 md:p-10">
               <p className="text-sm leading-7 text-muted">{caseStudies[openCase].teaser}</p>
               {caseStudies[openCase].paragraphs?.map((p, pi) => (
                 <p key={pi} className="mt-4 text-sm leading-7 text-muted">{p}</p>
               ))}
               {caseStudies[openCase].workflowPoints && (
-                <ul className="mt-4 grid gap-2 rounded-md border border-ink/10 bg-cream p-4">
+                <ul className="mt-4 grid gap-2 rounded-md border border-ink/10 bg-[#f3f9f5]/60 p-4">
                   {caseStudies[openCase].workflowPoints!.map((pt) => (
                     <li key={pt} className="flex gap-3 text-sm leading-6 text-muted">
                       <span className="mt-0.5 shrink-0 text-ink/40">·</span>

@@ -92,6 +92,46 @@ a {
   animation-play-state: paused;
 }
 
+.vax-card {
+  border: 1px solid rgba(17, 17, 17, 0.07);
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 24px rgba(17, 17, 17, 0.04);
+  transition:
+    box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.28s ease;
+}
+
+.vax-card:hover {
+  box-shadow: 0 8px 32px rgba(17, 17, 17, 0.07);
+  border-color: rgba(6, 59, 50, 0.1);
+}
+
+.vax-panel {
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 16px rgba(17, 17, 17, 0.03);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.vax-panel--active {
+  border-color: rgba(6, 59, 50, 0.18);
+  box-shadow: 0 6px 28px rgba(6, 59, 50, 0.08);
+}
+
+.vax-panel--after-active {
+  border-color: rgba(6, 59, 50, 0.14);
+  background: rgba(243, 249, 245, 0.65);
+}
+
+.section-connect {
+  border-top: 1px solid rgba(17, 17, 17, 0.06);
+}
+
 .btn-primary {
   display: inline-flex;
   align-items: center;

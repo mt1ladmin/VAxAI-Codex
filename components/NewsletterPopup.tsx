@@ -160,7 +160,7 @@ export default function NewsletterPopup() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className="newsletter-popup__input min-w-0 flex-1 rounded-md border border-white/20 bg-white/[0.06] px-3.5 py-2.5 text-[13.5px] text-white outline-none placeholder:text-white/30 focus:border-white/50 focus:bg-white/10"
+                  className="newsletter-popup__input min-w-0 flex-1 rounded-md border border-ink/12 bg-white px-3.5 py-2.5 text-[13.5px] text-ink outline-none placeholder:text-muted focus:border-[#063b32]/35 focus:ring-2 focus:ring-[#063b32]/10"
                 />
                 <button
                   type="submit"
