@@ -583,81 +583,30 @@ function AccordionItem({
   );
 }
 
-function CaseCard({
+function SupportAudienceCard({
   study,
   index,
 }: {
   study: CaseStudy;
   index: number;
 }) {
-  const [expanded, setExpanded] = useState(false);
-
   return (
-    <motion.div
-      variants={fadeUp}
-      whileHover={{ y: expanded ? 0 : -5 }}
-      transition={{ duration: 0.35, ease: EASE }}
-      className="flex h-full flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
-    >
-      <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-      <div className="mt-4 flex-1">
-        <h3 className="text-lg font-semibold leading-snug tracking-tight text-paper">
-          {study.title}
-        </h3>
-        <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
-      </div>
-
-      <button
-        type="button"
-        onClick={() => setExpanded((open) => !open)}
-        aria-expanded={expanded}
-        className="mt-5 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid transition-colors hover:text-acid/80"
-      >
-        {expanded ? "Show less" : "Read more"}
-        <ChevronDown
-          className={`h-3.5 w-3.5 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      <AnimatePresence initial={false}>
-        {expanded ? (
-          <motion.div
-            key="details"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="overflow-hidden"
-          >
-            <div className="mt-4 space-y-4 border-t border-white/10 pt-4 text-sm leading-6 text-paper/70">
-              <p>{study.teaser}</p>
-              {study.paragraphs?.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-              {study.results && study.results.length > 0 ? (
-                <ul className="space-y-2">
-                  {study.results.map((result) => (
-                    <li key={result} className="flex gap-2">
-                      <span className="mt-2 h-1 w-2 shrink-0 rounded-full bg-acid/60" aria-hidden="true" />
-                      <span>{result}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-              {study.closing ? <p className="font-medium text-paper/85">{study.closing}</p> : null}
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
+    <motion.div variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
       <Link
         href={study.href}
-        className="group mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid"
+        className="group flex h-full flex-col rounded-3xl border border-ink/5 bg-cream/50 p-6 transition-colors duration-500 hover:border-pine-900/15 hover:bg-cream/80 hover:shadow-card md:p-7"
       >
-        Explore how we help
-        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+        <span className="text-[11px] font-bold tracking-[0.16em] text-pine-700/70">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <div className="mt-4 flex-1">
+          <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{study.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-muted">{study.subtitle}</p>
+        </div>
+        <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-pine-800">
+          Explore how we help
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+        </span>
       </Link>
     </motion.div>
   );
@@ -901,9 +850,9 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Before / after — panel overlapping the hero edge              */}
+      {/* What we do — panel overlapping the hero edge                  */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative z-10 px-4 md:px-8">
+      <section id="services" className="relative z-10 px-4 pb-16 md:px-8 md:pb-24">
         <div className="mx-auto -mt-20 max-w-6xl md:-mt-24">
           <Reveal className="rounded-[32px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
             <div className="md:flex md:items-end md:justify-between md:gap-12">
@@ -918,48 +867,18 @@ export default function Home() {
               </p>
             </div>
 
-
+            <div className="mt-12 border-t border-ink/5 pt-10">
+              <Eyebrow>Who we support</Eyebrow>
+              <p className="mt-4 max-w-xl text-sm font-medium leading-7 text-ink/80">
+                Explore below to see how we could work with you.
+              </p>
+              <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
+                {caseStudies.map((study, index) => (
+                  <SupportAudienceCard key={study.href} study={study} index={index} />
+                ))}
+              </Stagger>
+            </div>
           </Reveal>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* Case studies — rounded pine panel                             */}
-      {/* ------------------------------------------------------------ */}
-      <section id="services" className="px-4 pt-24 md:px-8 md:pt-32">
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-5 py-16 text-paper md:px-12 md:py-24">
-          <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
-            <div className="absolute -top-32 right-[-10%] h-96 w-96 rounded-full bg-pine-700/40 blur-3xl" />
-            <div className="absolute bottom-[-20%] left-[-6%] h-80 w-80 rounded-full bg-acid/[0.06] blur-3xl" />
-          </div>
-
-          <div className="relative">
-            <SectionTitle
-              light
-              eyebrow="Who we work with"
-              title="Support built around you"
-              prompt="Explore below to see how we could work with you."
-              narrow
-            />
-
-            <Stagger className="mt-14 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
-              <CaseCard study={caseStudies[0]} index={0} />
-
-              {/* Centre image: spans both rows */}
-              <motion.div variants={fadeUp} className="hidden overflow-hidden rounded-3xl ring-1 ring-white/10 md:row-span-2 md:block">
-                <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
-              </motion.div>
-
-              <CaseCard study={caseStudies[1]} index={1} />
-              <CaseCard study={caseStudies[2]} index={2} />
-              <CaseCard study={caseStudies[3]} index={3} />
-
-              {/* Mobile-only image (shown after the cards on small screens) */}
-              <motion.div variants={fadeUp} className="overflow-hidden rounded-3xl ring-1 ring-white/10 md:hidden">
-                <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
-              </motion.div>
-            </Stagger>
-          </div>
         </div>
       </section>
 
