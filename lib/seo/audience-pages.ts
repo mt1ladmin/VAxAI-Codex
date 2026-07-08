@@ -67,7 +67,7 @@ export const sharedPricingBenefits: AudienceSection = {
     "Predictable budgeting — Especially valuable for charities and small businesses with tight or variable income.",
   ],
   closing:
-    "Realistic outcome for many clients: You get reliable, high-quality admin and AI support while keeping full flexibility.",
+    "Realistic outcome for many clients: You get reliable, high-quality admin and AI support while keeping full flexibility. Because we design the systems and train the VA, everything works seamlessly together from the start.",
 };
 
 export const sharedHowSection: AudienceSection = {
