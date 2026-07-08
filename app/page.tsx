@@ -666,7 +666,7 @@ export default function Home() {
           <div className="hidden items-center gap-6 text-xs font-semibold text-paper/60 md:flex">
             <a href="#pricing" className="transition-colors duration-200 hover:text-paper">Services</a>
             <a href="#experts" className="transition-colors duration-200 hover:text-paper">About</a>
-            <a href="#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
+            <a href="/neurodivergent-professionals#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
             <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
             <a href="/insights" className="text-acid/70 transition-colors duration-200 hover:text-acid">Insights &amp; Resources</a>
           </div>
@@ -693,7 +693,7 @@ export default function Home() {
               {[
                 { label: "Services", href: "#pricing" },
                 { label: "About", href: "#experts" },
-                { label: "Access to Work", href: "#access-to-work" },
+                { label: "Access to Work", href: "/neurodivergent-professionals#access-to-work" },
                 { label: "FAQ", href: "#faq" },
                 { label: "Insights & Resources", href: "/insights" },
               ].map(({ label, href }) => (
@@ -888,27 +888,6 @@ export default function Home() {
                 <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
               </motion.div>
             </Stagger>
-
-            <Reveal
-              id="access-to-work"
-              className="mt-14 flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/[0.05] p-7 md:flex-row md:items-center md:justify-between md:p-9"
-            >
-              <div>
-                <Eyebrow light>Access to Work</Eyebrow>
-                <h3 className="mt-4 max-w-xl text-2xl font-semibold leading-tight tracking-tight text-paper">
-                  Your VAxAI support could cost you nothing
-                </h3>
-                <p className="mt-2 text-sm leading-7 text-paper/65">Want to find out more?</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAccessModalOpen(true)}
-                className={`${btn.accent} shrink-0`}
-              >
-                Learn about Access to Work
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </Reveal>
           </div>
         </div>
       </section>
