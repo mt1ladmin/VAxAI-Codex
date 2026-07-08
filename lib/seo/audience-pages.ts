@@ -3,13 +3,15 @@ export type JourneyStage = {
   paragraphs: string[];
 };
 
-export type PricingPackage = {
-  title: string;
-  subtitle: string;
-  priceLabel: string;
-  intro: string;
-  bullets: string[];
-  closing: string;
+export type AudiencePricingTier = {
+  label: string;
+  price: string;
+};
+
+export type AudiencePricing = {
+  audienceLabel: string;
+  tiers: AudiencePricingTier[];
+  example: string;
 };
 
 export type AudienceSection = {
@@ -22,37 +24,31 @@ export type AudienceSection = {
   closing?: string;
 };
 
-export const sharedPricingPackages: PricingPackage[] = [
-  {
-    title: "Full Setup Package",
-    subtitle: "Discovery, Strategy & Implementation",
-    priceLabel: "From £3,750 (fixed price)",
-    intro: "Includes everything needed to get you up and running:",
-    bullets: [
-      "Full workflow review and opportunity assessment",
-      "Practical strategy and prioritised recommendations",
-      "Design and implementation of your tailored solution (automation, tool optimisations, clearer processes, AI output management)",
-      "Training and handover",
-    ],
-    closing:
-      "A complete, done-with-you package with clear deliverables and timelines. Perfect if you want to improve your systems in one focused project.",
-  },
-  {
-    title: "Ongoing Support Retainer",
-    subtitle: "",
-    priceLabel: "From £450 per month (or £30 per hour)",
-    intro:
-      "For clients who already have systems in place or have completed the Full Setup Package. This includes:",
-    bullets: [
-      "Regular virtual assistance",
-      "AI output review and quality checking",
-      "Automation maintenance",
-      "Ongoing optimisation and productivity support",
-    ],
-    closing:
-      "Flexible hours and monthly planning calls so the support evolves with your needs.",
-  },
+export const sharedPricingIntro = "We offer clear and fair pricing tailored to your needs.";
+
+export const sharedPricingNotes = [
+  "Full Setup includes workflow review, practical improvements using AI and automation, and handover.",
+  "VA Setup & Training includes full briefing and training (recruitment fees agreed separately if needed).",
+  "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.",
 ];
+
+const soloFounderPricingTiers: AudiencePricingTier[] = [
+  { label: "Full Setup Package", price: "From £2,450 (fixed price)" },
+  { label: "VA Setup & Training", price: "From £300 (one time)" },
+  { label: "Ongoing Support", price: "£25 per hour (pay only for what you need)" },
+];
+
+const smallOrganisationPricingTiers: AudiencePricingTier[] = [
+  { label: "Full Setup Package", price: "From £5,250 (fixed price)" },
+  { label: "VA Setup & Training", price: "From £500 (one time)" },
+  { label: "Ongoing Support", price: "£35 per hour (pay only for what you need)" },
+];
+
+const soloFounderPricingExample =
+  "First month ≈ £3,550 | Typical ongoing monthly cost ≈ £800";
+
+const smallOrganisationPricingExample =
+  "First month ≈ £6,870 | Typical ongoing monthly cost ≈ £1,120";
 
 export const sharedPricingBenefits: AudienceSection = {
   heading: "Why This Is More Cost-Effective & Sustainable",
@@ -84,7 +80,7 @@ export const sharedHowSection: AudienceSection = {
     {
       title: "Ongoing Support",
       paragraphs: [
-        "We provide continued virtual assistance, AI output reviews, automation maintenance, and regular check-ins. This helps your workflows stay effective and manageable as your needs change, without creating extra complexity or overwhelm.",
+        "We provide ongoing virtual admin support that includes reviewing AI outputs, maintaining automations, and handling exceptions. A dedicated person brings the human judgement and flexibility that AI can’t provide, keeping your workflows efficient, reliable, and manageable long-term.",
       ],
     },
   ],
@@ -104,6 +100,7 @@ export type AudiencePage = {
   delayed: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
+  pricing: AudiencePricing;
   accessToWork?: { heading: string; paragraphs: string[] };
   related: { label: string; description: string; linkLabel: string };
 };
@@ -163,6 +160,11 @@ export const audiencePages: AudiencePage[] = [
         "A calmer operating rhythm around inboxes, scheduling and tasks",
         "Better visibility of what needs action, what can wait and what can be handed over",
       ],
+    },
+    pricing: {
+      audienceLabel: "Solo Founder / Entrepreneur",
+      tiers: soloFounderPricingTiers,
+      example: soloFounderPricingExample,
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -232,6 +234,11 @@ export const audiencePages: AudiencePage[] = [
         "A business that feels easier to manage as workload increases",
       ],
     },
+    pricing: {
+      audienceLabel: "Small Business",
+      tiers: smallOrganisationPricingTiers,
+      example: smallOrganisationPricingExample,
+    },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
@@ -299,6 +306,11 @@ export const audiencePages: AudiencePage[] = [
         "Clearer information handling that supports safeguarding and accountability",
         "Practical systems that help the charity do more with the capacity it already has",
       ],
+    },
+    pricing: {
+      audienceLabel: "Charity",
+      tiers: smallOrganisationPricingTiers,
+      example: smallOrganisationPricingExample,
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -375,6 +387,11 @@ export const audiencePages: AudiencePage[] = [
         "Support that protects autonomy while making work easier to sustain",
         "Practical help that fits your working patterns rather than forcing a generic productivity system",
       ],
+    },
+    pricing: {
+      audienceLabel: "Neurodivergent Professional",
+      tiers: soloFounderPricingTiers,
+      example: soloFounderPricingExample,
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
