@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, ExternalLink, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, ExternalLink, ShieldCheck, X } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -98,7 +98,21 @@ const btn = {
     "inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold text-ink transition-colors duration-300 hover:border-ink/35 hover:bg-white",
 };
 
-function PressureBulletsCarousel({ bullets }: { bullets: string[] }) {
+const pressureCardClass =
+  "rounded-3xl border border-ink/5 bg-cream/50 px-5 py-5 shadow-card transition-colors duration-300 hover:border-pine-900/10 hover:bg-cream/80";
+
+function PressureBulletCard({ item, index }: { item: string; index: number }) {
+  return (
+    <div className={pressureCardClass}>
+      <span className="text-[11px] font-bold tracking-[0.14em] text-pine-800/70">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <p className="mt-3 text-sm leading-7 text-muted">{item}</p>
+    </div>
+  );
+}
+
+function PressureBulletsPanel({ bullets }: { bullets: string[] }) {
   const [index, setIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
 
@@ -109,68 +123,75 @@ function PressureBulletsCarousel({ bullets }: { bullets: string[] }) {
   const activeItem = bullets[index];
 
   return (
-    <div className="relative">
-      <div
-        className="relative touch-pan-y pb-6"
-        onTouchStart={(event) => {
-          touchStartX.current = event.touches[0].clientX;
-        }}
-        onTouchEnd={(event) => {
-          if (touchStartX.current === null) return;
-          const diff = touchStartX.current - event.changedTouches[0].clientX;
-          if (diff > 48) goTo(index + 1);
-          if (diff < -48) goTo(index - 1);
-          touchStartX.current = null;
-        }}
-      >
-        {bullets.slice(index + 1, index + 3).map((item, peekIndex) => (
-          <div
-            key={item}
-            aria-hidden="true"
-            className="absolute inset-x-0 rounded-3xl border border-ink/5 bg-cream/40"
-            style={{
-              top: (peekIndex + 1) * 12,
-              bottom: -(peekIndex + 1) * 12,
-              zIndex: 10 - peekIndex,
-              transform: `scale(${1 - (peekIndex + 1) * 0.03})`,
-            }}
-          />
+    <div>
+      <div className="hidden md:flex md:flex-col md:gap-3">
+        {bullets.map((item, cardIndex) => (
+          <PressureBulletCard key={item} item={item} index={cardIndex} />
         ))}
-
-        <motion.div
-          key={activeItem}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: EASE }}
-          className="relative z-30 rounded-3xl border border-ink/5 bg-cream/50 px-5 py-5 shadow-card"
-        >
-          <span className="text-[11px] font-bold tracking-[0.14em] text-pine-800/70">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <p className="mt-3 text-sm leading-7 text-muted">{activeItem}</p>
-        </motion.div>
       </div>
 
-      {bullets.length > 1 ? (
-        <div className="mt-8 flex items-center justify-between gap-4">
-          <div className="flex gap-2">
-            {bullets.map((item, dotIndex) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => goTo(dotIndex)}
-                aria-label={`View pressure ${dotIndex + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  dotIndex === index ? "w-6 bg-pine-800" : "w-2 bg-pine-800/25"
-                }`}
-              />
-            ))}
-          </div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
-            Swipe to explore
-          </p>
+      <div className="md:hidden">
+        <div
+          className="relative"
+          onTouchStart={(event) => {
+            touchStartX.current = event.touches[0].clientX;
+          }}
+          onTouchEnd={(event) => {
+            if (touchStartX.current === null) return;
+            const diff = touchStartX.current - event.changedTouches[0].clientX;
+            if (diff > 48) goTo(index + 1);
+            if (diff < -48) goTo(index - 1);
+            touchStartX.current = null;
+          }}
+        >
+          <motion.div
+            key={activeItem}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: EASE }}
+          >
+            <PressureBulletCard item={activeItem} index={index} />
+          </motion.div>
         </div>
-      ) : null}
+
+        {bullets.length > 1 ? (
+          <div className="mt-5 flex items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={() => goTo(index - 1)}
+              disabled={index === 0}
+              aria-label="Previous pressure"
+              className="grid h-9 w-9 place-items-center rounded-full border border-ink/10 text-pine-800 transition-colors hover:border-pine-900/20 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            <div className="flex gap-2">
+              {bullets.map((item, dotIndex) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => goTo(dotIndex)}
+                  aria-label={`View pressure ${dotIndex + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    dotIndex === index ? "w-6 bg-pine-800" : "w-2 bg-pine-800/25"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => goTo(index + 1)}
+              disabled={index === bullets.length - 1}
+              aria-label="Next pressure"
+              className="grid h-9 w-9 place-items-center rounded-full border border-ink/10 text-pine-800 transition-colors hover:border-pine-900/20 disabled:cursor-not-allowed disabled:opacity-30"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -311,7 +332,7 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
                 </div>
 
                 {(pressures.bullets ?? []).length > 0 ? (
-                  <PressureBulletsCarousel bullets={pressures.bullets ?? []} />
+                  <PressureBulletsPanel bullets={pressures.bullets ?? []} />
                 ) : null}
               </div>
             </Reveal>
@@ -336,24 +357,6 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
                     ))}
                   </div>
                 </Reveal>
-                {delayed.bullets && delayed.bullets.length > 0 ? (
-                  <>
-                    <Stagger className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {delayed.bullets.map((item, index) => (
-                        <motion.div
-                          key={item}
-                          variants={fadeUp}
-                          className="rounded-3xl border border-white/10 bg-white/[0.05] px-5 py-5"
-                        >
-                          <span className="text-[11px] font-bold tracking-[0.14em] text-acid/70">
-                            {String(index + 1).padStart(2, "0")}
-                          </span>
-                          <p className="mt-3 text-sm leading-7 text-paper/70">{item}</p>
-                        </motion.div>
-                      ))}
-                    </Stagger>
-                  </>
-                ) : null}
               </div>
             </div>
           </section>
