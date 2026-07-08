@@ -9,11 +9,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
 import type { AudiencePage, AudienceSection, JourneyStage } from "@/lib/seo/audience-pages";
-import {
-  sharedClientTypePricing,
-  sharedPricingTiers,
-  sharedProposalNote,
-} from "@/lib/seo/audience-pages";
+import { sharedPricingTiers, sharedProposalNote } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
 type ServiceLandingPageProps = {
@@ -288,54 +284,28 @@ function PricingPanelContent({
 
       <p className="mt-8 max-w-3xl text-base leading-8 text-muted md:text-lg">{sharedProposalNote}</p>
 
-      <h3 className="mt-10 text-xl font-semibold tracking-[-0.01em] text-ink md:text-2xl">
-        Support Tailored by Client Type
-      </h3>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {sharedClientTypePricing.map((clientType) => (
-          <div
-            key={clientType.label}
-            className="rounded-2xl border border-ink/5 bg-cream/40 px-5 py-5"
-          >
-            <p className="text-sm font-semibold text-ink">{clientType.label}</p>
-            <p className="mt-2 text-sm leading-7 text-muted">{clientType.summary}</p>
+      {accessToWork ? (
+        <div
+          id="access-to-work"
+          className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
+        >
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
+          <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
+            {accessToWork.heading}
+          </h3>
+          <div className="mt-3 max-w-3xl space-y-3 text-sm leading-7 text-muted md:text-[15px]">
+            {accessToWork.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
-        ))}
-      </div>
-
-      <div
-        id="access-to-work"
-        className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
-      >
-        <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
-          Clear scope before work begins
-        </h3>
-        <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">
-          After your workflow review, we scope the support you need and provide a written quote
-          covering deliverables, approach and cost. You know exactly what you are getting before
-          any work starts — and nothing begins until you have reviewed and agreed it.
-        </p>
-
-        {accessToWork ? (
-          <div className="mt-8 border-t border-pine-900/10 pt-8">
-            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
-            <h4 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
-              {accessToWork.heading}
-            </h4>
-            <div className="mt-3 max-w-3xl space-y-3 text-sm leading-7 text-muted md:text-[15px]">
-              {accessToWork.paragraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
-            {onAccessOpen ? (
-              <button type="button" onClick={onAccessOpen} className={`${btn.primary} mt-6`}>
-                Learn about Access to Work
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+          {onAccessOpen ? (
+            <button type="button" onClick={onAccessOpen} className={`${btn.primary} mt-6`}>
+              Learn about Access to Work
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <button type="button" onClick={onContact} className={btn.accent}>

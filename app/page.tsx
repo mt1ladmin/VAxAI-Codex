@@ -50,10 +50,6 @@ const tools = [
     logo: "https://cdn.simpleicons.org/perplexity/1FB8CD",
   },
   {
-    name: "NotebookLM",
-    logo: "https://www.google.com/s2/favicons?domain=notebooklm.google.com&sz=64",
-  },
-  {
     name: "Zapier",
     logo: "https://cdn.simpleicons.org/zapier/FF4F00",
   },
@@ -208,10 +204,10 @@ const vatPrinciples = [
 ];
 
 const faqs = [
-  ["Who is VAxAI for?", "Small businesses, charities, consultants, and teams that want admin, workflow automation, and AI support without losing the human judgement their work needs."],
+  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities, non-profits and neurodivergent professionals who need practical support with admin, workflows, AI and automation — without being pushed into tools or systems that do not fit how they actually work."],
   ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
-  ["Why does pricing vary?", "Complexity, data quality, business size, integrations, dashboards, and ongoing support all affect the final cost. We explain this after assessment before any build starts."],
+  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly after Discovery & Strategy, before any Workflow Design or build work begins."],
   ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
@@ -761,9 +757,15 @@ export default function Home() {
 
         <div className="relative mx-auto mt-16 grid max-w-6xl gap-14 md:mt-20 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div variants={stagger} initial="hidden" animate="show">
+            <motion.h1
+              variants={fadeUp}
+              className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
+            >
+              VAxAI makes everyday work easier.
+            </motion.h1>
             <motion.p
               variants={fadeUp}
-              className="mt-6 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
+              className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
               Small businesses, charities, solo founders, and neurodivergent professionals often feel the weight of admin the most.
             </motion.p>
@@ -772,12 +774,6 @@ export default function Home() {
               className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
               Emails, scheduling, follow-ups, reporting, and repetitive tasks can quietly eat up the time needed for growth, delivery, and real impact.
-            </motion.p>
-            <motion.p
-              variants={fadeUp}
-              className="mt-5 max-w-xl text-base font-medium leading-7 text-paper md:text-lg md:leading-8"
-            >
-              VAxAI makes everyday work easier.
             </motion.p>
             <motion.p
               variants={fadeUp}

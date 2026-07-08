@@ -41,7 +41,7 @@ export const sharedPricingTiers: PricingTier[] = [
 ];
 
 export const sharedProposalNote =
-  "After your consultation, you’ll receive a clear written proposal with fixed costs, deliverables and timelines. No surprises. We do not build complex custom software or large development projects. For those needs, we partner with trusted specialist developers.";
+  "After your consultation, you’ll receive a clear written proposal with fixed costs, deliverables and timelines. No surprises.";
 
 export const sharedClientTypePricing: { label: string; summary: string }[] = [
   {
