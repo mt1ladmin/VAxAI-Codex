@@ -814,11 +814,11 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* What we do — panel overlapping the hero edge                  */}
+      {/* Who VAxAI is for — standalone card below the hero             */}
       {/* ------------------------------------------------------------ */}
-      <section id="services" className="relative z-10 px-4 pb-16 md:px-8 md:pb-24">
-        <div className="mx-auto -mt-20 max-w-6xl md:-mt-24">
-          <Reveal className="rounded-[32px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
+      <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="rounded-[40px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
             <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
               Who VAxAI is for
             </h2>
