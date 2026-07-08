@@ -16,7 +16,6 @@ import type {
 } from "@/lib/seo/audience-pages";
 import {
   sharedFullSetupIncludes,
-  sharedHowWeHelpSection,
   sharedOngoingSupportDescription,
   sharedPricingIntro,
   sharedVaSetupIncluded,
@@ -183,7 +182,7 @@ function PressuresPanelContent({
         </Stagger>
       ) : null}
     </div>
-    <TabFlowCta label="See how we help" onClick={onNext} />
+    <TabFlowCta label="See what could help" onClick={onNext} />
     </div>
   );
 }
@@ -197,10 +196,7 @@ function HowWeHelpPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>How we help</Eyebrow>
-      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
-        {section.heading}
-      </h2>
+      <Eyebrow>{section.heading}</Eyebrow>
       <div className="mt-6 space-y-4 text-base leading-8 text-muted">
         {section.paragraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
@@ -469,6 +465,7 @@ function PricingBenefitsPanelContent({
 
 function AudienceTabbedSections({
   pressures,
+  howWeHelp,
   how,
   changes,
   workWithUs,
@@ -477,6 +474,7 @@ function AudienceTabbedSections({
   onContact,
 }: {
   pressures: AudienceSection;
+  howWeHelp: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
   workWithUs: AudienceSection;
@@ -513,7 +511,7 @@ function AudienceTabbedSections({
 
   const tabs: { id: AudienceTabId; label: string }[] = [
     { id: "pressures", label: pressures.heading },
-    { id: "howWeHelp", label: "How we help" },
+    { id: "howWeHelp", label: howWeHelp.heading },
     { id: "approach", label: "Our approach" },
     { id: "changes", label: changes.heading },
     { id: "pricing", label: "Pricing" },
@@ -578,7 +576,7 @@ function AudienceTabbedSections({
         ) : null}
         {activeTab === "howWeHelp" ? (
           <HowWeHelpPanelContent
-            section={sharedHowWeHelpSection}
+            section={howWeHelp}
             onNext={() => navigateToTab("approach")}
           />
         ) : null}
@@ -740,6 +738,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
             <Reveal className="relative mx-auto -mt-10 max-w-6xl rounded-[40px] border border-ink/5 bg-white px-6 py-14 shadow-lift md:-mt-14 md:px-12 md:py-20">
               <AudienceTabbedSections
                 pressures={pressures}
+                howWeHelp={page.howWeHelp}
                 how={how}
                 changes={changes}
                 workWithUs={page.workWithUs}

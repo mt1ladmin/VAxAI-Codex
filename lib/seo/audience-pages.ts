@@ -19,11 +19,11 @@ export const sharedFullSetupIncludes = [
 export const sharedVaSetupIncluded = {
   title: "VA Setup & Training (included in the package)",
   description:
-    "We fully brief and train your virtual assistant — whether from our team or one we help you recruit — so they deeply understand your systems, workflows, and preferences.",
+    "We fully brief and train your virtual assistant, whether from our team or one we help you recruit, so they deeply understand your systems, workflows, and preferences.",
 };
 
 export const sharedOngoingSupportDescription =
-  "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.";
+  "Support is flexible. You only pay for hours used. Simpler setups need fewer hours.";
 
 export type AudienceSection = {
   heading: string;
@@ -39,24 +39,11 @@ export type AudienceSection = {
 export const sharedPricingIntro = "We offer clear and fair pricing tailored to your needs.";
 
 const sharedWorkWithUsBullets = [
-  "Lower overall cost — You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
-  "Pay only for what you need — AI and automation handle repetitive work, so human support is mainly for oversight, exceptions, and maintenance. Because your VA deeply understands your systems, you typically need even fewer hours over time.",
-  "Full flexibility — Scale support up or down easily with no long-term commitment.",
-  "Predictable budgeting — Ideal for those with limited or variable income.",
+  "Lower overall cost: You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
+  "Pay only for what you need: AI and automation handle repetitive work, so human support is mainly for oversight, exceptions, and maintenance. Because your VA deeply understands your systems, you typically need even fewer hours over time.",
+  "Full flexibility: Scale support up or down easily with no long-term commitment.",
+  "Predictable budgeting: Ideal for those with limited or variable income.",
 ];
-
-export const sharedHowWeHelpSection: AudienceSection = {
-  heading: "How We Help",
-  paragraphs: [
-    "We ease this pressure by thoughtfully improving your current tools and processes. We only introduce AI and automation where they genuinely add value, fit your existing systems, and are simple for you to manage and trust.",
-  ],
-  bulletsLabel: "Key Elements Explained:",
-  bullets: [
-    "AI — Helps with tasks that require understanding, such as drafting content, summarising information, or analysing data.",
-    "Automation — Makes repetitive rule-based tasks run automatically.",
-    "Virtual Assistance — A trained human who reviews AI outputs, handles exceptions, and provides flexible support with human judgement.",
-  ],
-};
 
 export const sharedHowSection: AudienceSection = {
   heading: "",
@@ -66,7 +53,7 @@ export const sharedHowSection: AudienceSection = {
     {
       title: "Discovery, Strategy & Implementation",
       paragraphs: [
-        "We take time to understand how you currently work — your workflows, biggest pressure points, existing tools, and current support. From there, we create a practical strategy and then design and implement straightforward solutions that fit the way you actually work.",
+        "We take time to understand how you currently work: your workflows, biggest pressure points, existing tools, and current support. From there, we create a practical strategy and then design and implement straightforward solutions that fit the way you actually work.",
       ],
     },
     {
@@ -90,6 +77,7 @@ export type AudiencePage = {
   understanding?: { heading: string; paragraphs: string[] };
   pressures: AudienceSection;
   delayed: AudienceSection;
+  howWeHelp: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
   pricing: AudiencePricing;
@@ -108,12 +96,12 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Founders & Entrepreneurs",
     title: "Support shaped around how you run your business",
     intro:
-      "Founders and entrepreneurs often carry too many priorities at once — client work, growth, scheduling, follow-ups and the admin that keeps everything moving. VAxAI takes time to understand your context, tools and workflows before recommending the right mix of human support, better processes, and AI or automation only where it genuinely helps.",
+      "Founders and entrepreneurs often carry too many priorities at once: client work, growth, scheduling, follow-ups and the admin that keeps everything moving. VAxAI takes time to understand your context, tools and workflows before recommending the right mix of human support, better processes, and AI or automation only where it genuinely helps.",
     heroHasAccessCta: true,
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "When you are building a business, admin rarely stays in one place. It spreads across your inbox, calendar, notes, client messages and the follow-ups you mean to send later — while growth work waits.",
+        "When you are building a business, admin rarely stays in one place. It spreads across your inbox, calendar, notes, client messages and the follow-ups you mean to send later, while growth work waits.",
       ],
       bullets: [
         "Too many competing priorities and not enough protected focus time",
@@ -138,12 +126,24 @@ export const audiencePages: AudiencePage[] = [
         "Founder fatigue from holding too much information, context and responsibility alone",
       ],
     },
+    howWeHelp: {
+      heading: "What could help",
+      paragraphs: [
+        "If inbox overload, missed follow-ups and too much held in your head feel familiar, the right mix of smarter tools and human support can free up focus time without adding complexity.",
+      ],
+      bulletsLabel: "Three types of support explained:",
+      bullets: [
+        "AI: Drafts client replies, summarises long threads and pulls out next steps so you spend less time re-reading messages.",
+        "Automation: Sends routine reminders, files documents and moves information between the tools you already use.",
+        "Virtual assistance: A person who handles follow-ups, inbox triage and exceptions with judgement, so leads and actions do not depend on you holding everything together.",
+      ],
+    },
     how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
       paragraphs: [
         "With the right support in place, your business becomes easier to run because fewer things depend on you carrying every task, reminder and next step in your head.",
-        "When inbox pressure, scattered follow-ups and competing priorities are the problem, a practical setup plus ongoing human support is designed to reduce what you carry alone — not add another system to manage.",
+        "When inbox pressure, scattered follow-ups and competing priorities are the problem, a practical setup plus ongoing human support is designed to reduce what you carry alone, not add another system to manage.",
       ],
       equation:
         "Scattered admin pressure + practical setup and ongoing support = more focus for growth and fewer things held in your head.",
@@ -168,7 +168,7 @@ export const audiencePages: AudiencePage[] = [
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get reliable, professional help that grows with your business — with the flexibility and peace of mind your work deserves.",
+        "In short: You get reliable, professional help that grows with your business, with the flexibility and peace of mind your work deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -192,7 +192,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Small Businesses",
     title: "Admin support that fits how your business runs",
     intro:
-      "Small businesses feel admin pressure quickly — enquiries to answer, bookings to manage, invoices to chase, documents to file and follow-ups that keep the operation moving. VAxAI learns your context, tools and workflows first, then recommends human support, clearer processes, and AI or automation only where they add real value.",
+      "Small businesses feel admin pressure quickly: enquiries to answer, bookings to manage, invoices to chase, documents to file and follow-ups that keep the operation moving. VAxAI learns your context, tools and workflows first, then recommends human support, clearer processes, and AI or automation only where they add real value.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -222,6 +222,18 @@ export const audiencePages: AudiencePage[] = [
         "Growth creating more admin pressure rather than more stability",
       ],
     },
+    howWeHelp: {
+      heading: "What could help",
+      paragraphs: [
+        "If enquiries, invoices and repeat weekly admin keep competing with revenue-earning work, practical changes to how tasks flow can make the business feel steadier without a big systems project.",
+      ],
+      bulletsLabel: "Three types of support explained:",
+      bullets: [
+        "AI: Helps draft responses to common enquiries, summarise customer messages and prepare first drafts for quotes or updates.",
+        "Automation: Routes enquiries, chases invoices, files documents and handles repeat weekly tasks so the same work is not done by hand each time.",
+        "Virtual assistance: A person who monitors inboxes, tracks follow-ups and handles the exceptions that still need a human eye.",
+      ],
+    },
     how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
@@ -248,11 +260,11 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, this means professional support without payroll complexity — especially when workload fluctuates and every hour needs to count.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, this means professional support without payroll complexity, especially when workload fluctuates and every hour needs to count.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get reliable, professional help that keeps operations steady as you grow — with the flexibility and peace of mind your business deserves.",
+        "In short: You get reliable, professional help that keeps operations steady as you grow, with the flexibility and peace of mind your business deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -263,7 +275,7 @@ export const audiencePages: AudiencePage[] = [
     related: {
       label: "Small Businesses",
       description:
-        "Small businesses feel admin pressure quickly — enquiries, bookings, invoices, documents and follow-ups all need consistent attention.",
+        "Small businesses feel admin pressure quickly: enquiries, bookings, invoices, documents and follow-ups all need consistent attention.",
       linkLabel: "View Small Business support",
     },
   },
@@ -276,12 +288,12 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "UK Charities & Non-Profits",
     title: "More capacity for the work that matters",
     intro:
-      "UK charities and non-profits are often stretched — limited capacity, growing reporting demands, volunteer coordination, funding admin and the everyday communication that keeps services running. VAxAI takes time to understand your context, tools and workflows before shaping practical support around delivery, compliance and relationships.",
+      "UK charities and non-profits are often stretched: limited capacity, growing reporting demands, volunteer coordination, funding admin and the everyday communication that keeps services running. VAxAI takes time to understand your context, tools and workflows before shaping practical support around delivery, compliance and relationships.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "Charity teams are frequently doing more with less. Admin does not just sit in one inbox — it spreads across service delivery, volunteers, funders, compliance and the follow-ups that keep people safe and supported.",
+        "Charity teams are frequently doing more with less. Admin does not just sit in one inbox. It spreads across service delivery, volunteers, funders, compliance and the follow-ups that keep people safe and supported.",
       ],
       bullets: [
         "Limited capacity across small teams and wider volunteer networks",
@@ -306,12 +318,24 @@ export const audiencePages: AudiencePage[] = [
         "Staff capacity being absorbed by coordination instead of relationships and delivery",
       ],
     },
+    howWeHelp: {
+      heading: "What could help",
+      paragraphs: [
+        "When capacity is limited and admin sits alongside delivery, reporting and volunteer coordination, targeted support can protect time for the work that matters most.",
+      ],
+      bulletsLabel: "Three types of support explained:",
+      bullets: [
+        "AI: Helps draft reporting notes, summarise funder updates and organise information from meetings or emails.",
+        "Automation: Tracks referrals, reminders and routine reporting steps so actions are less likely to slip when teams are stretched.",
+        "Virtual assistance: A person who maintains follow-ups, coordinates records and handles communication that needs care and consistency.",
+      ],
+    },
     how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
       paragraphs: [
         "With the right support in place, charity teams can protect more capacity for delivery, relationships and the work that directly supports their mission.",
-        "When reporting, coordination and follow-ups compete with front-line delivery, practical systems and consistent support are designed to protect mission time — not create more admin overhead.",
+        "When reporting, coordination and follow-ups compete with front-line delivery, practical systems and consistent support are designed to protect mission time, not create more admin overhead.",
       ],
       equation:
         "Stretched capacity + practical systems and consistent support = more time directed towards delivery, relationships and accountability.",
@@ -336,7 +360,7 @@ export const audiencePages: AudiencePage[] = [
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get reliable, professional help that supports your mission — with the flexibility and peace of mind your team deserves.",
+        "In short: You get reliable, professional help that supports your mission, with the flexibility and peace of mind your team deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -397,12 +421,24 @@ export const audiencePages: AudiencePage[] = [
         "Avoidable pressure building around tasks that could be supported, simplified or externalised",
       ],
     },
+    howWeHelp: {
+      heading: "What could help",
+      paragraphs: [
+        "When admin depends on memory, switching and self-tracking, support shaped around how you work can reduce the load without forcing a one-size-fits-all system.",
+      ],
+      bulletsLabel: "Three types of support explained:",
+      bullets: [
+        "AI: Helps draft messages, summarise long content and break information into clearer chunks when reading or writing feels heavy.",
+        "Automation: Sends reminders, organises recurring tasks and keeps follow-ups visible so less relies on remembering alone.",
+        "Virtual assistance: A person who handles exceptions, reviews outputs and provides steady admin support that adapts when your capacity or focus shifts.",
+      ],
+    },
     how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
       paragraphs: [
         "With the right support in place, work can become easier to track, return to and sustain.",
-        "When memory, task switching and inbox build-up create the pressure, support shaped around how you work is designed to reduce cognitive load — not force a generic productivity system.",
+        "When memory, task switching and inbox build-up create the pressure, support shaped around how you work is designed to reduce cognitive load, not force a generic productivity system.",
       ],
       equation:
         "Cognitive load from admin + support shaped around how you work = work that is easier to return to, track and sustain.",
@@ -424,11 +460,11 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For neurodivergent professionals, flexible support without employment overhead helps protect energy, autonomy and consistency — especially when systems need to fit how you actually work.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For neurodivergent professionals, flexible support without employment overhead helps protect energy, autonomy and consistency, especially when systems need to fit how you actually work.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get reliable, professional help that fits your working patterns — with the flexibility and peace of mind your work deserves.",
+        "In short: You get reliable, professional help that fits your working patterns, with the flexibility and peace of mind your work deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
