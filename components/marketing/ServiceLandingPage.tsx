@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, ExternalLink, ShieldCheck, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -253,14 +253,14 @@ function ChangesPanelContent({
   );
 }
 
+const ACCESS_TO_WORK_URL = "https://www.gov.uk/access-to-work";
+
 function PricingPanelContent({
   accessToWork,
   onContact,
-  onAccessOpen,
 }: {
   accessToWork?: { heading: string; paragraphs: string[] };
   onContact: () => void;
-  onAccessOpen?: () => void;
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
@@ -298,12 +298,15 @@ function PricingPanelContent({
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          {onAccessOpen ? (
-            <button type="button" onClick={onAccessOpen} className={`${btn.primary} mt-6`}>
-              Learn about Access to Work
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          ) : null}
+          <a
+            href={ACCESS_TO_WORK_URL}
+            target="_blank"
+            rel="noreferrer"
+            className={`${btn.primary} mt-6`}
+          >
+            Learn about Access to Work
+            <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
       ) : null}
 
@@ -327,14 +330,12 @@ function AudienceTabbedSections({
   changes,
   accessToWorkInPricing,
   onContact,
-  onAccessOpen,
 }: {
   pressures: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
   accessToWorkInPricing?: { heading: string; paragraphs: string[] };
   onContact: () => void;
-  onAccessOpen?: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<AudienceTabId>("pressures");
 
@@ -413,11 +414,7 @@ function AudienceTabbedSections({
           <ChangesPanelContent badge={changes.heading} section={changes} />
         ) : null}
         {activeTab === "pricing" ? (
-          <PricingPanelContent
-            accessToWork={accessToWorkInPricing}
-            onContact={onContact}
-            onAccessOpen={onAccessOpen}
-          />
+          <PricingPanelContent accessToWork={accessToWorkInPricing} onContact={onContact} />
         ) : null}
       </motion.div>
     </div>
@@ -448,7 +445,6 @@ function Eyebrow({
 
 export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
-  const [accessOpen, setAccessOpen] = useState(false);
   const { pressures, how, changes } = page;
   const heroImage = HERO_IMAGES[page.slug] ?? "/vaxai-support-control.jpg";
 
@@ -495,7 +491,12 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                   {page.heroHasAccessCta ? (
-                    <a href="#access-to-work" className={btn.ghostDark}>
+                    <a
+                      href={ACCESS_TO_WORK_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={btn.ghostDark}
+                    >
                       Learn about Access to Work
                       <ArrowRight className="h-4 w-4" />
                     </a>
@@ -552,7 +553,6 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 changes={changes}
                 accessToWorkInPricing={page.accessToWork}
                 onContact={() => setContactOpen(true)}
-                onAccessOpen={page.accessToWork ? () => setAccessOpen(true) : undefined}
               />
             </Reveal>
           </section>
@@ -589,86 +589,6 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
       </div>
 
       <PublicContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
-
-      {accessOpen ? (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="access-work-title"
-        >
-          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[28px] bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
-            <div className="flex items-start justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-6 text-paper md:px-10">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
-                <h2 id="access-work-title" className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
-                  Your support might cost you nothing
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAccessOpen(false)}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper transition-colors duration-200 hover:bg-white/20"
-                aria-label="Close Access to Work information"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="grid gap-6 p-6 md:grid-cols-[1fr_0.9fr] md:p-10">
-              <div>
-                <p className="text-base leading-7 text-muted">
-                  If you are eligible, Access to Work may cover some or all of your VAxAI support. We can help you
-                  understand what evidence and admin may be needed, while Access to Work makes the final decision.
-                </p>
-
-                <div className="mt-6 rounded-2xl border border-ink/10 bg-cream/70 p-5">
-                  <p className="text-sm font-semibold text-ink">What we do not do</p>
-                  <ul className="mt-3 space-y-3 text-sm leading-6 text-muted">
-                    <li>We do not decide whether you are eligible or guarantee funding.</li>
-                    <li>We do not make decisions on behalf of Access to Work.</li>
-                    <li>Access to Work assesses each application and confirms approved support.</li>
-                  </ul>
-                </div>
-
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAccessOpen(false);
-                      setContactOpen(true);
-                    }}
-                    className={btn.primary}
-                  >
-                    Talk to us about Access to Work
-                  </button>
-                  <a
-                    href="https://www.gov.uk/access-to-work"
-                    target="_blank"
-                    rel="noreferrer"
-                    className={btn.ghostLight}
-                  >
-                    Official GOV.UK guidance
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-pine-900/15 bg-white p-5">
-                <div className="flex gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pine-900 text-acid">
-                    <ShieldCheck className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <h3 className="font-semibold">Government-backed support</h3>
-                    <p className="mt-1 text-sm text-muted">A grant, not a loan or benefit.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </>
   );
 }
