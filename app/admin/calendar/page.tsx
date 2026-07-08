@@ -363,7 +363,7 @@ type ConnectedPostGroup = {
   pendingCount: number;
 };
 
-type SchedulingTab = "todo" | "connected";
+type SchedulingTab = "published" | "draft" | "none";
 
 function hasValidDate(iso: string | null | undefined) {
   return !!iso && iso.trim() !== "";
@@ -417,11 +417,32 @@ function buildInlineSocialPreview(post: Post, existingPlatforms: Set<string>): C
   return out;
 }
 
-function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): ConnectedPostGroup[] {
+function postHasConnectedContent(post: Post, socialPosts: SocialPost[]): boolean {
+  const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
+  if (linked.length > 0) return true;
+  if (post.linkedin_post?.trim()) return true;
+  if (post.instagram_caption?.trim()) return true;
+  if (post.sharing_caption?.trim()) return true;
+  return false;
+}
+
+function buildNoConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): ConnectedPostGroup[] {
+  return posts
+    .filter((post) => !postHasConnectedContent(post, socialPosts))
+    .map((post) => ({ post, items: [], pendingCount: 0 }));
+}
+
+function buildConnectedPostGroups(
+  posts: Post[],
+  socialPosts: SocialPost[],
+  tab: Exclude<SchedulingTab, "none">,
+): ConnectedPostGroup[] {
   const groups: ConnectedPostGroup[] = [];
 
   for (const post of posts) {
-    if (post.status !== "published") continue;
+    const isPublishedTab = tab === "published";
+    if (isPublishedTab && post.status !== "published") continue;
+    if (!isPublishedTab && post.status !== "draft" && post.status !== "scheduled") continue;
     const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
     const linkedByPlatform = new Map(linked.map((s) => [s.platform, s]));
     const inlinePlatforms: Array<{ key: string; label: string }> = [
@@ -430,67 +451,28 @@ function buildConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): Con
       { key: "share", label: "Share text" },
     ];
 
-    const trackerEntries: ConnectedScheduleEntry[] = [];
-    for (const { key, label } of inlinePlatforms) {
+    let pendingCount = 0;
+    let hasConnectedContent = false;
+
+    for (const { key } of inlinePlatforms) {
       const body = inlineBodyForPlatform(post, key);
       if (!body) continue;
-      if (inlinePostedAt(post, key)) continue;
+      hasConnectedContent = true;
       if (linkedByPlatform.has(key as SocialPost["platform"])) continue;
-      trackerEntries.push({ post, kind: "inline", platform: key, label, preview: body });
+      if (!inlinePostedAt(post, key)) pendingCount += 1;
     }
-    for (const social of linked) {
-      if (social.posted_at) continue;
-      trackerEntries.push({
-        post,
-        social,
-        kind: "social",
-        platform: social.platform,
-        label: platformInfo(social.platform).label,
-        preview: social.content || social.description || "",
-      });
-    }
-
-    if (trackerEntries.length === 0) continue;
-
-    const entryByKey = new Map(
-      trackerEntries.map((e) => [`${e.kind}-${e.social?.id ?? e.platform}`, e]),
-    );
-
-    const displayItems: ConnectedDisplayItem[] = [];
 
     for (const social of linked) {
-      if (social.posted_at) continue;
-      const entry = entryByKey.get(`social-${social.id}`);
-      displayItems.push({
-        id: social.id,
-        title: social.title,
-        platform: social.platform,
-        content: social.content || social.description || "",
-        scheduled_date: social.scheduled_date,
-        link: social.link,
-        pending: true,
-        posted: false,
-        scheduled: hasValidDate(social.scheduled_date),
-        scheduleEntry: entry,
-      });
+      hasConnectedContent = true;
+      if (!social.posted_at) pendingCount += 1;
     }
 
-    for (const inline of buildInlineSocialPreview(post, new Set(linked.map((s) => s.platform)))) {
-      if (inline.posted) continue;
-      const entry = entryByKey.get(`inline-${inline.platform}`);
-      displayItems.push({
-        ...inline,
-        scheduled: false,
-        scheduleEntry: entry,
-      });
-    }
-
-    if (displayItems.length === 0) continue;
+    if (!hasConnectedContent || pendingCount === 0) continue;
 
     groups.push({
       post,
-      items: displayItems,
-      pendingCount: displayItems.length,
+      items: [],
+      pendingCount,
     });
   }
 
@@ -835,12 +817,25 @@ function SocialPostDetail({
 function ConnectedPostCard({
   group,
   onSelectPost,
+  tab,
 }: {
   group: ConnectedPostGroup;
   onSelectPost: (post: Post) => void;
+  tab: SchedulingTab;
 }) {
-  const { post, items } = group;
-  const pendingCount = items.length;
+  const { post, pendingCount } = group;
+  const statusLabel =
+    tab === "none"
+      ? post.status === "published"
+        ? "Published blog post"
+        : post.status === "scheduled"
+          ? "Scheduled blog post"
+          : "Draft blog post"
+      : tab === "published"
+        ? "Published blog post"
+        : post.status === "scheduled"
+          ? "Scheduled blog post"
+          : "Draft blog post";
 
   return (
     <li>
@@ -864,7 +859,7 @@ function ConnectedPostCard({
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
             <FileText className="h-2.5 w-2.5" />
-            Published blog post
+            {statusLabel}
           </span>
           {pendingCount > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
@@ -879,23 +874,23 @@ function ConnectedPostCard({
 }
 
 function SchedulingPanel({
-  unscheduledPosts,
-  unscheduledSocial,
-  connectedPostGroups,
+  publishedConnectedGroups,
+  draftConnectedGroups,
+  noConnectedGroups,
   onSelectPost,
-  onSelectSocial,
-  onDeletePost,
-  onDeleteSocial,
 }: {
-  unscheduledPosts: Post[];
-  unscheduledSocial: SocialPost[];
-  connectedPostGroups: ConnectedPostGroup[];
+  publishedConnectedGroups: ConnectedPostGroup[];
+  draftConnectedGroups: ConnectedPostGroup[];
+  noConnectedGroups: ConnectedPostGroup[];
   onSelectPost: (post: Post) => void;
-  onSelectSocial: (social: SocialPost) => void;
-  onDeletePost: (post: Post) => void;
-  onDeleteSocial: (id: string) => void;
 }) {
-  const [tab, setTab] = useState<SchedulingTab>("todo");
+  const [tab, setTab] = useState<SchedulingTab>("published");
+  const activeGroups =
+    tab === "published"
+      ? publishedConnectedGroups
+      : tab === "draft"
+        ? draftConnectedGroups
+        : noConnectedGroups;
 
   return (
     <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
@@ -903,107 +898,59 @@ function SchedulingPanel({
         <div className="flex w-fit items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
           <button
             type="button"
-            onClick={() => setTab("todo")}
+            onClick={() => setTab("published")}
             className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
-              tab === "todo" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
+              tab === "published" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
             }`}
           >
-            To schedule
+            Published
           </button>
           <button
             type="button"
-            onClick={() => setTab("connected")}
+            onClick={() => setTab("draft")}
             className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
-              tab === "connected" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
+              tab === "draft" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
             }`}
           >
-            Connected content
+            Drafts
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("none")}
+            className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
+              tab === "none" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
+            }`}
+          >
+            No connected content
           </button>
         </div>
-        <h3 className="mt-3 text-sm font-semibold text-gray-900">
-          {tab === "todo" ? "No date set" : "Posting tracker"}
-        </h3>
+        <h3 className="mt-3 text-sm font-semibold text-gray-900">Connected content</h3>
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
-          {tab === "todo"
-            ? "Blog drafts and standalone social posts with no date yet. Add a date from the editor or schedule here."
-            : "Published posts with connected content still to post. Click a post to view, schedule, or mark connected items as posted."}
+          {tab === "published"
+            ? "Published posts with connected content still to post. Click a post to view, schedule, or mark items as posted."
+            : tab === "draft"
+              ? "Draft and scheduled posts with connected content still to post. Click a post to manage connected items."
+              : "Posts with no connected social content yet. Click a post to open or set dates."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
-          {tab === "todo" ? unscheduledPosts.length + unscheduledSocial.length : connectedPostGroups.length}
+          {activeGroups.length}
         </span>
       </div>
       <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
-        {tab === "todo" ? (
-          unscheduledPosts.length === 0 && unscheduledSocial.length === 0 ? (
-            <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-              All caught up — everything has a date
-            </li>
-          ) : (
-            <>
-              {unscheduledPosts.map((post) => (
-                <li key={`post-${post.id}`} className="group relative">
-                  <button
-                    type="button"
-                    onClick={() => onSelectPost(post)}
-                    className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 pr-9 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
-                  >
-                    <p className="line-clamp-2 text-xs font-medium leading-snug text-gray-900">
-                      {post.title || "Untitled"}
-                    </p>
-                    <span className="mt-1.5 inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9.5px] font-semibold text-gray-600">
-                      <FileText className="h-2.5 w-2.5" />
-                      Blog · {post.status}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDeletePost(post)}
-                    aria-label={`Delete ${post.title || "Untitled"}`}
-                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-md text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </li>
-              ))}
-              {unscheduledSocial.map((social) => {
-                const info = platformInfo(social.platform);
-                return (
-                  <li key={`social-${social.id}`} className="group relative">
-                    <button
-                      type="button"
-                      onClick={() => onSelectSocial(social)}
-                      className="block w-full rounded-lg border border-gray-200 px-3 py-2.5 pr-9 text-left transition-colors hover:border-gray-400 hover:bg-gray-50"
-                    >
-                      <p className="line-clamp-2 text-xs font-medium leading-snug text-gray-900">
-                        {social.title || "Untitled"}
-                      </p>
-                      <span className={`mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-semibold ${platformChipClasses(social.platform)}`}>
-                        <info.Icon className="h-2.5 w-2.5" />
-                        {info.label} · no date
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDeleteSocial(social.id)}
-                      aria-label={`Delete ${social.title || "Untitled"}`}
-                      className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-md text-gray-300 opacity-0 transition-opacity hover:bg-red-50 hover:text-red-600 focus:opacity-100 group-hover:opacity-100"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                );
-              })}
-            </>
-          )
-        ) : connectedPostGroups.length === 0 ? (
+        {activeGroups.length === 0 ? (
           <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-            All connected content has been posted
+            {tab === "published"
+              ? "All connected content has been posted"
+              : tab === "draft"
+                ? "No draft posts with connected content to post"
+                : "All posts have connected content"}
           </li>
         ) : (
-          connectedPostGroups.map((group) => (
+          activeGroups.map((group) => (
             <ConnectedPostCard
               key={group.post.id}
               group={group}
+              tab={tab}
               onSelectPost={onSelectPost}
             />
           ))
@@ -1070,18 +1017,18 @@ export default function CalendarPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const unscheduledPosts = useMemo(
-    () => posts.filter((p) => p.status !== "published" && !hasValidDate(p.scheduled_at)),
-    [posts],
+  const publishedConnectedGroups = useMemo(
+    () => buildConnectedPostGroups(posts, socialPosts, "published"),
+    [posts, socialPosts],
   );
 
-  const unscheduledSocial = useMemo(
-    () => socialPosts.filter((s) => !isConnectedSocial(s) && !hasValidDate(s.scheduled_date) && !s.posted_at),
-    [socialPosts],
+  const draftConnectedGroups = useMemo(
+    () => buildConnectedPostGroups(posts, socialPosts, "draft"),
+    [posts, socialPosts],
   );
 
-  const connectedPostGroups = useMemo(
-    () => buildConnectedPostGroups(posts, socialPosts),
+  const noConnectedGroups = useMemo(
+    () => buildNoConnectedPostGroups(posts, socialPosts),
     [posts, socialPosts],
   );
 
@@ -1153,7 +1100,6 @@ export default function CalendarPage() {
   };
 
   const markConnectedEntryPosted = async (entry: ConnectedScheduleEntry) => {
-    if (!confirm("Mark this connected post as posted? It will drop off the connected list.")) return;
     setConnectedBusy(true);
     try {
       const now = new Date().toISOString();
@@ -1234,13 +1180,6 @@ export default function CalendarPage() {
   };
 
   const deleteSocial = async (id: string) => deleteSocialById(id);
-
-  const deleteUnscheduledPost = async (post: Post) => {
-    if (!confirm(`Delete "${post.title || "Untitled"}"? This cannot be undone.`)) return;
-    await fetch(`/api/admin/posts/${post.id}`, { method: "DELETE" });
-    if (previewPost?.id === post.id) setPreviewPost(null);
-    await load();
-  };
 
   const setDragPayload = (payload: CalendarDragPayload | null) => {
     draggingPayloadRef.current = payload;
@@ -1325,6 +1264,82 @@ export default function CalendarPage() {
     if (res.data) setPreviewPost(res.data);
   };
 
+  const saveAllDatesFromPreview = async (iso: string) => {
+    if (!previewPost || !iso) return;
+    setConnectedBusy(true);
+    try {
+      const scheduledIso = new Date(iso).toISOString();
+      const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
+      const blogBody =
+        previewPost.status === "published"
+          ? { published_at: scheduledIso }
+          : { scheduled_at: scheduledIso, status: "scheduled" };
+      await fetch(`/api/admin/posts/${previewPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(blogBody),
+      });
+
+      const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
+      const linkedPlatforms = new Set(linked.map((s) => s.platform));
+
+      for (const social of linked) {
+        if (social.posted_at) continue;
+        await fetch(`/api/admin/social-posts/${social.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scheduled_date: scheduledIso }),
+        });
+      }
+
+      for (const platform of ["linkedin", "instagram"] as const) {
+        if (linkedPlatforms.has(platform)) continue;
+        if (!inlineBodyForPlatform(post, platform)) continue;
+        if (inlinePostedAt(post, platform)) continue;
+        const entry = buildConnectedEntry(post, { type: "inline", platform });
+        if (!entry) continue;
+        await fetch("/api/admin/social-posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: `${entry.post.title || "Post"} — ${entry.label}`,
+            platform: entry.platform,
+            description: "",
+            content: buildInlineSocialContent(entry.post, entry.platform),
+            scheduled_date: scheduledIso,
+            tags: [],
+            link: `/admin/posts/${entry.post.id}`,
+          }),
+        });
+      }
+
+      await load();
+      const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
+        (r) => r.json() as Promise<{ data?: Post }>,
+      );
+      if (res.data) setPreviewPost(res.data);
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
+  const deleteAllFromPreview = async () => {
+    if (!previewPost) return;
+    setConnectedBusy(true);
+    try {
+      const linked = socialPosts.filter((s) => socialLinksToPost(s.link, previewPost.id));
+      for (const social of linked) {
+        await fetch(`/api/admin/social-posts/${social.id}`, { method: "DELETE" });
+      }
+      await fetch(`/api/admin/posts/${previewPost.id}`, { method: "DELETE" });
+      setPreviewPost(null);
+      setPreviewCalendarDay(null);
+      await load();
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
   const markConnectedFromPreview = async (
     target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
   ) => {
@@ -1332,11 +1347,20 @@ export default function CalendarPage() {
     const post = posts.find((p) => p.id === previewPost.id) ?? previewPost;
     const entry = buildConnectedEntry(post, target);
     if (!entry) return;
+    const now = new Date().toISOString();
+    if (target.type === "social") {
+      setSocialPosts((prev) =>
+        prev.map((s) => (s.id === target.socialId ? { ...s, posted_at: now } : s)),
+      );
+    } else {
+      const field = inlinePostedField(target.platform);
+      if (!field) return;
+      setPosts((prev) =>
+        prev.map((p) => (p.id === previewPost.id ? { ...p, [field]: now } : p)),
+      );
+      setPreviewPost((prev) => (prev ? { ...prev, [field]: now } : prev));
+    }
     await markConnectedEntryPosted(entry);
-    const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
-      (r) => r.json() as Promise<{ data?: Post }>,
-    );
-    if (res.data) setPreviewPost(res.data);
   };
 
   const rescheduleToDay = async (payload: CalendarDragPayload, targetDayStr: string) => {
@@ -1594,19 +1618,13 @@ export default function CalendarPage() {
           <div className="grid gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-start">
             <div className="order-2 lg:order-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-5rem)]">
               <SchedulingPanel
-                unscheduledPosts={unscheduledPosts}
-                unscheduledSocial={unscheduledSocial}
-                connectedPostGroups={connectedPostGroups}
+                publishedConnectedGroups={publishedConnectedGroups}
+                draftConnectedGroups={draftConnectedGroups}
+                noConnectedGroups={noConnectedGroups}
                 onSelectPost={(post) => {
                   setPreviewPost(post);
                   setPreviewCalendarDay(null);
                 }}
-                onSelectSocial={(social) => {
-                  setActiveSocial(social);
-                  setPanelMode("view-social");
-                }}
-                onDeletePost={deleteUnscheduledPost}
-                onDeleteSocial={deleteSocialById}
               />
             </div>
 
@@ -1743,8 +1761,8 @@ export default function CalendarPage() {
             setPreviewPost(null);
             setPreviewCalendarDay(null);
           }}
-          onScheduleBlog={scheduleBlogFromPreview}
-          onScheduleConnected={scheduleConnectedFromPreview}
+          onSaveAllDates={saveAllDatesFromPreview}
+          onDeleteAll={deleteAllFromPreview}
           onMarkConnectedPosted={markConnectedFromPreview}
         />
       ) : null}
