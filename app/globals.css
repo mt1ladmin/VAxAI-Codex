@@ -5,6 +5,10 @@
 :root {
   color: #111111;
   background: #f7f4ea;
+  --forest: #063b32;
+  --forest-light: #084a3f;
+  --mint: #f3f9f5;
+  --acid-soft: rgba(245, 242, 116, 0.28);
 }
 
 * {
@@ -86,6 +90,118 @@ a {
 
 .animate-tool-scroll:hover {
   animation-play-state: paused;
+}
+
+.section-forest {
+  background: linear-gradient(165deg, #063b32 0%, #074236 48%, #084a3f 100%);
+}
+
+.section-forest-soft {
+  background: linear-gradient(180deg, #f7f4ea 0%, #f3f9f5 100%);
+}
+
+.section-paper-warm {
+  background: linear-gradient(180deg, #f7f4ea 0%, #efe9da 100%);
+}
+
+.card-surface {
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 32px rgba(17, 17, 17, 0.05);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease;
+}
+
+.card-surface:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(17, 17, 17, 0.08);
+  border-color: rgba(6, 59, 50, 0.12);
+}
+
+.card-forest {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.card-forest:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.625rem;
+  background: #f5f274;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111111;
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(245, 242, 116, 0.35);
+}
+
+.btn-forest {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.625rem;
+  background: #063b32;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f7f4ea;
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.btn-forest:hover {
+  transform: translateY(-1px);
+  background: #084a3f;
+  box-shadow: 0 8px 24px rgba(6, 59, 50, 0.25);
+}
+
+.section-flow-top {
+  position: relative;
+}
+
+.section-flow-top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(6, 59, 50, 0.12) 20%, rgba(6, 59, 50, 0.12) 80%, transparent);
+}
+
+.section-divider-soft {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(17, 17, 17, 0.08) 15%, rgba(17, 17, 17, 0.08) 85%, transparent);
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 /* Policy page body styles */
