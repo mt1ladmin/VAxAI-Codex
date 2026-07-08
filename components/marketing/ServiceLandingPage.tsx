@@ -1,177 +1,641 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { motion, type Variants } from "framer-motion";
 import { ArrowRight, ExternalLink, ShieldCheck, X } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
+import type {
+  AudiencePage,
+  AudiencePricing,
+  AudienceSection,
+  JourneyStage,
+} from "@/lib/seo/audience-pages";
+import { cn } from "@/lib/utils";
 
-export type ServiceSection = {
-  id: string;
-  heading: string;
-  paragraphs: string[];
-  bullets?: string[];
-};
-
-export type RelatedLink = {
+export type RelatedAudienceLink = {
   href: string;
   label: string;
   description: string;
+  linkLabel: string;
 };
 
 type ServiceLandingPageProps = {
-  eyebrow: string;
-  title: string;
-  intro: string;
-  sections: ServiceSection[];
-  pricingNotes: string[];
-  relatedLinks?: RelatedLink[];
+  page: AudiencePage;
+  relatedLinks: RelatedAudienceLink[];
 };
 
-export default function ServiceLandingPage({
-  eyebrow,
-  title,
-  intro,
-  sections,
-  pricingNotes,
-  relatedLinks,
-}: ServiceLandingPageProps) {
+const HERO_IMAGES: Record<string, string> = {
+  "founders-entrepreneurs": "/hero-remote-work-circles.jpg",
+  "small-business": "/admin-systems-team.jpg",
+  "charities-non-profits": "/footer-team-smiling.jpg",
+  "neurodivergent-professionals": "/vaxai-support-control.jpg",
+};
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+};
+
+const stagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+};
+
+const viewport = { once: true, margin: "-70px" } as const;
+
+function Reveal({
+  children,
+  className = "",
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <motion.div
+      id={id}
+      className={className}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function Stagger({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={stagger}
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const btn = {
+  accent:
+    "inline-flex items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 ease-premium hover:brightness-[1.04] hover:shadow-lift",
+  primary:
+    "inline-flex items-center justify-center gap-2 rounded-full bg-pine-900 px-6 py-3 text-sm font-semibold text-paper transition-all duration-300 ease-premium hover:bg-pine-800 hover:shadow-lift",
+  ghostDark:
+    "inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-paper/90 transition-colors duration-300 hover:border-white/40 hover:text-paper",
+  ghostLight:
+    "inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold text-ink transition-colors duration-300 hover:border-ink/35 hover:bg-white",
+};
+
+const pressureCardClass =
+  "rounded-3xl border border-ink/5 bg-cream/50 px-5 py-5 shadow-card transition-colors duration-300 hover:border-pine-900/10 hover:bg-cream/80";
+
+function PressureBulletCard({ item, index }: { item: string; index: number }) {
+  return (
+    <div className={pressureCardClass}>
+      <span className="text-[11px] font-bold tracking-[0.14em] text-pine-800/70">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <p className="mt-3 text-sm leading-7 text-muted">{item}</p>
+    </div>
+  );
+}
+
+type AudienceTabId = "pressures" | "how" | "changes" | "pricing";
+
+function SupportJourney({ stages }: { stages: JourneyStage[] }) {
+  return (
+    <div className="mt-8 grid gap-6 md:grid-cols-3">
+      {stages.map((stage, index) => (
+        <div
+          key={stage.title}
+          className="relative flex flex-col rounded-3xl border border-ink/5 bg-cream/40 px-6 py-7 md:px-7"
+        >
+          <span className="text-[11px] font-bold tracking-[0.14em] text-pine-800/70">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <h3 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-ink">{stage.title}</h3>
+          <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">{stage.description}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PressuresPanelContent({ section }: { section: AudienceSection }) {
+  return (
+    <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
+      <div>
+        <Eyebrow>Where pressure builds</Eyebrow>
+        <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
+          {section.heading}
+        </h2>
+        <div className="mt-6 space-y-4 text-base leading-8 text-muted">
+          {section.paragraphs.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </div>
+
+      {(section.bullets ?? []).length > 0 ? (
+        <Stagger className="grid gap-3 sm:grid-cols-2">
+          {(section.bullets ?? []).map((item, index) => (
+            <motion.div key={item} variants={fadeUp}>
+              <PressureBulletCard item={item} index={index} />
+            </motion.div>
+          ))}
+        </Stagger>
+      ) : null}
+    </div>
+  );
+}
+
+function HowPanelContent({
+  badge,
+  section,
+  showIntro = true,
+  onContact,
+}: {
+  badge: string;
+  section: AudienceSection;
+  showIntro?: boolean;
+  onContact: () => void;
+}) {
+  return (
+    <div className="px-6 py-7 md:px-8 md:py-8">
+      {showIntro ? (
+        <>
+          <Eyebrow>{badge}</Eyebrow>
+          <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+            {section.heading}
+          </h2>
+        </>
+      ) : null}
+      <div className={cn("space-y-4 text-base leading-8 text-muted", showIntro && "mt-6")}>
+        {section.paragraphs.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+      {(section.journey ?? []).length > 0 ? (
+        <>
+          {section.journeyLabel ? (
+            <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
+              {section.journeyLabel}
+            </p>
+          ) : null}
+          <SupportJourney stages={section.journey ?? []} />
+          <button type="button" onClick={onContact} className={`${btn.primary} mt-8`}>
+            Get in touch
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function ChangesPanelContent({
+  badge,
+  section,
+  showIntro = true,
+}: {
+  badge: string;
+  section: AudienceSection;
+  showIntro?: boolean;
+}) {
+  return (
+    <div className="px-6 py-7 md:px-8 md:py-8">
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <div>
+          {showIntro ? <Eyebrow>{badge}</Eyebrow> : null}
+          <div className={cn("space-y-4 text-base leading-8 text-ink md:text-lg", showIntro && "mt-5")}>
+            {section.paragraphs.map((paragraph) => (
+              <p key={paragraph} className="font-medium tracking-[-0.01em]">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+          {section.closing ? (
+            <p className="mt-8 text-base font-medium leading-8 text-pine-800">{section.closing}</p>
+          ) : null}
+        </div>
+
+        {(section.bullets ?? []).length > 0 ? (
+          <div className="rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card backdrop-blur-sm md:p-8">
+            {section.bulletsLabel ? (
+              <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+                {section.bulletsLabel}
+              </p>
+            ) : null}
+            <div className="grid gap-4">
+              {(section.bullets ?? []).map((item) => (
+                <div key={item} className="flex gap-3">
+                  <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                    ✓
+                  </span>
+                  <p className="text-sm leading-7 text-muted md:text-[15px]">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function PricingPanelContent({
+  pricing,
+  accessToWork,
+  onContact,
+  onAccessOpen,
+}: {
+  pricing: AudiencePricing;
+  accessToWork?: { heading: string; paragraphs: string[] };
+  onContact: () => void;
+  onAccessOpen?: () => void;
+}) {
+  return (
+    <div className="px-6 py-7 md:px-8 md:py-8">
+      <Eyebrow>Pricing</Eyebrow>
+      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+        Tailored to your needs
+      </h2>
+      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricing.intro}</p>
+
+      <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">What shapes your quote</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {pricing.factors.map((factor) => (
+          <div
+            key={factor}
+            className="flex gap-3 rounded-2xl border border-ink/5 bg-cream/40 px-4 py-4"
+          >
+            <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+              ✓
+            </span>
+            <p className="text-sm leading-7 text-muted">{factor}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7">
+        <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
+          Clear scope before work begins
+        </h3>
+        <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">
+          After your workflow review, we scope the support you need and provide a written quote
+          covering deliverables, approach and cost. You know exactly what you are getting before
+          any work starts — and nothing begins until you have reviewed and agreed it.
+        </p>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <button type="button" onClick={onContact} className={btn.accent}>
+          Start your workflow review
+          <ArrowRight className="h-4 w-4" />
+        </button>
+        <button type="button" onClick={onContact} className={btn.ghostLight}>
+          Get in touch to discuss your quote
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
+
+      {accessToWork ? (
+        <div
+          id="access-to-work"
+          className="scroll-mt-24 mt-10 overflow-hidden rounded-[28px] bg-pine-900 px-6 py-8 text-paper md:px-8 md:py-10"
+        >
+          <Eyebrow light>Access to Work</Eyebrow>
+          <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
+            {accessToWork.heading}
+          </h3>
+          <div className="mt-4 max-w-xl space-y-3 text-sm leading-7 text-paper/70 md:text-base">
+            {accessToWork.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          {onAccessOpen ? (
+            <button type="button" onClick={onAccessOpen} className={`${btn.accent} mt-6`}>
+              Learn about Access to Work
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AudienceTabbedSections({
+  pressures,
+  how,
+  changes,
+  pricing,
+  accessToWorkInPricing,
+  onContact,
+  onAccessOpen,
+}: {
+  pressures: AudienceSection;
+  how: AudienceSection;
+  changes: AudienceSection;
+  pricing: AudiencePricing;
+  accessToWorkInPricing?: { heading: string; paragraphs: string[] };
+  onContact: () => void;
+  onAccessOpen?: () => void;
+}) {
+  const [activeTab, setActiveTab] = useState<AudienceTabId>("pressures");
+
+  useEffect(() => {
+    function syncTabFromHash() {
+      if (accessToWorkInPricing && window.location.hash === "#access-to-work") {
+        setActiveTab("pricing");
+      }
+    }
+
+    syncTabFromHash();
+    window.addEventListener("hashchange", syncTabFromHash);
+    return () => window.removeEventListener("hashchange", syncTabFromHash);
+  }, [accessToWorkInPricing]);
+
+  const tabs: { id: AudienceTabId; label: string }[] = [
+    { id: "pressures", label: pressures.heading },
+    { id: "how", label: "How we help" },
+    { id: "changes", label: changes.heading },
+    { id: "pricing", label: "Pricing" },
+  ];
+
+  const panelClassName: Record<AudienceTabId, string> = {
+    pressures: "bg-white text-ink",
+    how: "rounded-[28px] border border-ink/5 bg-white text-ink",
+    changes:
+      "rounded-[28px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-paper to-cream/60 text-ink",
+    pricing: "rounded-[28px] border border-ink/5 bg-white text-ink",
+  };
+
+  return (
+    <div>
+      <div
+        className="-mx-2 flex gap-2 overflow-x-auto border-b border-ink/10 px-2 pb-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+        role="tablist"
+        aria-label="Explore how VAxAI can support you"
+      >
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`audience-panel-${tab.id}`}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                "shrink-0 rounded-full px-4 py-2.5 text-left text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800",
+                isActive
+                  ? "bg-pine-900 text-paper"
+                  : "bg-cream/70 text-ink/75 hover:bg-cream hover:text-ink",
+              )}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <motion.div
+        key={activeTab}
+        id={`audience-panel-${activeTab}`}
+        role="tabpanel"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: EASE }}
+        className={cn("mt-8", panelClassName[activeTab])}
+      >
+        {activeTab === "pressures" ? <PressuresPanelContent section={pressures} /> : null}
+        {activeTab === "how" ? (
+          <HowPanelContent badge="How we help" section={how} onContact={onContact} />
+        ) : null}
+        {activeTab === "changes" ? (
+          <ChangesPanelContent badge={changes.heading} section={changes} />
+        ) : null}
+        {activeTab === "pricing" ? (
+          <PricingPanelContent
+            pricing={pricing}
+            accessToWork={accessToWorkInPricing}
+            onContact={onContact}
+            onAccessOpen={onAccessOpen}
+          />
+        ) : null}
+      </motion.div>
+    </div>
+  );
+}
+
+function Eyebrow({
+  children,
+  light = false,
+}: {
+  children: React.ReactNode;
+  light?: boolean;
+}) {
+  return (
+    <p
+      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
+        light ? "text-acid/90" : "text-pine-700"
+      }`}
+    >
+      <span
+        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
+        aria-hidden="true"
+      />
+      {children}
+    </p>
+  );
+}
+
+export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
   const [accessOpen, setAccessOpen] = useState(false);
+  const { pressures, how, changes } = page;
+  const heroImage = HERO_IMAGES[page.slug] ?? "/vaxai-support-control.jpg";
 
   return (
     <>
-      <div className="min-h-screen bg-paper">
-        <header className="sticky top-0 z-40 border-b border-ink/5 bg-paper/90 px-4 backdrop-blur-md md:px-8">
-          <SiteNav variant="light" />
+      <div className="min-h-screen bg-paper text-ink">
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-pine-900/90 px-4 backdrop-blur-md md:px-8">
+          <SiteNav variant="dark" />
         </header>
 
-        <main>
-          <section className="border-b border-ink/5 px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-6xl">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-700">{eyebrow}</p>
-              <h1 className="mt-6 max-w-3xl text-[2.25rem] font-semibold leading-[1.05] tracking-[-0.025em] text-ink md:text-5xl">
-                {title}
-              </h1>
-              <p className="mt-6 max-w-2xl text-base leading-8 text-muted md:text-lg">{intro}</p>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <button
-                  type="button"
-                  onClick={() => setContactOpen(true)}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-pine-900 px-6 py-3 text-sm font-semibold text-paper transition-all duration-300 hover:bg-pine-800"
-                >
-                  Start your workflow review
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-                <Link
-                  href="#access-to-work"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/35 hover:bg-white"
-                >
-                  Learn about Access to Work
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+        <main className="overflow-x-hidden">
+          {/* Hero — dark editorial opening with image */}
+          <section className="relative bg-pine-900 text-paper">
+            <div className="simplified-hide pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+              <div className="absolute -top-24 right-[-8%] h-80 w-80 rounded-full bg-pine-700/40 blur-3xl" />
+              <div className="absolute bottom-[-30%] left-[-6%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
             </div>
+
+            <motion.div
+              className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 md:grid-cols-[1.05fr_0.9fr] md:items-center md:gap-16 md:px-8 md:py-24 lg:py-28"
+              variants={stagger}
+              initial="hidden"
+              animate="show"
+            >
+              <div>
+                <motion.div variants={fadeUp}>
+                  <Eyebrow light>Who we support · {page.audienceName}</Eyebrow>
+                </motion.div>
+                <motion.h1
+                  variants={fadeUp}
+                  className="mt-6 max-w-2xl text-[2.35rem] font-semibold leading-[1.03] tracking-[-0.025em] md:text-5xl lg:text-[3.25rem]"
+                >
+                  {page.title}
+                </motion.h1>
+                <motion.p
+                  variants={fadeUp}
+                  className="mt-7 max-w-xl text-base leading-8 text-paper/70 md:text-lg"
+                >
+                  {page.intro}
+                </motion.p>
+                <motion.div variants={fadeUp} className="mt-10 flex flex-wrap gap-4">
+                  <button type="button" onClick={() => setContactOpen(true)} className={btn.accent}>
+                    Start your workflow review
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  {page.heroHasAccessCta ? (
+                    <a href="#access-to-work" className={btn.ghostDark}>
+                      Learn about Access to Work
+                      <ArrowRight className="h-4 w-4" />
+                    </a>
+                  ) : null}
+                </motion.div>
+              </div>
+
+              <motion.div
+                variants={fadeUp}
+                className="relative mx-auto w-full max-w-[420px] md:mx-0 md:justify-self-end"
+              >
+                <div
+                  className="simplified-hide absolute -inset-3 rotate-2 rounded-[36px] border border-white/10 bg-white/[0.04]"
+                  aria-hidden="true"
+                />
+                <div className="relative aspect-[0.86] overflow-hidden rounded-[28px] ring-1 ring-white/15">
+                  <Image
+                    src={heroImage}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 420px"
+                    priority
+                  />
+                </div>
+              </motion.div>
+            </motion.div>
           </section>
 
-          <section className="px-4 py-16 md:px-8 md:py-20">
-            <div className="mx-auto max-w-6xl space-y-6">
-              {sections.map((section) => (
-                <article
-                  key={section.id}
-                  id={section.id}
-                  className="scroll-mt-24 rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-10"
-                >
-                  <h2 className="text-2xl font-semibold tracking-tight text-ink">{section.heading}</h2>
-                  <div className="mt-5 space-y-4 text-sm leading-7 text-muted md:text-base">
-                    {section.paragraphs.map((paragraph) => (
+          {/* Lived understanding — optional editorial pause */}
+          {page.understanding ? (
+            <section className="bg-paper px-4 py-16 md:px-8 md:py-20">
+              <Reveal className="mx-auto max-w-6xl rounded-[40px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-cream/70 to-paper p-8 md:p-12">
+                <div className="grid gap-8 md:grid-cols-[0.85fr_1.15fr] md:gap-16">
+                  <h2 className="max-w-sm text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
+                    {page.understanding.heading}
+                  </h2>
+                  <div className="space-y-4 text-sm leading-7 text-muted md:text-base md:leading-8">
+                    {page.understanding.paragraphs.map((paragraph) => (
                       <p key={paragraph}>{paragraph}</p>
                     ))}
                   </div>
-                  {section.bullets && section.bullets.length > 0 ? (
-                    <ul className="mt-5 grid gap-3">
-                      {section.bullets.map((item) => (
-                        <li key={item} className="flex gap-3 text-sm leading-7 text-muted md:text-base">
-                          <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-pine-800" aria-hidden="true" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section className="px-4 md:px-8">
-            <div className="mx-auto grid max-w-6xl gap-4 rounded-3xl border border-pine-900/10 bg-pine-50/70 p-6 text-sm leading-7 text-muted md:grid-cols-2 md:gap-10 md:p-8">
-              {pricingNotes.map((note) => (
-                <p key={note}>{note}</p>
-              ))}
-            </div>
-          </section>
-
-          <section id="access-to-work" className="scroll-mt-24 px-4 pb-4 md:px-8">
-            <div className="mx-auto flex max-w-6xl flex-col gap-6 rounded-3xl border border-pine-900/10 bg-pine-900 px-7 py-8 text-paper md:flex-row md:items-center md:justify-between md:p-9">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Access to Work</p>
-                <h2 className="mt-4 max-w-xl text-2xl font-semibold leading-tight tracking-tight">
-                  Your VAxAI support could cost you nothing
-                </h2>
-                <p className="mt-2 text-sm leading-7 text-paper/65">Want to find out more?</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAccessOpen(true)}
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 hover:brightness-[1.04]"
-              >
-                Learn about Access to Work
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          </section>
-
-          {relatedLinks && relatedLinks.length > 0 ? (
-            <section className="border-t border-ink/5 px-4 py-16 md:px-8">
-              <div className="mx-auto max-w-6xl">
-                <h2 className="text-2xl font-semibold tracking-tight text-ink">Who else we support</h2>
-                <div className="mt-8 grid gap-4 md:grid-cols-3">
-                  {relatedLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="group rounded-3xl border border-ink/5 bg-white p-6 transition-colors hover:border-pine-900/15 hover:shadow-card"
-                    >
-                      <p className="text-sm font-semibold text-ink group-hover:text-pine-800">{link.label}</p>
-                      <p className="mt-2 text-sm leading-6 text-muted">{link.description}</p>
-                    </Link>
-                  ))}
                 </div>
+              </Reveal>
+            </section>
+          ) : null}
+
+          {/* Tabbed sections — lifted panel overlapping the hero */}
+          <section className="relative scroll-mt-24 px-4 pb-8 pt-4 md:px-8 md:pb-12 md:pt-0">
+            <Reveal className="relative mx-auto -mt-10 max-w-6xl rounded-[40px] border border-ink/5 bg-white px-6 py-14 shadow-lift md:-mt-14 md:px-12 md:py-20">
+              <AudienceTabbedSections
+                pressures={pressures}
+                how={how}
+                changes={changes}
+                pricing={page.pricing}
+                accessToWorkInPricing={page.accessToWork}
+                onContact={() => setContactOpen(true)}
+                onAccessOpen={page.accessToWork ? () => setAccessOpen(true) : undefined}
+              />
+            </Reveal>
+          </section>
+
+          {/* Who else we support — white panel with cards */}
+          {relatedLinks.length > 0 ? (
+            <section className="px-4 py-20 md:px-8 md:py-28">
+              <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] border border-ink/5 bg-white px-5 py-14 shadow-card md:px-12 md:py-20">
+                <Reveal className="relative mx-auto max-w-xl text-center">
+                  <Eyebrow>See Who else benefits from VAxAI support</Eyebrow>
+                </Reveal>
+
+                <Stagger className="relative mt-10 grid gap-4 md:grid-cols-3">
+                  {relatedLinks.map((link) => (
+                    <motion.div key={link.href} variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
+                      <Link
+                        href={link.href}
+                        className="group flex h-full flex-col rounded-3xl border border-ink/5 bg-white p-6 transition-colors duration-500 hover:border-pine-900/15 hover:shadow-card md:p-7"
+                      >
+                        <p className="text-sm font-semibold text-ink group-hover:text-pine-800">{link.label}</p>
+                        <p className="mt-3 flex-1 text-sm leading-6 text-muted">{link.description}</p>
+                        <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-pine-800">
+                          {link.linkLabel}
+                          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+                        </span>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </Stagger>
               </div>
             </section>
           ) : null}
 
-          <section className="px-4 pb-20 md:px-8">
-            <div className="mx-auto max-w-6xl rounded-[32px] bg-pine-900 px-6 py-14 text-center text-paper md:px-12 md:py-16">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Work with VAxAI</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-tight md:text-3xl">
-                Ready to understand where support would help most?
-              </h2>
-              <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-paper/65 md:text-base">
-                We start with how work happens today, then recommend the right mix of virtual assistance, AI,
-                automation and human support for your organisation.
-              </p>
-              <button
-                type="button"
-                onClick={() => setContactOpen(true)}
-                className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 hover:brightness-[1.04]"
-              >
-                Book a discovery call
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
+          {/* Closing CTA */}
+          <section className="px-4 pb-24 md:px-8">
+            <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-6 py-14 text-center text-paper md:px-12 md:py-16">
+              <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
+                <div className="absolute -top-24 left-[-8%] h-80 w-80 rounded-full bg-pine-700/40 blur-3xl" />
+                <div className="absolute bottom-[-30%] right-[25%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
+              </div>
+              <div className="relative">
+                <div className="flex justify-center">
+                  <Eyebrow light>Work with VAxAI</Eyebrow>
+                </div>
+                <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                  Ready to understand where support would help most?
+                </h2>
+                <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
+                  We start with how work happens today, then recommend the right mix of virtual assistance, AI,
+                  automation, better processes and human support for your context.
+                </p>
+                <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>
+                  Book a discovery call
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </Reveal>
           </section>
         </main>
 
@@ -229,7 +693,7 @@ export default function ServiceLandingPage({
                       setAccessOpen(false);
                       setContactOpen(true);
                     }}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-pine-900 px-6 py-3 text-sm font-semibold text-paper transition-all duration-300 hover:bg-pine-800"
+                    className={btn.primary}
                   >
                     Talk to us about Access to Work
                   </button>
@@ -237,7 +701,7 @@ export default function ServiceLandingPage({
                     href="https://www.gov.uk/access-to-work"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold text-ink transition-colors hover:border-ink/35 hover:bg-white"
+                    className={btn.ghostLight}
                   >
                     Official GOV.UK guidance
                     <ExternalLink className="h-4 w-4" />

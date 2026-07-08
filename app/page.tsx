@@ -15,6 +15,8 @@ import {
 import { AppSelect } from "@/components/ui/AppSelect";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
+import { experts } from "@/lib/experts";
+import type { Expert } from "@/lib/experts";
 
 const image = {
   hero:
@@ -36,16 +38,32 @@ const tools = [
     logo: "https://copilot.microsoft.com/favicon.ico",
   },
   {
-    name: "Zapier",
-    logo: "https://cdn.simpleicons.org/zapier/FF4F00",
+    name: "ChatGPT",
+    logo: "https://cdn.simpleicons.org/chatgpt/74AA9C",
   },
   {
     name: "Gemini",
     logo: "https://cdn.simpleicons.org/googlegemini/8E75B2",
   },
   {
-    name: "ChatGPT",
-    logo: "https://cdn.simpleicons.org/chatgpt/74AA9C",
+    name: "Perplexity",
+    logo: "https://cdn.simpleicons.org/perplexity/1FB8CD",
+  },
+  {
+    name: "NotebookLM",
+    logo: "https://www.google.com/s2/favicons?domain=notebooklm.google.com&sz=64",
+  },
+  {
+    name: "Zapier",
+    logo: "https://cdn.simpleicons.org/zapier/FF4F00",
+  },
+  {
+    name: "Make",
+    logo: "https://cdn.simpleicons.org/make/6D00CC",
+  },
+  {
+    name: "Power Automate",
+    logo: "https://www.google.com/s2/favicons?domain=powerautomate.microsoft.com&sz=64",
   },
   {
     name: "n8n",
@@ -130,21 +148,6 @@ const caseStudies: CaseStudy[] = [
       "Ways of working that feel usable day to day",
     ],
     closing: "Support shaped around your working context — not a one-size-fits-all productivity system.",
-  },
-];
-
-const experts = [
-  {
-    name: "Thesia Kouloungou",
-    role: "Founder and CEO, MT1L and VAxAI",
-    copy: "Hi, I’m Thesia. I lead our AI consultations and workflow reviews, using the VAT Framework™ to help clients decide where AI, automation, better processes or human support will create the most value. My experience spans the charity, public, education and grant-making sectors, where I have led work across inclusion, safeguarding, co-production, governance and organisational change. I have also built AI-enabled platforms, developed the VAT Framework™ and bring hands-on experience of improving processes alongside the realities of implementing AI in practice. My role is to understand how work is currently happening, identify where pressure is building, and help you make clearer decisions about what should change, what should stay human, and what needs to be in place for any solution to work in practice.",
-    photo: image.thesia,
-  },
-  {
-    name: "Rebecca Bradshaw",
-    role: "Co-founder and VA Operations Lead",
-    copy: "Hi, I’m Rebecca. I lead the virtual assistance side of VAxAI, helping clients put the right human support around the work that should not be left to AI or automation. My experience spans the hospitality, travel, aviation and engineering sectors, working across operations, administration and executive support in fast-paced environments. This gives me a practical understanding of the systems, organisation and day-to-day operational support needed to keep businesses running smoothly. My role is to keep tasks, follow-ups and processes moving, support day-to-day delivery, and make sure any systems or automations continue to work as intended. Where additional capacity is needed, I also support the recruitment, vetting and onboarding of trusted virtual assistants.",
-    photo: image.rebecca,
   },
 ];
 
@@ -499,38 +502,70 @@ function AccordionItem({
   );
 }
 
-function CaseCard({
+const audienceCardStyles = [
+  { border: "border-pine-900/12", bg: "bg-pine-50", hover: "hover:bg-pine-50/90", accent: "text-pine-800" },
+  { border: "border-ink/8", bg: "bg-cream", hover: "hover:bg-cream/90", accent: "text-pine-900" },
+  { border: "border-pine-700/15", bg: "bg-gradient-to-br from-pine-50/90 to-cream/80", hover: "hover:from-pine-50 hover:to-cream/70", accent: "text-pine-800" },
+  { border: "border-acid/30", bg: "bg-[#f4f5e6]", hover: "hover:bg-[#eff0df]", accent: "text-pine-900" },
+];
+
+function SupportAudienceCard({
   study,
   index,
 }: {
   study: CaseStudy;
   index: number;
 }) {
+  const style = audienceCardStyles[index % audienceCardStyles.length];
+
   return (
-    <motion.div
-      variants={fadeUp}
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.35, ease: EASE }}
-    >
+    <motion.div variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
       <Link
         href={study.href}
-        className="group flex h-full flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
+        className={`group flex h-full flex-col rounded-3xl border p-6 transition-colors duration-500 hover:shadow-card md:p-7 ${style.border} ${style.bg} ${style.hover}`}
       >
-        <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
+        <span className="text-[11px] font-bold tracking-[0.16em] text-pine-700/70">
           {String(index + 1).padStart(2, "0")}
         </span>
         <div className="mt-4 flex-1">
-          <h3 className="text-lg font-semibold leading-snug tracking-tight text-paper">
-            {study.title}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
+          <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{study.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-muted">{study.subtitle}</p>
         </div>
-        <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
+        <span className={`mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold ${style.accent}`}>
           Explore how we help
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
         </span>
       </Link>
     </motion.div>
+  );
+}
+
+function ExpertProfileCard({ expert }: { expert: Expert }) {
+  return (
+    <article
+      aria-label={`${expert.name}, ${expert.role}`}
+      className="group relative overflow-hidden rounded-[28px]"
+    >
+      <PhotoCard
+        src={expert.photo}
+        className="aspect-[0.9] transition-transform duration-500 ease-premium group-hover:scale-[1.03]"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20"
+        aria-hidden="true"
+      />
+      <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">{expert.role}</p>
+        <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">{expert.name}</h3>
+        <Link
+          href={`/about/${expert.slug}`}
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors hover:text-white"
+        >
+          Read more
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+        </Link>
+      </div>
+    </article>
   );
 }
 
@@ -611,6 +646,7 @@ export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [openCase, setOpenCase] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
   const [supportType, setSupportType] = useState("Assessment");
@@ -729,7 +765,13 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We help organisations spend less time managing work and more time doing it by combining practical AI, better processes, automation and human support where each adds the most value.
+              Small businesses, charities, founders and neurodivergent professionals often feel admin the most. Emails, scheduling, follow-ups, files, reporting and repeated tasks can quietly take over the time needed for delivery, growth and real impact.
+            </motion.p>
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
+            >
+              VAxAI helps make everyday work easier to manage, using human support, clearer processes and AI only where it genuinely helps.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
@@ -762,8 +804,8 @@ export default function Home() {
           transition={{ duration: 1, delay: 0.5, ease: EASE }}
           className="relative mx-auto mt-24 max-w-6xl"
         >
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
-            Practical support across the tools you already use
+          <p className="mx-auto max-w-2xl text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
+            AI and automation is not always the answer — but whatever systems or tools you use, we help you make the most of them.
           </p>
           <div className="mt-7">
             <ToolMarquee />
@@ -772,109 +814,24 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Before / after — panel overlapping the hero edge              */}
+      {/* Who VAxAI is for — standalone card below the hero             */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative z-10 px-4 md:px-8">
-        <div className="mx-auto -mt-20 max-w-6xl md:-mt-24">
-          <Reveal className="rounded-[32px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
-            <div className="md:flex md:items-end md:justify-between md:gap-12">
-              <div className="max-w-xl">
-                <Eyebrow>What we do</Eyebrow>
-                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  How we ease the pressure on everyday work
-                </h2>
-              </div>
-              <p className="mt-5 max-w-md text-sm leading-7 text-muted md:mt-0">
-                Every organisation experiences pressure differently. For some it&apos;s overflowing inboxes. For others it&apos;s disconnected systems, manual reporting or work falling between the cracks. We start by understanding where work is becoming harder than it needs to be, then design practical improvements using the right mix of AI, automation, better processes and human support.
-              </p>
-            </div>
+      <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="rounded-[40px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
+            <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+              Who VAxAI is for
+            </h2>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
-              <Stagger className="rounded-3xl border border-ink/5 bg-cream/60 p-6 md:p-7">
-                <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">Before VAxAI</p>
-                <div className="grid gap-3.5">
-                  {[
-                    "Work feels reactive rather than organised",
-                    "Information lives in too many places",
-                    "Admin keeps growing as the organisation grows",
-                    "People spend more time managing work than doing it",
-                    "Important follow-ups are easy to miss",
-                    "No one is quite sure where responsibility sits",
-                  ].map((item) => (
-                    <motion.div key={item} variants={fadeUp} className="flex gap-3">
-                      <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
-                      <p className="text-sm leading-6 text-muted">{item}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </Stagger>
-
-              <div className="hidden md:flex md:flex-col md:items-center md:justify-center" aria-hidden="true">
-                <span className="grid h-11 w-11 place-items-center rounded-full border border-ink/8 bg-paper text-pine-800 shadow-card">
-                  <ArrowRight className="h-4 w-4" />
-                </span>
-              </div>
-
-              <Stagger className="rounded-3xl border border-pine-900/10 bg-pine-50 p-6 md:p-7">
-                <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">After VAxAI</p>
-                <div className="grid gap-3.5">
-                  {[
-                    "Work flows more consistently",
-                    "Information is easier to find",
-                    "Repetitive tasks happen automatically where appropriate",
-                    "Teams have clearer ownership",
-                    "Admin takes less time",
-                    "People can focus on work that needs human judgement",
-                  ].map((item) => (
-                    <motion.div key={item} variants={fadeUp} className="flex gap-3">
-                      <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                      <p className="text-sm leading-6 text-muted">{item}</p>
-                    </motion.div>
-                  ))}
-                </div>
+            <div className="mt-10 border-t border-ink/5 pt-10">
+              <Eyebrow>Who we support</Eyebrow>
+              <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
+                {caseStudies.map((study, index) => (
+                  <SupportAudienceCard key={study.href} study={study} index={index} />
+                ))}
               </Stagger>
             </div>
           </Reveal>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* Case studies — rounded pine panel                             */}
-      {/* ------------------------------------------------------------ */}
-      <section id="services" className="px-4 pt-24 md:px-8 md:pt-32">
-        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-5 py-16 text-paper md:px-12 md:py-24">
-          <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
-            <div className="absolute -top-32 right-[-10%] h-96 w-96 rounded-full bg-pine-700/40 blur-3xl" />
-            <div className="absolute bottom-[-20%] left-[-6%] h-80 w-80 rounded-full bg-acid/[0.06] blur-3xl" />
-          </div>
-
-          <div className="relative">
-            <SectionTitle
-              light
-              eyebrow="Who we work with"
-              title="Support built around you"
-              prompt="Click below to see how VAxAI could support you."
-              narrow
-            />
-
-            <Stagger className="mt-14 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
-              <CaseCard study={caseStudies[0]} index={0} />
-
-              {/* Centre image: spans both rows */}
-              <motion.div variants={fadeUp} className="hidden overflow-hidden rounded-3xl ring-1 ring-white/10 md:row-span-2 md:block">
-                <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
-              </motion.div>
-
-              <CaseCard study={caseStudies[1]} index={1} />
-              <CaseCard study={caseStudies[2]} index={2} />
-              <CaseCard study={caseStudies[3]} index={3} />
-
-              {/* Mobile-only image (shown after the cards on small screens) */}
-              <motion.div variants={fadeUp} className="overflow-hidden rounded-3xl ring-1 ring-white/10 md:hidden">
-                <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
-              </motion.div>
-            </Stagger>
-          </div>
         </div>
       </section>
 
@@ -889,17 +846,10 @@ export default function Home() {
               Meet the people behind VAxAI
             </h2>
           </Reveal>
-          <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-2">
-            {experts.map((expert, index) => (
-              <Reveal key={expert.name} className={index === 1 ? "md:mt-16" : ""}>
-                <article className="group">
-                  <PhotoCard src={expert.photo} className="aspect-[0.9] rounded-[28px]" />
-                  <div className="relative z-10 mx-4 -mt-16 rounded-3xl border border-ink/5 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium group-hover:shadow-lift md:mx-6 md:p-7">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-700">{expert.role}</p>
-                    <h3 className="mt-2 text-xl font-semibold tracking-tight">{expert.name}</h3>
-                    <p className="mt-3 text-sm leading-7 text-muted">{expert.copy}</p>
-                  </div>
-                </article>
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            {experts.map((expert) => (
+              <Reveal key={expert.name}>
+                <ExpertProfileCard expert={expert} />
               </Reveal>
             ))}
           </div>
