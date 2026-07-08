@@ -827,14 +827,9 @@ export default function Home() {
             <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
               Choose Your Path
             </h2>
-            <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-muted">
-              <p>
-                We help different types of clients in ways that match their specific needs and pressures.
-              </p>
-              <p>
-                Choose the option below that best describes you — each leads to more detailed information on how we can help.
-              </p>
-            </div>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Choose the option below that best describes you — each leads to more detailed information on how we can help.
+            </p>
 
             <div className="mt-10">
               <Stagger className="grid gap-4 sm:grid-cols-2">
