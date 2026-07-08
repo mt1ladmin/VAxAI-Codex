@@ -6,10 +6,10 @@ export type JourneyStage = {
 export type AudiencePricingTier = {
   label: string;
   price: string;
+  description: string;
 };
 
 export type AudiencePricing = {
-  audienceLabel: string;
   tiers: AudiencePricingTier[];
   example: string;
 };
@@ -21,27 +21,50 @@ export type AudienceSection = {
   bullets?: string[];
   journeyLabel?: string;
   journey?: JourneyStage[];
+  equation?: string;
   closing?: string;
 };
 
 export const sharedPricingIntro = "We offer clear and fair pricing tailored to your needs.";
 
-export const sharedPricingNotes = [
-  "Full Setup includes workflow review, practical improvements using AI and automation, and handover.",
-  "VA Setup & Training includes full briefing and training (recruitment fees agreed separately if needed).",
-  "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.",
-];
-
 const soloFounderPricingTiers: AudiencePricingTier[] = [
-  { label: "Full Setup Package", price: "From £2,450 (fixed price)" },
-  { label: "VA Setup & Training", price: "From £300 (one time)" },
-  { label: "Ongoing Support", price: "£25 per hour (pay only for what you need)" },
+  {
+    label: "Full Setup Package",
+    price: "From £2,450 (fixed price)",
+    description:
+      "Full Setup includes workflow review, practical improvements using AI and automation, and handover.",
+  },
+  {
+    label: "VA Setup & Training",
+    price: "From £300 (one time)",
+    description:
+      "VA Setup & Training includes full briefing and training (recruitment fees agreed separately if needed).",
+  },
+  {
+    label: "Ongoing Support",
+    price: "£25 per hour (pay only for what you need)",
+    description: "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.",
+  },
 ];
 
 const smallOrganisationPricingTiers: AudiencePricingTier[] = [
-  { label: "Full Setup Package", price: "From £5,250 (fixed price)" },
-  { label: "VA Setup & Training", price: "From £500 (one time)" },
-  { label: "Ongoing Support", price: "£35 per hour (pay only for what you need)" },
+  {
+    label: "Full Setup Package",
+    price: "From £5,250 (fixed price)",
+    description:
+      "Full Setup includes workflow review, practical improvements using AI and automation, and handover.",
+  },
+  {
+    label: "VA Setup & Training",
+    price: "From £500 (one time)",
+    description:
+      "VA Setup & Training includes full briefing and training (recruitment fees agreed separately if needed).",
+  },
+  {
+    label: "Ongoing Support",
+    price: "£35 per hour (pay only for what you need)",
+    description: "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.",
+  },
 ];
 
 const soloFounderPricingExample =
@@ -50,20 +73,12 @@ const soloFounderPricingExample =
 const smallOrganisationPricingExample =
   "First month ≈ £6,870 | Typical ongoing monthly cost ≈ £1,120";
 
-export const sharedPricingBenefits: AudienceSection = {
-  heading: "The Benefits of Our Approach",
-  paragraphs: [
-    "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
-  ],
-  bullets: [
-    "Lower overall cost — You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
-    "Pay only for what you need — AI and automation handle repetitive work, so human support is mainly for oversight, exceptions, and maintenance. Because your VA deeply understands your systems, you typically need even fewer hours over time.",
-    "Full flexibility — Scale support up or down easily with no long-term commitment.",
-    "Predictable budgeting — Ideal for those with limited or variable income.",
-  ],
-  closing:
-    "In short: You get reliable, professional help that grows with you — with the flexibility and peace of mind your work deserves.",
-};
+const sharedWorkWithUsBullets = [
+  "Lower overall cost — You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
+  "Pay only for what you need — AI and automation handle repetitive work, so human support is mainly for oversight, exceptions, and maintenance. Because your VA deeply understands your systems, you typically need even fewer hours over time.",
+  "Full flexibility — Scale support up or down easily with no long-term commitment.",
+  "Predictable budgeting — Ideal for those with limited or variable income.",
+];
 
 export const sharedHowSection: AudienceSection = {
   heading: "",
@@ -100,6 +115,7 @@ export type AudiencePage = {
   how: AudienceSection;
   changes: AudienceSection;
   pricing: AudiencePricing;
+  workWithUs: AudienceSection;
   accessToWork?: { heading: string; paragraphs: string[] };
   related: { label: string; description: string; linkLabel: string };
 };
@@ -149,7 +165,10 @@ export const audiencePages: AudiencePage[] = [
       heading: "What changes in practice",
       paragraphs: [
         "With the right support in place, your business becomes easier to run because fewer things depend on you carrying every task, reminder and next step in your head.",
+        "When inbox pressure, scattered follow-ups and competing priorities are the problem, a practical setup plus ongoing human support is designed to reduce what you carry alone — not add another system to manage.",
       ],
+      equation:
+        "Scattered admin pressure + practical setup and ongoing support = more focus for growth and fewer things held in your head.",
       bulletsLabel: "You can gain:",
       bullets: [
         "More protected time for client delivery, sales and strategic growth",
@@ -161,9 +180,18 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      audienceLabel: "Solo Founder / Entrepreneur",
       tiers: soloFounderPricingTiers,
       example: soloFounderPricingExample,
+    },
+    workWithUs: {
+      heading: "The Benefits of Our Approach",
+      paragraphs: [
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
+        "As a founder, predictable cost and flexible hours matter when growth work cannot wait on hiring decisions or complex employment setup.",
+      ],
+      bullets: sharedWorkWithUsBullets,
+      closing:
+        "In short: You get reliable, professional help that grows with your business — with the flexibility and peace of mind your work deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -222,7 +250,10 @@ export const audiencePages: AudiencePage[] = [
       heading: "What changes in practice",
       paragraphs: [
         "With the right support in place, your business can feel more organised without becoming overcomplicated.",
+        "When enquiries, invoices and weekly admin keep competing with revenue-earning work, clearer workflows and targeted automation are designed to handle repetition while human support covers the exceptions that matter.",
       ],
+      equation:
+        "Rising admin volume + clearer workflows and targeted automation = faster responses and more reliable day-to-day operations.",
       bulletsLabel: "You can gain:",
       bullets: [
         "Customer enquiries handled more quickly and consistently",
@@ -234,9 +265,18 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      audienceLabel: "Small Business",
       tiers: smallOrganisationPricingTiers,
       example: smallOrganisationPricingExample,
+    },
+    workWithUs: {
+      heading: "The Benefits of Our Approach",
+      paragraphs: [
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
+        "For small businesses, this means professional support without payroll complexity — especially when workload fluctuates and every hour needs to count.",
+      ],
+      bullets: sharedWorkWithUsBullets,
+      closing:
+        "In short: You get reliable, professional help that keeps operations steady as you grow — with the flexibility and peace of mind your business deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -295,7 +335,10 @@ export const audiencePages: AudiencePage[] = [
       heading: "What changes in practice",
       paragraphs: [
         "With the right support in place, charity teams can protect more capacity for delivery, relationships and the work that directly supports their mission.",
+        "When reporting, coordination and follow-ups compete with front-line delivery, practical systems and consistent support are designed to protect mission time — not create more admin overhead.",
       ],
+      equation:
+        "Stretched capacity + practical systems and consistent support = more time directed towards delivery, relationships and accountability.",
       bulletsLabel: "You can gain:",
       bullets: [
         "More staff and volunteer time directed towards service delivery",
@@ -307,9 +350,18 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      audienceLabel: "Charity",
       tiers: smallOrganisationPricingTiers,
       example: smallOrganisationPricingExample,
+    },
+    workWithUs: {
+      heading: "The Benefits of Our Approach",
+      paragraphs: [
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
+        "For charities with tight or variable income, predictable budgeting and flexible hours help you protect delivery capacity without taking on employment risk.",
+      ],
+      bullets: sharedWorkWithUsBullets,
+      closing:
+        "In short: You get reliable, professional help that supports your mission — with the flexibility and peace of mind your team deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
@@ -375,7 +427,10 @@ export const audiencePages: AudiencePage[] = [
       heading: "What changes in practice",
       paragraphs: [
         "With the right support in place, work can become easier to track, return to and sustain.",
+        "When memory, task switching and inbox build-up create the pressure, support shaped around how you work is designed to reduce cognitive load — not force a generic productivity system.",
       ],
+      equation:
+        "Cognitive load from admin + support shaped around how you work = work that is easier to return to, track and sustain.",
       bulletsLabel: "You can gain:",
       bullets: [
         "Fewer tasks relying on memory alone",
@@ -388,9 +443,18 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      audienceLabel: "Neurodivergent Professional",
       tiers: soloFounderPricingTiers,
       example: soloFounderPricingExample,
+    },
+    workWithUs: {
+      heading: "The Benefits of Our Approach",
+      paragraphs: [
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
+        "For neurodivergent professionals, flexible support without employment overhead helps protect energy, autonomy and consistency — especially when systems need to fit how you actually work.",
+      ],
+      bullets: sharedWorkWithUsBullets,
+      closing:
+        "In short: You get reliable, professional help that fits your working patterns — with the flexibility and peace of mind your work deserves.",
     },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
