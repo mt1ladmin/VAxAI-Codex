@@ -54,6 +54,7 @@ const tools = [
 
 type CaseStudy = {
   title: string;
+  subtitle: string;
   teaser: string;
   paragraphs?: string[];
   workflowPoints?: string[];
@@ -65,6 +66,7 @@ type CaseStudy = {
 const caseStudies: CaseStudy[] = [
   {
     title: "Reclaiming Time",
+    subtitle: "Helping a founder reduce repetitive admin.",
     teaser: "A founder was spending several hours each week managing emails, scheduling meetings, tracking actions and chasing follow-ups.",
     paragraphs: [
       "Rather than introducing more software, we simplified how work flowed day to day before automating the repetitive tasks and providing ongoing support where human judgement still mattered.",
@@ -79,6 +81,7 @@ const caseStudies: CaseStudy[] = [
   },
   {
     title: "Creating Clarity",
+    subtitle: "Bringing order to disconnected systems.",
     teaser: "A growing organisation was using multiple systems to manage projects, documents and client information. As the team grew, it became increasingly difficult to know where information belonged or who owned what.",
     paragraphs: [
       "We reviewed how work moved across the organisation before introducing clearer processes and improving the way their existing systems worked together.",
@@ -93,6 +96,7 @@ const caseStudies: CaseStudy[] = [
   },
   {
     title: "Connecting Communication",
+    subtitle: "Creating one workflow across multiple channels.",
     teaser: "Important messages, requests and updates were arriving through multiple channels, making it difficult to maintain visibility and respond consistently.",
     paragraphs: [
       "We designed a central communication workflow that brought information together, automated repetitive organisation and kept people responsible for the decisions that mattered.",
@@ -108,6 +112,7 @@ const caseStudies: CaseStudy[] = [
   },
   {
     title: "Scaling Sustainably",
+    subtitle: "Building processes that grow with the business.",
     teaser: "As the organisation expanded, different team members had developed their own ways of managing clients, files and daily work. Handover became difficult and consistency started to suffer.",
     paragraphs: [
       "We documented key processes, introduced practical automations and created clearer ways of working that the whole team could follow.",
@@ -500,9 +505,12 @@ function CaseCard({
       <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
         {String(index + 1).padStart(2, "0")}
       </span>
-      <h3 className="mt-4 flex-1 text-lg font-semibold leading-snug tracking-tight text-paper">
-        {study.title}
-      </h3>
+      <div className="mt-4 flex-1">
+        <h3 className="text-lg font-semibold leading-snug tracking-tight text-paper">
+          {study.title}
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
+      </div>
       <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
         See what changed
         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
