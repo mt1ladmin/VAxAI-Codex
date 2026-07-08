@@ -1,14 +1,12 @@
-import type { Metadata } from "next";
 import CookieConsent from "@/components/CookieConsent";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import AnalyticsConsent from "@/components/AnalyticsConsent";
+import OrganizationJsonLd from "@/components/seo/OrganizationJsonLd";
+import { createRootMetadata } from "@/lib/seo/metadata";
+import { siteConfig } from "@/lib/seo/site";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "VAxAI | Admin support with AI, automation and human VA oversight",
-  description:
-    "VAxAI helps small businesses, charities and busy teams manage repetitive admin with virtual assistance, AI and automation.",
-};
+export const metadata = createRootMetadata();
 
 export default function RootLayout({
   children,
@@ -16,8 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang={siteConfig.language}>
       <body className="font-sans antialiased">
+        <OrganizationJsonLd />
         {children}
         <CookieConsent />
         <NewsletterPopup />

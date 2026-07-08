@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import ArticleJsonLd from "@/components/seo/ArticleJsonLd";
+import { createPostMetadata } from "@/lib/seo/metadata";
+import { absoluteUrl } from "@/lib/seo/site";
 import { Linkedin } from "lucide-react";
 import ReadingProgress from "@/components/posts/ReadingProgress";
 import PostContactForm from "@/components/posts/PostContactForm";
@@ -75,11 +78,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return { title: "Not found" };
-  return {
+  return createPostMetadata({
     title: post.title,
-    description: post.description ?? undefined,
-    openGraph: post.cover_image_url ? { images: [post.cover_image_url] } : undefined,
-  };
+    description: post.description,
+    slug: post.slug,
+    coverImageUrl: post.cover_image_url,
+    publishedAt: post.published_at,
+  });
 }
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -96,10 +101,18 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     ? new Date(post.published_at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
     : null;
 
-  const postUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/posts/${post.slug}`;
+  const postUrl = absoluteUrl(`/posts/${post.slug}`);
 
   return (
     <div className="min-h-screen bg-white">
+      <ArticleJsonLd
+        title={post.title}
+        description={post.description}
+        slug={post.slug}
+        coverImageUrl={post.cover_image_url}
+        publishedAt={post.published_at}
+        authorName={author?.name}
+      />
       {/* Sticky site nav */}
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 px-4 py-3 backdrop-blur-sm md:px-8">
         <SiteNav variant="light" />

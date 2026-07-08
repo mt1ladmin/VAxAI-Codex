@@ -1,5 +1,5 @@
-import { Metadata } from "next";
 import SiteNav from "@/components/SiteNav";
+import { createPageMetadata } from "@/lib/seo/metadata";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import ContentGrid from "@/components/posts/ContentGrid";
@@ -9,10 +9,11 @@ import ContentGrid from "@/components/posts/ContentGrid";
 // frozen at build time.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "Insights | VAxAI",
   description: "Insights, guides and resources from the VAxAI team on admin, automation and working smarter.",
-};
+  path: "/insights",
+});
 
 type Post = {
   id: string;
