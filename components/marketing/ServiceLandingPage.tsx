@@ -14,7 +14,7 @@ import type {
   AudienceSection,
   JourneyStage,
 } from "@/lib/seo/audience-pages";
-import { sharedPricingIntro } from "@/lib/seo/audience-pages";
+import { sharedHowWeHelpSection, sharedPricingIntro } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
 type ServiceLandingPageProps = {
@@ -110,7 +110,7 @@ function PressureBulletCard({ item, index }: { item: string; index: number }) {
   );
 }
 
-type AudienceTabId = "pressures" | "how" | "changes" | "pricing" | "benefits";
+type AudienceTabId = "pressures" | "howWeHelp" | "approach" | "changes" | "pricing" | "benefits";
 
 function TabFlowCta({ label, onClick }: { label: string; onClick: () => void }) {
   return (
@@ -178,6 +178,48 @@ function PressuresPanelContent({
       ) : null}
     </div>
     <TabFlowCta label="See how we help" onClick={onNext} />
+    </div>
+  );
+}
+
+function HowWeHelpPanelContent({
+  section,
+  onNext,
+}: {
+  section: AudienceSection;
+  onNext: () => void;
+}) {
+  return (
+    <div className="px-6 py-7 md:px-8 md:py-8">
+      <Eyebrow>How we help</Eyebrow>
+      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+        {section.heading}
+      </h2>
+      <div className="mt-6 space-y-4 text-base leading-8 text-muted">
+        {section.paragraphs.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+      {(section.bullets ?? []).length > 0 ? (
+        <div className="mt-8 rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card md:p-8">
+          {section.bulletsLabel ? (
+            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+              {section.bulletsLabel}
+            </p>
+          ) : null}
+          <div className="grid gap-4">
+            {(section.bullets ?? []).map((item) => (
+              <div key={item} className="flex gap-3">
+                <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                  ✓
+                </span>
+                <p className="text-sm leading-7 text-muted md:text-[15px]">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
+      <TabFlowCta label="See our approach" onClick={onNext} />
     </div>
   );
 }
@@ -444,7 +486,8 @@ function AudienceTabbedSections({
 
   const tabs: { id: AudienceTabId; label: string }[] = [
     { id: "pressures", label: pressures.heading },
-    { id: "how", label: "How we help" },
+    { id: "howWeHelp", label: "How we help" },
+    { id: "approach", label: "Our approach" },
     { id: "changes", label: changes.heading },
     { id: "pricing", label: "Pricing" },
     { id: "benefits", label: "Why work with us" },
@@ -452,7 +495,8 @@ function AudienceTabbedSections({
 
   const panelClassName: Record<AudienceTabId, string> = {
     pressures: "bg-white text-ink",
-    how: "rounded-[28px] border border-ink/5 bg-white text-ink",
+    howWeHelp: "rounded-[28px] border border-ink/5 bg-white text-ink",
+    approach: "rounded-[28px] border border-ink/5 bg-white text-ink",
     changes: "rounded-[28px] border border-ink/5 bg-white text-ink",
     pricing: "rounded-[28px] border border-ink/5 bg-white text-ink",
     benefits: "rounded-[28px] border border-ink/5 bg-white text-ink",
@@ -503,11 +547,17 @@ function AudienceTabbedSections({
         className={cn("mt-8", panelClassName[activeTab])}
       >
         {activeTab === "pressures" ? (
-          <PressuresPanelContent section={pressures} onNext={() => navigateToTab("how")} />
+          <PressuresPanelContent section={pressures} onNext={() => navigateToTab("howWeHelp")} />
         ) : null}
-        {activeTab === "how" ? (
+        {activeTab === "howWeHelp" ? (
+          <HowWeHelpPanelContent
+            section={sharedHowWeHelpSection}
+            onNext={() => navigateToTab("approach")}
+          />
+        ) : null}
+        {activeTab === "approach" ? (
           <HowPanelContent
-            badge="How we help"
+            badge="Our approach"
             section={how}
             onNext={() => navigateToTab("changes")}
           />
