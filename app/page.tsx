@@ -64,69 +64,61 @@ type CaseStudy = {
 
 const caseStudies: CaseStudy[] = [
   {
-    title: "Here's how we saved a founder 10 hours per week",
-    teaser: "A busy professional was spending several hours each week manually managing emails, scheduling meetings, tracking actions and following up outstanding tasks.",
+    title: "Reclaiming Time",
+    teaser: "A founder was spending several hours each week managing emails, scheduling meetings, tracking actions and chasing follow-ups.",
     paragraphs: [
-      "After reviewing their workflow, we introduced a combination of process improvements, automation and ongoing support.",
+      "Rather than introducing more software, we simplified how work flowed day to day before automating the repetitive tasks and providing ongoing support where human judgement still mattered.",
     ],
     results: [
-      "Significant reduction in time spent on admin",
-      "Fewer missed follow-ups and outstanding actions",
-      "Better visibility of priorities and workload",
-      "More time available for revenue-generating and client-facing work",
+      "Significant reduction in admin time",
+      "Fewer missed follow-ups",
+      "Clearer priorities and workload",
+      "More time for clients and business growth",
     ],
-    closing: "No complicated systems. No unnecessary technology. Just a practical solution that worked for the way they already operated.",
+    closing: "A practical solution built around the way they already worked—not the other way around.",
   },
   {
-    title: "How we helped a client create clarity across multiple systems",
-    teaser: "A growing start-up was using several different tools to manage projects, documents, conversations and client information.",
+    title: "Creating Clarity",
+    teaser: "A growing organisation was using multiple systems to manage projects, documents and client information. As the team grew, it became increasingly difficult to know where information belonged or who owned what.",
     paragraphs: [
-      "Over time, it became unclear where information should be stored, where tasks should be created, and which platform should be used for communication.",
-      "As the team grew, information was being duplicated, conversations were happening in different places, and people were spending unnecessary time searching for files and updates.",
-      "We reviewed the existing systems and designed a clear workflow that defined:",
-    ],
-    workflowPoints: [
-      "Where confidential information should be stored",
-      "Where project tasks should be managed",
-      "Which communication channels should be used for different purposes",
-      "How information should move between systems",
+      "We reviewed how work moved across the organisation before introducing clearer processes and improving the way their existing systems worked together.",
     ],
     results: [
-      "Clear ownership of information and processes",
-      "Reduced duplication across systems",
-      "Faster onboarding for new team members",
-      "Less time spent searching for information",
-      "Greater confidence that sensitive information was stored appropriately",
+      "Less duplication",
+      "Clear ownership of information",
+      "Faster onboarding",
+      "Less time spent searching for files",
     ],
+    closing: "Clearer processes made the technology easier to use—not the other way around.",
   },
   {
-    title: "We supported a founder in bringing all communication into one place",
-    teaser: "A business was receiving messages, requests and updates from multiple sources including email, project management tools, messaging platforms and client channels.",
+    title: "Connecting Communication",
+    teaser: "Important messages, requests and updates were arriving through multiple channels, making it difficult to maintain visibility and respond consistently.",
     paragraphs: [
-      "Important information was becoming fragmented across different systems, making it difficult to maintain visibility and respond consistently.",
-      "Following a workflow review, we implemented a centralised communication process supported by automation and AI tools. Information from multiple channels was brought together, categorised and routed to the appropriate location, while human oversight remained in place for important decisions and follow-up actions.",
+      "We designed a central communication workflow that brought information together, automated repetitive organisation and kept people responsible for the decisions that mattered.",
     ],
     results: [
-      "Improved visibility across all incoming communications",
+      "Better visibility",
       "Faster response times",
-      "Reduced risk of missed messages or actions",
+      "Fewer missed actions",
       "Less manual administration",
-      "A single source for communication and task management",
+      "One trusted place for communication and tasks",
     ],
-    closing: "Technology handled the repetitive sorting and organisation, while people remained in control of the decisions that mattered.",
+    closing: "Automation handled the routine work while people remained in control.",
   },
   {
-    title: "How we helped a team scale without growing admin",
-    teaser: "As a business expanded, different team members had developed their own ways of managing clients, files and daily tasks. There was no consistent process, which made it difficult to hand work over or maintain quality as the team grew.",
+    title: "Scaling Sustainably",
+    teaser: "As the organisation expanded, different team members had developed their own ways of managing clients, files and daily work. Handover became difficult and consistency started to suffer.",
     paragraphs: [
-      "We reviewed their existing workflows, documented key processes and introduced practical automations alongside clear guidance for the team.",
+      "We documented key processes, introduced practical automations and created clearer ways of working that the whole team could follow.",
     ],
     results: [
-      "Consistent ways of working across the business",
-      "Faster onboarding of new staff",
+      "Consistent ways of working",
+      "Faster onboarding",
       "Reduced reliance on individual team members",
-      "More confidence that work wouldn't fall through the cracks",
+      "Better continuity as the organisation grew",
     ],
+    closing: "Growth became easier because the way work happened became easier to repeat.",
   },
 ];
 
@@ -134,13 +126,13 @@ const experts = [
   {
     name: "Thesia Kouloungou",
     role: "Founder and CEO, MT1L and VAxAI",
-    copy: "Hi, I’m Thesia. I lead our AI consultations and workflow reviews, using the VAT Framework™ to help you make clearer decisions about AI, automation and the way work gets done. My role is to help you see where AI can genuinely help, where existing tools and workflows could work better, and where human judgement should remain central.",
+    copy: "Hi, I’m Thesia. I lead our AI consultations and workflow reviews, using the VAT Framework™ to help clients decide where AI, automation, better processes or human support will create the most value. My role is to understand how work is currently happening, identify where pressure is building, and help you make clearer decisions about what should change, what should stay human, and what needs to be in place for any solution to work in practice.",
     photo: image.thesia,
   },
   {
     name: "Rebecca Bradshaw",
     role: "Co-founder and VA Operations Lead",
-    copy: "Hi, I’m Rebecca. I lead the virtual assistance side of VAxAI, helping you put the right human support around the work that should not be left to AI. That includes keeping tasks, follow-ups and processes moving, and monitoring automations so they continue to work as intended. When additional capacity is needed, I help with the VA recruitment, vetting and onboarding process.",
+    copy: "Hi, I’m Rebecca. I lead the virtual assistance side of VAxAI, helping clients put the right human support around the work that should not be left to AI or automation. My role is to keep tasks, follow-ups and processes moving, support day-to-day delivery, and make sure any systems or automations continue to work as intended. Where additional capacity is needed, I also support the recruitment, vetting and onboarding of trusted virtual assistants.",
     photo: image.rebecca,
   },
 ];
@@ -151,7 +143,7 @@ const plans = [
     title: "Assessment",
     label: "Assess",
     copy: [
-      "We review your admin workload, processes, tools and team capacity to identify where pressure is building and what type of support or improvement would make the greatest difference.",
+      "We begin by understanding how work currently happens. Together we identify where time is being lost, where unnecessary pressure is building and which improvements are likely to make the biggest difference before deciding what should change.",
     ],
     items: [
       "Admin, workflow and capacity review",
@@ -165,7 +157,7 @@ const plans = [
     title: "Strategy, Implementation & Team Training",
     label: "Assess + Implement",
     copy: [
-      "Using the findings from your assessment, we help put the right solution in place. This may include improving existing processes, making better use of your current tools, introducing new systems, automating repetitive tasks or training your team.",
+      "Using the findings from the assessment, we implement the agreed improvements. This may involve simplifying processes, making better use of existing tools, introducing AI or automation where appropriate, creating clearer ways of working or helping your team build confidence using new systems.",
     ],
     items: [
       "Everything included in Assess",
@@ -182,7 +174,7 @@ const plans = [
     label: "Assess + Implement + Support",
     featured: true,
     copy: [
-      "We continue to support you after implementation, helping your processes and systems remain useful as your workload, team and priorities change. This can include virtual assistance, system monitoring, team support and ongoing improvements.",
+      "Work doesn't stand still, and neither should your systems. As your organisation grows, priorities shift and new challenges emerge, we continue refining the way work happens. Support may include virtual assistance, process improvements, system optimisation, team coaching and ongoing AI guidance so that your ways of working continue to evolve alongside your organisation.",
     ],
     items: [
       "Everything included in Assess and Implement",
@@ -512,7 +504,7 @@ function CaseCard({
         {study.title}
       </h3>
       <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
-        See the results
+        See what changed
         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
       </span>
     </motion.article>
@@ -717,7 +709,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We help small businesses, charities, founders and busy teams reduce repetitive admin through a practical mix of AI, automation and human virtual support.
+              We help organisations spend less time managing work and more time doing it by combining practical AI, better processes, automation and human support where each adds the most value.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
@@ -784,7 +776,7 @@ export default function Home() {
                 </h2>
               </div>
               <p className="mt-5 max-w-md text-sm leading-7 text-muted md:mt-0">
-                Whether you&apos;re drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving.
+                Every organisation experiences pressure differently. For some it&apos;s overflowing inboxes. For others it&apos;s disconnected systems, manual reporting or work falling between the cracks. We start by understanding where work is becoming harder than it needs to be, then design practical improvements using the right mix of AI, automation, better processes and human support.
               </p>
             </div>
 
@@ -793,12 +785,12 @@ export default function Home() {
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">Before VAxAI</p>
                 <div className="grid gap-3.5">
                   {[
-                    "Inboxes full of unread emails",
-                    "Follow-ups being missed or delayed",
-                    "Information spread across multiple systems",
-                    "Manual reporting taking hours each week",
-                    "Team members unsure who owns what",
-                    "Valuable time spent on repetitive admin instead of meaningful work",
+                    "Work feels reactive rather than organised",
+                    "Information lives in too many places",
+                    "Admin keeps growing as the organisation grows",
+                    "People spend more time managing work than doing it",
+                    "Important follow-ups are easy to miss",
+                    "No one is quite sure where responsibility sits",
                   ].map((item) => (
                     <motion.div key={item} variants={fadeUp} className="flex gap-3">
                       <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
@@ -818,12 +810,12 @@ export default function Home() {
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">After VAxAI</p>
                 <div className="grid gap-3.5">
                   {[
-                    "Inboxes organised and prioritised",
-                    "Follow-ups tracked and completed on time",
-                    "Clear processes everyone can follow",
-                    "Reporting streamlined and easier to manage",
-                    "Better visibility of responsibilities and workload",
-                    "More time for clients, projects and strategic work",
+                    "Work flows more consistently",
+                    "Information is easier to find",
+                    "Repetitive tasks happen automatically where appropriate",
+                    "Teams have clearer ownership",
+                    "Admin takes less time",
+                    "People can focus on work that needs human judgement",
                   ].map((item) => (
                     <motion.div key={item} variants={fadeUp} className="flex gap-3">
                       <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
@@ -852,7 +844,7 @@ export default function Home() {
               light
               eyebrow="Client stories"
               title="Real results from working with VAxAI"
-              copy="Every organisation works differently, but the goal is always the same: less admin, clearer processes and more time for the work that matters. Here are a few examples of how we've helped clients achieve that."
+              copy="No two organisations need exactly the same solution. Some benefit from automation. Others need clearer processes, better use of existing tools or additional support. These examples show how practical improvements can create more capacity, clarity and confidence across different organisations."
               narrow
             />
 
@@ -936,7 +928,7 @@ export default function Home() {
           <SectionTitle
             eyebrow="Ways of working"
             title="Three ways to work with us"
-            copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix, whether that means improving existing systems, implementing new ones, or combining technology with human support."
+            copy="Every organisation works differently. Rather than starting with technology, we start by understanding how work happens today."
             narrow
           />
           <Stagger className="mt-14 grid gap-5 lg:mt-16 lg:grid-cols-3 lg:items-start">
