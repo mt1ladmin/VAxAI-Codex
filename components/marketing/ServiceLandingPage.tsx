@@ -9,7 +9,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
-import type { AudiencePage, AudienceSection } from "@/lib/seo/audience-pages";
+import type { AudiencePage, AudienceSection, JourneyStage } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
 export type RelatedAudienceLink = {
@@ -115,10 +115,28 @@ function PressureBulletCard({ item, index }: { item: string; index: number }) {
 
 const MT1L_URL = "https://www.mt1l.com";
 
+const VAT_NOTE =
+  "Through MT1L, we use the VAT Framework to help leadership teams weigh AI and system decisions on Value, Alignment and Trust — whether a change solves a real problem, fits how work actually happens, and can be trusted by the people expected to use and oversee it.";
+
 type AudienceTabId = "pressures" | "delayed" | "how" | "changes" | "pricing";
 
-function isLeadershipSupportBullet(item: string) {
-  return item.includes("VAT Framework");
+function SupportJourney({ stages }: { stages: JourneyStage[] }) {
+  return (
+    <div className="mt-8 grid gap-6 md:grid-cols-3">
+      {stages.map((stage, index) => (
+        <div
+          key={stage.title}
+          className="relative flex flex-col rounded-3xl border border-ink/5 bg-cream/40 px-6 py-7 md:px-7"
+        >
+          <span className="text-[11px] font-bold tracking-[0.14em] text-pine-800/70">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <h3 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-ink">{stage.title}</h3>
+          <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">{stage.description}</p>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function PressuresPanelContent({ section }: { section: AudienceSection }) {
@@ -209,43 +227,27 @@ function HowPanelContent({
           <p key={paragraph}>{paragraph}</p>
         ))}
       </div>
-      {(section.bullets ?? []).length > 0 ? (
+      {(section.journey ?? []).length > 0 ? (
         <>
-          {section.bulletsLabel ? (
+          {section.journeyLabel ? (
             <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
-              {section.bulletsLabel}
+              {section.journeyLabel}
             </p>
           ) : null}
-          <div className="mt-4 grid gap-px overflow-hidden rounded-[28px] border border-ink/5 bg-ink/5 md:grid-cols-2">
-            {(section.bullets ?? []).map((item, index) => {
-              const isLeadership = isLeadershipSupportBullet(item);
-
-              return (
-                <div key={item} className="flex flex-col bg-paper px-6 py-8 md:px-8">
-                  <span className="grid h-10 w-10 place-items-center rounded-full border border-pine-900/15 bg-pine-50 text-xs font-bold text-pine-800">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <p className="mt-5 text-sm leading-7 text-muted md:text-[15px]">{item}</p>
-                  {isLeadership ? (
-                    <a
-                      href={MT1L_URL}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-pine-800 transition-colors hover:text-pine-900"
-                    >
-                      Learn more about how MT1L can support you through your AI decisions
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                  ) : null}
-                </div>
-              );
-            })}
+          <SupportJourney stages={section.journey ?? []} />
+          <div className="mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7">
+            <p className="text-sm leading-7 text-muted md:text-[15px]">{VAT_NOTE}</p>
+            <a
+              href={MT1L_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-pine-800 transition-colors hover:text-pine-900"
+            >
+              Learn more about how MT1L can support you through your AI decisions
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
           </div>
-          <button
-            type="button"
-            onClick={onContact}
-            className={`${btn.primary} mt-8`}
-          >
+          <button type="button" onClick={onContact} className={`${btn.primary} mt-8`}>
             Get in touch
             <ArrowRight className="h-4 w-4" />
           </button>
@@ -585,41 +587,12 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
                 how={how}
                 changes={changes}
                 pricingNote={page.pricingNote}
-                accessToWorkInPricing={
-                  page.slug === "neurodivergent-professionals" ? page.accessToWork : undefined
-                }
+                accessToWorkInPricing={page.accessToWork}
                 onContact={() => setContactOpen(true)}
-                onAccessOpen={
-                  page.slug === "neurodivergent-professionals" ? () => setAccessOpen(true) : undefined
-                }
+                onAccessOpen={page.accessToWork ? () => setAccessOpen(true) : undefined}
               />
             </Reveal>
           </section>
-
-          {/* Access to Work — dark band transition */}
-          {page.accessToWork && page.slug !== "neurodivergent-professionals" ? (
-            <section id="access-to-work" className="scroll-mt-24 px-4 md:px-8">
-              <Reveal className="mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-6 py-10 text-paper md:px-10 md:py-12">
-                <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-                  <div className="max-w-xl">
-                    <Eyebrow light>Access to Work</Eyebrow>
-                    <h2 className="mt-4 text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
-                      {page.accessToWork.heading}
-                    </h2>
-                    <div className="mt-4 max-w-xl space-y-3 text-sm leading-7 text-paper/70 md:text-base">
-                      {page.accessToWork.paragraphs.map((paragraph) => (
-                        <p key={paragraph}>{paragraph}</p>
-                      ))}
-                    </div>
-                  </div>
-                  <button type="button" onClick={() => setAccessOpen(true)} className={`${btn.accent} shrink-0`}>
-                    Learn about Access to Work
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </Reveal>
-            </section>
-          ) : null}
 
           {/* Who else we support — white panel with cards */}
           {relatedLinks.length > 0 ? (

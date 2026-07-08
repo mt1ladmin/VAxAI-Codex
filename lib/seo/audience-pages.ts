@@ -1,8 +1,15 @@
+export type JourneyStage = {
+  title: string;
+  description: string;
+};
+
 export type AudienceSection = {
   heading: string;
   paragraphs: string[];
   bulletsLabel?: string;
   bullets?: string[];
+  journeyLabel?: string;
+  journey?: JourneyStage[];
   closing?: string;
 };
 
@@ -70,12 +77,23 @@ export const audiencePages: AudiencePage[] = [
       paragraphs: [
         "We do not start with software. We start with how your work actually happens — then shape practical support around the way you operate, including where human judgement needs to stay central.",
       ],
-      bulletsLabel: "VAxAI can support you through:",
-      bullets: [
-        "Workflow reviews to identify where time is being lost and pressure is building",
-        "Virtual assistance for inbox triage, scheduling, follow-ups and coordination",
-        "Clearer processes for client work, leads, recurring tasks and handovers",
-        "Training workshops to help you or your team use systems confidently or understand new ones — plus leadership-level VAT Framework guidance on when a new system would create genuine value, align with how the business runs and build trust",
+      journeyLabel: "How we work with you",
+      journey: [
+        {
+          title: "Assess",
+          description:
+            "We review how your business actually runs — client work, leads, tools, inboxes and where pressure is building on you as the founder.",
+        },
+        {
+          title: "Design",
+          description:
+            "From there we design the right mix of support: better use of what you already have, new tools or automation only where they add the most value, and the virtual assistance, process, training or other support the assessment points to.",
+        },
+        {
+          title: "Support",
+          description:
+            "Then we provide ongoing support — human virtual administration, maintenance, automation oversight, training and anything else agreed — so the changes hold in practice as the business grows.",
+        },
       ],
     },
     changes: {
@@ -155,12 +173,23 @@ export const audiencePages: AudiencePage[] = [
       paragraphs: [
         "We help small businesses create calmer, clearer ways of working — combining virtual assistance and practical process support with automation only where it genuinely reduces repetition.",
       ],
-      bulletsLabel: "VAxAI can support you through:",
-      bullets: [
-        "Reviews of how enquiries, bookings, documents and tasks move through the business",
-        "Virtual assistance for inbox management, follow-ups and day-to-day coordination",
-        "Clearer ownership of customer information, files and internal actions",
-        "Training workshops to help individuals and teams use systems well or understand new ones — plus leadership-level VAT Framework guidance on when change would create genuine value, align with your operations and build trust",
+      journeyLabel: "How we work with you",
+      journey: [
+        {
+          title: "Assess",
+          description:
+            "We review how work moves through the business — enquiries, bookings, documents, tools and where time is being lost or customer experience is at risk.",
+        },
+        {
+          title: "Design",
+          description:
+            "We design support that fits your team: making better use of existing systems, introducing new tools or automation only where they add the most value, and shaping the virtual assistance, process and training support needed.",
+        },
+        {
+          title: "Support",
+          description:
+            "Then we provide ongoing support — human virtual administration, maintenance, automation oversight, training and anything else agreed — so day-to-day operations stay consistent behind the scenes.",
+        },
       ],
     },
     changes: {
@@ -233,12 +262,23 @@ export const audiencePages: AudiencePage[] = [
       paragraphs: [
         "We help charities put calm, practical support around routine administration — while keeping people responsible for the decisions that matter to beneficiaries, volunteers, funders and partners.",
       ],
-      bulletsLabel: "VAxAI can support you through:",
-      bullets: [
-        "Workflow reviews across communication, records, reporting and coordination",
-        "Virtual assistance for inboxes, scheduling, follow-ups and document organisation",
-        "Clearer processes for information handling, safeguarding records and internal actions",
-        "Training workshops to help staff and volunteers use systems well or understand new ones — plus leadership-level VAT Framework guidance on when new systems would create genuine value, align with delivery and build trust",
+      journeyLabel: "How we work with you",
+      journey: [
+        {
+          title: "Assess",
+          description:
+            "We review how admin flows across delivery, records, communication, volunteers and reporting — and where capacity is being squeezed.",
+        },
+        {
+          title: "Design",
+          description:
+            "We design proportionate support: better use of existing tools, careful introduction of new systems only where they help most, and the mix of virtual assistance, process and training support the assessment identifies.",
+        },
+        {
+          title: "Support",
+          description:
+            "Then we provide ongoing support — human virtual administration, records and workflow maintenance, automation oversight, training and anything else agreed — so teams can protect more time for delivery.",
+        },
       ],
     },
     changes: {
@@ -318,12 +358,23 @@ export const audiencePages: AudiencePage[] = [
       paragraphs: [
         "We shape support around how you actually work, not around a generic productivity system.",
       ],
-      bulletsLabel: "VAxAI can support you through:",
-      bullets: [
-        "Workflow reviews shaped around your tools, preferences and working patterns",
-        "Virtual assistance for inboxes, scheduling, reminders, follow-ups and task tracking",
-        "Clearer systems that reduce cognitive load rather than adding extra admin",
-        "Human support where judgement, communication and flexibility matter",
+      journeyLabel: "How we work with you",
+      journey: [
+        {
+          title: "Assess",
+          description:
+            "We review how you actually work — your tools, preferences, switching patterns and where admin is costing the most energy.",
+        },
+        {
+          title: "Design",
+          description:
+            "We design support around that picture: systems that reduce cognitive load, better use of what you already have, and new tools or automation only where they genuinely help — plus the virtual assistance, process and human support needed.",
+        },
+        {
+          title: "Support",
+          description:
+            "Then we provide ongoing support — human virtual administration, maintenance, automation oversight, training and anything else agreed — so support fits how you work over time.",
+        },
       ],
     },
     changes: {
