@@ -867,7 +867,6 @@ export default function Home() {
               light
               eyebrow="Who we work with"
               title="Support built around you"
-              copy="We take time to understand your context, tools and workflows before recommending the right mix of AI, automation, better processes and human support."
               prompt="Click below to see how VAxAI could support you."
               narrow
             />
