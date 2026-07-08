@@ -719,9 +719,6 @@ export default function Home() {
 
         <div className="relative mx-auto mt-16 grid max-w-6xl gap-14 md:mt-20 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div variants={stagger} initial="hidden" animate="show">
-            <motion.div variants={fadeUp}>
-              <Eyebrow light>AI, automation and human support</Eyebrow>
-            </motion.div>
             <motion.h1
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
@@ -782,9 +779,9 @@ export default function Home() {
           <Reveal className="rounded-[32px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
             <div className="md:flex md:items-end md:justify-between md:gap-12">
               <div className="max-w-xl">
-                <Eyebrow>What changes</Eyebrow>
+                <Eyebrow>What we do</Eyebrow>
                 <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  What working with VAxAI looks like
+                  How we ease the pressure on everyday work
                 </h2>
               </div>
               <p className="mt-5 max-w-md text-sm leading-7 text-muted md:mt-0">
