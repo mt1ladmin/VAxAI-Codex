@@ -38,7 +38,7 @@ export const audiencePages: AudiencePage[] = [
       "Founders and entrepreneurs often carry too many priorities at once — client work, growth, scheduling, follow-ups and the admin that keeps everything moving. VAxAI takes time to understand your context, tools and workflows before recommending the right mix of human support, better processes, and AI or automation only where it genuinely helps.",
     heroHasAccessCta: true,
     pressures: {
-      heading: "Pressures we often see",
+      heading: "Does this sound familiar?",
       paragraphs: [
         "When you are building a business, admin rarely stays in one place. It spreads across your inbox, calendar, notes, client messages and the follow-ups you mean to send later — while growth work waits.",
       ],
@@ -58,7 +58,7 @@ export const audiencePages: AudiencePage[] = [
         "When admin stays dependent on the founder, the business becomes harder to grow without increasing pressure on the person at the centre of it.",
         "Leads can go cold, client follow-ups can be missed, and valuable work can be delayed because day-to-day admin keeps taking priority. The risk is not only lost time. It is missed opportunities, inconsistent client experience, and a business that becomes harder to hand over, repeat or scale because too much still depends on you holding everything together.",
       ],
-      bulletsLabel: "Over time, this can lead to:",
+
       bullets: [
         "Missed leads and slower client follow-up",
         "Growth work being pushed behind urgent admin",
@@ -127,7 +127,7 @@ export const audiencePages: AudiencePage[] = [
       "Small businesses feel admin pressure quickly — enquiries to answer, bookings to manage, invoices to chase, documents to file and follow-ups that keep the operation moving. VAxAI learns your context, tools and workflows first, then recommends human support, clearer processes, and AI or automation only where they add real value.",
     heroHasAccessCta: false,
     pressures: {
-      heading: "Pressures we often see",
+      heading: "Does this sound familiar?",
       paragraphs: [
         "In a small business, work often arrives faster than the systems behind it. Customer messages, internal coordination and repetitive tasks can start to compete with the work that actually earns revenue.",
       ],
@@ -147,7 +147,7 @@ export const audiencePages: AudiencePage[] = [
         "For small businesses, admin pressure can quickly affect customer experience, cash flow and team coordination.",
         "When enquiries, bookings, invoices, documents and follow-ups are not handled consistently, the business can look less reliable than it really is, even when the product or service itself is strong. Small delays can become bigger issues: a missed enquiry, a late invoice, an unclear handover, a forgotten quote, or a customer waiting longer than they should.",
       ],
-      bulletsLabel: "Over time, this can lead to:",
+
       bullets: [
         "Customer enquiries being missed or answered too slowly",
         "Bookings, invoices or supplier actions slipping through",
@@ -209,7 +209,7 @@ export const audiencePages: AudiencePage[] = [
       "UK charities and non-profits are often stretched — limited capacity, growing reporting demands, volunteer coordination, funding admin and the everyday communication that keeps services running. VAxAI takes time to understand your context, tools and workflows before shaping practical support around delivery, compliance and relationships.",
     heroHasAccessCta: false,
     pressures: {
-      heading: "Pressures we often see",
+      heading: "Does this sound familiar?",
       paragraphs: [
         "Charity teams are frequently doing more with less. Admin does not just sit in one inbox — it spreads across service delivery, volunteers, funders, compliance and the follow-ups that keep people safe and supported.",
       ],
@@ -229,7 +229,7 @@ export const audiencePages: AudiencePage[] = [
         "For charities, unresolved admin pressure can affect more than internal efficiency.",
         "It can reduce capacity for service delivery, weaken follow-up with beneficiaries, volunteers, funders and partners, and create risks around reporting, safeguarding records and information handling. When teams are already stretched, even small admin gaps can have a wider impact because the work is connected to trust, accountability and people’s experience of the service.",
       ],
-      bulletsLabel: "Over time, this can lead to:",
+
       bullets: [
         "Delivery teams losing time to repeated manual admin",
         "Funder reporting becoming more stressful and time-consuming",
@@ -298,7 +298,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pressures: {
-      heading: "Pressures we often see",
+      heading: "Does this sound familiar?",
       paragraphs: [
         "The issue is not a lack of ability. Often, the pressure comes from work systems that rely too heavily on memory, constant switching, manual tracking or unclear processes.",
       ],
@@ -318,7 +318,7 @@ export const audiencePages: AudiencePage[] = [
         "When support is delayed, the cost is often not the task itself. It is the extra energy spent managing systems that were not designed around how the person works best.",
         "Admin can build up, follow-ups can become harder to return to, communication can spread across too many places, and important work can feel heavier than it needs to because too much depends on memory, switching and self-tracking.",
       ],
-      bulletsLabel: "Over time, this can lead to:",
+
       bullets: [
         "More energy spent managing admin instead of doing meaningful work",
         "Follow-ups, deadlines or messages becoming harder to track",
