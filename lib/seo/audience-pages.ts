@@ -173,7 +173,6 @@ export const audiencePages: AudiencePage[] = [
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
         "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
-        "This may be relevant for disabled or neurodivergent founders, self-employed professionals and business owners who need support to manage work more effectively.",
       ],
     },
     related: {
@@ -242,7 +241,6 @@ export const audiencePages: AudiencePage[] = [
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
         "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
-        "This may be relevant for disabled or neurodivergent founders, self-employed professionals and business owners who need support to manage work more effectively.",
       ],
     },
     related: {
@@ -311,7 +309,6 @@ export const audiencePages: AudiencePage[] = [
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
         "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
-        "This may be relevant for disabled or neurodivergent founders, self-employed professionals and business owners who need support to manage work more effectively.",
       ],
     },
     related: {
