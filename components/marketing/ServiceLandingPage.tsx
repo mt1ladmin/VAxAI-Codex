@@ -113,11 +113,6 @@ function PressureBulletCard({ item, index }: { item: string; index: number }) {
   );
 }
 
-const MT1L_URL = "https://www.mt1l.com";
-
-const VAT_NOTE =
-  "Through MT1L, we use the VAT Framework to help leadership teams weigh AI and system decisions on Value, Alignment and Trust — whether a change solves a real problem, fits how work actually happens, and can be trusted by the people expected to use and oversee it.";
-
 type AudienceTabId = "pressures" | "how" | "changes" | "pricing";
 
 function SupportJourney({ stages }: { stages: JourneyStage[] }) {
@@ -201,18 +196,6 @@ function HowPanelContent({
             </p>
           ) : null}
           <SupportJourney stages={section.journey ?? []} />
-          <div className="mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7">
-            <p className="text-sm leading-7 text-muted md:text-[15px]">{VAT_NOTE}</p>
-            <a
-              href={MT1L_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-pine-800 transition-colors hover:text-pine-900"
-            >
-              Learn more about how MT1L can support you through your AI decisions
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
           <button type="button" onClick={onContact} className={`${btn.primary} mt-8`}>
             Get in touch
             <ArrowRight className="h-4 w-4" />
