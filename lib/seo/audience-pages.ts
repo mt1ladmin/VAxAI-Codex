@@ -80,6 +80,19 @@ const sharedWorkWithUsBullets = [
   "Predictable budgeting — Ideal for those with limited or variable income.",
 ];
 
+export const sharedHowWeHelpSection: AudienceSection = {
+  heading: "How We Help",
+  paragraphs: [
+    "We ease this pressure by thoughtfully improving your current tools and processes. We only introduce AI and automation where they genuinely add value, fit your existing systems, and are simple for you to manage and trust.",
+  ],
+  bulletsLabel: "Key Elements Explained:",
+  bullets: [
+    "AI — Helps with tasks that require understanding, such as drafting content, summarising information, or analysing data.",
+    "Automation — Makes repetitive rule-based tasks run automatically.",
+    "Virtual Assistance — A trained human who reviews AI outputs, handles exceptions, and provides flexible support with human judgement.",
+  ],
+};
+
 export const sharedHowSection: AudienceSection = {
   heading: "",
   paragraphs: [],
