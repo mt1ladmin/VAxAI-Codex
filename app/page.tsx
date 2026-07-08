@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
+  ArrowLeft,
   ArrowRight,
   ChevronDown,
   ExternalLink,
@@ -152,6 +153,7 @@ const experts = [
 const plans = [
   {
     step: "01",
+    headerLabel: "Workflow Assessment",
     title: "Assessment",
     label: "Assess",
     buildsOn: null as string | null,
@@ -167,6 +169,7 @@ const plans = [
   },
   {
     step: "02",
+    headerLabel: "Strategic Implementation",
     title: "Strategy, Implementation & Team Training",
     label: "Implement",
     buildsOn: "Assess",
@@ -183,6 +186,7 @@ const plans = [
   },
   {
     step: "03",
+    headerLabel: "Strategic Ongoing Support",
     title: "Recommended: Ongoing Support",
     label: "Strategic Ongoing Support",
     featured: true,
@@ -241,8 +245,6 @@ const AFTER_ITEMS = [
   "More time for clients, projects and strategic work",
 ];
 
-const PANEL_HEIGHT = "h-[22rem]";
-
 function DualPanelToggle({
   active,
   onSelect,
@@ -250,20 +252,28 @@ function DualPanelToggle({
   active: "before" | "after" | null;
   onSelect: (panel: "before" | "after") => void;
 }) {
+  const beforeOpen = active === "before";
+  const afterOpen = active === "after";
+
   return (
-    <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-stretch gap-3 md:gap-4">
+    <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
       <button
         type="button"
         onClick={() => onSelect("before")}
-        aria-expanded={active === "before"}
-        className={`vax-panel flex ${PANEL_HEIGHT} flex-col overflow-hidden text-left ${active === "before" ? "vax-panel--active" : "hover:border-ink/14"}`}
+        aria-expanded={beforeOpen}
+        className={`vax-panel flex flex-col overflow-hidden text-left transition-all duration-300 ${beforeOpen ? "vax-panel--active" : "hover:border-ink/14"}`}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-ink/6 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Before VAxAI</p>
-          <ChevronDown className={`h-4 w-4 text-muted transition-transform duration-300 ${active === "before" ? "rotate-180" : ""}`} />
+        <div className={`flex shrink-0 items-center justify-between px-5 py-4 ${beforeOpen ? "border-b border-ink/6" : ""}`}>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Before VAxAI</p>
+            {!beforeOpen ? (
+              <p className="mt-1 text-sm leading-5 text-muted/75">Click to see the pressure points</p>
+            ) : null}
+          </div>
+          <ChevronDown className={`h-4 w-4 shrink-0 text-muted transition-transform duration-300 ${beforeOpen ? "rotate-180" : ""}`} />
         </div>
-        {active === "before" ? (
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+        {beforeOpen ? (
+          <div className="px-5 py-4">
             <div className="grid gap-3">
               {BEFORE_ITEMS.map((item) => (
                 <div key={item} className="flex gap-3">
@@ -273,29 +283,32 @@ function DualPanelToggle({
               ))}
             </div>
           </div>
-        ) : (
-          <div className="flex-1" aria-hidden="true" />
-        )}
+        ) : null}
       </button>
 
-      <div className={`flex ${PANEL_HEIGHT} w-10 shrink-0 items-center justify-center md:w-12`} aria-hidden="true">
-        <span className="grid h-9 w-9 place-items-center rounded-full border border-ink/8 bg-white text-forest shadow-[0_2px_12px_rgba(17,17,17,0.05)]">
-          <ArrowRight className="h-4 w-4" />
+      <div className="flex w-10 shrink-0 items-center justify-center self-center md:w-12" aria-hidden="true">
+        <span className="grid h-9 w-9 place-items-center rounded-full border border-ink/8 bg-white text-forest shadow-[0_2px_12px_rgba(17,17,17,0.05)] transition-transform duration-300">
+          {afterOpen ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
         </span>
       </div>
 
       <button
         type="button"
         onClick={() => onSelect("after")}
-        aria-expanded={active === "after"}
-        className={`vax-panel flex ${PANEL_HEIGHT} flex-col overflow-hidden text-left ${active === "after" ? "vax-panel--active vax-panel--after-active" : "hover:border-ink/14"}`}
+        aria-expanded={afterOpen}
+        className={`vax-panel flex flex-col overflow-hidden text-left transition-all duration-300 ${afterOpen ? "vax-panel--active vax-panel--after-active" : "hover:border-ink/14"}`}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-ink/6 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
-          <ChevronDown className={`h-4 w-4 text-forest/60 transition-transform duration-300 ${active === "after" ? "rotate-180" : ""}`} />
+        <div className={`flex shrink-0 items-center justify-between px-5 py-4 ${afterOpen ? "border-b border-ink/6" : ""}`}>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
+            {!afterOpen ? (
+              <p className="mt-1 text-sm leading-5 text-[#063b32]/70">Click to see what changes</p>
+            ) : null}
+          </div>
+          <ChevronDown className={`h-4 w-4 shrink-0 text-forest/60 transition-transform duration-300 ${afterOpen ? "rotate-180" : ""}`} />
         </div>
-        {active === "after" ? (
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+        {afterOpen ? (
+          <div className="px-5 py-4">
             <div className="grid gap-3">
               {AFTER_ITEMS.map((item) => (
                 <div key={item} className="flex gap-3">
@@ -305,9 +318,7 @@ function DualPanelToggle({
               ))}
             </div>
           </div>
-        ) : (
-          <div className="flex-1" aria-hidden="true" />
-        )}
+        ) : null}
       </button>
     </div>
   );
@@ -324,33 +335,60 @@ function PathwayAccordion({
 }) {
   return (
     <div className="vax-card overflow-hidden">
-      <div className="grid divide-y divide-ink/8 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+      <div className="flex min-h-0 flex-col lg:min-h-[26rem] lg:flex-row">
         {plans.map((plan, index) => {
           const isOpen = openIndex === index;
           return (
-            <div key={plan.title} className="flex min-h-0 flex-col bg-white">
+            <div
+              key={plan.step}
+              className={`flex min-h-0 flex-col overflow-hidden border-ink/8 bg-white transition-[flex-grow,width] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                isOpen ? "flex-1 border-t first:border-t-0 lg:border-t-0 lg:border-l lg:first:border-l-0" : "border-t first:border-t-0 lg:w-[5.75rem] lg:shrink-0 lg:grow-0 lg:border-t-0 lg:border-l lg:first:border-l-0"
+              }`}
+            >
               <button
                 type="button"
                 onClick={() => onSelect(index)}
                 aria-expanded={isOpen}
-                className={`flex w-full items-center justify-between gap-3 px-5 py-5 text-left transition-colors ${isOpen ? "bg-[#f3f9f5]/50" : "hover:bg-paper/60"}`}
+                className={`flex w-full shrink-0 text-left transition-colors ${
+                  isOpen
+                    ? "items-start justify-between gap-3 bg-[#f3f9f5]/50 px-5 py-5"
+                    : "items-center justify-between gap-3 px-5 py-5 hover:bg-paper/60 lg:h-full lg:flex-col lg:items-start lg:justify-between lg:px-4 lg:py-6"
+                }`}
               >
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{plan.step}</p>
-                  <h3 className="mt-1 text-lg font-semibold leading-tight text-ink md:text-xl">{plan.label}</h3>
+                <div className={isOpen ? "" : "lg:flex lg:h-full lg:flex-col lg:justify-between"}>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{plan.step}</p>
+                    <h3
+                      className={`mt-1 font-semibold text-ink ${
+                        isOpen ? "text-lg leading-tight md:text-xl" : "text-sm leading-snug lg:max-w-[4.75rem]"
+                      }`}
+                    >
+                      {plan.headerLabel}
+                    </h3>
+                  </div>
                   {plan.featured ? (
-                    <span className="mt-2 inline-flex rounded-full bg-acid/70 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink">
+                    <span
+                      className={`inline-flex rounded-full bg-acid/70 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink ${
+                        isOpen ? "mt-2" : "mt-3 hidden lg:inline-flex"
+                      }`}
+                    >
                       Recommended
                     </span>
                   ) : null}
                 </div>
-                <ChevronDown className={`h-4 w-4 shrink-0 text-forest/50 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-4 w-4 shrink-0 text-forest/50 transition-transform duration-300 ${
+                    isOpen ? "rotate-180" : "lg:-rotate-90"
+                  }`}
+                />
               </button>
               <div
-                className={`grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+                className={`grid min-h-0 overflow-hidden transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:flex-1 ${
+                  isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                }`}
               >
-                <div className="min-h-0">
-                  <div className="space-y-4 border-t border-ink/8 px-5 pb-6 pt-4">
+                <div className="min-h-0 overflow-hidden">
+                  <div className="space-y-4 border-t border-ink/8 px-5 pb-6 pt-4 lg:overflow-y-auto">
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
                     {plan.buildsOn ? (
                       <p className="text-xs font-medium text-muted">Builds on {plan.buildsOn}</p>

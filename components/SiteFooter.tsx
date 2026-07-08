@@ -32,8 +32,8 @@ export default function SiteFooter() {
               <div>
                 <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#063b32]/80">Pathways</p>
                 <div className="grid gap-3 text-muted">
-                  <a href="/#pricing" className="transition-colors hover:text-ink">Assess</a>
-                  <a href="/#pricing" className="transition-colors hover:text-ink">Implement</a>
+                  <a href="/#pricing" className="transition-colors hover:text-ink">Workflow Assessment</a>
+                  <a href="/#pricing" className="transition-colors hover:text-ink">Strategic Implementation</a>
                   <a href="/#pricing" className="transition-colors hover:text-ink">Strategic Ongoing Support</a>
                 </div>
               </div>
