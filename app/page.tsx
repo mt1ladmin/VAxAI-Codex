@@ -36,16 +36,100 @@ const tools = [
     logo: "https://copilot.microsoft.com/favicon.ico",
   },
   {
-    name: "Zapier",
-    logo: "https://cdn.simpleicons.org/zapier/FF4F00",
+    name: "ChatGPT",
+    logo: "https://cdn.simpleicons.org/chatgpt/74AA9C",
   },
   {
     name: "Gemini",
     logo: "https://cdn.simpleicons.org/googlegemini/8E75B2",
   },
   {
-    name: "ChatGPT",
-    logo: "https://cdn.simpleicons.org/chatgpt/74AA9C",
+    name: "Perplexity",
+    logo: "https://cdn.simpleicons.org/perplexity/1FB8CD",
+  },
+  {
+    name: "NotebookLM",
+    logo: "https://www.google.com/s2/favicons?domain=notebooklm.google.com&sz=64",
+  },
+  {
+    name: "Outlook",
+    logo: "https://www.google.com/s2/favicons?domain=outlook.com&sz=64",
+  },
+  {
+    name: "Gmail",
+    logo: "https://cdn.simpleicons.org/gmail/EA4335",
+  },
+  {
+    name: "Teams",
+    logo: "https://www.google.com/s2/favicons?domain=teams.microsoft.com&sz=64",
+  },
+  {
+    name: "Slack",
+    logo: "https://cdn.simpleicons.org/slack/4A154B",
+  },
+  {
+    name: "Microsoft 365",
+    logo: "https://www.google.com/s2/favicons?domain=microsoft365.com&sz=64",
+  },
+  {
+    name: "Google Workspace",
+    logo: "https://www.google.com/s2/favicons?domain=workspace.google.com&sz=64",
+  },
+  {
+    name: "SharePoint",
+    logo: "https://www.google.com/s2/favicons?domain=sharepoint.com&sz=64",
+  },
+  {
+    name: "HubSpot",
+    logo: "https://cdn.simpleicons.org/hubspot/FF7A59",
+  },
+  {
+    name: "Salesforce",
+    logo: "https://www.google.com/s2/favicons?domain=salesforce.com&sz=64",
+  },
+  {
+    name: "Pipedrive",
+    logo: "https://www.google.com/s2/favicons?domain=pipedrive.com&sz=64",
+  },
+  {
+    name: "ClickUp",
+    logo: "https://cdn.simpleicons.org/clickup/7B68EE",
+  },
+  {
+    name: "Monday.com",
+    logo: "https://www.google.com/s2/favicons?domain=monday.com&sz=64",
+  },
+  {
+    name: "Trello",
+    logo: "https://cdn.simpleicons.org/trello/0052CC",
+  },
+  {
+    name: "Asana",
+    logo: "https://cdn.simpleicons.org/asana/F06A6A",
+  },
+  {
+    name: "Xero",
+    logo: "https://cdn.simpleicons.org/xero/13B5EA",
+  },
+  {
+    name: "Sage",
+    logo: "https://cdn.simpleicons.org/sage/00D639",
+  },
+  {
+    name: "QuickBooks",
+    logo: "https://cdn.simpleicons.org/quickbooks/2CA01C",
+  },
+  {
+    name: "Zapier",
+    logo: "https://cdn.simpleicons.org/zapier/FF4F00",
+  },
+  {
+    name: "Make",
+    logo: "https://cdn.simpleicons.org/make/6D00CC",
+  },
+  {
+    name: "Power Automate",
+    logo: "https://www.google.com/s2/favicons?domain=powerautomate.microsoft.com&sz=64",
   },
   {
     name: "n8n",
@@ -763,7 +847,7 @@ export default function Home() {
           className="relative mx-auto mt-24 max-w-6xl"
         >
           <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
-            Practical support across the tools you already use
+            We help you make better use of the AI tools you&apos;re most likely to already have access to.
           </p>
           <div className="mt-7">
             <ToolMarquee />

@@ -81,7 +81,7 @@ a {
 }
 
 .animate-tool-scroll {
-  animation: tool-scroll 28s linear infinite;
+  animation: tool-scroll 80s linear infinite;
 }
 
 .animate-tool-scroll:hover {

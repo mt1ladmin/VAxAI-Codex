@@ -17,14 +17,7 @@ export default function AudiencePageShell({ slug }: { slug: string }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ServiceLandingPage
-        eyebrow={page.eyebrow}
-        title={page.title}
-        intro={page.intro}
-        sections={page.sections}
-        pricingNotes={page.pricingNotes}
-        relatedLinks={getRelatedAudienceLinks(page.slug)}
-      />
+      <ServiceLandingPage page={page} relatedLinks={getRelatedAudienceLinks(page.slug)} />
     </>
   );
 }
