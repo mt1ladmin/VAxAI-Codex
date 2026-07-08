@@ -361,7 +361,7 @@ function PricingPanelContent({
 function PricingBenefitsPanelContent({ section }: { section: AudienceSection }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>Pricing benefits</Eyebrow>
+      <Eyebrow>Why work with us</Eyebrow>
       <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         {section.heading}
       </h2>
@@ -429,7 +429,7 @@ function AudienceTabbedSections({
     { id: "how", label: "How we help" },
     { id: "changes", label: changes.heading },
     { id: "pricing", label: "Pricing" },
-    { id: "benefits", label: "Why our pricing" },
+    { id: "benefits", label: "Why work with us" },
   ];
 
   const panelClassName: Record<AudienceTabId, string> = {
