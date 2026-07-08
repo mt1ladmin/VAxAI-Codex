@@ -51,19 +51,18 @@ const smallOrganisationPricingExample =
   "First month ≈ £6,870 | Typical ongoing monthly cost ≈ £1,120";
 
 export const sharedPricingBenefits: AudienceSection = {
-  heading: "Why This Is More Cost-Effective & Sustainable",
+  heading: "The Benefits of Our Approach",
   paragraphs: [
-    "For solo founders and small organisations with limited budgets, our approach is often significantly cheaper and more sustainable than traditional hiring:",
+    "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
   ],
   bullets: [
-    "Much lower cost than employing someone — You avoid salary, National Insurance, pension contributions, holiday pay, sick pay and more.",
-    "You only pay for what you need — Thanks to the automation and process improvements we implement, most clients will need far fewer support hours than they originally expect.",
-    "No long-term commitment — Scale hours up or down depending on your workload.",
-    "Shared expertise — Your VA is trained by us on AI tools and modern workflows, so you benefit from specialist knowledge without having to source and train someone yourself.",
-    "Predictable budgeting — Especially valuable for charities and small businesses with tight or variable income.",
+    "Lower overall cost — You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
+    "Pay only for what you need — AI and automation handle repetitive work, so human support is mainly for oversight, exceptions, and maintenance. Because your VA deeply understands your systems, you typically need even fewer hours over time.",
+    "Full flexibility — Scale support up or down easily with no long-term commitment.",
+    "Predictable budgeting — Ideal for those with limited or variable income.",
   ],
   closing:
-    "Realistic outcome for many clients: You get reliable, high-quality admin and AI support while keeping full flexibility. Because we design the systems and train the VA, everything works seamlessly together from the start.",
+    "In short: You get reliable, professional help that grows with you — with the flexibility and peace of mind your work deserves.",
 };
 
 export const sharedHowSection: AudienceSection = {
