@@ -207,6 +207,13 @@ export const audiencePages: AudiencePage[] = [
     },
     pricingNote:
       "Pricing is tailored to your business complexity, team size, tools, systems and the level of ongoing assistance required.",
+    accessToWork: {
+      heading: "Your VAxAI support could cost you nothing",
+      paragraphs: [
+        "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
+        "This may be relevant for disabled or neurodivergent founders, self-employed professionals and business owners who need support to manage work more effectively.",
+      ],
+    },
     related: {
       label: "Small Businesses",
       description:
@@ -294,6 +301,13 @@ export const audiencePages: AudiencePage[] = [
     },
     pricingNote:
       "Pricing is tailored to your organisation’s size, reporting needs, safeguarding requirements, tools, systems and the level of ongoing support required.",
+    accessToWork: {
+      heading: "Your VAxAI support could cost you nothing",
+      paragraphs: [
+        "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
+        "This may be relevant for disabled or neurodivergent founders, self-employed professionals and business owners who need support to manage work more effectively.",
+      ],
+    },
     related: {
       label: "UK Charities & Non-Profits",
       description:
