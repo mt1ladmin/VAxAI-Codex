@@ -590,29 +590,74 @@ function CaseCard({
   study: CaseStudy;
   index: number;
 }) {
+  const [expanded, setExpanded] = useState(false);
+
   return (
     <motion.div
       variants={fadeUp}
-      whileHover={{ y: -5 }}
+      whileHover={{ y: expanded ? 0 : -5 }}
       transition={{ duration: 0.35, ease: EASE }}
+      className="flex h-full flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
     >
+      <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <div className="mt-4 flex-1">
+        <h3 className="text-lg font-semibold leading-snug tracking-tight text-paper">
+          {study.title}
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setExpanded((open) => !open)}
+        aria-expanded={expanded}
+        className="mt-5 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid transition-colors hover:text-acid/80"
+      >
+        {expanded ? "Show less" : "Read more"}
+        <ChevronDown
+          className={`h-3.5 w-3.5 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {expanded ? (
+          <motion.div
+            key="details"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.35, ease: EASE }}
+            className="overflow-hidden"
+          >
+            <div className="mt-4 space-y-4 border-t border-white/10 pt-4 text-sm leading-6 text-paper/70">
+              <p>{study.teaser}</p>
+              {study.paragraphs?.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+              {study.results && study.results.length > 0 ? (
+                <ul className="space-y-2">
+                  {study.results.map((result) => (
+                    <li key={result} className="flex gap-2">
+                      <span className="mt-2 h-1 w-2 shrink-0 rounded-full bg-acid/60" aria-hidden="true" />
+                      <span>{result}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {study.closing ? <p className="font-medium text-paper/85">{study.closing}</p> : null}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <Link
         href={study.href}
-        className="group flex h-full flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
+        className="group mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid"
       >
-        <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
-          {String(index + 1).padStart(2, "0")}
-        </span>
-        <div className="mt-4 flex-1">
-          <h3 className="text-lg font-semibold leading-snug tracking-tight text-paper">
-            {study.title}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
-        </div>
-        <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
-          Explore how we help
-          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
-        </span>
+        Explore how we help
+        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
       </Link>
     </motion.div>
   );
@@ -846,8 +891,8 @@ export default function Home() {
           transition={{ duration: 1, delay: 0.5, ease: EASE }}
           className="relative mx-auto mt-24 max-w-6xl"
         >
-          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
-            We help you make better use of the AI tools you&apos;re most likely to already have access to.
+          <p className="mx-auto max-w-2xl text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
+            AI and automation is not always the answer — but whatever systems or tools you use, we help you make the most of them.
           </p>
           <div className="mt-7">
             <ToolMarquee />
@@ -873,51 +918,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="mt-10 grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
-              <Stagger className="rounded-3xl border border-ink/5 bg-cream/60 p-6 md:p-7">
-                <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">Before VAxAI</p>
-                <div className="grid gap-3.5">
-                  {[
-                    "Work feels reactive rather than organised",
-                    "Information lives in too many places",
-                    "Admin keeps growing as the organisation grows",
-                    "People spend more time managing work than doing it",
-                    "Important follow-ups are easy to miss",
-                    "No one is quite sure where responsibility sits",
-                  ].map((item) => (
-                    <motion.div key={item} variants={fadeUp} className="flex gap-3">
-                      <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
-                      <p className="text-sm leading-6 text-muted">{item}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </Stagger>
 
-              <div className="hidden md:flex md:flex-col md:items-center md:justify-center" aria-hidden="true">
-                <span className="grid h-11 w-11 place-items-center rounded-full border border-ink/8 bg-paper text-pine-800 shadow-card">
-                  <ArrowRight className="h-4 w-4" />
-                </span>
-              </div>
-
-              <Stagger className="rounded-3xl border border-pine-900/10 bg-pine-50 p-6 md:p-7">
-                <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">After VAxAI</p>
-                <div className="grid gap-3.5">
-                  {[
-                    "Work flows more consistently",
-                    "Information is easier to find",
-                    "Repetitive tasks happen automatically where appropriate",
-                    "Teams have clearer ownership",
-                    "Admin takes less time",
-                    "People can focus on work that needs human judgement",
-                  ].map((item) => (
-                    <motion.div key={item} variants={fadeUp} className="flex gap-3">
-                      <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                      <p className="text-sm leading-6 text-muted">{item}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </Stagger>
-            </div>
           </Reveal>
         </div>
       </section>
@@ -937,7 +938,7 @@ export default function Home() {
               light
               eyebrow="Who we work with"
               title="Support built around you"
-              prompt="Click below to see how VAxAI could support you."
+              prompt="Explore below to see how we could work with you."
               narrow
             />
 
