@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import PublicContactModal from "@/components/PublicContactModal";
 
 type Props = {
   variant?: "dark" | "light";
 };
 
+const audienceLinks = [
+  { label: "Founders & Entrepreneurs", href: "/founders-entrepreneurs" },
+  { label: "Small Business", href: "/small-business" },
+  { label: "Charities & Non-Profits", href: "/charities-non-profits" },
+  { label: "Neurodivergent Professionals", href: "/neurodivergent-professionals" },
+];
+
 export default function SiteNav({ variant = "dark" }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [audienceOpen, setAudienceOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const audienceRef = useRef<HTMLDivElement>(null);
 
   const isDark = variant === "dark";
 
@@ -25,6 +34,17 @@ export default function SiteNav({ variant = "dark" }: Props) {
   const mobileMenuBg = isDark ? "bg-[#063b32]" : "bg-white";
   const mobileLinkClass = isDark ? "text-paper/80 hover:text-paper" : "text-gray-600 hover:text-gray-900";
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (audienceRef.current && !audienceRef.current.contains(event.target as Node)) {
+        setAudienceOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <>
     <nav className="relative mx-auto flex max-w-6xl items-center justify-between py-1">
@@ -38,13 +58,38 @@ export default function SiteNav({ variant = "dark" }: Props) {
 
       {/* Desktop links */}
       <div className={`hidden items-center gap-5 text-xs font-semibold md:flex ${linkClass}`}>
-        <a href="/founders-entrepreneurs" className={linkClass}>Founders</a>
-        <a href="/small-business" className={linkClass}>Small Business</a>
-        <a href="/charities-non-profits" className={linkClass}>Charities</a>
-        <a href="/neurodivergent-professionals" className={linkClass}>Neurodivergent</a>
+        <div ref={audienceRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setAudienceOpen((open) => !open)}
+            className={`inline-flex items-center gap-1 ${linkClass}`}
+            aria-expanded={audienceOpen}
+            aria-haspopup="true"
+          >
+            Who we support
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${audienceOpen ? "rotate-180" : ""}`} />
+          </button>
+          {audienceOpen ? (
+            <div
+              className={`absolute left-0 top-full z-50 mt-2 min-w-[15rem] rounded-xl border p-2 shadow-xl ${
+                isDark ? "border-white/10 bg-[#063b32]" : "border-gray-200 bg-white"
+              }`}
+            >
+              {audienceLinks.map(({ label, href }) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setAudienceOpen(false)}
+                  className={`block rounded-md px-3 py-2.5 text-sm font-semibold ${mobileLinkClass}`}
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          ) : null}
+        </div>
         <a href="/#experts" className={linkClass}>About</a>
         <a href="/#vat-framework" className={linkClass}>VAT Framework</a>
-        <a href="/#access-to-work" className={linkClass}>Access to Work</a>
         <a href="/#faq" className={linkClass}>FAQ</a>
         <a href="/insights" className={`${isDark ? "text-[#f5f274]/80 hover:text-[#f5f274]" : "text-[#063b32] hover:text-[#063b32]/80"} font-semibold`}>
           Insights & Resources
@@ -72,14 +117,22 @@ export default function SiteNav({ variant = "dark" }: Props) {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className={`absolute left-0 right-0 top-full z-50 flex flex-col gap-1 rounded-xl border border-white/10 p-4 shadow-xl ${mobileMenuBg}`}>
+          <p className={`px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] ${isDark ? "text-paper/50" : "text-gray-400"}`}>
+            Who we support
+          </p>
+          {audienceLinks.map(({ label, href }) => (
+            <a
+              key={href}
+              href={href}
+              onClick={() => setMobileOpen(false)}
+              className={`rounded-md px-4 py-2.5 text-sm font-semibold ${mobileLinkClass}`}
+            >
+              {label}
+            </a>
+          ))}
           {[
-            { label: "Founders", href: "/founders-entrepreneurs" },
-            { label: "Small Business", href: "/small-business" },
-            { label: "Charities", href: "/charities-non-profits" },
-            { label: "Neurodivergent", href: "/neurodivergent-professionals" },
             { label: "About", href: "/#experts" },
             { label: "VAT Framework", href: "/#vat-framework" },
-            { label: "Access to Work", href: "/#access-to-work" },
             { label: "FAQ", href: "/#faq" },
             { label: "Insights & Resources", href: "/insights" },
           ].map(({ label, href }) => (
