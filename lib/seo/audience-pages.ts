@@ -3,16 +3,27 @@ export type JourneyStage = {
   paragraphs: string[];
 };
 
-export type AudiencePricingTier = {
-  label: string;
-  price: string;
-  description: string;
+export type AudiencePricing = {
+  fullSetupPrice: string;
+  ongoingSupportPrice: string;
 };
 
-export type AudiencePricing = {
-  tiers: AudiencePricingTier[];
-  example: string;
+export const sharedFullSetupIncludes = [
+  "Thorough review of your current workflows and systems",
+  "Practical improvements to your existing tools and processes",
+  "Targeted AI and automation only where they genuinely add value",
+  "Upskilling you and your team on any AI tools you already use, or training on new ones if beneficial",
+  "Full implementation and clear handover so everything is easy to manage",
+];
+
+export const sharedVaSetupIncluded = {
+  title: "VA Setup & Training (included in the package)",
+  description:
+    "We fully brief and train your virtual assistant — whether from our team or one we help you recruit — so they deeply understand your systems, workflows, and preferences.",
 };
+
+export const sharedOngoingSupportDescription =
+  "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.";
 
 export type AudienceSection = {
   heading: string;
@@ -26,52 +37,6 @@ export type AudienceSection = {
 };
 
 export const sharedPricingIntro = "We offer clear and fair pricing tailored to your needs.";
-
-const soloFounderPricingTiers: AudiencePricingTier[] = [
-  {
-    label: "Full Setup Package",
-    price: "From £2,450 (fixed price)",
-    description:
-      "Full Setup includes workflow review, practical improvements using AI and automation, and handover.",
-  },
-  {
-    label: "VA Setup & Training",
-    price: "From £300 (one time)",
-    description:
-      "VA Setup & Training includes full briefing and training (recruitment fees agreed separately if needed).",
-  },
-  {
-    label: "Ongoing Support",
-    price: "£25 per hour (pay only for what you need)",
-    description: "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.",
-  },
-];
-
-const smallOrganisationPricingTiers: AudiencePricingTier[] = [
-  {
-    label: "Full Setup Package",
-    price: "From £5,250 (fixed price)",
-    description:
-      "Full Setup includes workflow review, practical improvements using AI and automation, and handover.",
-  },
-  {
-    label: "VA Setup & Training",
-    price: "From £500 (one time)",
-    description:
-      "VA Setup & Training includes full briefing and training (recruitment fees agreed separately if needed).",
-  },
-  {
-    label: "Ongoing Support",
-    price: "£35 per hour (pay only for what you need)",
-    description: "Support is flexible — you only pay for hours used. Simpler setups need fewer hours.",
-  },
-];
-
-const soloFounderPricingExample =
-  "First month ≈ £3,550 | Typical ongoing monthly cost ≈ £800";
-
-const smallOrganisationPricingExample =
-  "First month ≈ £6,870 | Typical ongoing monthly cost ≈ £1,120";
 
 const sharedWorkWithUsBullets = [
   "Lower overall cost — You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
@@ -193,8 +158,8 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      tiers: soloFounderPricingTiers,
-      example: soloFounderPricingExample,
+      fullSetupPrice: "From £2,450 (fixed price)",
+      ongoingSupportPrice: "£25 per hour (pay only for what you need)",
     },
     workWithUs: {
       heading: "The Benefits of Our Approach",
@@ -277,8 +242,8 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      tiers: smallOrganisationPricingTiers,
-      example: smallOrganisationPricingExample,
+      fullSetupPrice: "From £5,250 (fixed price)",
+      ongoingSupportPrice: "£35 per hour (pay only for what you need)",
     },
     workWithUs: {
       heading: "The Benefits of Our Approach",
@@ -361,8 +326,8 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      tiers: smallOrganisationPricingTiers,
-      example: smallOrganisationPricingExample,
+      fullSetupPrice: "From £5,250 (fixed price)",
+      ongoingSupportPrice: "£35 per hour (pay only for what you need)",
     },
     workWithUs: {
       heading: "The Benefits of Our Approach",
@@ -453,8 +418,8 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      tiers: soloFounderPricingTiers,
-      example: soloFounderPricingExample,
+      fullSetupPrice: "From £2,450 (fixed price)",
+      ongoingSupportPrice: "£25 per hour (pay only for what you need)",
     },
     workWithUs: {
       heading: "The Benefits of Our Approach",

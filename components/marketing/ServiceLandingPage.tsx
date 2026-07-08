@@ -14,7 +14,13 @@ import type {
   AudienceSection,
   JourneyStage,
 } from "@/lib/seo/audience-pages";
-import { sharedHowWeHelpSection, sharedPricingIntro } from "@/lib/seo/audience-pages";
+import {
+  sharedFullSetupIncludes,
+  sharedHowWeHelpSection,
+  sharedOngoingSupportDescription,
+  sharedPricingIntro,
+  sharedVaSetupIncluded,
+} from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
 type ServiceLandingPageProps = {
@@ -347,18 +353,39 @@ function PricingPanelContent({
       </h2>
       <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{sharedPricingIntro}</p>
 
-      <div className="mt-8 rounded-3xl border border-ink/5 bg-cream/40 px-5 py-6 md:px-7">
-        <div className="space-y-6">
-          {pricing.tiers.map((tier) => (
-            <div key={tier.label} className="border-t border-ink/5 pt-6 first:border-t-0 first:pt-0">
-              <p className="text-sm font-semibold text-ink md:text-base">{tier.label}</p>
-              <p className="mt-1 text-sm font-medium text-pine-800 md:text-[15px]">{tier.price}</p>
-              <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">{tier.description}</p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-8 text-sm font-medium text-pine-800 md:text-base">Example (8 hours per week):</p>
-        <p className="mt-2 text-sm leading-7 text-muted md:text-[15px]">{pricing.example}</p>
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+        <article className="flex flex-col rounded-3xl border border-pine-900/15 bg-cream/50 px-6 py-7 md:px-8">
+          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Full Setup Package</h3>
+          <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">{pricing.fullSetupPrice}</p>
+          <p className="mt-6 text-sm font-medium text-ink md:text-[15px]">This includes:</p>
+          <ul className="mt-4 space-y-3">
+            {sharedFullSetupIncludes.map((item) => (
+              <li key={item} className="flex gap-3">
+                <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                  ✓
+                </span>
+                <span className="text-sm leading-7 text-muted md:text-[15px]">{item}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 border-t border-ink/10 pt-6">
+            <p className="text-sm font-semibold text-ink md:text-base">{sharedVaSetupIncluded.title}</p>
+            <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">
+              {sharedVaSetupIncluded.description}
+            </p>
+          </div>
+        </article>
+
+        <article className="flex flex-col rounded-3xl border border-ink/5 bg-white px-6 py-7 shadow-card md:px-8">
+          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Ongoing Support</h3>
+          <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">{pricing.ongoingSupportPrice}</p>
+          <p className="mt-6 flex-1 text-sm leading-7 text-muted md:text-[15px]">
+            {sharedOngoingSupportDescription}
+          </p>
+          <p className="mt-6 text-sm leading-7 text-muted md:text-[15px]">
+            For clients who already have systems in place or have completed the Full Setup Package.
+          </p>
+        </article>
       </div>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
