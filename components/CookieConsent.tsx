@@ -79,7 +79,7 @@ export default function CookieConsent() {
       role="dialog"
       aria-modal="true"
       aria-label="Cookie consent"
-      className="cookie-banner__backdrop fixed inset-0 z-[8900] flex items-center justify-center bg-[#063b32]/55 px-4 backdrop-blur-[2px]"
+      className="cookie-banner__backdrop fixed inset-0 z-[8900] flex items-center justify-center bg-ink/55 px-4 backdrop-blur-sm"
     >
       <div className="cookie-banner__panel w-full max-w-[540px] rounded-2xl border border-[#063b32]/12 bg-white p-6 shadow-[0_16px_56px_rgba(6,59,50,0.18)] sm:p-7">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#063b32]">
@@ -149,7 +149,7 @@ export default function CookieConsent() {
           <button
             type="button"
             onClick={acceptAll}
-            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#063b32] px-5 py-2.5 text-[13px] font-semibold text-[#f5f274] transition-opacity hover:opacity-90 sm:flex-none"
+            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#063b32] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
           >
             Accept all
           </button>

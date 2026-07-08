@@ -471,19 +471,14 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
             </section>
           ) : null}
 
-          {/* Who else we support — pine panel with translucent cards */}
+          {/* Who else we support — white panel with cards */}
           {relatedLinks.length > 0 ? (
             <section className="px-4 py-20 md:px-8 md:py-28">
-              <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-5 py-14 text-paper md:px-12 md:py-20">
-                <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
-                  <div className="absolute -top-32 right-[-10%] h-96 w-96 rounded-full bg-pine-700/40 blur-3xl" />
-                  <div className="absolute bottom-[-20%] left-[-6%] h-80 w-80 rounded-full bg-acid/[0.06] blur-3xl" />
-                </div>
-
+              <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] border border-ink/5 bg-white px-5 py-14 shadow-card md:px-12 md:py-20">
                 <Reveal className="relative mx-auto max-w-xl text-center">
-                  <Eyebrow light>Who else we support</Eyebrow>
-                  <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
-                    Support shaped around other ways of working
+                  <Eyebrow>Who else we support</Eyebrow>
+                  <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] text-ink md:text-[2.75rem]">
+                    Explore more ways we can support you
                   </h2>
                 </Reveal>
 
@@ -492,11 +487,11 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
                     <motion.div key={link.href} variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
                       <Link
                         href={link.href}
-                        className="group flex h-full flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
+                        className="group flex h-full flex-col rounded-3xl border border-ink/5 bg-white p-6 transition-colors duration-500 hover:border-pine-900/15 hover:shadow-card md:p-7"
                       >
-                        <p className="text-sm font-semibold text-paper group-hover:text-acid">{link.label}</p>
-                        <p className="mt-3 flex-1 text-sm leading-6 text-paper/60">{link.description}</p>
-                        <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-acid">
+                        <p className="text-sm font-semibold text-ink group-hover:text-pine-800">{link.label}</p>
+                        <p className="mt-3 flex-1 text-sm leading-6 text-muted">{link.description}</p>
+                        <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-pine-800">
                           {link.linkLabel}
                           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
                         </span>
@@ -510,21 +505,27 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
 
           {/* Closing CTA */}
           <section className="px-4 pb-24 md:px-8">
-            <Reveal className="mx-auto max-w-6xl rounded-[40px] border border-ink/5 bg-white px-6 py-14 text-center shadow-card md:px-12 md:py-16">
-              <div className="flex justify-center">
-                <Eyebrow>Work with VAxAI</Eyebrow>
+            <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-6 py-14 text-center text-paper md:px-12 md:py-16">
+              <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
+                <div className="absolute -top-24 left-[-8%] h-80 w-80 rounded-full bg-pine-700/40 blur-3xl" />
+                <div className="absolute bottom-[-30%] right-[25%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
               </div>
-              <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                Ready to understand where support would help most?
-              </h2>
-              <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-muted md:text-base md:leading-8">
-                We start with how work happens today, then recommend the right mix of virtual assistance, AI,
-                automation, better processes and human support for your context.
-              </p>
-              <button type="button" onClick={() => setContactOpen(true)} className={`${btn.primary} mt-9`}>
-                Book a discovery call
-                <ArrowRight className="h-4 w-4" />
-              </button>
+              <div className="relative">
+                <div className="flex justify-center">
+                  <Eyebrow light>Work with VAxAI</Eyebrow>
+                </div>
+                <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                  Ready to understand where support would help most?
+                </h2>
+                <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
+                  We start with how work happens today, then recommend the right mix of virtual assistance, AI,
+                  automation, better processes and human support for your context.
+                </p>
+                <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>
+                  Book a discovery call
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
             </Reveal>
           </section>
         </main>

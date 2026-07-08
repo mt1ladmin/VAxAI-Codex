@@ -96,51 +96,51 @@ export default function NewsletterPopup() {
 
   return (
     <div
-      className="newsletter-popup__backdrop fixed inset-0 z-[8800] flex items-end justify-center bg-[#063b32]/40 px-4 pb-6 backdrop-blur-[2px] sm:items-center sm:pb-0"
+      className="newsletter-popup__backdrop fixed inset-0 z-[8800] flex items-end justify-center bg-ink/55 px-4 pb-6 backdrop-blur-sm sm:items-center sm:pb-0"
       role="dialog"
       aria-modal="true"
       aria-label="Newsletter sign-up"
     >
-      <div className="newsletter-popup__panel relative w-full max-w-[460px] rounded-2xl bg-[#063b32] px-6 py-7 text-white shadow-[0_24px_64px_rgba(6,59,50,0.45)] sm:px-8 sm:py-9">
+      <div className="newsletter-popup__panel relative w-full max-w-[460px] rounded-2xl border border-ink/10 bg-white px-6 py-7 text-ink shadow-[0_24px_64px_rgba(0,0,0,0.18)] sm:px-8 sm:py-9">
         <button
           type="button"
           onClick={dismiss}
           aria-label="Close newsletter sign-up"
-          className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
+          className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:bg-ink/5 hover:text-ink"
         >
           <X className="h-4 w-4" />
         </button>
 
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#f5f274]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-pine-700">
           VAxAI · Newsletter
         </p>
 
         {status === 'done' ? (
           <div className="mt-5 flex flex-col items-center gap-3 py-4 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5f274]">
-              <Check className="h-6 w-6 text-[#063b32]" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-pine-900">
+              <Check className="h-6 w-6 text-paper" />
             </span>
-            <p className="text-[1.15rem] font-semibold leading-snug text-white">
+            <p className="text-[1.15rem] font-semibold leading-snug text-ink">
               You&rsquo;re subscribed
             </p>
-            <p className="max-w-[28ch] text-[13.5px] leading-[1.65] text-white/65">
+            <p className="max-w-[28ch] text-[13.5px] leading-[1.65] text-muted">
               Thank you. You&rsquo;ll receive the latest VAxAI insights directly to your inbox.
             </p>
             <button
               type="button"
               onClick={() => setVisible(false)}
-              className="newsletter-popup__btn mt-2 rounded-md bg-[#f5f274] px-5 py-2.5 text-[13px] font-semibold text-[#063b32] transition-opacity hover:opacity-90"
+              className="newsletter-popup__btn mt-2 rounded-md bg-pine-900 px-5 py-2.5 text-[13px] font-semibold text-paper transition-opacity hover:opacity-90"
             >
               Close
             </button>
           </div>
         ) : (
           <>
-            <h2 className="mt-3 text-[1.45rem] font-semibold leading-[1.2] text-white sm:text-[1.6rem]">
+            <h2 className="mt-3 text-[1.45rem] font-semibold leading-[1.2] text-ink sm:text-[1.6rem]">
               Practical admin support, in your inbox
             </h2>
 
-            <p className="mt-3 text-[13.5px] leading-[1.7] text-white/70">
+            <p className="mt-3 text-[13.5px] leading-[1.7] text-muted">
               Get VAxAI thinking on admin support, AI-assisted workflows and the VAT Framework,
               delivered directly to your inbox.
             </p>
@@ -148,7 +148,7 @@ export default function NewsletterPopup() {
             <form onSubmit={onSubmit} className="mt-6">
               <label
                 htmlFor="popup-newsletter-email"
-                className="block text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/45"
+                className="block text-[10.5px] font-semibold uppercase tracking-[0.16em] text-muted"
               >
                 Your email address
               </label>
@@ -160,21 +160,21 @@ export default function NewsletterPopup() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className="newsletter-popup__input min-w-0 flex-1 rounded-md border border-ink/12 bg-white px-3.5 py-2.5 text-[13.5px] text-ink outline-none placeholder:text-muted focus:border-[#063b32]/35 focus:ring-2 focus:ring-[#063b32]/10"
+                  className="newsletter-popup__input min-w-0 flex-1 rounded-md border border-ink/15 bg-white px-3.5 py-2.5 text-[13.5px] text-ink outline-none placeholder:text-muted focus:border-pine-900/35 focus:ring-2 focus:ring-pine-900/10"
                 />
                 <button
                   type="submit"
                   disabled={status === 'loading'}
-                  className="newsletter-popup__btn inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[#f5f274] px-4 py-2.5 text-[13px] font-semibold text-[#063b32] transition-opacity hover:opacity-90 disabled:opacity-50"
+                  className="newsletter-popup__btn inline-flex shrink-0 items-center gap-1.5 rounded-md bg-pine-900 px-4 py-2.5 text-[13px] font-semibold text-paper transition-opacity hover:opacity-90 disabled:opacity-50"
                 >
                   {status === 'loading' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   Sign up
                 </button>
               </div>
               {status === 'error' && (
-                <p className="mt-2 text-[11px] text-red-300">{error}</p>
+                <p className="mt-2 text-[11px] text-red-600">{error}</p>
               )}
-              <p className="mt-3 text-[11px] leading-[1.5] text-white/35">
+              <p className="mt-3 text-[11px] leading-[1.5] text-muted">
                 By submitting you consent to receive VAxAI newsletter emails. You can unsubscribe
                 at any time. We will not share your details.
               </p>
@@ -183,7 +183,7 @@ export default function NewsletterPopup() {
             <button
               type="button"
               onClick={dismiss}
-              className="mt-4 text-[11.5px] text-white/35 underline-offset-2 transition-colors hover:text-white/60 hover:underline"
+              className="mt-4 text-[11.5px] text-muted underline-offset-2 transition-colors hover:text-ink hover:underline"
             >
               No thanks, close
             </button>
