@@ -110,8 +110,6 @@ export const audiencePages: AudiencePage[] = [
         "A calmer operating rhythm around inboxes, scheduling and tasks",
         "Better visibility of what needs action, what can wait and what can be handed over",
       ],
-      closing:
-        "The goal is not to remove you from your business. It is to reduce the avoidable admin pressure that stops you focusing on the work only you can do.",
     },
     pricingNote:
       "Pricing is tailored to your business stage, client load, tools, systems and the level of support you need.",
@@ -206,8 +204,6 @@ export const audiencePages: AudiencePage[] = [
         "More reliable day-to-day operations without adding unnecessary complexity",
         "A business that feels easier to manage as workload increases",
       ],
-      closing:
-        "The goal is to help the business run more smoothly behind the scenes, so admin does not keep interrupting delivery, customer care or revenue-generating work.",
     },
     pricingNote:
       "Pricing is tailored to your business complexity, team size, tools, systems and the level of ongoing assistance required.",
@@ -295,8 +291,6 @@ export const audiencePages: AudiencePage[] = [
         "Clearer information handling that supports safeguarding and accountability",
         "Practical systems that help the charity do more with the capacity it already has",
       ],
-      closing:
-        "The goal is not to add another layer of complexity. It is to make the work easier to manage, easier to track and easier to sustain.",
     },
     pricingNote:
       "Pricing is tailored to your organisation’s size, reporting needs, safeguarding requirements, tools, systems and the level of ongoing support required.",
@@ -392,8 +386,6 @@ export const audiencePages: AudiencePage[] = [
         "Support that protects autonomy while making work easier to sustain",
         "Practical help that fits your working patterns rather than forcing a generic productivity system",
       ],
-      closing:
-        "The goal is not to change how you work. It is to build the right support around how work already happens for you.",
     },
     pricingNote:
       "Pricing is tailored to your context, tools, workload, support needs and the level of ongoing assistance required.",
