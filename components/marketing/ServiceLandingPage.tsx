@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
@@ -115,7 +115,7 @@ function PressureBulletCard({ item, index }: { item: string; index: number }) {
 
 const MT1L_URL = "https://www.mt1l.com";
 
-type AudienceTabId = "pressures" | "delayed" | "how" | "changes";
+type AudienceTabId = "pressures" | "delayed" | "how" | "changes" | "pricing";
 
 function isLeadershipSupportBullet(item: string) {
   return item.includes("VAT Framework");
@@ -307,26 +307,85 @@ function ChangesPanelContent({
   );
 }
 
+function PricingPanelContent({
+  pricingNote,
+  accessToWork,
+  onAccessOpen,
+}: {
+  pricingNote: string;
+  accessToWork?: { heading: string; paragraphs: string[] };
+  onAccessOpen?: () => void;
+}) {
+  return (
+    <div className="px-6 py-7 md:px-8 md:py-8">
+      <Eyebrow>Pricing</Eyebrow>
+      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricingNote}</p>
+
+      {accessToWork ? (
+        <div
+          id="access-to-work"
+          className="scroll-mt-24 mt-10 overflow-hidden rounded-[28px] bg-pine-900 px-6 py-8 text-paper md:px-8 md:py-10"
+        >
+          <Eyebrow light>Access to Work</Eyebrow>
+          <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
+            {accessToWork.heading}
+          </h3>
+          <div className="mt-4 max-w-xl space-y-3 text-sm leading-7 text-paper/70 md:text-base">
+            {accessToWork.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          {onAccessOpen ? (
+            <button type="button" onClick={onAccessOpen} className={`${btn.accent} mt-6`}>
+              Learn about Access to Work
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function AudienceTabbedSections({
   pressures,
   delayed,
   how,
   changes,
+  pricingNote,
+  accessToWorkInPricing,
   onContact,
+  onAccessOpen,
 }: {
   pressures: AudienceSection;
   delayed: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
+  pricingNote: string;
+  accessToWorkInPricing?: { heading: string; paragraphs: string[] };
   onContact: () => void;
+  onAccessOpen?: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<AudienceTabId>("pressures");
+
+  useEffect(() => {
+    function syncTabFromHash() {
+      if (accessToWorkInPricing && window.location.hash === "#access-to-work") {
+        setActiveTab("pricing");
+      }
+    }
+
+    syncTabFromHash();
+    window.addEventListener("hashchange", syncTabFromHash);
+    return () => window.removeEventListener("hashchange", syncTabFromHash);
+  }, [accessToWorkInPricing]);
 
   const tabs: { id: AudienceTabId; label: string }[] = [
     { id: "pressures", label: pressures.heading },
     { id: "delayed", label: "The cost of waiting" },
     { id: "how", label: "Practical support" },
     { id: "changes", label: changes.heading },
+    { id: "pricing", label: "Pricing" },
   ];
 
   const panelClassName: Record<AudienceTabId, string> = {
@@ -335,6 +394,7 @@ function AudienceTabbedSections({
     how: "rounded-[28px] border border-ink/5 bg-white text-ink",
     changes:
       "rounded-[28px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-paper to-cream/60 text-ink",
+    pricing: "rounded-[28px] border border-ink/5 bg-white text-ink",
   };
 
   return (
@@ -386,6 +446,13 @@ function AudienceTabbedSections({
         ) : null}
         {activeTab === "changes" ? (
           <ChangesPanelContent badge={changes.heading} section={changes} />
+        ) : null}
+        {activeTab === "pricing" ? (
+          <PricingPanelContent
+            pricingNote={pricingNote}
+            accessToWork={accessToWorkInPricing}
+            onAccessOpen={onAccessOpen}
+          />
         ) : null}
       </motion.div>
     </div>
@@ -519,21 +586,20 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
                 delayed={delayed}
                 how={how}
                 changes={changes}
+                pricingNote={page.pricingNote}
+                accessToWorkInPricing={
+                  page.slug === "neurodivergent-professionals" ? page.accessToWork : undefined
+                }
                 onContact={() => setContactOpen(true)}
+                onAccessOpen={
+                  page.slug === "neurodivergent-professionals" ? () => setAccessOpen(true) : undefined
+                }
               />
             </Reveal>
           </section>
 
-          {/* Pricing — minimal editorial pause */}
-          <section className="px-4 py-20 md:px-8 md:py-28">
-            <Reveal className="mx-auto max-w-6xl">
-              <Eyebrow>Pricing</Eyebrow>
-              <p className="mt-8 max-w-3xl text-base leading-8 text-muted md:text-lg">{page.pricingNote}</p>
-            </Reveal>
-          </section>
-
           {/* Access to Work — dark band transition */}
-          {page.accessToWork ? (
+          {page.accessToWork && page.slug !== "neurodivergent-professionals" ? (
             <section id="access-to-work" className="scroll-mt-24 px-4 md:px-8">
               <Reveal className="mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-6 py-10 text-paper md:px-10 md:py-12">
                 <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
