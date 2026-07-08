@@ -9,7 +9,12 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
-import type { AudiencePage, AudienceSection, JourneyStage } from "@/lib/seo/audience-pages";
+import type {
+  AudiencePage,
+  AudiencePricing,
+  AudienceSection,
+  JourneyStage,
+} from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
 export type RelatedAudienceLink = {
@@ -257,18 +262,60 @@ function ChangesPanelContent({
 }
 
 function PricingPanelContent({
-  pricingNote,
+  pricing,
   accessToWork,
+  onContact,
   onAccessOpen,
 }: {
-  pricingNote: string;
+  pricing: AudiencePricing;
   accessToWork?: { heading: string; paragraphs: string[] };
+  onContact: () => void;
   onAccessOpen?: () => void;
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
       <Eyebrow>Pricing</Eyebrow>
-      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricingNote}</p>
+      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+        Tailored to your needs
+      </h2>
+      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricing.intro}</p>
+
+      <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">What shapes your quote</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {pricing.factors.map((factor) => (
+          <div
+            key={factor}
+            className="flex gap-3 rounded-2xl border border-ink/5 bg-cream/40 px-4 py-4"
+          >
+            <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+              ✓
+            </span>
+            <p className="text-sm leading-7 text-muted">{factor}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7">
+        <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
+          Clear scope before work begins
+        </h3>
+        <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">
+          After your workflow review, we scope the support you need and provide a written quote
+          covering deliverables, approach and cost. You know exactly what you are getting before
+          any work starts — and nothing begins until you have reviewed and agreed it.
+        </p>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <button type="button" onClick={onContact} className={btn.accent}>
+          Start your workflow review
+          <ArrowRight className="h-4 w-4" />
+        </button>
+        <button type="button" onClick={onContact} className={btn.ghostLight}>
+          Get in touch to discuss your quote
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
 
       {accessToWork ? (
         <div
@@ -300,7 +347,7 @@ function AudienceTabbedSections({
   pressures,
   how,
   changes,
-  pricingNote,
+  pricing,
   accessToWorkInPricing,
   onContact,
   onAccessOpen,
@@ -308,7 +355,7 @@ function AudienceTabbedSections({
   pressures: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
-  pricingNote: string;
+  pricing: AudiencePricing;
   accessToWorkInPricing?: { heading: string; paragraphs: string[] };
   onContact: () => void;
   onAccessOpen?: () => void;
@@ -391,8 +438,9 @@ function AudienceTabbedSections({
         ) : null}
         {activeTab === "pricing" ? (
           <PricingPanelContent
-            pricingNote={pricingNote}
+            pricing={pricing}
             accessToWork={accessToWorkInPricing}
+            onContact={onContact}
             onAccessOpen={onAccessOpen}
           />
         ) : null}
@@ -527,7 +575,7 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
                 pressures={pressures}
                 how={how}
                 changes={changes}
-                pricingNote={page.pricingNote}
+                pricing={page.pricing}
                 accessToWorkInPricing={page.accessToWork}
                 onContact={() => setContactOpen(true)}
                 onAccessOpen={page.accessToWork ? () => setAccessOpen(true) : undefined}

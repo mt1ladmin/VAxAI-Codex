@@ -13,6 +13,11 @@ export type AudienceSection = {
   closing?: string;
 };
 
+export type AudiencePricing = {
+  intro: string;
+  factors: string[];
+};
+
 export type AudiencePage = {
   slug: string;
   metaTitle: string;
@@ -27,7 +32,7 @@ export type AudiencePage = {
   delayed: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
-  pricingNote: string;
+  pricing: AudiencePricing;
   accessToWork?: { heading: string; paragraphs: string[] };
   related: { label: string; description: string; linkLabel: string };
 };
@@ -111,8 +116,16 @@ export const audiencePages: AudiencePage[] = [
         "Better visibility of what needs action, what can wait and what can be handed over",
       ],
     },
-    pricingNote:
-      "Pricing is tailored to your business stage, client load, tools, systems and the level of support you need.",
+    pricing: {
+      intro:
+        "We do not publish fixed pricing because the right support depends on how your business runs, the pressure you are under and the mix of virtual assistance, process improvement, automation or training that will genuinely help.",
+      factors: [
+        "Business stage, client load and growth priorities",
+        "Tools, workflows and systems already in use",
+        "Complexity of admin, coordination and follow-up",
+        "Mix and depth of support you ultimately need",
+      ],
+    },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
@@ -205,8 +218,16 @@ export const audiencePages: AudiencePage[] = [
         "A business that feels easier to manage as workload increases",
       ],
     },
-    pricingNote:
-      "Pricing is tailored to your business complexity, team size, tools, systems and the level of ongoing assistance required.",
+    pricing: {
+      intro:
+        "Pricing reflects how your business operates — your team size, customer volume, tools and the type of ongoing support that will make the biggest practical difference.",
+      factors: [
+        "Team size and operational complexity",
+        "Customer enquiries, bookings and admin volume",
+        "Tools, integrations and existing systems",
+        "Type and frequency of support required",
+      ],
+    },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
@@ -299,8 +320,16 @@ export const audiencePages: AudiencePage[] = [
         "Practical systems that help the charity do more with the capacity it already has",
       ],
     },
-    pricingNote:
-      "Pricing is tailored to your organisation’s size, reporting needs, safeguarding requirements, tools, systems and the level of ongoing support required.",
+    pricing: {
+      intro:
+        "Charity and non-profit pricing is shaped by organisational size, reporting and safeguarding needs, and the scope of virtual assistance and ongoing support required to protect delivery capacity.",
+      factors: [
+        "Organisation size, structure and delivery model",
+        "Reporting, records and safeguarding requirements",
+        "Capacity across staff, volunteers and coordination",
+        "Scope and depth of support agreed after assessment",
+      ],
+    },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
@@ -401,8 +430,16 @@ export const audiencePages: AudiencePage[] = [
         "Practical help that fits your working patterns rather than forcing a generic productivity system",
       ],
     },
-    pricingNote:
-      "Pricing is tailored to your context, tools, workload, support needs and the level of ongoing assistance required.",
+    pricing: {
+      intro:
+        "Support is priced around your work context — your tools, workload, and the blend of virtual assistance, process support and maintenance that will reduce friction in practice.",
+      factors: [
+        "Work context, tools and current workload",
+        "Type of admin, coordination and follow-up support needed",
+        "Level of virtual assistance and ongoing maintenance",
+        "Complexity of systems, workflows and handovers involved",
+      ],
+    },
     accessToWork: {
       heading: "Your VAxAI support could cost you nothing",
       paragraphs: [
