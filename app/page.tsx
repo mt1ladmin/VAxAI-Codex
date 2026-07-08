@@ -540,31 +540,77 @@ function SupportAudienceCard({
   );
 }
 
-function ExpertProfileCard({ expert }: { expert: Expert }) {
+function splitExpertCopy(copy: string) {
+  return copy
+    .split(/(?<=\.)\s+/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function ExpertProfileCard({
+  expert,
+  open,
+  onToggle,
+}: {
+  expert: Expert;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const paragraphs = splitExpertCopy(expert.copy);
+
   return (
-    <article
-      aria-label={`${expert.name}, ${expert.role}`}
-      className="group relative overflow-hidden rounded-[28px]"
-    >
-      <PhotoCard
-        src={expert.photo}
-        className="aspect-[0.9] transition-transform duration-500 ease-premium group-hover:scale-[1.03]"
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20"
-        aria-hidden="true"
-      />
-      <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
-        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">{expert.role}</p>
-        <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">{expert.name}</h3>
-        <Link
-          href={`/about/${expert.slug}`}
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors hover:text-white"
+    <article aria-label={`${expert.name}, ${expert.role}`} className="relative overflow-hidden rounded-[28px]">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="group relative block w-full text-left"
+      >
+        <PhotoCard
+          src={expert.photo}
+          className={`w-full transition-transform duration-500 ease-premium ${
+            open ? "absolute inset-0 h-full min-h-[32rem]" : "aspect-[0.9] group-hover:scale-[1.03]"
+          }`}
+        />
+        <div
+          className={`absolute inset-0 transition-colors duration-300 ${
+            open ? "bg-black/80" : "bg-gradient-to-t from-black/85 via-black/50 to-black/20"
+          }`}
+          aria-hidden="true"
+        />
+
+        <div
+          className={`relative z-10 flex flex-col text-white ${
+            open ? "min-h-[32rem] p-6 md:p-8" : "absolute inset-x-0 bottom-0 p-6 md:p-8"
+          }`}
         >
-          Read more
-          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
-        </Link>
-      </div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">{expert.role}</p>
+          <h3 className="mt-2 text-xl font-semibold tracking-tight">{expert.name}</h3>
+
+          <AnimatePresence initial={false}>
+            {open ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.35, ease: EASE }}
+                className="mt-5 max-h-[18rem] space-y-3 overflow-y-auto pr-1 text-sm leading-7 text-white/90 md:max-h-[20rem] md:text-[15px]"
+              >
+                {paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+
+          <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors group-hover:text-white">
+            {open ? "Click to show less" : "Click to learn more"}
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+            />
+          </span>
+        </div>
+      </button>
     </article>
   );
 }
@@ -652,6 +698,7 @@ export default function Home() {
   const [supportType, setSupportType] = useState("Assessment");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
+  const [openExpert, setOpenExpert] = useState<number | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
@@ -847,9 +894,13 @@ export default function Home() {
             </h2>
           </Reveal>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
-            {experts.map((expert) => (
+            {experts.map((expert, index) => (
               <Reveal key={expert.name}>
-                <ExpertProfileCard expert={expert} />
+                <ExpertProfileCard
+                  expert={expert}
+                  open={openExpert === index}
+                  onToggle={() => setOpenExpert(openExpert === index ? null : index)}
+                />
               </Reveal>
             ))}
           </div>
