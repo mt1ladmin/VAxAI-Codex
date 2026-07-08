@@ -244,11 +244,9 @@ function ChangesPanelContent({
       <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
           {showIntro ? <Eyebrow>{badge}</Eyebrow> : null}
-          <div className={cn("space-y-4 text-base leading-8 text-ink md:text-lg", showIntro && "mt-5")}>
+          <div className={cn("space-y-4 text-base leading-8 text-muted", showIntro && "mt-5")}>
             {section.paragraphs.map((paragraph) => (
-              <p key={paragraph} className="font-medium tracking-[-0.01em]">
-                {paragraph}
-              </p>
+              <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
           {section.equation ? (
@@ -321,7 +319,16 @@ function PricingPanelContent({
         <p className="mt-2 text-sm leading-7 text-muted md:text-[15px]">{pricing.example}</p>
       </div>
 
-      <TabFlowCta label="Why work with us" onClick={onViewBenefits} />
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <button type="button" onClick={onViewBenefits} className={btn.accent}>
+          Why work with us
+          <ArrowRight className="h-4 w-4" />
+        </button>
+        <button type="button" onClick={onContact} className={btn.ghostLight}>
+          Get in touch to discuss your quote
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      </div>
 
       {accessToWork ? (
         <div
@@ -348,17 +355,6 @@ function PricingPanelContent({
           </a>
         </div>
       ) : null}
-
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <button type="button" onClick={onContact} className={btn.accent}>
-          Start your workflow review
-          <ArrowRight className="h-4 w-4" />
-        </button>
-        <button type="button" onClick={onContact} className={btn.ghostLight}>
-          Get in touch to discuss your quote
-          <ArrowRight className="h-4 w-4" />
-        </button>
-      </div>
     </div>
   );
 }
@@ -376,11 +372,9 @@ function PricingBenefitsPanelContent({
       <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         {section.heading}
       </h2>
-      <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-muted">
-        {section.paragraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
-        ))}
-      </div>
+      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">
+        {section.paragraphs.join(" ")}
+      </p>
       {(section.bullets ?? []).length > 0 ? (
         <div className="mt-8 grid gap-4">
           {(section.bullets ?? []).map((item) => (
@@ -459,8 +453,7 @@ function AudienceTabbedSections({
   const panelClassName: Record<AudienceTabId, string> = {
     pressures: "bg-white text-ink",
     how: "rounded-[28px] border border-ink/5 bg-white text-ink",
-    changes:
-      "rounded-[28px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-paper to-cream/60 text-ink",
+    changes: "rounded-[28px] border border-ink/5 bg-white text-ink",
     pricing: "rounded-[28px] border border-ink/5 bg-white text-ink",
     benefits: "rounded-[28px] border border-ink/5 bg-white text-ink",
   };

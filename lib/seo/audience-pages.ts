@@ -186,8 +186,7 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
-        "As a founder, predictable cost and flexible hours matter when growth work cannot wait on hiring decisions or complex employment setup.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a founder, predictable cost and flexible hours matter when growth work cannot wait on hiring decisions or complex employment setup.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
@@ -271,8 +270,7 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
-        "For small businesses, this means professional support without payroll complexity — especially when workload fluctuates and every hour needs to count.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, this means professional support without payroll complexity — especially when workload fluctuates and every hour needs to count.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
@@ -356,8 +354,7 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
-        "For charities with tight or variable income, predictable budgeting and flexible hours help you protect delivery capacity without taking on employment risk.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, predictable budgeting and flexible hours help you protect delivery capacity without taking on employment risk.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
@@ -449,8 +446,7 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget.",
-        "For neurodivergent professionals, flexible support without employment overhead helps protect energy, autonomy and consistency — especially when systems need to fit how you actually work.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For neurodivergent professionals, flexible support without employment overhead helps protect energy, autonomy and consistency — especially when systems need to fit how you actually work.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:

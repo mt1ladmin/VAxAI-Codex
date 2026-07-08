@@ -980,7 +980,7 @@ export default function Home() {
             <div className="p-8 md:p-14">
               <Eyebrow light>Start the conversation</Eyebrow>
               <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
-                Less admin. More time for the work that matters.
+                Less admin, more progress on your mission and growth.
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-paper/65 md:text-base md:leading-8">
                 Tell us where the pressure is building and we&apos;ll help you find the practical mix of process, automation and human support to ease it.
