@@ -499,23 +499,22 @@ function CaseCard({
       variants={fadeUp}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.35, ease: EASE }}
-      className="group flex flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
+      className="group flex cursor-pointer flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
+      role="button"
+      tabIndex={0}
     >
       <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
         {String(index + 1).padStart(2, "0")}
       </span>
-      <h3 className="mt-4 text-lg font-semibold leading-snug tracking-tight text-paper">
+      <h3 className="mt-4 flex-1 text-lg font-semibold leading-snug tracking-tight text-paper">
         {study.title}
       </h3>
-      <p className="mt-3 flex-1 text-sm leading-7 text-paper/65">{study.teaser}</p>
-      <button
-        type="button"
-        onClick={onOpen}
-        className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid"
-      >
+      <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
         See the results
         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
-      </button>
+      </span>
     </motion.article>
   );
 }
@@ -528,7 +527,6 @@ function PlanCard({
   onContact: () => void;
 }) {
   const featured = Boolean(plan.featured);
-  const [showItems, setShowItems] = useState(featured);
 
   return (
     <motion.article
@@ -572,54 +570,6 @@ function PlanCard({
           <p key={paragraph}>{paragraph}</p>
         ))}
       </div>
-
-      <button
-        type="button"
-        onClick={() => setShowItems((open) => !open)}
-        aria-expanded={showItems}
-        className={`mt-7 flex w-full items-center justify-between gap-4 border-t pt-5 text-left text-[11px] font-bold uppercase tracking-[0.16em] transition-colors duration-300 ${
-          featured
-            ? "border-white/15 text-paper/70 hover:text-paper"
-            : "border-ink/10 text-muted hover:text-ink"
-        }`}
-      >
-        What&apos;s included
-        <ChevronDown
-          className={`h-4 w-4 transition-transform duration-300 ease-premium ${
-            showItems ? "rotate-180" : ""
-          }`}
-        />
-      </button>
-      <AnimatePresence initial={false}>
-        {showItems ? (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: EASE }}
-            className="overflow-hidden"
-          >
-            <ul className="grid gap-2.5 pt-4">
-              {plan.items.map((item) => (
-                <li
-                  key={item}
-                  className={`flex gap-3 text-sm leading-6 ${
-                    featured ? "text-paper/75" : "text-muted"
-                  }`}
-                >
-                  <span
-                    className={`mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full ${
-                      featured ? "bg-acid" : "bg-pine-600/60"
-                    }`}
-                    aria-hidden="true"
-                  />
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
 
       {featured ? (
         <button type="button" onClick={onContact} className={`${btn.accent} mt-8 w-full`}>
@@ -701,7 +651,6 @@ export default function Home() {
           <div className="hidden items-center gap-6 text-xs font-semibold text-paper/60 md:flex">
             <a href="#pricing" className="transition-colors duration-200 hover:text-paper">Services</a>
             <a href="#experts" className="transition-colors duration-200 hover:text-paper">About</a>
-            <a href="#vat-framework" className="transition-colors duration-200 hover:text-paper">VAT Framework</a>
             <a href="#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
             <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
             <a href="/insights" className="text-acid/70 transition-colors duration-200 hover:text-acid">Insights &amp; Resources</a>
@@ -729,7 +678,6 @@ export default function Home() {
               {[
                 { label: "Services", href: "#pricing" },
                 { label: "About", href: "#experts" },
-                { label: "VAT Framework", href: "#vat-framework" },
                 { label: "Access to Work", href: "#access-to-work" },
                 { label: "FAQ", href: "#faq" },
                 { label: "Insights & Resources", href: "/insights" },
@@ -1004,49 +952,6 @@ export default function Home() {
               Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
             </p>
           </Reveal>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* VAT framework — calm tonal panel                              */}
-      {/* ------------------------------------------------------------ */}
-      <section id="vat-framework" className="px-4 py-24 md:px-8 md:py-28">
-        <div className="mx-auto max-w-6xl overflow-hidden rounded-[40px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-cream/70 to-paper p-8 md:p-14">
-          <div className="grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:gap-16">
-            <Reveal>
-              <Eyebrow>The MT1L VAT Framework™</Eyebrow>
-              <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
-                Value, Alignment and Trust
-              </h2>
-              <p className="mt-6 max-w-prose text-sm leading-7 text-muted md:text-base md:leading-8">
-                Our work is guided by the MT1L VAT Framework™, developed by Thesia. It shapes how we design services, work with clients and use AI and automation. For VAxAI, this means we do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, aligns with the reality of how you work and can be trusted in practice.
-              </p>
-              <a
-                href="https://www.mt1l.com"
-                target="_blank"
-                rel="noreferrer"
-                className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-pine-800 underline-offset-4 transition-colors duration-200 hover:text-pine-600 hover:underline"
-              >
-                Learn more about MT1L and the VAT Framework
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </Reveal>
-            <Stagger className="md:pt-1">
-              {vatPrinciples.map(([step, title, copy]) => (
-                <motion.div
-                  key={title}
-                  variants={fadeUp}
-                  className="grid grid-cols-[3.25rem_1fr] gap-4 border-t border-pine-900/10 py-7 first:border-t-0 first:pt-0 last:pb-0"
-                >
-                  <span className="pt-0.5 text-sm font-bold text-pine-700/50">{step}</span>
-                  <div>
-                    <h3 className="text-lg font-semibold tracking-tight text-ink">{title}</h3>
-                    <p className="mt-2 max-w-prose text-sm leading-7 text-muted">{copy}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </Stagger>
-          </div>
         </div>
       </section>
 
@@ -1363,7 +1268,7 @@ export default function Home() {
           aria-modal="true"
           onMouseDown={(e) => { if (e.target === e.currentTarget) setOpenCase(null); }}
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-white shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
             <div className="flex items-start justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-6 text-paper md:px-10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Case study</p>
@@ -1378,13 +1283,13 @@ export default function Home() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-6 md:p-10">
+            <div className="bg-white p-6 md:p-10">
               <p className="text-sm leading-7 text-muted">{caseStudies[openCase].teaser}</p>
               {caseStudies[openCase].paragraphs?.map((p, pi) => (
                 <p key={pi} className="mt-4 text-sm leading-7 text-muted">{p}</p>
               ))}
               {caseStudies[openCase].workflowPoints && (
-                <ul className="mt-4 grid gap-2 rounded-2xl border border-ink/10 bg-cream/70 p-5">
+                <ul className="mt-4 grid gap-2 rounded-2xl border border-ink/10 bg-white p-5">
                   {caseStudies[openCase].workflowPoints!.map((pt) => (
                     <li key={pt} className="flex gap-3 text-sm leading-6 text-muted">
                       <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
