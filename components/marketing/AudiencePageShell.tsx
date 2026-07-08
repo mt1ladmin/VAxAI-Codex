@@ -1,5 +1,5 @@
 import ServiceLandingPage from "@/components/marketing/ServiceLandingPage";
-import { getAudiencePage, getRelatedAudienceLinks } from "@/lib/seo/audience-pages";
+import { getAudiencePage } from "@/lib/seo/audience-pages";
 import { servicePageJsonLd } from "@/lib/seo/schema";
 import { notFound } from "next/navigation";
 
@@ -17,7 +17,7 @@ export default function AudiencePageShell({ slug }: { slug: string }) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ServiceLandingPage page={page} relatedLinks={getRelatedAudienceLinks(page.slug)} />
+      <ServiceLandingPage page={page} />
     </>
   );
 }

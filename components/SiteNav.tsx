@@ -38,7 +38,10 @@ export default function SiteNav({ variant = "dark" }: Props) {
 
       {/* Desktop links */}
       <div className={`hidden items-center gap-5 text-xs font-semibold md:flex ${linkClass}`}>
-        <a href="/#pricing" className={linkClass}>Services</a>
+        <a href="/founders-entrepreneurs" className={linkClass}>Founders</a>
+        <a href="/small-business" className={linkClass}>Small Business</a>
+        <a href="/charities-non-profits" className={linkClass}>Charities</a>
+        <a href="/neurodivergent-professionals" className={linkClass}>Neurodivergent</a>
         <a href="/#experts" className={linkClass}>About</a>
         <a href="/#vat-framework" className={linkClass}>VAT Framework</a>
         <a href="/#access-to-work" className={linkClass}>Access to Work</a>
@@ -70,7 +73,10 @@ export default function SiteNav({ variant = "dark" }: Props) {
       {mobileOpen && (
         <div className={`absolute left-0 right-0 top-full z-50 flex flex-col gap-1 rounded-xl border border-white/10 p-4 shadow-xl ${mobileMenuBg}`}>
           {[
-            { label: "Services", href: "/#pricing" },
+            { label: "Founders", href: "/founders-entrepreneurs" },
+            { label: "Small Business", href: "/small-business" },
+            { label: "Charities", href: "/charities-non-profits" },
+            { label: "Neurodivergent", href: "/neurodivergent-professionals" },
             { label: "About", href: "/#experts" },
             { label: "VAT Framework", href: "/#vat-framework" },
             { label: "Access to Work", href: "/#access-to-work" },
