@@ -15,6 +15,8 @@ import {
 import { AppSelect } from "@/components/ui/AppSelect";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
+import { experts } from "@/lib/experts";
+import type { Expert } from "@/lib/experts";
 
 const image = {
   hero:
@@ -146,23 +148,6 @@ const caseStudies: CaseStudy[] = [
       "Ways of working that feel usable day to day",
     ],
     closing: "Support shaped around your working context — not a one-size-fits-all productivity system.",
-  },
-];
-
-const experts = [
-  {
-    name: "Thesia Kouloungou",
-    role: "Founder and CEO, MT1L and VAxAI",
-    copy: "Hi, I’m Thesia. I lead our AI consultations and workflow reviews, using the VAT Framework™ to help clients decide where AI, automation, better processes or human support will create the most value. My experience spans the charity, public, education and grant-making sectors, where I have led work across inclusion, safeguarding, co-production, governance and organisational change. I have also built AI-enabled platforms, developed the VAT Framework™ and bring hands-on experience of improving processes alongside the realities of implementing AI in practice. My role is to understand how work is currently happening, identify where pressure is building, and help you make clearer decisions about what should change, what should stay human, and what needs to be in place for any solution to work in practice.",
-    photo: image.thesia,
-    linkedin: "https://www.linkedin.com/in/thesia-nkoula?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
-  },
-  {
-    name: "Rebecca Bradshaw",
-    role: "Co-founder and VA Operations Lead",
-    copy: "Hi, I’m Rebecca. I lead the virtual assistance side of VAxAI, helping clients put the right human support around the work that should not be left to AI or automation. My experience spans the hospitality, travel, aviation and engineering sectors, working across operations, administration and executive support in fast-paced environments. This gives me a practical understanding of the systems, organisation and day-to-day operational support needed to keep businesses running smoothly. My role is to keep tasks, follow-ups and processes moving, support day-to-day delivery, and make sure any systems or automations continue to work as intended. Where additional capacity is needed, I also support the recruitment, vetting and onboarding of trusted virtual assistants.",
-    photo: image.rebecca,
-    linkedin: "https://www.linkedin.com/in/rebecca-louise-101b60343?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
   },
 ];
 
@@ -555,52 +540,30 @@ function SupportAudienceCard({
   );
 }
 
-function ExpertProfileCard({
-  expert,
-  open,
-  onToggle,
-}: {
-  expert: (typeof experts)[number];
-  open: boolean;
-  onToggle: () => void;
-}) {
+function ExpertProfileCard({ expert }: { expert: Expert }) {
   return (
-    <article className="group">
-      <PhotoCard src={expert.photo} className="aspect-[0.9] rounded-[28px]" />
-      <div className="relative z-10 mx-4 -mt-16 rounded-3xl border border-ink/5 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium group-hover:shadow-lift md:mx-6 md:p-7">
-        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-700">{expert.role}</p>
-        <h3 className="mt-2 text-xl font-semibold tracking-tight">{expert.name}</h3>
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-expanded={open}
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-pine-800 transition-colors hover:text-pine-900"
+    <article
+      aria-label={`${expert.name}, ${expert.role}`}
+      className="group relative overflow-hidden rounded-[28px]"
+    >
+      <PhotoCard
+        src={expert.photo}
+        className="aspect-[0.9] transition-transform duration-500 ease-premium group-hover:scale-[1.03]"
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20"
+        aria-hidden="true"
+      />
+      <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">{expert.role}</p>
+        <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">{expert.name}</h3>
+        <Link
+          href={`/about/${expert.slug}`}
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors hover:text-white"
         >
-          {open ? "Show less" : "Read more"}
-          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
-        </button>
-        <AnimatePresence initial={false}>
-          {open ? (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.4, ease: EASE }}
-              className="overflow-hidden"
-            >
-              <p className="mt-4 text-sm leading-7 text-muted">{expert.copy}</p>
-              <a
-                href={expert.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-pine-800 transition-colors hover:text-pine-900"
-              >
-                Let&apos;s connect
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+          Read more
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+        </Link>
       </div>
     </article>
   );
@@ -683,7 +646,7 @@ export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [openCase, setOpenCase] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [openExpert, setOpenExpert] = useState<number | null>(null);
+
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
   const [supportType, setSupportType] = useState("Assessment");
@@ -883,14 +846,10 @@ export default function Home() {
               Meet the people behind VAxAI
             </h2>
           </Reveal>
-          <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-2">
-            {experts.map((expert, index) => (
-              <Reveal key={expert.name} className={index === 1 ? "md:mt-16" : ""}>
-                <ExpertProfileCard
-                  expert={expert}
-                  open={openExpert === index}
-                  onToggle={() => setOpenExpert(openExpert === index ? null : index)}
-                />
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            {experts.map((expert) => (
+              <Reveal key={expert.name}>
+                <ExpertProfileCard expert={expert} />
               </Reveal>
             ))}
           </div>

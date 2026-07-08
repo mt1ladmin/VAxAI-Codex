@@ -346,7 +346,7 @@ function AudienceTabbedSections({
 
   const tabs: { id: AudienceTabId; label: string }[] = [
     { id: "pressures", label: pressures.heading },
-    { id: "how", label: "Practical support" },
+    { id: "how", label: "How we help" },
     { id: "changes", label: changes.heading },
     { id: "pricing", label: "Pricing" },
   ];
@@ -401,7 +401,7 @@ function AudienceTabbedSections({
       >
         {activeTab === "pressures" ? <PressuresPanelContent section={pressures} /> : null}
         {activeTab === "how" ? (
-          <HowPanelContent badge="Practical support" section={how} onContact={onContact} />
+          <HowPanelContent badge="How we help" section={how} onContact={onContact} />
         ) : null}
         {activeTab === "changes" ? (
           <ChangesPanelContent badge={changes.heading} section={changes} />
