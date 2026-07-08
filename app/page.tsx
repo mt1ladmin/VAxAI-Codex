@@ -65,8 +65,8 @@ type CaseStudy = {
 
 const caseStudies: CaseStudy[] = [
   {
-    title: "Reclaiming Time",
-    subtitle: "Helping a founder reduce repetitive admin.",
+    title: "Founder & Entrepreneur",
+    subtitle: "Freeing up time to grow the business",
     teaser: "A founder was spending several hours each week managing emails, scheduling meetings, tracking actions and chasing follow-ups.",
     paragraphs: [
       "Rather than introducing more software, we simplified how work flowed day to day before automating the repetitive tasks and providing ongoing support where human judgement still mattered.",
@@ -80,8 +80,8 @@ const caseStudies: CaseStudy[] = [
     closing: "A practical solution built around the way they already worked—not the other way around.",
   },
   {
-    title: "Creating Clarity",
-    subtitle: "Bringing order to disconnected systems.",
+    title: "Small Business",
+    subtitle: "Creating clearer ways of working",
     teaser: "A growing organisation was using multiple systems to manage projects, documents and client information. As the team grew, it became increasingly difficult to know where information belonged or who owned what.",
     paragraphs: [
       "We reviewed how work moved across the organisation before introducing clearer processes and improving the way their existing systems worked together.",
@@ -95,8 +95,8 @@ const caseStudies: CaseStudy[] = [
     closing: "Clearer processes made the technology easier to use—not the other way around.",
   },
   {
-    title: "Connecting Communication",
-    subtitle: "Creating one workflow across multiple channels.",
+    title: "Charities & Non-Profits",
+    subtitle: "Reducing admin so more time goes into delivering services",
     teaser: "Important messages, requests and updates were arriving through multiple channels, making it difficult to maintain visibility and respond consistently.",
     paragraphs: [
       "We designed a central communication workflow that brought information together, automated repetitive organisation and kept people responsible for the decisions that mattered.",
@@ -111,8 +111,8 @@ const caseStudies: CaseStudy[] = [
     closing: "Automation handled the routine work while people remained in control.",
   },
   {
-    title: "Scaling Sustainably",
-    subtitle: "Building processes that grow with the business.",
+    title: "Busy Teams",
+    subtitle: "Helping work flow more smoothly",
     teaser: "As the organisation expanded, different team members had developed their own ways of managing clients, files and daily work. Handover became difficult and consistency started to suffer.",
     paragraphs: [
       "We documented key processes, introduced practical automations and created clearer ways of working that the whole team could follow.",
@@ -512,7 +512,7 @@ function CaseCard({
         <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
       </div>
       <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
-        See what changed
+        Explore how we help
         <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
       </span>
     </motion.article>
@@ -850,9 +850,9 @@ export default function Home() {
           <div className="relative">
             <SectionTitle
               light
-              eyebrow="Client stories"
-              title="Real results from working with VAxAI"
-              copy="No two organisations need exactly the same solution. Some benefit from automation. Others need clearer processes, better use of existing tools or additional support. These examples show how practical improvements can create more capacity, clarity and confidence across different organisations."
+              eyebrow="Who we support"
+              title="Organisations, teams and professionals"
+              copy="Every organisation, team and professional works differently. Whether you're running a business, leading a charity or managing a busy team, we start by understanding how work happens today before recommending the right mix of AI, automation, better processes and human support. Here are a few examples of what that can look like in practice."
               narrow
             />
 
