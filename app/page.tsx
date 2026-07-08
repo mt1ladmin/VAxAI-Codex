@@ -220,12 +220,23 @@ const faqs = [
 ];
 
 
+const revealEase = [0.22, 1, 0.36, 1] as const;
+
 const reveal = {
   initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: "-60px" },
-  transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+  transition: { duration: 0.55, ease: revealEase },
 };
+
+function revealStagger(index: number) {
+  return {
+    initial: { opacity: 0, y: 18 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: "-48px" },
+    transition: { duration: 0.5, ease: revealEase, delay: index * 0.07 },
+  };
+}
 
 const BEFORE_ITEMS = [
   "Inboxes full of unread emails",
@@ -300,9 +311,9 @@ function DualPanelToggle({
       >
         <div className={`flex shrink-0 items-center justify-between px-5 py-4 ${afterOpen ? "border-b border-ink/6" : ""}`}>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-forest">After VAxAI</p>
             {!afterOpen ? (
-              <p className="mt-1 text-sm leading-5 text-[#063b32]/70">Click to see what changes</p>
+              <p className="mt-1 text-sm leading-5 text-forest/65">Click to see what changes</p>
             ) : null}
           </div>
           <ChevronDown className={`h-4 w-4 shrink-0 text-forest/60 transition-transform duration-300 ${afterOpen ? "rotate-180" : ""}`} />
@@ -351,7 +362,7 @@ function PathwayAccordion({
                 aria-expanded={isOpen}
                 className={`flex w-full shrink-0 text-left transition-colors ${
                   isOpen
-                    ? "items-start justify-between gap-3 bg-[#f3f9f5]/50 px-5 py-5"
+                    ? "items-start justify-between gap-3 bg-mint/50 px-5 py-5"
                     : "items-center justify-between gap-3 px-5 py-5 hover:bg-paper/60 lg:h-full lg:flex-col lg:items-start lg:justify-between lg:px-4 lg:py-6"
                 }`}
               >
@@ -368,7 +379,7 @@ function PathwayAccordion({
                   </div>
                   {plan.featured ? (
                     <span
-                      className={`inline-flex rounded-full bg-acid/70 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink ${
+                      className={`inline-flex rounded-full bg-acid/45 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-ink ${
                         isOpen ? "mt-2" : "mt-3 hidden lg:inline-flex"
                       }`}
                     >
@@ -405,11 +416,7 @@ function PathwayAccordion({
                       ))}
                     </ul>
                     {plan.featured ? (
-                      <button
-                        type="button"
-                        onClick={onContact}
-                        className="mt-2 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper transition-opacity hover:opacity-90"
-                      >
+                      <button type="button" onClick={onContact} className="btn-forest mt-2 w-full justify-center">
                         Book a discovery call
                       </button>
                     ) : null}
@@ -420,7 +427,7 @@ function PathwayAccordion({
           );
         })}
       </div>
-      <div className="grid gap-3 border-t border-ink/8 bg-[#f3f9f5]/40 p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
+      <div className="vax-surface-inset grid gap-4 border-t border-ink/6 p-6 text-sm leading-[1.7] text-muted md:grid-cols-[1fr_0.9fr]">
         <p>
           Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
         </p>
@@ -435,16 +442,74 @@ function PathwayAccordion({
 function PhotoCard({
   src,
   className = "",
+  variant = "default",
 }: {
   src: string;
   className?: string;
+  variant?: "default" | "hero" | "overlap";
 }) {
+  const variantClass =
+    variant === "hero" ? "vax-photo vax-photo--hero" : variant === "overlap" ? "vax-photo vax-photo--overlap" : "vax-photo";
+
   return (
     <div
-      className={`simplified-photo overflow-hidden bg-cover bg-center ${className}`}
+      className={`simplified-photo overflow-hidden bg-cover bg-center ${variantClass} ${className}`}
       style={{ backgroundImage: `url(${src})` }}
       aria-hidden="true"
     />
+  );
+}
+
+function CaseStudyCard({
+  study,
+  index,
+  onOpen,
+}: {
+  study: CaseStudy;
+  index: number;
+  onOpen: () => void;
+}) {
+  return (
+    <motion.article {...revealStagger(index)} className="vax-surface-dark flex flex-col">
+      <div className="flex flex-1 flex-col p-6">
+        <span className="text-eyebrow text-eyebrow--light mb-3 text-[10px] font-bold tracking-[0.14em]">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <h3 className="text-base font-semibold leading-snug text-paper">{study.title}</h3>
+        <p className="mt-3 flex-1 text-sm leading-[1.65] text-paper/65">{study.teaser}</p>
+        <button
+          type="button"
+          onClick={onOpen}
+          className="mt-5 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-paper/80 transition-colors hover:text-acid-soft"
+        >
+          Click to see the results
+          <ArrowRight className="h-3 w-3" />
+        </button>
+      </div>
+    </motion.article>
+  );
+}
+
+function SectionIntro({
+  eyebrow,
+  title,
+  copy,
+  align = "left",
+}: {
+  eyebrow?: string;
+  title: string;
+  copy?: string;
+  align?: "left" | "center";
+}) {
+  return (
+    <motion.div
+      {...reveal}
+      className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-2xl"}
+    >
+      {eyebrow ? <p className="text-eyebrow text-eyebrow--dark mb-4">{eyebrow}</p> : null}
+      <h2 className="text-3xl font-semibold leading-[1.1] tracking-[-0.02em] md:text-[2.75rem]">{title}</h2>
+      {copy ? <p className="mt-5 max-w-xl text-sm leading-[1.7] text-muted md:text-base">{copy}</p> : null}
+    </motion.div>
   );
 }
 
@@ -475,15 +540,23 @@ function SectionTitle({
   return (
     <motion.div {...reveal} className={`mx-auto text-center ${narrow ? "max-w-xl" : "max-w-2xl"}`}>
       {eyebrow ? (
-        <p className={`mb-3 text-xs font-semibold uppercase tracking-[0.18em] ${light ? "text-acid" : "text-muted"}`}>
+        <p className={`text-eyebrow mb-4 ${light ? "text-eyebrow--light" : "text-eyebrow--dark"}`}>
           {eyebrow}
         </p>
       ) : null}
-      <h2 className={`text-3xl font-semibold leading-[1.08] md:text-5xl ${light ? "text-paper" : "text-ink"}`}>
+      <h2
+        className={`text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-5xl ${
+          light ? "text-paper" : "text-ink"
+        }`}
+      >
         {title}
       </h2>
       {copy ? (
-        <p className={`mx-auto mt-5 text-sm leading-6 md:text-base ${light ? "text-paper/70" : "text-muted"}`}>
+        <p
+          className={`mx-auto mt-6 max-w-prose text-sm leading-[1.7] md:text-base ${
+            light ? "text-paper/68" : "text-muted"
+          }`}
+        >
           {copy}
         </p>
       ) : null}
@@ -598,23 +671,26 @@ export default function Home() {
   return (
     <main id="top" className="min-h-screen bg-paper text-ink">
 
-      <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between">
+      <section className="section-hero-forest relative overflow-hidden px-4 pb-28 pt-5 text-paper md:px-8 md:pb-32">
+        <div className="pointer-events-none absolute -right-24 top-20 h-72 w-72 rounded-full bg-acid/[0.04] blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -left-16 bottom-10 h-48 w-48 rounded-full bg-white/[0.03] blur-2xl" aria-hidden="true" />
+
+        <nav className="relative mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
-          <div className="hidden items-center gap-5 text-xs font-semibold text-paper/70 md:flex">
-            <a href="#pricing" className="hover:text-paper">Services</a>
-            <a href="#experts" className="hover:text-paper">About</a>
-            <a href="#vat-framework" className="hover:text-paper">VAT Framework</a>
-            <a href="#access-to-work" className="hover:text-paper">Access to Work</a>
-            <a href="#faq" className="hover:text-paper">FAQ</a>
-            <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights & Resources</a>
+          <div className="hidden items-center gap-6 text-xs font-semibold text-paper/60 md:flex">
+            <a href="#pricing" className="transition-colors hover:text-paper">Services</a>
+            <a href="#experts" className="transition-colors hover:text-paper">About</a>
+            <a href="#vat-framework" className="transition-colors hover:text-paper">VAT Framework</a>
+            <a href="#access-to-work" className="transition-colors hover:text-paper">Access to Work</a>
+            <a href="#faq" className="transition-colors hover:text-paper">FAQ</a>
+            <a href="/insights" className="text-acid/70 transition-colors hover:text-acid-soft">Insights & Resources</a>
           </div>
-          <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
+          <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-primary hidden text-xs md:inline-flex">
             Get in touch
           </button>
           <button
             onClick={() => setMobileNavOpen((o) => !o)}
-            className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden"
+            className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/[0.04] md:hidden"
             aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
           >
             {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -623,8 +699,8 @@ export default function Home() {
 
         {/* Mobile menu */}
         {mobileNavOpen && (
-          <div className="mx-auto max-w-6xl md:hidden">
-            <div className="mt-2 flex flex-col gap-1 rounded-xl border border-white/10 bg-[#052d25] p-4">
+          <div className="relative mx-auto max-w-6xl md:hidden">
+            <div className="mt-2 flex flex-col gap-1 rounded-2xl border border-white/8 bg-forest-deep/80 p-4 backdrop-blur-md">
               {[
                 { label: "Services", href: "#pricing" },
                 { label: "About", href: "#experts" },
@@ -645,7 +721,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => { setMobileNavOpen(false); setIsContactModalOpen(true); }}
-                className="mt-2 rounded-md bg-acid px-4 py-2.5 text-center text-sm font-semibold text-ink"
+                className="btn-primary mt-2 justify-center text-sm"
               >
                 Get in touch
               </button>
@@ -653,137 +729,74 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
+        <div className="relative mx-auto mt-20 grid max-w-6xl gap-12 md:grid-cols-[1.05fr_0.9fr] md:items-center md:gap-16">
           <motion.div {...reveal}>
-            <h1 className="max-w-2xl text-5xl font-semibold leading-[1] md:text-7xl">
+            <h1 className="max-w-2xl text-5xl font-semibold leading-[0.98] tracking-[-0.03em] md:text-[4.5rem]">
               Reduce admin. Keep the human touch.
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
+            <p className="mt-7 max-w-xl text-base leading-[1.75] text-paper/68 md:text-lg">
               We help small businesses, charities, founders and busy teams reduce repetitive admin through a practical mix of AI, automation and human virtual support.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
+            <div className="mt-10 flex flex-wrap items-center gap-4">
+              <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-primary">
                 Start your workflow review
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </motion.div>
-          <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
-            <PhotoCard src={image.hero} className="aspect-[0.86] rounded-[28px]" />
+          <motion.div {...reveal} className="relative mx-auto w-full max-w-[400px] md:max-w-none">
+            <div className="absolute -left-6 -top-6 -z-10 h-full w-full rounded-[2rem] border border-white/6 bg-white/[0.02]" aria-hidden="true" />
+            <PhotoCard src={image.hero} variant="hero" className="aspect-[0.88] rounded-[2rem]" />
           </motion.div>
         </div>
       </section>
 
-      <section className="section-connect px-4 py-16 md:px-8 md:py-20">
+      <section className="section-connect section-bridge section-surface-warm section-pad px-4 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <motion.div {...reveal}>
-            <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
-              What working with VAxAI looks like
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
-              Whether you&apos;re drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving.
-            </p>
-          </motion.div>
-          <motion.div {...reveal}>
+          <SectionIntro
+            eyebrow="Your workflow"
+            title="What working with VAxAI looks like"
+            copy="Whether you're drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving."
+          />
+          <motion.div {...reveal} className="mt-12">
             <DualPanelToggle active={workflowPanel} onSelect={selectWorkflowPanel} />
           </motion.div>
         </div>
       </section>
 
-      <section id="services" className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
+      <section id="services" className="section-forest-flow relative px-4 text-paper section-pad-lg md:px-8">
         <div className="mx-auto max-w-6xl">
-          <motion.div {...reveal} className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-semibold leading-[1.08] text-paper md:text-5xl">
-              Real results from working with VAxAI
-            </h2>
-          </motion.div>
-          {/* 3-col layout: left cards | centre image | right cards */}
-          <div className="mt-12 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
-
-            {/* Card 01: row 1, col 1 */}
-            {(() => { const study = caseStudies[0]; return (
-              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">01</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(0)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Centre image: spans both rows */}
-            <div className="hidden overflow-hidden rounded-md md:row-span-2 md:block">
-              <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
+          <SectionIntro
+            eyebrow="Case studies"
+            title="Real results from working with VAxAI"
+            align="center"
+          />
+          <div className="mt-14 grid gap-4 md:grid-cols-[1fr_280px_1fr] md:grid-rows-2 md:gap-5">
+            <CaseStudyCard study={caseStudies[0]} index={0} onOpen={() => setOpenCase(0)} />
+            <div className="hidden overflow-hidden rounded-2xl md:row-span-2 md:block">
+              <PhotoCard src={image.expert} variant="overlap" className="h-full min-h-[340px] w-full" />
             </div>
-
-            {/* Card 02: row 1, col 3 */}
-            {(() => { const study = caseStudies[1]; return (
-              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">02</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(1)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Card 03: row 2, col 1 */}
-            {(() => { const study = caseStudies[2]; return (
-              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">03</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(2)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Card 04: row 2, col 3 */}
-            {(() => { const study = caseStudies[3]; return (
-              <article className="flex flex-col overflow-hidden rounded-lg border border-white/10 bg-white/[0.06] transition-colors hover:border-white/18 hover:bg-white/[0.09]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">04</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(3)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Mobile-only image (shown between the two rows of cards on small screens) */}
-            <div className="overflow-hidden rounded-md md:hidden">
-              <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
+            <CaseStudyCard study={caseStudies[1]} index={1} onOpen={() => setOpenCase(1)} />
+            <CaseStudyCard study={caseStudies[2]} index={2} onOpen={() => setOpenCase(2)} />
+            <CaseStudyCard study={caseStudies[3]} index={3} onOpen={() => setOpenCase(3)} />
+            <div className="overflow-hidden rounded-2xl md:hidden">
+              <PhotoCard src={image.expert} variant="overlap" className="aspect-[16/7] w-full" />
             </div>
           </div>
 
           <motion.div
             {...reveal}
             id="access-to-work"
-            className="mt-12 flex flex-col gap-5 rounded-2xl border border-white/12 bg-white/[0.07] p-6 md:flex-row md:items-center md:justify-between"
+            className="vax-surface-dark mt-14 flex flex-col gap-6 p-7 md:flex-row md:items-center md:justify-between"
           >
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
-              <h3 className="mt-3 max-w-xl text-2xl font-semibold leading-tight text-paper">
+              <p className="text-eyebrow text-eyebrow--light">Access to Work</p>
+              <h3 className="mt-4 max-w-xl text-2xl font-semibold leading-[1.15] tracking-[-0.02em] text-paper md:text-[1.75rem]">
                 Your VAxAI support could cost you nothing
               </h3>
-              <p className="mt-2 text-sm leading-6 text-paper/68">Want to find out more?</p>
+              <p className="mt-3 text-sm leading-[1.65] text-paper/60">Want to find out more?</p>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsAccessModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink"
-            >
+            <button type="button" onClick={() => setIsAccessModalOpen(true)} className="btn-primary shrink-0">
               Learn about Access to Work
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -791,23 +804,23 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="experts" className="section-connect px-4 py-20 md:px-8">
+      <section id="experts" className="section-connect section-surface-mint section-pad px-4 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle title="Meet the people behind VAxAI" narrow />
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <div className="mt-14 grid gap-6 md:grid-cols-2 md:gap-8">
             {experts.map((expert, index) => (
-              <motion.article key={expert.name} {...reveal} className="vax-card p-3">
+              <motion.article key={expert.name} {...revealStagger(index)} className="vax-card overflow-hidden">
                 {expert.photo ? (
-                  <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-md" />
+                  <PhotoCard src={expert.photo} variant="overlap" className="aspect-[0.84] rounded-none" />
                 ) : (
-                  <div className={`grid aspect-[0.82] place-items-end rounded-md p-5 ${index === 1 ? "bg-[#fff1a6]" : "bg-[#ff8c22]"}`}>
-                    <span className="text-5xl font-black leading-none text-ink">+</span>
+                  <div className={`grid aspect-[0.84] place-items-end bg-acid-soft/40 p-6 ${index === 1 ? "" : ""}`}>
+                    <span className="text-5xl font-black leading-none text-ink/20">+</span>
                   </div>
                 )}
-                <div className="p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{expert.role}</p>
-                  <h3 className="mt-2 font-semibold">{expert.name}</h3>
-                  <p className="mt-3 text-sm leading-6 text-muted">{expert.copy}</p>
+                <div className="p-6 pt-5">
+                  <p className="text-eyebrow text-eyebrow--dark text-[10px] tracking-[0.14em]">{expert.role}</p>
+                  <h3 className="mt-3 text-xl font-semibold tracking-[-0.01em]">{expert.name}</h3>
+                  <p className="mt-4 text-sm leading-[1.7] text-muted">{expert.copy}</p>
                 </div>
               </motion.article>
             ))}
@@ -815,14 +828,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="section-connect px-4 pb-20 pt-12 md:px-8 md:pt-16">
+      <section id="pricing" className="section-connect section-surface-cream section-pad px-4 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Three ways to work with us"
             copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix, whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
-          <motion.div {...reveal} className="mt-10">
+          <motion.div {...reveal} className="mt-14">
             <PathwayAccordion
               openIndex={openPlanIndex}
               onSelect={setOpenPlanIndex}
@@ -832,18 +845,34 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="vat-framework" className="bg-[#063b32] px-4 pt-24 pb-20 text-paper md:px-8">
-        <div className="mx-auto max-w-6xl">
+      <section id="vat-framework" className="section-hero-forest relative px-4 text-paper section-pad-lg md:px-8">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-paper/[0.04] to-transparent" aria-hidden="true" />
+        <div className="relative mx-auto max-w-6xl">
           <SectionTitle
             light
+            eyebrow="Our framework"
             title="Value, Alignment and Trust (vat)"
             copy="Our work is guided by the MT1L VAT Framework™, developed by Thesia. It shapes how we design services, work with clients and use AI and automation. For VAxAI, this means we do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, aligns with the reality of how you work and can be trusted in practice."
             narrow
           />
-          
-          <motion.div {...reveal} className="mx-auto mt-10 max-w-3xl text-center">
-          
-            <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-acid">
+
+          <div className="mt-14 grid gap-4 md:grid-cols-3 md:gap-5">
+            {vatPrinciples.map(([step, name, principle], index) => (
+              <motion.article key={name} {...revealStagger(index)} className="vax-surface-dark p-6">
+                <p className="text-eyebrow text-eyebrow--light text-[10px] tracking-[0.14em]">{step}</p>
+                <h3 className="mt-4 text-xl font-semibold tracking-[-0.01em] text-paper">{name}</h3>
+                <p className="mt-4 text-sm leading-[1.7] text-paper/62">{principle}</p>
+              </motion.article>
+            ))}
+          </div>
+
+          <motion.div {...reveal} className="mx-auto mt-12 max-w-3xl text-center">
+            <a
+              href="https://www.mt1l.com"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-paper/75 transition-colors hover:text-acid-soft"
+            >
               Want to learn more about MT1L and the VAT Framework? Check our the main MT1L Website
               <ExternalLink className="h-4 w-4" />
             </a>
@@ -851,57 +880,55 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="faq" className="section-connect px-4 py-20 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
+      <section id="faq" className="section-connect section-surface-warm section-pad px-4 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[0.72fr_1fr] md:gap-16">
           <motion.div {...reveal}>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-[1.08] md:text-5xl">Questions about VAxAI?</h2>
-            <p className="mt-5 text-sm leading-6 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
-            <button
-              type="button"
-              onClick={() => setIsContactModalOpen(true)}
-              className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
-            >
+            <p className="text-eyebrow text-eyebrow--dark">Frequently asked questions</p>
+            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-5xl">Questions about VAxAI?</h2>
+            <p className="mt-6 text-sm leading-[1.7] text-muted md:text-base">
+              Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.
+            </p>
+            <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-forest mt-8">
               Book a discovery call
               <MailCheck className="h-4 w-4" />
             </button>
           </motion.div>
-          <motion.div {...reveal} className="vax-card divide-y divide-ink/8 overflow-hidden">
+          <motion.div {...reveal} className="vax-card divide-y divide-ink/6 overflow-hidden">
             {faqs.map(([question, answer]) => (
-              <details key={question} className="group p-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold">
+              <details key={question} className="group p-6 transition-colors hover:bg-surface/60">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold leading-snug text-ink">
                   {question}
-                  <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
+                  <ChevronDown className="h-4 w-4 shrink-0 text-forest/40 transition-transform duration-300 group-open:rotate-180" />
                 </summary>
-                <p className="mt-4 text-sm leading-6 text-muted">{answer}</p>
+                <p className="mt-4 text-sm leading-[1.7] text-muted">{answer}</p>
               </details>
             ))}
           </motion.div>
         </div>
       </section>
 
-      <section className="section-connect px-4 pb-20 md:px-8">
+      <section className="section-connect section-surface-mint section-pad px-4 md:px-8">
         <div className="mx-auto max-w-6xl">
-          <motion.div {...reveal} className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <motion.div {...reveal} className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Insights &amp; Resources</p>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
+              <p className="text-eyebrow text-eyebrow--dark">Insights &amp; Resources</p>
+              <p className="mt-4 max-w-xl text-sm leading-[1.7] text-muted md:text-base">
                 Our insights cover practical approaches to AI, automation and admin. If something
                 resonates, you can attach it to your enquiry when you get in touch.
               </p>
             </div>
-            <a href="/insights" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-md border border-ink/15 px-4 py-2.5 text-sm font-semibold text-ink md:mt-0">
+            <a href="/insights" className="btn-secondary mt-2 shrink-0 md:mt-0">
               View all insights
               <ArrowRight className="h-4 w-4" />
             </a>
           </motion.div>
           {previewPosts.length > 0 && (
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {previewPosts.map((post) => (
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {previewPosts.map((post, index) => (
                 <motion.a
                   key={post.id}
                   href={`/posts/${encodeURIComponent(post.slug)}`}
-                  {...reveal}
+                  {...revealStagger(index)}
                   className="vax-card group flex flex-col overflow-hidden"
                 >
                   {post.cover_image_url && (
@@ -917,7 +944,7 @@ export default function Home() {
                     {post.description && (
                       <p className="mt-2 flex-1 text-xs leading-5 text-muted line-clamp-3">{post.description}</p>
                     )}
-                    <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#063b32]">
+                    <span className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-forest transition-colors group-hover:text-forest-mid">
                       Read more <ArrowRight className="h-3 w-3" />
                     </span>
                   </div>

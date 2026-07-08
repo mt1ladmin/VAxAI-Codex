@@ -10,17 +10,17 @@ export default function SiteFooter() {
 
   return (
     <>
-      <footer className="border-t border-ink/8 bg-paper px-4 py-16 md:px-8 md:py-20">
+      <footer className="section-connect relative bg-paper px-4 py-16 md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-12 lg:grid-cols-[1.15fr_1.85fr] lg:gap-16">
             <div>
-              <div className="flex items-center gap-3 text-2xl font-semibold text-ink">
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274] shadow-[0_4px_20px_rgba(6,59,50,0.15)]">
+              <div className="flex items-center gap-3 text-2xl font-semibold tracking-[-0.02em] text-ink">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-forest text-sm font-bold text-acid shadow-lift">
                   VA
                 </span>
                 <span>VAxAI</span>
               </div>
-              <p className="mt-4 max-w-sm text-sm leading-6 text-muted">
+              <p className="mt-5 max-w-sm text-sm leading-[1.7] text-muted">
                 Practical admin support for small businesses, charities and busy teams — combining AI, automation and human oversight.
               </p>
               <div className="mt-8">
@@ -30,7 +30,7 @@ export default function SiteFooter() {
 
             <div className="grid grid-cols-2 gap-x-8 gap-y-10 text-sm sm:grid-cols-4">
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#063b32]/80">Pathways</p>
+                <p className="text-eyebrow text-eyebrow--dark mb-4 tracking-[0.16em]">Pathways</p>
                 <div className="grid gap-3 text-muted">
                   <a href="/#pricing" className="transition-colors hover:text-ink">Workflow Assessment</a>
                   <a href="/#pricing" className="transition-colors hover:text-ink">Strategic Implementation</a>
@@ -38,7 +38,7 @@ export default function SiteFooter() {
                 </div>
               </div>
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#063b32]/80">Company</p>
+                <p className="text-eyebrow text-eyebrow--dark mb-4 tracking-[0.16em]">Company</p>
                 <div className="grid gap-3 text-muted">
                   <a href="/#experts" className="transition-colors hover:text-ink">About</a>
                   <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors hover:text-ink">MT1L</a>
@@ -48,7 +48,7 @@ export default function SiteFooter() {
                 </div>
               </div>
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#063b32]/80">Resources</p>
+                <p className="text-eyebrow text-eyebrow--dark mb-4 tracking-[0.16em]">Resources</p>
                 <div className="grid gap-3 text-muted">
                   <a href="/insights" className="transition-colors hover:text-ink">Insights &amp; Resources</a>
                   <a href="/#faq" className="transition-colors hover:text-ink">FAQ</a>
@@ -57,7 +57,7 @@ export default function SiteFooter() {
                 </div>
               </div>
               <div>
-                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-[#063b32]/80">Legal</p>
+                <p className="text-eyebrow text-eyebrow--dark mb-4 tracking-[0.16em]">Legal</p>
                 <div className="grid gap-3 text-muted">
                   <a href="/privacy" className="transition-colors hover:text-ink">Privacy</a>
                   <a href="/terms" className="transition-colors hover:text-ink">Terms</a>
