@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   ArrowRight,
   ChevronDown,
@@ -26,7 +26,6 @@ const image = {
 };
 
 const tools = [
-
   {
     name: "Claude",
     logo: "https://cdn.simpleicons.org/claude/D97757",
@@ -35,7 +34,6 @@ const tools = [
     name: "Microsoft Copilot",
     logo: "https://copilot.microsoft.com/favicon.ico",
   },
- 
   {
     name: "Zapier",
     logo: "https://cdn.simpleicons.org/zapier/FF4F00",
@@ -52,8 +50,6 @@ const tools = [
     name: "n8n",
     logo: "https://cdn.simpleicons.org/n8n/EA4B71",
   },
-
-  
 ];
 
 type CaseStudy = {
@@ -214,13 +210,105 @@ const faqs = [
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
 
+/* ------------------------------------------------------------------ */
+/* Motion primitives — one easing curve and reveal pattern everywhere  */
+/* ------------------------------------------------------------------ */
 
-const reveal = {
-  initial: { opacity: 0, y: 18 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-70px" },
-  transition: { duration: 0.5, ease: "easeOut" },
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
 };
+
+const stagger: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+
+const viewport = { once: true, margin: "-70px" } as const;
+
+function Reveal({
+  children,
+  className = "",
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  return (
+    <motion.div
+      id={id}
+      className={className}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function Stagger({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      className={className}
+      variants={stagger}
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared component language — buttons, eyebrows, titles, accordions   */
+/* ------------------------------------------------------------------ */
+
+const btn = {
+  accent:
+    "inline-flex items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 ease-premium hover:brightness-[1.04] hover:shadow-lift",
+  primary:
+    "inline-flex items-center justify-center gap-2 rounded-full bg-pine-900 px-6 py-3 text-sm font-semibold text-paper transition-all duration-300 ease-premium hover:bg-pine-800 hover:shadow-lift",
+  ghostLight:
+    "inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold text-ink transition-colors duration-300 hover:border-ink/35 hover:bg-white",
+  ghostDark:
+    "inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-paper/90 transition-colors duration-300 hover:border-white/45 hover:text-paper",
+};
+
+function Eyebrow({
+  children,
+  light = false,
+  center = false,
+}: {
+  children: React.ReactNode;
+  light?: boolean;
+  center?: boolean;
+}) {
+  return (
+    <p
+      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
+        center ? "justify-center" : ""
+      } ${light ? "text-acid/90" : "text-pine-700"}`}
+    >
+      <span
+        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
+        aria-hidden="true"
+      />
+      {children}
+    </p>
+  );
+}
 
 function PhotoCard({
   src,
@@ -263,21 +351,31 @@ function SectionTitle({
   narrow?: boolean;
 }) {
   return (
-    <motion.div {...reveal} className={`mx-auto text-center ${narrow ? "max-w-xl" : "max-w-2xl"}`}>
+    <Reveal className={`mx-auto text-center ${narrow ? "max-w-xl" : "max-w-2xl"}`}>
       {eyebrow ? (
-        <p className={`mb-3 text-xs font-semibold uppercase tracking-[0.18em] ${light ? "text-acid" : "text-muted"}`}>
-          {eyebrow}
-        </p>
+        <div className="mb-4">
+          <Eyebrow light={light} center>
+            {eyebrow}
+          </Eyebrow>
+        </div>
       ) : null}
-      <h2 className={`text-3xl font-semibold leading-[1.08] md:text-5xl ${light ? "text-paper" : "text-ink"}`}>
+      <h2
+        className={`text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem] ${
+          light ? "text-paper" : "text-ink"
+        }`}
+      >
         {title}
       </h2>
       {copy ? (
-        <p className={`mx-auto mt-5 text-sm leading-6 md:text-base ${light ? "text-paper/70" : "text-muted"}`}>
+        <p
+          className={`mx-auto mt-6 max-w-xl text-sm leading-7 md:text-base md:leading-8 ${
+            light ? "text-paper/65" : "text-muted"
+          }`}
+        >
           {copy}
         </p>
       ) : null}
-    </motion.div>
+    </Reveal>
   );
 }
 
@@ -286,7 +384,10 @@ function ToolLogo({ tool }: { tool: (typeof tools)[number] }) {
 
   if (hasFailed) {
     return (
-      <span className="grid h-8 w-8 place-items-center text-xs font-bold text-[#063b32]" aria-hidden="true">
+      <span
+        className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-[10px] font-bold text-paper/80"
+        aria-hidden="true"
+      >
         {tool.name
           .split(" ")
           .map((word) => word[0])
@@ -300,57 +401,232 @@ function ToolLogo({ tool }: { tool: (typeof tools)[number] }) {
     <img
       src={tool.logo}
       alt=""
-      className="h-8 w-8 object-contain"
+      className="h-7 w-7 object-contain"
       loading="lazy"
       onError={() => setHasFailed(true)}
     />
   );
 }
 
-function ToolScroller() {
-
+function ToolMarquee() {
   return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-5">
-        {tools.map((tool) => (
+    <div className="relative overflow-hidden">
+      <div
+        className="simplified-hide pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-pine-900 to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="simplified-hide pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-pine-900 to-transparent"
+        aria-hidden="true"
+      />
+      <div className="flex w-max items-center gap-14 animate-tool-scroll">
+        {[...tools, ...tools].map((tool, index) => (
           <div
-            key={tool.name}
-            className="flex min-w-0 items-center justify-center gap-3 text-sm font-semibold text-ink"
-            aria-label={tool.name}
+            key={`${tool.name}-${index}`}
+            className="flex items-center gap-3 text-sm font-medium text-paper/60"
+            aria-label={index < tools.length ? tool.name : undefined}
+            aria-hidden={index >= tools.length}
           >
-            <span className="grid h-9 w-9 shrink-0 place-items-center">
+            <span className="grid h-8 w-8 shrink-0 place-items-center">
               <ToolLogo tool={tool} />
             </span>
-            <span className="min-w-0 leading-tight">{tool.name}</span>
+            <span className="whitespace-nowrap">{tool.name}</span>
           </div>
         ))}
+      </div>
     </div>
   );
 }
 
-function GeometricDivider() {
-  const nodes = [
-    ["left-[7%] top-10 h-32 w-32 rounded-full bg-acid/70"],
-    ["left-[24%] bottom-10 h-20 w-20 rounded-full bg-[#f28a4b]/40"],
-    ["left-[43%] top-16 h-24 w-24 rounded-full bg-[#8fd0b0]/45"],
-    ["right-[23%] bottom-12 h-16 w-16 rotate-12 rounded-md bg-[#f6c84f]/50"],
-    ["right-[8%] top-10 h-36 w-36 rounded-full bg-[#4479a8]/25"],
-  ];
+function AccordionItem({
+  question,
+  answer,
+  open,
+  onToggle,
+}: {
+  question: string;
+  answer: string;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-6 px-6 py-5 text-left text-sm font-semibold text-ink transition-colors duration-300 hover:text-pine-800 md:px-7"
+      >
+        {question}
+        <span
+          className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border transition-all duration-300 ease-premium ${
+            open
+              ? "rotate-180 border-pine-900 bg-pine-900 text-paper"
+              : "border-ink/10 text-ink/50"
+          }`}
+        >
+          <ChevronDown className="h-3.5 w-3.5" />
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {open ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="overflow-hidden"
+          >
+            <p className="max-w-prose px-6 pb-6 text-sm leading-7 text-muted md:px-7">{answer}</p>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CaseCard({
+  study,
+  index,
+  onOpen,
+}: {
+  study: CaseStudy;
+  index: number;
+  onOpen: () => void;
+}) {
+  return (
+    <motion.article
+      variants={fadeUp}
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.35, ease: EASE }}
+      className="group flex flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
+    >
+      <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <h3 className="mt-4 text-lg font-semibold leading-snug tracking-tight text-paper">
+        {study.title}
+      </h3>
+      <p className="mt-3 flex-1 text-sm leading-7 text-paper/65">{study.teaser}</p>
+      <button
+        type="button"
+        onClick={onOpen}
+        className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid"
+      >
+        See the results
+        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+      </button>
+    </motion.article>
+  );
+}
+
+function PlanCard({
+  plan,
+  onContact,
+}: {
+  plan: (typeof plans)[number];
+  onContact: () => void;
+}) {
+  const featured = Boolean(plan.featured);
+  const [showItems, setShowItems] = useState(featured);
 
   return (
-    <motion.div
-      {...reveal}
-      className="relative mt-10 px-6 py-28 text-ink"
-      aria-hidden="true"
+    <motion.article
+      variants={fadeUp}
+      className={`relative flex flex-col rounded-[28px] border p-7 md:p-8 ${
+        featured
+          ? "border-pine-900 bg-pine-900 text-paper shadow-lift lg:-mt-4"
+          : "border-ink/10 bg-white shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift"
+      }`}
     >
-      <div className="simplified-hide absolute inset-0 opacity-80">
-        {nodes.map(([classes], index) => (
-          <span key={index} className={`absolute block ${classes}`} />
-        ))}
-        <span className="absolute left-[15%] top-1/2 h-px w-[70%] -translate-y-1/2 bg-ink/12" />
-        <span className="absolute left-[30%] top-[28%] h-[46%] w-px rotate-[-18deg] bg-ink/10" />
-        <span className="absolute right-[32%] top-[23%] h-[52%] w-px rotate-[22deg] bg-ink/10" />
+      <div className="flex min-h-7 items-center justify-between gap-4">
+        <span
+          className={`grid h-10 w-10 place-items-center rounded-full text-xs font-bold ${
+            featured
+              ? "border border-white/15 bg-white/10 text-acid"
+              : "border border-pine-900/15 bg-pine-50 text-pine-800"
+          }`}
+        >
+          {plan.step}
+        </span>
+        {featured ? (
+          <span className="rounded-full bg-acid px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+            Recommended
+          </span>
+        ) : null}
       </div>
-    </motion.div>
+      <p
+        className={`mt-7 text-[11px] font-bold uppercase tracking-[0.16em] ${
+          featured ? "text-acid/80" : "text-muted"
+        }`}
+      >
+        {plan.title}
+      </p>
+      <h3 className="mt-3 text-2xl font-semibold leading-tight tracking-tight">{plan.label}</h3>
+      <div
+        className={`mt-4 space-y-3 text-sm leading-7 ${
+          featured ? "text-paper/70" : "text-muted"
+        }`}
+      >
+        {plan.copy.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setShowItems((open) => !open)}
+        aria-expanded={showItems}
+        className={`mt-7 flex w-full items-center justify-between gap-4 border-t pt-5 text-left text-[11px] font-bold uppercase tracking-[0.16em] transition-colors duration-300 ${
+          featured
+            ? "border-white/15 text-paper/70 hover:text-paper"
+            : "border-ink/10 text-muted hover:text-ink"
+        }`}
+      >
+        What&apos;s included
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-300 ease-premium ${
+            showItems ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      <AnimatePresence initial={false}>
+        {showItems ? (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="overflow-hidden"
+          >
+            <ul className="grid gap-2.5 pt-4">
+              {plan.items.map((item) => (
+                <li
+                  key={item}
+                  className={`flex gap-3 text-sm leading-6 ${
+                    featured ? "text-paper/75" : "text-muted"
+                  }`}
+                >
+                  <span
+                    className={`mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full ${
+                      featured ? "bg-acid" : "bg-pine-600/60"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      {featured ? (
+        <button type="button" onClick={onContact} className={`${btn.accent} mt-8 w-full`}>
+          Book a discovery call
+        </button>
+      ) : null}
+    </motion.article>
   );
 }
 
@@ -369,6 +645,7 @@ export default function Home() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [openCase, setOpenCase] = useState<number | null>(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
   const [supportType, setSupportType] = useState("Assessment");
@@ -409,23 +686,36 @@ export default function Home() {
   return (
     <main id="top" className="min-h-screen bg-paper text-ink">
 
-      <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between">
+      {/* ------------------------------------------------------------ */}
+      {/* Hero — deep pine panel with soft tonal glows                  */}
+      {/* ------------------------------------------------------------ */}
+      <section className="relative overflow-hidden bg-pine-900 px-4 pb-36 pt-5 text-paper md:px-8 md:pb-44">
+        <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute -top-40 right-[-12%] h-[480px] w-[480px] rounded-full bg-pine-700/50 blur-3xl" />
+          <div className="absolute left-[-8%] top-1/3 h-[380px] w-[380px] rounded-full bg-pine-800/60 blur-3xl" />
+          <div className="absolute bottom-[-10%] right-[20%] h-72 w-72 rounded-full bg-acid/[0.06] blur-3xl" />
+        </div>
+
+        <nav className="relative mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
-          <div className="hidden items-center gap-5 text-xs font-semibold text-paper/70 md:flex">
-            <a href="#pricing" className="hover:text-paper">Services</a>
-            <a href="#experts" className="hover:text-paper">About</a>
-            <a href="#vat-framework" className="hover:text-paper">VAT Framework</a>
-            <a href="#access-to-work" className="hover:text-paper">Access to Work</a>
-            <a href="#faq" className="hover:text-paper">FAQ</a>
-            <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights & Resources</a>
+          <div className="hidden items-center gap-6 text-xs font-semibold text-paper/60 md:flex">
+            <a href="#pricing" className="transition-colors duration-200 hover:text-paper">Services</a>
+            <a href="#experts" className="transition-colors duration-200 hover:text-paper">About</a>
+            <a href="#vat-framework" className="transition-colors duration-200 hover:text-paper">VAT Framework</a>
+            <a href="#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
+            <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
+            <a href="/insights" className="text-acid/70 transition-colors duration-200 hover:text-acid">Insights &amp; Resources</a>
           </div>
-          <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
+          <button
+            type="button"
+            onClick={() => setIsContactModalOpen(true)}
+            className="hidden rounded-full bg-acid px-5 py-2 text-xs font-semibold text-ink transition-all duration-300 ease-premium hover:brightness-[1.04] hover:shadow-lift md:inline-flex"
+          >
             Get in touch
           </button>
           <button
             onClick={() => setMobileNavOpen((o) => !o)}
-            className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden"
+            className="grid h-9 w-9 place-items-center rounded-full border border-white/15 transition-colors duration-200 hover:border-white/35 md:hidden"
             aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
           >
             {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -434,8 +724,8 @@ export default function Home() {
 
         {/* Mobile menu */}
         {mobileNavOpen && (
-          <div className="mx-auto max-w-6xl md:hidden">
-            <div className="mt-2 flex flex-col gap-1 rounded-xl border border-white/10 bg-[#052d25] p-4">
+          <div className="relative mx-auto max-w-6xl md:hidden">
+            <div className="mt-3 flex flex-col gap-1 rounded-3xl border border-white/10 bg-pine-950/90 p-4 backdrop-blur">
               {[
                 { label: "Services", href: "#pricing" },
                 { label: "About", href: "#experts" },
@@ -448,7 +738,7 @@ export default function Home() {
                   key={label}
                   href={href}
                   onClick={() => setMobileNavOpen(false)}
-                  className="rounded-md px-4 py-2.5 text-sm font-semibold text-paper/80 hover:bg-white/10 hover:text-paper"
+                  className="rounded-full px-4 py-2.5 text-sm font-semibold text-paper/80 transition-colors duration-200 hover:bg-white/10 hover:text-paper"
                 >
                   {label}
                 </a>
@@ -456,7 +746,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => { setMobileNavOpen(false); setIsContactModalOpen(true); }}
-                className="mt-2 rounded-md bg-acid px-4 py-2.5 text-center text-sm font-semibold text-ink"
+                className="mt-2 rounded-full bg-acid px-4 py-2.5 text-center text-sm font-semibold text-ink"
               >
                 Get in touch
               </button>
@@ -464,349 +754,437 @@ export default function Home() {
           </div>
         )}
 
-        <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
-          <motion.div {...reveal}>
-            <h1 className="max-w-2xl text-5xl font-semibold leading-[1] md:text-7xl">
+        <div className="relative mx-auto mt-16 grid max-w-6xl gap-14 md:mt-20 md:grid-cols-[1fr_0.85fr] md:items-center">
+          <motion.div variants={stagger} initial="hidden" animate="show">
+            <motion.div variants={fadeUp}>
+              <Eyebrow light>AI, automation and human support</Eyebrow>
+            </motion.div>
+            <motion.h1
+              variants={fadeUp}
+              className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
+            >
               Reduce admin. Keep the human touch.
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
+            </motion.h1>
+            <motion.p
+              variants={fadeUp}
+              className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
+            >
               We help small businesses, charities, founders and busy teams reduce repetitive admin through a practical mix of AI, automation and human virtual support.
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
+            </motion.p>
+            <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
+              <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
                 Start your workflow review
                 <ArrowRight className="h-4 w-4" />
               </button>
-            </div>
+              <a href="#pricing" className={btn.ghostDark}>
+                See how we work
+              </a>
+            </motion.div>
           </motion.div>
-          <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
-            <PhotoCard src={image.hero} className="aspect-[0.86] rounded-[28px]" />
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="px-4 py-16 md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <motion.div {...reveal}>
-            <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
-              What working with VAxAI looks like
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
-              Whether you&apos;re drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving.
-            </p>
-          </motion.div>
-          <motion.div {...reveal} className="mt-8 grid gap-5 md:grid-cols-2">
-            <div className="rounded-md border border-ink/10 bg-white p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Before VAxAI</p>
-              <div className="grid gap-3">
-                {[
-                  "Inboxes full of unread emails",
-                  "Follow-ups being missed or delayed",
-                  "Information spread across multiple systems",
-                  "Manual reporting taking hours each week",
-                  "Team members unsure who owns what",
-                  "Valuable time spent on repetitive admin instead of meaningful work",
-                ].map((item) => (
-                  <div key={item} className="flex gap-3">
-                    <span className="mt-0.5 shrink-0 text-sm font-semibold text-ink/40">·</span>
-                    <p className="text-sm leading-6 text-muted">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="rounded-md border border-[#063b32]/15 bg-[#f3f9f5] p-5">
-              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
-              <div className="grid gap-3">
-                {[
-                  "Inboxes organised and prioritised",
-                  "Follow-ups tracked and completed on time",
-                  "Clear processes everyone can follow",
-                  "Reporting streamlined and easier to manage",
-                  "Better visibility of responsibilities and workload",
-                  "More time for clients, projects and strategic work",
-                ].map((item) => (
-                  <div key={item} className="flex gap-3">
-                    <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                    <p className="text-sm leading-6 text-muted">{item}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <section id="services" className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <SectionTitle
-            light
-            title="Real results from working with VAxAI"
-            copy="Every organisation works differently, but the goal is always the same: less admin, clearer processes and more time for the work that matters. Here are a few examples of how we've helped clients achieve that."
-            narrow
-          />
-          {/* 3-col layout: left cards | centre image | right cards */}
-          <div className="mt-12 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
-
-            {/* Card 01: row 1, col 1 */}
-            {(() => { const study = caseStudies[0]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">01</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(0)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Centre image: spans both rows */}
-            <div className="hidden overflow-hidden rounded-md md:row-span-2 md:block">
-              <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
-            </div>
-
-            {/* Card 02: row 1, col 3 */}
-            {(() => { const study = caseStudies[1]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">02</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(1)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Card 03: row 2, col 1 */}
-            {(() => { const study = caseStudies[2]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">03</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(2)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Card 04: row 2, col 3 */}
-            {(() => { const study = caseStudies[3]; return (
-              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="mb-3 text-[10px] font-bold text-acid/70">04</span>
-                  <h3 className="text-base font-semibold text-paper">{study.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-6 text-paper/68">{study.teaser}</p>
-                  <button type="button" onClick={() => setOpenCase(3)} className="mt-4 inline-flex w-fit text-xs font-semibold text-acid hover:underline">
-                    Click to see the results →
-                  </button>
-                </div>
-              </article>
-            ); })()}
-
-            {/* Mobile-only image (shown between the two rows of cards on small screens) */}
-            <div className="overflow-hidden rounded-md md:hidden">
-              <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
-            </div>
-          </div>
 
           <motion.div
-            {...reveal}
-            id="access-to-work"
-            className="mt-12 flex flex-col gap-5 rounded-2xl border border-white/12 bg-white/[0.07] p-6 md:flex-row md:items-center md:justify-between"
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
+            className="relative mx-auto w-full max-w-[430px]"
           >
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
-              <h3 className="mt-3 max-w-xl text-2xl font-semibold leading-tight text-paper">
-                Your VAxAI support could cost you nothing
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-paper/68">Want to find out more?</p>
+            <div
+              className="simplified-hide absolute -inset-3 rotate-2 rounded-[36px] border border-white/10 bg-white/[0.04]"
+              aria-hidden="true"
+            />
+            <PhotoCard src={image.hero} className="relative aspect-[0.86] rounded-[28px] ring-1 ring-white/15" />
+            <div className="absolute -bottom-6 -left-3 max-w-[260px] rounded-2xl border border-ink/5 bg-paper p-4 shadow-lift md:-left-10">
+              <div className="flex items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-pine-900 text-acid">
+                  <ShieldCheck className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-xs font-semibold text-ink">Human oversight, always</p>
+                  <p className="mt-0.5 text-[11px] leading-4 text-muted">AI handles the repetitive. People stay in control.</p>
+                </div>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsAccessModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink"
-            >
-              Learn about Access to Work
-              <ArrowRight className="h-4 w-4" />
-            </button>
           </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.5, ease: EASE }}
+          className="relative mx-auto mt-24 max-w-6xl"
+        >
+          <p className="text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
+            Practical support across the tools you already use
+          </p>
+          <div className="mt-7">
+            <ToolMarquee />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Before / after — panel overlapping the hero edge              */}
+      {/* ------------------------------------------------------------ */}
+      <section className="relative z-10 px-4 md:px-8">
+        <div className="mx-auto -mt-20 max-w-6xl md:-mt-24">
+          <Reveal className="rounded-[32px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
+            <div className="md:flex md:items-end md:justify-between md:gap-12">
+              <div className="max-w-xl">
+                <Eyebrow>What changes</Eyebrow>
+                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                  What working with VAxAI looks like
+                </h2>
+              </div>
+              <p className="mt-5 max-w-md text-sm leading-7 text-muted md:mt-0">
+                Whether you&apos;re drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving.
+              </p>
+            </div>
+
+            <div className="mt-10 grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-stretch">
+              <Stagger className="rounded-3xl border border-ink/5 bg-cream/60 p-6 md:p-7">
+                <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">Before VAxAI</p>
+                <div className="grid gap-3.5">
+                  {[
+                    "Inboxes full of unread emails",
+                    "Follow-ups being missed or delayed",
+                    "Information spread across multiple systems",
+                    "Manual reporting taking hours each week",
+                    "Team members unsure who owns what",
+                    "Valuable time spent on repetitive admin instead of meaningful work",
+                  ].map((item) => (
+                    <motion.div key={item} variants={fadeUp} className="flex gap-3">
+                      <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
+                      <p className="text-sm leading-6 text-muted">{item}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </Stagger>
+
+              <div className="hidden md:flex md:flex-col md:items-center md:justify-center" aria-hidden="true">
+                <span className="grid h-11 w-11 place-items-center rounded-full border border-ink/8 bg-paper text-pine-800 shadow-card">
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+
+              <Stagger className="rounded-3xl border border-pine-900/10 bg-pine-50 p-6 md:p-7">
+                <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">After VAxAI</p>
+                <div className="grid gap-3.5">
+                  {[
+                    "Inboxes organised and prioritised",
+                    "Follow-ups tracked and completed on time",
+                    "Clear processes everyone can follow",
+                    "Reporting streamlined and easier to manage",
+                    "Better visibility of responsibilities and workload",
+                    "More time for clients, projects and strategic work",
+                  ].map((item) => (
+                    <motion.div key={item} variants={fadeUp} className="flex gap-3">
+                      <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
+                      <p className="text-sm leading-6 text-muted">{item}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </Stagger>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      <section id="experts" className="px-4 py-20 md:px-8">
+      {/* ------------------------------------------------------------ */}
+      {/* Case studies — rounded pine panel                             */}
+      {/* ------------------------------------------------------------ */}
+      <section id="services" className="px-4 pt-24 md:px-8 md:pt-32">
+        <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-5 py-16 text-paper md:px-12 md:py-24">
+          <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
+            <div className="absolute -top-32 right-[-10%] h-96 w-96 rounded-full bg-pine-700/40 blur-3xl" />
+            <div className="absolute bottom-[-20%] left-[-6%] h-80 w-80 rounded-full bg-acid/[0.06] blur-3xl" />
+          </div>
+
+          <div className="relative">
+            <SectionTitle
+              light
+              eyebrow="Client stories"
+              title="Real results from working with VAxAI"
+              copy="Every organisation works differently, but the goal is always the same: less admin, clearer processes and more time for the work that matters. Here are a few examples of how we've helped clients achieve that."
+              narrow
+            />
+
+            <Stagger className="mt-14 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
+              <CaseCard study={caseStudies[0]} index={0} onOpen={() => setOpenCase(0)} />
+
+              {/* Centre image: spans both rows */}
+              <motion.div variants={fadeUp} className="hidden overflow-hidden rounded-3xl ring-1 ring-white/10 md:row-span-2 md:block">
+                <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
+              </motion.div>
+
+              <CaseCard study={caseStudies[1]} index={1} onOpen={() => setOpenCase(1)} />
+              <CaseCard study={caseStudies[2]} index={2} onOpen={() => setOpenCase(2)} />
+              <CaseCard study={caseStudies[3]} index={3} onOpen={() => setOpenCase(3)} />
+
+              {/* Mobile-only image (shown after the cards on small screens) */}
+              <motion.div variants={fadeUp} className="overflow-hidden rounded-3xl ring-1 ring-white/10 md:hidden">
+                <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
+              </motion.div>
+            </Stagger>
+
+            <Reveal
+              id="access-to-work"
+              className="mt-14 flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/[0.05] p-7 md:flex-row md:items-center md:justify-between md:p-9"
+            >
+              <div>
+                <Eyebrow light>Access to Work</Eyebrow>
+                <h3 className="mt-4 max-w-xl text-2xl font-semibold leading-tight tracking-tight text-paper">
+                  Your VAxAI support could cost you nothing
+                </h3>
+                <p className="mt-2 text-sm leading-7 text-paper/65">Want to find out more?</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAccessModalOpen(true)}
+                className={`${btn.accent} shrink-0`}
+              >
+                Learn about Access to Work
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Experts — editorial, offset profile cards                     */}
+      {/* ------------------------------------------------------------ */}
+      <section id="experts" className="px-4 py-24 md:px-8 md:py-32">
         <div className="mx-auto max-w-6xl">
-          <SectionTitle title="Meet the people behind VAxAI" narrow />
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <Reveal className="max-w-xl">
+            <Eyebrow>The people</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              Meet the people behind VAxAI
+            </h2>
+          </Reveal>
+          <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-2">
             {experts.map((expert, index) => (
-              <article key={expert.name} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
-                {expert.photo ? (
-                  <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-md" />
-                ) : (
-                  <div className={`grid aspect-[0.82] place-items-end rounded-md p-5 ${index === 1 ? "bg-[#fff1a6]" : "bg-[#ff8c22]"}`}>
-                    <span className="text-5xl font-black leading-none text-ink">+</span>
+              <Reveal key={expert.name} className={index === 1 ? "md:mt-16" : ""}>
+                <article className="group">
+                  <PhotoCard src={expert.photo} className="aspect-[0.9] rounded-[28px]" />
+                  <div className="relative z-10 mx-4 -mt-16 rounded-3xl border border-ink/5 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium group-hover:shadow-lift md:mx-6 md:p-7">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-700">{expert.role}</p>
+                    <h3 className="mt-2 text-xl font-semibold tracking-tight">{expert.name}</h3>
+                    <p className="mt-3 text-sm leading-7 text-muted">{expert.copy}</p>
                   </div>
-                )}
-                <div className="p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{expert.role}</p>
-                  <h3 className="mt-2 font-semibold">{expert.name}</h3>
-                  <p className="mt-3 text-sm leading-6 text-muted">{expert.copy}</p>
-                </div>
-              </article>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="pricing" className="px-4 pb-20 pt-12 md:px-8 md:pt-16">
+      {/* ------------------------------------------------------------ */}
+      {/* Plans — white band with hairline dividers                     */}
+      {/* ------------------------------------------------------------ */}
+      <section id="pricing" className="relative bg-white px-4 py-24 md:px-8 md:py-32">
+        <div className="simplified-hide pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-ink/10 to-transparent" aria-hidden="true" />
+        <div className="simplified-hide pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-ink/10 to-transparent" aria-hidden="true" />
         <div className="mx-auto max-w-6xl">
           <SectionTitle
+            eyebrow="Ways of working"
             title="Three ways to work with us"
             copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix, whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
-          <div className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
-            <div className="grid gap-3 lg:grid-cols-3">
-              {plans.map((plan) => (
-                <article
-                  key={plan.title}
-                  className={`relative rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#f7ff6a]/20" : "border-ink/10 bg-white"}`}
+          <Stagger className="mt-14 grid gap-5 lg:mt-16 lg:grid-cols-3 lg:items-start">
+            {plans.map((plan) => (
+              <PlanCard key={plan.title} plan={plan} onContact={() => setIsContactModalOpen(true)} />
+            ))}
+          </Stagger>
+          <Reveal className="mt-6 grid gap-4 rounded-3xl border border-pine-900/10 bg-pine-50/70 p-6 text-sm leading-7 text-muted md:grid-cols-2 md:gap-10 md:p-8">
+            <p>
+              Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
+            </p>
+            <p>
+              Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* VAT framework — calm tonal panel                              */}
+      {/* ------------------------------------------------------------ */}
+      <section id="vat-framework" className="px-4 py-24 md:px-8 md:py-28">
+        <div className="mx-auto max-w-6xl overflow-hidden rounded-[40px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-cream/70 to-paper p-8 md:p-14">
+          <div className="grid gap-12 md:grid-cols-[0.9fr_1.1fr] md:gap-16">
+            <Reveal>
+              <Eyebrow>The MT1L VAT Framework™</Eyebrow>
+              <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
+                Value, Alignment and Trust
+              </h2>
+              <p className="mt-6 max-w-prose text-sm leading-7 text-muted md:text-base md:leading-8">
+                Our work is guided by the MT1L VAT Framework™, developed by Thesia. It shapes how we design services, work with clients and use AI and automation. For VAxAI, this means we do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, aligns with the reality of how you work and can be trusted in practice.
+              </p>
+              <a
+                href="https://www.mt1l.com"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-pine-800 underline-offset-4 transition-colors duration-200 hover:text-pine-600 hover:underline"
+              >
+                Learn more about MT1L and the VAT Framework
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Reveal>
+            <Stagger className="md:pt-1">
+              {vatPrinciples.map(([step, title, copy]) => (
+                <motion.div
+                  key={title}
+                  variants={fadeUp}
+                  className="grid grid-cols-[3.25rem_1fr] gap-4 border-t border-pine-900/10 py-7 first:border-t-0 first:pt-0 last:pb-0"
                 >
-                  <div className="flex min-h-6 items-center justify-between gap-4">
-                    <span className="grid h-9 w-9 place-items-center rounded-full border border-[#063b32]/25 bg-white text-xs font-bold text-[#063b32]">
-                      {plan.step}
-                    </span>
-                    {plan.featured ? (
-                      <span className="rounded-full bg-acid px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
-                        Recommended
-                      </span>
-                    ) : null}
+                  <span className="pt-0.5 text-sm font-bold text-pine-700/50">{step}</span>
+                  <div>
+                    <h3 className="text-lg font-semibold tracking-tight text-ink">{title}</h3>
+                    <p className="mt-2 max-w-prose text-sm leading-7 text-muted">{copy}</p>
                   </div>
-                  <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
-                  <h3 className="mt-3 text-2xl font-semibold leading-tight">{plan.label}</h3>
-                  <div className="mt-4 min-h-20 space-y-3 text-sm leading-6 text-muted">
-                    {plan.copy.map((paragraph) => (
-                      <p key={paragraph}>{paragraph}</p>
-                    ))}
-                  </div>
-                {plan.featured ? (
-                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper">
-                    Book a discovery call
-                  </button>
-                ) : null}
-              </article>
+                </motion.div>
               ))}
-            </div>
-            <div className="mt-3 grid gap-3 rounded-md border border-ink/10 bg-[#f3f9f5] p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
-              <p>
-                Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
-              </p>
-              <p>
-                Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
-              </p>
-            </div>
+            </Stagger>
           </div>
         </div>
       </section>
 
-      <section id="vat-framework" className="bg-[#063b32] px-4 pt-24 pb-20 text-paper md:px-8">
-        <div className="mx-auto max-w-6xl">
-          <SectionTitle
-            light
-            title="Value, Alignment and Trust (vat)"
-            copy="Our work is guided by the MT1L VAT Framework™, developed by Thesia. It shapes how we design services, work with clients and use AI and automation. For VAxAI, this means we do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, aligns with the reality of how you work and can be trusted in practice."
-            narrow
-          />
-          
-          <motion.div {...reveal} className="mx-auto mt-10 max-w-3xl text-center">
-          
-            <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-acid">
-              Want to learn more about MT1L and the VAT Framework? Check our the main MT1L Website
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </motion.div>
-        </div>
-      </section>
-
-      <section id="faq" className="px-4 py-20 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
-          <motion.div {...reveal}>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-[1.08] md:text-5xl">Questions about VAxAI?</h2>
-            <p className="mt-5 text-sm leading-6 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
+      {/* ------------------------------------------------------------ */}
+      {/* FAQ — split layout with smooth accordion                      */}
+      {/* ------------------------------------------------------------ */}
+      <section id="faq" className="px-4 py-8 md:px-8 md:py-12">
+        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.75fr_1fr] md:gap-16">
+          <Reveal>
+            <Eyebrow>Frequently asked questions</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              Questions about VAxAI?
+            </h2>
+            <p className="mt-6 max-w-prose text-sm leading-7 text-muted">
+              Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.
+            </p>
             <button
               type="button"
               onClick={() => setIsContactModalOpen(true)}
-              className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
+              className={`${btn.primary} mt-8`}
             >
               Book a discovery call
               <MailCheck className="h-4 w-4" />
             </button>
-          </motion.div>
-          <motion.div {...reveal} className="divide-y divide-ink/10 rounded-md border border-ink/10 bg-white">
-            {faqs.map(([question, answer]) => (
-              <details key={question} className="group p-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold">
-                  {question}
-                  <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
-                </summary>
-                <p className="mt-4 text-sm leading-6 text-muted">{answer}</p>
-              </details>
+          </Reveal>
+          <Reveal className="divide-y divide-ink/5 self-start rounded-[28px] border border-ink/5 bg-white shadow-card">
+            {faqs.map(([question, answer], index) => (
+              <AccordionItem
+                key={question}
+                question={question}
+                answer={answer}
+                open={openFaq === index}
+                onToggle={() => setOpenFaq(openFaq === index ? null : index)}
+              />
             ))}
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
-      <section className="px-4 pb-20 md:px-8">
+      {/* ------------------------------------------------------------ */}
+      {/* Insights preview                                              */}
+      {/* ------------------------------------------------------------ */}
+      <section className="px-4 py-24 md:px-8 md:py-28">
         <div className="mx-auto max-w-6xl">
-          <motion.div {...reveal} className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <Reveal className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Insights &amp; Resources</p>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
+              <Eyebrow>Insights &amp; Resources</Eyebrow>
+              <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
+                From the VAxAI team
+              </h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-muted">
                 Our insights cover practical approaches to AI, automation and admin. If something
                 resonates, you can attach it to your enquiry when you get in touch.
               </p>
             </div>
-            <a href="/insights" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-md border border-ink/15 px-4 py-2.5 text-sm font-semibold text-ink md:mt-0">
+            <a href="/insights" className={`${btn.ghostLight} mt-6 shrink-0 md:mt-0`}>
               View all insights
               <ArrowRight className="h-4 w-4" />
             </a>
-          </motion.div>
+          </Reveal>
           {previewPosts.length > 0 && (
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <Stagger className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {previewPosts.map((post) => (
                 <motion.a
                   key={post.id}
                   href={`/posts/${encodeURIComponent(post.slug)}`}
-                  {...reveal}
-                  className="group flex flex-col overflow-hidden rounded-md border border-ink/10 bg-white transition hover:shadow-[0_8px_30px_rgba(17,17,17,0.1)]"
+                  variants={fadeUp}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.35, ease: EASE }}
+                  className="group flex flex-col overflow-hidden rounded-3xl border border-ink/5 bg-white shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift"
                 >
                   {post.cover_image_url && (
-                    <div className="aspect-[16/9] w-full overflow-hidden bg-ink/5">
-                      <img src={post.cover_image_url} alt="" className="h-full w-full object-cover transition group-hover:scale-[1.02]" loading="lazy" />
+                    <div className="aspect-[16/10] w-full overflow-hidden bg-ink/5">
+                      <img
+                        src={post.cover_image_url}
+                        alt=""
+                        className="h-full w-full object-cover transition-transform duration-700 ease-premium group-hover:scale-[1.04]"
+                        loading="lazy"
+                      />
                     </div>
                   )}
-                  <div className="flex flex-1 flex-col p-5">
+                  <div className="flex flex-1 flex-col p-6">
                     {post.content_type && (
-                      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-muted">{post.content_type}</p>
+                      <p className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-pine-700">{post.content_type}</p>
                     )}
-                    <h3 className="text-sm font-semibold leading-snug text-ink">{post.title}</h3>
+                    <h3 className="text-sm font-semibold leading-snug tracking-tight text-ink">{post.title}</h3>
                     {post.description && (
                       <p className="mt-2 flex-1 text-xs leading-5 text-muted line-clamp-3">{post.description}</p>
                     )}
-                    <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-[#063b32]">
-                      Read more <ArrowRight className="h-3 w-3" />
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold text-pine-800">
+                      Read more
+                      <ArrowRight className="h-3 w-3 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
                     </span>
                   </div>
                 </motion.a>
               ))}
-            </div>
+            </Stagger>
           )}
         </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Closing CTA — pine panel bookending the hero                  */}
+      {/* ------------------------------------------------------------ */}
+      <section className="px-4 pb-24 md:px-8 md:pb-28">
+        <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 text-paper">
+          <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
+            <div className="absolute -top-24 left-[-8%] h-80 w-80 rounded-full bg-pine-700/40 blur-3xl" />
+            <div className="absolute bottom-[-30%] right-[30%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
+          </div>
+          <div className="relative grid md:grid-cols-[1.05fr_0.95fr]">
+            <div className="p-8 md:p-14">
+              <Eyebrow light>Start the conversation</Eyebrow>
+              <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+                Less admin. More time for the work that matters.
+              </h2>
+              <p className="mt-6 max-w-md text-sm leading-7 text-paper/65 md:text-base md:leading-8">
+                Tell us where the pressure is building and we&apos;ll help you find the practical mix of process, automation and human support to ease it.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-4">
+                <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
+                  Get in touch
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                <button type="button" onClick={() => setIsAccessModalOpen(true)} className={btn.ghostDark}>
+                  Access to Work support
+                </button>
+              </div>
+            </div>
+            <div className="relative min-h-[260px] md:min-h-0">
+              <PhotoCard src={image.cta} className="absolute inset-0 h-full w-full" />
+              <div
+                className="simplified-hide absolute inset-0 bg-gradient-to-t from-pine-900 via-pine-900/20 to-transparent md:bg-gradient-to-r md:via-pine-900/10"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       <SiteFooter />
@@ -819,13 +1197,13 @@ export default function Home() {
           aria-labelledby="contact-title"
         >
           {contactStep === "calendly" ? (
-            <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
-              <div className="flex shrink-0 items-center justify-between gap-6 bg-[#063b32] px-6 py-5 text-paper md:px-10 rounded-t-3xl">
+            <div className="flex h-full max-h-screen w-full max-w-4xl flex-col overflow-hidden rounded-[28px] bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+              <div className="flex shrink-0 items-center justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-5 text-paper md:px-10">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Discovery call</p>
                   <h2 className="mt-1 text-xl font-semibold leading-tight">Book a time with us</h2>
                 </div>
-                <button type="button" onClick={closeContactModal} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10" aria-label="Close">
+                <button type="button" onClick={closeContactModal} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 transition-colors duration-200 hover:bg-white/20" aria-label="Close">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -838,15 +1216,15 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
-              <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+              <div className="flex items-start justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-6 text-paper md:px-10">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Contact VAxAI</p>
-                  <h2 id="contact-title" className="mt-3 text-3xl font-semibold leading-tight">
+                  <h2 id="contact-title" className="mt-3 text-3xl font-semibold leading-tight tracking-tight">
                     {contactStep === "submitted" ? "Enquiry sent" : "Tell us what support you need"}
                   </h2>
                 </div>
-                <button type="button" onClick={closeContactModal} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10" aria-label="Close contact form">
+                <button type="button" onClick={closeContactModal} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 transition-colors duration-200 hover:bg-white/20" aria-label="Close contact form">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -859,7 +1237,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={closeContactModal}
-                    className="mt-6 inline-flex items-center rounded-md border border-ink/15 px-5 py-3 text-sm font-semibold text-ink"
+                    className={`${btn.ghostLight} mt-6`}
                   >
                     Close
                   </button>
@@ -894,11 +1272,11 @@ export default function Home() {
                 >
                   <label className="grid gap-2 text-sm font-semibold">
                     Name
-                    <input required name="name" autoComplete="name" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                    <input required name="name" autoComplete="name" className="rounded-xl border border-ink/15 bg-white px-4 py-3 font-normal outline-none transition-colors duration-200 focus:border-pine-800" />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold">
                     Email address
-                    <input required type="email" name="email" autoComplete="email" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                    <input required type="email" name="email" autoComplete="email" className="rounded-xl border border-ink/15 bg-white px-4 py-3 font-normal outline-none transition-colors duration-200 focus:border-pine-800" />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold">
                     Support type
@@ -928,14 +1306,14 @@ export default function Home() {
                   {preferredContact === "Telephone" ? (
                     <label className="grid gap-2 text-sm font-semibold md:col-span-2">
                       Telephone number
-                      <input required type="tel" name="telephone" autoComplete="tel" className="rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                      <input required type="tel" name="telephone" autoComplete="tel" className="rounded-xl border border-ink/15 bg-white px-4 py-3 font-normal outline-none transition-colors duration-200 focus:border-pine-800" />
                     </label>
                   ) : null}
                   <label className="grid gap-2 text-sm font-semibold md:col-span-2">
                     Tell us more
-                    <textarea required name="details" rows={5} className="resize-y rounded-md border border-ink/15 bg-white px-4 py-3 font-normal outline-none focus:border-[#063b32]" />
+                    <textarea required name="details" rows={5} className="resize-y rounded-xl border border-ink/15 bg-white px-4 py-3 font-normal outline-none transition-colors duration-200 focus:border-pine-800" />
                   </label>
-                  <div className="rounded-2xl border border-[#063b32]/20 bg-[#f3f9f5] p-5 md:col-span-2">
+                  <div className="rounded-2xl border border-pine-900/15 bg-pine-50 p-5 md:col-span-2">
                     <p className="font-semibold text-ink">Would you like to book a discovery call?</p>
                     <p className="mt-1 text-sm leading-6 text-muted">
                       A 30-minute conversation to explore your challenge and whether we are the right fit.
@@ -944,10 +1322,10 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setWantsDiscoveryCall(true)}
-                        className={`rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                        className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors duration-200 ${
                           wantsDiscoveryCall === true
-                            ? "border-[#063b32] bg-[#063b32] text-[#f5f274]"
-                            : "border-ink/15 bg-white text-ink hover:border-[#063b32]/40"
+                            ? "border-pine-900 bg-pine-900 text-acid"
+                            : "border-ink/15 bg-white text-ink hover:border-pine-900/40"
                         }`}
                       >
                         Yes, book a call
@@ -955,7 +1333,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => setWantsDiscoveryCall(false)}
-                        className={`rounded-md border px-4 py-2.5 text-sm font-semibold transition-colors ${
+                        className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition-colors duration-200 ${
                           wantsDiscoveryCall === false
                             ? "border-ink bg-ink text-paper"
                             : "border-ink/15 bg-white text-ink hover:border-ink/30"
@@ -966,7 +1344,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="md:col-span-2">
-                    <button type="submit" className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
+                    <button type="submit" className={btn.primary}>
                       {wantsDiscoveryCall === true ? "Continue to book a call" : "Send my message"}
                       <ArrowRight className="h-4 w-4" />
                     </button>
@@ -985,16 +1363,16 @@ export default function Home() {
           aria-modal="true"
           onMouseDown={(e) => { if (e.target === e.currentTarget) setOpenCase(null); }}
         >
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
-            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+            <div className="flex items-start justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-6 text-paper md:px-10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Case study</p>
-                <h2 className="mt-3 max-w-xl text-2xl font-semibold leading-tight">{caseStudies[openCase].title}</h2>
+                <h2 className="mt-3 max-w-xl text-2xl font-semibold leading-tight tracking-tight">{caseStudies[openCase].title}</h2>
               </div>
               <button
                 type="button"
                 onClick={() => setOpenCase(null)}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper transition-colors duration-200 hover:bg-white/20"
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
@@ -1006,10 +1384,10 @@ export default function Home() {
                 <p key={pi} className="mt-4 text-sm leading-7 text-muted">{p}</p>
               ))}
               {caseStudies[openCase].workflowPoints && (
-                <ul className="mt-4 grid gap-2 rounded-md border border-ink/10 bg-cream p-4">
+                <ul className="mt-4 grid gap-2 rounded-2xl border border-ink/10 bg-cream/70 p-5">
                   {caseStudies[openCase].workflowPoints!.map((pt) => (
                     <li key={pt} className="flex gap-3 text-sm leading-6 text-muted">
-                      <span className="mt-0.5 shrink-0 text-ink/40">·</span>
+                      <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
                       {pt}
                     </li>
                   ))}
@@ -1017,11 +1395,11 @@ export default function Home() {
               )}
               {caseStudies[openCase].results && (
                 <div className="mt-6">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Results</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pine-800">Results</p>
                   <ul className="mt-3 grid gap-2">
                     {caseStudies[openCase].results!.map((r) => (
                       <li key={r} className="flex gap-3 text-sm leading-6 text-muted">
-                        <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
+                        <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
                         {r}
                       </li>
                     ))}
@@ -1035,7 +1413,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => { setOpenCase(null); setIsContactModalOpen(true); }}
-                  className="inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
+                  className={btn.primary}
                 >
                   Work with us
                   <ArrowRight className="h-4 w-4" />
@@ -1043,7 +1421,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setOpenCase(null)}
-                  className="inline-flex items-center rounded-md border border-ink/15 px-5 py-3 text-sm font-semibold text-ink"
+                  className={btn.ghostLight}
                 >
                   Close
                 </button>
@@ -1060,18 +1438,18 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="access-work-title"
         >
-          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
-            <div className="flex items-start justify-between gap-6 bg-[#063b32] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
+          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[28px] bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+            <div className="flex items-start justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-6 text-paper md:px-10">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
-                <h2 id="access-work-title" className="mt-3 max-w-2xl text-3xl font-semibold leading-tight md:text-4xl">
+                <h2 id="access-work-title" className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
                   Your support might cost you nothing
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAccessModalOpen(false)}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper transition-colors duration-200 hover:bg-white/20"
                 aria-label="Close Access to Work information"
               >
                 <X className="h-5 w-5" />
@@ -1085,7 +1463,7 @@ export default function Home() {
                   understand what evidence and admin may be needed, while Access to Work makes the final decision.
                 </p>
 
-                <div className="mt-6 rounded-md border border-ink/10 bg-cream p-5">
+                <div className="mt-6 rounded-2xl border border-ink/10 bg-cream/70 p-5">
                   <p className="text-sm font-semibold text-ink">What we do not do</p>
                   <ul className="mt-3 space-y-3 text-sm leading-6 text-muted">
                     <li>We do not decide whether you are eligible or guarantee funding.</li>
@@ -1101,7 +1479,7 @@ export default function Home() {
                       setIsAccessModalOpen(false);
                       setIsContactModalOpen(true);
                     }}
-                    className="inline-flex items-center justify-center rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
+                    className={btn.primary}
                   >
                     Talk to us about Access to Work
                   </button>
@@ -1109,7 +1487,7 @@ export default function Home() {
                     href="https://www.gov.uk/access-to-work"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-md border border-ink/10 px-5 py-3 text-sm font-semibold text-ink"
+                    className={btn.ghostLight}
                   >
                     Official GOV.UK guidance
                     <ExternalLink className="h-4 w-4" />
@@ -1117,9 +1495,9 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="rounded-md border border-[#063b32]/15 bg-white p-5">
+              <div className="rounded-2xl border border-pine-900/15 bg-white p-5">
                 <div className="flex gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-acid text-ink">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pine-900 text-acid">
                     <ShieldCheck className="h-5 w-5" />
                   </span>
                   <div>
@@ -1136,8 +1514,8 @@ export default function Home() {
                     ["How much?", "The support depends on your needs and what Access to Work approves."],
                     ["How does it work?", "We can help you understand the process and prepare practical support details."],
                   ].map(([title, copy]) => (
-                    <div key={title} className="rounded-md bg-paper p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">{title}</p>
+                    <div key={title} className="rounded-xl bg-paper p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-pine-800">{title}</p>
                       <p className="mt-1 text-sm leading-6 text-ink">{copy}</p>
                     </div>
                   ))}

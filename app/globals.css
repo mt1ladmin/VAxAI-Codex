@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  color: #111111;
-  background: #f7f4ea;
+  color: #1a1915;
+  background: #f7f5ee;
 }
 
 * {
@@ -17,7 +17,7 @@ html {
 
 body {
   margin: 0;
-  background: #f7f4ea;
+  background: #f7f5ee;
 }
 
 select,
@@ -36,8 +36,8 @@ a {
 }
 
 ::selection {
-  background: #f5f274;
-  color: #111111;
+  background: #efea78;
+  color: #1a1915;
 }
 
 .scrollbar-none {

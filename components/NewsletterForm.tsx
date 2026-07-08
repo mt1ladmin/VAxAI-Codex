@@ -32,21 +32,21 @@ export default function NewsletterForm() {
 
   if (status === 'done') {
     return (
-      <p className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-gray-600">
-        <Check className="h-3.5 w-3.5 text-[#063b32]" /> You&rsquo;re subscribed, thank you.
+      <p className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-muted">
+        <Check className="h-3.5 w-3.5 text-pine-800" /> You&rsquo;re subscribed, thank you.
       </p>
     )
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-4 max-w-md">
+    <form onSubmit={onSubmit} className="mt-6 max-w-md">
       <label
         htmlFor="footer-newsletter-email"
-        className="block text-xs font-semibold uppercase tracking-[0.14em] text-gray-500"
+        className="block text-[11px] font-bold uppercase tracking-[0.16em] text-ink/70"
       >
         Subscribe to our newsletter
       </label>
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-3 flex items-center gap-2">
         <input
           id="footer-newsletter-email"
           type="email"
@@ -54,12 +54,12 @@ export default function NewsletterForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@company.com"
-          className="min-w-0 flex-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-[#111111] outline-none placeholder:text-gray-400 focus:border-[#063b32]"
+          className="min-w-0 flex-1 rounded-full border border-ink/10 bg-white px-4 py-2.5 text-sm text-ink outline-none transition-colors duration-200 placeholder:text-muted/60 focus:border-pine-800"
         />
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-[#063b32] px-3.5 py-2 text-xs font-semibold text-[#f5f274] transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-pine-900 px-4 py-2.5 text-xs font-semibold text-acid transition-colors duration-300 hover:bg-pine-800 disabled:opacity-50"
         >
           {status === 'loading' && <Loader2 className="h-3 w-3 animate-spin" />}
           Subscribe
