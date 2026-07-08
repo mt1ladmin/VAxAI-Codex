@@ -756,17 +756,6 @@ export default function Home() {
               aria-hidden="true"
             />
             <PhotoCard src={image.hero} className="relative aspect-[0.86] rounded-[28px] ring-1 ring-white/15" />
-            <div className="absolute -bottom-6 -left-3 max-w-[260px] rounded-2xl border border-ink/5 bg-paper p-4 shadow-lift md:-left-10">
-              <div className="flex items-center gap-3">
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-pine-900 text-acid">
-                  <ShieldCheck className="h-4 w-4" />
-                </span>
-                <div>
-                  <p className="text-xs font-semibold text-ink">Human oversight, always</p>
-                  <p className="mt-0.5 text-[11px] leading-4 text-muted">AI handles the repetitive. People stay in control.</p>
-                </div>
-              </div>
-            </div>
           </motion.div>
         </div>
 
