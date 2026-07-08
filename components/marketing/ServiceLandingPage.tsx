@@ -226,31 +226,29 @@ function HowPanelContent({
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <p className="mt-5 text-sm leading-7 text-muted md:text-[15px]">{item}</p>
-                  <div className="mt-6 flex flex-col gap-3">
-                    {isLeadership ? (
-                      <a
-                        href={MT1L_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-pine-800 transition-colors hover:text-pine-900"
-                      >
-                        Learn more about how MT1L can support you through your AI decisions
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    ) : null}
-                    <button
-                      type="button"
-                      onClick={onContact}
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-pine-800 transition-colors hover:text-pine-900"
+                  {isLeadership ? (
+                    <a
+                      href={MT1L_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-pine-800 transition-colors hover:text-pine-900"
                     >
-                      Get in touch
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                      Learn more about how MT1L can support you through your AI decisions
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  ) : null}
                 </div>
               );
             })}
           </div>
+          <button
+            type="button"
+            onClick={onContact}
+            className={`${btn.primary} mt-8`}
+          >
+            Get in touch
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </>
       ) : null}
     </div>
@@ -628,13 +626,10 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
             <section className="px-4 py-20 md:px-8 md:py-28">
               <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] border border-ink/5 bg-white px-5 py-14 shadow-card md:px-12 md:py-20">
                 <Reveal className="relative mx-auto max-w-xl text-center">
-                  <Eyebrow>Who else we support</Eyebrow>
-                  <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] text-ink md:text-[2.75rem]">
-                    Explore more ways we can support you
-                  </h2>
+                  <Eyebrow>See Who else benefits from VAxAI support</Eyebrow>
                 </Reveal>
 
-                <Stagger className="relative mt-12 grid gap-4 md:grid-cols-3">
+                <Stagger className="relative mt-10 grid gap-4 md:grid-cols-3">
                   {relatedLinks.map((link) => (
                     <motion.div key={link.href} variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
                       <Link
