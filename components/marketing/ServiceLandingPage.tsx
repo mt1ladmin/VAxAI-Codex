@@ -118,7 +118,7 @@ const MT1L_URL = "https://www.mt1l.com";
 const VAT_NOTE =
   "Through MT1L, we use the VAT Framework to help leadership teams weigh AI and system decisions on Value, Alignment and Trust — whether a change solves a real problem, fits how work actually happens, and can be trusted by the people expected to use and oversee it.";
 
-type AudienceTabId = "pressures" | "delayed" | "how" | "changes" | "pricing";
+type AudienceTabId = "pressures" | "how" | "changes" | "pricing";
 
 function SupportJourney({ stages }: { stages: JourneyStage[] }) {
   return (
@@ -163,40 +163,6 @@ function PressuresPanelContent({ section }: { section: AudienceSection }) {
           ))}
         </Stagger>
       ) : null}
-    </div>
-  );
-}
-
-function DelayedPanelContent({
-  badge,
-  section,
-  showIntro = true,
-}: {
-  badge: string;
-  section: AudienceSection;
-  showIntro?: boolean;
-}) {
-  return (
-    <div className="relative">
-      <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="absolute -top-32 right-[-10%] h-96 w-96 rounded-full bg-pine-700/40 blur-3xl" />
-        <div className="absolute bottom-[-25%] left-[-6%] h-80 w-80 rounded-full bg-acid/[0.06] blur-3xl" />
-      </div>
-      <div className="relative px-6 py-7 md:px-8 md:py-8">
-        {showIntro ? (
-          <>
-            <Eyebrow light>{badge}</Eyebrow>
-            <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] text-paper md:text-3xl">
-              {section.heading}
-            </h2>
-          </>
-        ) : null}
-        <div className={cn("space-y-4 text-sm leading-7 text-paper/70 md:text-base md:leading-8", showIntro && "mt-6")}>
-          {section.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
@@ -349,7 +315,6 @@ function PricingPanelContent({
 
 function AudienceTabbedSections({
   pressures,
-  delayed,
   how,
   changes,
   pricingNote,
@@ -358,7 +323,6 @@ function AudienceTabbedSections({
   onAccessOpen,
 }: {
   pressures: AudienceSection;
-  delayed: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
   pricingNote: string;
@@ -382,7 +346,6 @@ function AudienceTabbedSections({
 
   const tabs: { id: AudienceTabId; label: string }[] = [
     { id: "pressures", label: pressures.heading },
-    { id: "delayed", label: "The cost of waiting" },
     { id: "how", label: "Practical support" },
     { id: "changes", label: changes.heading },
     { id: "pricing", label: "Pricing" },
@@ -390,7 +353,6 @@ function AudienceTabbedSections({
 
   const panelClassName: Record<AudienceTabId, string> = {
     pressures: "bg-white text-ink",
-    delayed: "overflow-hidden rounded-[28px] bg-pine-900 text-paper",
     how: "rounded-[28px] border border-ink/5 bg-white text-ink",
     changes:
       "rounded-[28px] border border-pine-900/10 bg-gradient-to-br from-pine-50 via-paper to-cream/60 text-ink",
@@ -438,9 +400,6 @@ function AudienceTabbedSections({
         className={cn("mt-8", panelClassName[activeTab])}
       >
         {activeTab === "pressures" ? <PressuresPanelContent section={pressures} /> : null}
-        {activeTab === "delayed" ? (
-          <DelayedPanelContent badge="The cost of waiting" section={delayed} />
-        ) : null}
         {activeTab === "how" ? (
           <HowPanelContent badge="Practical support" section={how} onContact={onContact} />
         ) : null}
@@ -484,7 +443,7 @@ function Eyebrow({
 export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
   const [accessOpen, setAccessOpen] = useState(false);
-  const { pressures, delayed, how, changes } = page;
+  const { pressures, how, changes } = page;
   const heroImage = HERO_IMAGES[page.slug] ?? "/vaxai-support-control.jpg";
 
   return (
@@ -583,7 +542,6 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
             <Reveal className="relative mx-auto -mt-10 max-w-6xl rounded-[40px] border border-ink/5 bg-white px-6 py-14 shadow-lift md:-mt-14 md:px-12 md:py-20">
               <AudienceTabbedSections
                 pressures={pressures}
-                delayed={delayed}
                 how={how}
                 changes={changes}
                 pricingNote={page.pricingNote}
