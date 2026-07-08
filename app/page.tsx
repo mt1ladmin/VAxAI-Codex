@@ -154,8 +154,6 @@ const plans = [
     step: "01",
     title: "Assessment",
     label: "Assess",
-    journeyTone: "from-white via-mint/30 to-white",
-    accentRing: "ring-forest/10",
     buildsOn: null as string | null,
     copy: [
       "We review your admin workload, processes, tools and team capacity to identify where pressure is building and what type of support or improvement would make the greatest difference.",
@@ -171,8 +169,6 @@ const plans = [
     step: "02",
     title: "Strategy, Implementation & Team Training",
     label: "Implement",
-    journeyTone: "from-white via-acid/10 to-mint/20",
-    accentRing: "ring-forest/15",
     buildsOn: "Assess",
     copy: [
       "Using the findings from your assessment, we help put the right solution in place. This may include improving existing processes, making better use of your current tools, introducing new systems, automating repetitive tasks or training your team.",
@@ -190,8 +186,6 @@ const plans = [
     title: "Recommended: Ongoing Support",
     label: "Support",
     featured: true,
-    journeyTone: "from-acid/15 via-white to-mint/25",
-    accentRing: "ring-forest/20",
     buildsOn: "Implement",
     copy: [
       "We continue to support you after implementation, helping your processes and systems remain useful as your workload, team and priorities change. This can include virtual assistance, system monitoring, team support and ongoing improvements.",
@@ -227,16 +221,6 @@ const reveal = {
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true, margin: "-60px" },
   transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-};
-
-const staggerContainer = {
-  initial: {},
-  whileInView: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
-};
-
-const staggerChild = {
-  initial: { opacity: 0, y: 16 },
-  whileInView: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 
 function PhotoCard({
@@ -344,14 +328,6 @@ function ToolScroller() {
   );
 }
 
-function SectionWave({ flip = false }: { flip?: boolean }) {
-  return (
-    <div className={`relative h-10 w-full overflow-hidden ${flip ? "rotate-180" : ""}`} aria-hidden="true">
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-forest/10 to-transparent" />
-    </div>
-  );
-}
-
 type PostPreview = {
   id: string;
   title: string;
@@ -407,9 +383,8 @@ export default function Home() {
   return (
     <main id="top" className="min-h-screen bg-paper text-ink">
 
-      <section className="section-forest relative overflow-hidden px-4 pb-20 pt-5 text-paper md:px-8 md:pb-24">
-        <div className="simplified-hide pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-acid/10 blur-3xl" aria-hidden="true" />
-        <nav className="relative mx-auto flex max-w-6xl items-center justify-between">
+      <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
           <div className="hidden items-center gap-5 text-xs font-semibold text-paper/70 md:flex">
             <a href="#pricing" className="hover:text-paper">Services</a>
@@ -419,7 +394,7 @@ export default function Home() {
             <a href="#faq" className="hover:text-paper">FAQ</a>
             <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights & Resources</a>
           </div>
-          <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-primary hidden px-4 py-2 text-xs md:inline-flex">
+          <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
             Get in touch
           </button>
           <button
@@ -472,33 +447,31 @@ export default function Home() {
               We help small businesses, charities, founders and busy teams reduce repetitive admin through a practical mix of AI, automation and human virtual support.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-primary">
+              <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
                 Start your workflow review
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </motion.div>
           <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
-            <div className="simplified-hide absolute -inset-3 rounded-4xl bg-acid/10 blur-xl" aria-hidden="true" />
-            <PhotoCard src={image.hero} className="relative aspect-[0.86] rounded-4xl shadow-[0_24px_60px_rgba(0,0,0,0.25)] ring-1 ring-white/10" />
+            <PhotoCard src={image.hero} className="aspect-[0.86] rounded-[28px]" />
           </motion.div>
         </div>
       </section>
 
-      <section className="section-flow-top bg-paper px-4 py-20 md:px-8 md:py-24">
+      <section className="px-4 py-16 md:px-8 md:py-20">
         <div className="mx-auto max-w-6xl">
           <motion.div {...reveal}>
-            <p className="eyebrow text-muted">The shift</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-snug tracking-tight md:text-3xl">
+            <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
               What working with VAxAI looks like
             </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-muted">
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-muted">
               Whether you&apos;re drowning in emails, chasing follow-ups, managing spreadsheets or struggling to keep information organised, we help create systems that save time, reduce pressure and keep work moving.
             </p>
           </motion.div>
-          <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="mt-10 grid gap-5 md:grid-cols-2">
-            <motion.div variants={staggerChild} className="card-surface rounded-2xl p-6">
-              <p className="mb-4 eyebrow text-muted">Before VAxAI</p>
+          <motion.div {...reveal} className="mt-8 grid gap-5 md:grid-cols-2">
+            <div className="rounded-md border border-ink/10 bg-white p-5">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Before VAxAI</p>
               <div className="grid gap-3">
                 {[
                   "Inboxes full of unread emails",
@@ -514,9 +487,9 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-            </motion.div>
-            <motion.div variants={staggerChild} className="rounded-2xl border border-forest/10 bg-gradient-to-br from-mint/70 via-white to-cream/30 p-6 shadow-card">
-              <p className="mb-4 eyebrow text-forest">After VAxAI</p>
+            </div>
+            <div className="rounded-md border border-[#063b32]/15 bg-[#f3f9f5] p-5">
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">After VAxAI</p>
               <div className="grid gap-3">
                 {[
                   "Inboxes organised and prioritised",
@@ -532,13 +505,12 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
       </section>
 
-      <SectionWave />
-      <section id="services" className="section-forest relative px-4 py-20 text-paper md:px-8 md:py-28">
+      <section id="services" className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
@@ -551,7 +523,7 @@ export default function Home() {
 
             {/* Card 01: row 1, col 1 */}
             {(() => { const study = caseStudies[0]; return (
-              <article className="card-forest flex flex-col overflow-hidden rounded-2xl">
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">01</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -564,13 +536,13 @@ export default function Home() {
             ); })()}
 
             {/* Centre image: spans both rows */}
-            <div className="hidden overflow-hidden rounded-2xl ring-1 ring-white/10 md:row-span-2 md:block">
+            <div className="hidden overflow-hidden rounded-md md:row-span-2 md:block">
               <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
             </div>
 
             {/* Card 02: row 1, col 3 */}
             {(() => { const study = caseStudies[1]; return (
-              <article className="card-forest flex flex-col overflow-hidden rounded-2xl">
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">02</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -584,7 +556,7 @@ export default function Home() {
 
             {/* Card 03: row 2, col 1 */}
             {(() => { const study = caseStudies[2]; return (
-              <article className="card-forest flex flex-col overflow-hidden rounded-2xl">
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">03</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -598,7 +570,7 @@ export default function Home() {
 
             {/* Card 04: row 2, col 3 */}
             {(() => { const study = caseStudies[3]; return (
-              <article className="card-forest flex flex-col overflow-hidden rounded-2xl">
+              <article className="flex flex-col overflow-hidden rounded-md border border-white/12 bg-white/[0.07]">
                 <div className="flex flex-1 flex-col p-5">
                   <span className="mb-3 text-[10px] font-bold text-acid/70">04</span>
                   <h3 className="text-base font-semibold text-paper">{study.title}</h3>
@@ -611,7 +583,7 @@ export default function Home() {
             ); })()}
 
             {/* Mobile-only image (shown between the two rows of cards on small screens) */}
-            <div className="overflow-hidden rounded-2xl md:hidden">
+            <div className="overflow-hidden rounded-md md:hidden">
               <PhotoCard src={image.expert} className="aspect-[16/7] w-full" />
             </div>
           </div>
@@ -619,10 +591,10 @@ export default function Home() {
           <motion.div
             {...reveal}
             id="access-to-work"
-            className="card-forest mt-14 flex flex-col gap-6 rounded-2xl p-7 md:flex-row md:items-center md:justify-between md:p-8"
+            className="mt-12 flex flex-col gap-5 rounded-2xl border border-white/12 bg-white/[0.07] p-6 md:flex-row md:items-center md:justify-between"
           >
             <div>
-              <p className="eyebrow text-acid">Access to Work</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
               <h3 className="mt-3 max-w-xl text-2xl font-semibold leading-tight text-paper">
                 Your VAxAI support could cost you nothing
               </h3>
@@ -631,7 +603,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setIsAccessModalOpen(true)}
-              className="btn-primary shrink-0"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink"
             >
               Learn about Access to Work
               <ArrowRight className="h-4 w-4" />
@@ -640,91 +612,81 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="experts" className="section-forest-soft section-flow-top px-4 py-20 md:px-8 md:py-28">
+      <section id="experts" className="px-4 py-20 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle title="Meet the people behind VAxAI" narrow />
-          <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="mt-12 grid gap-6 md:grid-cols-2">
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
             {experts.map((expert, index) => (
-              <motion.article key={expert.name} variants={staggerChild} className="card-surface overflow-hidden rounded-3xl p-3">
+              <motion.article key={expert.name} {...reveal} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
                 {expert.photo ? (
-                  <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-2xl" />
+                  <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-md" />
                 ) : (
-                  <div className={`grid aspect-[0.82] place-items-end rounded-2xl p-5 ${index === 1 ? "bg-acid/30" : "bg-cream"}`}>
+                  <div className={`grid aspect-[0.82] place-items-end rounded-md p-5 ${index === 1 ? "bg-[#fff1a6]" : "bg-[#ff8c22]"}`}>
                     <span className="text-5xl font-black leading-none text-ink">+</span>
                   </div>
                 )}
-                <div className="p-5">
-                  <p className="eyebrow text-forest/70">{expert.role}</p>
-                  <h3 className="mt-2 text-lg font-semibold">{expert.name}</h3>
+                <div className="p-4">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{expert.role}</p>
+                  <h3 className="mt-2 font-semibold">{expert.name}</h3>
                   <p className="mt-3 text-sm leading-6 text-muted">{expert.copy}</p>
                 </div>
               </motion.article>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      <section id="pricing" className="bg-paper px-4 pb-24 pt-12 md:px-8 md:pt-16">
+      <section id="pricing" className="px-4 pb-20 pt-12 md:px-8 md:pt-16">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Three ways to work with us"
             copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix, whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
-          <motion.div {...reveal} className="mt-12 rounded-3xl border border-ink/8 bg-white/80 p-4 shadow-card backdrop-blur-sm md:p-5">
-            <div className="simplified-hide mb-4 hidden items-center justify-center gap-2 px-4 lg:flex" aria-hidden="true">
-              {plans.map((plan, index) => (
-                <div key={plan.label} className="flex items-center gap-2">
-                  <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${plan.featured ? "bg-forest text-acid" : "bg-cream text-forest"}`}>
-                    {plan.label}
-                  </span>
-                  {index < plans.length - 1 ? <span className="h-px w-10 bg-gradient-to-r from-forest/20 to-forest/5" /> : null}
-                </div>
-              ))}
-            </div>
-            <div className="grid gap-4 lg:grid-cols-3">
+          <motion.div {...reveal} className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
+            <div className="grid gap-3 lg:grid-cols-3">
               {plans.map((plan) => (
                 <article
                   key={plan.title}
-                  className={`relative flex flex-col rounded-2xl border bg-gradient-to-br p-6 ring-1 ${plan.accentRing} ${plan.journeyTone} ${plan.featured ? "border-forest/20 shadow-lift lg:-mt-1 lg:mb-1" : "border-ink/8"}`}
+                  className={`relative flex flex-col rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#f7ff6a]/20" : "border-ink/10 bg-white"}`}
                 >
                   <div className="flex min-h-6 items-center justify-between gap-4">
-                    <span className="grid h-9 w-9 place-items-center rounded-full border border-forest/15 bg-white/80 text-xs font-bold text-forest shadow-sm">
+                    <span className="grid h-9 w-9 place-items-center rounded-full border border-[#063b32]/25 bg-white text-xs font-bold text-[#063b32]">
                       {plan.step}
                     </span>
                     {plan.featured ? (
-                      <span className="rounded-full bg-acid/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+                      <span className="rounded-full bg-acid px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
                         Recommended
                       </span>
                     ) : null}
                   </div>
                   <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
-                  <h3 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-forest">{plan.label}</h3>
+                  <h3 className="mt-3 text-2xl font-semibold leading-tight">{plan.label}</h3>
                   {plan.buildsOn ? (
-                    <p className="mt-2 text-xs font-semibold text-forest/60">Builds on {plan.buildsOn}</p>
+                    <p className="mt-2 text-xs font-medium text-muted">Builds on {plan.buildsOn}</p>
                   ) : null}
                   <div className="mt-4 min-h-20 space-y-3 text-sm leading-6 text-muted">
                     {plan.copy.map((paragraph) => (
                       <p key={paragraph}>{paragraph}</p>
                     ))}
                   </div>
-                  <ul className="mt-6 flex-1 space-y-2.5 border-t border-ink/8 pt-5 text-sm">
+                  <ul className="mt-6 flex-1 space-y-3 border-t border-ink/10 pt-5 text-sm">
                     {plan.items.map((item) => (
                       <li key={item} className="flex gap-3">
-                        <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-acid/70 text-[10px] font-black text-ink">✓</span>
-                        <span className="leading-6">{item}</span>
+                        <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
+                        <span>{item}</span>
                       </li>
                     ))}
                   </ul>
                 {plan.featured ? (
-                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-forest mt-8 w-full justify-center">
+                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper">
                     Book a discovery call
                   </button>
                 ) : null}
               </article>
               ))}
             </div>
-            <div className="mt-4 grid gap-4 rounded-2xl border border-forest/10 bg-gradient-to-br from-mint/60 to-white p-6 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
+            <div className="mt-3 grid gap-3 rounded-md border border-ink/10 bg-[#f3f9f5] p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
               <p>
                 Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
               </p>
@@ -736,8 +698,7 @@ export default function Home() {
         </div>
       </section>
 
-      <SectionWave flip />
-      <section id="vat-framework" className="section-forest px-4 pb-20 pt-20 text-paper md:px-8 md:pt-24">
+      <section id="vat-framework" className="bg-[#063b32] px-4 pt-24 pb-20 text-paper md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
@@ -756,27 +717,27 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="faq" className="section-paper-warm section-flow-top px-4 py-20 md:px-8 md:py-28">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.75fr_1fr] md:gap-12">
+      <section id="faq" className="px-4 py-20 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
           <motion.div {...reveal}>
-            <p className="eyebrow text-muted">Frequently asked questions</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-[1.08] tracking-tight md:text-5xl">Questions about VAxAI?</h2>
-            <p className="mt-5 text-sm leading-7 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
+            <h2 className="mt-3 text-3xl font-semibold leading-[1.08] md:text-5xl">Questions about VAxAI?</h2>
+            <p className="mt-5 text-sm leading-6 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
             <button
               type="button"
               onClick={() => setIsContactModalOpen(true)}
-              className="btn-forest mt-6"
+              className="mt-6 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper"
             >
               Book a discovery call
               <MailCheck className="h-4 w-4" />
             </button>
           </motion.div>
-          <motion.div {...reveal} className="divide-y divide-ink/8 overflow-hidden rounded-2xl border border-ink/8 bg-white shadow-card">
+          <motion.div {...reveal} className="divide-y divide-ink/10 rounded-md border border-ink/10 bg-white">
             {faqs.map(([question, answer]) => (
-              <details key={question} className="group p-5 transition-colors hover:bg-cream/20 md:p-6">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold leading-snug">
+              <details key={question} className="group p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold">
                   {question}
-                  <ChevronDown className="h-4 w-4 shrink-0 text-forest/50 transition duration-300 group-open:rotate-180" />
+                  <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
                 </summary>
                 <p className="mt-4 text-sm leading-6 text-muted">{answer}</p>
               </details>
@@ -785,7 +746,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-paper px-4 pb-20 md:px-8">
+      <section className="px-4 pb-20 md:px-8">
         <div className="mx-auto max-w-6xl">
           <motion.div {...reveal} className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
@@ -795,7 +756,7 @@ export default function Home() {
                 resonates, you can attach it to your enquiry when you get in touch.
               </p>
             </div>
-            <a href="/insights" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-xl border border-ink/12 bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-sm transition hover:-translate-y-0.5 hover:border-forest/20 md:mt-0">
+            <a href="/insights" className="mt-4 inline-flex shrink-0 items-center gap-2 rounded-md border border-ink/15 px-4 py-2.5 text-sm font-semibold text-ink md:mt-0">
               View all insights
               <ArrowRight className="h-4 w-4" />
             </a>
@@ -807,7 +768,7 @@ export default function Home() {
                   key={post.id}
                   href={`/posts/${encodeURIComponent(post.slug)}`}
                   {...reveal}
-                  className="card-surface group flex flex-col overflow-hidden rounded-2xl"
+                  className="group flex flex-col overflow-hidden rounded-md border border-ink/10 bg-white transition hover:shadow-[0_8px_30px_rgba(17,17,17,0.1)]"
                 >
                   {post.cover_image_url && (
                     <div className="aspect-[16/9] w-full overflow-hidden bg-ink/5">
