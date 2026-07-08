@@ -80,6 +80,7 @@ export const audiencePages: AudiencePage[] = [
         "Clearer processes for client work, leads, recurring tasks and handovers",
         "Light automation where it reduces repetition safely and makes work easier to manage",
         "Practical support that adapts as your business grows, changes or becomes more complex",
+        "Training workshops to help you or your team use systems confidently or understand new ones — plus leadership-level VAT Framework guidance on when a new system would create genuine value, align with how the business runs and build trust",
       ],
     },
     changes: {
@@ -169,6 +170,7 @@ export const audiencePages: AudiencePage[] = [
         "Clearer ownership of customer information, files and internal actions",
         "Automation for repetitive organisation where appropriate and safe",
         "Implementation support so changes work for the whole team, not just one person",
+        "Training workshops to help individuals and teams use systems well or understand new ones — plus leadership-level VAT Framework guidance on when change would create genuine value, align with your operations and build trust",
       ],
     },
     changes: {
@@ -251,6 +253,7 @@ export const audiencePages: AudiencePage[] = [
         "Clearer processes for information handling, safeguarding records and internal actions",
         "Automation for repetitive admin where it reduces manual burden safely",
         "Ongoing support that adapts as funding, staffing and service priorities change",
+        "Training workshops to help staff and volunteers use systems well or understand new ones — plus leadership-level VAT Framework guidance on when new systems would create genuine value, align with delivery and build trust",
       ],
     },
     changes: {
@@ -341,6 +344,7 @@ export const audiencePages: AudiencePage[] = [
         "AI or automation where it supports consistency, prompts, organisation or repeat tasks",
         "Human support where judgement, communication and flexibility matter",
         "Support that can sit alongside Access to Work where you may be eligible",
+        "Training workshops to help you or colleagues use systems well or understand new ones — plus leadership-level VAT Framework guidance on when new tools would create genuine value, align with how work happens and build trust",
       ],
     },
     changes: {
