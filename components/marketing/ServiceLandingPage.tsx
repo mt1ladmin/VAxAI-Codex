@@ -28,9 +28,9 @@ type ServiceLandingPageProps = {
 
 const HERO_IMAGES: Record<string, string> = {
   "founders-entrepreneurs": "/hero-remote-work-circles.jpg",
-  "small-business": "/admin-systems-team.jpg",
-  "charities-non-profits": "/footer-team-smiling.jpg",
-  "neurodivergent-professionals": "/vaxai-support-control.jpg",
+  "small-business": "/hero-remote-work-circles.jpg",
+  "charities-non-profits": "/hero-remote-work-circles.jpg",
+  "neurodivergent-professionals": "/hero-remote-work-circles.jpg",
 };
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
