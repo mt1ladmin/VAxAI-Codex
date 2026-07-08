@@ -97,29 +97,38 @@ const plans = [
     step: "01",
     title: "Assessment",
     label: "Assess",
+    journeyTone: "from-white via-mint/30 to-white",
+    accentRing: "ring-forest/10",
     copy: [
       "A focused review of your admin workload, tools, processes and team — identifying where pressure is building and what the right response looks like.",
     ],
     items: ["VAT Framework review", "AI value and risk map", "Workflow and capacity review", "Practical recommendations and next steps"],
+    buildsOn: null as string | null,
   },
   {
     step: "02",
     title: "Strategy, Implementation & Capability Building",
-    label: "Assess + Implement",
+    label: "Implement",
+    journeyTone: "from-white via-acid/10 to-mint/20",
+    accentRing: "ring-forest/15",
     copy: [
       "We put the right solution in place based on your assessment — improving processes, making better use of existing tools, introducing new systems or training your team.",
     ],
-    items: ["Everything included in Assess", "Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
+    items: ["Tool selection and implementation support", "Team training and capability building", "Documentation and handover"],
+    buildsOn: "Assess",
   },
   {
     step: "03",
     title: "Recommended: Ongoing Support",
-    label: "Assess + Implement + Support",
+    label: "Support",
     featured: true,
+    journeyTone: "from-acid/15 via-white to-mint/25",
+    accentRing: "ring-forest/20",
     copy: [
       "Continued support after implementation — VA assistance, system monitoring and ongoing adjustments as your workload and priorities change.",
     ],
-    items: ["Everything included in Assess and Implement", "Process and system optimisation", "Team support and guidance", "Dedicated support hours within your package"],
+    items: ["Process and system optimisation", "Team support and guidance", "Dedicated support hours within your package"],
+    buildsOn: "Implement",
   },
 ];
 
@@ -146,10 +155,21 @@ const whyPrinciples = [
 ];
 
 const reveal = {
-  initial: { opacity: 0, y: 18 },
+  initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-70px" },
-  transition: { duration: 0.5, ease: "easeOut" },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+};
+
+const staggerContainer = {
+  initial: {},
+  whileInView: { transition: { staggerChildren: 0.08, delayChildren: 0.04 } },
+  viewport: { once: true, margin: "-60px" },
+};
+
+const staggerChild = {
+  initial: { opacity: 0, y: 16 },
+  whileInView: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 
 function PhotoCard({
@@ -257,28 +277,41 @@ function ToolScroller() {
   );
 }
 
+function SectionWave({ flip = false }: { flip?: boolean }) {
+  return (
+    <div className={`relative h-12 w-full overflow-hidden ${flip ? "rotate-180" : ""}`} aria-hidden="true">
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-forest/10 to-transparent" />
+      <div className="simplified-hide absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-acid/20 blur-2xl" />
+    </div>
+  );
+}
+
 function GeometricDivider() {
   const nodes = [
-    ["left-[7%] top-10 h-32 w-32 rounded-full bg-acid/70"],
-    ["left-[24%] bottom-10 h-20 w-20 rounded-full bg-[#f28a4b]/40"],
-    ["left-[43%] top-16 h-24 w-24 rounded-full bg-[#8fd0b0]/45"],
-    ["right-[23%] bottom-12 h-16 w-16 rotate-12 rounded-md bg-[#f6c84f]/50"],
-    ["right-[8%] top-10 h-36 w-36 rounded-full bg-[#4479a8]/25"],
+    ["left-[7%] top-10 h-28 w-28 rounded-full bg-acid/35 blur-[1px]"],
+    ["left-[24%] bottom-10 h-16 w-16 rounded-full bg-[#f28a4b]/20"],
+    ["left-[43%] top-16 h-20 w-20 rounded-full bg-[#8fd0b0]/25"],
+    ["right-[23%] bottom-12 h-14 w-14 rotate-12 rounded-2xl bg-[#f6c84f]/25"],
+    ["right-[8%] top-10 h-32 w-32 rounded-full bg-[#4479a8]/15"],
   ];
 
   return (
     <motion.div
       {...reveal}
-      className="relative mt-10 px-6 py-28 text-ink"
+      className="relative px-6 py-16 text-ink md:py-20"
       aria-hidden="true"
     >
-      <div className="simplified-hide absolute inset-0 opacity-80">
+      <div className="section-divider-soft mb-10" />
+      <div className="simplified-hide relative h-28 opacity-90">
         {nodes.map(([classes], index) => (
-          <span key={index} className={`absolute block ${classes}`} />
+          <motion.span
+            key={index}
+            className={`absolute block ${classes}`}
+            animate={{ y: [0, index % 2 === 0 ? -6 : 6, 0] }}
+            transition={{ duration: 5 + index, repeat: Infinity, ease: "easeInOut" }}
+          />
         ))}
-        <span className="absolute left-[15%] top-1/2 h-px w-[70%] -translate-y-1/2 bg-ink/12" />
-        <span className="absolute left-[30%] top-[28%] h-[46%] w-px rotate-[-18deg] bg-ink/10" />
-        <span className="absolute right-[32%] top-[23%] h-[52%] w-px rotate-[22deg] bg-ink/10" />
+        <span className="absolute left-[15%] top-1/2 h-px w-[70%] -translate-y-1/2 bg-gradient-to-r from-transparent via-ink/10 to-transparent" />
       </div>
     </motion.div>
   );
@@ -341,63 +374,69 @@ export default function Home() {
         <span className="hidden sm:inline">{isSimplifiedMode ? "Show colour" : "Simplified mode"}</span>
       </button>
 
-      <section className="bg-[#063b32] px-4 pb-16 pt-5 text-paper md:px-8 md:pb-20">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between">
+      <section className="section-forest relative overflow-hidden px-4 pb-20 pt-5 text-paper md:px-8 md:pb-24">
+        <div className="simplified-hide pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-acid/10 blur-3xl" aria-hidden="true" />
+        <div className="simplified-hide pointer-events-none absolute -bottom-32 left-1/4 h-64 w-64 rounded-full bg-white/5 blur-3xl" aria-hidden="true" />
+        <nav className="relative mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
-          <div className="hidden items-center gap-7 text-xs font-semibold text-paper/70 md:flex">
-            <a href="#services">Services</a>
-            <a href="#experts">About</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
-            <a href="/insights" className="text-[#f5f274]/80 hover:text-[#f5f274]">Insights</a>
+          <div className="hidden items-center gap-7 text-xs font-semibold text-paper/65 md:flex">
+            <a href="#services" className="transition-colors hover:text-paper">Services</a>
+            <a href="#experts" className="transition-colors hover:text-paper">About</a>
+            <a href="#pricing" className="transition-colors hover:text-paper">Pricing</a>
+            <a href="#faq" className="transition-colors hover:text-paper">FAQ</a>
+            <a href="/insights" className="text-acid/80 transition-colors hover:text-acid">Insights</a>
           </div>
-          <button type="button" onClick={() => setIsContactModalOpen(true)} className="hidden rounded-md bg-acid px-4 py-2 text-xs font-semibold text-ink md:inline-flex">
+          <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-primary hidden px-4 py-2 text-xs md:inline-flex">
             Get in touch
           </button>
-          <button className="grid h-9 w-9 place-items-center rounded-md border border-white/15 md:hidden" aria-label="Open menu">
+          <button className="grid h-9 w-9 place-items-center rounded-xl border border-white/12 transition-colors hover:border-white/25 md:hidden" aria-label="Open menu">
             <Menu className="h-4 w-4" />
           </button>
         </nav>
 
-        <div className="mx-auto mt-16 grid max-w-6xl gap-10 md:grid-cols-[1fr_0.85fr] md:items-center">
+        <div className="relative mx-auto mt-16 grid max-w-6xl gap-12 md:grid-cols-[1fr_0.85fr] md:items-center md:gap-10">
           <motion.div {...reveal}>
-            <h1 className="max-w-2xl text-5xl font-semibold leading-[1] md:text-7xl">
+            <h1 className="max-w-2xl text-5xl font-semibold leading-[1.02] tracking-tight md:text-7xl">
               When admin takes over, VAxAI steps in
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-paper/72 md:text-lg">
+            <p className="mt-6 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8">
               We help small businesses, charities, solo founders and busy teams reduce repetitive admin by making everyday tasks, follow-ups and information easier to manage, track and complete.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <button type="button" onClick={() => setIsContactModalOpen(true)} className="inline-flex items-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink">
+              <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-primary">
                 Start your workflow review
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
           </motion.div>
           <motion.div {...reveal} className="relative mx-auto w-full max-w-[420px]">
-            <PhotoCard src={image.hero} className="aspect-[0.86] rounded-[28px]" />
+            <div className="simplified-hide absolute -inset-3 rounded-4xl bg-acid/10 blur-xl" aria-hidden="true" />
+            <PhotoCard src={image.hero} className="relative aspect-[0.86] rounded-4xl shadow-[0_24px_60px_rgba(0,0,0,0.25)] ring-1 ring-white/10" />
           </motion.div>
         </div>
       </section>
 
-      <section className="px-4 py-16 md:px-8">
+      <section className="section-flow-top bg-paper px-4 py-20 md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <motion.div {...reveal} className="grid gap-8 md:grid-cols-[1fr_1.4fr] md:items-start">
-            <h2 className="text-2xl font-semibold leading-snug md:text-3xl">
-              Does any of this sound familiar?
-            </h2>
-            <div className="grid gap-3">
+          <motion.div {...reveal} className="grid gap-10 md:grid-cols-[0.9fr_1.4fr] md:items-start md:gap-12">
+            <div>
+              <p className="eyebrow text-muted">Sound familiar?</p>
+              <h2 className="mt-3 text-2xl font-semibold leading-snug tracking-tight md:text-3xl">
+                Does any of this sound familiar?
+              </h2>
+            </div>
+            <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="grid gap-3">
               {[
                 "Too much time is being spent on emails, follow-ups, scheduling, reporting and other essential admin that leaves less capacity for strategic, client-facing or service-delivery work.",
                 "Work keeps falling between the cracks because information, responsibilities or processes are spread across too many places.",
                 "You know there must be a better way of working but are unsure whether the answer is new technology, better processes, additional support or a combination of all three.",
               ].map((item) => (
-                <div key={item} className="flex gap-4 rounded-md border border-ink/10 bg-white p-4">
-                  <span className="mt-1 shrink-0 text-sm font-semibold text-ink">→</span>
+                <motion.div key={item} variants={staggerChild} className="card-surface flex gap-4 rounded-2xl p-5">
+                  <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-acid/40 text-xs font-semibold text-forest">→</span>
                   <p className="text-sm leading-6 text-muted">{item}</p>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -408,7 +447,9 @@ export default function Home() {
         </div>
       </div>
 
-      <section className="bg-[#063b32] px-4 py-20 text-paper md:px-8 md:py-24">
+      <SectionWave />
+      <section id="services" className="section-forest relative px-4 py-20 text-paper md:px-8 md:py-28">
+        <div className="simplified-hide pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-paper/8 to-transparent" aria-hidden="true" />
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
@@ -416,50 +457,50 @@ export default function Home() {
             copy="From enquiries and diary management to files, records, reports and follow-ups, we help you create workable systems your team can understand, use and maintain."
             narrow
           />
-          <div className="mt-12 grid gap-5 lg:grid-cols-[1fr_1.1fr_1fr] lg:items-center">
-            <div className="grid gap-5">
+          <div className="mt-14 grid gap-5 lg:grid-cols-[1fr_1.1fr_1fr] lg:items-center">
+            <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="grid gap-5">
               {features.slice(0, 2).map((feature) => (
-                <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-semibold text-ink">{feature.mark}</span>
-                  <h3 className="mt-8 text-lg font-semibold">{feature.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
-                </article>
+                <motion.article key={feature.title} variants={staggerChild} className="card-forest rounded-2xl p-6">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-acid/90 text-xs font-semibold text-ink">{feature.mark}</span>
+                  <h3 className="mt-6 text-lg font-semibold leading-snug">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-paper/65">{feature.copy}</p>
+                </motion.article>
               ))}
-            </div>
+            </motion.div>
             <motion.div {...reveal} className="relative">
-              <PhotoCard src={image.expert} className="aspect-[0.78] rounded-md" />
-              <div className="absolute bottom-4 left-4 right-4 rounded-md bg-paper p-4 text-ink">
+              <PhotoCard src={image.expert} className="aspect-[0.78] rounded-2xl ring-1 ring-white/10" />
+              <div className="absolute bottom-4 left-4 right-4 rounded-2xl border border-ink/5 bg-paper/95 p-4 text-ink shadow-lift backdrop-blur-sm">
                 <p className="text-sm font-semibold">AI admin support that stays human</p>
-                <p className="mt-1 text-xs text-muted">Technology supports the work. Trained VAs keep people in control.</p>
+                <p className="mt-1 text-xs leading-5 text-muted">Technology supports the work. Trained VAs keep people in control.</p>
               </div>
             </motion.div>
-            <div className="grid gap-5">
+            <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="grid gap-5">
               {features.slice(2).map((feature) => (
-                <article key={feature.title} className="rounded-md border border-white/12 bg-white/[0.07] p-5">
-                <span className="grid h-8 w-8 place-items-center rounded-md bg-acid text-xs font-semibold text-ink">{feature.mark}</span>
-                  <h3 className="mt-8 text-lg font-semibold">{feature.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-paper/68">{feature.copy}</p>
-                </article>
+                <motion.article key={feature.title} variants={staggerChild} className="card-forest rounded-2xl p-6">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-acid/90 text-xs font-semibold text-ink">{feature.mark}</span>
+                  <h3 className="mt-6 text-lg font-semibold leading-snug">{feature.title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-paper/65">{feature.copy}</p>
+                </motion.article>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           <motion.div
             {...reveal}
             id="access-to-work"
-            className="mt-12 flex flex-col gap-5 rounded-md border border-white/12 bg-white/[0.07] p-6 md:flex-row md:items-center md:justify-between"
+            className="card-forest mt-14 flex flex-col gap-6 rounded-2xl p-7 md:flex-row md:items-center md:justify-between md:p-8"
           >
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
+              <p className="eyebrow text-acid">Access to Work</p>
               <h3 className="mt-3 max-w-xl text-2xl font-semibold leading-tight text-paper">
                 Your VAxAI support could cost you nothing
               </h3>
-              <p className="mt-2 text-sm leading-6 text-paper/68">Want to find out more?</p>
+              <p className="mt-2 text-sm leading-6 text-paper/65">Want to find out more?</p>
             </div>
             <button
               type="button"
               onClick={() => setIsAccessModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-acid px-5 py-3 text-sm font-semibold text-ink"
+              className="btn-primary shrink-0"
             >
               Learn about Access to Work
               <ArrowRight className="h-4 w-4" />
@@ -468,78 +509,91 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="experts" className="px-4 py-20 md:px-8">
+      <section id="experts" className="section-forest-soft section-flow-top px-4 py-20 md:px-8 md:py-28">
         <div className="mx-auto max-w-6xl">
           <SectionTitle title="Meet the people behind VAxAI" narrow />
-          <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="mt-12 grid gap-6 md:grid-cols-2">
             {experts.map((expert, index) => (
-              <article key={expert.name} className="rounded-md bg-white p-3 shadow-[0_10px_40px_rgba(17,17,17,0.07)]">
+              <motion.article key={expert.name} variants={staggerChild} className="card-surface overflow-hidden rounded-3xl p-3">
                 {expert.photo ? (
-                  <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-md" />
+                  <PhotoCard src={expert.photo} className="aspect-[0.82] rounded-2xl" />
                 ) : (
-                  <div className={`grid aspect-[0.82] place-items-end rounded-md p-5 ${index === 1 ? "bg-[#fff1a6]" : "bg-[#ff8c22]"}`}>
+                  <div className={`grid aspect-[0.82] place-items-end rounded-2xl p-5 ${index === 1 ? "bg-acid/30" : "bg-cream"}`}>
                     <span className="text-5xl font-black leading-none text-ink">+</span>
                   </div>
                 )}
-                <div className="p-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted">{expert.role}</p>
-                  <h3 className="mt-2 font-semibold">{expert.name}</h3>
+                <div className="p-5">
+                  <p className="eyebrow text-forest/70">{expert.role}</p>
+                  <h3 className="mt-2 text-lg font-semibold">{expert.name}</h3>
                   <p className="mt-3 text-sm leading-6 text-muted">{expert.copy}</p>
                 </div>
-              </article>
+              </motion.article>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <section id="pricing" className="px-4 pb-20 md:px-8">
+      <section id="pricing" className="bg-paper px-4 pb-24 md:px-8">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Three ways to work with us"
             copy="Every organisation is different. We start by understanding how work happens today and recommend the right mix — whether that means improving existing systems, implementing new ones, or combining technology with human support."
             narrow
           />
-          <div className="mt-10 rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
-            <div className="grid gap-3 lg:grid-cols-3">
+          <motion.div {...reveal} className="mt-12 rounded-3xl border border-ink/8 bg-white/80 p-4 shadow-card backdrop-blur-sm md:p-5">
+            <div className="simplified-hide mb-4 hidden items-center justify-center gap-2 px-4 lg:flex" aria-hidden="true">
+              {plans.map((plan, index) => (
+                <div key={plan.label} className="flex items-center gap-2">
+                  <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${plan.featured ? "bg-forest text-acid" : "bg-cream text-forest"}`}>
+                    {plan.label}
+                  </span>
+                  {index < plans.length - 1 ? <span className="h-px w-10 bg-gradient-to-r from-forest/20 to-forest/5" /> : null}
+                </div>
+              ))}
+            </div>
+            <div className="grid gap-4 lg:grid-cols-3">
               {plans.map((plan) => (
                 <article
                   key={plan.title}
-                  className={`relative rounded-md border p-6 ${plan.featured ? "border-[#063b32] bg-[#f7ff6a]/20" : "border-ink/10 bg-white"}`}
+                  className={`relative flex flex-col rounded-2xl border bg-gradient-to-br p-6 ring-1 ${plan.accentRing} ${plan.journeyTone} ${plan.featured ? "border-forest/20 shadow-lift lg:-mt-1 lg:mb-1" : "border-ink/8"}`}
                 >
                   <div className="flex min-h-6 items-center justify-between gap-4">
-                    <span className="grid h-9 w-9 place-items-center rounded-full border border-[#063b32]/25 bg-white text-xs font-bold text-[#063b32]">
+                    <span className="grid h-9 w-9 place-items-center rounded-full border border-forest/15 bg-white/80 text-xs font-bold text-forest shadow-sm">
                       {plan.step}
                     </span>
                     {plan.featured ? (
-                      <span className="rounded-full bg-acid px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+                      <span className="rounded-full bg-acid/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
                         Recommended
                       </span>
                     ) : null}
                   </div>
                   <p className="mt-6 text-xs font-bold uppercase tracking-[0.16em] text-muted">{plan.title}</p>
-                  <h3 className="mt-3 text-2xl font-semibold leading-tight">{plan.label}</h3>
+                  <h3 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-forest">{plan.label}</h3>
+                  {plan.buildsOn ? (
+                    <p className="mt-2 text-xs font-semibold text-forest/60">Builds on {plan.buildsOn}</p>
+                  ) : null}
                   <div className="mt-4 min-h-20 space-y-3 text-sm leading-6 text-muted">
                     {plan.copy.map((paragraph) => (
                       <p key={paragraph}>{paragraph}</p>
                     ))}
                   </div>
-                  <ul className="mt-8 space-y-3 border-t border-ink/10 pt-6 text-sm">
-                  {plan.items.map((item) => (
-                    <li key={item} className="flex gap-3">
-                      <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                {plan.featured ? (
-                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex w-full items-center justify-center rounded-md bg-[#063b32] px-4 py-3 text-sm font-semibold text-paper">
-                    Book a discovery call
-                  </button>
-                ) : null}
-              </article>
+                  <ul className="mt-8 flex-1 space-y-3 border-t border-ink/8 pt-6 text-sm">
+                    {plan.items.map((item) => (
+                      <li key={item} className="flex gap-3">
+                        <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-acid/70 text-[10px] font-black text-ink">✓</span>
+                        <span className="leading-6">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {plan.featured ? (
+                    <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-forest mt-8 w-full justify-center">
+                      Book a discovery call
+                    </button>
+                  ) : null}
+                </article>
               ))}
             </div>
-            <div className="mt-3 grid gap-3 rounded-md border border-ink/10 bg-[#f3f9f5] p-5 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
+            <div className="mt-4 grid gap-4 rounded-2xl border border-forest/10 bg-gradient-to-br from-mint/60 to-white p-6 text-sm leading-6 text-muted md:grid-cols-[1fr_0.9fr]">
               <p>
                 Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
               </p>
@@ -547,11 +601,12 @@ export default function Home() {
                 Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <section className="bg-[#063b32] px-4 py-20 text-paper md:px-8">
+      <SectionWave flip />
+      <section className="section-forest relative px-4 py-20 text-paper md:px-8 md:py-28">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             light
@@ -559,20 +614,20 @@ export default function Home() {
             copy="VAxAI uses the MT1L VAT Framework to decide whether existing tools, new systems, AI, automation or human support are the right fit."
             narrow
           />
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
+          <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="mt-12 grid gap-5 md:grid-cols-3">
             {vatPrinciples.map(([step, title, copy]) => (
-              <article key={step} className="rounded-md border border-white/12 bg-white/[0.06] p-6">
+              <motion.article key={step} variants={staggerChild} className="card-forest rounded-2xl p-7">
                 <p className="text-sm font-semibold text-acid">{step}</p>
-                <h3 className="mt-10 text-xl font-semibold">{title}</h3>
-                <p className="mt-4 text-sm leading-6 text-paper/68">{copy}</p>
-              </article>
+                <h3 className="mt-8 text-xl font-semibold leading-snug">{title}</h3>
+                <p className="mt-4 text-sm leading-6 text-paper/65">{copy}</p>
+              </motion.article>
             ))}
-          </div>
-          <motion.div {...reveal} className="mx-auto mt-10 max-w-3xl text-center">
-            <p className="text-sm leading-6 text-paper/70">
+          </motion.div>
+          <motion.div {...reveal} className="mx-auto mt-12 max-w-3xl text-center">
+            <p className="text-sm leading-7 text-paper/68">
               We do not introduce AI or automation simply because it is possible. We recommend it only where it adds value, fits your organisation and can be used with confidence.
             </p>
-            <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-acid">
+            <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-acid transition-opacity hover:opacity-80">
               Want to learn more about MT1L and the VAT Framework? Check us out
               <ExternalLink className="h-4 w-4" />
             </a>
@@ -580,21 +635,21 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 py-20 md:px-8">
+      <section className="section-paper-warm section-flow-top px-4 py-20 md:px-8 md:py-28">
         <div className="mx-auto max-w-6xl">
           <SectionTitle
             title="Why choose VAxAI?"
             copy="We are not here to force a technical solution where it does not fit. Our priority is helping you choose, use and sustain the right mix of support, systems and tools for your organisation."
             narrow
           />
-          <div className="mt-10 overflow-hidden rounded-md border border-ink/10 bg-white p-3 shadow-[0_14px_45px_rgba(17,17,17,0.05)]">
-            <div className="grid gap-3 lg:grid-cols-[0.9fr_1.35fr]">
-              <div className="relative overflow-hidden rounded-md border border-[#063b32]/20 bg-[#f3f9f5] p-7 md:p-8">
-                <div className="simplified-hide absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/70" />
-                <div className="simplified-hide absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#4479a8]/18" />
+          <motion.div {...reveal} className="mt-12 overflow-hidden rounded-3xl border border-ink/8 bg-white/90 p-4 shadow-card md:p-5">
+            <div className="grid gap-4 lg:grid-cols-[0.9fr_1.35fr]">
+              <div className="relative overflow-hidden rounded-2xl border border-forest/10 bg-gradient-to-br from-mint/80 via-white to-cream/40 p-7 md:p-8">
+                <div className="simplified-hide absolute right-[-36px] top-[-36px] h-32 w-32 rounded-full bg-acid/35 blur-sm" />
+                <div className="simplified-hide absolute bottom-[-44px] left-[-28px] h-28 w-28 rounded-full bg-[#4479a8]/10 blur-sm" />
                 <div className="relative">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI support</p>
-                  <h3 className="mt-5 max-w-sm text-3xl font-semibold leading-[1.08] text-ink">
+                  <p className="eyebrow text-forest">VAxAI support</p>
+                  <h3 className="mt-5 max-w-sm text-3xl font-semibold leading-[1.08] tracking-tight text-ink">
                     Support that stays useful as your needs change.
                   </h3>
                   <p className="mt-5 max-w-sm text-sm leading-6 text-muted">
@@ -602,47 +657,47 @@ export default function Home() {
                   </p>
                   <div className="mt-8 grid grid-cols-3 gap-2 text-center text-xs font-semibold">
                     {["Continuity", "Ownership", "Capacity"].map((item) => (
-                      <span key={item} className="rounded-md border border-[#063b32]/15 bg-white px-2 py-3 text-[#063b32] shadow-[0_8px_22px_rgba(17,17,17,0.04)]">
+                      <span key={item} className="rounded-xl border border-forest/10 bg-white/90 px-2 py-3 text-forest shadow-sm transition-transform hover:-translate-y-0.5">
                         {item}
                       </span>
                     ))}
                   </div>
                 </div>
               </div>
-              <div className="grid gap-3">
+              <motion.div variants={staggerContainer} initial="initial" whileInView="whileInView" viewport={{ once: true, margin: "-60px" }} className="grid gap-3">
                 {whyPrinciples.map(([number, title, copy]) => (
-                  <article key={number} className="grid gap-4 rounded-md border border-ink/10 bg-white p-6 sm:grid-cols-[64px_1fr] md:p-7">
-                    <span className="grid h-12 w-12 place-items-center rounded-full bg-cream text-sm font-semibold text-[#063b32]">
+                  <motion.article key={number} variants={staggerChild} className="card-surface grid gap-4 rounded-2xl p-6 sm:grid-cols-[64px_1fr] md:p-7">
+                    <span className="grid h-12 w-12 place-items-center rounded-full bg-cream text-sm font-semibold text-forest">
                       {number}
                     </span>
                     <div>
                       <h3 className="text-lg font-semibold">{title}</h3>
                       <p className="mt-2 text-sm leading-6 text-muted">{copy}</p>
                     </div>
-                  </article>
+                  </motion.article>
                 ))}
-              </div>
+              </motion.div>
             </div>
-            <div className="mt-3 rounded-md border border-[#063b32]/15 bg-[#f7ff6a]/35 px-6 py-4 text-sm font-semibold text-[#063b32] md:px-8">
+            <div className="mt-4 rounded-2xl border border-forest/10 bg-gradient-to-r from-acid/25 via-acid/15 to-mint/30 px-6 py-4 text-center text-sm font-semibold text-forest md:px-8">
               Continuity · clear ownership · documented systems · support that can grow
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <section id="faq" className="px-4 pb-20 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[0.75fr_1fr]">
+      <section id="faq" className="bg-paper px-4 pb-24 md:px-8">
+        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.75fr_1fr] md:gap-12">
           <motion.div {...reveal}>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-muted">Frequently asked questions</p>
-            <h2 className="mt-3 text-3xl font-semibold leading-[1.08] md:text-5xl">Questions about VAxAI?</h2>
-            <p className="mt-5 text-sm leading-6 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
+            <p className="eyebrow text-muted">Frequently asked questions</p>
+            <h2 className="mt-3 text-3xl font-semibold leading-[1.08] tracking-tight md:text-5xl">Questions about VAxAI?</h2>
+            <p className="mt-5 text-sm leading-7 text-muted">Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.</p>
           </motion.div>
-          <motion.div {...reveal} className="divide-y divide-ink/10 rounded-md border border-ink/10 bg-white">
+          <motion.div {...reveal} className="divide-y divide-ink/8 overflow-hidden rounded-2xl border border-ink/8 bg-white shadow-card">
             {faqs.map(([question, answer]) => (
-              <details key={question} className="group p-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold">
+              <details key={question} className="group p-5 transition-colors hover:bg-cream/20 md:p-6">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-sm font-semibold leading-snug">
                   {question}
-                  <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
+                  <ChevronDown className="h-4 w-4 shrink-0 text-forest/50 transition duration-300 group-open:rotate-180" />
                 </summary>
                 <p className="mt-4 text-sm leading-6 text-muted">{answer}</p>
               </details>
@@ -651,66 +706,76 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-4 pb-16 md:px-8">
-        <div className="mx-auto grid max-w-6xl overflow-hidden rounded-md border border-ink/10 bg-white shadow-[0_14px_45px_rgba(17,17,17,0.05)] md:grid-cols-[1fr_0.85fr]">
-          <div className="p-8 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI support to book</p>
-            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] text-ink md:text-5xl">Admin support that can grow with you</h2>
-            <p className="mt-5 max-w-lg text-sm leading-6 text-muted">Start with a workflow call and leave with a clearer sense of what should be automated, what should stay human, and what support your small business or charity actually needs.</p>
-            <button type="button" onClick={() => setIsContactModalOpen(true)} className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-5 py-3 text-sm font-semibold text-paper">
+      <section id="contact" className="px-4 pb-20 md:px-8">
+        <motion.div {...reveal} className="mx-auto grid max-w-6xl overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-card md:grid-cols-[1fr_0.85fr]">
+          <div className="p-8 md:p-12">
+            <p className="eyebrow text-forest">VAxAI support to book</p>
+            <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] tracking-tight text-ink md:text-5xl">Admin support that can grow with you</h2>
+            <p className="mt-5 max-w-lg text-sm leading-7 text-muted">Start with a workflow call and leave with a clearer sense of what should be automated, what should stay human, and what support your small business or charity actually needs.</p>
+            <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-forest mt-8">
               Book a discovery call
               <MailCheck className="h-4 w-4" />
             </button>
           </div>
-          <div className="bg-cream p-3 md:p-4">
-            <PhotoCard src={image.cta} className="min-h-[320px] rounded-md" />
+          <div className="bg-gradient-to-br from-cream to-mint/40 p-3 md:p-4">
+            <PhotoCard src={image.cta} className="min-h-[320px] rounded-2xl ring-1 ring-ink/5" />
           </div>
-        </div>
+        </motion.div>
       </section>
 
-      <footer className="border-t border-ink/10 px-4 py-10 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-[1fr_1.2fr]">
-          <div>
-            <div className="flex items-center gap-3 text-2xl font-semibold">
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm text-acid">VA</span>
-              <span>VAxAI</span>
+      <footer className="border-t border-ink/8 bg-gradient-to-b from-cream/40 to-paper px-4 py-14 md:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-10 md:grid-cols-[1.1fr_1.4fr] md:gap-12">
+            <div>
+              <div className="flex items-center gap-3 text-2xl font-semibold tracking-tight">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-forest text-sm font-bold text-acid shadow-lift">VA</span>
+                <span>VAxAI</span>
+              </div>
+              <p className="mt-4 max-w-xs text-sm leading-6 text-muted">
+                Reducing repetitive admin so small businesses, charities and busy teams can focus on what matters.
+              </p>
+              <button type="button" onClick={() => setIsContactModalOpen(true)} className="btn-forest mt-6 text-xs">
+                Get in touch
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-4">
+              <div>
+                <p className="eyebrow text-forest/80">Services</p>
+                <div className="mt-4 grid gap-2.5 text-muted">
+                  <a href="#pricing" className="transition-colors hover:text-ink">Assess</a>
+                  <a href="#pricing" className="transition-colors hover:text-ink">Implement</a>
+                  <a href="#pricing" className="transition-colors hover:text-ink">Support</a>
+                </div>
+              </div>
+              <div>
+                <p className="eyebrow text-forest/80">Company</p>
+                <div className="mt-4 grid gap-2.5 text-muted">
+                  <a href="#experts" className="transition-colors hover:text-ink">About</a>
+                  <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors hover:text-ink">MT1L</a>
+                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left transition-colors hover:text-ink">Contact</button>
+                </div>
+              </div>
+              <div>
+                <p className="eyebrow text-forest/80">Resources</p>
+                <div className="mt-4 grid gap-2.5 text-muted">
+                  <a href="/insights" className="transition-colors hover:text-ink">Insights</a>
+                  <a href="#faq" className="transition-colors hover:text-ink">FAQ</a>
+                  <a href="#access-to-work" className="transition-colors hover:text-ink">Access to Work</a>
+                </div>
+              </div>
+              <div>
+                <p className="eyebrow text-forest/80">Legal</p>
+                <div className="mt-4 grid gap-2.5 text-muted">
+                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left transition-colors hover:text-ink">Privacy</button>
+                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left transition-colors hover:text-ink">Terms</button>
+                  <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left transition-colors hover:text-ink">EDI policy</button>
+                  <a href="/admin/login" className="mt-1 w-fit text-xs text-muted/50 transition-colors hover:text-muted">VAxAI Studio</a>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-6 text-sm md:grid-cols-4">
-            <div>
-              <p className="font-semibold">Services</p>
-              <div className="mt-4 grid gap-3 text-muted">
-                <a href="#pricing">Assessment</a>
-                <a href="#services">AI and Automation</a>
-                <a href="#services">VA Support</a>
-              </div>
-            </div>
-            <div>
-              <p className="font-semibold">Company</p>
-              <div className="mt-4 grid gap-3 text-muted">
-                <a href="#experts">About</a>
-                <a href="https://www.mt1l.com" target="_blank" rel="noreferrer">MT1L</a>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Contact</button>
-              </div>
-            </div>
-            <div>
-              <p className="font-semibold">Support</p>
-              <div className="mt-4 grid gap-3 text-muted">
-                <a href="#faq">FAQ</a>
-                <a href="#access-to-work">Access to Work</a>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Workflow consultation</button>
-              </div>
-            </div>
-            <div>
-              <p className="font-semibold">Legal</p>
-              <div className="mt-4 grid gap-3 text-muted">
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Privacy</button>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">Terms</button>
-                <button type="button" onClick={() => setIsContactModalOpen(true)} className="w-fit text-left">EDI policy</button>
-                <a href="/admin/login" className="mt-2 w-fit text-xs text-muted/50 hover:text-muted">VAxAI Studio</a>
-              </div>
-            </div>
-          </div>
+          <div className="section-divider-soft mt-12" />
+          <p className="mt-6 text-xs text-muted/70">© {new Date().getFullYear()} VAxAI. All rights reserved.</p>
         </div>
       </footer>
 
