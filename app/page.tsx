@@ -52,74 +52,6 @@ const tools = [
     logo: "https://www.google.com/s2/favicons?domain=notebooklm.google.com&sz=64",
   },
   {
-    name: "Outlook",
-    logo: "https://www.google.com/s2/favicons?domain=outlook.com&sz=64",
-  },
-  {
-    name: "Gmail",
-    logo: "https://cdn.simpleicons.org/gmail/EA4335",
-  },
-  {
-    name: "Teams",
-    logo: "https://www.google.com/s2/favicons?domain=teams.microsoft.com&sz=64",
-  },
-  {
-    name: "Slack",
-    logo: "https://cdn.simpleicons.org/slack/4A154B",
-  },
-  {
-    name: "Microsoft 365",
-    logo: "https://www.google.com/s2/favicons?domain=microsoft365.com&sz=64",
-  },
-  {
-    name: "Google Workspace",
-    logo: "https://www.google.com/s2/favicons?domain=workspace.google.com&sz=64",
-  },
-  {
-    name: "SharePoint",
-    logo: "https://www.google.com/s2/favicons?domain=sharepoint.com&sz=64",
-  },
-  {
-    name: "HubSpot",
-    logo: "https://cdn.simpleicons.org/hubspot/FF7A59",
-  },
-  {
-    name: "Salesforce",
-    logo: "https://www.google.com/s2/favicons?domain=salesforce.com&sz=64",
-  },
-  {
-    name: "Pipedrive",
-    logo: "https://www.google.com/s2/favicons?domain=pipedrive.com&sz=64",
-  },
-  {
-    name: "ClickUp",
-    logo: "https://cdn.simpleicons.org/clickup/7B68EE",
-  },
-  {
-    name: "Monday.com",
-    logo: "https://www.google.com/s2/favicons?domain=monday.com&sz=64",
-  },
-  {
-    name: "Trello",
-    logo: "https://cdn.simpleicons.org/trello/0052CC",
-  },
-  {
-    name: "Asana",
-    logo: "https://cdn.simpleicons.org/asana/F06A6A",
-  },
-  {
-    name: "Xero",
-    logo: "https://cdn.simpleicons.org/xero/13B5EA",
-  },
-  {
-    name: "Sage",
-    logo: "https://cdn.simpleicons.org/sage/00D639",
-  },
-  {
-    name: "QuickBooks",
-    logo: "https://cdn.simpleicons.org/quickbooks/2CA01C",
-  },
-  {
     name: "Zapier",
     logo: "https://cdn.simpleicons.org/zapier/FF4F00",
   },
@@ -913,41 +845,12 @@ export default function Home() {
       <section id="services" className="relative z-10 px-4 pb-16 md:px-8 md:pb-24">
         <div className="mx-auto -mt-20 max-w-6xl md:-mt-24">
           <Reveal className="rounded-[32px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
-            <div className="grid gap-10 md:grid-cols-2 md:gap-12">
-              <div>
-                <Eyebrow>Who we are</Eyebrow>
-                <p className="mt-4 text-sm leading-7 text-muted md:text-base md:leading-8">
-                  VAxAI is practical admin and workflow support for organisations and individuals whose work is being slowed down by too much admin.
-                </p>
-              </div>
-              <div>
-                <Eyebrow>What we do</Eyebrow>
-                <p className="mt-4 text-sm leading-7 text-muted md:text-base md:leading-8">
-                  We help reduce the time spent managing emails, diaries, follow-ups, files, reporting and repeat tasks, so admin does not stop people doing the work that matters.
-                </p>
-              </div>
-            </div>
+            <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+              Who VAxAI is for
+            </h2>
 
-            <div className="mt-12 border-t border-ink/5 pt-10">
-              <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                When admin starts getting in the way
-              </h2>
-              <p className="mt-5 max-w-3xl text-sm leading-7 text-muted md:text-base md:leading-8">
-                Every organisation and individual has different pressures, but admin often becomes the point where capacity is lost. For small businesses, founders, charities and neurodivergent professionals, the expectation to stay on top of everything can come at the cost of client work, service delivery, growth or impact. VAxAI exists to make sure admin does not become the thing that stops you doing the work.
-              </p>
-              <p className="mt-6 max-w-3xl text-sm leading-7 text-muted md:text-base md:leading-8">
-                Our process is always the same, regardless of context: we understand the work first, then shape the right support around what is actually needed.
-              </p>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-muted md:text-base md:leading-8">
-                We start by understanding where work is becoming harder than it needs to be, then design practical improvements using the right mix of AI, automation, better processes and human support.
-              </p>
-            </div>
-
-            <div className="mt-12 border-t border-ink/5 pt-10">
+            <div className="mt-10 border-t border-ink/5 pt-10">
               <Eyebrow>Who we support</Eyebrow>
-              <p className="mt-4 max-w-xl text-sm font-medium leading-7 text-ink/80">
-                Explore below to see how we could work with you.
-              </p>
               <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
                 {caseStudies.map((study, index) => (
                   <SupportAudienceCard key={study.href} study={study} index={index} />
