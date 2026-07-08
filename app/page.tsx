@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
@@ -55,6 +56,7 @@ const tools = [
 type CaseStudy = {
   title: string;
   subtitle: string;
+  href: string;
   teaser: string;
   paragraphs?: string[];
   workflowPoints?: string[];
@@ -67,6 +69,7 @@ const caseStudies: CaseStudy[] = [
   {
     title: "Founder & Entrepreneur",
     subtitle: "Freeing up time to grow the business",
+    href: "/founders-entrepreneurs",
     teaser: "A founder was spending several hours each week managing emails, scheduling meetings, tracking actions and chasing follow-ups.",
     paragraphs: [
       "Rather than introducing more software, we simplified how work flowed day to day before automating the repetitive tasks and providing ongoing support where human judgement still mattered.",
@@ -82,6 +85,7 @@ const caseStudies: CaseStudy[] = [
   {
     title: "Small Business",
     subtitle: "Creating clearer ways of working",
+    href: "/small-business",
     teaser: "A growing organisation was using multiple systems to manage projects, documents and client information. As the team grew, it became increasingly difficult to know where information belonged or who owned what.",
     paragraphs: [
       "We reviewed how work moved across the organisation before introducing clearer processes and improving the way their existing systems worked together.",
@@ -97,6 +101,7 @@ const caseStudies: CaseStudy[] = [
   {
     title: "Charities & Non-Profits",
     subtitle: "Reducing admin so more time goes into delivering services",
+    href: "/charities-non-profits",
     teaser: "Important messages, requests and updates were arriving through multiple channels, making it difficult to maintain visibility and respond consistently.",
     paragraphs: [
       "We designed a central communication workflow that brought information together, automated repetitive organisation and kept people responsible for the decisions that mattered.",
@@ -113,6 +118,7 @@ const caseStudies: CaseStudy[] = [
   {
     title: "Busy Teams",
     subtitle: "Helping work flow more smoothly",
+    href: "/busy-teams",
     teaser: "As the organisation expanded, different team members had developed their own ways of managing clients, files and daily work. Handover became difficult and consistency started to suffer.",
     paragraphs: [
       "We documented key processes, introduced practical automations and created clearer ways of working that the whole team could follow.",
@@ -485,37 +491,35 @@ function AccordionItem({
 function CaseCard({
   study,
   index,
-  onOpen,
 }: {
   study: CaseStudy;
   index: number;
-  onOpen: () => void;
 }) {
   return (
-    <motion.article
+    <motion.div
       variants={fadeUp}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.35, ease: EASE }}
-      className="group flex cursor-pointer flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
-      onClick={onOpen}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
-      role="button"
-      tabIndex={0}
     >
-      <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-      <div className="mt-4 flex-1">
-        <h3 className="text-lg font-semibold leading-snug tracking-tight text-paper">
-          {study.title}
-        </h3>
-        <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
-      </div>
-      <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
-        Explore how we help
-        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
-      </span>
-    </motion.article>
+      <Link
+        href={study.href}
+        className="group flex h-full flex-col rounded-3xl border border-white/10 bg-white/[0.05] p-6 transition-colors duration-500 hover:border-white/25 hover:bg-white/[0.08] md:p-7"
+      >
+        <span className="text-[11px] font-bold tracking-[0.16em] text-acid/80">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <div className="mt-4 flex-1">
+          <h3 className="text-lg font-semibold leading-snug tracking-tight text-paper">
+            {study.title}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-paper/60">{study.subtitle}</p>
+        </div>
+        <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-acid">
+          Explore how we help
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+        </span>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -851,22 +855,22 @@ export default function Home() {
             <SectionTitle
               light
               eyebrow="Who we support"
-              title="Organisations, teams and professionals"
+              title="Whether you run a business, lead a charity or manage a busy team"
               copy="Every organisation, team and professional works differently. Whether you're running a business, leading a charity or managing a busy team, we start by understanding how work happens today before recommending the right mix of AI, automation, better processes and human support. Here are a few examples of what that can look like in practice."
               narrow
             />
 
             <Stagger className="mt-14 grid gap-5 md:grid-cols-[1fr_260px_1fr] md:grid-rows-2">
-              <CaseCard study={caseStudies[0]} index={0} onOpen={() => setOpenCase(0)} />
+              <CaseCard study={caseStudies[0]} index={0} />
 
               {/* Centre image: spans both rows */}
               <motion.div variants={fadeUp} className="hidden overflow-hidden rounded-3xl ring-1 ring-white/10 md:row-span-2 md:block">
                 <PhotoCard src={image.expert} className="h-full w-full min-h-[320px]" />
               </motion.div>
 
-              <CaseCard study={caseStudies[1]} index={1} onOpen={() => setOpenCase(1)} />
-              <CaseCard study={caseStudies[2]} index={2} onOpen={() => setOpenCase(2)} />
-              <CaseCard study={caseStudies[3]} index={3} onOpen={() => setOpenCase(3)} />
+              <CaseCard study={caseStudies[1]} index={1} />
+              <CaseCard study={caseStudies[2]} index={2} />
+              <CaseCard study={caseStudies[3]} index={3} />
 
               {/* Mobile-only image (shown after the cards on small screens) */}
               <motion.div variants={fadeUp} className="overflow-hidden rounded-3xl ring-1 ring-white/10 md:hidden">

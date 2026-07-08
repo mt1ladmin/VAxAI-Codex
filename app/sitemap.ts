@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { audiencePagePaths } from "@/lib/seo/audience-pages";
 import { absoluteUrl } from "@/lib/seo/site";
 
 async function getPublishedPostEntries(): Promise<MetadataRoute.Sitemap> {
@@ -27,8 +28,15 @@ async function getPublishedPostEntries(): Promise<MetadataRoute.Sitemap> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const audiencePages: MetadataRoute.Sitemap = audiencePagePaths.map((path) => ({
+    url: absoluteUrl(path),
+    changeFrequency: "monthly" as const,
+    priority: 0.9,
+  }));
+
   const staticPages: MetadataRoute.Sitemap = [
     { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
+    ...audiencePages,
     { url: absoluteUrl("/insights"), changeFrequency: "weekly", priority: 0.8 },
     { url: absoluteUrl("/privacy"), changeFrequency: "yearly", priority: 0.3 },
     { url: absoluteUrl("/terms"), changeFrequency: "yearly", priority: 0.3 },
