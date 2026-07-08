@@ -76,21 +76,16 @@ export const sharedHowSection: AudienceSection = {
   journeyLabel: "Our Process",
   journey: [
     {
-      title: "Discovery & Strategy",
+      title: "Discovery, Strategy & Implementation",
       paragraphs: [
-        "We take time to understand how you currently work — your workflows, biggest pressure points, existing tools, and what support you already have. We then create a simple, practical strategy that uses AI and automation to reduce repetitive admin tasks, while keeping things human-centred and manageable. Human judgement stays central where it matters most.",
+        "We take time to understand how you currently work — your workflows, biggest pressure points, existing tools, and current support. From there, we create a practical strategy and then design and implement straightforward solutions that fit the way you actually work.",
+        "This includes smarter use of your current tools, targeted automation for repetitive tasks, clearer processes, better AI output handling, and virtual assistance where it adds the most value. Everything is kept simple, human-centred, and easy to manage — with no complicated custom builds.",
       ],
     },
     {
-      title: "Design & Implementation",
+      title: "Ongoing Support",
       paragraphs: [
-        "We design and put in place straightforward solutions that fit the way you actually work. This may include smarter use of your current tools, targeted automation for repetitive tasks, clearer processes, better ways to handle AI outputs, and virtual assistance for the areas that need it most. Everything is kept simple — no complicated custom builds.",
-      ],
-    },
-    {
-      title: "Ongoing Support & Optimisation",
-      paragraphs: [
-        "We continue to support you with virtual assistance, AI output reviews, automation maintenance, and regular check-ins. This helps your workflows stay effective and manageable as your organisation or workload changes, without creating more complexity or overwhelm.",
+        "We provide continued virtual assistance, AI output reviews, automation maintenance, and regular check-ins. This helps your workflows stay effective and manageable as your needs change, without creating extra complexity or overwhelm.",
       ],
     },
   ],

@@ -109,7 +109,7 @@ type AudienceTabId = "pressures" | "how" | "changes" | "pricing" | "benefits";
 
 function SupportJourney({ stages }: { stages: JourneyStage[] }) {
   return (
-    <div className="mt-8 grid gap-6 md:grid-cols-3">
+    <div className="mt-8 grid gap-6 md:grid-cols-2">
       {stages.map((stage, index) => (
         <div
           key={stage.title}
