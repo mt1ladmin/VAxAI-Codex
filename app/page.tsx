@@ -129,22 +129,6 @@ const caseStudies: CaseStudy[] = [
     ],
     closing: "Automation handled the routine work while people remained in control.",
   },
-  {
-    title: "Neurodivergent Professionals",
-    subtitle: "Support shaped around how your mind works.",
-    href: "/neurodivergent-professionals",
-    teaser: "Neurodivergent professionals often face admin pressure around overwhelm, task switching, follow-ups, scheduling and maintaining consistency — especially when systems were not designed around how they actually work.",
-    paragraphs: [
-      "We take time to understand your role, tools and friction points, then shape calm, practical support combining human assistance, accessible workflows, and AI or automation only where it genuinely helps.",
-    ],
-    results: [
-      "Less admin carried alone in your inbox or head",
-      "More consistent follow-through with human support",
-      "Scheduling and communication handled more steadily",
-      "Ways of working that feel usable day to day",
-    ],
-    closing: "Support shaped around your working context — not a one-size-fits-all productivity system.",
-  },
 ];
 
 const plans = [
@@ -204,7 +188,7 @@ const vatPrinciples = [
 ];
 
 const faqs = [
-  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities, non-profits and neurodivergent professionals who need practical support with admin, workflows, AI and automation — without being pushed into tools or systems that do not fit how they actually work."],
+  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation — without being pushed into tools or systems that do not fit how they actually work."],
   ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
   ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly after Discovery & Strategy, before any Workflow Design or build work begins."],
@@ -699,9 +683,8 @@ export default function Home() {
             <a href="/founders-entrepreneurs" className="transition-colors duration-200 hover:text-paper">Founders</a>
             <a href="/small-business" className="transition-colors duration-200 hover:text-paper">Small Business</a>
             <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-paper">Charities</a>
-            <a href="/neurodivergent-professionals" className="transition-colors duration-200 hover:text-paper">Neurodivergent</a>
             <a href="/#experts" className="transition-colors duration-200 hover:text-paper">About</a>
-            <a href="/neurodivergent-professionals#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
+            <a href="/founders-entrepreneurs#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
             <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
             <a href="/insights" className="text-acid/70 transition-colors duration-200 hover:text-acid">Insights &amp; Resources</a>
           </div>
@@ -729,9 +712,8 @@ export default function Home() {
                 { label: "Founders", href: "/founders-entrepreneurs" },
                 { label: "Small Business", href: "/small-business" },
                 { label: "Charities", href: "/charities-non-profits" },
-                { label: "Neurodivergent", href: "/neurodivergent-professionals" },
                 { label: "About", href: "/#experts" },
-                { label: "Access to Work", href: "/neurodivergent-professionals#access-to-work" },
+                { label: "Access to Work", href: "/founders-entrepreneurs#access-to-work" },
                 { label: "FAQ", href: "#faq" },
                 { label: "Insights & Resources", href: "/insights" },
               ].map(({ label, href }) => (
@@ -767,7 +749,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              Small businesses, charities, solo founders, and neurodivergent professionals often feel the weight of admin the most.
+              Small businesses, charities, and solo founders often feel the weight of admin the most.
             </motion.p>
             <motion.p
               variants={fadeUp}

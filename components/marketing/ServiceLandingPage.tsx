@@ -15,6 +15,7 @@ import type {
   JourneyStage,
 } from "@/lib/seo/audience-pages";
 import {
+  sharedAccessToWork,
   sharedFullSetupIncludes,
   sharedOngoingSupportDescription,
   sharedPricingIntro,
@@ -30,7 +31,6 @@ const HERO_IMAGES: Record<string, string> = {
   "founders-entrepreneurs": "/hero-remote-work-circles.jpg",
   "small-business": "/hero-remote-work-circles.jpg",
   "charities-non-profits": "/hero-remote-work-circles.jpg",
-  "neurodivergent-professionals": "/hero-remote-work-circles.jpg",
 };
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -332,12 +332,10 @@ const ACCESS_TO_WORK_URL = "https://www.gov.uk/access-to-work";
 
 function PricingPanelContent({
   pricing,
-  accessToWork,
   onContact,
   onViewBenefits,
 }: {
   pricing: AudiencePricing;
-  accessToWork?: { heading: string; paragraphs: string[] };
   onContact: () => void;
   onViewBenefits: () => void;
 }) {
@@ -395,31 +393,29 @@ function PricingPanelContent({
         </button>
       </div>
 
-      {accessToWork ? (
-        <div
-          id="access-to-work"
-          className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
-        >
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
-          <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
-            {accessToWork.heading}
-          </h3>
-          <div className="mt-3 max-w-3xl space-y-3 text-sm leading-7 text-muted md:text-[15px]">
-            {accessToWork.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-          <a
-            href={ACCESS_TO_WORK_URL}
-            target="_blank"
-            rel="noreferrer"
-            className={`${btn.primary} mt-6`}
-          >
-            Learn about Access to Work
-            <ArrowRight className="h-4 w-4" />
-          </a>
+      <div
+        id="access-to-work"
+        className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
+      >
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
+        <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
+          {sharedAccessToWork.heading}
+        </h3>
+        <div className="mt-3 max-w-3xl space-y-3 text-sm leading-7 text-muted md:text-[15px]">
+          {sharedAccessToWork.paragraphs.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
-      ) : null}
+        <a
+          href={ACCESS_TO_WORK_URL}
+          target="_blank"
+          rel="noreferrer"
+          className={`${btn.primary} mt-6`}
+        >
+          Learn about Access to Work
+          <ArrowRight className="h-4 w-4" />
+        </a>
+      </div>
     </div>
   );
 }
@@ -470,7 +466,6 @@ function AudienceTabbedSections({
   changes,
   workWithUs,
   pricing,
-  accessToWorkInPricing,
   onContact,
 }: {
   pressures: AudienceSection;
@@ -479,7 +474,6 @@ function AudienceTabbedSections({
   changes: AudienceSection;
   workWithUs: AudienceSection;
   pricing: AudiencePricing;
-  accessToWorkInPricing?: { heading: string; paragraphs: string[] };
   onContact: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<AudienceTabId>("pressures");
@@ -499,7 +493,7 @@ function AudienceTabbedSections({
         setActiveTab("benefits");
         return;
       }
-      if (accessToWorkInPricing && window.location.hash === "#access-to-work") {
+      if (window.location.hash === "#access-to-work") {
         setActiveTab("pricing");
       }
     }
@@ -507,7 +501,7 @@ function AudienceTabbedSections({
     syncTabFromHash();
     window.addEventListener("hashchange", syncTabFromHash);
     return () => window.removeEventListener("hashchange", syncTabFromHash);
-  }, [accessToWorkInPricing]);
+  }, []);
 
   const tabs: { id: AudienceTabId; label: string }[] = [
     { id: "pressures", label: pressures.heading },
@@ -597,7 +591,6 @@ function AudienceTabbedSections({
         {activeTab === "pricing" ? (
           <PricingPanelContent
             pricing={pricing}
-            accessToWork={accessToWorkInPricing}
             onContact={onContact}
             onViewBenefits={openBenefitsTab}
           />
@@ -743,7 +736,6 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 changes={changes}
                 workWithUs={page.workWithUs}
                 pricing={page.pricing}
-                accessToWorkInPricing={page.accessToWork}
                 onContact={() => setContactOpen(true)}
               />
             </Reveal>

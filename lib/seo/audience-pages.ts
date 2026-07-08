@@ -38,11 +38,18 @@ export type AudienceSection = {
 
 export const sharedPricingIntro = "We offer clear and fair pricing tailored to your needs.";
 
+export const sharedAccessToWork = {
+  heading: "Your VAxAI support could cost you nothing",
+  paragraphs: [
+    "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
+    "We can help you understand what this may involve and how VAxAI support could fit around your work.",
+  ],
+};
+
 const sharedWorkWithUsBullets = [
   "Lower overall cost: You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
   "Pay only for what you need: AI and automation handle repetitive work, so human support is mainly for oversight, exceptions, and maintenance. Because your VA deeply understands your systems, you typically need even fewer hours over time.",
   "Full flexibility: Scale support up or down easily with no long-term commitment.",
-  "Predictable budgeting: Ideal for those with limited or variable income.",
 ];
 
 export const sharedHowSection: AudienceSection = {
@@ -82,7 +89,6 @@ export type AudiencePage = {
   changes: AudienceSection;
   pricing: AudiencePricing;
   workWithUs: AudienceSection;
-  accessToWork?: { heading: string; paragraphs: string[] };
   related: { label: string; description: string; linkLabel: string };
 };
 
@@ -164,17 +170,11 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a founder, predictable cost and flexible hours matter when growth work cannot wait on hiring decisions or complex employment setup.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, predictable cost and flexible hours matter when growth work cannot wait on hiring decisions or complex employment setup.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
         "In short: You get reliable, professional help that grows with your business, with the flexibility and peace of mind your work deserves.",
-    },
-    accessToWork: {
-      heading: "Your VAxAI support could cost you nothing",
-      paragraphs: [
-        "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
-      ],
     },
     related: {
       label: "Founders & Entrepreneurs",
@@ -266,12 +266,6 @@ export const audiencePages: AudiencePage[] = [
       closing:
         "In short: You get reliable, professional help that keeps operations steady as you grow, with the flexibility and peace of mind your business deserves.",
     },
-    accessToWork: {
-      heading: "Your VAxAI support could cost you nothing",
-      paragraphs: [
-        "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
-      ],
-    },
     related: {
       label: "Small Businesses",
       description:
@@ -356,128 +350,17 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, predictable budgeting and flexible hours help you protect delivery capacity without taking on employment risk.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, predictable budgeting and flexible hours help you protect delivery capacity.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
         "In short: You get reliable, professional help that supports your mission, with the flexibility and peace of mind your team deserves.",
-    },
-    accessToWork: {
-      heading: "Your VAxAI support could cost you nothing",
-      paragraphs: [
-        "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
-      ],
     },
     related: {
       label: "UK Charities & Non-Profits",
       description:
         "UK charities and non-profits are often stretched across delivery, reporting, volunteer coordination, funding admin and communication.",
       linkLabel: "View Charity & Non-Profit support",
-    },
-  },
-  {
-    slug: "neurodivergent-professionals",
-    metaTitle: "Admin & Virtual Assistant Support for Neurodivergent Professionals UK",
-    metaDescription:
-      "VAxAI offers tailored UK support for neurodivergent professionals facing admin overwhelm, task switching, follow-ups, scheduling, consistency challenges and executive functioning pressure.",
-    serviceType: "Tailored virtual assistance for neurodivergent professionals",
-    audienceName: "Neurodivergent Professionals",
-    title: "Support shaped around how you work best",
-    intro:
-      "Neurodivergent professionals often manage work in ways that standard productivity advice does not reflect. VAxAI takes time to understand your context, tools, preferences and working patterns before recommending the right mix of human support, better processes, and AI or automation only where it genuinely reduces friction.",
-    heroHasAccessCta: true,
-    understanding: {
-      heading: "Built with lived and practical understanding",
-      paragraphs: [
-        "VAxAI was founded by a neurodivergent professional, so this support is shaped with lived experience as well as practical workflow expertise.",
-        "Every person works differently. There is no single neurodivergent experience. But we understand that admin, communication, task switching, follow-through and system maintenance can place extra demands on capacity when the systems around someone do not reflect how they actually work.",
-      ],
-    },
-    pressures: {
-      heading: "Does this sound familiar?",
-      paragraphs: [
-        "The issue is not a lack of ability. Often, the pressure comes from work systems that rely too heavily on memory, constant switching, manual tracking or unclear processes.",
-      ],
-      bullets: [
-        "Reminders, follow-ups and deadlines depending too much on memory",
-        "Task switching making it harder to return to unfinished actions",
-        "Inbox build-up and communication spread across too many places",
-        "Admin systems that work briefly but become hard to maintain",
-      ],
-    },
-    delayed: {
-      heading: "What happens when support is delayed",
-      paragraphs: [
-        "When support is delayed, the cost is often not the task itself. It is the extra energy spent managing systems that were not designed around how the person works best.",
-        "Admin can build up, follow-ups can become harder to return to, communication can spread across too many places, and important work can feel heavier than it needs to because too much depends on memory, switching and self-tracking.",
-      ],
-
-      bullets: [
-        "More energy spent managing admin instead of doing meaningful work",
-        "Follow-ups, deadlines or messages becoming harder to track",
-        "Systems working briefly but becoming difficult to maintain over time",
-        "Increased cognitive load from too many tools, reminders or unclear processes",
-        "Work feeling more reactive because priorities are not visible enough",
-        "Avoidable pressure building around tasks that could be supported, simplified or externalised",
-      ],
-    },
-    howWeHelp: {
-      heading: "What could help",
-      paragraphs: [
-        "When admin depends on memory, switching and self-tracking, support shaped around how you work can reduce the load without forcing a one-size-fits-all system.",
-      ],
-      bulletsLabel: "Three types of support explained:",
-      bullets: [
-        "AI: Helps draft messages, summarise long content and break information into clearer chunks when reading or writing feels heavy.",
-        "Automation: Sends reminders, organises recurring tasks and keeps follow-ups visible so less relies on remembering alone.",
-        "Virtual assistance: A person who handles exceptions, reviews outputs and provides steady admin support that adapts when your capacity or focus shifts.",
-      ],
-    },
-    how: sharedHowSection,
-    changes: {
-      heading: "What changes in practice",
-      paragraphs: [
-        "With the right support in place, work can become easier to track, return to and sustain.",
-        "When memory, task switching and inbox build-up create the pressure, support shaped around how you work is designed to reduce cognitive load, not force a generic productivity system.",
-      ],
-      equation:
-        "Cognitive load from admin + support shaped around how you work = work that is easier to return to, track and sustain.",
-      bulletsLabel: "You can gain:",
-      bullets: [
-        "Fewer tasks relying on memory alone",
-        "Clearer visibility of what needs attention and what can wait",
-        "More consistent follow-up without needing to manually hold every detail",
-        "Systems that are easier to return to after interruption, transition or overwhelm",
-        "Reduced cognitive load around planning, reminders and admin tracking",
-        "Support that protects autonomy while making work easier to sustain",
-        "Practical help that fits your working patterns rather than forcing a generic productivity system",
-      ],
-    },
-    pricing: {
-      fullSetupPrice: "From £2,450 (fixed price)",
-      ongoingSupportPrice: "£25 per hour (pay only for what you need)",
-    },
-    workWithUs: {
-      heading: "The Benefits of Our Approach",
-      paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For neurodivergent professionals, flexible support without employment overhead helps protect energy, autonomy and consistency, especially when systems need to fit how you actually work.",
-      ],
-      bullets: sharedWorkWithUsBullets,
-      closing:
-        "In short: You get reliable, professional help that fits your working patterns, with the flexibility and peace of mind your work deserves.",
-    },
-    accessToWork: {
-      heading: "Your VAxAI support could cost you nothing",
-      paragraphs: [
-        "As a neurodivergent professional Access to Work could help fund support such as virtual assistance, admin support, workflow tools, communication support or help using digital systems.",
-        "We can help you understand what this may involve and how VAxAI support could fit around your work.",
-      ],
-    },
-    related: {
-      label: "Neurodivergent Professionals",
-      description:
-        "Neurodivergent professionals may need support that reflects their working patterns, communication load, task switching and the effort involved in maintaining admin systems over time.",
-      linkLabel: "View Neurodivergent Professional support",
     },
   },
 ];

@@ -12,7 +12,6 @@ const audienceLinks = [
   { label: "Founders & Entrepreneurs", href: "/founders-entrepreneurs" },
   { label: "Small Business", href: "/small-business" },
   { label: "Charities & Non-Profits", href: "/charities-non-profits" },
-  { label: "Neurodivergent Professionals", href: "/neurodivergent-professionals" },
 ];
 
 export default function SiteNav({ variant = "dark" }: Props) {
