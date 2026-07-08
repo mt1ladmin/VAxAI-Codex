@@ -116,20 +116,20 @@ const caseStudies: CaseStudy[] = [
     closing: "Automation handled the routine work while people remained in control.",
   },
   {
-    title: "Busy Teams",
-    subtitle: "Helping work flow more smoothly",
-    href: "/busy-teams",
-    teaser: "As the organisation expanded, different team members had developed their own ways of managing clients, files and daily work. Handover became difficult and consistency started to suffer.",
+    title: "Neurodivergent Professionals",
+    subtitle: "Support shaped around how your mind works",
+    href: "/neurodivergent-professionals",
+    teaser: "Neurodivergent professionals often face admin pressure around overwhelm, task switching, follow-ups, scheduling and maintaining consistency — especially when systems were not designed around how they actually work.",
     paragraphs: [
-      "We documented key processes, introduced practical automations and created clearer ways of working that the whole team could follow.",
+      "We take time to understand your role, tools and friction points, then shape calm, practical support combining human assistance, accessible workflows, and AI or automation only where it genuinely helps.",
     ],
     results: [
-      "Consistent ways of working",
-      "Faster onboarding",
-      "Reduced reliance on individual team members",
-      "Better continuity as the organisation grew",
+      "Less admin carried alone in your inbox or head",
+      "More consistent follow-through with human support",
+      "Scheduling and communication handled more steadily",
+      "Ways of working that feel usable day to day",
     ],
-    closing: "Growth became easier because the way work happened became easier to repeat.",
+    closing: "Support shaped around your working context — not a one-size-fits-all productivity system.",
   },
 ];
 
@@ -344,12 +344,14 @@ function SectionTitle({
   eyebrow,
   title,
   copy,
+  prompt,
   light = false,
   narrow = false,
 }: {
   eyebrow?: string;
   title: string;
   copy?: string;
+  prompt?: string;
   light?: boolean;
   narrow?: boolean;
 }) {
@@ -376,6 +378,15 @@ function SectionTitle({
           }`}
         >
           {copy}
+        </p>
+      ) : null}
+      {prompt ? (
+        <p
+          className={`mx-auto mt-4 max-w-xl text-sm font-medium leading-7 ${
+            light ? "text-paper/80" : "text-ink/80"
+          }`}
+        >
+          {prompt}
         </p>
       ) : null}
     </Reveal>
@@ -854,9 +865,10 @@ export default function Home() {
           <div className="relative">
             <SectionTitle
               light
-              eyebrow="Who we support"
-              title="Whether you run a business, lead a charity or manage a busy team"
-              copy="Every organisation, team and professional works differently. Whether you're running a business, leading a charity or managing a busy team, we start by understanding how work happens today before recommending the right mix of AI, automation, better processes and human support. Here are a few examples of what that can look like in practice."
+              eyebrow="Who we work with"
+              title="Support built around you"
+              copy="We take time to understand your context, tools and workflows before recommending the right mix of AI, automation, better processes and human support."
+              prompt="Click below to see how VAxAI could support you."
               narrow
             />
 
@@ -927,35 +939,6 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* Plans — white band with hairline dividers                     */}
-      {/* ------------------------------------------------------------ */}
-      <section id="pricing" className="relative bg-white px-4 py-24 md:px-8 md:py-32">
-        <div className="simplified-hide pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-ink/10 to-transparent" aria-hidden="true" />
-        <div className="simplified-hide pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-ink/10 to-transparent" aria-hidden="true" />
-        <div className="mx-auto max-w-6xl">
-          <SectionTitle
-            eyebrow="Ways of working"
-            title="Three ways to work with us"
-            copy="Every organisation works differently. Rather than starting with technology, we start by understanding how work happens today."
-            narrow
-          />
-          <Stagger className="mt-14 grid gap-5 lg:mt-16 lg:grid-cols-3 lg:items-start">
-            {plans.map((plan) => (
-              <PlanCard key={plan.title} plan={plan} onContact={() => setIsContactModalOpen(true)} />
-            ))}
-          </Stagger>
-          <Reveal className="mt-6 grid gap-4 rounded-3xl border border-pine-900/10 bg-pine-50/70 p-6 text-sm leading-7 text-muted md:grid-cols-2 md:gap-10 md:p-8">
-            <p>
-              Pricing is tailored to each client and depends on factors such as organisational complexity, existing systems, implementation requirements, training needs and the level of ongoing support required. This may differ for businesses, charities, consultants, founders and individual professionals.
-            </p>
-            <p>
-              Before any assessment begins, we will discuss your requirements and provide a clear quotation for the recommended scope of work.
-            </p>
-          </Reveal>
         </div>
       </section>
 

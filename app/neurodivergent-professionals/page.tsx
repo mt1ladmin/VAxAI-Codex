@@ -2,7 +2,7 @@ import AudiencePageShell from "@/components/marketing/AudiencePageShell";
 import { createPageMetadata } from "@/lib/seo/metadata";
 import { getAudiencePage } from "@/lib/seo/audience-pages";
 
-const SLUG = "busy-teams";
+const SLUG = "neurodivergent-professionals";
 const page = getAudiencePage(SLUG)!;
 
 export const metadata = createPageMetadata({
@@ -11,6 +11,6 @@ export const metadata = createPageMetadata({
   path: `/${SLUG}`,
 });
 
-export default function BusyTeamsPage() {
+export default function NeurodivergentProfessionalsPage() {
   return <AudiencePageShell slug={SLUG} />;
 }

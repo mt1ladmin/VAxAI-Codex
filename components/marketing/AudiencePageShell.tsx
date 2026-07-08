@@ -22,7 +22,9 @@ export default function AudiencePageShell({ slug }: { slug: string }) {
         title={page.title}
         intro={page.intro}
         sections={page.sections}
+        waysOfWorking={page.waysOfWorking}
         relatedLinks={getRelatedAudienceLinks(page.slug)}
+        showAccessToWork={page.showAccessToWork}
       />
     </>
   );

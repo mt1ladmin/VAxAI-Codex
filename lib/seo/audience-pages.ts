@@ -1,5 +1,21 @@
 import type { ServiceSection } from "@/components/marketing/ServiceLandingPage";
 
+export type AudienceWayOfWorking = {
+  step: string;
+  title: string;
+  label: string;
+  copy: string[];
+  featured?: boolean;
+};
+
+export type WaysOfWorkingBlock = {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  plans: AudienceWayOfWorking[];
+  pricingNotes: string[];
+};
+
 export type AudiencePage = {
   slug: string;
   metaTitle: string;
@@ -9,6 +25,8 @@ export type AudiencePage = {
   title: string;
   intro: string;
   sections: ServiceSection[];
+  waysOfWorking: WaysOfWorkingBlock;
+  showAccessToWork?: boolean;
 };
 
 export const audiencePages: AudiencePage[] = [
@@ -16,205 +34,366 @@ export const audiencePages: AudiencePage[] = [
     slug: "founders-entrepreneurs",
     metaTitle: "Virtual Assistant & Admin Support for Founders UK",
     metaDescription:
-      "VAxAI helps UK founders and entrepreneurs reduce repetitive admin with virtual assistance, practical AI, automation and human support where judgement still matters.",
+      "VAxAI helps UK founders and entrepreneurs reduce inbox pressure, follow-up gaps and admin overload with tailored virtual assistance, practical workflows, and AI or automation only where helpful.",
     serviceType: "Virtual assistance and admin support for founders",
     eyebrow: "Founders & Entrepreneurs",
-    title: "Virtual assistance and admin support for founders and entrepreneurs",
+    title: "Support shaped around how you run your business",
     intro:
-      "Founders often carry the weight of the business in their inbox, calendar and follow-ups. VAxAI helps you spend less time managing work and more time growing the business — combining practical AI, automation, better processes and human support where each adds the most value.",
+      "Founders and entrepreneurs often carry too many priorities at once — client work, growth, scheduling, follow-ups and the admin that keeps everything moving. VAxAI takes time to understand your context, tools and workflows before recommending the right mix of human support, better processes, and AI or automation only where it genuinely helps.",
     sections: [
       {
-        id: "who-benefits",
-        heading: "Who this is for",
+        id: "pressures",
+        heading: "Pressures we often see",
         paragraphs: [
-          "This work suits founders and entrepreneurs who are spending several hours each week on emails, scheduling, tracking actions and chasing follow-ups — and want a practical way to reclaim that time without adding unnecessary software.",
+          "When you are building a business, admin rarely stays in one place. It spreads across your inbox, calendar, notes, client messages and the follow-ups you mean to send later — while growth work waits.",
         ],
         bullets: [
-          "Solo founders managing client communication and delivery",
-          "Entrepreneurs growing a business without a full admin team",
-          "Leaders who need human oversight around important decisions",
-          "Founders exploring Access to Work or similar support routes",
+          "Too many competing priorities and not enough protected focus time",
+          "Inbox overload and messages arriving across multiple channels",
+          "Inconsistent follow-up on clients, leads and internal actions",
+          "Scheduling, diary management and meeting preparation taking longer than it should",
+          "Client management spread across tools with no clear single view",
+          "Admin growing faster than the repeatable systems behind it",
         ],
       },
       {
-        id: "what-we-help-with",
-        heading: "What we help with",
+        id: "how-we-help",
+        heading: "How VAxAI support fits",
         paragraphs: [
-          "We start by understanding how work happens today, then recommend the right mix of virtual assistance, AI, automation and process improvement for the way you already operate.",
+          "We do not start with software. We start with how your work actually happens — then shape practical support around the way you operate, including where human judgement must stay central.",
         ],
         bullets: [
-          "Workflow reviews to identify where admin pressure is building",
-          "Virtual assistance for tasks that should stay human",
-          "Automation of repetitive organisation where appropriate",
-          "Clearer processes so follow-ups and priorities do not get lost",
-          "Ongoing support as your business grows and changes",
+          "Workflow reviews to see where time is being lost and pressure is building",
+          "Virtual assistance for inbox triage, scheduling, follow-ups and coordination",
+          "Clearer processes so client work and priorities do not depend on memory alone",
+          "Light automation for repetitive organisation where it reduces friction safely",
+          "Ongoing support that adapts as your business grows and changes",
         ],
       },
       {
-        id: "typical-results",
+        id: "what-changes",
         heading: "What changes in practice",
         bullets: [
-          "Significant reduction in time spent on admin",
-          "Fewer missed follow-ups and clearer priorities",
-          "More time for clients, delivery and business growth",
-          "A practical solution built around how you already work",
+          "More protected time for clients, delivery and business growth",
+          "Fewer missed follow-ups and clearer visibility of what needs attention",
+          "Scheduling and admin handled with consistency behind the scenes",
+          "Repeatable ways of working that do not rely on you holding everything in your head",
         ],
         paragraphs: [],
       },
     ],
+    waysOfWorking: {
+      eyebrow: "Ways of working",
+      title: "Three ways we can support you",
+      intro:
+        "Every founder works differently. We start by understanding your clients, tools and daily rhythm before recommending what should change, what should stay human, and what support will actually work in practice.",
+      plans: [
+        {
+          step: "01",
+          title: "Assessment",
+          label: "Assess",
+          copy: [
+            "We map how you currently manage your inbox, clients, scheduling, follow-ups and internal actions. Together we identify where admin is slowing growth, where priorities compete, and which improvements are likely to make the biggest difference before anything changes.",
+          ],
+        },
+        {
+          step: "02",
+          title: "Implementation",
+          label: "Assess + Implement",
+          copy: [
+            "Using what we learn, we put agreed improvements in place. That may mean simplifying how work flows day to day, better use of tools you already have, virtual assistance for high-friction tasks, or light automation where it reduces repetitive work without adding complexity.",
+          ],
+        },
+        {
+          step: "03",
+          title: "Ongoing Support",
+          label: "Assess + Implement + Support",
+          featured: true,
+          copy: [
+            "As your client base, offers and priorities shift, we continue refining how work happens. Ongoing support may include virtual assistance, process adjustments, system checks and practical guidance so admin stays manageable while you focus on growing the business.",
+          ],
+        },
+      ],
+      pricingNotes: [
+        "Pricing is tailored to your business stage, complexity and the level of support required.",
+        "Before any assessment begins, we discuss your needs and provide a clear quotation for the recommended scope of work.",
+      ],
+    },
   },
   {
     slug: "small-business",
     metaTitle: "Admin Support & Automation for Small Businesses UK",
     metaDescription:
-      "VAxAI helps UK small businesses create clearer ways of working with virtual assistance, AI, automation and practical process support.",
+      "VAxAI helps UK small businesses manage customer enquiries, bookings, invoices, documents, follow-ups and team coordination with practical virtual assistance, workflows and automation.",
     serviceType: "Admin support and workflow automation for small businesses",
     eyebrow: "Small Business",
-    title: "Admin support and automation for small businesses",
+    title: "Admin support that fits how your business runs",
     intro:
-      "As small businesses grow, admin, systems and ways of working can start to pull in different directions. VAxAI helps UK small businesses create clearer processes, make better use of existing tools and introduce AI or automation only where it genuinely saves time.",
+      "Small businesses feel admin pressure quickly — enquiries to answer, bookings to manage, invoices to chase, documents to file and follow-ups that keep the operation moving. VAxAI learns your context, tools and workflows first, then recommends human support, clearer processes, and AI or automation only where they add real value.",
     sections: [
       {
-        id: "who-benefits",
-        heading: "Who this is for",
+        id: "pressures",
+        heading: "Pressures we often see",
         paragraphs: [
-          "Small businesses using multiple systems to manage projects, documents and client information — where it has become harder to know where information belongs or who owns what.",
+          "In a small business, work often arrives faster than the systems behind it. Customer messages, internal coordination and repetitive tasks can start to compete with the work that actually earns revenue.",
         ],
         bullets: [
-          "Growing teams needing consistent ways of working",
-          "Businesses duplicating work across tools and inboxes",
-          "Owners who want admin to grow more slowly than the organisation",
-          "Teams preparing to onboard new staff without losing clarity",
+          "Customer enquiries and messages arriving across email, phone and social channels",
+          "Bookings, appointments and scheduling handled manually",
+          "Invoices, payments and document filing taking more time than expected",
+          "Follow-ups on quotes, orders and supplier actions slipping through",
+          "Internal processes that live in people's heads rather than shared systems",
+          "Team coordination becoming harder as workload grows",
+          "Repetitive admin repeating every week without a clearer way to handle it",
         ],
       },
       {
-        id: "what-we-help-with",
-        heading: "What we help with",
+        id: "how-we-help",
+        heading: "How VAxAI support fits",
         paragraphs: [
-          "Rather than starting with technology, we review how work moves across your business and design practical improvements using the right mix of human support, automation and better processes.",
+          "We help small businesses create calmer, clearer ways of working — combining virtual assistance and practical process support with automation only where it genuinely reduces repetition.",
         ],
         bullets: [
-          "Assessment of admin workload, tools and team capacity",
-          "Clearer ownership of information and tasks",
-          "Automation where repetitive work can be handled safely",
-          "Virtual assistance for work that needs human judgement",
-          "Implementation and training so changes work in practice",
+          "Reviews of how enquiries, bookings, documents and tasks move through the business",
+          "Virtual assistance for inbox management, follow-ups and day-to-day coordination",
+          "Clearer ownership of customer information, files and internal actions",
+          "Automation for repetitive organisation where appropriate and safe",
+          "Implementation support so changes work for the whole team",
         ],
       },
       {
-        id: "typical-results",
+        id: "what-changes",
         heading: "What changes in practice",
         bullets: [
-          "Less duplication across systems and inboxes",
-          "Clear ownership of information and responsibilities",
-          "Faster onboarding for new team members",
-          "Less time spent searching for files and updates",
+          "Customer enquiries and follow-ups handled more consistently",
+          "Less time spent searching for documents, details and updates",
+          "Clearer internal processes that are easier to hand over or repeat",
+          "Admin that grows more slowly than the business itself",
         ],
         paragraphs: [],
       },
     ],
+    waysOfWorking: {
+      eyebrow: "Ways of working",
+      title: "Three ways we can support your business",
+      intro:
+        "We start with how work happens in your business today — your customers, tools, team capacity and admin pressure — before recommending the right mix of support.",
+      plans: [
+        {
+          step: "01",
+          title: "Assessment",
+          label: "Assess",
+          copy: [
+            "We review how enquiries, bookings, invoices, documents, follow-ups and team coordination currently work. Together we identify where time is being lost, where information is duplicated, and which changes are likely to make the biggest practical difference.",
+          ],
+        },
+        {
+          step: "02",
+          title: "Implementation",
+          label: "Assess + Implement",
+          copy: [
+            "We implement the agreed improvements across your real working context. That may include clearer customer and document workflows, better use of existing tools, virtual assistance for recurring tasks, or automation where repetitive admin can be handled safely.",
+          ],
+        },
+        {
+          step: "03",
+          title: "Ongoing Support",
+          label: "Assess + Implement + Support",
+          featured: true,
+          copy: [
+            "As customer volume, staffing and priorities change, we keep refining how work happens. Ongoing support may include virtual assistance, process improvements, system checks and team guidance so your ways of working stay usable as the business grows.",
+          ],
+        },
+      ],
+      pricingNotes: [
+        "Pricing depends on your business complexity, systems, implementation needs and the level of ongoing support required.",
+        "Before any assessment begins, we discuss your requirements and provide a clear quotation for the recommended scope of work.",
+      ],
+    },
   },
   {
     slug: "charities-non-profits",
-    metaTitle: "Virtual Assistant Support for Charities & Non-Profits UK",
+    metaTitle: "Virtual Assistant Support for UK Charities & Non-Profits",
     metaDescription:
-      "VAxAI helps UK charities and non-profits reduce admin pressure with virtual assistance, AI, automation and human support so more time goes into delivering services.",
+      "VAxAI helps UK charities and non-profits reduce admin pressure across reporting, volunteer coordination, funding admin, compliance, safeguarding records, inboxes and follow-ups.",
     serviceType: "Virtual assistance and admin support for charities",
     eyebrow: "Charities & Non-Profits",
-    title: "Virtual assistance and admin support for charities and non-profits",
+    title: "More capacity for the work that matters",
     intro:
-      "Charities and non-profits need capacity for the work that matters — not endless admin. VAxAI helps UK organisations reduce repetitive administration with practical AI, automation, clearer processes and trusted human support where judgement and relationships still count.",
+      "UK charities and non-profits are often stretched — limited capacity, growing reporting demands, volunteer coordination, funding admin and the everyday communication that keeps services running. VAxAI takes time to understand your context, tools and workflows before shaping practical support around delivery, compliance and relationships.",
     sections: [
       {
-        id: "who-benefits",
-        heading: "Who this is for",
+        id: "pressures",
+        heading: "Pressures we often see",
         paragraphs: [
-          "Charities and non-profits where messages, requests and updates arrive through multiple channels, making it difficult to maintain visibility, respond consistently and keep focus on service delivery.",
+          "Charity teams are frequently doing more with less. Admin does not just sit in one inbox — it spreads across service delivery, volunteers, funders, compliance and the follow-ups that keep people safe and supported.",
         ],
         bullets: [
-          "Small charity teams with limited admin capacity",
-          "Non-profits managing volunteers, funders and service users",
-          "Organisations where reporting and compliance add pressure",
-          "Teams trying to do more without growing back-office headcount",
+          "Limited capacity across a small core team and wider volunteer network",
+          "Reporting and funder administration adding pressure alongside delivery",
+          "Volunteer coordination, rotas, onboarding and communication taking significant time",
+          "Service delivery admin competing with front-line priorities",
+          "Compliance, safeguarding records and information handling needing consistent care",
+          "Inboxes and requests arriving through multiple channels",
+          "Follow-ups on referrals, partners and internal actions becoming hard to track",
         ],
       },
       {
-        id: "what-we-help-with",
-        heading: "What we help with",
+        id: "how-we-help",
+        heading: "How VAxAI support fits",
         paragraphs: [
-          "We help charities put the right support around routine administration while keeping people responsible for the decisions that matter to beneficiaries, funders and partners.",
+          "We help charities put calm, practical support around routine administration — while keeping people responsible for the decisions that matter to beneficiaries, volunteers, funders and partners.",
         ],
         bullets: [
-          "Central communication workflows across email and other channels",
-          "Automation of repetitive organisation where appropriate",
-          "Virtual assistance for follow-ups, scheduling and coordination",
-          "Clearer processes that reduce manual reporting burden",
-          "Ongoing refinement as priorities and funding change",
+          "Workflow reviews across communication, records, reporting and coordination",
+          "Virtual assistance for inboxes, scheduling, follow-ups and document organisation",
+          "Clearer processes for information handling, safeguarding records and internal actions",
+          "Automation for repetitive organisation where it reduces manual burden safely",
+          "Ongoing support that adapts as funding, staffing and service priorities change",
         ],
       },
       {
-        id: "typical-results",
+        id: "what-changes",
         heading: "What changes in practice",
         bullets: [
-          "Better visibility across incoming requests and actions",
-          "Faster response times with fewer missed follow-ups",
-          "Less manual administration across channels",
-          "More time directed towards delivering services",
+          "Better visibility across requests, actions and follow-ups",
+          "Less time lost to manual reporting and repeated coordination",
+          "Clearer information handling across teams and volunteers",
+          "More capacity directed towards service delivery and relationships",
         ],
         paragraphs: [],
       },
     ],
+    waysOfWorking: {
+      eyebrow: "Ways of working",
+      title: "Three ways we can support your organisation",
+      intro:
+        "Charities work under real constraints. We start by understanding your services, team shape, tools and admin pressure before recommending support that respects safeguarding, compliance and delivery priorities.",
+      plans: [
+        {
+          step: "01",
+          title: "Assessment",
+          label: "Assess",
+          copy: [
+            "We review how communication, reporting, volunteer coordination, records, follow-ups and service delivery admin currently happen. Together we identify where pressure is building and which improvements are likely to create the most capacity without adding risk.",
+          ],
+        },
+        {
+          step: "02",
+          title: "Implementation",
+          label: "Assess + Implement",
+          copy: [
+            "We implement agreed improvements in a way that fits your organisation's reality. That may include clearer information workflows, better use of existing tools, virtual assistance for recurring admin, or automation where repetitive organisation can be handled appropriately.",
+          ],
+        },
+        {
+          step: "03",
+          title: "Ongoing Support",
+          label: "Assess + Implement + Support",
+          featured: true,
+          copy: [
+            "As funding, staffing and service needs shift, we continue refining how work happens. Ongoing support may include virtual assistance, process adjustments, system checks and practical guidance so admin stays manageable while your team stays focused on delivery.",
+          ],
+        },
+      ],
+      pricingNotes: [
+        "Pricing is tailored to organisational complexity, safeguarding and reporting needs, and the level of ongoing support required.",
+        "Before any assessment begins, we discuss your requirements and provide a clear quotation for the recommended scope of work.",
+      ],
+    },
   },
   {
-    slug: "busy-teams",
-    metaTitle: "Admin Support & Workflow Automation for Busy Teams UK",
+    slug: "neurodivergent-professionals",
+    metaTitle: "Admin & Virtual Assistant Support for Neurodivergent Professionals UK",
     metaDescription:
-      "VAxAI helps busy UK teams improve how work flows with virtual assistance, AI, automation, clearer processes and ongoing human support.",
-    serviceType: "Admin support and workflow automation for teams",
-    eyebrow: "Busy Teams",
-    title: "Admin support and workflow automation for busy teams",
+      "VAxAI offers tailored UK support for neurodivergent professionals facing admin overwhelm, task switching, follow-ups, scheduling, consistency challenges and executive functioning pressure.",
+    serviceType: "Tailored virtual assistance for neurodivergent professionals",
+    eyebrow: "Neurodivergent Professionals",
+    title: "Support shaped around how your mind works",
     intro:
-      "Busy teams feel the pressure when work arrives from every direction and no one is quite sure where responsibility sits. VAxAI helps UK teams create clearer ways of working — combining virtual assistance, automation, better processes and human support so work flows more smoothly.",
+      "Neurodivergent professionals often face admin and organisation challenges that standard productivity advice does not solve — overwhelm, task switching, inconsistent follow-through, inbox build-up, scheduling friction and difficulty maintaining systems over time. VAxAI offers calm, practical support tailored to your working context, combining human assistance, accessible workflows, and AI or automation only where it genuinely helps.",
+    showAccessToWork: true,
     sections: [
       {
-        id: "who-benefits",
-        heading: "Who this is for",
+        id: "pressures",
+        heading: "Pressures we often see",
         paragraphs: [
-          "Teams where different people have developed their own ways of managing clients, files and daily work — making handover difficult and consistency harder to maintain as the organisation grows.",
+          "Admin pressure can feel especially heavy when executive functioning, sensory load, communication demands and inconsistent systems all collide. The issue is rarely effort — it is often that the work environment was not designed around how you actually function.",
         ],
         bullets: [
-          "Teams juggling inboxes, projects and reporting at once",
-          "Managers needing clearer ownership across workloads",
-          "Groups spending more time coordinating work than doing it",
-          "Organisations scaling without wanting admin to scale at the same rate",
+          "Overwhelm when inboxes, tasks and messages all demand attention at once",
+          "Difficulty with task switching, prioritisation and knowing what to do next",
+          "Follow-ups, reminders and actions slipping despite genuine intent",
+          "Scheduling, diary management and planning taking disproportionate energy",
+          "Inconsistent admin habits when systems feel too rigid or too vague",
+          "Communication across email, messages and meetings becoming hard to track",
+          "Maintaining organisation when workload, energy or context keeps changing",
         ],
       },
       {
-        id: "what-we-help-with",
-        heading: "What we help with",
+        id: "how-we-help",
+        heading: "How VAxAI support fits",
         paragraphs: [
-          "We document how work happens today, introduce practical automations where they help, and put human support around the tasks that still need judgement, relationships or oversight.",
+          "We take time to understand your role, tools, energy patterns and the types of admin that create the most friction. Support is shaped around accessible ways of working — not forcing you into a one-size-fits-all system.",
         ],
         bullets: [
-          "Workflow reviews to find where pressure is building",
-          "Documented processes the whole team can follow",
-          "Automation for repetitive tasks and organisation",
-          "Virtual assistance to keep actions and follow-ups moving",
-          "Ongoing support as team priorities shift",
+          "Workflow reviews focused on where admin pressure and inconsistency build up",
+          "Human virtual assistance for inbox support, scheduling, follow-ups and coordination",
+          "Clearer, calmer processes that reduce decision fatigue and context switching",
+          "AI or automation only where it simplifies repetitive organisation without adding noise",
+          "Ongoing support that adapts as your role, workload and needs change",
+          "Practical help understanding Access to Work if funded support may be relevant",
         ],
       },
       {
-        id: "typical-results",
+        id: "what-changes",
         heading: "What changes in practice",
         bullets: [
-          "More consistent ways of working across the team",
-          "Faster onboarding and easier handovers",
-          "Reduced reliance on individual team members",
-          "Better continuity as workloads and priorities change",
+          "Less admin carried alone in your head or inbox",
+          "More consistent follow-through with human support behind the scenes",
+          "Scheduling and communication handled in a steadier, more predictable way",
+          "Ways of working that feel usable rather than demanding constant self-monitoring",
         ],
         paragraphs: [],
       },
     ],
+    waysOfWorking: {
+      eyebrow: "Ways of working",
+      title: "Three ways we can support you",
+      intro:
+        "We start by understanding your role, tools, admin friction points and the kind of support that will actually work for you — before recommending any change, automation or ongoing assistance.",
+      plans: [
+        {
+          step: "01",
+          title: "Assessment",
+          label: "Assess",
+          copy: [
+            "We explore how admin, communication, scheduling, follow-ups and planning currently work for you. Together we identify where overwhelm, inconsistency or task switching create pressure, and which forms of support are most likely to help in practice.",
+          ],
+        },
+        {
+          step: "02",
+          title: "Implementation",
+          label: "Assess + Implement",
+          copy: [
+            "We put agreed support in place around your real working context. That may include a calmer inbox workflow, human assistance for recurring tasks, clearer planning routines, or light automation where it reduces friction without making the system harder to trust or use.",
+          ],
+        },
+        {
+          step: "03",
+          title: "Ongoing Support",
+          label: "Assess + Implement + Support",
+          featured: true,
+          copy: [
+            "Because energy, workload and priorities can shift, ongoing support helps keep admin manageable over time. This may include virtual assistance, process adjustments, reminder support, system checks and practical guidance so your ways of working remain usable and steady.",
+          ],
+        },
+      ],
+      pricingNotes: [
+        "Pricing is tailored to your role, support needs and the level of ongoing assistance required.",
+        "If you may be eligible, Access to Work could cover some or all of your support — we can help you understand what that may involve.",
+      ],
+    },
   },
 ];
 
