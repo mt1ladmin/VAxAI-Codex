@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 import { ArrowRight, ExternalLink, ShieldCheck, X } from "lucide-react";
@@ -9,24 +8,12 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
-import type {
-  AudiencePage,
-  AudiencePricing,
-  AudienceSection,
-  JourneyStage,
-} from "@/lib/seo/audience-pages";
+import type { AudiencePage, AudienceSection, JourneyStage } from "@/lib/seo/audience-pages";
+import { sharedPricingTiers, sharedProposalNote } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
-
-export type RelatedAudienceLink = {
-  href: string;
-  label: string;
-  description: string;
-  linkLabel: string;
-};
 
 type ServiceLandingPageProps = {
   page: AudiencePage;
-  relatedLinks: RelatedAudienceLink[];
 };
 
 const HERO_IMAGES: Record<string, string> = {
@@ -128,11 +115,16 @@ function SupportJourney({ stages }: { stages: JourneyStage[] }) {
           key={stage.title}
           className="relative flex flex-col rounded-3xl border border-ink/5 bg-cream/40 px-6 py-7 md:px-7"
         >
-          <span className="text-[11px] font-bold tracking-[0.14em] text-pine-800/70">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <h3 className="mt-3 text-lg font-semibold tracking-[-0.01em] text-ink">{stage.title}</h3>
-          <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">{stage.description}</p>
+          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink">
+            {String(index + 1).padStart(2, "0")}. {stage.title}
+          </h3>
+          <div className="mt-3 space-y-3">
+            {stage.paragraphs.map((paragraph) => (
+              <p key={paragraph} className="text-sm leading-7 text-muted md:text-[15px]">
+                {paragraph}
+              </p>
+            ))}
+          </div>
         </div>
       ))}
     </div>
@@ -196,9 +188,9 @@ function HowPanelContent({
       {(section.journey ?? []).length > 0 ? (
         <>
           {section.journeyLabel ? (
-            <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
+            <h2 className="mt-10 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
               {section.journeyLabel}
-            </p>
+            </h2>
           ) : null}
           <SupportJourney stages={section.journey ?? []} />
           <button type="button" onClick={onContact} className={`${btn.primary} mt-8`}>
@@ -262,12 +254,10 @@ function ChangesPanelContent({
 }
 
 function PricingPanelContent({
-  pricing,
   accessToWork,
   onContact,
   onAccessOpen,
 }: {
-  pricing: AudiencePricing;
   accessToWork?: { heading: string; paragraphs: string[] };
   onContact: () => void;
   onAccessOpen?: () => void;
@@ -276,35 +266,46 @@ function PricingPanelContent({
     <div className="px-6 py-7 md:px-8 md:py-8">
       <Eyebrow>Pricing</Eyebrow>
       <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
-        Tailored to your needs
+        Our Pricing Structure
       </h2>
-      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricing.intro}</p>
 
-      <p className="mt-8 text-[11px] font-bold uppercase tracking-[0.16em] text-muted">What shapes your quote</p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {pricing.factors.map((factor) => (
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        {sharedPricingTiers.map((tier) => (
           <div
-            key={factor}
-            className="flex gap-3 rounded-2xl border border-ink/5 bg-cream/40 px-4 py-4"
+            key={tier.title}
+            className="flex flex-col rounded-3xl border border-ink/5 bg-cream/40 px-5 py-6 md:px-6"
           >
-            <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-              ✓
-            </span>
-            <p className="text-sm leading-7 text-muted">{factor}</p>
+            <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">{tier.title}</h3>
+            <p className="mt-2 text-sm font-medium text-pine-800">{tier.priceLabel}</p>
+            <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">{tier.description}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7">
-        <h3 className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
-          Clear scope before work begins
-        </h3>
-        <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">
-          After your workflow review, we scope the support you need and provide a written quote
-          covering deliverables, approach and cost. You know exactly what you are getting before
-          any work starts — and nothing begins until you have reviewed and agreed it.
-        </p>
-      </div>
+      <p className="mt-8 max-w-3xl text-base leading-8 text-muted md:text-lg">{sharedProposalNote}</p>
+
+      {accessToWork ? (
+        <div
+          id="access-to-work"
+          className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
+        >
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
+          <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
+            {accessToWork.heading}
+          </h3>
+          <div className="mt-3 max-w-3xl space-y-3 text-sm leading-7 text-muted md:text-[15px]">
+            {accessToWork.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          {onAccessOpen ? (
+            <button type="button" onClick={onAccessOpen} className={`${btn.primary} mt-6`}>
+              Learn about Access to Work
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <button type="button" onClick={onContact} className={btn.accent}>
@@ -316,29 +317,6 @@ function PricingPanelContent({
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
-
-      {accessToWork ? (
-        <div
-          id="access-to-work"
-          className="scroll-mt-24 mt-10 overflow-hidden rounded-[28px] bg-pine-900 px-6 py-8 text-paper md:px-8 md:py-10"
-        >
-          <Eyebrow light>Access to Work</Eyebrow>
-          <h3 className="mt-4 text-2xl font-semibold leading-tight tracking-tight md:text-3xl">
-            {accessToWork.heading}
-          </h3>
-          <div className="mt-4 max-w-xl space-y-3 text-sm leading-7 text-paper/70 md:text-base">
-            {accessToWork.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-          {onAccessOpen ? (
-            <button type="button" onClick={onAccessOpen} className={`${btn.accent} mt-6`}>
-              Learn about Access to Work
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -347,7 +325,6 @@ function AudienceTabbedSections({
   pressures,
   how,
   changes,
-  pricing,
   accessToWorkInPricing,
   onContact,
   onAccessOpen,
@@ -355,7 +332,6 @@ function AudienceTabbedSections({
   pressures: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
-  pricing: AudiencePricing;
   accessToWorkInPricing?: { heading: string; paragraphs: string[] };
   onContact: () => void;
   onAccessOpen?: () => void;
@@ -438,7 +414,6 @@ function AudienceTabbedSections({
         ) : null}
         {activeTab === "pricing" ? (
           <PricingPanelContent
-            pricing={pricing}
             accessToWork={accessToWorkInPricing}
             onContact={onContact}
             onAccessOpen={onAccessOpen}
@@ -471,7 +446,7 @@ function Eyebrow({
   );
 }
 
-export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandingPageProps) {
+export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
   const [accessOpen, setAccessOpen] = useState(false);
   const { pressures, how, changes } = page;
@@ -575,42 +550,12 @@ export default function ServiceLandingPage({ page, relatedLinks }: ServiceLandin
                 pressures={pressures}
                 how={how}
                 changes={changes}
-                pricing={page.pricing}
                 accessToWorkInPricing={page.accessToWork}
                 onContact={() => setContactOpen(true)}
                 onAccessOpen={page.accessToWork ? () => setAccessOpen(true) : undefined}
               />
             </Reveal>
           </section>
-
-          {/* Who else we support — white panel with cards */}
-          {relatedLinks.length > 0 ? (
-            <section className="px-4 py-20 md:px-8 md:py-28">
-              <div className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] border border-ink/5 bg-white px-5 py-14 shadow-card md:px-12 md:py-20">
-                <Reveal className="relative mx-auto max-w-xl text-center">
-                  <Eyebrow>See Who else benefits from VAxAI support</Eyebrow>
-                </Reveal>
-
-                <Stagger className="relative mt-10 grid gap-4 md:grid-cols-3">
-                  {relatedLinks.map((link) => (
-                    <motion.div key={link.href} variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
-                      <Link
-                        href={link.href}
-                        className="group flex h-full flex-col rounded-3xl border border-ink/5 bg-white p-6 transition-colors duration-500 hover:border-pine-900/15 hover:shadow-card md:p-7"
-                      >
-                        <p className="text-sm font-semibold text-ink group-hover:text-pine-800">{link.label}</p>
-                        <p className="mt-3 flex-1 text-sm leading-6 text-muted">{link.description}</p>
-                        <span className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-pine-800">
-                          {link.linkLabel}
-                          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
-                        </span>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </Stagger>
-              </div>
-            </section>
-          ) : null}
 
           {/* Closing CTA */}
           <section className="px-4 pb-24 md:px-8">

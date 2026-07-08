@@ -50,10 +50,6 @@ const tools = [
     logo: "https://cdn.simpleicons.org/perplexity/1FB8CD",
   },
   {
-    name: "NotebookLM",
-    logo: "https://www.google.com/s2/favicons?domain=notebooklm.google.com&sz=64",
-  },
-  {
     name: "Zapier",
     logo: "https://cdn.simpleicons.org/zapier/FF4F00",
   },
@@ -86,7 +82,7 @@ type CaseStudy = {
 const caseStudies: CaseStudy[] = [
   {
     title: "Founder & Entrepreneur",
-    subtitle: "Freeing up time to grow the business",
+    subtitle: "Freeing up your time so you can focus on growth.",
     href: "/founders-entrepreneurs",
     teaser: "A founder was spending several hours each week managing emails, scheduling meetings, tracking actions and chasing follow-ups.",
     paragraphs: [
@@ -102,7 +98,7 @@ const caseStudies: CaseStudy[] = [
   },
   {
     title: "Small Business",
-    subtitle: "Creating clearer ways of working",
+    subtitle: "Creating clearer, more efficient ways of working.",
     href: "/small-business",
     teaser: "A growing organisation was using multiple systems to manage projects, documents and client information. As the team grew, it became increasingly difficult to know where information belonged or who owned what.",
     paragraphs: [
@@ -118,7 +114,7 @@ const caseStudies: CaseStudy[] = [
   },
   {
     title: "Charities & Non-Profits",
-    subtitle: "Reducing admin so more time goes into delivering services",
+    subtitle: "Reducing admin so more time and money goes into delivering your mission.",
     href: "/charities-non-profits",
     teaser: "Important messages, requests and updates were arriving through multiple channels, making it difficult to maintain visibility and respond consistently.",
     paragraphs: [
@@ -135,7 +131,7 @@ const caseStudies: CaseStudy[] = [
   },
   {
     title: "Neurodivergent Professionals",
-    subtitle: "Support shaped around how your mind works",
+    subtitle: "Support shaped around how your mind works.",
     href: "/neurodivergent-professionals",
     teaser: "Neurodivergent professionals often face admin pressure around overwhelm, task switching, follow-ups, scheduling and maintaining consistency — especially when systems were not designed around how they actually work.",
     paragraphs: [
@@ -208,10 +204,10 @@ const vatPrinciples = [
 ];
 
 const faqs = [
-  ["Who is VAxAI for?", "Small businesses, charities, consultants, and teams that want admin, workflow automation, and AI support without losing the human judgement their work needs."],
+  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities, non-profits and neurodivergent professionals who need practical support with admin, workflows, AI and automation — without being pushed into tools or systems that do not fit how they actually work."],
   ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
-  ["Why does pricing vary?", "Complexity, data quality, business size, integrations, dashboards, and ongoing support all affect the final cost. We explain this after assessment before any build starts."],
+  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly after Discovery & Strategy, before any Workflow Design or build work begins."],
   ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
@@ -700,8 +696,11 @@ export default function Home() {
         <nav className="relative mx-auto flex max-w-6xl items-center justify-between">
           <MiniLogo />
           <div className="hidden items-center gap-6 text-xs font-semibold text-paper/60 md:flex">
-            <a href="#pricing" className="transition-colors duration-200 hover:text-paper">Services</a>
-            <a href="#experts" className="transition-colors duration-200 hover:text-paper">About</a>
+            <a href="/founders-entrepreneurs" className="transition-colors duration-200 hover:text-paper">Founders</a>
+            <a href="/small-business" className="transition-colors duration-200 hover:text-paper">Small Business</a>
+            <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-paper">Charities</a>
+            <a href="/neurodivergent-professionals" className="transition-colors duration-200 hover:text-paper">Neurodivergent</a>
+            <a href="/#experts" className="transition-colors duration-200 hover:text-paper">About</a>
             <a href="/neurodivergent-professionals#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
             <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
             <a href="/insights" className="text-acid/70 transition-colors duration-200 hover:text-acid">Insights &amp; Resources</a>
@@ -727,8 +726,11 @@ export default function Home() {
           <div className="relative mx-auto max-w-6xl md:hidden">
             <div className="mt-3 flex flex-col gap-1 rounded-3xl border border-white/10 bg-pine-950/90 p-4 backdrop-blur">
               {[
-                { label: "Services", href: "#pricing" },
-                { label: "About", href: "#experts" },
+                { label: "Founders", href: "/founders-entrepreneurs" },
+                { label: "Small Business", href: "/small-business" },
+                { label: "Charities", href: "/charities-non-profits" },
+                { label: "Neurodivergent", href: "/neurodivergent-professionals" },
+                { label: "About", href: "/#experts" },
                 { label: "Access to Work", href: "/neurodivergent-professionals#access-to-work" },
                 { label: "FAQ", href: "#faq" },
                 { label: "Insights & Resources", href: "/insights" },
@@ -759,28 +761,31 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce admin. Keep the human touch.
+              VAxAI makes everyday work easier.
             </motion.h1>
             <motion.p
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              Small businesses, charities, founders and neurodivergent professionals often feel admin the most. Emails, scheduling, follow-ups, files, reporting and repeated tasks can quietly take over the time needed for delivery, growth and real impact.
+              Small businesses, charities, solo founders, and neurodivergent professionals often feel the weight of admin the most.
             </motion.p>
             <motion.p
               variants={fadeUp}
               className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              VAxAI helps make everyday work easier to manage, using human support, clearer processes and AI only where it genuinely helps.
+              Emails, scheduling, follow-ups, reporting, and repetitive tasks can quietly eat up the time needed for growth, delivery, and real impact.
+            </motion.p>
+            <motion.p
+              variants={fadeUp}
+              className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
+            >
+              We combine human virtual support, smarter processes, and targeted AI automation — only where it genuinely adds value.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
                 Start your workflow review
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <a href="#pricing" className={btn.ghostDark}>
-                See how we work
-              </a>
             </motion.div>
           </motion.div>
 
@@ -805,7 +810,7 @@ export default function Home() {
           className="relative mx-auto mt-24 max-w-6xl"
         >
           <p className="mx-auto max-w-2xl text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
-            AI and automation is not always the answer — but whatever systems or tools you use, we help you make the most of them.
+            AI and automation is not always the answer — but when it is, we help you make the most of it.
           </p>
           <div className="mt-7">
             <ToolMarquee />
@@ -820,12 +825,14 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <Reveal className="rounded-[40px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
             <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Who VAxAI is for
+              Choose Your Path
             </h2>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Choose the option below that best describes you — each leads to more detailed information on how we can help.
+            </p>
 
-            <div className="mt-10 border-t border-ink/5 pt-10">
-              <Eyebrow>Who we support</Eyebrow>
-              <Stagger className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="mt-10">
+              <Stagger className="grid gap-4 sm:grid-cols-2">
                 {caseStudies.map((study, index) => (
                   <SupportAudienceCard key={study.href} study={study} index={index} />
                 ))}

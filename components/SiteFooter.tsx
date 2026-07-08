@@ -30,9 +30,10 @@ export default function SiteFooter() {
               <div>
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-ink/70">Services</p>
                 <div className="grid gap-3.5 text-muted">
-                  <a href="/#pricing" className="transition-colors duration-200 hover:text-ink">Assess</a>
-                  <a href="/#pricing" className="transition-colors duration-200 hover:text-ink">Assess &amp; Implement</a>
-                  <a href="/#pricing" className="transition-colors duration-200 hover:text-ink">Assess, Implement &amp; Support</a>
+                  <a href="/founders-entrepreneurs" className="transition-colors duration-200 hover:text-ink">Founders &amp; Entrepreneurs</a>
+                  <a href="/small-business" className="transition-colors duration-200 hover:text-ink">Small Businesses</a>
+                  <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-ink">Charities &amp; Non-Profits</a>
+                  <a href="/neurodivergent-professionals" className="transition-colors duration-200 hover:text-ink">Neurodivergent Professionals</a>
                 </div>
               </div>
               <div>
@@ -50,7 +51,7 @@ export default function SiteFooter() {
                 <div className="grid gap-3.5 text-muted">
                   <a href="/#faq" className="transition-colors duration-200 hover:text-ink">FAQ</a>
                   <a href="/#access-to-work" className="transition-colors duration-200 hover:text-ink">Access to Work</a>
-                  <a href="/#vat-framework" className="transition-colors duration-200 hover:text-ink">VAT Framework</a>
+                  <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors duration-200 hover:text-ink">VAT Framework</a>
                 </div>
               </div>
               <div>

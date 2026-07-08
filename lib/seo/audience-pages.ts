@@ -1,5 +1,11 @@
 export type JourneyStage = {
   title: string;
+  paragraphs: string[];
+};
+
+export type PricingTier = {
+  title: string;
+  priceLabel: string;
   description: string;
 };
 
@@ -13,9 +19,80 @@ export type AudienceSection = {
   closing?: string;
 };
 
-export type AudiencePricing = {
-  intro: string;
-  factors: string[];
+export const sharedPricingTiers: PricingTier[] = [
+  {
+    title: "Discovery & Strategy",
+    priceLabel: "From £1,500",
+    description:
+      "Workflow reviews, AI opportunity assessment and practical recommendations. This stage helps clarify where time is being lost, what support would make the biggest difference, and whether AI, automation, process improvement or virtual human support is the right fit.",
+  },
+  {
+    title: "Workflow Design",
+    priceLabel: "Fixed-price projects",
+    description:
+      "AI automation setup, tool integrations, AI output management, training and handover. Projects are shaped around your existing systems, capacity and ways of working, so the solution is practical, usable and easy to maintain.",
+  },
+  {
+    title: "Ongoing Support",
+    priceLabel: "From £30 per hour",
+    description:
+      "VA support, AI output review, automation maintenance and continued productivity optimisation. This is for clients who need ongoing help to manage outputs, keep workflows running smoothly and adapt support as needs change.",
+  },
+];
+
+export const sharedProposalNote =
+  "After your consultation, you’ll receive a clear written proposal with fixed costs, deliverables and timelines. No surprises.";
+
+export const sharedClientTypePricing: { label: string; summary: string }[] = [
+  {
+    label: "Founders & Entrepreneurs",
+    summary:
+      "AI automation for repetitive tasks, smarter tool connections, and VA support to manage outputs and boost productivity. Focused projects usually £1,500–£7,000.",
+  },
+  {
+    label: "Small Businesses",
+    summary:
+      "End-to-end workflow optimisation, AI task automation, team training and ongoing VA support. Projects typically £2,000–£12,000 depending on scope.",
+  },
+  {
+    label: "Charities",
+    summary:
+      "Practical, phased AI and automation support focused on high-impact repetitive tasks while staying budget-conscious and easy to maintain. Projects usually £1,200–£8,000, often delivered in stages.",
+  },
+  {
+    label: "Neurodivergent Professionals",
+    summary:
+      "Tailored AI automation, workflow support, output management and admin help. Many qualify for Access to Work funding (we assist with applications).",
+  },
+];
+
+export const sharedHowSection: AudienceSection = {
+  heading: "How VAxAI Helps You",
+  paragraphs: ["We do not start with tools or software. We start with how your work actually gets done."],
+  journeyLabel: "Our Simple 3-Step Process",
+  journey: [
+    {
+      title: "Discovery & Strategy",
+      paragraphs: [
+        "We take time to understand your workflows, pressure points, existing systems and the support you already have in place. From there, we design practical, human-centred support that helps reduce repetitive work without adding unnecessary complexity.",
+        "AI and automation are only recommended where they genuinely improve how work is managed. Human judgement stays central where it matters most.",
+      ],
+    },
+    {
+      title: "Workflow Design",
+      paragraphs: [
+        "We create a tailored solution shaped around the way you actually work.",
+        "This may include smarter use of your existing tools, targeted AI automation for repetitive tasks, clearer processes, better ways to manage AI outputs, and virtual assistance where human support adds the most value. We do not build complex custom software or large development projects. For those needs, we work with trusted partners.",
+      ],
+    },
+    {
+      title: "Ongoing Support",
+      paragraphs: [
+        "We provide continued virtual assistance, AI output review, automation maintenance and productivity support so the improvements remain useful as your needs change.",
+        "This helps keep workflows running smoothly, manage outputs with care, and adapt support over time rather than leaving you with a system that is difficult to maintain.",
+      ],
+    },
+  ],
 };
 
 export type AudiencePage = {
@@ -32,7 +109,6 @@ export type AudiencePage = {
   delayed: AudienceSection;
   how: AudienceSection;
   changes: AudienceSection;
-  pricing: AudiencePricing;
   accessToWork?: { heading: string; paragraphs: string[] };
   related: { label: string; description: string; linkLabel: string };
 };
@@ -77,30 +153,7 @@ export const audiencePages: AudiencePage[] = [
         "Founder fatigue from holding too much information, context and responsibility alone",
       ],
     },
-    how: {
-      heading: "How VAxAI support fits",
-      paragraphs: [
-        "We do not start with software. We start with how your work actually happens — then shape practical support around the way you operate, including where human judgement needs to stay central.",
-      ],
-      journeyLabel: "How we work with you",
-      journey: [
-        {
-          title: "Assess",
-          description:
-            "We review how your business actually runs — client work, leads, tools, inboxes and where pressure is building on you as the founder.",
-        },
-        {
-          title: "Design",
-          description:
-            "From there we design the right mix of support: better use of what you already have, new tools or automation only where they add the most value, and the virtual assistance, process, training or other support the assessment points to.",
-        },
-        {
-          title: "Support",
-          description:
-            "Then we provide ongoing support — human virtual administration, maintenance, automation oversight, training and anything else agreed — so the changes hold in practice as the business grows.",
-        },
-      ],
-    },
+    how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
       paragraphs: [
@@ -114,16 +167,6 @@ export const audiencePages: AudiencePage[] = [
         "Less reliance on memory, late-night admin or last-minute chasing",
         "A calmer operating rhythm around inboxes, scheduling and tasks",
         "Better visibility of what needs action, what can wait and what can be handed over",
-      ],
-    },
-    pricing: {
-      intro:
-        "We do not publish fixed pricing because the right support depends on how your business runs, the pressure you are under and the mix of virtual assistance, process improvement, automation or training that will genuinely help.",
-      factors: [
-        "Business stage, client load and growth priorities",
-        "Tools, workflows and systems already in use",
-        "Complexity of admin, coordination and follow-up",
-        "Mix and depth of support you ultimately need",
       ],
     },
     accessToWork: {
@@ -179,30 +222,7 @@ export const audiencePages: AudiencePage[] = [
         "Growth creating more admin pressure rather than more stability",
       ],
     },
-    how: {
-      heading: "How VAxAI support fits",
-      paragraphs: [
-        "We help small businesses create calmer, clearer ways of working — combining virtual assistance and practical process support with automation only where it genuinely reduces repetition.",
-      ],
-      journeyLabel: "How we work with you",
-      journey: [
-        {
-          title: "Assess",
-          description:
-            "We review how work moves through the business — enquiries, bookings, documents, tools and where time is being lost or customer experience is at risk.",
-        },
-        {
-          title: "Design",
-          description:
-            "We design support that fits your team: making better use of existing systems, introducing new tools or automation only where they add the most value, and shaping the virtual assistance, process and training support needed.",
-        },
-        {
-          title: "Support",
-          description:
-            "Then we provide ongoing support — human virtual administration, maintenance, automation oversight, training and anything else agreed — so day-to-day operations stay consistent behind the scenes.",
-        },
-      ],
-    },
+    how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
       paragraphs: [
@@ -216,16 +236,6 @@ export const audiencePages: AudiencePage[] = [
         "Less time wasted searching for information or chasing updates",
         "More reliable day-to-day operations without adding unnecessary complexity",
         "A business that feels easier to manage as workload increases",
-      ],
-    },
-    pricing: {
-      intro:
-        "Pricing reflects how your business operates — your team size, customer volume, tools and the type of ongoing support that will make the biggest practical difference.",
-      factors: [
-        "Team size and operational complexity",
-        "Customer enquiries, bookings and admin volume",
-        "Tools, integrations and existing systems",
-        "Type and frequency of support required",
       ],
     },
     accessToWork: {
@@ -281,30 +291,7 @@ export const audiencePages: AudiencePage[] = [
         "Staff capacity being absorbed by coordination instead of relationships and delivery",
       ],
     },
-    how: {
-      heading: "How VAxAI support fits",
-      paragraphs: [
-        "We help charities put calm, practical support around routine administration — while keeping people responsible for the decisions that matter to beneficiaries, volunteers, funders and partners.",
-      ],
-      journeyLabel: "How we work with you",
-      journey: [
-        {
-          title: "Assess",
-          description:
-            "We review how admin flows across delivery, records, communication, volunteers and reporting — and where capacity is being squeezed.",
-        },
-        {
-          title: "Design",
-          description:
-            "We design proportionate support: better use of existing tools, careful introduction of new systems only where they help most, and the mix of virtual assistance, process and training support the assessment identifies.",
-        },
-        {
-          title: "Support",
-          description:
-            "Then we provide ongoing support — human virtual administration, records and workflow maintenance, automation oversight, training and anything else agreed — so teams can protect more time for delivery.",
-        },
-      ],
-    },
+    how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
       paragraphs: [
@@ -318,16 +305,6 @@ export const audiencePages: AudiencePage[] = [
         "More consistent communication with beneficiaries, partners, volunteers and funders",
         "Clearer information handling that supports safeguarding and accountability",
         "Practical systems that help the charity do more with the capacity it already has",
-      ],
-    },
-    pricing: {
-      intro:
-        "Charity and non-profit pricing is shaped by organisational size, reporting and safeguarding needs, and the scope of virtual assistance and ongoing support required to protect delivery capacity.",
-      factors: [
-        "Organisation size, structure and delivery model",
-        "Reporting, records and safeguarding requirements",
-        "Capacity across staff, volunteers and coordination",
-        "Scope and depth of support agreed after assessment",
       ],
     },
     accessToWork: {
@@ -390,30 +367,7 @@ export const audiencePages: AudiencePage[] = [
         "Avoidable pressure building around tasks that could be supported, simplified or externalised",
       ],
     },
-    how: {
-      heading: "How VAxAI support fits",
-      paragraphs: [
-        "We shape support around how you actually work, not around a generic productivity system.",
-      ],
-      journeyLabel: "How we work with you",
-      journey: [
-        {
-          title: "Assess",
-          description:
-            "We review how you actually work — your tools, preferences, switching patterns and where admin is costing the most energy.",
-        },
-        {
-          title: "Design",
-          description:
-            "We design support around that picture: systems that reduce cognitive load, better use of what you already have, and new tools or automation only where they genuinely help — plus the virtual assistance, process and human support needed.",
-        },
-        {
-          title: "Support",
-          description:
-            "Then we provide ongoing support — human virtual administration, maintenance, automation oversight, training and anything else agreed — so support fits how you work over time.",
-        },
-      ],
-    },
+    how: sharedHowSection,
     changes: {
       heading: "What changes in practice",
       paragraphs: [
@@ -428,16 +382,6 @@ export const audiencePages: AudiencePage[] = [
         "Reduced cognitive load around planning, reminders and admin tracking",
         "Support that protects autonomy while making work easier to sustain",
         "Practical help that fits your working patterns rather than forcing a generic productivity system",
-      ],
-    },
-    pricing: {
-      intro:
-        "Support is priced around your work context — your tools, workload, and the blend of virtual assistance, process support and maintenance that will reduce friction in practice.",
-      factors: [
-        "Work context, tools and current workload",
-        "Type of admin, coordination and follow-up support needed",
-        "Level of virtual assistance and ongoing maintenance",
-        "Complexity of systems, workflows and handovers involved",
       ],
     },
     accessToWork: {
