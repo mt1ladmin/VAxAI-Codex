@@ -13,7 +13,6 @@ export const sharedFullSetupIncludes = [
   "Practical improvements to your existing tools and processes",
   "Targeted AI and automation only where they genuinely add value",
   "Upskilling you and your team on any AI tools you already use, or training on new ones if beneficial",
-  "Full implementation and clear handover so everything is easy to manage",
 ];
 
 export const sharedVaSetupIncluded = {
