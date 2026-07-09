@@ -821,28 +821,21 @@ export default function Home() {
                 ))}
               </Stagger>
             </div>
-          </Reveal>
-        </div>
-      </section>
 
-      {/* ------------------------------------------------------------ */}
-      {/* Experts — editorial, offset profile cards                     */}
-      {/* ------------------------------------------------------------ */}
-      <section id="experts" className="px-4 py-24 md:px-8 md:py-32">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="max-w-xl">
-            <Eyebrow>The people</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
-              Meet the people behind VAxAI
-            </h2>
+            <div id="experts" className="scroll-mt-24 mt-16 border-t border-ink/8 pt-16 md:mt-20 md:pt-20">
+              <div className="max-w-xl">
+                <Eyebrow>The people</Eyebrow>
+                <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+                  Meet the people behind VAxAI
+                </h2>
+              </div>
+              <div className="mt-12 grid gap-6 md:grid-cols-2">
+                {experts.map((expert) => (
+                  <ExpertProfileCard key={expert.name} expert={expert} />
+                ))}
+              </div>
+            </div>
           </Reveal>
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            {experts.map((expert) => (
-              <Reveal key={expert.name}>
-                <ExpertProfileCard expert={expert} />
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
