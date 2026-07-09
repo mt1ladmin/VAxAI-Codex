@@ -20,7 +20,7 @@ import type { Expert } from "@/lib/experts";
 
 const image = {
   hero:
-    "/hero-remote-work-circles.jpg",
+    "/vaxai-support-control.jpg",
   expert:
     "/vaxai-support-control.jpg",
   thesia: "/thesia-profile.jpg",
@@ -815,7 +815,7 @@ export default function Home() {
             </p>
 
             <div className="mt-10">
-              <Stagger className="grid gap-4 sm:grid-cols-2">
+              <Stagger className="grid gap-4 md:grid-cols-3">
                 {caseStudies.map((study, index) => (
                   <SupportAudienceCard key={study.href} study={study} index={index} />
                 ))}
