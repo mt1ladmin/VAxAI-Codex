@@ -81,15 +81,15 @@ export default function CookieConsent() {
       aria-label="Cookie consent"
       className="cookie-banner__backdrop fixed inset-0 z-[8900] flex items-center justify-center bg-ink/55 px-4 backdrop-blur-sm"
     >
-      <div className="cookie-banner__panel w-full max-w-[540px] rounded-2xl border border-[#063b32]/12 bg-white p-6 shadow-[0_16px_56px_rgba(6,59,50,0.18)] sm:p-7">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#063b32]">
+      <div className="cookie-banner__panel w-full max-w-[540px] rounded-2xl border border-[#122428]/12 bg-white p-6 shadow-[0_16px_56px_rgba(18,36,40,0.18)] sm:p-7">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#122428]">
           Cookie preferences
         </p>
         <p className="mt-2 text-[14px] leading-[1.65] text-[#111111]">
           We use cookies and similar technologies to make our website work and to understand how
           you use it. Some are strictly necessary; others help us improve your experience. Please
           choose what you are comfortable with before continuing.{' '}
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-[#063b32]">
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-[#122428]">
             Privacy&nbsp;policy
           </Link>
           .
@@ -130,7 +130,7 @@ export default function CookieConsent() {
               <button
                 type="button"
                 onClick={saveManaged}
-                className="cookie-banner__btn-secondary mt-2 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#063b32] hover:text-[#063b32]"
+                className="cookie-banner__btn-secondary mt-2 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428]"
               >
                 Save my preferences
               </button>
@@ -142,14 +142,14 @@ export default function CookieConsent() {
           <button
             type="button"
             onClick={rejectNonEssential}
-            className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#063b32] sm:flex-none"
+            className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#122428] sm:flex-none"
           >
             Reject non-essential
           </button>
           <button
             type="button"
             onClick={acceptAll}
-            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#063b32] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
+            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
           >
             Accept all
           </button>
@@ -184,9 +184,9 @@ function CategoryRow({
         aria-checked={checked}
         disabled={disabled}
         onClick={() => !disabled && onChange(!checked)}
-        className={`relative mt-0.5 flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#063b32] disabled:cursor-not-allowed ${
+        className={`relative mt-0.5 flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full border-2 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#122428] disabled:cursor-not-allowed ${
           checked
-            ? 'border-[#063b32] bg-[#063b32]'
+            ? 'border-[#122428] bg-[#122428]'
             : 'border-gray-300 bg-gray-100'
         }`}
         aria-label={`${label}: ${checked ? 'on' : 'off'}`}

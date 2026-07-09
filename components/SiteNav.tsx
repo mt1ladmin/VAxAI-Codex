@@ -9,9 +9,9 @@ type Props = {
 };
 
 const audienceLinks = [
-  { label: "Founders & Entrepreneurs", href: "/founders-entrepreneurs" },
-  { label: "Small Business", href: "/small-business" },
-  { label: "Charities & Non-Profits", href: "/charities-non-profits" },
+  { label: "Founders & Entrepreneurs", href: "/founders-entrepreneurs", image: "/hero-remote-work-circles.jpg" },
+  { label: "Small Business", href: "/small-business", image: "/admin-systems-team.jpg" },
+  { label: "Charities & Non-Profits", href: "/charities-non-profits", image: "/admin-systems-network.jpg" },
 ];
 
 export default function SiteNav({ variant = "dark" }: Props) {
@@ -27,10 +27,10 @@ export default function SiteNav({ variant = "dark" }: Props) {
     : "text-gray-500 hover:text-gray-900";
 
   const ctaClass = isDark
-    ? "bg-[#f5f274] text-[#111111] hover:bg-[#f5f274]/90"
-    : "bg-[#063b32] text-white hover:opacity-90";
+    ? "bg-[#D8FC2E] text-[#111111] hover:bg-[#D8FC2E]/90"
+    : "bg-[#122428] text-white hover:opacity-90";
 
-  const mobileMenuBg = isDark ? "bg-[#063b32]" : "bg-white";
+  const mobileMenuBg = isDark ? "bg-[#122428]" : "bg-white";
   const mobileLinkClass = isDark ? "text-paper/80 hover:text-paper" : "text-gray-600 hover:text-gray-900";
 
   useEffect(() => {
@@ -48,11 +48,12 @@ export default function SiteNav({ variant = "dark" }: Props) {
     <>
     <nav className="relative mx-auto flex max-w-6xl items-center justify-between py-1">
       {/* Logo */}
-      <a href="/" className={`flex items-center gap-2 font-semibold ${isDark ? "text-paper" : "text-gray-900"}`}>
-        <span className="grid h-6 w-6 place-items-center rounded-full bg-[#f5f274] text-[11px] font-bold text-[#111111]">
-          VA
-        </span>
-        <span className="text-sm tracking-tight">VAxAI</span>
+      <a
+        href="/"
+        className={isDark ? "flex items-center" : "flex items-center rounded-md bg-[#122428] px-2.5 py-1.5"}
+        aria-label="VAxAI home"
+      >
+        <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto" />
       </a>
 
       {/* Desktop links */}
@@ -71,26 +72,28 @@ export default function SiteNav({ variant = "dark" }: Props) {
           {audienceOpen ? (
             <div
               className={`absolute left-0 top-full z-50 mt-2 min-w-[15rem] rounded-xl border p-2 shadow-xl ${
-                isDark ? "border-white/10 bg-[#063b32]" : "border-gray-200 bg-white"
+                isDark ? "border-white/10 bg-[#122428]" : "border-gray-200 bg-white"
               }`}
             >
-              {audienceLinks.map(({ label, href }) => (
+              {audienceLinks.map(({ label, href, image }) => (
                 <a
                   key={href}
                   href={href}
                   onClick={() => setAudienceOpen(false)}
-                  className={`block rounded-md px-3 py-2.5 text-sm font-semibold ${mobileLinkClass}`}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-semibold ${mobileLinkClass}`}
                 >
-                  {label}
+                  <span className="h-10 w-12 shrink-0 overflow-hidden rounded-md bg-white/10">
+                    <img src={image} alt="" className="h-full w-full object-cover" />
+                  </span>
+                  <span>{label}</span>
                 </a>
               ))}
             </div>
           ) : null}
         </div>
         <a href="/#experts" className={linkClass}>About</a>
-        <a href="/#vat-framework" className={linkClass}>VAT Framework</a>
         <a href="/#faq" className={linkClass}>FAQ</a>
-        <a href="/insights" className={`${isDark ? "text-[#f5f274]/80 hover:text-[#f5f274]" : "text-[#063b32] hover:text-[#063b32]/80"} font-semibold`}>
+        <a href="/insights" className={`${isDark ? "text-[#D8FC2E]/80 hover:text-[#D8FC2E]" : "text-[#122428] hover:text-[#122428]/80"} font-semibold`}>
           Insights & Resources
         </a>
       </div>
@@ -131,7 +134,6 @@ export default function SiteNav({ variant = "dark" }: Props) {
           ))}
           {[
             { label: "About", href: "/#experts" },
-            { label: "VAT Framework", href: "/#vat-framework" },
             { label: "FAQ", href: "/#faq" },
             { label: "Insights & Resources", href: "/insights" },
           ].map(({ label, href }) => (

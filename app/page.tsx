@@ -314,11 +314,8 @@ function PhotoCard({
 
 function MiniLogo() {
   return (
-    <a href="#top" className="flex items-center gap-2 font-semibold text-paper">
-      <span className="grid h-6 w-6 place-items-center rounded-full bg-acid text-[11px] font-bold text-ink">
-        VA
-      </span>
-      <span className="text-sm tracking-tight">VAxAI</span>
+    <a href="#top" className="flex items-center" aria-label="VAxAI home">
+      <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto" />
     </a>
   );
 }
@@ -684,7 +681,6 @@ export default function Home() {
             <a href="/small-business" className="transition-colors duration-200 hover:text-paper">Small Business</a>
             <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-paper">Charities</a>
             <a href="/#experts" className="transition-colors duration-200 hover:text-paper">About</a>
-            <a href="/founders-entrepreneurs#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
             <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
             <a href="/insights" className="text-acid/70 transition-colors duration-200 hover:text-acid">Insights &amp; Resources</a>
           </div>
@@ -713,7 +709,6 @@ export default function Home() {
                 { label: "Small Business", href: "/small-business" },
                 { label: "Charities", href: "/charities-non-profits" },
                 { label: "About", href: "/#experts" },
-                { label: "Access to Work", href: "/founders-entrepreneurs#access-to-work" },
                 { label: "FAQ", href: "#faq" },
                 { label: "Insights & Resources", href: "/insights" },
               ].map(({ label, href }) => (
@@ -1367,8 +1362,8 @@ export default function Home() {
           filter: none !important;
         }
         .simplified-mode .simplified-toggle .a11y-active {
-          background-color: #063b32 !important;
-          border-color: #063b32 !important;
+          background-color: #122428 !important;
+          border-color: #122428 !important;
           color: #ffffff !important;
         }
         .simplified-mode .simplified-toggle .a11y-active * {
@@ -1385,7 +1380,7 @@ export default function Home() {
           box-shadow: 0 14px 35px rgba(17,17,17,0.18) !important;
         }
         .simplified-mode .simplified-toggle .a11y-trigger.a11y-active {
-          background-color: #063b32 !important;
+          background-color: #122428 !important;
           color: #ffffff !important;
         }
       `}</style>

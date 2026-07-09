@@ -136,7 +136,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
               {/* Content type badge */}
               {post.content_type && (
-                <span className="mb-3 inline-block rounded-full bg-[#063b32]/8 px-3 py-1 text-xs font-semibold text-[#063b32]">
+                <span className="mb-3 inline-block rounded-full bg-[#122428]/8 px-3 py-1 text-xs font-semibold text-[#122428]">
                   {post.content_type}
                 </span>
               )}
@@ -158,7 +158,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                     {author.avatar_url ? (
                       <img src={author.avatar_url} alt={author.name} className="h-8 w-8 shrink-0 rounded-full object-cover ring-2 ring-gray-100" />
                     ) : (
-                      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#063b32] text-xs font-bold text-[#f5f274]">
+                      <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#122428] text-xs font-bold text-[#D8FC2E]">
                         {author.name[0].toUpperCase()}
                       </div>
                     )}
@@ -199,7 +199,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               )}
 
               {/* Mobile-only Get in touch (hidden on lg where sidebar shows it) */}
-              <div className="mt-12 rounded-3xl border border-[#063b32]/10 bg-[#f7f4ea]/50 p-6 lg:hidden">
+              <div className="mt-12 rounded-3xl border border-[#122428]/10 bg-[#F5F8F8]/60 p-6 lg:hidden">
                 <h2 className="mb-1 text-xl font-bold text-gray-900">Get in touch</h2>
                 <p className="mb-5 text-sm leading-6 text-gray-500">
                   Have a question about this post or want to explore working together? Your enquiry will be linked to this content.
@@ -228,11 +228,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                             />
                           )}
                           {r.content_type && (
-                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#063b32]">
+                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#122428]">
                               {r.content_type}
                             </p>
                           )}
-                          <p className="text-sm font-semibold leading-5 text-gray-800 group-hover:text-[#063b32]">
+                          <p className="text-sm font-semibold leading-5 text-gray-800 group-hover:text-[#122428]">
                             {r.title}
                           </p>
                           {r.description && (
@@ -245,7 +245,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 )}
 
                 {/* Get in touch — sidebar (desktop) */}
-                <div className="rounded-2xl border border-[#063b32]/10 bg-[#f7f4ea]/60 p-5">
+                <div className="rounded-2xl border border-[#122428]/10 bg-[#F5F8F8]/60 p-5">
                   <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">Work with us</p>
                   <h3 className="mb-2 text-sm font-bold text-gray-900">Get in touch</h3>
                   <p className="mb-4 text-xs leading-5 text-gray-500">
@@ -257,7 +257,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 {/* Back to insights */}
                 <div>
                   <a href="/insights"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#063b32] hover:underline">
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#122428] hover:underline">
                     ← All insights
                   </a>
                 </div>

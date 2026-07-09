@@ -62,7 +62,7 @@ export function AppSelect({
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white text-left font-normal outline-none transition-colors hover:border-[#063b32]/40 focus:border-[#063b32] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClasses} ${isEmpty ? "text-[#6f6b62]" : "text-[#111111]"}`}
+        className={`flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white text-left font-normal outline-none transition-colors hover:border-[#122428]/40 focus:border-[#122428] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClasses} ${isEmpty ? "text-[#6f6b62]" : "text-[#111111]"}`}
       >
         <span className="truncate">{displayLabel}</span>
         <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
@@ -78,10 +78,10 @@ export function AppSelect({
               role="option"
               aria-selected={!value}
               onClick={() => { setOpen(false); onChange(""); }}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${!value ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#6f6b62]"}`}
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${!value ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#6f6b62]"}`}
             >
               <span className="flex-1">{placeholder}</span>
-              {!value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+              {!value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
             </button>
           )}
           {options.map((opt) => (
@@ -91,10 +91,10 @@ export function AppSelect({
               role="option"
               aria-selected={opt.value === value}
               onClick={() => { setOpen(false); onChange(opt.value); }}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${opt.value === value ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"}`}
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${opt.value === value ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"}`}
             >
               <span className="flex-1">{opt.label}</span>
-              {opt.value === value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+              {opt.value === value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
             </button>
           ))}
         </div>

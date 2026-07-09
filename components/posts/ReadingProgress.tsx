@@ -36,7 +36,7 @@ export default function ReadingProgress({ contentId }: { contentId: string }) {
       {/* Progress bar — sits below the site nav (top-[52px] accounts for nav height) */}
       <div className="fixed left-0 top-[52px] z-40 h-0.5 w-full bg-gray-100">
         <div
-          className="h-full bg-[#063b32] transition-[width] duration-75"
+          className="h-full bg-[#122428] transition-[width] duration-75"
           style={{ width: `${progress}%` }}
         />
       </div>

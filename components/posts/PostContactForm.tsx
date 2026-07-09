@@ -57,9 +57,9 @@ export default function PostContactForm({ postId, postTitle }: Props) {
       onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
     >
       <div className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-3xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between gap-6 rounded-t-3xl bg-[#063b32] px-6 py-5 text-white sm:px-7">
+        <div className="flex items-start justify-between gap-6 rounded-t-3xl bg-[#122428] px-6 py-5 text-white sm:px-7">
           <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f5f274]">VAxAI</p>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#D8FC2E]">VAxAI</p>
             <h2 className="text-xl font-bold">Get in touch</h2>
             <p className="mt-1 text-sm text-white/65">Your enquiry will be linked to this post.</p>
           </div>
@@ -75,8 +75,8 @@ export default function PostContactForm({ postId, postTitle }: Props) {
 
         {submitted ? (
           <div className="p-7 text-center">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#063b32]">
-              <Check className="h-6 w-6 text-[#f5f274]" />
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[#122428]">
+              <Check className="h-6 w-6 text-[#D8FC2E]" />
             </div>
             <h3 className="mt-4 text-xl font-bold text-gray-900">Message sent</h3>
             <p className="mt-2 text-sm text-gray-500">
@@ -86,7 +86,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="mt-6 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white"
+              className="mt-6 rounded-xl bg-[#122428] px-5 py-3 text-sm font-semibold text-white"
             >
               Close
             </button>
@@ -100,7 +100,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#122428] focus:ring-2 focus:ring-[#122428]/10"
                   placeholder="Your name"
                 />
               </div>
@@ -111,7 +111,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#122428] focus:ring-2 focus:ring-[#122428]/10"
                   placeholder="you@example.com"
                 />
               </div>
@@ -123,7 +123,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
                 rows={4}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#063b32] focus:ring-2 focus:ring-[#063b32]/10"
+                className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-[#122428] focus:ring-2 focus:ring-[#122428]/10"
                 placeholder="What would you like to discuss?"
               />
             </div>
@@ -134,7 +134,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#122428] px-5 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
             >
               {submitting ? "Sending…" : "Send message"}
               <ArrowRight className="h-4 w-4" />
@@ -150,7 +150,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+        className="inline-flex items-center gap-2 rounded-xl bg-[#122428] px-5 py-3 text-sm font-semibold text-white transition hover:opacity-90"
       >
         Get in touch
         <ArrowRight className="h-4 w-4" />

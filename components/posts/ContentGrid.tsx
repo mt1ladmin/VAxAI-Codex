@@ -63,7 +63,7 @@ function MultiDropdown({
         onClick={() => setOpen((o) => !o)}
         className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
           selected.length > 0
-            ? "border-[#063b32] bg-[#063b32] text-white"
+            ? "border-[#122428] bg-[#122428] text-white"
             : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
         }`}
       >
@@ -96,7 +96,7 @@ function MultiDropdown({
                 className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
               >
                 <span className={`grid h-4 w-4 shrink-0 place-items-center rounded border transition-colors ${
-                  checked ? "border-[#063b32] bg-[#063b32]" : "border-gray-300 bg-white"
+                  checked ? "border-[#122428] bg-[#122428]" : "border-gray-300 bg-white"
                 }`}>
                   {checked && (
                     <svg viewBox="0 0 10 8" className="h-2.5 w-2.5 text-white" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -162,7 +162,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             placeholder="Search insights…"
-            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-8 text-sm outline-none focus:border-[#063b32] transition-colors"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-8 text-sm outline-none focus:border-[#122428] transition-colors"
           />
           {search && (
             <button
@@ -206,7 +206,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
           <button
             type="button"
             onClick={() => { setSearch(""); setActiveTypes([]); setActiveTags([]); setPage(0); }}
-            className="text-xs font-semibold text-[#063b32] hover:underline"
+            className="text-xs font-semibold text-[#122428] hover:underline"
           >
             Clear all
           </button>
@@ -234,8 +234,8 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#063b32]/10 to-[#063b32]/5">
-                      <span className="text-2xl font-bold text-[#063b32]/20">{post.title[0]}</span>
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#122428]/10 to-[#122428]/5">
+                      <span className="text-2xl font-bold text-[#122428]/20">{post.title[0]}</span>
                     </div>
                   )}
                 </div>
@@ -244,7 +244,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
                   {/* Type + date */}
                   <div className="mb-2 flex items-center gap-2">
                     {post.content_type && (
-                      <span className="rounded-full bg-[#063b32]/8 px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                      <span className="rounded-full bg-[#122428]/8 px-2.5 py-0.5 text-[10px] font-semibold text-[#122428]">
                         {post.content_type}
                       </span>
                     )}
@@ -252,7 +252,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
                   </div>
 
                   {/* Title */}
-                  <h2 className="mb-1.5 text-base font-bold leading-snug text-gray-900 group-hover:text-[#063b32]">
+                  <h2 className="mb-1.5 text-base font-bold leading-snug text-gray-900 group-hover:text-[#122428]">
                     {post.title}
                   </h2>
 
@@ -269,7 +269,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
                       {author.avatar_url ? (
                         <img src={author.avatar_url} alt={author.name} className="h-6 w-6 rounded-full object-cover" />
                       ) : (
-                        <div className="grid h-6 w-6 place-items-center rounded-full bg-[#063b32] text-[9px] font-bold text-[#f5f274]">
+                        <div className="grid h-6 w-6 place-items-center rounded-full bg-[#122428] text-[9px] font-bold text-[#D8FC2E]">
                           {author.name[0]}
                         </div>
                       )}
@@ -323,8 +323,8 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
       )}
 
       {/* Get in touch CTA */}
-      <div className="mt-16 flex flex-col items-center rounded-3xl bg-[#063b32] px-8 py-14 text-center text-white">
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#f5f274]/80">Work with us</p>
+      <div className="mt-16 flex flex-col items-center rounded-3xl bg-[#122428] px-8 py-14 text-center text-white">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-[#D8FC2E]/80">Work with us</p>
         <h2 className="text-2xl font-bold sm:text-3xl">Ready to work smarter?</h2>
         <p className="mt-3 max-w-md text-sm leading-7 text-white/65">
           Whether you have a specific challenge or just want to explore how VAxAI could help your team, we&apos;d love to hear from you.
@@ -332,7 +332,7 @@ export default function ContentGrid({ posts, authorMap, allTags, allTypes }: Pro
         <button
           type="button"
           onClick={() => setContactOpen(true)}
-          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#f5f274] px-6 py-3 text-sm font-bold text-[#063b32] transition hover:bg-[#f5f274]/90"
+          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#D8FC2E] px-6 py-3 text-sm font-bold text-[#122428] transition hover:bg-[#D8FC2E]/90"
         >
           Get in touch
           <ArrowRight className="h-4 w-4" />
