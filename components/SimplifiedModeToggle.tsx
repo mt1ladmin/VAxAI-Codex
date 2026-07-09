@@ -132,7 +132,7 @@ export default function SimplifiedModeToggle() {
                   type="button"
                   onClick={() => toggle(key)}
                   className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
-                    active ? "a11y-active bg-[#063b32] text-white" : "hover:bg-gray-50 text-gray-800"
+                    active ? "a11y-active bg-[#122428] text-white" : "hover:bg-gray-50 text-gray-800"
                   }`}
                 >
                   {/* Toggle pill */}
@@ -172,7 +172,7 @@ export default function SimplifiedModeToggle() {
         onClick={() => setOpen((o) => !o)}
         className={`a11y-trigger inline-flex items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_14px_35px_rgba(17,17,17,0.18)] transition ${
           anyActive
-            ? "a11y-active border-[#063b32] bg-[#063b32] text-white"
+            ? "a11y-active border-[#122428] bg-[#122428] text-white"
             : "border-gray-200 bg-white text-gray-800"
         }`}
         aria-expanded={open}

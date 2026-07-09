@@ -60,8 +60,8 @@ export default async function InsightsPage() {
       <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 px-4 py-3 backdrop-blur-sm md:px-8">
         <SiteNav variant="light" />
       </header>
-      <div className="bg-[#063b32] px-4 py-14 text-center md:px-8">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#f5f274]/80">Insights</p>
+      <div className="bg-[#122428] px-4 py-14 text-center md:px-8">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D8FC2E]/80">Insights</p>
         <h1 className="text-3xl font-bold text-white sm:text-4xl">Insights &amp; resources</h1>
         <p className="mx-auto mt-3 max-w-xl text-base text-white/60">
           Practical thinking on admin, automation, AI tools and working smarter — from the VAxAI team.

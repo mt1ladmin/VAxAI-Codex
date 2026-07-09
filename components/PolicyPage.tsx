@@ -17,7 +17,7 @@ export default function PolicyPage({ title, lastUpdated, children }: Props) {
         </div>
 
         <div className="mx-auto max-w-3xl px-4 py-16 md:px-8 md:py-20">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">
             VAxAI — a service by MT1L
           </p>
           <h1 className="mb-2 text-3xl font-bold text-gray-900 md:text-4xl">{title}</h1>

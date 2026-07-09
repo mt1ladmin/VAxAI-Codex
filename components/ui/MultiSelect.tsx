@@ -52,7 +52,7 @@ export function MultiSelect({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className={`flex w-full flex-wrap items-center gap-1.5 rounded-xl border border-[#111111]/15 bg-white text-left outline-none transition-colors hover:border-[#063b32]/40 focus:border-[#063b32] ${sizeClasses}`}
+        className={`flex w-full flex-wrap items-center gap-1.5 rounded-xl border border-[#111111]/15 bg-white text-left outline-none transition-colors hover:border-[#122428]/40 focus:border-[#122428] ${sizeClasses}`}
       >
         {values.length === 0 ? (
           <span className="flex-1 text-[#6f6b62]">{placeholder}</span>
@@ -61,13 +61,13 @@ export function MultiSelect({
             {values.map((v) => (
               <span
                 key={v}
-                className="inline-flex items-center gap-1 rounded-full bg-[#063b32]/10 px-2 py-0.5 text-xs font-semibold text-[#063b32]"
+                className="inline-flex items-center gap-1 rounded-full bg-[#122428]/10 px-2 py-0.5 text-xs font-semibold text-[#122428]"
               >
                 {v}
                 <button
                   type="button"
                   onClick={(e) => remove(v, e)}
-                  className="grid h-3.5 w-3.5 place-items-center rounded-full hover:bg-[#063b32]/20"
+                  className="grid h-3.5 w-3.5 place-items-center rounded-full hover:bg-[#122428]/20"
                   aria-label={`Remove ${v}`}
                 >
                   <X className="h-2.5 w-2.5" />
@@ -94,10 +94,10 @@ export function MultiSelect({
                 role="option"
                 aria-selected={selected}
                 onClick={() => toggle(opt)}
-                className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${selected ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"}`}
+                className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${selected ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"}`}
               >
                 <span className="flex-1">{opt}</span>
-                {selected && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+                {selected && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
               </button>
             );
           })}

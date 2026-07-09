@@ -94,7 +94,7 @@ export default function ShareButton({ url, title }: Props) {
               onClick={() => { copyLink(); setOpen(false); }}
               className="flex w-full items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
             >
-              {copied ? <Check className="h-4 w-4 text-[#063b32]" /> : <Copy className="h-4 w-4" />}
+              {copied ? <Check className="h-4 w-4 text-[#122428]" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied!" : "Copy link"}
             </button>
           </div>
