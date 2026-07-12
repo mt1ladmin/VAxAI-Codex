@@ -738,7 +738,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce Admin. Keep the Human Touch.
+              Unlock AI&rsquo;s Potential. Keep the Human Touch.
             </motion.h1>
             <motion.p
               variants={fadeUp}
