@@ -28,8 +28,8 @@ type ServiceLandingPageProps = {
 };
 
 const HERO_IMAGES: Record<string, string> = {
-  "founders-entrepreneurs": "/founder-online-shop-boxes.jpg",
-  "small-business": "/small-business-partnership-meeting.jpg",
+  "founders-entrepreneurs": "/founder-laptop-graph-meeting.jpg",
+  "small-business": "/small-business-boxes.jpg",
   "charities-non-profits": "/charity-volunteers-garden.jpg",
 };
 
