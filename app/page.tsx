@@ -784,29 +784,32 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Technology Doesn't Deliver Results on Its Own — leads         */}
+      {/* AI can do the task, someone still has to make it work — leads */}
       {/* straight into the Who VAxAI is for cards                      */}
       {/* ------------------------------------------------------------ */}
       <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
           <Reveal className="max-w-3xl">
             <h2 className="text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Technology Doesn&rsquo;t Deliver Results on Its Own
+              AI can do the task. Someone still has to make it work.
             </h2>
             <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Today, almost anyone can use AI to generate content, automate tasks and improve productivity. But AI doesn&rsquo;t implement itself, monitor itself or take responsibility for the outcomes it creates.
+              AI has changed what&rsquo;s possible, but it hasn&rsquo;t removed the responsibility of making sure work is accurate, appropriate and sustainable.
             </p>
             <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Real value comes from knowing how to apply AI within your organisation: deciding what to automate, what to keep human, how to protect sensitive information and how to ensure everything works together in practice.
+              The reality is that AI often shifts the work rather than removing it. Instead of spending time completing repetitive tasks, people spend time reviewing outputs, managing prompts, fixing workflows and keeping multiple systems working together.
             </p>
             <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
               Letting AI make decisions without review carries real risk. Outputs that go unchecked can lead to costly mistakes or poor decisions, and whatever the cause, your organisation remains accountable for the outcome.
             </p>
-            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              VAxAI bridges that gap through AI consultancy and hands-on administrative support, helping you turn AI from a useful tool into reliable, sustainable ways of working.
+            <p className="mt-5 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+              That&rsquo;s where VAxAI adds value.
             </p>
-            <p className="mt-8 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
-              Explore support built around your organisation.
+            <p className="mt-8 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Whether you&rsquo;re building a business, leading a small team or delivering services within a charity, the challenges surrounding AI and administration look different.
+            </p>
+            <p className="mt-3 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+              Explore how VAxAI supports organisations like yours.
             </p>
           </Reveal>
 
@@ -831,7 +834,7 @@ export default function Home() {
               Meet the people behind VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              Successful AI isn&rsquo;t measured by how much you automate. It&rsquo;s measured by how confidently your organisation can rely on it, and that confidence comes from the people behind every recommendation.
+              AI doesn&rsquo;t remove the work, it changes the work. That&rsquo;s why we tailor everything to how your organisation actually operates, not the other way around. We focus on where AI adds genuine value, systems that fit your ways of working, and the human oversight that makes it sustainable and trustworthy.
             </p>
           </Reveal>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
