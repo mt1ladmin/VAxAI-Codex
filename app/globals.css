@@ -137,6 +137,12 @@ html.simplified-mode .simplified-photo {
   filter: grayscale(1) contrast(1.12) !important;
 }
 html.simplified-mode img { filter: grayscale(1) contrast(1.25) !important; }
+/* Gradient overlays that sit on top of a photo to keep caption text
+   legible must stay transparent, otherwise the forced white
+   background above paints over the photo underneath and hides it. */
+html.simplified-mode .photo-text-overlay {
+  background-color: transparent !important;
+}
 
 /* Cookie consent banner and newsletter popup stay styled in all accessibility modes */
 html.simplified-mode .cookie-banner__backdrop {

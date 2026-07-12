@@ -16,9 +16,7 @@ import type {
 } from "@/lib/seo/audience-pages";
 import {
   sharedAccessToWork,
-  sharedFullSetupIncludes,
   sharedOngoingSupportDescription,
-  sharedPricingIntro,
   sharedVaSetupIncluded,
 } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
@@ -351,10 +349,14 @@ const ACCESS_TO_WORK_URL = "https://www.gov.uk/access-to-work";
 
 function PricingPanelContent({
   pricing,
+  pricingIntro,
+  fullSetupIncludes,
   onContact,
   onViewBenefits,
 }: {
   pricing: AudiencePricing;
+  pricingIntro: string;
+  fullSetupIncludes: string[];
   onContact: () => void;
   onViewBenefits: () => void;
 }) {
@@ -364,7 +366,7 @@ function PricingPanelContent({
       <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         Our Pricing Structure
       </h2>
-      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{sharedPricingIntro}</p>
+      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricingIntro}</p>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
         <article className="flex flex-col rounded-3xl border border-pine-900/15 bg-cream/50 px-6 py-7 md:px-8">
@@ -372,7 +374,7 @@ function PricingPanelContent({
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">{pricing.fullSetupPrice}</p>
           <p className="mt-6 text-sm font-medium text-ink md:text-[15px]">This includes:</p>
           <ul className="mt-4 space-y-3">
-            {sharedFullSetupIncludes.map((item) => (
+            {fullSetupIncludes.map((item) => (
               <li key={item} className="flex gap-3">
                 <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
                   ✓
@@ -485,6 +487,8 @@ function AudienceTabbedSections({
   changes,
   workWithUs,
   pricing,
+  pricingIntro,
+  fullSetupIncludes,
   onContact,
 }: {
   pressures: AudienceSection;
@@ -493,6 +497,8 @@ function AudienceTabbedSections({
   changes: AudienceSection;
   workWithUs: AudienceSection;
   pricing: AudiencePricing;
+  pricingIntro: string;
+  fullSetupIncludes: string[];
   onContact: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<AudienceTabId>("pressures");
@@ -619,6 +625,8 @@ function AudienceTabbedSections({
         {activeTab === "pricing" ? (
           <PricingPanelContent
             pricing={pricing}
+            pricingIntro={pricingIntro}
+            fullSetupIncludes={fullSetupIncludes}
             onContact={onContact}
             onViewBenefits={openBenefitsTab}
           />
@@ -764,6 +772,8 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 changes={changes}
                 workWithUs={page.workWithUs}
                 pricing={page.pricing}
+                pricingIntro={page.pricingIntro}
+                fullSetupIncludes={page.fullSetupIncludes}
                 onContact={() => setContactOpen(true)}
               />
             </Reveal>

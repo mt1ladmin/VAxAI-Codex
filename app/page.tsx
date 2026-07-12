@@ -528,7 +528,7 @@ function ExpertProfileCard({ expert }: { expert: Expert }) {
         className="aspect-[0.9] transition-transform duration-500 ease-premium group-hover:scale-[1.03]"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20"
+        className="photo-text-overlay absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20"
         aria-hidden="true"
       />
       <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">

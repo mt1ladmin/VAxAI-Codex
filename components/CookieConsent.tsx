@@ -138,19 +138,19 @@ export default function CookieConsent() {
         <div className="mt-5 flex flex-col gap-2.5 border-t border-gray-200 pt-5 sm:flex-row sm:justify-end">
           <button
             type="button"
+            onClick={acceptAll}
+            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
+          >
+            Accept all
+          </button>
+          <button
+            type="button"
             onClick={() => setShowManage((v) => !v)}
             aria-expanded={showManage}
             className="cookie-banner__btn-secondary flex flex-1 items-center justify-center gap-1.5 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#122428] sm:flex-none"
           >
             Manage preferences
             {showManage ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          </button>
-          <button
-            type="button"
-            onClick={acceptAll}
-            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
-          >
-            Accept all
           </button>
         </div>
       </div>
