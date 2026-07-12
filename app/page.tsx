@@ -196,6 +196,47 @@ const faqs = [
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
 
+const challengeQuestions = [
+  "What should and shouldn’t be automated?",
+  "Which information is appropriate to use with AI?",
+  "How do we protect confidential or sensitive data?",
+  "How do we know the outputs are accurate?",
+  "Which tools are worth investing in?",
+  "How do we connect everything together?",
+  "Who maintains it when our business changes?",
+];
+
+const aiConsultancyItems = [
+  "assess opportunities for AI and automation",
+  "review existing workflows",
+  "identify inefficiencies",
+  "recommend practical improvements",
+  "design reliable processes",
+  "implement solutions that fit your organisation",
+  "review risks, governance and data considerations",
+  "refine systems as your needs evolve",
+];
+
+const adminSupportItems = [
+  "reviewing AI-generated work",
+  "managing workflows",
+  "maintaining automations",
+  "organising information",
+  "preparing documents",
+  "monitoring processes",
+  "supporting projects",
+  "handling day-to-day administration",
+  "continually improving how work gets done",
+];
+
+const understandingPoints = [
+  "how you work today",
+  "what’s creating unnecessary pressure",
+  "where AI could genuinely help",
+  "where human oversight should remain",
+  "what success looks like for your organisation",
+];
+
 /* ------------------------------------------------------------------ */
 /* Motion primitives — one easing curve and reveal pattern everywhere  */
 /* ------------------------------------------------------------------ */
@@ -293,6 +334,19 @@ function Eyebrow({
       />
       {children}
     </p>
+  );
+}
+
+function DashList({ items, className = "" }: { items: string[]; className?: string }) {
+  return (
+    <ul className={`grid gap-2.5 ${className}`}>
+      {items.map((item) => (
+        <li key={item} className="flex gap-3 text-base leading-7 text-muted md:text-lg md:leading-8">
+          <span className="mt-[11px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
+          {item}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -802,25 +856,136 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Why VAxAI — the case for pairing AI with human support        */}
+      {/* Opening — AI is powerful, making it work is where we come in  */}
       {/* ------------------------------------------------------------ */}
       <section className="px-4 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-3xl">
           <Reveal>
-            <p className="text-lg leading-8 text-muted md:text-xl md:leading-9">
-              AI can draft content, analyse information and automate repetitive tasks, but generating an output is only part of the process.
-            </p>
+            <h2 className="text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+              AI is powerful. Making it work is where we come in.
+            </h2>
             <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Someone still needs to decide what should and shouldn&rsquo;t be automated, protect sensitive information, review AI outputs, test ideas in practice, connect systems, monitor automations and adapt them as your organisation evolves.
+              AI can generate content, analyse information and automate routine tasks in seconds. But turning those capabilities into meaningful results takes more than choosing the right tools.
             </p>
-            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in.
+            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              VAxAI combines AI consultancy with practical administrative support to help founders, small businesses and charities make confident decisions about AI, implement solutions that fit the way they already work, and keep those systems running as their organisations grow.
             </p>
-            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              We combine strategic AI consultancy with hands-on virtual assistant support to help you assess opportunities, implement practical solutions and keep everything running long after the initial setup.
+            <a href="#services" className={`${btn.primary} mt-8`}>
+              Explore Support
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* The Challenge                                                  */}
+      {/* ------------------------------------------------------------ */}
+      <section className="px-4 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-3xl">
+          <Reveal>
+            <Eyebrow>The challenge</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              AI can do the task. Someone still has to make it work.
+            </h2>
+            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
+              AI has changed what&rsquo;s possible, but it hasn&rsquo;t removed the responsibility of making sure work is accurate, appropriate and sustainable.
             </p>
-            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              The result is fewer manual tasks, reduced risk, smoother workflows and more time to focus on growing your business or delivering your mission.
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              For many organisations, using AI introduces new questions:
+            </p>
+            <DashList items={challengeQuestions} className="mt-5" />
+            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
+              The reality is that AI often shifts the work rather than removing it. Instead of spending time completing repetitive tasks, people spend time reviewing outputs, managing prompts, fixing workflows and keeping multiple systems working together.
+            </p>
+            <p className="mt-5 text-base font-medium leading-7 text-ink md:text-lg md:leading-8">
+              That&rsquo;s where VAxAI adds value.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Our Role                                                       */}
+      {/* ------------------------------------------------------------ */}
+      <section className="px-4 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-5xl">
+          <Reveal className="max-w-3xl">
+            <Eyebrow>Our role</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              Bridging the gap between AI and real-world work
+            </h2>
+            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
+              AI is excellent at generating outputs.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              What it can&rsquo;t do is understand your organisation, your priorities or the practical realities of how your work gets done.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              VAxAI provides the bridge between AI capability and real-world implementation.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              We help you decide where AI genuinely adds value, where human expertise remains essential, and how technology can support, not complicate, your day-to-day work.
+            </p>
+            <p className="mt-5 text-base font-medium leading-7 text-ink md:text-lg md:leading-8">
+              Our support combines two complementary services.
+            </p>
+          </Reveal>
+
+          <Stagger className="mt-10 grid gap-10 md:grid-cols-2">
+            <Reveal>
+              <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink">AI Consultancy</h3>
+              <p className="mt-2 text-sm leading-6 text-muted">We help you:</p>
+              <DashList items={aiConsultancyItems} className="mt-4" />
+            </Reveal>
+            <Reveal>
+              <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink">Administrative Support</h3>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Once systems are in place, we help keep everything running. This might include:
+              </p>
+              <DashList items={adminSupportItems} className="mt-4" />
+            </Reveal>
+          </Stagger>
+
+          <Reveal className="mt-10 max-w-3xl">
+            <p className="text-base leading-7 text-muted md:text-lg md:leading-8">
+              Together, these services help ensure AI delivers value beyond the initial implementation.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Why This Matters                                               */}
+      {/* ------------------------------------------------------------ */}
+      <section className="px-4 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-3xl">
+          <Reveal>
+            <Eyebrow>Why this matters</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              Technology doesn&rsquo;t understand your context. People do.
+            </h2>
+            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
+              Every organisation works differently.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              A founder balancing client work and business development has different priorities from a charity managing volunteers and safeguarding responsibilities.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              A growing business may need connected systems and streamlined operations.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              Another organisation may simply need help reducing the administrative burden that&rsquo;s preventing them from focusing on their mission.
+            </p>
+            <p className="mt-5 text-base font-medium leading-7 text-ink md:text-lg md:leading-8">
+              That&rsquo;s why we don&rsquo;t begin with software.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              We begin by understanding:
+            </p>
+            <DashList items={understandingPoints} className="mt-5" />
+            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
+              Only then do we recommend solutions.
             </p>
           </Reveal>
         </div>
@@ -833,10 +998,13 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <Reveal>
             <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Choose Your Path
+              Support Built Around Your Reality
             </h2>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Choose the option below that best describes you, each leads to more detailed information on how we can help.
+              Whether you&rsquo;re building a business, leading a small team or delivering services within a charity, the challenges surrounding AI and administration look different.
+            </p>
+            <p className="mt-3 max-w-3xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Explore how VAxAI supports organisations like yours.
             </p>
 
             <div className="mt-10">
@@ -855,22 +1023,38 @@ export default function Home() {
       {/* ------------------------------------------------------------ */}
       <section id="experts" className="px-4 py-24 md:px-8 md:py-32">
         <div className="mx-auto max-w-6xl">
-          <Reveal className="max-w-xl">
+          <Reveal className="max-w-3xl">
+            <h2 className="text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              Why human support still matters
+            </h2>
+            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
+              AI can draft, analyse and automate.
+            </p>
+            <p className="mt-5 text-base font-medium leading-7 text-ink md:text-lg md:leading-8">
+              It cannot take responsibility.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              It doesn&rsquo;t know whether an automation reflects your internal processes, whether sensitive information should remain outside AI systems, or whether a recommendation will work in practice for your organisation.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              Behind every recommendation, workflow and automation is thoughtful human decision-making.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              At VAxAI, we combine consultancy, implementation and ongoing administrative support to make sure AI continues delivering value long after the initial setup.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              Because successful AI isn&rsquo;t measured by how much you automate.
+            </p>
+            <p className="mt-2 text-base font-medium leading-7 text-ink md:text-lg md:leading-8">
+              It&rsquo;s measured by how confidently your organisation can rely on it.
+            </p>
+          </Reveal>
+
+          <Reveal className="mt-16 max-w-xl md:mt-20">
             <Eyebrow>The people</Eyebrow>
             <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
               Meet the people behind VAxAI
             </h2>
-          </Reveal>
-          <Reveal className="mt-8 max-w-3xl">
-            <p className="text-base leading-7 text-muted md:text-lg md:leading-8">
-              AI can support your work, but it can&rsquo;t take responsibility for understanding your organisation, making informed judgments or adapting as your needs change.
-            </p>
-            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
-              Behind every VAxAI recommendation, workflow and automation is a real team that takes the time to understand how you work, identify where AI genuinely adds value and provide the practical support needed to keep everything running smoothly.
-            </p>
-            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
-              Whether we&rsquo;re reviewing AI outputs, refining processes or helping you manage the day-to-day, our role is simple: to make sure your technology continues working for your organisation, not the other way around.
-            </p>
           </Reveal>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             {experts.map((expert) => (
