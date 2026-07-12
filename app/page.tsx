@@ -806,7 +806,7 @@ export default function Home() {
       {/* ------------------------------------------------------------ */}
       <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <Reveal className="rounded-[40px] border border-ink/5 bg-white p-6 shadow-lift md:p-12">
+          <Reveal>
             <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
               Choose Your Path
             </h2>
@@ -815,7 +815,7 @@ export default function Home() {
             </p>
 
             <div className="mt-10">
-              <Stagger className="grid gap-4 sm:grid-cols-2">
+              <Stagger className="grid gap-4 sm:grid-cols-3">
                 {caseStudies.map((study, index) => (
                   <SupportAudienceCard key={study.href} study={study} index={index} />
                 ))}

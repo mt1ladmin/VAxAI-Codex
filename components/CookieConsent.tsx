@@ -127,29 +127,31 @@ export default function CookieConsent() {
                 checked={marketing}
                 onChange={setMarketing}
               />
-              <button
-                type="button"
-                onClick={saveManaged}
-                className="cookie-banner__btn-secondary mt-2 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428]"
-              >
-                Save my preferences
-              </button>
+              <div className="flex flex-col gap-2.5 pt-1 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={rejectNonEssential}
+                  className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
+                >
+                  Reject non-essential
+                </button>
+                <button
+                  type="button"
+                  onClick={saveManaged}
+                  className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
+                >
+                  Save my preferences
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="mt-5 flex flex-col gap-2.5 border-t border-gray-200 pt-5 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            onClick={rejectNonEssential}
-            className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#122428] sm:flex-none"
-          >
-            Reject non-essential
-          </button>
+        <div className="mt-5 flex justify-end border-t border-gray-200 pt-5">
           <button
             type="button"
             onClick={acceptAll}
-            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
+            className="cookie-banner__btn-primary w-full rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto"
           >
             Accept all
           </button>
