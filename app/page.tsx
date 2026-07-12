@@ -919,8 +919,8 @@ export default function Home() {
       {/* Opening — AI is powerful, making it work is where we come in  */}
       {/* ------------------------------------------------------------ */}
       <section className="px-4 py-16 md:px-8 md:py-24">
-        <div className="mx-auto max-w-3xl">
-          <Reveal>
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="max-w-3xl">
             <h2 className="text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
               AI is powerful. Making it work is where we come in.
             </h2>
@@ -943,8 +943,8 @@ export default function Home() {
       {/* consolidated, expandable section rather than three long ones  */}
       {/* ------------------------------------------------------------ */}
       <section className="px-4 py-16 md:px-8 md:py-24">
-        <div className="mx-auto max-w-3xl">
-          <Reveal>
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="max-w-3xl">
             <Eyebrow>The approach</Eyebrow>
             <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
               AI has changed what&rsquo;s possible. It hasn&rsquo;t changed who&rsquo;s responsible.
@@ -954,7 +954,7 @@ export default function Home() {
             </p>
           </Reveal>
 
-          <Reveal className="mt-8 border-t border-ink/8">
+          <Reveal className="mt-8 max-w-3xl border-t border-ink/8">
             {approachPanels.map((panel, index) => (
               <ExpandablePanel
                 key={panel.title}
@@ -967,7 +967,7 @@ export default function Home() {
             ))}
           </Reveal>
 
-          <Reveal className="mt-10">
+          <Reveal className="mt-10 max-w-3xl">
             <p className="text-base leading-7 text-muted md:text-lg md:leading-8">
               The reality is that AI often shifts the work rather than removing it. Instead of completing repetitive tasks, people spend time reviewing outputs, managing prompts and keeping systems working together.
             </p>
