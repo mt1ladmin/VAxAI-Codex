@@ -796,7 +796,7 @@ export default function Home() {
             <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               You want to reduce admin, work smarter with AI, and free up time for what matters most. But the reality is more complex than expected. AI can save time on repetitive tasks, yet it often introduces new challenges:
             </p>
-            <ul className="mt-5 grid gap-2.5 md:grid-cols-2 md:gap-x-10">
+            <ul className="mt-5 grid gap-3">
               {[
                 "Disconnected tools that don’t integrate smoothly with your current systems",
                 "Infinite outputs and ideas that require constant filtering",
@@ -804,8 +804,8 @@ export default function Home() {
                 "Constant output reviewing",
                 "New maintenance work",
               ].map((item) => (
-                <li key={item} className="flex gap-3 text-lg leading-8 text-muted md:text-xl md:leading-9">
-                  <span className="mt-[14px] h-1.5 w-1.5 shrink-0 rounded-full bg-acid" aria-hidden="true" />
+                <li key={item} className="flex items-start gap-3 text-lg leading-8 text-muted md:text-xl md:leading-9">
+                  <span className="mt-[11px] h-2.5 w-2.5 shrink-0 rounded-full bg-acid md:mt-[13px]" aria-hidden="true" />
                   {item}
                 </li>
               ))}
