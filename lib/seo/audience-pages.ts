@@ -53,7 +53,19 @@ const sharedWorkWithUsBullets = [
 
 export const sharedHowSection: AudienceSection = {
   heading: "",
-  paragraphs: [],
+  paragraphs: [
+    "Using AI well raises real questions, and answering them is what determines whether it actually helps.",
+  ],
+  bulletsLabel: "Questions we help you answer first",
+  bullets: [
+    "What should and shouldn’t be automated?",
+    "Which information is appropriate to use with AI?",
+    "How do we protect confidential or sensitive data?",
+    "How do we know the outputs are accurate?",
+    "Which tools are worth investing in?",
+    "How do we connect everything together?",
+    "Who maintains it when our business changes?",
+  ],
   journeyLabel: "Our Process",
   journey: [
     {

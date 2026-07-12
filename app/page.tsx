@@ -196,56 +196,6 @@ const faqs = [
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
 
-const challengeQuestions = [
-  "What should and shouldn’t be automated?",
-  "Which information is appropriate to use with AI?",
-  "How do we protect confidential or sensitive data?",
-  "How do we know the outputs are accurate?",
-  "Which tools are worth investing in?",
-  "How do we connect everything together?",
-  "Who maintains it when our business changes?",
-];
-
-const aiConsultancyItems = [
-  "assess opportunities for AI and automation",
-  "review existing workflows",
-  "identify inefficiencies",
-  "recommend practical improvements",
-  "design reliable processes",
-  "implement solutions that fit your organisation",
-  "review risks, governance and data considerations",
-  "refine systems as your needs evolve",
-];
-
-const adminSupportItems = [
-  "reviewing AI-generated work",
-  "managing workflows",
-  "maintaining automations",
-  "organising information",
-  "preparing documents",
-  "monitoring processes",
-  "supporting projects",
-  "handling day-to-day administration",
-  "continually improving how work gets done",
-];
-
-const approachPanels: { title: string; intro?: string; items: string[] }[] = [
-  {
-    title: "Questions organisations are asking",
-    items: challengeQuestions,
-  },
-  {
-    title: "AI Consultancy",
-    intro: "We help you:",
-    items: aiConsultancyItems,
-  },
-  {
-    title: "Administrative Support",
-    intro: "Once systems are in place, we help keep everything running. This might include:",
-    items: adminSupportItems,
-  },
-];
-
 /* ------------------------------------------------------------------ */
 /* Motion primitives — one easing curve and reveal pattern everywhere  */
 /* ------------------------------------------------------------------ */
@@ -343,69 +293,6 @@ function Eyebrow({
       />
       {children}
     </p>
-  );
-}
-
-function DashList({ items, className = "" }: { items: string[]; className?: string }) {
-  return (
-    <ul className={`grid gap-2.5 ${className}`}>
-      {items.map((item) => (
-        <li key={item} className="flex gap-3 text-base leading-7 text-muted md:text-lg md:leading-8">
-          <span className="mt-[11px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
-          {item}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function ExpandablePanel({
-  title,
-  intro,
-  items,
-  open,
-  onToggle,
-}: {
-  title: string;
-  intro?: string;
-  items: string[];
-  open: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div className="border-b border-ink/8 first:border-t">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className="flex w-full items-center justify-between gap-6 py-5 text-left"
-      >
-        <span className="text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">{title}</span>
-        <span
-          className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border transition-all duration-300 ease-premium ${
-            open ? "rotate-180 border-pine-900 bg-pine-900 text-paper" : "border-ink/10 text-ink/50"
-          }`}
-        >
-          <ChevronDown className="h-3.5 w-3.5" />
-        </span>
-      </button>
-      <AnimatePresence initial={false}>
-        {open ? (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.4, ease: EASE }}
-            className="overflow-hidden"
-          >
-            <div className="pb-6">
-              {intro ? <p className="text-sm leading-6 text-muted">{intro}</p> : null}
-              <DashList items={items} className={intro ? "mt-4" : ""} />
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </div>
   );
 }
 
@@ -736,7 +623,6 @@ export default function Home() {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [openCase, setOpenCase] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [openApproachPanel, setOpenApproachPanel] = useState<number | null>(0);
 
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
@@ -852,37 +738,19 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce admin. Keep the human touch.
+              AI can generate content, automate tasks and save time.
             </motion.h1>
             <motion.p
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              Small businesses, charities, and solo founders often feel the weight of admin the most.
-            </motion.p>
-            <motion.p
-              variants={fadeUp}
-              className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
-            >
-              Emails, scheduling, follow-ups, reporting, and repetitive tasks can quietly eat up the time needed for growth, delivery, and real impact.
-            </motion.p>
-            <motion.p
-              variants={fadeUp}
-              className="mt-5 max-w-xl text-base font-medium leading-7 text-paper md:text-lg md:leading-8"
-            >
-              VAxAI makes everyday work easier.
-            </motion.p>
-            <motion.p
-              variants={fadeUp}
-              className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
-            >
-              We combine human virtual support, smarter processes, and targeted AI automation, only where it genuinely adds value.
+              VAxAI helps founders, small businesses and charities turn those possibilities into practical, reliable ways of working through AI consultancy, automation and hands-on administrative support.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
-              <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
-                Start your workflow review
+              <a href="#services" className={btn.accent}>
+                Explore Support
                 <ArrowRight className="h-4 w-4" />
-              </button>
+              </a>
             </motion.div>
           </motion.div>
 
@@ -916,89 +784,39 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Opening — AI is powerful, making it work is where we come in  */}
-      {/* ------------------------------------------------------------ */}
-      <section className="px-4 py-16 md:px-8 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="max-w-3xl">
-            <h2 className="text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              AI is powerful. Making it work is where we come in.
-            </h2>
-            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              AI can generate content, analyse information and automate routine tasks in seconds. But turning those capabilities into meaningful results takes more than choosing the right tools.
-            </p>
-            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              VAxAI combines AI consultancy with practical administrative support to help founders, small businesses and charities make confident decisions about AI, implement solutions that fit the way they already work, and keep those systems running as their organisations grow.
-            </p>
-            <a href="#services" className={`${btn.primary} mt-8`}>
-              Explore Support
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* The Approach — challenge, questions and how we help, in one    */}
-      {/* consolidated, expandable section rather than three long ones  */}
-      {/* ------------------------------------------------------------ */}
-      <section className="px-4 py-16 md:px-8 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="max-w-3xl">
-            <Eyebrow>The approach</Eyebrow>
-            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
-              AI has changed what&rsquo;s possible. It hasn&rsquo;t changed who&rsquo;s responsible.
-            </h2>
-            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              Using AI well raises real questions, and answering them is what determines whether it actually helps. Tap into what matters most to you below.
-            </p>
-          </Reveal>
-
-          <Reveal className="mt-8 max-w-3xl border-t border-ink/8">
-            {approachPanels.map((panel, index) => (
-              <ExpandablePanel
-                key={panel.title}
-                title={panel.title}
-                intro={panel.intro}
-                items={panel.items}
-                open={openApproachPanel === index}
-                onToggle={() => setOpenApproachPanel(openApproachPanel === index ? null : index)}
-              />
-            ))}
-          </Reveal>
-
-          <Reveal className="mt-10 max-w-3xl">
-            <p className="text-base leading-7 text-muted md:text-lg md:leading-8">
-              The reality is that AI often shifts the work rather than removing it. Instead of completing repetitive tasks, people spend time reviewing outputs, managing prompts and keeping systems working together.
-            </p>
-            <p className="mt-5 text-base font-medium leading-7 text-ink md:text-lg md:leading-8">
-              That&rsquo;s where VAxAI adds value: AI consultancy and hands-on administrative support, working together.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* Who VAxAI is for — standalone card below the hero             */}
+      {/* Technology Doesn't Deliver Results on Its Own — leads         */}
+      {/* straight into the Who VAxAI is for cards                      */}
       {/* ------------------------------------------------------------ */}
       <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <h2 className="max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Support Built Around Your Reality
+          <Reveal className="max-w-3xl">
+            <h2 className="text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+              Technology Doesn&rsquo;t Deliver Results on Its Own
             </h2>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              A founder balancing client work, a charity managing volunteers and a growing business juggling systems all face AI and admin pressure differently. Explore how VAxAI supports organisations like yours.
+            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Today, almost anyone can use AI to generate content, automate tasks and improve productivity. But AI doesn&rsquo;t implement itself, monitor itself or take responsibility for the outcomes it creates.
             </p>
-
-            <div className="mt-10">
-              <Stagger className="grid gap-4 sm:grid-cols-3">
-                {caseStudies.map((study, index) => (
-                  <SupportAudienceCard key={study.href} study={study} index={index} />
-                ))}
-              </Stagger>
-            </div>
+            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Real value comes from knowing how to apply AI within your organisation: deciding what to automate, what to keep human, how to protect sensitive information and how to ensure everything works together in practice.
+            </p>
+            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Letting AI make decisions without review carries real risk. Outputs that go unchecked can lead to costly mistakes or poor decisions, and whatever the cause, your organisation remains accountable for the outcome.
+            </p>
+            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              VAxAI bridges that gap through AI consultancy and hands-on administrative support, helping you turn AI from a useful tool into reliable, sustainable ways of working.
+            </p>
+            <p className="mt-8 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+              Explore support built around your organisation.
+            </p>
           </Reveal>
+
+          <div className="mt-10">
+            <Stagger className="grid gap-4 sm:grid-cols-3">
+              {caseStudies.map((study, index) => (
+                <SupportAudienceCard key={study.href} study={study} index={index} />
+              ))}
+            </Stagger>
+          </div>
         </div>
       </section>
 

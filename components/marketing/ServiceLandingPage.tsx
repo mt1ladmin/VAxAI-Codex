@@ -257,6 +257,25 @@ function HowPanelContent({
           ))}
         </div>
       ) : null}
+      {(section.bullets ?? []).length > 0 ? (
+        <div className="mt-8 rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card md:p-8">
+          {section.bulletsLabel ? (
+            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+              {section.bulletsLabel}
+            </p>
+          ) : null}
+          <div className="grid gap-4">
+            {(section.bullets ?? []).map((item) => (
+              <div key={item} className="flex gap-3">
+                <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                  ✓
+                </span>
+                <p className="text-sm leading-7 text-muted md:text-[15px]">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
       {(section.journey ?? []).length > 0 ? (
         <>
           {section.journeyLabel ? (
