@@ -20,7 +20,7 @@ import type { Expert } from "@/lib/experts";
 
 const image = {
   hero:
-    "/hero-remote-work-circles.jpg",
+    "/homepage-hero-digital-business.jpg",
   expert:
     "/vaxai-support-control.jpg",
   thesia: "/thesia-profile.jpg",
