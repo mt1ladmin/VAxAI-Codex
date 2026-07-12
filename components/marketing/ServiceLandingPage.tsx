@@ -597,6 +597,7 @@ function AudienceTabbedSections({
           <HowPanelContent
             badge="Our approach"
             section={how}
+            showIntro={false}
             onNext={() => navigateToTab("changes")}
           />
         ) : null}

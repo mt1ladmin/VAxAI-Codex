@@ -80,7 +80,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
             </div>
             <h3 className="mt-4 text-xl font-bold text-gray-900">Message sent</h3>
             <p className="mt-2 text-sm text-gray-500">
-              Thanks — the VAxAI team will be in touch shortly. Your enquiry is linked to{" "}
+              Thanks, VAxAI will be in touch shortly. Your enquiry is linked to{" "}
               <span className="font-semibold text-gray-700">&ldquo;{postTitle}&rdquo;</span>.
             </p>
             <button

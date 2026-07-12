@@ -141,7 +141,7 @@ export default function NewsletterPopup() {
             </h2>
 
             <p className="mt-3 text-[13.5px] leading-[1.7] text-muted">
-              Get VAxAI thinking on admin support, AI-assisted workflows and the VAT Framework,
+              Get practical insight on admin support, AI-assisted workflows and the VAT Framework,
               delivered directly to your inbox.
             </p>
 

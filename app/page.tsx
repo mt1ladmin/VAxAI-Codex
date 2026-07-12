@@ -738,13 +738,13 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              AI can generate content, automate tasks and save time.
+              Reduce Admin. Keep the Human Touch.
             </motion.h1>
             <motion.p
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              VAxAI helps founders, small businesses and charities turn those possibilities into practical, reliable ways of working through AI consultancy, automation and hands-on administrative support.
+              AI can generate content, automate tasks, and save time. VAxAI helps founders, small businesses and charities turn those possibilities into practical, reliable ways of working through AI consultancy, automation and hands-on administrative support.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
@@ -794,22 +794,16 @@ export default function Home() {
               AI can do the task. Someone still has to make it work.
             </h2>
             <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              AI has changed what&rsquo;s possible, but it hasn&rsquo;t removed the responsibility of making sure work is accurate, appropriate and sustainable.
+              You want to reduce admin, work smarter with AI, and free up time for what matters most. But the reality is more complex than expected. AI can save time on repetitive tasks, yet it often introduces new challenges: disconnected tools that don&rsquo;t integrate smoothly with your current systems, infinite outputs and ideas that require constant filtering, fragile workflows that break when needs change, constant output reviewing, new maintenance work, and risks if things are rushed without proper preparation and planning grounded in your unique context.
             </p>
             <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              The reality is that AI often shifts the work rather than removing it. Instead of spending time completing repetitive tasks, people spend time reviewing outputs, managing prompts, fixing workflows and keeping multiple systems working together.
+              That&rsquo;s where VAxAI comes in as your guide. We combine strategic consultancy to design smart integrations and solutions that fit your existing systems and ways of working, with reliable human virtual assistant support for hands-on implementation, ongoing oversight, and long-term management.
             </p>
             <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Letting AI make decisions without review carries real risk. Outputs that go unchecked can lead to costly mistakes or poor decisions, and whatever the cause, your organisation remains accountable for the outcome.
+              The result is real efficiency, lower risk, and systems you can trust, without losing control or adding hidden admin.
             </p>
-            <p className="mt-5 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI adds value.
-            </p>
-            <p className="mt-8 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Whether you&rsquo;re building a business, leading a small team or delivering services within a charity, the challenges surrounding AI and administration look different.
-            </p>
-            <p className="mt-3 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
-              Explore how VAxAI supports organisations like yours.
+            <p className="mt-8 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+              Explore how VAxAI supports organisations like yours:
             </p>
           </Reveal>
 
@@ -824,20 +818,33 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Experts — editorial, offset profile cards                     */}
+      {/* About — MT1L, the VAT Framework, then the people              */}
       {/* ------------------------------------------------------------ */}
       <section id="experts" className="px-4 py-24 md:px-8 md:py-32">
         <div className="mx-auto max-w-6xl">
-          <Reveal className="max-w-xl">
-            <Eyebrow>The people</Eyebrow>
+          <Reveal className="max-w-3xl">
+            <Eyebrow>About</Eyebrow>
             <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
-              Meet the people behind VAxAI
+              About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              AI doesn&rsquo;t remove the work, it changes the work. That&rsquo;s why we tailor everything to how your organisation actually operates, not the other way around. We focus on where AI adds genuine value, systems that fit your ways of working, and the human oversight that makes it sustainable and trustworthy.
+              VAxAI is a service by MT1L, home of the VAT Framework (Value &bull; Alignment &bull; Trust). Everything we do is grounded in the belief that decisions about AI should be based on where it creates genuine value, aligns with your existing ways of working and unique reality, and can be fully trusted by the people who use and engage with it. Where AI isn&rsquo;t the best fit, we also help you consider strong non-AI alternatives. This philosophy guides every recommendation and ensures sustainable, human-centred results.
             </p>
+            <a
+              href="https://mt1l.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${btn.ghostLight} mt-6`}
+            >
+              Check out MT1L
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </Reveal>
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
+
+          <Reveal className="mt-16 md:mt-20">
+            <Eyebrow>The people behind VAxAI</Eyebrow>
+          </Reveal>
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
             {experts.map((expert) => (
               <Reveal key={expert.name}>
                 <ExpertProfileCard expert={expert} />
@@ -892,7 +899,7 @@ export default function Home() {
             <div>
               <Eyebrow>Insights &amp; Resources</Eyebrow>
               <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
-                From the VAxAI team
+                From VAxAI
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-muted">
                 Our insights cover practical approaches to AI, automation and admin. If something
