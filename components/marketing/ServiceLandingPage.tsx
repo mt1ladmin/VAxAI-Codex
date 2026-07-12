@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -546,33 +546,41 @@ function AudienceTabbedSections({
 
   return (
     <div>
-      <div
-        className="-mx-2 flex gap-2 overflow-x-auto border-b border-ink/10 px-2 pb-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
-        role="tablist"
-        aria-label="Explore how VAxAI can support you"
-      >
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.id;
+      <div className="relative md:static">
+        <div
+          className="-mx-2 flex gap-2 overflow-x-auto border-b border-ink/10 px-2 pb-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+          role="tablist"
+          aria-label="Explore how VAxAI can support you"
+        >
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
 
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={`audience-panel-${tab.id}`}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "shrink-0 rounded-full px-4 py-2.5 text-left text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800",
-                isActive
-                  ? "bg-pine-900 text-paper"
-                  : "bg-cream/70 text-ink/75 hover:bg-cream hover:text-ink",
-              )}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`audience-panel-${tab.id}`}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "shrink-0 rounded-full px-4 py-2.5 text-left text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800",
+                  isActive
+                    ? "bg-pine-900 text-paper"
+                    : "bg-cream/70 text-ink/75 hover:bg-cream hover:text-ink",
+                )}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+        <div
+          className="pointer-events-none absolute right-0 top-0 bottom-4 flex w-12 items-center justify-end bg-gradient-to-l from-white to-transparent md:hidden"
+          aria-hidden="true"
+        >
+          <ChevronRight className="h-4 w-4 text-ink/40" />
+        </div>
       </div>
 
       <motion.div

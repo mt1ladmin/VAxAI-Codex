@@ -51,26 +51,6 @@ const sharedWorkWithUsBullets = [
   "Full flexibility: Scale support up or down easily with no long-term commitment.",
 ];
 
-export const sharedHowSection: AudienceSection = {
-  heading: "",
-  paragraphs: [],
-  journeyLabel: "Our Process",
-  journey: [
-    {
-      title: "Discovery, Strategy & Implementation",
-      paragraphs: [
-        "We take time to understand how you currently work: your workflows, biggest pressure points, existing tools, and current support. From there, we create a practical strategy and then design and implement straightforward solutions that fit the way you actually work.",
-      ],
-    },
-    {
-      title: "Ongoing Support",
-      paragraphs: [
-        "We provide ongoing virtual admin support that includes reviewing AI outputs, maintaining automations, and handling exceptions. A dedicated person brings the human judgement and flexibility that AI can’t provide, keeping your workflows efficient, reliable, and manageable long-term.",
-      ],
-    },
-  ],
-};
-
 export type AudiencePage = {
   slug: string;
   metaTitle: string;
@@ -106,13 +86,14 @@ export const audiencePages: AudiencePage[] = [
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "When you are building a business, admin rarely stays in one place. It spreads across your inbox, calendar, notes, client messages and the follow-ups you mean to send later, while growth work waits.",
+        "Running a business alone means everything eventually lands on you, and AI has changed what that looks like rather than removed it. Instead of writing every email or proposal from scratch, you are now the one reading, judging and rewriting whatever AI hands you before it is good enough to send.",
+        "The outputs multiply faster than the decisions do. A single request can produce several drafts, a dozen ideas or three different approaches, and without someone else to sense-check them, working out which one is actually right for this client is still down to you.",
       ],
       bullets: [
-        "Too many competing priorities and not enough protected focus time",
-        "Inbox overload and messages arriving across multiple channels",
-        "Inconsistent follow-up on clients, leads and internal actions",
-        "Too much information being held in your head because there is no clear handover point",
+        "Multiple AI drafts, ideas or options for the same task, with no quick way to know which one is genuinely the best fit",
+        "Confident, polished AI outputs that still need a careful second read before you would trust them enough to send",
+        "Hours spent reviewing and correcting AI-generated work instead of getting it right once",
+        "No one else to sense-check a decision, a draft or a client-facing message before it goes out under your name",
       ],
     },
     delayed: {
@@ -134,32 +115,50 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "If inbox overload, missed follow-ups and too much held in your head feel familiar, the right mix of smarter tools and human support can free up focus time without adding complexity.",
+        "Whether AI is already producing most of your first drafts or you are still working out where it is worth the risk, the value is the same: it is fast at producing options, not at judging which one is right, and it will not flag when a confident-sounding answer is quietly wrong.",
       ],
       bulletsLabel: "Three types of support explained:",
       bullets: [
-        "AI: Drafts client replies, summarises long threads and pulls out next steps so you spend less time re-reading messages.",
-        "Automation: Sends routine reminders, files documents and moves information between the tools you already use.",
-        "Virtual assistance: A person who handles follow-ups, inbox triage and exceptions with judgement, so leads and actions do not depend on you holding everything together.",
+        "AI: Drafts client replies, proposals and content, and pulls together ideas so you are never starting from nothing.",
+        "Automation: Keeps routine admin and follow-ups moving in the background, without you having to remember them.",
+        "Virtual assistance: A second pair of eyes on AI outputs and decisions. Someone who checks drafts against your tone and this client’s context, asks the questions AI will not, and tells you honestly when the first version is not the right one.",
       ],
     },
-    how: sharedHowSection,
+    how: {
+      heading: "",
+      paragraphs: [],
+      journeyLabel: "Our Process",
+      journey: [
+        {
+          title: "Discovery, Strategy & Implementation",
+          paragraphs: [
+            "We start by understanding how you already use AI: what you draft with it, what you double-check every time, and what is quietly eating your evenings. From there we design a workflow that keeps the speed without leaving you as the only person deciding whether an output is good enough.",
+          ],
+        },
+        {
+          title: "Ongoing Support",
+          paragraphs: [
+            "Once it is running, a dedicated virtual assistant reviews AI drafts and outputs against your standards, flags anything that does not look right, and follows through on the actions that come out of them, so ideas and drafts do not just pile up waiting for you to find time to check them.",
+          ],
+        },
+      ],
+    },
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support in place, your business becomes easier to run because fewer things depend on you carrying every task, reminder and next step in your head.",
-        "When inbox pressure, scattered follow-ups and competing priorities are the problem, a practical setup plus ongoing human support is designed to reduce what you carry alone, not add another system to manage.",
+        "With the right support, AI stops being another thing you have to manage alone. Drafts get checked before they reach you, not after you have already sent something you would have wanted to change.",
+        "You keep the speed AI gives you, but the judgement calls, the sense-checking and the follow-through no longer rest entirely on your evenings and weekends.",
       ],
       equation:
-        "Scattered admin pressure + practical setup and ongoing support = more focus for growth and fewer things held in your head.",
+        "Constant AI output review + a second pair of eyes and clear judgement = faster decisions you can actually trust.",
       bulletsLabel: "You can gain:",
       bullets: [
-        "More protected time for client delivery, sales and strategic growth",
-        "Faster and more consistent follow-up with clients, leads and partners",
-        "Clearer systems that make delegation easier",
-        "Less reliance on memory, late-night admin or last-minute chasing",
-        "A calmer operating rhythm around inboxes, scheduling and tasks",
-        "Better visibility of what needs action, what can wait and what can be handed over",
+        "Less time re-reading, editing and second-guessing AI drafts",
+        "A trusted second opinion before client-facing work goes out under your name",
+        "Fewer decisions made just because an option was first, not because it was right",
+        "Clearer judgement on what AI should handle and what still needs your input",
+        "More protected time for the client work and growth only you can do",
+        "A calmer way of working that does not depend on you catching every mistake yourself",
       ],
     },
     pricing: {
@@ -169,11 +168,11 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, predictable cost and flexible hours matter when growth work cannot wait on hiring decisions or complex employment setup.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, that means a second pair of eyes on AI-assisted work and predictable, flexible hours, without the cost or complexity of hiring.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get reliable, professional help that grows with your business, with the flexibility and peace of mind your work deserves.",
+        "In short: You get a trusted second opinion and reliable, professional help that grows with your business, with the flexibility and peace of mind your work deserves.",
     },
     related: {
       label: "Founders & Entrepreneurs",
@@ -196,13 +195,14 @@ export const audiencePages: AudiencePage[] = [
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "In a small business, work often arrives faster than the systems behind it. Customer messages, internal coordination and repetitive tasks can start to compete with the work that actually earns revenue.",
+        "AI can draft a reply to a customer, summarise a supplier email or put together a first version of a quote in seconds. The harder part is making sure what it produces actually sounds like your business, is accurate, and does not need checking every single time by whoever happens to be free.",
+        "Without one person responsible for it, AI use in a small team tends to be inconsistent: one person checks everything twice, another sends outputs straight out, and nobody is quite sure where the line should be.",
       ],
       bullets: [
-        "Customer enquiries arriving across email, phone and social channels",
-        "Follow-ups on quotes, orders and supplier actions slipping through",
-        "Invoices, payments and document filing taking more time than expected",
-        "Repetitive admin repeating every week without a clearer way to handle it",
+        "Customer-facing replies or documents drafted by AI that need checking before they go out, but no clear person responsible for checking them",
+        "Inconsistent AI use across the team, with no shared view of what is safe to automate and what still needs a human look",
+        "Time spent verifying AI-generated quotes, summaries or responses against what actually happened",
+        "Uncertainty about what customer or business information is safe to put into AI tools",
       ],
     },
     delayed: {
@@ -224,32 +224,50 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "If enquiries, invoices and repeat weekly admin keep competing with revenue-earning work, practical changes to how tasks flow can make the business feel steadier without a big systems project.",
+        "Whether your team has already started using AI tools informally or you are holding off until you are confident it will not create more problems than it solves, the risk is the same either way: outputs that sound right but are not checked against what is actually true for your business.",
       ],
       bulletsLabel: "Three types of support explained:",
       bullets: [
-        "AI: Helps draft responses to common enquiries, summarise customer messages and prepare first drafts for quotes or updates.",
-        "Automation: Routes enquiries, chases invoices, files documents and handles repeat weekly tasks so the same work is not done by hand each time.",
-        "Virtual assistance: A person who monitors inboxes, tracks follow-ups and handles the exceptions that still need a human eye.",
+        "AI: Drafts responses to common enquiries, summarises customer messages and prepares first versions of quotes or updates.",
+        "Automation: Routes enquiries, chases invoices and handles repeat weekly admin consistently, without relying on whoever remembers to do it.",
+        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps it consistent with your brand and the facts, and knows when something needs a human decision instead of an automated one.",
       ],
     },
-    how: sharedHowSection,
+    how: {
+      heading: "",
+      paragraphs: [],
+      journeyLabel: "Our Process",
+      journey: [
+        {
+          title: "Discovery, Strategy & Implementation",
+          paragraphs: [
+            "We look at where AI and automation are already being used across your team, informally or otherwise, and where the gaps in consistency and checking actually are. From there we set up clear, practical rules for what AI can handle, what needs a human check, and how customer and business information is kept safe.",
+          ],
+        },
+        {
+          title: "Ongoing Support",
+          paragraphs: [
+            "A dedicated virtual assistant then checks AI-generated, customer-facing work against your standards, keeps automations running as your business changes, and handles the exceptions that a system should not be making decisions about on its own.",
+          ],
+        },
+      ],
+    },
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support in place, your business can feel more organised without becoming overcomplicated.",
-        "When enquiries, invoices and weekly admin keep competing with revenue-earning work, clearer workflows and targeted automation are designed to handle repetition while human support covers the exceptions that matter.",
+        "With the right support, AI stops being something individual team members use their own way. Customer-facing work gets checked consistently, whoever produced the first draft.",
+        "You get the speed of AI-assisted work without it depending on one person remembering to double-check everything, or nobody checking at all.",
       ],
       equation:
-        "Rising admin volume + clearer workflows and targeted automation = faster responses and more reliable day-to-day operations.",
+        "Inconsistent AI use across the team + clear rules and human checking = customer-facing work you can rely on.",
       bulletsLabel: "You can gain:",
       bullets: [
-        "Customer enquiries handled more quickly and consistently",
-        "Fewer missed bookings, documents, invoices and follow-ups",
-        "Clearer processes that make work easier to repeat, delegate or train",
-        "Less time wasted searching for information or chasing updates",
-        "More reliable day-to-day operations without adding unnecessary complexity",
-        "A business that feels easier to manage as workload increases",
+        "Consistent, checked customer communication regardless of who or what drafted it",
+        "A clear, shared view of what AI can be trusted with and what still needs a person",
+        "Less time spent verifying AI outputs against what actually happened",
+        "Reduced risk of sending something inaccurate, off-brand or inappropriate to a customer",
+        "Automations that keep working reliably as your business and workload change",
+        "More confidence using AI, because someone is responsible for checking it",
       ],
     },
     pricing: {
@@ -259,11 +277,11 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, this means professional support without payroll complexity, especially when workload fluctuates and every hour needs to count.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, that means someone accountable for checking AI and automation, without the cost or complexity of a full-time hire.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get reliable, professional help that keeps operations steady as you grow, with the flexibility and peace of mind your business deserves.",
+        "In short: You get consistent, trustworthy AI-assisted work and reliable support that keeps operations steady as you grow.",
     },
     related: {
       label: "Small Businesses",
@@ -286,13 +304,14 @@ export const audiencePages: AudiencePage[] = [
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "Charity teams are frequently doing more with less. Admin does not just sit in one inbox. It spreads across service delivery, volunteers, funders, compliance and the follow-ups that keep people safe and supported.",
+        "AI can help draft a funding report, summarise case notes or pull together an update in minutes, work that used to take a member of staff far longer. But charities are also working with some of the most sensitive information there is: beneficiary details, safeguarding records, funder relationships built on trust, and a mission that a generic AI suggestion will not automatically understand.",
+        "The result is often a governance gap. Staff may already be using AI day to day to save time, while trustees and leadership have little visibility into how it is being used, what data has gone into it, or whether anyone is checking the output against what your beneficiaries and funders actually need.",
       ],
       bullets: [
-        "Limited capacity across small teams and wider volunteer networks",
-        "Reporting and funder administration adding pressure alongside delivery",
-        "Service delivery admin competing with front-line priorities",
-        "Referrals, partner follow-ups and internal actions becoming hard to track",
+        "AI-drafted reports, case notes or funder updates that need checking against safeguarding and confidentiality requirements before anyone sees them",
+        "Little visibility for trustees or leadership into how AI is actually being used day to day",
+        "AI suggestions that sound plausible but do not reflect what your beneficiaries, funders or front-line staff actually need",
+        "Uncertainty about being open with funders and beneficiaries about where AI has been used",
       ],
     },
     delayed: {
@@ -314,32 +333,50 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "When capacity is limited and admin sits alongside delivery, reporting and volunteer coordination, targeted support can protect time for the work that matters most.",
+        "Whether staff are already using AI informally to save time on reporting and admin, or your charity is holding back until you are confident it will not create safeguarding or trust risks, the same care applies: AI can speed up the drafting, but it cannot take responsibility for accuracy, confidentiality or whether a recommendation is right for the people you support.",
       ],
       bulletsLabel: "Three types of support explained:",
       bullets: [
-        "AI: Helps draft reporting notes, summarise funder updates and organise information from meetings or emails.",
+        "AI: Drafts reporting notes, summarises funder updates and organises information from meetings or emails.",
         "Automation: Tracks referrals, reminders and routine reporting steps so actions are less likely to slip when teams are stretched.",
-        "Virtual assistance: A person who maintains follow-ups, coordinates records and handles communication that needs care and consistency.",
+        "Virtual assistance: A person who checks AI-generated reports and communications for accuracy and appropriateness, keeps sensitive information out of the wrong tools, and helps you stay confident and transparent with funders about how AI is used.",
       ],
     },
-    how: sharedHowSection,
+    how: {
+      heading: "",
+      paragraphs: [],
+      journeyLabel: "Our Process",
+      journey: [
+        {
+          title: "Discovery, Strategy & Implementation",
+          paragraphs: [
+            "We take time to understand your services, your beneficiaries and the safeguarding, funder and confidentiality requirements you work within, alongside how staff are already using AI day to day. From there we set up clear, practical boundaries for what AI can support with, what information should never go into it, and where a person needs to stay in the loop.",
+          ],
+        },
+        {
+          title: "Ongoing Support",
+          paragraphs: [
+            "A dedicated virtual assistant then checks AI-generated reports, case notes and communications before they go out, keeps referrals and follow-ups on track, and helps trustees and funders stay confident that AI is being used appropriately and transparently.",
+          ],
+        },
+      ],
+    },
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support in place, charity teams can protect more capacity for delivery, relationships and the work that directly supports their mission.",
-        "When reporting, coordination and follow-ups compete with front-line delivery, practical systems and consistent support are designed to protect mission time, not create more admin overhead.",
+        "With the right support, AI-assisted work is checked against your safeguarding, confidentiality and funder requirements as a matter of course, not something that depends on whoever is least stretched that day.",
+        "Trustees and leadership gain visibility into how AI is actually being used, so it supports your mission and your relationships of trust rather than quietly putting them at risk.",
       ],
       equation:
-        "Stretched capacity + practical systems and consistent support = more time directed towards delivery, relationships and accountability.",
+        "AI speeding up admin and reporting + human checking against safeguarding and mission = capacity you can trust, protected.",
       bulletsLabel: "You can gain:",
       bullets: [
-        "More staff and volunteer time directed towards service delivery",
-        "Clearer tracking of referrals, requests, actions and follow-ups",
-        "Less pressure around reporting, records and coordination",
-        "More consistent communication with beneficiaries, partners, volunteers and funders",
-        "Clearer information handling that supports safeguarding and accountability",
-        "Practical systems that help the charity do more with the capacity it already has",
+        "Reporting and case notes checked for accuracy and confidentiality before they are shared",
+        "Clearer visibility for trustees into how AI is being used across the charity",
+        "Confidence being open with funders and beneficiaries about where AI has helped",
+        "Less risk of sensitive or safeguarding information ending up in the wrong tool",
+        "More staff and volunteer time directed towards delivery and relationships",
+        "Practical AI use that stays aligned with your mission, not generic suggestions that miss the context",
       ],
     },
     pricing: {
@@ -349,11 +386,11 @@ export const audiencePages: AudiencePage[] = [
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, predictable budgeting and flexible hours help you protect delivery capacity.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, that means someone accountable for checking AI-assisted work against safeguarding and funder expectations, at a cost that protects your delivery capacity.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get reliable, professional help that supports your mission, with the flexibility and peace of mind your team deserves.",
+        "In short: You get AI used responsibly alongside reliable, professional support that protects your mission, your beneficiaries and the trust funders place in you.",
     },
     related: {
       label: "UK Charities & Non-Profits",
