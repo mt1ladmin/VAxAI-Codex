@@ -95,63 +95,60 @@ export default function CookieConsent() {
           .
         </p>
 
-        <div className="mt-5 border-t border-gray-200 pt-4">
+        {showManage && (
+          <div className="mt-5 space-y-3 border-t border-gray-200 pt-4">
+            <CategoryRow
+              label="Strictly necessary"
+              description="Required for the website to function — sessions, security and accessibility settings. Cannot be disabled."
+              checked={true}
+              disabled
+              onChange={() => {}}
+            />
+            <CategoryRow
+              label="Analytics"
+              description="Help us understand how visitors use the site so we can improve it. No personal data is sold."
+              checked={analytics}
+              onChange={setAnalytics}
+            />
+            <CategoryRow
+              label="Marketing and communications"
+              description="Used to tailor newsletter communications and measure their effectiveness."
+              checked={marketing}
+              onChange={setMarketing}
+            />
+            <div className="flex flex-col gap-2.5 pt-1 sm:flex-row">
+              <button
+                type="button"
+                onClick={rejectNonEssential}
+                className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
+              >
+                Reject non-essential
+              </button>
+              <button
+                type="button"
+                onClick={saveManaged}
+                className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
+              >
+                Save my preferences
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-5 flex flex-col gap-2.5 border-t border-gray-200 pt-5 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={() => setShowManage((v) => !v)}
-            className="flex items-center gap-1.5 text-[12.5px] font-semibold text-gray-500 transition-colors hover:text-[#111111]"
             aria-expanded={showManage}
+            className="cookie-banner__btn-secondary flex flex-1 items-center justify-center gap-1.5 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#122428] sm:flex-none"
           >
             Manage preferences
             {showManage ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
-
-          {showManage && (
-            <div className="mt-4 space-y-3">
-              <CategoryRow
-                label="Strictly necessary"
-                description="Required for the website to function — sessions, security and accessibility settings. Cannot be disabled."
-                checked={true}
-                disabled
-                onChange={() => {}}
-              />
-              <CategoryRow
-                label="Analytics"
-                description="Help us understand how visitors use the site so we can improve it. No personal data is sold."
-                checked={analytics}
-                onChange={setAnalytics}
-              />
-              <CategoryRow
-                label="Marketing and communications"
-                description="Used to tailor newsletter communications and measure their effectiveness."
-                checked={marketing}
-                onChange={setMarketing}
-              />
-              <div className="flex flex-col gap-2.5 pt-1 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={rejectNonEssential}
-                  className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
-                >
-                  Reject non-essential
-                </button>
-                <button
-                  type="button"
-                  onClick={saveManaged}
-                  className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
-                >
-                  Save my preferences
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="mt-5 flex justify-end border-t border-gray-200 pt-5">
           <button
             type="button"
             onClick={acceptAll}
-            className="cookie-banner__btn-primary w-full rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:w-auto"
+            className="cookie-banner__btn-primary flex-1 rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
           >
             Accept all
           </button>
