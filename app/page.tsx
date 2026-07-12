@@ -94,7 +94,7 @@ const caseStudies: CaseStudy[] = [
       "Clearer priorities and workload",
       "More time for clients and business growth",
     ],
-    closing: "A practical solution built around the way they already worked—not the other way around.",
+    closing: "A practical solution built around the way they already worked, not the other way around.",
   },
   {
     title: "Small Business",
@@ -110,7 +110,7 @@ const caseStudies: CaseStudy[] = [
       "Faster onboarding",
       "Less time spent searching for files",
     ],
-    closing: "Clearer processes made the technology easier to use—not the other way around.",
+    closing: "Clearer processes made the technology easier to use, not the other way around.",
   },
   {
     title: "Charities & Non-Profits",
@@ -188,7 +188,7 @@ const vatPrinciples = [
 ];
 
 const faqs = [
-  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation — without being pushed into tools or systems that do not fit how they actually work."],
+  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
   ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
   ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly after Discovery & Strategy, before any Workflow Design or build work begins."],
@@ -762,7 +762,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-5 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We combine human virtual support, smarter processes, and targeted AI automation — only where it genuinely adds value.
+              We combine human virtual support, smarter processes, and targeted AI automation, only where it genuinely adds value.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
@@ -793,12 +793,37 @@ export default function Home() {
           className="relative mx-auto mt-24 max-w-6xl"
         >
           <p className="mx-auto max-w-2xl text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
-            AI and automation is not always the answer — but when it is, we help you make the most of it.
+            AI and automation is not always the answer, but when it is, we help you make the most of it.
           </p>
           <div className="mt-7">
             <ToolMarquee />
           </div>
         </motion.div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
+      {/* Why VAxAI — the case for pairing AI with human support        */}
+      {/* ------------------------------------------------------------ */}
+      <section className="px-4 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-3xl">
+          <Reveal>
+            <p className="text-lg leading-8 text-muted md:text-xl md:leading-9">
+              AI can draft content, analyse information and automate repetitive tasks, but generating an output is only part of the process.
+            </p>
+            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Someone still needs to decide what should and shouldn&rsquo;t be automated, protect sensitive information, review AI outputs, test ideas in practice, connect systems, monitor automations and adapt them as your organisation evolves.
+            </p>
+            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              That&rsquo;s where VAxAI comes in.
+            </p>
+            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              We combine strategic AI consultancy with hands-on virtual assistant support to help you assess opportunities, implement practical solutions and keep everything running long after the initial setup.
+            </p>
+            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              The result is fewer manual tasks, reduced risk, smoother workflows and more time to focus on growing your business or delivering your mission.
+            </p>
+          </Reveal>
+        </div>
       </section>
 
       {/* ------------------------------------------------------------ */}
@@ -811,7 +836,7 @@ export default function Home() {
               Choose Your Path
             </h2>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Choose the option below that best describes you — each leads to more detailed information on how we can help.
+              Choose the option below that best describes you, each leads to more detailed information on how we can help.
             </p>
 
             <div className="mt-10">
@@ -835,6 +860,17 @@ export default function Home() {
             <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
               Meet the people behind VAxAI
             </h2>
+          </Reveal>
+          <Reveal className="mt-8 max-w-3xl">
+            <p className="text-base leading-7 text-muted md:text-lg md:leading-8">
+              AI can support your work, but it can&rsquo;t take responsibility for understanding your organisation, making informed judgments or adapting as your needs change.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              Behind every VAxAI recommendation, workflow and automation is a real team that takes the time to understand how you work, identify where AI genuinely adds value and provide the practical support needed to keep everything running smoothly.
+            </p>
+            <p className="mt-5 text-base leading-7 text-muted md:text-lg md:leading-8">
+              Whether we&rsquo;re reviewing AI outputs, refining processes or helping you manage the day-to-day, our role is simple: to make sure your technology continues working for your organisation, not the other way around.
+            </p>
           </Reveal>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             {experts.map((expert) => (
