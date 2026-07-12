@@ -137,7 +137,7 @@ export default function NewsletterPopup() {
         ) : (
           <>
             <h2 className="mt-3 text-[1.45rem] font-semibold leading-[1.2] text-ink sm:text-[1.6rem]">
-              Practical admin support, in your inbox
+              VAxAI&rsquo;s latest thinking, straight to your inbox
             </h2>
 
             <p className="mt-3 text-[13.5px] leading-[1.7] text-muted">

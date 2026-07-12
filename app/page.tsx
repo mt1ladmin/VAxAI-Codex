@@ -791,13 +791,30 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <Reveal className="max-w-3xl">
             <h2 className="text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              AI can do the task. Someone still has to make it work.
+              Technology Doesn&rsquo;t Deliver Results on Its Own
             </h2>
             <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              You want to reduce admin, work smarter with AI, and free up time for what matters most. But the reality is more complex than expected. AI can save time on repetitive tasks, yet it often introduces new challenges: disconnected tools that don&rsquo;t integrate smoothly with your current systems, infinite outputs and ideas that require constant filtering, fragile workflows that break when needs change, constant output reviewing, new maintenance work, and risks if things are rushed without proper preparation and planning grounded in your unique context.
+              You want to reduce admin, work smarter with AI, and free up time for what matters most. But the reality is more complex than expected. AI can save time on repetitive tasks, yet it often introduces new challenges:
+            </p>
+            <ul className="mt-5 grid gap-2.5">
+              {[
+                "Disconnected tools that don’t integrate smoothly with your current systems",
+                "Infinite outputs and ideas that require constant filtering",
+                "Fragile workflows that break when needs change",
+                "Constant output reviewing",
+                "New maintenance work",
+              ].map((item) => (
+                <li key={item} className="flex gap-3 text-lg leading-8 text-muted md:text-xl md:leading-9">
+                  <span className="mt-[14px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+              There are also risks if things are rushed without proper preparation and planning grounded in your unique context.
             </p>
             <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in as your guide. We combine strategic consultancy to design smart integrations and solutions that fit your existing systems and ways of working, with reliable human virtual assistant support for hands-on implementation, ongoing oversight, and long-term management.
+              That&rsquo;s where VAxAI comes in. We combine strategic consultancy to design smart integrations and solutions that fit your existing systems and ways of working, with reliable human virtual assistant support for hands-on implementation, ongoing oversight, and long-term management.
             </p>
             <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
               The result is real efficiency, lower risk, and systems you can trust, without losing control or adding hidden admin.
