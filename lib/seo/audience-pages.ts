@@ -125,7 +125,7 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "Whether AI is already producing most of your first drafts and running a few automations, or you are still working out where it is worth the risk, the same two things determine whether it actually helps: deciding what is genuinely worth automating in the first place, and making sure the outputs and automations keep working once they are live.",
+        "Whether AI is already producing your first or second drafts on most tasks and running a few automations, or you are still working out where it is worth the risk, the same two things determine whether it actually helps: deciding what is genuinely worth automating in the first place, and making sure the outputs and automations keep working once they are live.",
       ],
       bulletsLabel: "Three types of support explained:",
       bullets: [

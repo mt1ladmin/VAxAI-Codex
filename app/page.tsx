@@ -789,14 +789,14 @@ export default function Home() {
       {/* ------------------------------------------------------------ */}
       <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
-          <Reveal className="max-w-3xl">
-            <h2 className="text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+          <Reveal>
+            <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
               Technology Doesn&rsquo;t Deliver Results on Its Own
             </h2>
-            <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+            <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               You want to reduce admin, work smarter with AI, and free up time for what matters most. But the reality is more complex than expected. AI can save time on repetitive tasks, yet it often introduces new challenges:
             </p>
-            <ul className="mt-5 grid gap-2.5">
+            <ul className="mt-5 grid gap-2.5 md:grid-cols-2 md:gap-x-10">
               {[
                 "Disconnected tools that don’t integrate smoothly with your current systems",
                 "Infinite outputs and ideas that require constant filtering",
@@ -805,21 +805,21 @@ export default function Home() {
                 "New maintenance work",
               ].map((item) => (
                 <li key={item} className="flex gap-3 text-lg leading-8 text-muted md:text-xl md:leading-9">
-                  <span className="mt-[14px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
+                  <span className="mt-[14px] h-1.5 w-1.5 shrink-0 rounded-full bg-acid" aria-hidden="true" />
                   {item}
                 </li>
               ))}
             </ul>
-            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               There are also risks if things are rushed without proper preparation and planning.
             </p>
-            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               That&rsquo;s where VAxAI comes in. We combine strategic consultancy to design smart integrations and solutions that fit your existing systems and ways of working, with reliable human virtual assistant support for hands-on implementation, ongoing oversight, and long-term management.
             </p>
-            <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               The result is real efficiency, lower risk, and systems you can trust, without losing control or adding hidden admin.
             </p>
-            <p className="mt-8 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+            <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI supports organisations like yours:
             </p>
           </Reveal>
