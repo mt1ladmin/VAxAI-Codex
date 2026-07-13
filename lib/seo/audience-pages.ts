@@ -47,6 +47,8 @@ export const sharedAccessToWork = {
   paragraphs: [
     "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
     "We can help you understand what this may involve and how VAxAI support could fit around your work.",
+    "Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult, get a clearer picture of what support they need because of a disability or health condition. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.",
+    "We are not medical professionals, and this is not a diagnosis of any kind. It looks at how admin affects your work, not at diagnosing you.",
   ],
 };
 
