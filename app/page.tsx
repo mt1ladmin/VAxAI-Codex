@@ -811,7 +811,7 @@ export default function Home() {
               ))}
             </ul>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              There are also risks if things are rushed without proper preparation and planning.
+              There are also risks if things are rushed and if the right preparation and planning hasn&rsquo;t taken place.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               That&rsquo;s where VAxAI comes in. We combine strategic consultancy to design smart integrations and solutions that fit your existing systems and ways of working, with reliable human virtual assistant support for hands-on implementation, ongoing oversight, and long-term management.
