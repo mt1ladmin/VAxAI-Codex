@@ -47,8 +47,8 @@ export const sharedAccessToWork = {
   paragraphs: [
     "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
     "We can help you understand what this may involve and how VAxAI support could fit around your work.",
-    "Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult, get a clearer picture of what support they need because of a disability or health condition. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.",
-    "We are not medical professionals, and this is not a diagnosis of any kind. It looks at how admin affects your work, not at diagnosing you.",
+    "Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult. The review looks at where your admin is coming from and what it actually involves day to day. You would then explain how it affects you, and whether it is tied to your disability or health condition and how, so it is clear where the support needs to sit. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.",
+    "We are not medical professionals, and this is not a diagnosis of any kind. We simply help you understand the reality of your admin, not diagnose or determine the disability link ourselves.",
   ],
 };
 
@@ -90,7 +90,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Founders & Entrepreneurs",
     title: "Support built around how you use AI and run your business",
     intro:
-      "Founders and entrepreneurs are increasingly running their business with AI: drafting content, automating admin and generating ideas faster than ever. But speed creates its own pressure. AI-generated work still needs reviewing, tools and automations still need managing, and with fewer resources than bigger competitors, you are often doing all of it alone, on top of the ordinary admin of running a business that was never about AI in the first place. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for things like a pitch, meeting or event, to help you decide what to automate, keep AI outputs and automations under control, handle the everyday admin, and take on the client-facing or judgement-based work you would rather keep human.",
+      "Founders and entrepreneurs are increasingly running their business with AI: drafting content, automating admin and generating ideas faster than ever. But speed creates its own pressure. AI-generated work still needs reviewing, tools and automations still need managing, and with fewer resources than bigger competitors, you are often doing all of it alone, on top of the ordinary admin of running a business that was never about AI in the first place. VAxAI starts with an Admin Review of how you run your business, then provides hands-on virtual assistant support, virtual or in person for things like a pitch, meeting or event, to help you decide what to automate, keep AI outputs and automations under control, handle the everyday admin, and take on the client-facing or judgement-based work you would rather keep human.",
     heroHasAccessCta: true,
     pressures: {
       heading: "Does this sound familiar?",
@@ -144,7 +144,7 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "AI Consultancy",
+          title: "Admin Review",
           paragraphs: [
             "We start by understanding how you already use AI and automation: what you draft with it, what you have automated, what you still double-check every time, and what is quietly eating your evenings. From there we design and set up a workflow that keeps the speed without leaving you as the only person deciding whether an output is good enough, or fixing things when they break.",
           ],
@@ -208,7 +208,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Small Businesses",
     title: "Support built around how your team uses AI and runs the business",
     intro:
-      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the rotas, supplier queries, invoicing and filing your team was already managing. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
+      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the rotas, supplier queries, invoicing and filing your team was already managing. VAxAI starts with an Admin Review of how your team works, then provides hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -262,7 +262,7 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "AI Consultancy",
+          title: "Admin Review",
           paragraphs: [
             "We look at where AI and automation are already being used across your team, informally or otherwise, from customer replies to invoicing and reporting, and where the gaps in consistency and checking actually are. From there we set up clear, practical rules for what AI can handle, what needs a human check, and how customer and business information is kept safe.",
           ],
@@ -326,7 +326,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "UK Charities & Non-Profits",
     title: "Support built around how your charity uses AI and delivers its mission",
     intro:
-      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the funder reporting, volunteer rotas and case file admin that stretched teams long before AI arrived. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and take on the day-to-day admin and judgement calls you would rather keep human.",
+      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the funder reporting, volunteer rotas and case file admin that stretched teams long before AI arrived. VAxAI starts with an Admin Review of how your charity works, then provides hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and take on the day-to-day admin and judgement calls you would rather keep human.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -380,7 +380,7 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "AI Consultancy",
+          title: "Admin Review",
           paragraphs: [
             "We take time to understand your services, your beneficiaries and the safeguarding, funder and confidentiality requirements you work within, alongside how staff are already using AI and automation day to day. From there we set up clear, practical boundaries for what AI can support with, what information should never go into it, and where a person needs to stay in the loop.",
           ],

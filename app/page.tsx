@@ -189,7 +189,7 @@ const vatPrinciples = [
 
 const faqs = [
   ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
-  ["What does the Admin Review include?", "It is basically strategy for admin. We review your current systems, tools and AI outputs, understand where your admin is really coming from, and give you a practical admin strategy covering the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
+  ["What does the Admin Review include?", "It is based on your unique case. We review your current systems, tools and AI outputs, understand where your admin is really coming from, and give you a practical admin strategy covering the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we recommend automation, better processes or human support instead."],
   ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the Admin Review stage, before any Admin Support begins."],
   ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
@@ -744,7 +744,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We are an admin support service that specialises in AI and automation. We help founders, small businesses and charities understand where their admin is coming from, then reduce it through the right combination of AI, automation, smarter processes and hands-on human support, virtual or in person.
+              We specialise in admin support and helping organisations build a strategy for their admin. We help founders, small businesses and charities understand where their admin is coming from, then reduce it using AI, automation, smarter processes and hands-on human support, virtual or in person, as the tools that fit.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
@@ -797,7 +797,7 @@ export default function Home() {
               Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in. We are an admin support service that specialises in AI and automation: an Admin Review of your systems and AI outputs builds a practical admin strategy, then we provide whichever mix of AI, automation and hands-on human support, virtual or in person, actually helps.
+              That&rsquo;s where VAxAI comes in. We specialise in admin support and helping organisations build a strategy for their admin, making it visible so it can be tackled effectively: an Admin Review of your systems and AI outputs shows where the admin is really coming from, then we use whichever mix of AI, automation and hands-on human support, virtual or in person, actually helps.
             </p>
             <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI can support you:
@@ -825,7 +825,7 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              VAxAI is an admin support service, by MT1L, that specialises in AI and automation. If you want deeper strategic guidance on specific AI systems, that work sits with MT1L directly, home of the Value, Alignment and Trust (VAT) Framework, whose standard shapes every VAxAI recommendation: real value, a genuine fit with how you work, and an outcome you can trust.
+              VAxAI is an admin support service by MT1L, using AI, automation and human support as the tools to reduce admin, not as the specialism itself. If you want deeper strategic guidance on specific AI systems, that work sits with MT1L directly, home of the Value, Alignment and Trust (VAT) Framework, whose standard shapes every VAxAI recommendation: real value, a genuine fit with how you work, and an outcome you can trust.
             </p>
             <a
               href="https://mt1l.com"
@@ -1264,7 +1264,7 @@ export default function Home() {
                 </p>
 
                 <p className="mt-4 text-base leading-7 text-muted">
-                  Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult, get a clearer picture of what support they need because of a disability or health condition. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.
+                  Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult. The review looks at where your admin is coming from and what it actually involves day to day. You would then explain how it affects you, and whether it is tied to your disability or health condition and how, so it is clear where the support needs to sit. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.
                 </p>
 
                 <div className="mt-6 rounded-2xl border border-ink/10 bg-cream/70 p-5">
@@ -1273,7 +1273,7 @@ export default function Home() {
                     <li>We do not decide whether you are eligible or guarantee funding.</li>
                     <li>We do not make decisions on behalf of Access to Work.</li>
                     <li>Access to Work assesses each application and confirms approved support.</li>
-                    <li>We are not medical professionals, and this is not a diagnosis of any kind. It looks at how admin affects your work, not at diagnosing you.</li>
+                    <li>We are not medical professionals, and this is not a diagnosis of any kind. We simply help you understand the reality of your admin, not diagnose or determine the disability link ourselves.</li>
                   </ul>
                 </div>
 
