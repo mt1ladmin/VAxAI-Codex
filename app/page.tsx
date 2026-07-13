@@ -791,7 +791,7 @@ export default function Home() {
   <div className="mx-auto max-w-6xl">
     <Reveal>
       <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-  Technology Doesn't Reduce Admin on Its Own
+  Admin Doesn’t Fix Itself-Even with AI
 </h2>
 
 <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
