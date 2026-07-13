@@ -794,16 +794,10 @@ export default function Home() {
               Admin Doesn&rsquo;t Fix Itself, Even with AI
             </h2>
             <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Founders, small businesses and charities are expected to do more with less. With limited time, funding and resources, every hour spent managing administration is time taken away from serving customers, supporting communities and growing their organisation.
+              Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              AI and automation can be powerful tools for reducing repetitive work, saving time and improving efficiency. But without a clear strategy, they don&rsquo;t always simplify the way work gets done. Technology still needs to be thoughtfully implemented, managed, maintained and adapted over time, creating new responsibilities that many founders, small businesses and charities don&rsquo;t have the capacity to manage alone.
-            </p>
-            <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support, whether delivered virtually or in person, is the right solution.
-            </p>
-            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              The result is practical systems that fit the way your organisation works, trusted support as your needs evolve, and more time to focus on the people, projects and priorities that matter most.
+              That&rsquo;s where VAxAI comes in: AI consultancy to identify where AI and automation genuinely help, paired with hands-on admin support, virtual or in person, to keep it all running.
             </p>
             <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI can support you:
@@ -831,13 +825,7 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              VAxAI is a service by MT1L, the home of the Value, Alignment and Trust (VAT) Framework. Everything we do is grounded in the belief that decisions about AI should be based on where it creates genuine value, aligns with your existing ways of working and unique reality, and can be fully trusted by the people who use and engage with it. Where AI isn&rsquo;t the best fit, we also help you consider strong non-AI alternatives.
-            </p>
-            <p className="mt-4 text-base leading-7 text-muted md:text-lg md:leading-8">
-              In practice, that means two things working together: AI consultancy to decide what&rsquo;s worth automating and design systems that fit how you actually work, and admin support, virtual or in person, to keep everything running and catch what AI can&rsquo;t. We work with founders, small businesses and charities who want AI&rsquo;s benefits without losing the human judgement, oversight and physical presence that only people can provide.
-            </p>
-            <p className="mt-4 text-base leading-7 text-muted md:text-lg md:leading-8">
-              This philosophy guides every recommendation and ensures sustainable, human-centred results.
+              VAxAI is a service by MT1L, the home of the Value, Alignment and Trust (VAT) Framework. We pair AI consultancy with hands-on admin support, virtual or in person, so founders, small businesses and charities get AI&rsquo;s benefits without losing the human judgement only people can provide.
             </p>
             <a
               href="https://mt1l.com"
