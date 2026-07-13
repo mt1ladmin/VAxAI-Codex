@@ -88,7 +88,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Founders & Entrepreneurs",
     title: "Support built around how you use AI and run your business",
     intro:
-      "Founders and entrepreneurs are increasingly running their business with AI: drafting content, automating admin and generating ideas faster than ever. But speed creates its own pressure. AI-generated work still needs reviewing, tools and automations still need managing, and with fewer resources than bigger competitors, you are often doing all of it alone. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for things like a pitch, meeting or event, to help you decide what to automate, keep AI outputs and automations under control, and free up time for the work that actually grows your business.",
+      "Founders and entrepreneurs are increasingly running their business with AI: drafting content, automating admin and generating ideas faster than ever. But speed creates its own pressure. AI-generated work still needs reviewing, tools and automations still need managing, and with fewer resources than bigger competitors, you are often doing all of it alone, on top of the ordinary admin of running a business that was never about AI in the first place. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for things like a pitch, meeting or event, to help you decide what to automate, keep AI outputs and automations under control, handle the everyday admin, and take on the client-facing or judgement-based work you would rather keep human.",
     heroHasAccessCta: true,
     pressures: {
       heading: "Does this sound familiar?",
@@ -127,13 +127,13 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "Whether AI is already producing your first or second drafts on most tasks and running a few automations, or you are still working out where it is worth the risk, the same two things determine whether it actually helps: deciding what is genuinely worth automating in the first place, and making sure the outputs and automations keep working once they are live.",
+        "Whether AI is already producing your first or second drafts and running a few automations, or you are still working out where it is worth the risk, the same things determine whether it actually helps: deciding what is genuinely worth automating, keeping the outputs and automations working once they are live, and having someone reliable for the ordinary admin and judgement calls you would rather keep human.",
       ],
       bulletsLabel: "Three types of support explained:",
       bullets: [
         "AI: Drafts client replies, proposals and content, and pulls together ideas so you are never starting from nothing.",
         "Automation: Handles the repeat admin behind the scenes, quotes, reminders, bookings, once it has been set up properly and mapped to how you actually work.",
-        "Virtual assistance: A second pair of eyes on AI outputs and decisions, and a person who keeps your automations running, catches when something breaks, and handles the admin that still needs a human judgement call. If a pitch, meeting or event needs someone physically there, that is covered too.",
+        "Virtual assistance: A second pair of eyes on AI outputs and decisions, a person who keeps your automations running and catches when something breaks, and reliable support for the everyday admin and client-facing work you would rather a person handled, whether that is virtual or in person for a pitch, meeting or event.",
       ],
     },
     how: {
@@ -150,7 +150,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Admin Support",
           paragraphs: [
-            "Once it is running, a dedicated virtual assistant reviews AI drafts and outputs against your standards, keeps your automations working as your business changes, and follows through on the actions that come out of them, so ideas, drafts and admin do not just pile up waiting for you to find time.",
+            "Once it is running, a dedicated virtual assistant reviews AI drafts and outputs against your standards, keeps your automations working as your business changes, and takes on the everyday admin and client-facing work you would rather keep human, so ideas, drafts and admin do not just pile up waiting for you to find time.",
           ],
         },
       ],
@@ -158,8 +158,8 @@ export const audiencePages: AudiencePage[] = [
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support, AI and automation stop being extra things you have to manage alone. Drafts get checked before they reach you, and automations get maintained before they quietly break, not after you have already lost time to it.",
-        "You keep the speed AI and automation give you, but the judgement calls, the sense-checking, the maintenance and the follow-through no longer rest entirely on your evenings and weekends.",
+        "With the right support, AI and automation stop being extra things you have to manage alone, and the everyday admin stops being something only you can do. Drafts get checked before they reach you, automations get maintained before they quietly break, and the routine and judgement-based admin has someone reliable behind it.",
+        "You keep the speed AI and automation give you, but the judgement calls, the sense-checking, the maintenance and the everyday admin no longer rest entirely on your evenings and weekends.",
       ],
       equation:
         "Constant AI review and automation upkeep + a second pair of eyes and clear judgement = more time to compete on the work only you can do.",
@@ -169,6 +169,7 @@ export const audiencePages: AudiencePage[] = [
         "Automations that keep working without you having to notice when they break",
         "A trusted second opinion before client-facing work goes out under your name",
         "Clearer judgement on what is worth automating and what still needs your input",
+        "Reliable support for the everyday admin and judgement calls you would rather keep human than hand to AI",
         "More protected time for the client work and growth only you can do",
         "A fairer footing against better-resourced competitors, without needing their headcount",
       ],
@@ -178,12 +179,12 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "£25 per hour (pay only for what you need)",
     },
     pricingIntro:
-      "Support built for solo founders and entrepreneurs, priced so a second pair of eyes and reliable automation upkeep do not compete with your growth budget.",
+      "Support built for solo founders and entrepreneurs, priced so a second pair of eyes, reliable automation upkeep and everyday admin support do not compete with your growth budget.",
     fullSetupIncludes: foundersFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, that means a second pair of eyes on AI-assisted work, someone keeping your automations running, and predictable, flexible hours, all without the cost or complexity of hiring.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, that means a second pair of eyes on AI-assisted work, someone keeping your automations running, reliable help with the everyday admin and judgement calls you would rather keep human, and predictable, flexible hours, all without the cost or complexity of hiring.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
