@@ -745,7 +745,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We help founders, small businesses and charities develop a strategy to tackle their admin, then reduce it through the right combination of AI, automation, smarter processes and hands-on human support, virtual or in person.
+              We help founders, small businesses and charities reduce admin, streamline operations and make AI a practical part of everyday work through the right combination of AI, automation, smarter processes and hands-on in person or virtual administrative support.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
@@ -795,13 +795,13 @@ export default function Home() {
               Admin Doesn&rsquo;t Fix Itself, Even with AI
             </h2>
             <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
+              Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. Without understanding where admin work is building up, your bussiness or charity risk making decisions based on assumptions rather than the reality of how work gets done.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Admin rarely disappears when it is overlooked, it just resurfaces, in a founder&rsquo;s evenings, a senior leader&rsquo;s diary, or the gap left when a role is cut on the assumption that AI would absorb it.
+              Admin rarely disappears when it is overlooked. It often shifts elsewhere- into unpaid hours, leadership time, stretched teams, or additional pressure on people already responsible for delivering core work. Similarly, reducing support on the assumption that AI will absorb everything can create new risks if the work still requires oversight, judgement, relationships and human input.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in. An Admin Review builds a clear picture of where your admin is really coming from, so what we recommend, whether that is AI, automation or a person, actually fits.
+              That’s where VAxAI comes in. We start with an Admin Review to understand where time is being spent, where pressure is building, and what support is actually needed. This helps us identify where AI and automation can add value, where human support remains important, and how to create a practical approach that fits your organisation’s needs.
             </p>
             <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI can support you:
