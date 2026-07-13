@@ -80,7 +80,7 @@ const DISCOVERY_FILTER_OPTIONS: { value: DiscoveryFilter; label: string }[] = [
 ];
 
 const SUPPORT_TYPES = [
-  "AI Consultancy",
+  "Admin Review",
   "Admin Support",
   "Access to Work",
   "General enquiry",

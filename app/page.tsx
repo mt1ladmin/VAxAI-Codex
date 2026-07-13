@@ -189,9 +189,9 @@ const vatPrinciples = [
 
 const faqs = [
   ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
-  ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
-  ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
-  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the AI Consultancy stage, before any Admin Support begins."],
+  ["What does the Admin Review include?", "It is based on your unique case. We review your current systems, tools and AI outputs, understand where your admin is really coming from, and give you a practical plan for the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
+  ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we recommend automation, better processes or human support instead."],
+  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the Admin Review stage, before any Admin Support begins."],
   ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
@@ -626,7 +626,7 @@ export default function Home() {
 
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("AI Consultancy");
+  const [supportType, setSupportType] = useState("Admin Review");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -744,7 +744,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We help founders, small businesses and charities reduce admin, streamline operations and make AI a practical part of everyday work through the right combination of AI, automation, smarter processes and hands-on in person or virtual administrative support.
+              We are an admin support service that specialises in AI and automation. We help founders, small businesses and charities understand where their admin is coming from, then reduce it through the right combination of AI, automation, smarter processes and hands-on human support, virtual or in person.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
@@ -797,7 +797,7 @@ export default function Home() {
               Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in: AI consultancy to identify where AI and automation genuinely help, paired with hands-on admin support, virtual or in person, to keep it all running.
+              That&rsquo;s where VAxAI comes in. We are an admin support service that specialises in AI and automation: an Admin Review of your systems and AI outputs shows where the admin is really coming from, then we provide whichever mix of AI, automation and hands-on human support, virtual or in person, actually helps.
             </p>
             <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI can support you:
@@ -825,7 +825,7 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              VAxAI is a service by MT1L, the home of the Value, Alignment and Trust (VAT) Framework. It is why every recommendation we make has to earn its place: real value, a genuine fit with how you work, and an outcome you can trust.
+              VAxAI is an admin support service, by MT1L, that specialises in AI and automation. If you want deeper strategic guidance on specific AI systems, that work sits with MT1L directly, home of the Value, Alignment and Trust (VAT) Framework, whose standard shapes every VAxAI recommendation: real value, a genuine fit with how you work, and an outcome you can trust.
             </p>
             <a
               href="https://mt1l.com"
@@ -1085,7 +1085,7 @@ export default function Home() {
                       value={supportType}
                       onChange={setSupportType}
                       options={[
-                        { value: "AI Consultancy", label: "AI Consultancy" },
+                        { value: "Admin Review", label: "Admin Review" },
                         { value: "Admin Support", label: "Admin Support" },
                         { value: "Access to Work", label: "Access to Work" },
                         { value: "General enquiry", label: "General enquiry" },
