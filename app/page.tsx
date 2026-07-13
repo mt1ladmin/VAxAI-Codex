@@ -795,7 +795,7 @@ export default function Home() {
               Admin Doesn&rsquo;t Fix Itself, Even with AI
             </h2>
             <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Founders, small and medium-sized businesses (SMEs) and charities are expected to do more with less, and AI does not remove that pressure on its own. Without understanding where admin work is building up, your business or charity risks making decisions based on assumptions rather than the reality of how work gets done.
+              You are expected to do more with less, and AI does not remove that pressure on its own. Without understanding where admin work is building up, you risk making decisions based on assumptions rather than the reality of how work gets done.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               Admin rarely disappears when it is overlooked. It often shifts elsewhere, into unpaid hours, leadership time, stretched teams, or additional pressure on people already responsible for delivering core work. Similarly, reducing support on the assumption that AI will absorb everything can create new risks if the work still requires oversight, judgement, relationships and human input.
