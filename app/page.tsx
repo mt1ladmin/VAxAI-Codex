@@ -787,52 +787,47 @@ export default function Home() {
       {/* AI can do the task, someone still has to make it work — leads */}
       {/* straight into the Who VAxAI is for cards                      */}
       {/* ------------------------------------------------------------ */}
-      <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Technology Doesn&rsquo;t Deliver Results on Its Own
-            </h2>
-            <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              You want to reduce admin, work smarter with AI, and free up time for what matters most. But the reality is more complex than expected. AI can save time on repetitive tasks, yet it often introduces new challenges:
-            </p>
-            <ul className="mt-5 grid gap-3">
-              {[
-                "Disconnected tools that don’t integrate smoothly with your current systems",
-                "Infinite outputs and ideas that require constant filtering",
-                "Fragile workflows that break when needs change",
-                "Constant output reviewing",
-                "New maintenance work",
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-3 text-lg leading-8 text-muted md:text-xl md:leading-9">
-                  <span className="mt-[11px] h-2.5 w-2.5 shrink-0 rounded-full bg-acid md:mt-[13px]" aria-hidden="true" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              There are also risks if things are rushed and if the right preparation and planning hasn&rsquo;t taken place.
-            </p>
-            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in. We combine strategic consultancy to design smart integrations and solutions that fit your existing systems and ways of working, with reliable human virtual assistant support for hands-on implementation, ongoing oversight, and long-term management.
-            </p>
-            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              The result is real efficiency, lower risk, and systems you can trust, without losing control or adding hidden admin.
-            </p>
-            <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
-              Explore how VAxAI supports organisations like yours:
-            </p>
-          </Reveal>
+  <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
+  <div className="mx-auto max-w-6xl">
+    <Reveal>
+      <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+  Technology Doesn't Reduce Admin on Its Own
+</h2>
 
-          <div className="mt-10">
-            <Stagger className="grid gap-4 sm:grid-cols-3">
-              {caseStudies.map((study, index) => (
-                <SupportAudienceCard key={study.href} study={study} index={index} />
-              ))}
-            </Stagger>
-          </div>
-        </div>
-      </section>
+<p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+ Founders, small businesses and charities are expected to do more with less. With limited time, funding and resources, every hour spent managing administration is time taken away from serving customers, supporting communities and growing their organisation.
+</p>
+
+<p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+ AI and automation can be powerful tools for reducing repetitive work, saving time and improving efficiency. But without a clear strategy, they don’t always simplify the way work gets done. Technology still needs to be thoughtfully implemented, managed, maintained and adapted over time—creating new responsibilities that many founders, small businesses and charities don’t have the capacity to manage alone.
+</p>
+
+<p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
+  That’s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support—whether delivered virtually or in person—is the right solution.
+</p>
+
+<p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
+  The result is practical systems that fit the way your organisation works, trusted support as your needs evolve, and more time to focus on the people, projects and priorities that matter most.
+</p>
+
+<p className="mt-8 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+  Explore how VAxAI can support you
+</p>
+    </Reveal>
+
+    <div className="mt-10">
+      <Stagger className="grid gap-4 sm:grid-cols-3">
+        {caseStudies.map((study, index) => (
+          <SupportAudienceCard
+            key={study.href}
+            study={study}
+            index={index}
+          />
+        ))}
+      </Stagger>
+    </div>
+  </div>
+</section>
 
       {/* ------------------------------------------------------------ */}
       {/* About — MT1L, the VAT Framework, then the people              */}
