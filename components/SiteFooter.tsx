@@ -28,7 +28,7 @@ export default function SiteFooter() {
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Services</p>
                 <div className="grid gap-3.5 text-paper/62">
                   <a href="/founders-entrepreneurs" className="transition-colors duration-200 hover:text-paper">Founders &amp; Entrepreneurs</a>
-                  <a href="/small-business" className="transition-colors duration-200 hover:text-paper">Small Businesses</a>
+                  <a href="/small-business" className="transition-colors duration-200 hover:text-paper">SMEs</a>
                   <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-paper">Charities &amp; Non-Profits</a>
                 </div>
               </div>
@@ -71,7 +71,7 @@ export default function SiteFooter() {
           </div>
 
           <div className="mt-14 border-t border-white/10 pt-6 text-xs text-paper/50">
-            © {new Date().getFullYear()} VAxAI — a service by MT1L. All rights reserved.
+            © {new Date().getFullYear()} VAxAI, a service by MT1L. All rights reserved.
           </div>
         </div>
       </footer>

@@ -10,7 +10,7 @@ type Props = {
 
 const audienceLinks = [
   { label: "Founders & Entrepreneurs", href: "/founders-entrepreneurs", image: "/founder-laptop-graph-meeting.jpg" },
-  { label: "Small Business", href: "/small-business", image: "/small-business-boxes.jpg" },
+  { label: "SMEs", href: "/small-business", image: "/small-business-boxes.jpg" },
   { label: "Charities & Non-Profits", href: "/charities-non-profits", image: "/charity-volunteers-garden.jpg" },
 ];
 

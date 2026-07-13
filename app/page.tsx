@@ -97,7 +97,7 @@ const caseStudies: CaseStudy[] = [
     closing: "A practical solution built around the way they already worked, not the other way around.",
   },
   {
-    title: "Small Business",
+    title: "SMEs",
     subtitle: "Creating clearer, more efficient ways of working.",
     href: "/small-business",
     teaser: "A growing organisation was using multiple systems to manage projects, documents and client information. As the team grew, it became increasingly difficult to know where information belonged or who owned what.",
@@ -188,7 +188,7 @@ const vatPrinciples = [
 ];
 
 const faqs = [
-  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
+  ["Who is VAxAI for?", "VAxAI is practical AI-enabled admin, workflow and operational support for individuals and smaller organisations: founders and entrepreneurs, small and medium-sized businesses (SMEs), and charities and non-profits of all sizes. We are primarily aimed at organisations where there is not already a large internal operations or AI team, without being pushed into tools or systems that do not fit how they actually work."],
   ["What does the Admin Review include?", "It is based on your unique case. We look at your admin in general and where it is really coming from, then at the admin AI has added on top, to get a full picture. From there we give you a practical admin strategy covering the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We check it against MT1L's VAT Framework before recommending it. If AI does not clear that bar, we recommend automation, better processes or human support instead."],
   ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the Admin Review stage, before any Admin Support begins."],
@@ -679,7 +679,7 @@ export default function Home() {
           <MiniLogo />
           <div className="hidden items-center gap-6 text-xs font-semibold text-paper/60 md:flex">
             <a href="/founders-entrepreneurs" className="transition-colors duration-200 hover:text-paper">Founders</a>
-            <a href="/small-business" className="transition-colors duration-200 hover:text-paper">Small Business</a>
+            <a href="/small-business" className="transition-colors duration-200 hover:text-paper">SMEs</a>
             <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-paper">Charities</a>
             <a href="/#experts" className="transition-colors duration-200 hover:text-paper">About</a>
             <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
@@ -707,7 +707,7 @@ export default function Home() {
             <div className="mt-3 flex flex-col gap-1 rounded-3xl border border-white/10 bg-pine-950/90 p-4 backdrop-blur">
               {[
                 { label: "Founders", href: "/founders-entrepreneurs" },
-                { label: "Small Business", href: "/small-business" },
+                { label: "SMEs", href: "/small-business" },
                 { label: "Charities", href: "/charities-non-profits" },
                 { label: "About", href: "/#experts" },
                 { label: "FAQ", href: "#faq" },
@@ -745,7 +745,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We help founders, small businesses and charities develop a strategy to tackle their admin, then reduce it through the right combination of AI, automation, smarter processes and hands-on human support, virtual or in person.
+              We help founders, small and medium-sized businesses (SMEs) and charities reduce admin, streamline operations and make AI a practical part of everyday work through the right combination of AI, automation, smarter processes and hands-on in person or virtual administrative support.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
@@ -795,13 +795,13 @@ export default function Home() {
               Admin Doesn&rsquo;t Fix Itself, Even with AI
             </h2>
             <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
+              Founders, small and medium-sized businesses (SMEs) and charities are expected to do more with less, and AI does not remove that pressure on its own. Without understanding where admin work is building up, your business or charity risks making decisions based on assumptions rather than the reality of how work gets done.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Admin rarely disappears when it is overlooked, it just resurfaces, in a founder&rsquo;s evenings, a senior leader&rsquo;s diary, or the gap left when a role is cut on the assumption that AI would absorb it.
+              Admin rarely disappears when it is overlooked. It often shifts elsewhere, into unpaid hours, leadership time, stretched teams, or additional pressure on people already responsible for delivering core work. Similarly, reducing support on the assumption that AI will absorb everything can create new risks if the work still requires oversight, judgement, relationships and human input.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in. An Admin Review builds a clear picture of where your admin is really coming from, so what we recommend, whether that is AI, automation or a person, actually fits.
+              That&rsquo;s where VAxAI comes in. We start with an Admin Review to understand where time is being spent, where pressure is building, and what support is actually needed. This helps us identify where AI and automation can add value, where human support remains important, and how to create a practical approach that fits your organisation&rsquo;s needs.
             </p>
             <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI can support you:

@@ -201,20 +201,20 @@ export const audiencePages: AudiencePage[] = [
   },
   {
     slug: "small-business",
-    metaTitle: "Admin Support & Automation for Small Businesses UK",
+    metaTitle: "Admin Support & Automation for SMEs UK",
     metaDescription:
-      "VAxAI helps UK small businesses manage customer enquiries, bookings, invoices, documents, follow-ups and team coordination with practical virtual assistance, workflows and automation.",
-    serviceType: "Admin support and workflow automation for small businesses",
-    audienceName: "Small Businesses",
-    title: "Support built around how your team uses AI and runs the business",
+      "VAxAI helps UK small and medium-sized businesses (SMEs) manage customer enquiries, bookings, invoices, documents, follow-ups and team coordination with practical virtual assistance, workflows and automation.",
+    serviceType: "Admin support and workflow automation for SMEs",
+    audienceName: "SMEs",
+    title: "Support built around how your SME uses AI and runs the business",
     intro:
-      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the rotas, supplier queries, invoicing and filing your team was already managing. VAxAI starts with an Admin Review of how your team works, then provides hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
+      "Small and medium-sized businesses (SMEs) are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a growing team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the rotas, supplier queries, invoicing and filing your team was already managing. VAxAI starts with an Admin Review of how your team works, then provides hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
         "AI can draft a reply to a customer, summarise a supplier email or put together a first version of a quote in seconds. The harder part is making sure what it produces actually sounds like your business, is accurate, and does not need checking every single time by whoever happens to be free.",
-        "Without one person responsible for it, AI use in a small team tends to be inconsistent: one person checks everything twice, another sends outputs straight out, and nobody is quite sure where the line should be.",
+        "Without one person responsible for it, AI use across a growing team tends to be inconsistent: one person checks everything twice, another sends outputs straight out, and nobody is quite sure where the line should be.",
         "It is not only customer messages either. As you add more AI tools and automations, quotes, invoicing, scheduling, reporting, they all need setting up properly and keeping an eye on. Without someone responsible for the whole picture, tools pile up faster than anyone has time to manage them, and it becomes unclear what is actually saving time and what is quietly creating more work.",
         "None of this replaces the admin your team was already dealing with before AI arrived: rotas, supplier queries, filing, chasing invoices, keeping records up to date. That work does not go away, it just now sits next to a new layer of checking and maintaining AI-assisted work. Teams who have not adopted AI yet still feel this pressure, just without the second layer on top.",
       ],
@@ -225,13 +225,13 @@ export const audiencePages: AudiencePage[] = [
         "Time spent verifying AI-generated quotes, summaries or responses against what actually happened",
         "Automations that quietly stop working or fall out of date as the business changes",
         "Uncertainty about what customer or business information is safe to put into AI tools",
-        "The everyday running of a small business, rotas, supplier queries, invoicing, filing, that needs doing regardless of how much AI is involved",
+        "The everyday running of an SME, rotas, supplier queries, invoicing, filing, that needs doing regardless of how much AI is involved",
       ],
     },
     delayed: {
       heading: "What happens when support is delayed",
       paragraphs: [
-        "For small businesses, admin pressure can quickly affect customer experience, cash flow and team coordination.",
+        "For SMEs, admin pressure can quickly affect customer experience, cash flow and team coordination.",
         "When enquiries, bookings, invoices, documents and follow-ups are not handled consistently, the business can look less reliable than it really is, even when the product or service itself is strong. Small delays can become bigger issues: a missed enquiry, a late invoice, an unclear handover, a forgotten quote, or a customer waiting longer than they should.",
       ],
 
@@ -299,22 +299,22 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "£35 per hour (pay only for what you need)",
     },
     pricingIntro:
-      "Support built for growing teams, priced so consistent AI checking, reliable automation upkeep and everyday admin support do not add payroll complexity.",
+      "Support built for SMEs and growing teams, priced so consistent AI checking, reliable automation upkeep and everyday admin support do not add payroll complexity.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, that means someone accountable for checking AI-assisted work, keeping automations reliable, and handling the everyday admin your team would rather keep human, without the cost or complexity of a full-time hire.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For SMEs, that means someone accountable for checking AI-assisted work, keeping automations reliable, and handling the everyday admin your team would rather keep human, without the cost or complexity of a full-time hire.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
         "In short: You get consistent, trustworthy AI-assisted work, automations that keep working as you grow, and reliable support that keeps operations steady.",
     },
     related: {
-      label: "Small Businesses",
+      label: "SMEs",
       description:
-        "Small businesses feel admin pressure quickly: enquiries, bookings, invoices, documents and follow-ups all need consistent attention.",
-      linkLabel: "View Small Business support",
+        "SMEs feel admin pressure quickly: enquiries, bookings, invoices, documents and follow-ups all need consistent attention.",
+      linkLabel: "View SME support",
     },
   },
   {
@@ -326,7 +326,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "UK Charities & Non-Profits",
     title: "Support built around how your charity uses AI and delivers its mission",
     intro:
-      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the funder reporting, volunteer rotas and case file admin that stretched teams long before AI arrived. VAxAI starts with an Admin Review of how your charity works, then provides hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and take on the day-to-day admin and judgement calls you would rather keep human.",
+      "Charities and non-profits of all sizes are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the funder reporting, volunteer rotas and case file admin that stretched teams long before AI arrived. VAxAI starts with an Admin Review of how your charity works, then provides hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and take on the day-to-day admin and judgement calls you would rather keep human.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
