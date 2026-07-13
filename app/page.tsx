@@ -798,7 +798,7 @@ export default function Home() {
               Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              When admin sits with the most senior or highest-paid person in the room, it is being paid for at their rate, not an admin rate, and it is often exactly the work that gets missed when headcount is cut on the assumption that AI will absorb it, only for the gap to surface later.
+              Admin rarely disappears when it is overlooked, it just resurfaces, in a founder&rsquo;s evenings, a senior leader&rsquo;s diary, or the gap left when a role is cut on the assumption that AI would absorb it.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               That&rsquo;s where VAxAI comes in. We help organisations develop a strategy to tackle their admin: an Admin Review looks at where it is coming from, then we recommend the right mix of AI, automation and human support, virtual or in person, to actually reduce it.
