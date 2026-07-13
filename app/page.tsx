@@ -189,11 +189,12 @@ const vatPrinciples = [
 
 const faqs = [
   ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
-  ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
-  ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
-  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the AI Consultancy stage, before any Admin Support begins."],
+  ["What does the Admin Review include?", "It is based on your unique case. We look at your admin in general and where it is really coming from, then at the admin AI has added on top, to get a full picture. From there we give you a practical admin strategy covering the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
+  ["How do you decide whether AI is needed?", "We check it against MT1L's VAT Framework before recommending it. If AI does not clear that bar, we recommend automation, better processes or human support instead."],
+  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the Admin Review stage, before any Admin Support begins."],
   ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
+  ["Do you build AI systems yourselves?", "No. For complex or enterprise AI builds, we identify trusted external partners and work with them on your behalf, rather than building these ourselves."],
 ];
 
 /* ------------------------------------------------------------------ */
@@ -626,7 +627,7 @@ export default function Home() {
 
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("AI Consultancy");
+  const [supportType, setSupportType] = useState("Admin Review");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -744,7 +745,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We help founders, small businesses and charities reduce admin, streamline operations and make AI a practical part of everyday work through the right combination of AI, automation, smarter processes and hands-on in person or virtual administrative support.
+              We help founders, small businesses and charities develop a strategy to tackle their admin, then reduce it through the right combination of AI, automation, smarter processes and hands-on human support, virtual or in person.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
@@ -797,7 +798,10 @@ export default function Home() {
               Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in: AI consultancy to identify where AI and automation genuinely help, paired with hands-on admin support, virtual or in person, to keep it all running.
+              Admin rarely disappears when it is overlooked, it just resurfaces, in a founder&rsquo;s evenings, a senior leader&rsquo;s diary, or the gap left when a role is cut on the assumption that AI would absorb it.
+            </p>
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              That&rsquo;s where VAxAI comes in. An Admin Review builds a clear picture of where your admin is really coming from, so what we recommend, whether that is AI, automation or a person, actually fits.
             </p>
             <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI can support you:
@@ -825,7 +829,7 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              VAxAI is a service by MT1L, the home of the Value, Alignment and Trust (VAT) Framework. It is why every recommendation we make has to earn its place: real value, a genuine fit with how you work, and an outcome you can trust.
+              VAxAI is a service by MT1L, home of the Value, Alignment and Trust (VAT) Framework, which helps leaders make more informed decisions about AI through the lens of value, alignment and trust. That same standard shapes every VAxAI recommendation: real value, a genuine fit with how you work, and an outcome you can trust.
             </p>
             <a
               href="https://mt1l.com"
@@ -862,7 +866,7 @@ export default function Home() {
               Questions about VAxAI?
             </h2>
             <p className="mt-6 max-w-prose text-sm leading-7 text-muted">
-              Clear answers on how we assess your workflow, design AI support, and provide ongoing virtual assistance for everyday admin.
+              Clear answers on how the Admin Review works, what it costs, and what happens once support begins.
             </p>
             <button
               type="button"
@@ -965,7 +969,7 @@ export default function Home() {
                 Less admin, more progress on your mission and growth.
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                Tell us where the pressure is building and we&apos;ll help you find the practical mix of process, automation and human support to ease it.
+                Tell us where the pressure is building, the everyday admin or what AI has added on top, and we&apos;ll help you find what actually eases it.
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
@@ -1085,7 +1089,7 @@ export default function Home() {
                       value={supportType}
                       onChange={setSupportType}
                       options={[
-                        { value: "AI Consultancy", label: "AI Consultancy" },
+                        { value: "Admin Review", label: "Admin Review" },
                         { value: "Admin Support", label: "Admin Support" },
                         { value: "Access to Work", label: "Access to Work" },
                         { value: "General enquiry", label: "General enquiry" },
@@ -1263,12 +1267,17 @@ export default function Home() {
                   understand what evidence and admin may be needed, while Access to Work makes the final decision.
                 </p>
 
+                <p className="mt-4 text-base leading-7 text-muted">
+                  Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult. The review looks at where your admin is coming from and what it actually involves day to day. You would then explain how it affects you, and whether it is tied to your disability or health condition and how, so it is clear where the support needs to sit. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.
+                </p>
+
                 <div className="mt-6 rounded-2xl border border-ink/10 bg-cream/70 p-5">
                   <p className="text-sm font-semibold text-ink">What we do not do</p>
                   <ul className="mt-3 space-y-3 text-sm leading-6 text-muted">
                     <li>We do not decide whether you are eligible or guarantee funding.</li>
                     <li>We do not make decisions on behalf of Access to Work.</li>
                     <li>Access to Work assesses each application and confirms approved support.</li>
+                    <li>We are not medical professionals, and this is not a diagnosis of any kind. We simply help you understand the reality of your admin, not diagnose or determine the disability link ourselves.</li>
                   </ul>
                 </div>
 

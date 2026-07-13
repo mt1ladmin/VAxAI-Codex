@@ -84,7 +84,7 @@ type Enquiry = {
 };
 
 const SUPPORT_TYPES_DETAIL = [
-  "AI Consultancy",
+  "Admin Review",
   "Admin Support",
   "Access to Work",
   "General enquiry",
@@ -578,7 +578,7 @@ function EnquiryDetailContent() {
                 value={clientService}
                 onChange={setClientService}
                 options={[
-                  { value: "AI Consultancy", label: "AI Consultancy" },
+                  { value: "Admin Review", label: "Admin Review" },
                   { value: "Admin Support", label: "Admin Support" },
                   { value: "Access to Work", label: "Access to Work" },
                   { value: "General enquiry", label: "General enquiry" },

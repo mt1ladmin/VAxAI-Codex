@@ -16,13 +16,13 @@ export const experts: Expert[] = [
     slug: "thesia-kouloungou",
     name: "Thesia Kouloungou",
     role: "Founder and CEO, MT1L and VAxAI",
-    copy: "Hi, I’m Thesia. I lead our AI consultations and workflow reviews, using the VAT Framework™ to help clients decide where AI, automation, better processes or human support will create the most value. My experience spans the charity, public, education and grant-making sectors, where I have led work across inclusion, safeguarding, co-production, governance and organisational change. I have also built AI-enabled platforms, developed the VAT Framework™ and bring hands-on experience of improving processes alongside the realities of implementing AI in practice. My role is to understand how work is currently happening, identify where pressure is building, and help you make clearer decisions about what should change, what should stay human, and what needs to be in place for any solution to work in practice.",
+    copy: "Hi, I’m Thesia. I lead our Admin Review process, looking at your systems, tools and AI outputs to understand where your admin is really coming from and what mix of AI, automation or human support will create the most value. My experience spans the charity, public, education and grant-making sectors, where I have led work across inclusion, safeguarding, co-production, governance and organisational change. Through MT1L, I also developed the VAT Framework™ and lead deeper AI strategy work for organisations that want to understand where a specific AI system would fit within theirs. My role is to understand how work is currently happening, identify where pressure is building, and help you make clearer decisions about what should change, what should stay human, and what needs to be in place for any solution to work in practice.",
     photo: "/thesia-profile.jpg",
     linkedin:
       "https://www.linkedin.com/in/thesia-nkoula?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
     metaTitle: "Thesia Kouloungou",
     metaDescription:
-      "Meet Thesia Kouloungou, Founder and CEO of MT1L and VAxAI, leading AI consultations, workflow reviews and practical support for UK organisations.",
+      "Meet Thesia Kouloungou, Founder and CEO of MT1L and VAxAI, leading Admin Review, workflow support and practical AI, automation and human support for UK organisations.",
     showMt1lLink: true,
   },
   {
