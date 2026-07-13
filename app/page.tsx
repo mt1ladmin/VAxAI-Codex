@@ -791,7 +791,7 @@ export default function Home() {
   <div className="mx-auto max-w-6xl">
     <Reveal>
       <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-  Admin Doesn’t Fix Itself-Even with AI
+  Admin Doesn’t Fix Itself—Even with AI
 </h2>
 
 <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
@@ -840,7 +840,8 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-             VAxAI is the AI consultancy and administrative support arm of MT1L- built specifically for founders, entrepreneurs, small businesses, and charities. 
+             VAxAI is a service by MT1L, the home of the Value, Alignment and Trust framework (VAT)
+We created VAxAI specifically for founders, small businesses, and charities because they feel the weight of admin the most. With limited resources and capacity, every hour lost to admin takes away from their core work and impact. Everything we do is guided by the MT1L VAT Framework (Value • Alignment • Trust). This means we ensure solutions create genuine value and free up meaningful time, align with your existing systems, processes, culture, and ways of working, and build trust so that people understand, trust, and feel confident in how changes are introduced and governed. This approach ensures our AI consultancy and admin support deliver efficient, sustainable, and human-centred results.
             </p>
             <a
               href="https://mt1l.com"
