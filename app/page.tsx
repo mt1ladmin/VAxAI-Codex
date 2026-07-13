@@ -799,11 +799,11 @@ export default function Home() {
 </p>
 
 <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
- AI and automation can be powerful tools for reducing repetitive work, saving time and improving efficiency. But without a clear strategy, they don’t always simplify the way work gets done. Technology still needs to be thoughtfully implemented, managed, maintained and adapted over time—creating new responsibilities that many founders, small businesses and charities don’t have the capacity to manage alone.
+ AI and automation can be powerful tools for reducing repetitive work, saving time and improving efficiency. But without a clear strategy, they don’t always simplify the way work gets done. Technology still needs to be thoughtfully implemented, managed, maintained and adapted over time-creating new responsibilities that many founders, small businesses and charities don’t have the capacity to manage alone.
 </p>
 
 <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-  That’s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support—whether delivered virtually or in person-is the right solution.
+  That’s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support-whether delivered virtually or in person-is the right solution.
 </p>
 
 <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
