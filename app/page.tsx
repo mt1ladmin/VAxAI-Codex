@@ -189,11 +189,12 @@ const vatPrinciples = [
 
 const faqs = [
   ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
-  ["What does the Admin Review include?", "It is based on your unique case. We review your current systems, tools and AI outputs, understand where your admin is really coming from, and give you a practical admin strategy covering the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
+  ["What does the Admin Review include?", "It is based on your unique case. We look at your admin in general and where it is really coming from, then at the admin AI has added on top, to get a full picture. From there we give you a practical admin strategy covering the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we recommend automation, better processes or human support instead."],
   ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the Admin Review stage, before any Admin Support begins."],
   ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
+  ["Do you build AI systems yourselves?", "No. For complex or enterprise AI builds, we identify trusted external partners and work with them on your behalf, rather than building these ourselves."],
 ];
 
 /* ------------------------------------------------------------------ */
@@ -744,7 +745,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              We specialise in admin support and helping organisations build a strategy for their admin. We help founders, small businesses and charities understand where their admin is coming from, then reduce it using AI, automation, smarter processes and hands-on human support, virtual or in person, as the tools that fit.
+              We help founders, small businesses and charities develop a strategy to tackle their admin, then reduce it through the right combination of AI, automation, smarter processes and hands-on human support, virtual or in person.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
@@ -797,7 +798,10 @@ export default function Home() {
               Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. It still needs the right strategy, and someone to implement, manage and maintain it.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              That&rsquo;s where VAxAI comes in. We specialise in admin support and helping organisations build a strategy for their admin, making it visible so it can be tackled effectively: an Admin Review of your systems and AI outputs shows where the admin is really coming from, then we use whichever mix of AI, automation and hands-on human support, virtual or in person, actually helps.
+              When admin sits with the most senior or highest-paid person in the room, it is being paid for at their rate, not an admin rate, and it is often exactly the work that gets missed when headcount is cut on the assumption that AI will absorb it, only for the gap to surface later.
+            </p>
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              That&rsquo;s where VAxAI comes in. We help organisations develop a strategy to tackle their admin: an Admin Review looks at where it is coming from, then we recommend the right mix of AI, automation and human support, virtual or in person, to actually reduce it.
             </p>
             <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
               Explore how VAxAI can support you:
@@ -825,7 +829,7 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              VAxAI is an admin support service by MT1L, using AI, automation and human support as the tools to reduce admin, not as the specialism itself. If you want deeper strategic guidance on specific AI systems, that work sits with MT1L directly, home of the Value, Alignment and Trust (VAT) Framework, whose standard shapes every VAxAI recommendation: real value, a genuine fit with how you work, and an outcome you can trust.
+              VAxAI is a service by MT1L, home of the Value, Alignment and Trust (VAT) Framework, which helps leaders make more informed decisions about AI through the lens of value, alignment and trust. That same standard shapes every VAxAI recommendation: real value, a genuine fit with how you work, and an outcome you can trust.
             </p>
             <a
               href="https://mt1l.com"

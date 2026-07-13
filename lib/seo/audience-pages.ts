@@ -146,7 +146,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Admin Review",
           paragraphs: [
-            "We start by understanding how you already use AI and automation: what you draft with it, what you have automated, what you still double-check every time, and what is quietly eating your evenings. From there we design and set up a workflow that keeps the speed without leaving you as the only person deciding whether an output is good enough, or fixing things when they break.",
+            "We start by looking at your admin in general, the invoicing, scheduling, inbox and client admin that comes with running a business, and where it is really coming from. We then look at the admin AI and automation have added on top, the drafts you double-check, the automations you monitor, to get a full picture. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or in person. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
           ],
         },
         {
@@ -264,7 +264,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Admin Review",
           paragraphs: [
-            "We look at where AI and automation are already being used across your team, informally or otherwise, from customer replies to invoicing and reporting, and where the gaps in consistency and checking actually are. From there we set up clear, practical rules for what AI can handle, what needs a human check, and how customer and business information is kept safe.",
+            "We look at your team's admin in general, rotas, supplier queries, invoicing and customer replies, and where it is really coming from. We then look at the admin AI and automation have added on top, informally or otherwise, to get a full picture of what needs checking and what is safe to automate. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or on-site. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
           ],
         },
         {
@@ -382,7 +382,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Admin Review",
           paragraphs: [
-            "We take time to understand your services, your beneficiaries and the safeguarding, funder and confidentiality requirements you work within, alongside how staff are already using AI and automation day to day. From there we set up clear, practical boundaries for what AI can support with, what information should never go into it, and where a person needs to stay in the loop.",
+            "We take time to understand your services and beneficiaries, and the funder reporting, volunteer and case admin that comes with running a charity, and where it is really coming from. We then look at the admin AI and automation have added on top, alongside your safeguarding, funder and confidentiality requirements, to get a full picture. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or in person. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
           ],
         },
         {
