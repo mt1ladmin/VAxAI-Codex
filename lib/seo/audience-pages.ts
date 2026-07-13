@@ -206,7 +206,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Small Businesses",
     title: "Support built around how your team uses AI and runs the business",
     intro:
-      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, and mistakes can reach customers before anyone catches them. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and free up time for the work that earns revenue.",
+      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the rotas, supplier queries, invoicing and filing your team was already managing. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -245,13 +245,13 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "Whether your team has already started using AI tools and automations informally or you are holding off until you are confident it will not create more problems than it solves, the same two things determine whether it actually helps: deciding what is worth automating consistently across the business, and making sure someone is responsible for keeping it accurate and up to date.",
+        "Whether your team has already started using AI tools and automations informally or you are holding off until you are confident it will not create more problems than it solves, the same things determine whether it actually helps: deciding what is worth automating consistently across the business, keeping it accurate and up to date, and having someone reliable for the everyday admin and customer-facing decisions you would rather a person handled.",
       ],
       bulletsLabel: "Three types of support explained:",
       bullets: [
         "AI: Drafts responses to common enquiries, summarises customer messages and prepares first versions of quotes or updates.",
         "Automation: Routes enquiries, chases invoices and handles repeat weekly admin consistently, once it has been set up to match how your business actually works.",
-        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps automations running as things change, and knows when something needs a human decision instead of an automated one. That support can be on-site too, whenever a shift or handover genuinely needs someone in the room.",
+        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps automations running as things change, and takes on the everyday admin and customer decisions you would rather a person handled, whether that is remote or on-site whenever a shift or handover needs someone in the room.",
       ],
     },
     how: {
@@ -268,7 +268,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Admin Support",
           paragraphs: [
-            "A dedicated virtual assistant then checks AI-generated, customer-facing work against your standards, keeps automations running and up to date as your business changes, and handles the exceptions that a system should not be making decisions about on its own.",
+            "A dedicated virtual assistant then checks AI-generated, customer-facing work against your standards, keeps automations running and up to date as your business changes, and takes on the everyday admin and exceptions that a system, or an already stretched team, should not be left to handle alone.",
           ],
         },
       ],
@@ -276,8 +276,8 @@ export const audiencePages: AudiencePage[] = [
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support, AI and automation stop being something individual team members manage their own way. Customer-facing work gets checked consistently, and automations get kept up to date, whoever set them up originally.",
-        "You get the speed of AI-assisted work without it depending on one person remembering to double-check everything, or tools quietly falling out of date as the business grows.",
+        "With the right support, AI and automation stop being something individual team members manage their own way, and the everyday admin stops depending on whoever happens to be free. Customer-facing work gets checked consistently, automations get kept up to date, and the routine admin has someone reliable behind it.",
+        "You get the speed of AI-assisted work without it depending on one person remembering to double-check everything, tools quietly falling out of date, or the everyday admin slipping when things get busy.",
       ],
       equation:
         "Inconsistent AI use and unmanaged automations + clear rules and human checking = a business that runs reliably as it grows.",
@@ -288,6 +288,7 @@ export const audiencePages: AudiencePage[] = [
         "Automations that keep working reliably instead of quietly falling out of date",
         "Less time spent verifying AI outputs against what actually happened",
         "Reduced risk of sending something inaccurate, off-brand or inappropriate to a customer",
+        "Reliable support for the everyday admin and customer decisions you would rather keep human than automate",
         "More confidence using AI and automation, because someone is responsible for checking it",
       ],
     },
@@ -296,12 +297,12 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "£35 per hour (pay only for what you need)",
     },
     pricingIntro:
-      "Support built for growing teams, priced so consistent AI checking and reliable automation upkeep do not add payroll complexity.",
+      "Support built for growing teams, priced so consistent AI checking, reliable automation upkeep and everyday admin support do not add payroll complexity.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, that means someone accountable for checking AI-assisted work and keeping automations reliable, without the cost or complexity of a full-time hire.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, that means someone accountable for checking AI-assisted work, keeping automations reliable, and handling the everyday admin your team would rather keep human, without the cost or complexity of a full-time hire.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
