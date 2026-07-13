@@ -803,7 +803,7 @@ export default function Home() {
 </p>
 
 <p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-  That’s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support—whether delivered virtually or in person—is the right solution.
+  That’s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support—whether delivered virtually or in person-is the right solution.
 </p>
 
 <p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
@@ -841,7 +841,7 @@ export default function Home() {
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
              VAxAI is a service by MT1L, the home of the Value, Alignment and Trust framework (VAT)
-We created VAxAI specifically for founders, small businesses, and charities because they feel the weight of admin the most. With limited resources and capacity, every hour lost to admin takes away from their core work and impact. Everything we do is guided by the MT1L VAT Framework (Value • Alignment • Trust). This means we ensure solutions create genuine value and free up meaningful time, align with your existing systems, processes, culture, and ways of working, and build trust so that people understand, trust, and feel confident in how changes are introduced and governed. This approach ensures our AI consultancy and admin support deliver efficient, sustainable, and human-centred results.
+We created VAxAI specifically for founders, small businesses, and charities because they feel the weight of admin the most. With limited resources and capacity, every hour lost to admin takes away from their core work and impact. Everything we do is guided by the MT1L VAT Framework. This means we ensure solutions create genuine value and free up meaningful time, align with your existing systems, processes, culture, and ways of working, and build trust so that people understand, trust, and feel confident in how changes are introduced and governed. This approach ensures our AI consultancy and admin support deliver efficient, sustainable, and human-centred results.
             </p>
             <a
               href="https://mt1l.com"
