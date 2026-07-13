@@ -738,13 +738,13 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Unlock AI&rsquo;s Potential. Keep the Human Touch.
+              Reduce admin. Keep the Human Touch.
             </motion.h1>
             <motion.p
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              AI can generate content, automate tasks, and save time. VAxAI helps founders, small businesses and charities turn those possibilities into practical, reliable ways of working through AI consultancy, automation and hands-on administrative support.
+              We help founders, small businesses and charities reduce admin, streamline operations and make AI a practical part of everyday work through the right combination of AI, automation, smarter processes and hands-on in person or virtual administrative support.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <a href="#services" className={btn.accent}>
