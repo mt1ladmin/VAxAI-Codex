@@ -208,7 +208,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "SMEs",
     title: "Support built around how your SME uses AI and runs the business",
     intro:
-      "Small and medium-sized businesses (SMEs) are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a growing team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the rotas, supplier queries, invoicing and filing your team was already managing. VAxAI starts with an Admin Review of how your team works, then provides hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
+      "Small and medium-sized businesses (SMEs) are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a growing team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the scheduling, supplier queries, invoicing and filing your team was already managing. VAxAI starts with an Admin Review of how your team works, then provides hands-on virtual assistant support, virtual or on-site when a client visit, delivery or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -216,7 +216,7 @@ export const audiencePages: AudiencePage[] = [
         "AI can draft a reply to a customer, summarise a supplier email or put together a first version of a quote in seconds. The harder part is making sure what it produces actually sounds like your business, is accurate, and does not need checking every single time by whoever happens to be free.",
         "Without one person responsible for it, AI use across a growing team tends to be inconsistent: one person checks everything twice, another sends outputs straight out, and nobody is quite sure where the line should be.",
         "It is not only customer messages either. As you add more AI tools and automations, quotes, invoicing, scheduling, reporting, they all need setting up properly and keeping an eye on. Without someone responsible for the whole picture, tools pile up faster than anyone has time to manage them, and it becomes unclear what is actually saving time and what is quietly creating more work.",
-        "None of this replaces the admin your team was already dealing with before AI arrived: rotas, supplier queries, filing, chasing invoices, keeping records up to date. That work does not go away, it just now sits next to a new layer of checking and maintaining AI-assisted work. Teams who have not adopted AI yet still feel this pressure, just without the second layer on top.",
+        "None of this replaces the admin your team was already dealing with before AI arrived: scheduling, supplier queries, filing, chasing invoices, keeping records up to date. That work does not go away, it just now sits next to a new layer of checking and maintaining AI-assisted work. Teams who have not adopted AI yet still feel this pressure, just without the second layer on top.",
       ],
       bullets: [
         "Customer-facing replies or documents drafted by AI that need checking before they go out, but no clear person responsible for checking them",
@@ -225,7 +225,7 @@ export const audiencePages: AudiencePage[] = [
         "Time spent verifying AI-generated quotes, summaries or responses against what actually happened",
         "Automations that quietly stop working or fall out of date as the business changes",
         "Uncertainty about what customer or business information is safe to put into AI tools",
-        "The everyday running of an SME, rotas, supplier queries, invoicing, filing, that needs doing regardless of how much AI is involved",
+        "The everyday running of an SME, scheduling, supplier queries, invoicing, filing, that needs doing regardless of how much AI is involved",
       ],
     },
     delayed: {
@@ -253,7 +253,7 @@ export const audiencePages: AudiencePage[] = [
       bullets: [
         "AI: Drafts responses to common enquiries, summarises customer messages and prepares first versions of quotes or updates.",
         "Automation: Routes enquiries, chases invoices and handles repeat weekly admin consistently, once it has been set up to match how your business actually works.",
-        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps automations running as things change, and takes on the everyday admin and customer decisions you would rather a person handled, whether that is remote or on-site whenever a shift or handover needs someone in the room.",
+        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps automations running as things change, and takes on the everyday admin and customer decisions you would rather a person handled, whether that is remote or on-site whenever a client visit or handover needs someone in the room.",
       ],
     },
     how: {
@@ -264,7 +264,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Admin Review",
           paragraphs: [
-            "We look at your team's admin in general, rotas, supplier queries, invoicing and customer replies, and where it is really coming from. We then look at the admin AI and automation have added on top, informally or otherwise, to get a full picture of what needs checking and what is safe to automate. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or on-site. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
+            "We look at your team's admin in general, scheduling, supplier queries, invoicing and customer replies, and where it is really coming from. We then look at the admin AI and automation have added on top, informally or otherwise, to get a full picture of what needs checking and what is safe to automate. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or on-site. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
           ],
         },
         {
