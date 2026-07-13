@@ -840,7 +840,7 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              VAxAI is a service by MT1L, home of the VAT Framework (Value &bull; Alignment &bull; Trust). Everything we do is grounded in the belief that decisions about AI should be based on where it creates genuine value, aligns with existing ways of working and can be fully trusted by the people who use and engage with it. 
+             VAxAI is the AI consultancy and administrative support arm of MT1L—built specifically for founders, entrepreneurs, small businesses, and charities. 
             </p>
             <a
               href="https://mt1l.com"
