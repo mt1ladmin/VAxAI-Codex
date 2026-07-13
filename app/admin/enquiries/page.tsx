@@ -80,9 +80,8 @@ const DISCOVERY_FILTER_OPTIONS: { value: DiscoveryFilter; label: string }[] = [
 ];
 
 const SUPPORT_TYPES = [
-  "Assessment",
-  "Assessment + Strategy & Implementation",
-  "Assessment + Ongoing Support",
+  "AI Consultancy",
+  "Admin Support",
   "Access to Work",
   "General enquiry",
 ];

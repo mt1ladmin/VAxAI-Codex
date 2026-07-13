@@ -88,7 +88,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Founders & Entrepreneurs",
     title: "Support built around how you use AI and run your business",
     intro:
-      "Founders and entrepreneurs are increasingly running their business with AI: drafting content, automating admin and generating ideas faster than ever. But speed creates its own pressure. AI-generated work still needs reviewing, tools and automations still need managing, and with fewer resources than bigger competitors, you are often doing all of it alone. VAxAI combines AI consultancy with hands-on virtual assistant support to help you decide what to automate, keep AI outputs and automations under control, and free up time for the work that actually grows your business.",
+      "Founders and entrepreneurs are increasingly running their business with AI: drafting content, automating admin and generating ideas faster than ever. But speed creates its own pressure. AI-generated work still needs reviewing, tools and automations still need managing, and with fewer resources than bigger competitors, you are often doing all of it alone. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for things like a pitch, meeting or event, to help you decide what to automate, keep AI outputs and automations under control, and free up time for the work that actually grows your business.",
     heroHasAccessCta: true,
     pressures: {
       heading: "Does this sound familiar?",
@@ -96,6 +96,7 @@ export const audiencePages: AudiencePage[] = [
         "Running a business alone means everything eventually lands on you, and AI has changed what that looks like rather than removed it. Instead of writing every email or proposal from scratch, you are now the one reading, judging and rewriting whatever AI hands you before it is good enough to send.",
         "The outputs multiply faster than the decisions do. A single request can produce several drafts, a dozen ideas or three different approaches, and without someone else to sense-check them, working out which one is actually right for this client is still down to you.",
         "It is not only outputs that pile up. Every automation you set up to save time, a booking flow, an email sequence, a reporting tool, still needs someone to configure it properly, watch for when it breaks, and update it as your business changes. Larger competitors have whole teams to manage this. As a solo founder, that layer of complexity sits with you too, on top of the work AI was meant to free up.",
+        "And underneath all of that is the admin that was never about AI in the first place: invoicing, chasing payments, scheduling, replying to routine enquiries, keeping records straight. That workload existed long before AI and it does not disappear once AI is in the picture, it just sits alongside the new layer of reviewing and maintaining. Whether or not you use AI at all yet, running a business alone still means carrying both.",
       ],
       bullets: [
         "Multiple AI drafts, ideas or options for the same task, with no quick way to know which one is genuinely the best fit",
@@ -104,6 +105,7 @@ export const audiencePages: AudiencePage[] = [
         "Hours spent reviewing AI-generated work and maintaining automations instead of doing client work or growth activity",
         "No one else to sense-check a decision, a draft or a client-facing message before it goes out under your name",
         "Trying to compete with better-resourced competitors while carrying all of this admin and oversight alone",
+        "The ordinary admin of running a business, invoicing, scheduling, inbox management, that needs doing whether or not AI is involved at all",
       ],
     },
     delayed: {
@@ -131,7 +133,7 @@ export const audiencePages: AudiencePage[] = [
       bullets: [
         "AI: Drafts client replies, proposals and content, and pulls together ideas so you are never starting from nothing.",
         "Automation: Handles the repeat admin behind the scenes, quotes, reminders, bookings, once it has been set up properly and mapped to how you actually work.",
-        "Virtual assistance: A second pair of eyes on AI outputs and decisions, and a person who keeps your automations running, catches when something breaks, and handles the admin that still needs a human judgement call.",
+        "Virtual assistance: A second pair of eyes on AI outputs and decisions, and a person who keeps your automations running, catches when something breaks, and handles the admin that still needs a human judgement call. If a pitch, meeting or event needs someone physically there, that is covered too.",
       ],
     },
     how: {
@@ -140,13 +142,13 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Discovery, Strategy & Implementation",
+          title: "AI Consultancy",
           paragraphs: [
             "We start by understanding how you already use AI and automation: what you draft with it, what you have automated, what you still double-check every time, and what is quietly eating your evenings. From there we design and set up a workflow that keeps the speed without leaving you as the only person deciding whether an output is good enough, or fixing things when they break.",
           ],
         },
         {
-          title: "Ongoing Support",
+          title: "Admin Support",
           paragraphs: [
             "Once it is running, a dedicated virtual assistant reviews AI drafts and outputs against your standards, keeps your automations working as your business changes, and follows through on the actions that come out of them, so ideas, drafts and admin do not just pile up waiting for you to find time.",
           ],
@@ -203,7 +205,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Small Businesses",
     title: "Support built around how your team uses AI and runs the business",
     intro:
-      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, and mistakes can reach customers before anyone catches them. VAxAI combines AI consultancy with hands-on virtual assistant support to help you decide what to automate, keep AI-assisted work accurate and consistent, and free up time for the work that earns revenue.",
+      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, and mistakes can reach customers before anyone catches them. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and free up time for the work that earns revenue.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -211,6 +213,7 @@ export const audiencePages: AudiencePage[] = [
         "AI can draft a reply to a customer, summarise a supplier email or put together a first version of a quote in seconds. The harder part is making sure what it produces actually sounds like your business, is accurate, and does not need checking every single time by whoever happens to be free.",
         "Without one person responsible for it, AI use in a small team tends to be inconsistent: one person checks everything twice, another sends outputs straight out, and nobody is quite sure where the line should be.",
         "It is not only customer messages either. As you add more AI tools and automations, quotes, invoicing, scheduling, reporting, they all need setting up properly and keeping an eye on. Without someone responsible for the whole picture, tools pile up faster than anyone has time to manage them, and it becomes unclear what is actually saving time and what is quietly creating more work.",
+        "None of this replaces the admin your team was already dealing with before AI arrived: rotas, supplier queries, filing, chasing invoices, keeping records up to date. That work does not go away, it just now sits next to a new layer of checking and maintaining AI-assisted work. Teams who have not adopted AI yet still feel this pressure, just without the second layer on top.",
       ],
       bullets: [
         "Customer-facing replies or documents drafted by AI that need checking before they go out, but no clear person responsible for checking them",
@@ -219,6 +222,7 @@ export const audiencePages: AudiencePage[] = [
         "Time spent verifying AI-generated quotes, summaries or responses against what actually happened",
         "Automations that quietly stop working or fall out of date as the business changes",
         "Uncertainty about what customer or business information is safe to put into AI tools",
+        "The everyday running of a small business, rotas, supplier queries, invoicing, filing, that needs doing regardless of how much AI is involved",
       ],
     },
     delayed: {
@@ -246,7 +250,7 @@ export const audiencePages: AudiencePage[] = [
       bullets: [
         "AI: Drafts responses to common enquiries, summarises customer messages and prepares first versions of quotes or updates.",
         "Automation: Routes enquiries, chases invoices and handles repeat weekly admin consistently, once it has been set up to match how your business actually works.",
-        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps automations running as things change, and knows when something needs a human decision instead of an automated one.",
+        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps automations running as things change, and knows when something needs a human decision instead of an automated one. That support can be on-site too, whenever a shift or handover genuinely needs someone in the room.",
       ],
     },
     how: {
@@ -255,13 +259,13 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Discovery, Strategy & Implementation",
+          title: "AI Consultancy",
           paragraphs: [
             "We look at where AI and automation are already being used across your team, informally or otherwise, from customer replies to invoicing and reporting, and where the gaps in consistency and checking actually are. From there we set up clear, practical rules for what AI can handle, what needs a human check, and how customer and business information is kept safe.",
           ],
         },
         {
-          title: "Ongoing Support",
+          title: "Admin Support",
           paragraphs: [
             "A dedicated virtual assistant then checks AI-generated, customer-facing work against your standards, keeps automations running and up to date as your business changes, and handles the exceptions that a system should not be making decisions about on its own.",
           ],
@@ -318,7 +322,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "UK Charities & Non-Profits",
     title: "Support built around how your charity uses AI and delivers its mission",
     intro:
-      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the admin it was meant to reduce. VAxAI combines AI consultancy with hands-on virtual assistant support to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and protect capacity for delivery and relationships.",
+      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the admin it was meant to reduce. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and protect capacity for delivery and relationships.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -326,6 +330,7 @@ export const audiencePages: AudiencePage[] = [
         "AI can help draft a funding report, summarise case notes or pull together an update in minutes, work that used to take a member of staff far longer. But charities are also working with some of the most sensitive information there is: beneficiary details, safeguarding records, funder relationships built on trust, and a mission that a generic AI suggestion will not automatically understand.",
         "The result is often a governance gap. Staff may already be using AI day to day to save time, while trustees and leadership have little visibility into how it is being used, what data has gone into it, or whether anyone is checking the output against what your beneficiaries and funders actually need.",
         "It is not only drafting either. As referral tracking, volunteer coordination or reporting reminders get automated, someone still needs to set them up properly, keep them accurate, and notice when they stop reflecting how the charity actually works, on top of the admin capacity was supposed to free up.",
+        "Much of the pressure charities face was never about AI at all: funder reporting deadlines, volunteer rotas, case file admin, compliance paperwork. That workload has always stretched thin teams, and it remains just as real for charities who have not touched AI yet. AI adds a new layer of checking on top, it does not replace the underlying admin.",
       ],
       bullets: [
         "AI-drafted reports, case notes or funder updates that need checking against safeguarding and confidentiality requirements before anyone sees them",
@@ -334,6 +339,7 @@ export const audiencePages: AudiencePage[] = [
         "Referral tracking, volunteer coordination or reporting automations that need setting up properly and keeping accurate as things change",
         "Staff capacity still absorbed by managing tools and systems instead of delivery and relationships",
         "Uncertainty about being open with funders and beneficiaries about where AI has been used",
+        "The underlying admin of running a charity, funder reporting, volunteer rotas, case file upkeep, that stretches teams whether or not AI is part of the picture",
       ],
     },
     delayed: {
@@ -361,7 +367,7 @@ export const audiencePages: AudiencePage[] = [
       bullets: [
         "AI: Drafts reporting notes, summarises funder updates and organises information from meetings or emails.",
         "Automation: Tracks referrals, reminders and routine reporting steps, once it has been set up to reflect how your services and safeguarding responsibilities actually work.",
-        "Virtual assistance: A person who checks AI-generated reports and communications for accuracy and appropriateness, keeps referral and volunteer systems accurate and up to date, and helps you stay confident and transparent with funders about how AI is used.",
+        "Virtual assistance: A person who checks AI-generated reports and communications for accuracy and appropriateness, keeps referral and volunteer systems accurate and up to date, and helps you stay confident and transparent with funders about how AI is used. For an event or service day, that support can be in person.",
       ],
     },
     how: {
@@ -370,13 +376,13 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Discovery, Strategy & Implementation",
+          title: "AI Consultancy",
           paragraphs: [
             "We take time to understand your services, your beneficiaries and the safeguarding, funder and confidentiality requirements you work within, alongside how staff are already using AI and automation day to day. From there we set up clear, practical boundaries for what AI can support with, what information should never go into it, and where a person needs to stay in the loop.",
           ],
         },
         {
-          title: "Ongoing Support",
+          title: "Admin Support",
           paragraphs: [
             "A dedicated virtual assistant then checks AI-generated reports, case notes and communications before they go out, keeps referral, volunteer and reporting systems accurate as things change, and helps trustees and funders stay confident that AI is being used appropriately and transparently.",
           ],

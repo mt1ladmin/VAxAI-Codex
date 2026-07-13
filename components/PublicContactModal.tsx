@@ -12,7 +12,7 @@ type Props = {
 
 export default function PublicContactModal({ open, onClose }: Props) {
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("Assessment");
+  const [supportType, setSupportType] = useState("AI Consultancy");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState<"form" | "submitted" | "calendly">("form");
@@ -24,7 +24,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
     if (!open) {
       setStep("form");
       setWantsDiscoveryCall(null);
-      setSupportType("Assessment");
+      setSupportType("AI Consultancy");
       setPreferredContact("Email");
       return;
     }
@@ -161,9 +161,8 @@ export default function PublicContactModal({ open, onClose }: Props) {
                   value={supportType}
                   onChange={setSupportType}
                   options={[
-                    { value: "Assessment", label: "Assessment" },
-                    { value: "Assessment + Strategy & Implementation", label: "Assessment + Strategy & Implementation" },
-                    { value: "Assessment + Ongoing Support", label: "Assessment + Ongoing Support" },
+                    { value: "AI Consultancy", label: "AI Consultancy" },
+                    { value: "Admin Support", label: "Admin Support" },
                     { value: "Access to Work", label: "Access to Work" },
                     { value: "General enquiry", label: "General enquiry" },
                   ]}

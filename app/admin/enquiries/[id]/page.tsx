@@ -84,9 +84,8 @@ type Enquiry = {
 };
 
 const SUPPORT_TYPES_DETAIL = [
-  "Assessment",
-  "Assessment + Strategy & Implementation",
-  "Assessment + Ongoing Support",
+  "AI Consultancy",
+  "Admin Support",
   "Access to Work",
   "General enquiry",
 ];
@@ -579,9 +578,8 @@ function EnquiryDetailContent() {
                 value={clientService}
                 onChange={setClientService}
                 options={[
-                  { value: "Assessment", label: "Assessment" },
-                  { value: "Assessment + Strategy & Implementation", label: "Assessment + Strategy & Implementation" },
-                  { value: "Assessment + Ongoing Support", label: "Assessment + Ongoing Support" },
+                  { value: "AI Consultancy", label: "AI Consultancy" },
+                  { value: "Admin Support", label: "Admin Support" },
                   { value: "Access to Work", label: "Access to Work" },
                   { value: "General enquiry", label: "General enquiry" },
                   { value: "Other", label: "Other (specify below)" },

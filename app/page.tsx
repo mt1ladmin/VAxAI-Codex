@@ -191,7 +191,7 @@ const faqs = [
   ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
   ["What does the assessment include?", "It is based on your unique case. We consult with you, review current tools and data, identify where AI adds value, and give you a practical setup plan you can use yourself or ask us to build."],
   ["How do you decide whether AI is needed?", "We use the MT1L VAT framework: will it create meaningful Value, fit the reality of how work gets done, and be trusted by the people affected? If AI is not the answer, we say so."],
-  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly after Discovery & Strategy, before any Workflow Design or build work begins."],
+  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the AI Consultancy stage, before any Admin Support begins."],
   ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
   ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
 ];
@@ -626,7 +626,7 @@ export default function Home() {
 
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("Assessment");
+  const [supportType, setSupportType] = useState("AI Consultancy");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -787,47 +787,38 @@ export default function Home() {
       {/* AI can do the task, someone still has to make it work — leads */}
       {/* straight into the Who VAxAI is for cards                      */}
       {/* ------------------------------------------------------------ */}
-  <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
-  <div className="mx-auto max-w-6xl">
-    <Reveal>
-      <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-  Admin Doesn’t Fix Itself—Even with AI
-</h2>
+      <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+              Admin Doesn&rsquo;t Fix Itself, Even with AI
+            </h2>
+            <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Founders, small businesses and charities are expected to do more with less. With limited time, funding and resources, every hour spent managing administration is time taken away from serving customers, supporting communities and growing their organisation.
+            </p>
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              AI and automation can be powerful tools for reducing repetitive work, saving time and improving efficiency. But without a clear strategy, they don&rsquo;t always simplify the way work gets done. Technology still needs to be thoughtfully implemented, managed, maintained and adapted over time, creating new responsibilities that many founders, small businesses and charities don&rsquo;t have the capacity to manage alone.
+            </p>
+            <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              That&rsquo;s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support, whether delivered virtually or in person, is the right solution.
+            </p>
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              The result is practical systems that fit the way your organisation works, trusted support as your needs evolve, and more time to focus on the people, projects and priorities that matter most.
+            </p>
+            <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+              Explore how VAxAI can support you:
+            </p>
+          </Reveal>
 
-<p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
- Founders, small businesses and charities are expected to do more with less. With limited time, funding and resources, every hour spent managing administration is time taken away from serving customers, supporting communities and growing their organisation.
-</p>
-
-<p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
- AI and automation can be powerful tools for reducing repetitive work, saving time and improving efficiency. But without a clear strategy, they don’t always simplify the way work gets done. Technology still needs to be thoughtfully implemented, managed, maintained and adapted over time-creating new responsibilities that many founders, small businesses and charities don’t have the capacity to manage alone.
-</p>
-
-<p className="mt-6 text-lg leading-8 text-muted md:text-xl md:leading-9">
-  That’s where VAxAI comes in. We help you identify where AI can add genuine value, where automation can reduce repetitive work, where processes can be improved, and where hands-on administrative support-whether delivered virtually or in person-is the right solution.
-</p>
-
-<p className="mt-5 text-lg leading-8 text-muted md:text-xl md:leading-9">
-  The result is practical systems that fit the way your organisation works, trusted support as your needs evolve, and more time to focus on the people, projects and priorities that matter most.
-</p>
-
-<p className="mt-8 text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
-  Explore how VAxAI can support you
-</p>
-    </Reveal>
-
-    <div className="mt-10">
-      <Stagger className="grid gap-4 sm:grid-cols-3">
-        {caseStudies.map((study, index) => (
-          <SupportAudienceCard
-            key={study.href}
-            study={study}
-            index={index}
-          />
-        ))}
-      </Stagger>
-    </div>
-  </div>
-</section>
+          <div className="mt-10">
+            <Stagger className="grid gap-4 sm:grid-cols-3">
+              {caseStudies.map((study, index) => (
+                <SupportAudienceCard key={study.href} study={study} index={index} />
+              ))}
+            </Stagger>
+          </div>
+        </div>
+      </section>
 
       {/* ------------------------------------------------------------ */}
       {/* About — MT1L, the VAT Framework, then the people              */}
@@ -840,7 +831,13 @@ export default function Home() {
               About VAxAI
             </h2>
             <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
-              VAxAI is a service by MT1L, the home of the Value, Alignment and Trust (VAT) Framework.
+              VAxAI is a service by MT1L, the home of the Value, Alignment and Trust (VAT) Framework. Everything we do is grounded in the belief that decisions about AI should be based on where it creates genuine value, aligns with your existing ways of working and unique reality, and can be fully trusted by the people who use and engage with it. Where AI isn&rsquo;t the best fit, we also help you consider strong non-AI alternatives.
+            </p>
+            <p className="mt-4 text-base leading-7 text-muted md:text-lg md:leading-8">
+              In practice, that means two things working together: AI consultancy to decide what&rsquo;s worth automating and design systems that fit how you actually work, and admin support, virtual or in person, to keep everything running and catch what AI can&rsquo;t. We work with founders, small businesses and charities who want AI&rsquo;s benefits without losing the human judgement, oversight and physical presence that only people can provide.
+            </p>
+            <p className="mt-4 text-base leading-7 text-muted md:text-lg md:leading-8">
+              This philosophy guides every recommendation and ensures sustainable, human-centred results.
             </p>
             <a
               href="https://mt1l.com"
@@ -1100,9 +1097,8 @@ export default function Home() {
                       value={supportType}
                       onChange={setSupportType}
                       options={[
-                        { value: "Assessment", label: "Assessment" },
-                        { value: "Assessment + Strategy & Implementation", label: "Assessment + Strategy & Implementation" },
-                        { value: "Assessment + Ongoing Support", label: "Assessment + Ongoing Support" },
+                        { value: "AI Consultancy", label: "AI Consultancy" },
+                        { value: "Admin Support", label: "Admin Support" },
                         { value: "Access to Work", label: "Access to Work" },
                         { value: "General enquiry", label: "General enquiry" },
                       ]}
