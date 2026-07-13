@@ -324,7 +324,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "UK Charities & Non-Profits",
     title: "Support built around how your charity uses AI and delivers its mission",
     intro:
-      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the admin it was meant to reduce. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and protect capacity for delivery and relationships.",
+      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the funder reporting, volunteer rotas and case file admin that stretched teams long before AI arrived. VAxAI combines AI consultancy with hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and take on the day-to-day admin and judgement calls you would rather keep human.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -363,13 +363,13 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "Whether staff are already using AI and automation informally to save time on reporting and admin, or your charity is holding back until you are confident it will not create safeguarding or trust risks, the same two things determine whether it actually helps: deciding what is appropriate to automate at all, and making sure someone is responsible for checking it stays accurate, safe and aligned with your mission.",
+        "Whether staff are already using AI and automation informally to save time on reporting and admin, or your charity is holding back until you are confident it will not create safeguarding or trust risks, the same things determine whether it actually helps: deciding what is appropriate to automate at all, keeping it accurate, safe and aligned with your mission, and having someone reliable for the day-to-day admin and safeguarding-sensitive work you would rather keep human.",
       ],
       bulletsLabel: "Three types of support explained:",
       bullets: [
         "AI: Drafts reporting notes, summarises funder updates and organises information from meetings or emails.",
         "Automation: Tracks referrals, reminders and routine reporting steps, once it has been set up to reflect how your services and safeguarding responsibilities actually work.",
-        "Virtual assistance: A person who checks AI-generated reports and communications for accuracy and appropriateness, keeps referral and volunteer systems accurate and up to date, and helps you stay confident and transparent with funders about how AI is used. For an event or service day, that support can be in person.",
+        "Virtual assistance: A person who checks AI-generated reports and communications for accuracy and appropriateness, keeps referral and volunteer systems accurate and up to date, and takes on the day-to-day admin and safeguarding-sensitive work you would rather keep human, whether that is virtual or in person for an event or service day.",
       ],
     },
     how: {
@@ -386,7 +386,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Admin Support",
           paragraphs: [
-            "A dedicated virtual assistant then checks AI-generated reports, case notes and communications before they go out, keeps referral, volunteer and reporting systems accurate as things change, and helps trustees and funders stay confident that AI is being used appropriately and transparently.",
+            "A dedicated virtual assistant then checks AI-generated reports, case notes and communications before they go out, keeps referral, volunteer and reporting systems accurate as things change, and takes on the everyday funder, volunteer and case admin you would rather a person handled, so trustees and funders stay confident that AI is being used appropriately and transparently.",
           ],
         },
       ],
@@ -394,7 +394,7 @@ export const audiencePages: AudiencePage[] = [
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support, AI and automation are checked against your safeguarding, confidentiality and funder requirements as a matter of course, not something that depends on whoever is least stretched that day.",
+        "With the right support, AI and automation are checked against your safeguarding, confidentiality and funder requirements as a matter of course, and the everyday funder, volunteer and case admin stops depending on whoever is least stretched that day.",
         "Trustees and leadership gain visibility into how AI is actually being used, and referral, volunteer and reporting systems stay accurate as your charity changes, so capacity goes further without new risks quietly building up.",
       ],
       equation:
@@ -406,6 +406,7 @@ export const audiencePages: AudiencePage[] = [
         "Referral, volunteer and reporting systems that stay accurate instead of quietly drifting out of date",
         "Confidence being open with funders and beneficiaries about where AI has helped",
         "Less risk of sensitive or safeguarding information ending up in the wrong tool",
+        "Reliable support for the everyday funder, volunteer and case admin you would rather keep human than automate",
         "More staff and volunteer time directed towards delivery and relationships",
       ],
     },
@@ -414,12 +415,12 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "£35 per hour (pay only for what you need)",
     },
     pricingIntro:
-      "Support built for charities with tight or variable income, priced so safeguarding-aware AI checking and reliable systems do not compete with delivery budgets.",
+      "Support built for charities with tight or variable income, priced so safeguarding-aware AI checking, reliable systems and everyday admin support do not compete with delivery budgets.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, that means someone accountable for checking AI-assisted work against safeguarding and funder expectations, and keeping your systems reliable, at a cost that protects your delivery capacity.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, that means someone accountable for checking AI-assisted work against safeguarding and funder expectations, keeping your systems reliable, and handling the everyday admin you would rather keep human, at a cost that protects your delivery capacity.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
