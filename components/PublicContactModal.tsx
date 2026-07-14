@@ -12,7 +12,7 @@ type Props = {
 
 export default function PublicContactModal({ open, onClose }: Props) {
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("Admin Review");
+  const [supportType, setSupportType] = useState("Admin Health Check");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState<"form" | "submitted" | "calendly">("form");
@@ -24,7 +24,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
     if (!open) {
       setStep("form");
       setWantsDiscoveryCall(null);
-      setSupportType("Admin Review");
+      setSupportType("Admin Health Check");
       setPreferredContact("Email");
       return;
     }
@@ -161,6 +161,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
                   value={supportType}
                   onChange={setSupportType}
                   options={[
+                    { value: "Admin Health Check", label: "Admin Health Check (free)" },
                     { value: "Admin Review", label: "Admin Review" },
                     { value: "Admin Support", label: "Admin Support" },
                     { value: "Access to Work", label: "Access to Work" },
