@@ -27,15 +27,17 @@ export default function SiteFooter() {
               <div>
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Services</p>
                 <div className="grid gap-3.5 text-paper/62">
+                  <a href="/how-we-help" className="transition-colors duration-200 hover:text-paper">How we help</a>
                   <a href="/founders-entrepreneurs" className="transition-colors duration-200 hover:text-paper">Founders &amp; Entrepreneurs</a>
                   <a href="/small-business" className="transition-colors duration-200 hover:text-paper">SMEs</a>
                   <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-paper">Charities &amp; Non-Profits</a>
+                  <a href="/public-sector" className="transition-colors duration-200 hover:text-paper">Public Sector</a>
                 </div>
               </div>
               <div>
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Company</p>
                 <div className="grid gap-3.5 text-paper/62">
-                  <a href="/#experts" className="transition-colors duration-200 hover:text-paper">About</a>
+                  <a href="/about" className="transition-colors duration-200 hover:text-paper">About</a>
                   <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors duration-200 hover:text-paper">MT1L</a>
                   <button type="button" onClick={() => setContactOpen(true)} className="text-left transition-colors duration-200 hover:text-paper">
                     Contact
