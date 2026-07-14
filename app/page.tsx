@@ -795,7 +795,7 @@ export default function Home() {
               Admin Doesn&rsquo;t Fix Itself, Even with AI
             </h2>
             <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              You are expected to do more with less, and AI does not remove that pressure on its own. Without understanding where admin work is building up, you risk making decisions based on assumptions rather than the reality of how work gets done.
+              Your business or charity is expected to do more with less, and AI does not remove that pressure on its own. Without understanding where admin work is building up, you risk making decisions based on assumptions rather than the reality of how work gets done.
             </p>
             <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               Admin rarely disappears when it is overlooked. It often shifts elsewhere, into unpaid hours, leadership time, stretched teams, or additional pressure on people already responsible for delivering core work. Similarly, reducing support on the assumption that AI will absorb everything can create new risks if the work still requires oversight, judgement, relationships and human input.
@@ -824,7 +824,6 @@ export default function Home() {
       <section id="experts" className="px-4 py-24 md:px-8 md:py-32">
         <div className="mx-auto max-w-6xl">
           <Reveal className="max-w-3xl">
-            <Eyebrow>About</Eyebrow>
             <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
               About VAxAI
             </h2>
@@ -861,7 +860,6 @@ export default function Home() {
       <section id="faq" className="px-4 py-8 md:px-8 md:py-12">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.75fr_1fr] md:gap-16">
           <Reveal>
-            <Eyebrow>Frequently asked questions</Eyebrow>
             <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
               Questions about VAxAI?
             </h2>
@@ -898,9 +896,8 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <Reveal className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
-              <Eyebrow>Insights &amp; Resources</Eyebrow>
               <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
-                From VAxAI
+                Insights &amp; Resources
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-muted">
                 Our insights cover practical approaches to AI, automation and admin. If something
