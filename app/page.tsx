@@ -22,45 +22,6 @@ const image = {
   cta: "/footer-team-smiling.jpg",
 };
 
-const tools = [
-  {
-    name: "Claude",
-    logo: "https://cdn.simpleicons.org/claude/D97757",
-  },
-  {
-    name: "Microsoft Copilot",
-    logo: "https://copilot.microsoft.com/favicon.ico",
-  },
-  {
-    name: "ChatGPT",
-    logo: "https://cdn.simpleicons.org/chatgpt/74AA9C",
-  },
-  {
-    name: "Gemini",
-    logo: "https://cdn.simpleicons.org/googlegemini/8E75B2",
-  },
-  {
-    name: "Perplexity",
-    logo: "https://cdn.simpleicons.org/perplexity/1FB8CD",
-  },
-  {
-    name: "Zapier",
-    logo: "https://cdn.simpleicons.org/zapier/FF4F00",
-  },
-  {
-    name: "Make",
-    logo: "https://cdn.simpleicons.org/make/6D00CC",
-  },
-  {
-    name: "Power Automate",
-    logo: "https://www.google.com/s2/favicons?domain=powerautomate.microsoft.com&sz=64",
-  },
-  {
-    name: "n8n",
-    logo: "https://cdn.simpleicons.org/n8n/EA4B71",
-  },
-];
-
 const principles: [string, string][] = [
   ["Human led.", "Experienced people, not just tools"],
   ["AI aware.", "We prepare organisations for it, we don't sell it"],
@@ -311,65 +272,6 @@ function PhotoCard({
   );
 }
 
-function ToolLogo({ tool }: { tool: (typeof tools)[number] }) {
-  const [hasFailed, setHasFailed] = useState(false);
-
-  if (hasFailed) {
-    return (
-      <span
-        className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-[10px] font-bold text-paper/80"
-        aria-hidden="true"
-      >
-        {tool.name
-          .split(" ")
-          .map((word) => word[0])
-          .join("")
-          .slice(0, 2)}
-      </span>
-    );
-  }
-
-  return (
-    <img
-      src={tool.logo}
-      alt=""
-      className="h-7 w-7 object-contain"
-      loading="lazy"
-      onError={() => setHasFailed(true)}
-    />
-  );
-}
-
-function ToolMarquee() {
-  return (
-    <div className="relative overflow-hidden">
-      <div
-        className="simplified-hide pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-pine-900 to-transparent"
-        aria-hidden="true"
-      />
-      <div
-        className="simplified-hide pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-pine-900 to-transparent"
-        aria-hidden="true"
-      />
-      <div className="flex w-max items-center gap-14 animate-tool-scroll">
-        {[...tools, ...tools].map((tool, index) => (
-          <div
-            key={`${tool.name}-${index}`}
-            className="flex items-center gap-3 text-sm font-medium text-paper/60"
-            aria-label={index < tools.length ? tool.name : undefined}
-            aria-hidden={index >= tools.length}
-          >
-            <span className="grid h-8 w-8 shrink-0 place-items-center">
-              <ToolLogo tool={tool} />
-            </span>
-            <span className="whitespace-nowrap">{tool.name}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function AccordionItem({
   question,
   answer,
@@ -543,7 +445,7 @@ export default function Home() {
       {/* ------------------------------------------------------------ */}
       {/* Hero — deep pine panel with soft tonal glows                  */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative overflow-hidden bg-pine-900 px-4 pb-36 pt-10 text-paper md:px-8 md:pb-44 md:pt-14">
+      <section className="relative overflow-hidden bg-pine-900 px-4 pb-20 pt-10 text-paper md:px-8 md:pb-28 md:pt-14">
         <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute -top-40 right-[-12%] h-[480px] w-[480px] rounded-full bg-pine-700/50 blur-3xl" />
           <div className="absolute left-[-8%] top-1/3 h-[380px] w-[380px] rounded-full bg-pine-800/60 blur-3xl" />
@@ -596,19 +498,6 @@ export default function Home() {
           </motion.div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5, ease: EASE }}
-          className="relative mx-auto mt-24 max-w-6xl"
-        >
-          <p className="mx-auto max-w-2xl text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
-            AI and automation is not always the answer, but when it is, we help you make the most of it.
-          </p>
-          <div className="mt-7">
-            <ToolMarquee />
-          </div>
-        </motion.div>
       </section>
 
       {/* ------------------------------------------------------------ */}
@@ -635,24 +524,24 @@ export default function Home() {
               Administration doesn&rsquo;t fix itself. Even with AI.
             </h2>
           </Reveal>
-          <Stagger className="mt-10 grid gap-x-12 gap-y-0 md:grid-cols-2">
+          <Stagger className="mt-10 grid gap-x-14 gap-y-0 rounded-3xl border border-ink/8 bg-cream/50 px-7 py-3 md:grid-cols-2 md:px-10">
             {symptoms.map((symptom) => (
               <motion.p
                 key={symptom}
                 variants={fadeUp}
-                className="border-b border-ink/10 py-3.5 text-base leading-7 text-ink"
+                className="border-b border-ink/10 py-4 text-base leading-7 text-ink last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0"
               >
                 {symptom}
               </motion.p>
             ))}
           </Stagger>
           <Reveal>
-            <p className="mt-10 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+            <p className="mt-12 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
               Many organisations look to AI and automation to solve this. But technology relies on the
               information and processes behind it. Point AI at disorganised data and unclear workflows and it
               produces <strong className="font-semibold text-ink">poor outputs, new problems and more correction work</strong>, not time saved.
             </p>
-            <p className="mt-6 text-lg font-medium leading-8 text-ink md:text-xl">
+            <p className="mt-8 max-w-3xl border-l-2 border-acid pl-5 text-lg font-medium leading-8 text-ink md:text-xl">
               The result: wasted budget, frustrated teams and technology that fails to deliver.
             </p>
           </Reveal>

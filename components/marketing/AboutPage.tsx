@@ -134,7 +134,22 @@ export default function AboutPage() {
                     work, and human support to prepare information, manage complexity, maintain quality and
                     keep systems working. We help with both sides of that balance.
                   </p>
+                  <p>
+                    VAxAI is a service by MT1L, home of the Value, Alignment and Trust (VAT) Framework,
+                    which helps leaders make more informed decisions about AI through the lens of value,
+                    alignment and trust. That same standard shapes every VAxAI recommendation: real value,
+                    a genuine fit with how you work, and an outcome you can trust.
+                  </p>
                 </div>
+                <a
+                  href="https://mt1l.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${btn.ghostLight} mt-8`}
+                >
+                  Check out MT1L
+                  <ArrowRight className="h-4 w-4" />
+                </a>
                 <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xl font-semibold tracking-tight md:text-2xl">
                   <span>Prepare</span>
                   <ArrowRight className="h-5 w-5 text-pine-700" aria-hidden="true" />
@@ -149,43 +164,8 @@ export default function AboutPage() {
             </div>
           </section>
 
-          {/* Position statement */}
-          <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
-            <Reveal className="mx-auto max-w-6xl">
-              <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                The future of admin is not AI instead of people. It is AI supported by people.
-              </h2>
-              <p className="mt-6 max-w-2xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                That&apos;s the position we&apos;ve built the whole service around: the human preparation and
-                support layer that makes AI and automation work in real organisations.
-              </p>
-            </Reveal>
-          </section>
-
-          {/* MT1L and the VAT Framework */}
-          <section className="px-4 py-16 md:px-8 md:py-20">
-            <Reveal className="mx-auto max-w-6xl">
-              <Eyebrow>A service by MT1L</Eyebrow>
-              <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg md:leading-8">
-                VAxAI is a service by MT1L, home of the Value, Alignment and Trust (VAT) Framework, which
-                helps leaders make more informed decisions about AI through the lens of value, alignment and
-                trust. That same standard shapes every VAxAI recommendation: real value, a genuine fit with
-                how you work, and an outcome you can trust.
-              </p>
-              <a
-                href="https://mt1l.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`${btn.ghostLight} mt-8`}
-              >
-                Check out MT1L
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </Reveal>
-          </section>
-
           {/* The people behind VAxAI */}
-          <section className="px-4 pb-16 md:px-8 md:pb-24">
+          <section className="px-4 pb-16 pt-2 md:px-8 md:pb-24">
             <div className="mx-auto max-w-6xl">
               <Reveal>
                 <Eyebrow>The people behind VAxAI</Eyebrow>
@@ -211,11 +191,13 @@ export default function AboutPage() {
                 <div className="flex justify-center">
                   <Eyebrow light>Start with a conversation</Eyebrow>
                 </div>
-                <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Tell us where administration is slowing you down
+                <h2 className="mx-auto mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                  The future of admin is not AI instead of people. It is people, supported by AI.
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                  We&apos;ll tell you what we&apos;d do about it, starting with a free Admin Health Check.
+                  That&apos;s what we&apos;ve built the whole service around. Tell us where administration is
+                  slowing you down and we&apos;ll tell you what we&apos;d do about it, starting with a free
+                  Admin Health Check.
                 </p>
                 <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>
                   Get your free Admin Health Check
