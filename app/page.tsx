@@ -464,9 +464,9 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              AI and automation need strong foundations to work. We help founders, small and medium-sized
+              VAxAI helps founders, small and medium-sized
               businesses (SMEs), charities and public sector organisations organise information, clear
-              administrative backlogs and prepare for smarter ways of working, without adding pressure to
+              administrative backlogs and prepare for AI and automation, without adding pressure to
               already stretched teams.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
