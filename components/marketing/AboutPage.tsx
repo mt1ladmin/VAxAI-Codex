@@ -167,10 +167,7 @@ export default function AboutPage() {
                 <div className="absolute bottom-[-30%] right-[25%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
               </div>
               <div className="relative">
-                <div className="flex justify-center">
-                  <Eyebrow light>Start with a conversation</Eyebrow>
-                </div>
-                <h2 className="mx-auto mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                <h2 className="mx-auto max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
                   The future of admin is not AI instead of people. It is people, supported by AI.
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">

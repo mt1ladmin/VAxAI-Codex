@@ -8,7 +8,6 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
-import FilingTab from "@/components/FilingTab";
 import type {
   AudiencePage,
   AudiencePricing,
@@ -137,8 +136,7 @@ function PressuresPanelContent({
     <div>
     <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
       <div>
-        <Eyebrow>Where pressure builds</Eyebrow>
-        <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
+        <h2 className="text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
           {section.heading}
         </h2>
         <div className="mt-6 space-y-4 text-base leading-8 text-muted">
@@ -172,8 +170,7 @@ function HowWeHelpPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>{section.heading}</Eyebrow>
-      <div className="mt-6 space-y-4 text-base leading-8 text-muted">
+      <div className="space-y-4 text-base leading-8 text-muted">
         {section.paragraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}
@@ -181,7 +178,9 @@ function HowWeHelpPanelContent({
       {(section.bullets ?? []).length > 0 ? (
         <div className="mt-8 rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card md:p-8">
           {section.bulletsLabel ? (
-            <FilingTab className="mb-5">{section.bulletsLabel}</FilingTab>
+            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+              {section.bulletsLabel}
+            </p>
           ) : null}
           <div className="grid gap-4">
             {(section.bullets ?? []).map((item) => (
@@ -215,8 +214,7 @@ function ChangesPanelContent({
     <div className="px-6 py-7 md:px-8 md:py-8">
       <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
-          {showIntro ? <Eyebrow>{badge}</Eyebrow> : null}
-          <div className={cn("space-y-4 text-base leading-8 text-muted", showIntro && "mt-5")}>
+          <div className="space-y-4 text-base leading-8 text-muted">
             {section.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
@@ -234,7 +232,9 @@ function ChangesPanelContent({
         {(section.bullets ?? []).length > 0 ? (
           <div className="rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card backdrop-blur-sm md:p-8">
             {section.bulletsLabel ? (
-              <FilingTab className="mb-5">{section.bulletsLabel}</FilingTab>
+              <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+                {section.bulletsLabel}
+              </p>
             ) : null}
             <div className="grid gap-4">
               {(section.bullets ?? []).map((item) => (
@@ -271,8 +271,7 @@ function PricingPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>Pricing</Eyebrow>
-      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+      <h2 className="text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         How Our Pricing Works
       </h2>
       <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-muted md:text-lg">
@@ -290,7 +289,9 @@ function PricingPanelContent({
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
             {sharedProjectWork.priceLabel}
           </p>
-          <FilingTab className="mt-5">Typically covers</FilingTab>
+          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+            Typically covers
+          </p>
           <ul className="mt-3 space-y-2">
             {sharedProjectWork.services.map((service) => (
               <li key={service} className="flex gap-3">
@@ -313,7 +314,9 @@ function PricingPanelContent({
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
             {pricing.ongoingSupportPrice}
           </p>
-          <FilingTab className="mt-5">Typically covers</FilingTab>
+          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+            Typically covers
+          </p>
           <ul className="mt-3 space-y-2">
             {sharedOngoingSupport.services.map((service) => (
               <li key={service} className="flex gap-3">
@@ -346,7 +349,7 @@ function PricingPanelContent({
           id="access-to-work"
           className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
         >
-          <FilingTab>Access to Work</FilingTab>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
           <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
             {sharedAccessToWork.heading}
           </h3>
@@ -374,8 +377,7 @@ function PricingBenefitsPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>Why work with us</Eyebrow>
-      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+      <h2 className="text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         {section.heading}
       </h2>
       <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">
@@ -549,15 +551,6 @@ function AudienceTabbedSections({
   );
 }
 
-function Eyebrow({
-  children,
-  light = false,
-}: {
-  children: React.ReactNode;
-  light?: boolean;
-}) {
-  return <FilingTab light={light}>{children}</FilingTab>;
-}
 
 export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
@@ -586,12 +579,9 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
               animate="show"
             >
               <div>
-                <motion.div variants={fadeUp}>
-                  <Eyebrow light>Who we support · {page.audienceName}</Eyebrow>
-                </motion.div>
                 <motion.h1
                   variants={fadeUp}
-                  className="mt-6 max-w-2xl text-[2.35rem] font-semibold leading-[1.03] tracking-[-0.025em] md:text-5xl lg:text-[3.25rem]"
+                  className="max-w-2xl text-[2.35rem] font-semibold leading-[1.03] tracking-[-0.025em] md:text-5xl lg:text-[3.25rem]"
                 >
                   {page.title}
                 </motion.h1>
@@ -684,10 +674,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 <div className="absolute bottom-[-30%] right-[25%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
               </div>
               <div className="relative">
-                <div className="flex justify-center">
-                  <Eyebrow light>Work with VAxAI</Eyebrow>
-                </div>
-                <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                <h2 className="mx-auto max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
                   Ready to understand where support would help most?
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">

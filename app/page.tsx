@@ -528,16 +528,14 @@ export default function Home() {
               Administration doesn&rsquo;t fix itself. Even with AI.
             </h2>
           </Reveal>
-          <Stagger className="mt-10 grid gap-x-12 gap-y-8 rounded-3xl border border-ink/8 bg-cream/40 px-7 py-6 md:grid-cols-2 md:gap-x-16 md:px-10 md:py-8">
+          <Stagger className="mt-10 grid gap-x-12 gap-y-2 md:grid-cols-2 md:gap-x-16">
             {problemColumns.map((column, columnIndex) => (
               <motion.div key={columnIndex} variants={fadeUp} className="min-w-0">
                 <ul className="m-0 list-none p-0">
-                  {column.map((item, itemIndex) => (
+                  {column.map((item) => (
                     <li
                       key={item}
-                      className={`py-4 text-base leading-7 text-ink md:text-[1.05rem] md:leading-8 ${
-                        itemIndex < column.length - 1 ? "border-b border-ink/12" : ""
-                      }`}
+                      className="border-b border-ink/12 py-4 text-base leading-7 text-ink md:text-[1.05rem] md:leading-8"
                     >
                       {item}
                     </li>
@@ -810,8 +808,7 @@ export default function Home() {
           </div>
           <div className="relative grid md:grid-cols-[1.05fr_0.95fr]">
             <div className="p-8 md:p-14">
-              <Eyebrow light>Start the conversation</Eyebrow>
-              <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              <h2 className="max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
                 Ready to prepare your organisation for smarter ways of working?
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-paper/65 md:text-base md:leading-8">

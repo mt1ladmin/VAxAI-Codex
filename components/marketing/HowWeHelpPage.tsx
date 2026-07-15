@@ -187,8 +187,7 @@ export default function HowWeHelpPage() {
               animate="show"
               variants={fadeUp}
             >
-              <Eyebrow light>How we help</Eyebrow>
-              <h1 className="mt-6 max-w-3xl text-[2.35rem] font-semibold leading-[1.05] tracking-[-0.025em] md:text-5xl">
+              <h1 className="max-w-3xl text-[2.35rem] font-semibold leading-[1.05] tracking-[-0.025em] md:text-5xl">
                 Practical support for the administrative challenges that slow organisations down
               </h1>
               <p className="mt-7 max-w-2xl text-base leading-8 text-paper/70 md:text-lg">
@@ -228,7 +227,9 @@ export default function HowWeHelpPage() {
                   </div>
                   <div>
                     <div className="rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card md:p-8">
-                      <FilingTab className="mb-5">{area.listLabel}</FilingTab>
+                      <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+                        {area.listLabel}
+                      </p>
                       <div className="grid gap-4">
                         {area.items.map((item) => (
                           <div key={item} className="flex gap-3">
@@ -241,7 +242,7 @@ export default function HowWeHelpPage() {
                       </div>
                     </div>
                     <div className="mt-5 rounded-r-2xl border-l-[3px] border-pine-700 bg-pine-50/70 px-6 py-5">
-                      <FilingTab>For example</FilingTab>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">For example</p>
                       <p className="mt-2 text-sm leading-7 text-ink md:text-[15px]">{area.example}</p>
                     </div>
                   </div>
@@ -309,10 +310,7 @@ export default function HowWeHelpPage() {
                 <div className="absolute bottom-[-30%] right-[25%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
               </div>
               <div className="relative">
-                <div className="flex justify-center">
-                  <Eyebrow light>Work with VAxAI</Eyebrow>
-                </div>
-                <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                <h2 className="mx-auto max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
                   Not sure where to start?
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
