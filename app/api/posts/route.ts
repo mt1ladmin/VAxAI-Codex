@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServiceClient } from "@/lib/supabase";
 import { clientIp, rateLimit, rateLimitHeaders } from "@/lib/security/rate-limit";
-import { publicReadClient } from "@/lib/security/public-db";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +12,15 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429, headers });
   }
 
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: "Database not configured" }, { status: 503, headers });
+  }
+
   const { searchParams } = new URL(req.url);
   const rawLimit = Number(searchParams.get("limit") ?? "3");
   const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.floor(rawLimit), 1), 12) : 3;
 
-  const supabase = publicReadClient();
-  if (!supabase) {
-    return NextResponse.json({ error: "Database not configured" }, { status: 503, headers });
-  }
-
+  const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("posts")
     .select("id,title,slug,description,cover_image_url,content_type,tags,published_at")
