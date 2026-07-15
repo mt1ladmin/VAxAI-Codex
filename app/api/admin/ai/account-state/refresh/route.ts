@@ -6,11 +6,11 @@ import {
 } from "@/lib/ai/account-state";
 import { createServiceClient } from "@/lib/supabase";
 
+import { bearerAuthorized } from "@/lib/security/validate";
+
 function isAuthorized(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET || process.env.AI_BATCH_SECRET;
-  if (!secret) return false;
-  const auth = req.headers.get("authorization") ?? "";
-  return auth === `Bearer ${secret}`;
+  return bearerAuthorized(req, secret);
 }
 
 export async function POST(req: NextRequest) {

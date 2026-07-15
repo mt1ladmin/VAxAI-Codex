@@ -12,6 +12,7 @@ import BackButton from "@/components/posts/BackButton";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
+import { sanitizeHtml } from "@/lib/security/sanitize-html";
 
 // Render on every request so studio edits (updated cover images, body and
 // other published content) appear immediately instead of being frozen at
@@ -186,7 +187,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 {post.body_html ? (
                   <div
                     className="prose-vaxai"
-                    dangerouslySetInnerHTML={{ __html: post.body_html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.body_html) }}
                   />
                 ) : (
                   <p className="text-gray-400 italic">No content yet.</p>
