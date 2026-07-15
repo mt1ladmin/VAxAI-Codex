@@ -46,6 +46,7 @@ const MEMBER_API_PREFIXES = [
   "/api/admin/engagement/ai",
   "/api/admin/engagement/activity-log",
   "/api/admin/engagement/content-generate",
+  "/api/admin/content-topics",
   "/api/admin/ai",
 ] as const;
 

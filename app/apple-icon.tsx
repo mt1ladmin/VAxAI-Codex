@@ -1,9 +1,20 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-export default function AppleIcon() {
+/** Home-screen / Apple touch icon — current brand mark */
+export default async function AppleIcon() {
+  let dataUrl: string | null = null;
+  try {
+    const buf = await readFile(join(process.cwd(), "public/vaxai.jpg"));
+    dataUrl = `data:image/jpeg;base64,${buf.toString("base64")}`;
+  } catch {
+    dataUrl = null;
+  }
+
   return new ImageResponse(
     (
       <div
@@ -14,15 +25,30 @@ export default function AppleIcon() {
           alignItems: "center",
           justifyContent: "center",
           background: "#122428",
-          color: "#D8FC2E",
-          fontSize: 64,
-          fontWeight: 700,
-          fontFamily: "system-ui, sans-serif",
-          letterSpacing: "-0.03em",
           borderRadius: 36,
         }}
       >
-        VA
+        {dataUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={dataUrl}
+            width={140}
+            height={140}
+            style={{ objectFit: "contain" }}
+            alt=""
+          />
+        ) : (
+          <span
+            style={{
+              color: "#F5F8F8",
+              fontSize: 64,
+              fontWeight: 700,
+              fontFamily: "system-ui, sans-serif",
+            }}
+          >
+            VA
+          </span>
+        )}
       </div>
     ),
     { ...size },

@@ -54,7 +54,7 @@ export default function SiteNav({ variant = "dark" }: Props) {
         className={isDark ? "flex items-center" : "flex items-center rounded-md bg-[#122428] px-2.5 py-1.5"}
         aria-label="VAxAI home"
       >
-        <img src="/vaxai.jpg" alt="VAxAI" className="h-8 w-auto" />
+        <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto" />
       </a>
 
       {/* Desktop links */}

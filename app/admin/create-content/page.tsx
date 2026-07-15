@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check, ChevronDown, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Check, ChevronDown, Loader2, Sparkles, Wand2 } from "lucide-react";
 import { ContentCreateModal } from "@/components/admin/ContentCreateModal";
 import {
   InfoTip,
@@ -9,24 +9,63 @@ import {
   studio,
 } from "@/components/admin/studio-ui";
 import {
-  CONTENT_TOPICS,
   TOPIC_CATEGORIES,
-  buildBriefFromTopics,
+  type ContentTopic,
   type TopicCategoryId,
 } from "@/lib/content-topic-library";
+
+type ApiTopic = ContentTopic & {
+  source?: string;
+  status?: string;
+  research_note?: string | null;
+};
 
 export default function CreateContentPage() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [categoryFilter, setCategoryFilter] = useState<TopicCategoryId | "all">("all");
-  const [libraryOpen, setLibraryOpen] = useState(true);
+  /** Hidden by default so first visit is calm — open only when needed. */
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [topics, setTopics] = useState<ApiTopic[]>([]);
+  const [loadingTopics, setLoadingTopics] = useState(true);
+  const [generatingTopics, setGeneratingTopics] = useState(false);
+  const [topicError, setTopicError] = useState<string | null>(null);
+
+  const loadTopics = useCallback(async () => {
+    setLoadingTopics(true);
+    setTopicError(null);
+    try {
+      const res = await fetch("/api/admin/content-topics?status=active");
+      const json = (await res.json()) as { data?: ApiTopic[]; error?: string };
+      if (!res.ok) throw new Error(json.error || "Could not load topics");
+      setTopics(json.data ?? []);
+      setSelected((prev) => {
+        const active = new Set((json.data ?? []).map((t) => t.id));
+        return new Set([...prev].filter((id) => active.has(id)));
+      });
+    } catch (e) {
+      setTopicError(e instanceof Error ? e.message : "Could not load topics");
+      setTopics([]);
+    } finally {
+      setLoadingTopics(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadTopics();
+  }, [loadTopics]);
 
   const filtered = useMemo(() => {
-    if (categoryFilter === "all") return CONTENT_TOPICS;
-    return CONTENT_TOPICS.filter((t) => t.category === categoryFilter);
-  }, [categoryFilter]);
+    if (categoryFilter === "all") return topics;
+    return topics.filter((t) => t.category === categoryFilter);
+  }, [categoryFilter, topics]);
 
-  const brief = useMemo(() => buildBriefFromTopics([...selected]), [selected]);
+  const brief = useMemo(() => {
+    const selectedTopics = topics.filter((t) => selected.has(t.id));
+    if (!selectedTopics.length) return "";
+    const lines = selectedTopics.map((t) => `- ${t.title}: ${t.angle}`);
+    return `Please create on-brand VAxAI content using these selected topic angles (timeless, practical, human-led; admin foundations before tools; do not sell AI products):\n\n${lines.join("\n")}\n\nWrite for the platform(s) I choose next. Keep examples honest and hypothetical. Close with a clear, proportionate call to action.`;
+  }, [selected, topics]);
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -39,85 +78,162 @@ export default function CreateContentPage() {
 
   const clearSelected = () => setSelected(new Set());
 
+  const generateFreshTopics = async () => {
+    setGeneratingTopics(true);
+    setTopicError(null);
+    try {
+      const res = await fetch("/api/admin/content-topics/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: 6 }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(json.error || "Could not generate topics");
+      setLibraryOpen(true);
+      await loadTopics();
+    } catch (e) {
+      setTopicError(e instanceof Error ? e.message : "Could not generate topics");
+    } finally {
+      setGeneratingTopics(false);
+    }
+  };
+
   return (
     <div className={`${studio.page} ${studio.pagePad}`}>
       <div className={studio.max}>
         <StudioPageHeader
           eyebrow="Content Hub"
           title="Create content"
-          description="Generate on-brand blog and social drafts from a short brief. Optional topic library below if you want starting points — or write your own brief in Create."
-          info="AI drafts stay editable. Blog can become a Posts draft; social can go to the calendar. Positioning stays human-led: admin foundations first, no selling AI products."
+          description="Start with Create when you already know the angle. Open the topic library only if you want optional ideas — used topics are removed so you do not rework the same brief."
+          info="Generate drafts with AI, then edit before saving to Posts or the calendar. Topics you generate from are archived so the library stays fresh. Refresh topics uses AI plus light public research signals."
           actions={
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              className={studio.btnPrimary}
-            >
+            <button type="button" onClick={() => setOpen(true)} className={studio.btnPrimary}>
               <Sparkles className="h-4 w-4" />
               Create content
             </button>
           }
         />
 
+        {/* Calm first screen: one clear path, library collapsed */}
         <div className={`${studio.card} ${studio.cardPad} mt-6`}>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className={studio.sectionTitle}>Topic library</h2>
-                <InfoTip text="Optional. Tick timeless topics aligned to VAxAI work. They fill the create brief so you do not need a separate planning session. Leave empty to write your own brief." />
-              </div>
-              <p className="mt-1 text-sm text-muted">
-                {selected.size === 0
-                  ? "Nothing selected — Create opens with a blank brief."
-                  : `${selected.size} topic${selected.size === 1 ? "" : "s"} selected — will pre-fill the brief.`}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className={studio.sectionTitle}>Ready when you are</p>
+              <p className="mt-1 text-sm leading-6 text-muted">
+                Write your own brief in Create, or open the library for optional starting points.
+                {selected.size > 0
+                  ? ` ${selected.size} topic${selected.size === 1 ? "" : "s"} selected.`
+                  : ""}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {selected.size > 0 ? (
-                <button type="button" onClick={clearSelected} className={studio.btnGhost}>
-                  Clear selection
-                </button>
-              ) : null}
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => setOpen(true)} className={studio.btnPrimary}>
+                <Sparkles className="h-4 w-4" />
+                {selected.size > 0 ? "Create from selection" : "Create content"}
+              </button>
               <button
                 type="button"
                 onClick={() => setLibraryOpen((v) => !v)}
                 className={studio.btnSecondary}
               >
-                {libraryOpen ? "Hide library" : "Show library"}
-                <ChevronDown className={`h-4 w-4 transition-transform ${libraryOpen ? "rotate-180" : ""}`} />
+                {libraryOpen ? "Hide topic library" : "Browse topic library"}
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${libraryOpen ? "rotate-180" : ""}`}
+                />
               </button>
             </div>
           </div>
+        </div>
 
-          {libraryOpen ? (
-            <>
-              <div className="mt-5 flex flex-wrap gap-2">
+        {libraryOpen ? (
+          <div className={`${studio.card} ${studio.cardPad} mt-4`}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className={studio.sectionTitle}>Topic library</h2>
+                  <InfoTip text="Optional ideas only. After you successfully generate content from selected topics, those items are archived so they are not offered again. Use Refresh topics to add new angles (AI + public research signals)." />
+                </div>
+                <p className="mt-1 text-sm text-muted">
+                  {loadingTopics
+                    ? "Loading…"
+                    : topics.length === 0
+                      ? "No active topics. Refresh to generate a new set."
+                      : `${topics.length} active · tick any to pre-fill your brief`}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {selected.size > 0 ? (
+                  <button type="button" onClick={clearSelected} className={studio.btnGhost}>
+                    Clear selection
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  onClick={() => setCategoryFilter("all")}
-                  className={categoryFilter === "all" ? studio.chipActive : studio.chip}
+                  onClick={() => void generateFreshTopics()}
+                  disabled={generatingTopics}
+                  className={studio.btnSecondary}
                 >
-                  All
+                  {generatingTopics ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Wand2 className="h-4 w-4" />
+                  )}
+                  {generatingTopics ? "Finding ideas…" : "Refresh topics"}
                 </button>
-                {TOPIC_CATEGORIES.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => setCategoryFilter(c.id)}
-                    className={categoryFilter === c.id ? studio.chipActive : studio.chip}
-                    title={c.blurb}
-                  >
-                    {c.label}
-                  </button>
-                ))}
               </div>
+            </div>
 
-              {categoryFilter !== "all" ? (
-                <p className="mt-3 text-xs leading-5 text-muted">
-                  {TOPIC_CATEGORIES.find((c) => c.id === categoryFilter)?.blurb}
+            {topicError ? (
+              <p className="mt-3 rounded-xl border border-pine-900/15 bg-cream px-3 py-2 text-sm text-pine-900">
+                {topicError}
+                {topicError.includes("schema") || topicError.includes("relation")
+                  ? " Run the studio_content_topics migration in Supabase if you have not already."
+                  : ""}
+              </p>
+            ) : null}
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setCategoryFilter("all")}
+                className={categoryFilter === "all" ? studio.chipActive : studio.chip}
+              >
+                All
+              </button>
+              {TOPIC_CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setCategoryFilter(c.id)}
+                  className={categoryFilter === c.id ? studio.chipActive : studio.chip}
+                  title={c.blurb}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+
+            {loadingTopics ? (
+              <div className="mt-8 flex justify-center py-10 text-muted">
+                <Loader2 className="h-5 w-5 animate-spin" />
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="mt-6 rounded-xl border border-dashed border-pine-900/15 px-4 py-10 text-center">
+                <p className="text-sm font-semibold text-pine-900">Nothing in this view</p>
+                <p className="mt-1 text-sm text-muted">
+                  Refresh topics to add new ideas that have not been used yet.
                 </p>
-              ) : null}
-
+                <button
+                  type="button"
+                  onClick={() => void generateFreshTopics()}
+                  disabled={generatingTopics}
+                  className={`${studio.btnPrimary} mt-4`}
+                >
+                  <Wand2 className="h-4 w-4" />
+                  Refresh topics
+                </button>
+              </div>
+            ) : (
               <ul className="mt-5 grid gap-2 sm:grid-cols-2">
                 {filtered.map((topic) => {
                   const on = selected.has(topic.id);
@@ -141,47 +257,40 @@ export default function CreateContentPage() {
                           {on ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-sm font-semibold text-pine-900">{topic.title}</span>
-                          <span className="mt-0.5 block text-xs leading-5 text-muted">{topic.angle}</span>
-                          <span className="mt-1.5 flex flex-wrap gap-1">
-                            {topic.formats.map((f) => (
-                              <span
-                                key={f}
-                                className="rounded-full bg-cream px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted"
-                              >
-                                {f}
+                          <span className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-semibold text-pine-900">{topic.title}</span>
+                            {topic.source === "ai" ? (
+                              <span className="rounded-full bg-cream px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted">
+                                New
                               </span>
-                            ))}
+                            ) : null}
                           </span>
+                          <span className="mt-0.5 block text-xs leading-5 text-muted">{topic.angle}</span>
+                          {topic.research_note ? (
+                            <span className="mt-1 block text-[11px] leading-4 text-muted/80">
+                              {topic.research_note}
+                            </span>
+                          ) : null}
                         </span>
                       </button>
                     </li>
                   );
                 })}
               </ul>
-
-              <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-pine-900/8 pt-5">
-                <button
-                  type="button"
-                  onClick={() => setOpen(true)}
-                  className={studio.btnPrimary}
-                >
-                  <Sparkles className="h-4 w-4" />
-                  {selected.size > 0 ? "Create from selected topics" : "Create with your own brief"}
-                </button>
-                <p className="text-xs text-muted">
-                  You can edit the brief fully in the next step before generating.
-                </p>
-              </div>
-            </>
-          ) : null}
-        </div>
+            )}
+          </div>
+        ) : null}
       </div>
 
       <ContentCreateModal
         open={open}
         onClose={() => setOpen(false)}
         initialBrief={brief}
+        topicIds={[...selected]}
+        onTopicsConsumed={() => {
+          setSelected(new Set());
+          void loadTopics();
+        }}
       />
     </div>
   );

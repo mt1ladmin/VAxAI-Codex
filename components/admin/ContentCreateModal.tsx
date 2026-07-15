@@ -155,11 +155,16 @@ export function ContentCreateModal({
   open,
   onClose,
   initialBrief = "",
+  topicIds = [],
+  onTopicsConsumed,
 }: {
   open: boolean;
   onClose: () => void;
   /** Optional brief from the topic library (does not change generate API). */
   initialBrief?: string;
+  /** Topic library ids used for this brief — archived after a successful generate. */
+  topicIds?: string[];
+  onTopicsConsumed?: (ids: string[]) => void;
 }) {
   const router = useRouter();
   const [step, setStep] = useState<"form" | "preview">("form");
@@ -251,6 +256,14 @@ export function ContentCreateModal({
       setEditableResult(data as GeneratedResult);
       if (Array.isArray(data.hashtags)) {
         setHashtagsInput((data.hashtags as string[]).join(", "));
+      }
+      // Archive library topics so the same idea is not offered again
+      if (topicIds.length) {
+        void fetch("/api/admin/content-topics", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: topicIds, action: "use" }),
+        }).then(() => onTopicsConsumed?.(topicIds));
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
