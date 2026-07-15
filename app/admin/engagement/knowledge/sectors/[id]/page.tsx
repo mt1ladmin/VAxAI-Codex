@@ -20,7 +20,7 @@ function TagsEditor({ value, onChange }: { value: string[]; onChange: (v: string
     <div className="rounded-lg border border-[#111111]/15 bg-white p-2 focus-within:border-[#122428]">
       <div className="flex flex-wrap gap-1.5 mb-2">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-xs font-semibold text-[#5F686A]">
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-[#5F686A]">
             {tag}
             <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="hover:text-red-500 leading-none">×</button>
           </span>
@@ -58,7 +58,7 @@ function ReadList({ items }: { items: string[] }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-      <div className="bg-[#F5F8F8] px-5 py-3">
+      <div className="bg-white px-5 py-3">
         <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">{title}</p>
       </div>
       <div className="p-5">{children}</div>
@@ -209,7 +209,7 @@ export default function SectorDetailPage() {
             {sector.description && <p className="mt-1 max-w-2xl text-sm text-[#5F686A]">{sector.description}</p>}
             {sector.audience_types && sector.audience_types.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {sector.audience_types.map((a) => <span key={a} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{a}</span>)}
+                {sector.audience_types.map((a) => <span key={a} className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{a}</span>)}
               </div>
             )}
           </>
@@ -219,7 +219,7 @@ export default function SectorDetailPage() {
         <div className="mt-4 flex items-center gap-2">
           {editing ? (
             <>
-              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-pine-50"><X className="h-3.5 w-3.5" /> Cancel</button>
               <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save changes"}</button>
             </>
           ) : (
@@ -229,7 +229,7 @@ export default function SectorDetailPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-red-600">Delete this sector?</span>
                   <button type="button" onClick={() => void del()} disabled={deleting} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 hover:bg-red-700">{deleting ? "Deleting…" : "Yes, delete"}</button>
-                  <button type="button" onClick={() => setConfirmDelete(false)} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Cancel</button>
+                  <button type="button" onClick={() => setConfirmDelete(false)} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-pine-50">Cancel</button>
                 </div>
               ) : (
                 <button type="button" onClick={() => setConfirmDelete(true)} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /> Delete</button>
@@ -287,7 +287,7 @@ export default function SectorDetailPage() {
             </EditSection>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-pine-50"><X className="h-3.5 w-3.5" /> Cancel</button>
               <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save changes"}</button>
             </div>
           </>
@@ -314,7 +314,7 @@ export default function SectorDetailPage() {
             {sector.common_systems && sector.common_systems.length > 0 && (
               <Section title="Common systems and tools">
                 <div className="flex flex-wrap gap-2">
-                  {sector.common_systems.map((s) => <span key={s} className="rounded-full bg-[#F5F8F8] px-3 py-1 text-xs font-semibold text-[#5F686A]">{s}</span>)}
+                  {sector.common_systems.map((s) => <span key={s} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#5F686A]">{s}</span>)}
                 </div>
               </Section>
             )}

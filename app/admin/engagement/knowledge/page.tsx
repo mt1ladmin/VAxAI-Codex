@@ -92,7 +92,7 @@ function CustomSelect({ value, onChange, options, placeholder, className = "" }:
         <div className="absolute z-30 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg">
           {options.map((opt) => (
             <button key={opt.value || "__empty"} type="button" onClick={() => { onChange(opt.value); setOpen(false); }}
-              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${value === opt.value ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"}`}>
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${value === opt.value ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"}`}>
               {opt.label}
             </button>
           ))}
@@ -113,7 +113,7 @@ function TagsInput({ value, onChange }: { value: string[]; onChange: (v: string[
     <div className="rounded-lg border border-[#111111]/15 p-2 focus-within:border-[#122428]">
       <div className="flex flex-wrap gap-1.5 mb-1.5">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
             {tag}<button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="hover:text-red-500">×</button>
           </span>
         ))}
@@ -137,7 +137,7 @@ function ConfirmDelete({ onConfirm, onCancel, saving }: { onConfirm: () => void;
     <div className="flex items-center gap-2">
       <span className="text-xs font-semibold text-red-600">Delete?</span>
       <button type="button" onClick={onConfirm} disabled={saving} className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50 hover:bg-red-700">{saving ? "…" : "Yes"}</button>
-      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-2.5 py-1 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">No</button>
+      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-2.5 py-1 text-xs font-semibold text-[#5F686A] hover:bg-pine-50">No</button>
     </div>
   );
 }
@@ -145,7 +145,7 @@ function ConfirmDelete({ onConfirm, onCancel, saving }: { onConfirm: () => void;
 function EditSaveRow({ saving, onSave, onCancel }: { saving: boolean; onSave: () => void; onCancel: () => void }) {
   return (
     <div className="flex justify-end gap-2 pt-2">
-      <button type="button" onClick={onCancel} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3 w-3" /> Cancel</button>
+      <button type="button" onClick={onCancel} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"><X className="h-3 w-3" /> Cancel</button>
       <button type="button" onClick={onSave} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3 w-3" /> {saving ? "Saving…" : "Save"}</button>
     </div>
   );
@@ -359,7 +359,7 @@ function PainPointRow({ pp, selected, selectMode, onSelect, onDeleted, onSaved }
 
   if (editing) {
     return (
-      <div className="px-5 py-4 space-y-3 bg-[#F5F8F8]/50">
+      <div className="px-5 py-4 space-y-3 bg-white">
         <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Title
           <input value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} className={`mt-1 ${INPUT}`} />
         </label>
@@ -377,7 +377,7 @@ function PainPointRow({ pp, selected, selectMode, onSelect, onDeleted, onSaved }
   }
 
   return (
-    <div className="flex items-start justify-between px-5 py-4 hover:bg-[#F5F8F8] transition-colors group">
+    <div className="flex items-start justify-between px-5 py-4 hover:bg-pine-50 transition-colors group">
       <div className="flex items-start gap-3 min-w-0">
         {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-0.5 h-4 w-4 shrink-0 accent-[#122428] cursor-pointer" />}
         <div className="min-w-0">
@@ -432,7 +432,7 @@ function VatPromptRow({ prompt, selected, selectMode, onSelect, onDeleted, onSav
 
   if (editing) {
     return (
-      <div className="px-5 py-4 space-y-3 bg-[#F5F8F8]/50">
+      <div className="px-5 py-4 space-y-3 bg-white">
         <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Prompt
           <textarea rows={3} value={draft.prompt} onChange={(e) => setDraft((d) => ({ ...d, prompt: e.target.value }))} className={`mt-1 ${TEXTAREA}`} />
         </label>
@@ -445,14 +445,14 @@ function VatPromptRow({ prompt, selected, selectMode, onSelect, onDeleted, onSav
   }
 
   return (
-    <div className="flex items-start justify-between px-5 py-3.5 hover:bg-[#F5F8F8]/50 transition-colors group">
+    <div className="flex items-start justify-between px-5 py-3.5 hover:bg-pine-50 transition-colors group">
       <div className="flex items-start gap-3 min-w-0 flex-1">
         {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-0.5 h-4 w-4 shrink-0 accent-[#122428] cursor-pointer" />}
         <div className="min-w-0 flex-1">
           <p className="text-sm text-[#111111]">{prompt.prompt}</p>
           {prompt.context_tags && prompt.context_tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
-              {prompt.context_tags.map((tag) => <span key={tag} className="rounded-full bg-[#F5F8F8] px-2 py-0.5 text-[10px] text-[#5F686A]">{tag}</span>)}
+              {prompt.context_tags.map((tag) => <span key={tag} className="rounded-full bg-white px-2 py-0.5 text-[10px] text-[#5F686A]">{tag}</span>)}
             </div>
           )}
         </div>
@@ -576,15 +576,15 @@ function KnowledgePageInner() {
   const canSelect = ["sectors", "personas", "pain_points", "vat_prompts"].includes(tab);
 
   return (
-    <div className="min-h-full bg-cream/40">
+    <div className="min-h-full bg-white">
       {/* Sticky header */}
       <div className="sticky top-0 z-30 border-b border-pine-900/8 bg-white/95 px-4 py-2.5 backdrop-blur-sm md:px-8">
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-pine-700">Knowledge Hub</span>
-          <div className="flex max-w-full flex-wrap gap-1 overflow-x-auto rounded-xl bg-cream/80 p-1 scrollbar-none">
+          <div className="flex max-w-full flex-wrap gap-1 overflow-x-auto rounded-xl bg-white p-1 scrollbar-none">
             {TAB_KEYS.map((key) => (
               <button key={key} type="button" onClick={() => switchTab(key)}
-                className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${tab === key ? "bg-pine-900 text-white shadow-sm" : "text-muted hover:bg-white hover:text-pine-900"}`}>
+                className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${tab === key ? "bg-pine-900 text-white shadow-sm" : "text-muted hover:bg-pine-50 hover:text-pine-900"}`}>
                 {TAB_META[key].label}
               </button>
             ))}
@@ -713,7 +713,7 @@ function KnowledgePageInner() {
                 <div className="space-y-3">
                   {Object.entries(painPoints.reduce<Record<string, PainPoint[]>>((acc, pp) => { (acc[pp.category] ??= []).push(pp); return acc; }, {})).map(([cat, items]) => (
                     <div key={cat} className="rounded-xl border border-[#111111]/10 overflow-hidden">
-                      <div className="flex w-full items-center justify-between px-5 py-4 bg-[#F5F8F8]">
+                      <div className="flex w-full items-center justify-between px-5 py-4 bg-white">
                         <span className="font-semibold text-[#111111] text-sm">{cat}</span>
                         <span className="rounded-full bg-[#111111]/10 px-2 py-0.5 text-xs font-semibold text-[#5F686A]">{items.length}</span>
                       </div>
@@ -775,7 +775,7 @@ function KnowledgePageInner() {
 
 export default function KnowledgePage() {
   return (
-    <Suspense fallback={<div className="min-h-full bg-cream/40 px-8 py-16 text-sm text-muted">Loading knowledge hub…</div>}>
+    <Suspense fallback={<div className="min-h-full bg-white px-8 py-16 text-sm text-muted">Loading knowledge hub…</div>}>
       <KnowledgePageInner />
     </Suspense>
   );

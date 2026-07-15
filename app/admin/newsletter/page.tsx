@@ -92,7 +92,7 @@ export default function NewsletterPage() {
           {error}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#111111]/15 bg-[#F5F8F8]/50 px-6 py-16 text-center">
+        <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white px-6 py-16 text-center">
           <Mail className="mx-auto h-8 w-8 text-[#5F686A]/50" />
           <p className="mt-3 text-sm font-medium text-[#111111]">
             {search ? "No subscribers match your search" : "No subscribers yet"}
@@ -104,7 +104,7 @@ export default function NewsletterPage() {
       ) : (
         <div className="overflow-hidden rounded-xl border border-[#111111]/10">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-[#111111]/10 bg-[#F5F8F8] text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">
+            <thead className="border-b border-[#111111]/10 bg-white text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">
               <tr>
                 <th className="px-4 py-3">Email</th>
                 <th className="hidden px-4 py-3 sm:table-cell">Name</th>
@@ -114,7 +114,7 @@ export default function NewsletterPage() {
             </thead>
             <tbody className="divide-y divide-[#111111]/8 bg-white">
               {filtered.map((s) => (
-                <tr key={s.email} className="hover:bg-[#F5F8F8]/40">
+                <tr key={s.email} className="hover:bg-pine-50">
                   <td className="px-4 py-3 font-medium text-[#111111]">{s.email}</td>
                   <td className="hidden px-4 py-3 text-[#5F686A] sm:table-cell">{s.name ?? "—"}</td>
                   <td className="px-4 py-3">
@@ -127,7 +127,7 @@ export default function NewsletterPage() {
               ))}
             </tbody>
           </table>
-          <div className="border-t border-[#111111]/10 bg-[#F5F8F8]/50 px-4 py-2.5 text-xs text-[#5F686A]">
+          <div className="border-t border-[#111111]/10 bg-white px-4 py-2.5 text-xs text-[#5F686A]">
             {filtered.length} subscriber{filtered.length === 1 ? "" : "s"}
             {search && subscribers.length !== filtered.length ? ` (of ${subscribers.length} total)` : ""}
           </div>

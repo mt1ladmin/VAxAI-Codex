@@ -119,7 +119,7 @@ function postProcess(result: Record<string, unknown>): Record<string, unknown> {
 function EditSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-      <div className="flex items-center bg-[#F5F8F8] px-4 py-2">
+      <div className="flex items-center bg-white px-4 py-2">
         <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5F686A]">{label}</p>
       </div>
       <div className="px-4 py-3">{children}</div>
@@ -450,7 +450,7 @@ export function ContentCreateModal({
           <button
             type="button"
             onClick={handleClose}
-            className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#F5F8F8]"
+            className="grid h-8 w-8 place-items-center rounded-md hover:bg-pine-50"
           >
             <X className="h-4 w-4" />
           </button>

@@ -4,29 +4,29 @@ type Tone = "default" | "brand" | "amber" | "notes" | "muted";
 
 const TONE_STYLES: Record<Tone, { card: string; value: string; label: string }> = {
   default: {
-    card: "border-[#111111]/10 bg-white hover:border-[#122428]/20 hover:bg-[#F5F8F8]/30",
-    value: "text-[#111111]",
-    label: "text-[#5F686A]",
+    card: "border-pine-900/10 bg-white hover:border-pine-900/20 hover:bg-pine-50",
+    value: "text-pine-900",
+    label: "text-muted",
   },
   brand: {
-    card: "border-[#122428]/15 bg-[#122428]/5 hover:border-[#122428]/25 hover:bg-[#122428]/8",
-    value: "text-[#122428]",
-    label: "text-[#122428]/80",
+    card: "border-pine-900/15 bg-pine-900/[0.04] hover:border-pine-900/25 hover:bg-pine-900/[0.07]",
+    value: "text-pine-900",
+    label: "text-pine-800",
   },
   amber: {
-    card: "border-amber-200 bg-amber-50/60 hover:border-amber-300 hover:bg-amber-50",
-    value: "text-amber-800",
-    label: "text-amber-700",
+    card: "border-acid/60 bg-acid/25 hover:border-acid hover:bg-acid/40",
+    value: "text-ink",
+    label: "text-pine-800",
   },
   notes: {
-    card: "border-violet-200 bg-violet-50/50 hover:border-violet-300 hover:bg-violet-50",
-    value: "text-violet-800",
-    label: "text-violet-700",
+    card: "border-pine-900/12 bg-pine-50 hover:border-pine-900/25 hover:bg-pine-100",
+    value: "text-pine-900",
+    label: "text-pine-700",
   },
   muted: {
-    card: "border-[#111111]/10 bg-[#F5F8F8]/40 hover:border-[#111111]/15 hover:bg-[#F5F8F8]/60",
-    value: "text-[#111111]",
-    label: "text-[#5F686A]",
+    card: "border-pine-900/10 bg-white hover:border-pine-900/15 hover:bg-pine-50",
+    value: "text-pine-900",
+    label: "text-muted",
   },
 };
 

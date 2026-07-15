@@ -52,7 +52,7 @@ function ToolbarBtn({
       onMouseDown={(e) => { e.preventDefault(); onClick(); }}
       title={title}
       className={`grid h-8 w-8 place-items-center rounded-lg text-sm transition-colors ${
-        active ? "bg-pine-900 text-white" : "text-muted hover:bg-cream hover:text-pine-900"
+        active ? "bg-pine-900 text-white" : "text-muted hover:bg-pine-50 hover:text-pine-900"
       }`}
     >
       {children}
@@ -158,7 +158,7 @@ export default function PostEditor({
         <div className="relative">
           <img src={coverImageUrl} alt="Cover" className="max-h-80 w-full object-cover" />
           <div className="absolute right-4 top-4 flex gap-2">
-            <label className="cursor-pointer rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow hover:bg-white">
+            <label className="cursor-pointer rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow hover:bg-pine-50">
               Change
               <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
                 const file = e.target.files?.[0];
@@ -170,13 +170,13 @@ export default function PostEditor({
                 e.target.value = "";
               }} />
             </label>
-            <button onClick={() => onCoverImageUrlChange("")} className="rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow hover:bg-white">
+            <button onClick={() => onCoverImageUrlChange("")} className="rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow hover:bg-pine-50">
               Remove
             </button>
           </div>
         </div>
       ) : (
-        <label className="group flex cursor-pointer flex-col items-center justify-center gap-2 border-b border-dashed border-pine-900/15 bg-cream/40 py-12 text-sm text-muted transition-colors hover:bg-cream hover:text-pine-900">
+        <label className="group flex cursor-pointer flex-col items-center justify-center gap-2 border-b border-dashed border-pine-900/15 bg-white py-12 text-sm text-muted transition-colors hover:bg-pine-50 hover:text-pine-900">
           <ImageIcon className="h-8 w-8 opacity-50" />
           <span className="font-semibold">Add cover image</span>
           <span className="text-xs">PNG, JPG, WEBP — shown on the post and social previews</span>

@@ -1,13 +1,13 @@
 export const PRIORITY_DOT: Record<string, string> = {
   high: "bg-red-500",
-  medium: "bg-amber-400",
-  low: "bg-gray-300",
+  medium: "bg-acid",
+  low: "bg-pine-200",
 };
 
 export const STATUS_BADGE: Record<string, string> = {
-  todo: "bg-gray-100 text-gray-600",
-  in_progress: "bg-blue-100 text-blue-700",
-  done: "bg-emerald-100 text-emerald-700",
+  todo: "bg-white text-muted border border-pine-900/12",
+  in_progress: "bg-pine-100 text-pine-900",
+  done: "bg-acid/70 text-ink",
 };
 
 export const DEFAULT_TASK_FORM = {

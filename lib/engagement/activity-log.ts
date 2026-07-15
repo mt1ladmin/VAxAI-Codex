@@ -83,7 +83,7 @@ export async function fetchActivityLog(query: {
 
 export const ACTIVITY_EVENT_DOT: Record<ActivityEventType, string> = {
   created: "bg-[#122428]",
-  status_change: "bg-blue-500",
+  status_change: "bg-pine-900",
   note_added: "bg-violet-500",
   next_action: "bg-sky-500",
   contact_updated: "bg-slate-500",

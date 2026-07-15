@@ -23,7 +23,7 @@ export function RecentNotesPreview({ notes, onViewAll, limit = 3 }: Props) {
           {entries.map((entry, index) => (
             <li
               key={`${entry.header}-${index}`}
-              className="rounded-lg border border-[#111111]/8 bg-[#F5F8F8]/40 px-3 py-2"
+              className="rounded-lg border border-[#111111]/8 bg-white px-3 py-2"
             >
               {entry.header ? (
                 <p className="text-xs font-semibold text-[#5F686A]">{entry.header}</p>

@@ -20,8 +20,8 @@ import { AppSelect } from "@/components/ui/AppSelect";
 
 const PRIORITY_DOT: Record<string, string> = {
   high: "bg-red-500",
-  medium: "bg-amber-500",
-  low: "bg-gray-300",
+  medium: "bg-acid",
+  low: "bg-pine-200",
 };
 
 const TASK_TYPE_LABEL: Record<string, string> = {
@@ -35,19 +35,19 @@ const TASK_TYPE_LABEL: Record<string, string> = {
 };
 
 const TASK_TYPE_BADGE: Record<string, string> = {
-  follow_up: "bg-amber-100 text-amber-700",
-  call: "bg-sky-100 text-sky-700",
-  email: "bg-violet-100 text-violet-700",
-  meeting: "bg-blue-100 text-blue-700",
-  admin: "bg-[#111111]/8 text-[#5F686A]",
-  research: "bg-teal-100 text-teal-700",
-  other: "bg-[#111111]/8 text-[#5F686A]",
+  follow_up: "bg-acid/50 text-ink",
+  call: "bg-pine-100 text-pine-800",
+  email: "bg-pine-900/10 text-pine-900",
+  meeting: "bg-pine-50 text-pine-900 border border-pine-900/12",
+  admin: "bg-white text-muted border border-pine-900/12",
+  research: "bg-pine-100 text-pine-800",
+  other: "bg-white text-muted border border-pine-900/12",
 };
 
 const BOARD_COLUMNS = [
-  { id: "todo", label: "To do", color: "bg-gray-100 text-gray-700" },
-  { id: "in_progress", label: "In progress", color: "bg-blue-100 text-blue-700" },
-  { id: "done", label: "Done", color: "bg-emerald-100 text-emerald-700" },
+  { id: "todo", label: "To do", color: "bg-white text-muted border border-pine-900/12" },
+  { id: "in_progress", label: "In progress", color: "bg-pine-100 text-pine-900" },
+  { id: "done", label: "Done", color: "bg-acid/70 text-ink" },
 ] as const;
 
 const inputClass =
@@ -95,7 +95,7 @@ function FormSelect({
             <button
               type="button"
               onClick={() => { setOpen(false); onChange(""); }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#F5F8F8] ${!value ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-pine-50 ${!value ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
             >
               {placeholder}
             </button>
@@ -105,7 +105,7 @@ function FormSelect({
               key={opt.value}
               type="button"
               onClick={() => { setOpen(false); onChange(opt.value); }}
-              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-[#F5F8F8] ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
+              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-pine-50 ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
             >
               <span>{opt.label}</span>
               {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
@@ -483,13 +483,13 @@ export function TasksListView({
         </div>
 
         {selectedTaskIds.size > 0 && (
-          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-[#111111]/10 bg-[#F5F8F8] px-4 py-2.5">
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-[#111111]/10 bg-white px-4 py-2.5">
             <span className="text-xs font-semibold text-[#111111]">{selectedTaskIds.size} selected</span>
             <button
               type="button"
               disabled={bulkMoving || bulkDeleting}
               onClick={() => void bulkMoveTasks("todo")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-pine-50 disabled:opacity-50"
             >
               To do
             </button>
@@ -497,7 +497,7 @@ export function TasksListView({
               type="button"
               disabled={bulkMoving || bulkDeleting}
               onClick={() => void bulkMoveTasks("in_progress")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-pine-50 disabled:opacity-50"
             >
               In progress
             </button>
@@ -505,7 +505,7 @@ export function TasksListView({
               type="button"
               disabled={bulkMoving || bulkDeleting}
               onClick={() => void bulkMoveTasks("done")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-pine-50 disabled:opacity-50"
             >
               Done
             </button>
@@ -521,7 +521,7 @@ export function TasksListView({
             <button
               type="button"
               onClick={() => setSelectedTaskIds(new Set())}
-              className="ml-auto grid h-6 w-6 place-items-center rounded-full border border-[#111111]/15 text-[#5F686A] hover:bg-white"
+              className="ml-auto grid h-6 w-6 place-items-center rounded-full border border-[#111111]/15 text-[#5F686A] hover:bg-pine-50"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -544,10 +544,10 @@ export function TasksListView({
                   onDragLeave={() => setDropTarget((prev) => (prev === col.id ? null : prev))}
                   onDrop={(e) => { e.preventDefault(); void handleDrop(col.id); }}
                   className={`flex min-w-[280px] flex-1 flex-col rounded-xl border overflow-hidden transition-colors ${
-                    dropTarget === col.id ? "border-[#122428]/40 bg-[#122428]/5" : "border-[#111111]/10 bg-[#F5F8F8]/30"
+                    dropTarget === col.id ? "border-[#122428]/40 bg-[#122428]/5" : "border-[#111111]/10 bg-white/30"
                   }`}
                 >
-                  <div className="border-b border-[#111111]/10 bg-[#F5F8F8] px-3.5 py-3 flex items-center justify-between gap-2">
+                  <div className="border-b border-[#111111]/10 bg-white px-3.5 py-3 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       {items.length > 0 && (
                         <button
@@ -607,7 +607,7 @@ export function TasksListView({
               <button
                 type="button"
                 onClick={() => setAdding(false)}
-                className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -678,7 +678,7 @@ export function TasksListView({
               <button
                 type="button"
                 onClick={() => setAdding(false)}
-                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"
               >
                 Cancel
               </button>
@@ -704,7 +704,7 @@ export function TasksListView({
               <button
                 type="button"
                 onClick={() => setEditingTask(null)}
-                className="rounded-lg p-1 text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="rounded-lg p-1 text-[#5F686A] hover:bg-pine-50"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -772,7 +772,7 @@ export function TasksListView({
                     <button
                       type="button"
                       onClick={() => setConfirmDeleteId(null)}
-                      className="flex-1 rounded-lg border border-[#111111]/15 py-2 text-sm text-[#5F686A] hover:bg-[#F5F8F8]"
+                      className="flex-1 rounded-lg border border-[#111111]/15 py-2 text-sm text-[#5F686A] hover:bg-pine-50"
                     >
                       Cancel
                     </button>
@@ -792,7 +792,7 @@ export function TasksListView({
                   <button
                     type="button"
                     onClick={() => setEditingTask(null)}
-                    className="flex-1 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm text-[#5F686A] hover:bg-[#F5F8F8]"
+                    className="flex-1 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm text-[#5F686A] hover:bg-pine-50"
                   >
                     Cancel
                   </button>

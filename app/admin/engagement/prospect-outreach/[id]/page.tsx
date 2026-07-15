@@ -110,7 +110,7 @@ function AssignmentDropdown({
               key={opt.value || "__unassigned"}
               type="button"
               onClick={() => { setOpen(false); onChange(opt.value); }}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${
                 value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"
               }`}
             >
@@ -430,7 +430,7 @@ function ProspectFinderDetailContent() {
             </div>
             <div className="flex gap-3">
               <button type="button" onClick={() => { setShowClientModal(false); setClientService(""); setClientServiceOther(""); setClientNote(""); }}
-                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">
+                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50">
                 Cancel
               </button>
               <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientService || (clientService === "Other" && !clientServiceOther.trim())}
@@ -598,7 +598,7 @@ function ProspectFinderDetailContent() {
                         void patchWorkflow({ engagement_status: null });
                       }
                     }}
-                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${
                       !record.engagement_status ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#5F686A]"
                     }`}
                   >
@@ -616,7 +616,7 @@ function ProspectFinderDetailContent() {
                           void patchWorkflow({ engagement_status: s });
                         }
                       }}
-                      className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+                      className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${
                         record.engagement_status === s ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"
                       }`}
                     >

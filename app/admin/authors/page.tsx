@@ -192,7 +192,7 @@ export default function AuthorsPage() {
                   <div className="flex shrink-0 gap-1">
                     <button
                       onClick={() => setEditingId(author.id)}
-                      className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8] hover:text-[#111111]"
+                      className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50 hover:text-[#111111]"
                     >
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>

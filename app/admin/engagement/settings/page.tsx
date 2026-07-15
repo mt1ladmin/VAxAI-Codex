@@ -106,7 +106,7 @@ export default function SettingsPage() {
                     void load();
                   }}
                   className={`rounded-full px-3 py-0.5 text-[10px] font-semibold ${
-                    member.is_active ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"
+                    member.is_active ? "bg-acid/60 text-ink" : "bg-white text-muted border border-pine-900/12"
                   }`}
                 >
                   {member.is_active ? "Active" : "Inactive"}

@@ -47,7 +47,7 @@ function AlertPill({ count, label, href }: { count: number; label: string; href:
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-full border border-pine-900/15 bg-white px-3.5 py-1.5 text-sm font-semibold text-pine-900 shadow-sm transition-colors hover:bg-cream"
+      className="inline-flex items-center gap-2 rounded-full border border-pine-900/15 bg-white px-3.5 py-1.5 text-sm font-semibold text-pine-900 shadow-sm transition-colors hover:bg-pine-50"
     >
       <AlertCircle className="h-3.5 w-3.5 text-pine-800" />
       {count} {label}
@@ -68,7 +68,7 @@ function SectionCard({
 }) {
   return (
     <div className={`${studio.card} overflow-hidden`}>
-      <div className="flex items-start justify-between gap-3 border-b border-pine-900/8 bg-cream/40 px-5 py-3.5">
+      <div className="flex items-start justify-between gap-3 border-b border-pine-900/8 bg-white px-5 py-3.5">
         <div className="min-w-0">
           <h2 className="text-sm font-semibold text-pine-900">{title}</h2>
           {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
@@ -160,8 +160,8 @@ export default function EngagementOverview() {
           {stats.loading
             ? [1, 2, 3, 4].map((i) => (
                 <div key={i} className={`${studio.card} px-4 py-3.5`}>
-                  <div className="h-3 w-20 rounded bg-cream" />
-                  <div className="mt-3 h-8 w-12 rounded bg-cream/80" />
+                  <div className="h-3 w-20 rounded bg-white" />
+                  <div className="mt-3 h-8 w-12 rounded bg-white" />
                 </div>
               ))
             : [
@@ -219,7 +219,7 @@ export default function EngagementOverview() {
             ) : (
               <div className="divide-y divide-pine-900/8">
                 {workToday.overdueTasks.map((t) => (
-                  <Link key={t.id} href={t.href} className="block px-5 py-3 transition-colors hover:bg-cream/50">
+                  <Link key={t.id} href={t.href} className="block px-5 py-3 transition-colors hover:bg-pine-50">
                     <p className="truncate text-sm font-semibold text-pine-900">{t.title}</p>
                     {t.contact_name ? (
                       <p className="mt-0.5 truncate text-xs text-muted">{t.contact_name}</p>
@@ -246,7 +246,7 @@ export default function EngagementOverview() {
             ) : (
               <div className="divide-y divide-pine-900/8">
                 {workToday.newEnquiries.map((e) => (
-                  <Link key={e.id} href={e.href} className="block px-5 py-3 transition-colors hover:bg-cream/50">
+                  <Link key={e.id} href={e.href} className="block px-5 py-3 transition-colors hover:bg-pine-50">
                     <p className="truncate text-sm font-semibold text-pine-900">{e.name}</p>
                     <p className="mt-0.5 truncate text-xs text-muted">{e.status || "Needs review"}</p>
                   </Link>
@@ -337,9 +337,9 @@ export default function EngagementOverview() {
                     <Link
                       key={p.id}
                       href={`/admin/posts/${p.id}`}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-cream/50 sm:px-5"
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-pine-50 sm:px-5"
                     >
-                      <span className="h-12 w-14 shrink-0 overflow-hidden rounded-lg bg-cream ring-1 ring-pine-900/10">
+                      <span className="h-12 w-14 shrink-0 overflow-hidden rounded-lg bg-white ring-1 ring-pine-900/10">
                         {p.cover_image_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -355,7 +355,7 @@ export default function EngagementOverview() {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-semibold text-pine-900">{p.title}</span>
-                        <span className="mt-0.5 inline-flex rounded-full bg-cream px-2 py-0.5 text-[10px] font-semibold capitalize text-muted">
+                        <span className="mt-0.5 inline-flex rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold capitalize text-muted">
                           {p.status}
                         </span>
                       </span>
@@ -389,9 +389,9 @@ export default function EngagementOverview() {
                     <Link
                       key={p.id}
                       href={`/admin/posts/${p.id}`}
-                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-cream/50 sm:px-5"
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-pine-50 sm:px-5"
                     >
-                      <span className="h-12 w-14 shrink-0 overflow-hidden rounded-lg bg-cream ring-1 ring-pine-900/10">
+                      <span className="h-12 w-14 shrink-0 overflow-hidden rounded-lg bg-white ring-1 ring-pine-900/10">
                         {p.cover_image_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -430,7 +430,7 @@ export default function EngagementOverview() {
             href="/admin/engagement/pipeline"
             className={`${studio.card} flex items-center gap-3 p-4 transition-colors hover:border-pine-900/25`}
           >
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-cream text-pine-900">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-white text-pine-900">
               <CheckSquare className="h-4 w-4" />
             </span>
             <div className="min-w-0 flex-1">

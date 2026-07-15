@@ -79,9 +79,9 @@ function defaultScheduleValue(calendarDay?: string, existingIso?: string | null)
 }
 
 const STATUS_STYLES: Record<CalendarBlogPreview["status"], string> = {
-  published: "bg-[#122428]/10 text-[#122428]",
-  scheduled: "bg-amber-100 text-amber-800",
-  draft: "bg-[#D8FC2E]/70 text-[#5F686A]",
+  published: "bg-pine-900 text-paper",
+  scheduled: "bg-pine-100 text-pine-800",
+  draft: "bg-acid text-ink",
 };
 
 function socialLinksToPost(link: string | null | undefined, postId: string) {
@@ -181,7 +181,7 @@ function ConnectedPostRow({
         <button
           type="button"
           onClick={onOpen}
-          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#F5F8F8]"
+          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-pine-50"
         >
           Open post
           <ExternalLink className="h-2.5 w-2.5" />
@@ -199,7 +199,7 @@ function ConnectedPostRow({
               setPosted(true);
               void onMarkPosted(row.target);
             }}
-            className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-40"
+            className="rounded-md border border-pine-900/15 bg-acid/40 px-2.5 py-1 text-[10px] font-semibold text-ink hover:bg-acid/60 disabled:opacity-40"
           >
             Mark as posted
           </button>
@@ -304,14 +304,14 @@ export function CalendarItemPreviewModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]"
+          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50"
           aria-label="Close preview"
         >
           <X className="h-4 w-4" />
         </button>
 
         {displayPost.cover_image_url ? (
-          <div className="aspect-[16/9] w-full shrink-0 overflow-hidden bg-[#F5F8F8]">
+          <div className="aspect-[16/9] w-full shrink-0 overflow-hidden bg-white">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={displayPost.cover_image_url}
@@ -389,7 +389,7 @@ export function CalendarItemPreviewModal({
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#111111] hover:bg-white"
+                  className="rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#111111] hover:bg-pine-50"
                 >
                   Cancel
                 </button>

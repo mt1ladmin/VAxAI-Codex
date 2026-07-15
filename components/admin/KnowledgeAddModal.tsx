@@ -42,7 +42,7 @@ function TagsInput({ value, onChange, placeholder }: { value: string[]; onChange
     <div className="rounded-lg border border-[#111111]/15 p-2 focus-within:border-[#122428]">
       <div className="flex flex-wrap gap-1.5 mb-2">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
             {tag}
             <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="hover:text-red-500">×</button>
           </span>
@@ -343,7 +343,7 @@ function PricingForm({ onSave, onClose }: { onSave: () => void; onClose: () => v
 function Footer({ saving, onSave, onClose, disabled }: { saving: boolean; onSave: () => void; onClose: () => void; disabled?: boolean }) {
   return (
     <div className="flex justify-end gap-2 border-t border-[#111111]/10 pt-4">
-      <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Cancel</button>
+      <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-pine-50">Cancel</button>
       <button type="button" onClick={onSave} disabled={saving || disabled} className="flex items-center gap-2 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
         <Plus className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Add"}
       </button>
@@ -397,7 +397,7 @@ export function KnowledgeAddModal({ open, defaultSection, onClose, onSaved }: {
               {section ? `Add ${SECTION_LABELS[section]}` : "What would you like to add?"}
             </h2>
           </div>
-          <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:bg-[#F5F8F8]">
+          <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:bg-pine-50">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -411,7 +411,7 @@ export function KnowledgeAddModal({ open, defaultSection, onClose, onSaved }: {
                   key={key}
                   type="button"
                   onClick={() => setSection(key)}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left transition-all hover:border-[#122428]/40 hover:bg-[#F5F8F8]"
+                  className="rounded-xl border border-[#111111]/10 p-4 text-left transition-all hover:border-[#122428]/40 hover:bg-pine-50"
                 >
                   <p className="font-semibold text-[#111111] text-sm">{label}</p>
                 </button>

@@ -19,13 +19,13 @@ const TASK_TYPE_LABEL: Record<string, string> = {
 };
 
 const TASK_TYPE_BADGE: Record<string, string> = {
-  follow_up: "bg-amber-100 text-amber-700",
-  call: "bg-sky-100 text-sky-700",
-  email: "bg-violet-100 text-violet-700",
-  meeting: "bg-blue-100 text-blue-700",
-  admin: "bg-[#111111]/8 text-[#5F686A]",
-  research: "bg-teal-100 text-teal-700",
-  other: "bg-[#111111]/8 text-[#5F686A]",
+  follow_up: "bg-acid/50 text-ink",
+  call: "bg-pine-100 text-pine-800",
+  email: "bg-pine-900/10 text-pine-900",
+  meeting: "bg-pine-50 text-pine-900 border border-pine-900/12",
+  admin: "bg-white text-muted border border-pine-900/12",
+  research: "bg-pine-100 text-pine-800",
+  other: "bg-white text-muted border border-pine-900/12",
 };
 
 const fieldClass =
@@ -70,7 +70,7 @@ function FormSelect({
             <button
               type="button"
               onClick={() => { setOpen(false); onChange(""); }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#F5F8F8] ${!value ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-pine-50 ${!value ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
             >
               {placeholder}
             </button>
@@ -80,7 +80,7 @@ function FormSelect({
               key={opt.value}
               type="button"
               onClick={() => { setOpen(false); onChange(opt.value); }}
-              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-[#F5F8F8] ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
+              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-pine-50 ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
             >
               <span>{opt.label}</span>
               {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
@@ -253,7 +253,7 @@ export function HubTasksTab({
           >
             <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <p className="text-sm font-semibold text-[#111111]">New task — {entityLabel}</p>
-              <button type="button" onClick={() => setAddingTask(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
+              <button type="button" onClick={() => setAddingTask(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50">
                 <Plus className="h-4 w-4 rotate-45" />
               </button>
             </div>
@@ -311,7 +311,7 @@ export function HubTasksTab({
               <button
                 type="button"
                 onClick={() => setAddingTask(false)}
-                className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"
               >
                 Cancel
               </button>
@@ -542,7 +542,7 @@ export function HubTasksTab({
                     onClick={() => onMarkUndone?.(t.id)}
                     disabled={!onMarkUndone}
                     title={onMarkUndone ? "Mark as not done" : undefined}
-                    className="grid h-4 w-4 shrink-0 place-items-center rounded border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 disabled:cursor-default"
+                    className="grid h-4 w-4 shrink-0 place-items-center rounded border border-pine-900/20 bg-acid/40 hover:bg-acid/60 disabled:cursor-default"
                   >
                     <Check className="h-3 w-3 text-emerald-600" />
                   </button>

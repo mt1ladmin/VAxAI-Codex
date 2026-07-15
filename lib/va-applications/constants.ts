@@ -55,14 +55,14 @@ export const VA_STATUS_LABELS: Record<VaApplicationStatus, string> = {
   not_suitable: "Not suitable",
 };
 
-/** Palette: cream, pine, white, ink — no yellow/rainbow chrome */
+/** Palette: white, pine-900, acid lime, ink — matches public site */
 export const VA_STATUS_COLORS: Record<VaApplicationStatus, string> = {
-  new: "bg-cream text-pine-900 border border-pine-900/10",
+  new: "bg-acid text-ink border border-acid",
   contacted: "bg-white text-pine-800 border border-pine-900/15",
-  verified: "bg-pine-50 text-pine-900 border border-pine-900/10",
+  verified: "bg-white text-pine-900 border border-pine-900/20",
   approved: "bg-white text-pine-900 border border-pine-900/20",
   joined: "bg-pine-900 text-paper",
-  not_suitable: "bg-cream/80 text-muted border border-pine-900/10",
+  not_suitable: "bg-white text-muted border border-pine-900/10",
 };
 
 /** Statuses shown on the Applications (pipeline) tab */

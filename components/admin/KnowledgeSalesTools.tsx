@@ -6,11 +6,11 @@ import type { EngagementScript, Objection, PricingRule } from "@/lib/engagement/
 import { AppSelect } from "@/components/ui/AppSelect";
 
 const CHANNEL_COLORS: Record<string, string> = {
-  email: "bg-purple-50 text-purple-700",
-  linkedin: "bg-sky-50 text-sky-700",
-  phone: "bg-blue-50 text-blue-700",
-  "in-person": "bg-amber-50 text-amber-700",
-  general: "bg-gray-100 text-gray-600",
+  email: "bg-pine-900/10 text-pine-900",
+  linkedin: "bg-pine-100 text-pine-800",
+  phone: "bg-pine-50 text-pine-900 border border-pine-900/12",
+  "in-person": "bg-acid/50 text-ink",
+  general: "bg-white text-muted border border-pine-900/12",
 };
 
 function normalize(value: string | null | undefined): string {
@@ -44,7 +44,7 @@ function ConfirmDelete({ onConfirm, onCancel, saving }: { onConfirm: () => void;
       <button type="button" onClick={onConfirm} disabled={saving} className="rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50 hover:bg-red-700">
         {saving ? "Deleting…" : "Yes, delete"}
       </button>
-      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Cancel</button>
+      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#5F686A] hover:bg-pine-50">Cancel</button>
     </div>
   );
 }
@@ -128,7 +128,7 @@ function PricingCard({ rule, onSaved }: { rule: PricingRule; onSaved: () => void
         {rule.description && <p className="mt-2 text-sm text-[#5F686A]">{rule.description}</p>}
         {rule.inclusions && rule.inclusions.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {rule.inclusions.map((i) => <span key={i} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{i}</span>)}
+            {rule.inclusions.map((i) => <span key={i} className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{i}</span>)}
           </div>
         )}
       </div>
@@ -149,7 +149,7 @@ function PricingCard({ rule, onSaved }: { rule: PricingRule; onSaved: () => void
       </div>
       <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Description<textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} className={`mt-1 ${TEXTAREA}`} /></label>
       <div className="flex justify-end gap-2 pt-1">
-        <button type="button" onClick={() => { resetDraft(); setEditing(false); }} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+        <button type="button" onClick={() => { resetDraft(); setEditing(false); }} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"><X className="h-3.5 w-3.5" /> Cancel</button>
         <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
       </div>
     </div>
@@ -222,7 +222,7 @@ function ScriptCard({ script, onSaved }: { script: EngagementScript; onSaved: ()
             <p className="font-semibold text-[#111111]">{script.title}</p>
             <div className="mt-1 flex flex-wrap gap-1.5">
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${CHANNEL_COLORS[script.channel] || "bg-gray-100 text-gray-600"}`}>{script.channel}</span>
-              {[script.block_type, script.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{tag}</span>)}
+              {[script.block_type, script.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{tag}</span>)}
               {script.audience_type && <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold text-blue-600">{script.audience_type}</span>}
             </div>
           </div>
@@ -238,7 +238,7 @@ function ScriptCard({ script, onSaved }: { script: EngagementScript; onSaved: ()
             )}
           </div>
         </div>
-        <div className="rounded-lg bg-[#F5F8F8] px-4 py-3"><p className="whitespace-pre-wrap text-sm text-[#111111]">{script.content}</p></div>
+        <div className="rounded-lg bg-white px-4 py-3"><p className="whitespace-pre-wrap text-sm text-[#111111]">{script.content}</p></div>
         {script.last_reviewed && <p className="mt-2 text-[10px] text-[#5F686A]">Reviewed {new Date(script.last_reviewed).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}{script.content_owner ? ` by ${script.content_owner}` : ""}</p>}
       </div>
     );
@@ -261,7 +261,7 @@ function ScriptCard({ script, onSaved }: { script: EngagementScript; onSaved: ()
       </div>
       <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Content<textarea rows={6} value={draft.content} onChange={(e) => setDraft((d) => ({ ...d, content: e.target.value }))} className={`mt-1 ${TEXTAREA}`} /></label>
       <div className="flex justify-end gap-2 pt-1">
-        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"><X className="h-3.5 w-3.5" /> Cancel</button>
         <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
       </div>
     </div>
@@ -350,7 +350,7 @@ function ObjectionCard({ objection, onSaved }: { objection: Objection; onSaved: 
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="mb-2 flex items-center gap-2">
-              {[objection.category, objection.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{tag}</span>)}
+              {[objection.category, objection.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{tag}</span>)}
             </div>
             <div className="mb-3 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3">
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">Objection</p>
@@ -399,7 +399,7 @@ function ObjectionCard({ objection, onSaved }: { objection: Objection; onSaved: 
         </div>
       </label>
       <div className="flex justify-end gap-2 pt-1">
-        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"><X className="h-3.5 w-3.5" /> Cancel</button>
         <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
       </div>
     </div>
@@ -447,7 +447,7 @@ export function ObjectionsPanel() {
 
 function CopyButton({ copied, onClick }: { copied: boolean; onClick: () => void }) {
   return (
-    <button onClick={onClick} className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${copied ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"}`}>
+    <button onClick={onClick} className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${copied ? "border-pine-900 bg-acid/50 text-ink" : "border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"}`}>
       <Copy className="h-3.5 w-3.5" /> {copied ? "Copied!" : "Copy"}
     </button>
   );

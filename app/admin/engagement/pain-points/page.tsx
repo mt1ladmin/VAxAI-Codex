@@ -115,7 +115,7 @@ export default function PainPointNavigator() {
                 <div key={cat} className="rounded-xl border border-[#111111]/10 overflow-hidden">
                   <button
                     onClick={() => toggle(cat)}
-                    className="flex w-full items-center justify-between px-5 py-4 bg-[#F5F8F8] hover:bg-[#f0ead8] transition-colors"
+                    className="flex w-full items-center justify-between px-5 py-4 bg-white hover:bg-[#f0ead8] transition-colors"
                   >
                     <span className="font-semibold text-[#111111] text-sm">{cat}</span>
                     <div className="flex items-center gap-2">
@@ -135,7 +135,7 @@ export default function PainPointNavigator() {
                         <Link
                           key={pp.id}
                           href={`/admin/engagement/pain-points/${pp.id}`}
-                          className="flex items-start justify-between px-5 py-4 hover:bg-[#F5F8F8] transition-colors group"
+                          className="flex items-start justify-between px-5 py-4 hover:bg-pine-50 transition-colors group"
                         >
                           <div className="min-w-0">
                             <p className="font-semibold text-[#111111] group-hover:text-[#122428] transition-colors">

@@ -203,7 +203,7 @@ export default function CreateContentPage() {
             </div>
 
             {topicError ? (
-              <p className="mt-3 rounded-xl border border-pine-900/15 bg-cream px-3 py-2 text-sm text-pine-900">
+              <p className="mt-3 rounded-xl border border-pine-900/15 bg-white px-3 py-2 text-sm text-pine-900">
                 {topicError}
                 {topicError.includes("schema") || topicError.includes("relation")
                   ? " Run the studio_content_topics migration in Supabase if you have not already."
@@ -264,7 +264,7 @@ export default function CreateContentPage() {
                         className={`flex w-full items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors ${
                           on
                             ? "border-pine-900/30 bg-pine-50/80"
-                            : "border-pine-900/10 bg-white hover:border-pine-900/20 hover:bg-cream/50"
+                            : "border-pine-900/10 bg-white hover:border-pine-900/20 hover:bg-pine-50"
                         }`}
                       >
                         <span
@@ -279,7 +279,7 @@ export default function CreateContentPage() {
                           <span className="flex flex-wrap items-center gap-2">
                             <span className="text-sm font-semibold text-pine-900">{topic.title}</span>
                             {topic.source === "ai" ? (
-                              <span className="rounded-full bg-cream px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted">
+                              <span className="rounded-full bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted">
                                 Live
                               </span>
                             ) : null}
