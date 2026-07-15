@@ -464,10 +464,8 @@ export default function Home() {
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              VAxAI helps founders, small and medium-sized
-              businesses (SMEs), charities and public sector organisations organise information, clear
-              administrative backlogs and prepare for AI and automation, without adding pressure to
-              already stretched teams.
+              We provide practical admin support that helps founders, SMEs, charities, and public sector organisations prepare their information, 
+              processes and systems for AI and automation, while clearing backlogs and keeping everyday operations running smoothly.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
