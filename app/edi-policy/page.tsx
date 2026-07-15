@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 
 export default function JefPolicyPage() {
   return (
-    <PolicyPage title="JEF Policy" lastUpdated="June 2025">
+    <PolicyPage title="JEF Policy" lastUpdated="July 2026">
       <p>
         Justice, Equity and Fairness (JEF) are embedded in the VAT Framework&trade; that guides MT1L
         and VAxAI. This policy explains what that means in practice, including how we understand
-        social mobility and how these principles shape the way VAxAI supports founders, charities,
-        small businesses and busy teams.
+        social mobility and how these principles shape the way VAxAI supports founders, SMEs,
+        charities, non-profits and public sector organisations.
       </p>
 
       <h2>More than one label</h2>
@@ -58,9 +58,9 @@ export default function JefPolicyPage() {
       </p>
       <p>
         Rather than adding inclusion or fairness at the end, we build these questions into the way
-        VAxAI support is designed from the start, including how we review admin pressure,
-        recommend tools, use AI, design workflows, provide virtual assistance and work with
-        collaborators.
+        VAxAI support is designed from the start, including how we review administrative pressure,
+        clear backlogs, prepare organisations for AI and automation, design workflows, provide
+        ongoing admin support and work with collaborators.
       </p>
 
       <h2>Embedded in the VAT Framework&trade;</h2>
@@ -106,9 +106,10 @@ export default function JefPolicyPage() {
       </div>
       <p>
         VAxAI is designed to support people and organisations that may not have large teams,
-        specialist infrastructure or extensive operational capacity. By helping clients reduce
-        administrative pressure, improve workflows and use AI or automation appropriately, we aim to
-        make support more accessible, practical and proportionate.
+        specialist infrastructure or extensive operational capacity. By helping clients build stronger
+        administrative foundations first, reduce backlogs, improve workflows and prepare for AI or
+        automation only where it is appropriate, we aim to make support more accessible, practical
+        and proportionate.
       </p>
 
       <h2>How this shows up in our work</h2>
@@ -122,14 +123,14 @@ export default function JefPolicyPage() {
           understand the client&rsquo;s real working conditions before recommending tools, AI,
           automation or admin support;
         </li>
-        <li>avoid assuming that technology is always the best answer;</li>
+        <li>avoid assuming that technology is always the best answer, and start with foundations rather than tools;</li>
         <li>
           consider where human judgement, reassurance, accessibility or personal support may be more
           valuable than automation;
         </li>
         <li>
-          help clients build workflows and services that are clearer, fairer, more inclusive and
-          more trusted; and
+          help clients build organised information, clearer workflows and services that are fairer,
+          more inclusive and more trusted; and
         </li>
         <li>
           challenge AI or automation proposals that risk embedding, amplifying or obscuring existing

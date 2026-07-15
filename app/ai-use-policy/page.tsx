@@ -8,14 +8,14 @@ export const metadata: Metadata = {
 
 export default function AiUsePolicyPage() {
   return (
-    <PolicyPage title="AI Use Policy" lastUpdated="June 2025">
+    <PolicyPage title="AI Use Policy" lastUpdated="July 2026">
       <div className="callout">
-        VAxAI is a service provided by MT1L. MT1L helps organisations decide whether a change creates genuine Value, fits the organisation (Alignment) and can be Trusted by the people affected. We hold our own use of AI to the same standard. This policy explains, in plain English, where we use AI, how it works and how we keep human judgement at the centre.
+        VAxAI is a service provided by MT1L. VAxAI helps organisations reduce administrative pressure and prepare for AI and automation with people in the loop. MT1L&rsquo;s VAT Framework asks whether a change creates genuine Value, fits the organisation (Alignment) and can be Trusted by the people affected. We hold our own use of AI to the same standard. This policy explains, in plain English, where we use AI, how it works and how we keep human judgement at the centre.
       </div>
 
       <h2>Our approach</h2>
       <p>
-        We use AI deliberately rather than by default. Wherever we can, we keep our use proportionate — choosing AI where it adds genuine value to our work and our clients, and leaving it out where it does not. AI supports what we do; it does not replace the thinking behind it.
+        We use AI deliberately rather than by default. Strong administrative foundations come first: organised information, reliable data and clear processes. AI supports that work; it does not replace it. Wherever we can, we keep our use proportionate — choosing AI where it adds genuine value to our work and our clients, and leaving it out where it does not.
       </p>
       <p>
         We are open about where we use it, and we never require anyone else to use it to work with us. A fully human route is always available at every stage.
@@ -25,7 +25,7 @@ export default function AiUsePolicyPage() {
       <p>We use AI in a small number of clearly defined ways:</p>
       <ul>
         <li>
-          <strong>Consulting and service delivery.</strong> AI helps us analyse information, explore a landscape quickly, surface considerations across Value, Alignment and Trust, and sense-check thinking we have already developed. A consultant always reviews, adjusts and takes responsibility for the final output.
+          <strong>Service delivery and readiness work.</strong> AI helps us analyse information, organise material, surface considerations across Value, Alignment and Trust, and sense-check thinking we have already developed during Admin Reviews, project work and ongoing support. A person always reviews, adjusts and takes responsibility for the final output.
         </li>
         <li>
           <strong>Drafting and editing.</strong> We use AI to help draft, edit and structure text — for example, tidying wording, checking for clarity, or shaping a first draft that we then review and own. We do not use AI to generate ideas we have not worked through ourselves first. A person always reviews and owns what goes out.
@@ -34,7 +34,7 @@ export default function AiUsePolicyPage() {
           <strong>Everyday administration.</strong> We use AI to support routine administrative tasks — summarising, organising, preparing materials — so more time is available for the work that genuinely needs human attention.
         </li>
         <li>
-          <strong>Designing services and building solutions.</strong> We use AI to help design services and develop digital solutions alongside hands-on design and engineering. This includes bespoke tools and work on this website — always alongside, not instead of, human decision-making.
+          <strong>Internal tools and this website.</strong> We may use AI to help design internal workflows and digital tools that support delivery, always alongside, not instead of, human decision-making. We do not build complex or enterprise AI systems for clients ourselves; where that is needed, we can work with trusted external partners on your behalf.
         </li>
       </ul>
 
@@ -59,7 +59,7 @@ export default function AiUsePolicyPage() {
         We do not have a view on whether you use AI yourself. We do not require you to interact with any AI tool to work with us, and a fully human route is always available — you can work with our team directly at every stage.
       </p>
       <p>
-        We recognise that people have different relationships with AI: some embrace it, some are cautious, some have principled objections, and some face practical barriers to access. All of those positions are reasonable. Our role is to help organisations make informed, considered decisions about AI — not to assume that using it is the right answer for everyone.
+        We recognise that people have different relationships with AI: some embrace it, some are cautious, some have principled objections, and some face practical barriers to access. All of those positions are reasonable. Our role is to help organisations make informed, considered decisions about AI and automation — including when the better answer is stronger foundations, clearer processes or human support rather than a new tool.
       </p>
 
       <h2>How it works</h2>

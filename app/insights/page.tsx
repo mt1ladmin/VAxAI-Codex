@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata = createPageMetadata({
   title: "Insights | VAxAI",
   description:
-    "Insights, guides and resources from VAxAI on admin foundations, backlogs, AI readiness and keeping the human in the loop.",
+    "Insights, guides and resources from VAxAI on admin foundations, backlogs, AI readiness and keeping people in the loop.",
   path: "/insights",
 });
 
@@ -65,7 +65,7 @@ export default async function InsightsPage() {
         <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#D8FC2E]/80">Insights</p>
         <h1 className="text-3xl font-bold text-white sm:text-4xl">Insights &amp; resources</h1>
         <p className="mx-auto mt-3 max-w-xl text-base text-white/60">
-          Practical thinking on admin foundations, backlogs, AI readiness and keeping the human in the loop, from VAxAI.
+          Practical thinking on admin foundations, backlogs, AI readiness and keeping people in the loop, from VAxAI.
         </p>
       </div>
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">

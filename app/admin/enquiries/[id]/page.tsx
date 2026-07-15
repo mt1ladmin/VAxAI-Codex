@@ -84,8 +84,10 @@ type Enquiry = {
 };
 
 const SUPPORT_TYPES_DETAIL = [
-  "Admin Review",
-  "Admin Support",
+  "Reduce backlog",
+  "Prepare for AI and automation",
+  "Ongoing admin support",
+  "Maintain and improve",
   "Access to Work",
   "General enquiry",
 ];
@@ -578,8 +580,10 @@ function EnquiryDetailContent() {
                 value={clientService}
                 onChange={setClientService}
                 options={[
-                  { value: "Admin Review", label: "Admin Review" },
-                  { value: "Admin Support", label: "Admin Support" },
+                  { value: "Reduce backlog", label: "Reduce backlog" },
+                  { value: "Prepare for AI and automation", label: "Prepare for AI and automation" },
+                  { value: "Ongoing admin support", label: "Ongoing admin support" },
+                  { value: "Maintain and improve", label: "Maintain and improve" },
                   { value: "Access to Work", label: "Access to Work" },
                   { value: "General enquiry", label: "General enquiry" },
                   { value: "Other", label: "Other (specify below)" },

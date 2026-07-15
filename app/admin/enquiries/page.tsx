@@ -80,8 +80,10 @@ const DISCOVERY_FILTER_OPTIONS: { value: DiscoveryFilter; label: string }[] = [
 ];
 
 const SUPPORT_TYPES = [
-  "Admin Review",
-  "Admin Support",
+  "Reduce backlog",
+  "Prepare for AI and automation",
+  "Ongoing admin support",
+  "Maintain and improve",
   "Access to Work",
   "General enquiry",
 ];

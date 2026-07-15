@@ -12,7 +12,7 @@ const audienceLinks = [
   { label: "Founders & Entrepreneurs", href: "/founders-entrepreneurs", image: "/founder-laptop-graph-meeting.jpg" },
   { label: "SMEs", href: "/small-business", image: "/small-business-boxes.jpg" },
   { label: "Charities & Non-Profits", href: "/charities-non-profits", image: "/charity-volunteers-garden.jpg" },
-  { label: "Public Sector", href: "/public-sector", image: "/admin-systems-team.jpg" },
+  { label: "Public Sector", href: "/public-sector", image: "/istockphoto-1206317971-612x612.jpg" },
 ];
 
 export default function SiteNav({ variant = "dark" }: Props) {
