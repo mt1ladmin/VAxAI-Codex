@@ -47,44 +47,24 @@ const helpCards = [
     copy: "Clear the work that has built up and restore control.",
     href: "/how-we-help#area-backlog",
     linkLabel: "Explore backlog support",
-    bullets: [
-      "A cleared admin backlog",
-      "Records you can find and trust",
-      "Outstanding work brought up to date",
-    ],
   },
   {
     title: "AI & automation readiness",
     copy: "Create the organised information technology needs to work.",
     href: "/how-we-help#area-ai",
     linkLabel: "Explore AI readiness",
-    bullets: [
-      "Information tools can rely on",
-      "Processes written down clearly",
-      "Safer ground for automation",
-    ],
   },
   {
     title: "Ongoing admin support",
     copy: "Keep essential work moving without stretching your team.",
     href: "/how-we-help#area-ongoing",
     linkLabel: "Explore support services",
-    bullets: [
-      "Inboxes and diaries under control",
-      "Day-to-day admin off your plate",
-      "Capacity back for your core work",
-    ],
   },
   {
     title: "Maintain & improve",
     copy: "Stop problems returning after the hard work is done.",
     href: "/how-we-help#area-maintain",
     linkLabel: "Explore maintenance",
-    bullets: [
-      "Backlogs that stay cleared",
-      "Systems that stay reliable",
-      "Problems caught early",
-    ],
   },
 ];
 
@@ -367,15 +347,7 @@ function HelpCard({ card }: { card: (typeof helpCards)[number] }) {
         className="group flex h-full flex-col rounded-3xl border border-ink/8 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift md:p-7"
       >
         <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{card.title}</h3>
-        <p className="mt-2 text-sm leading-6 text-muted">{card.copy}</p>
-        <ul className="mt-4 flex-1 space-y-2">
-          {card.bullets.map((bullet) => (
-            <li key={bullet} className="flex gap-2 text-sm leading-5 text-muted">
-              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-pine-800" aria-hidden="true" />
-              <span>{bullet}</span>
-            </li>
-          ))}
-        </ul>
+        <p className="mt-2 flex-1 text-sm leading-6 text-muted">{card.copy}</p>
         <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-pine-800">
           {card.linkLabel}
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
@@ -732,7 +704,7 @@ export default function Home() {
               <ul className="mt-5 space-y-3 text-sm leading-6 text-paper/75">
                 <li>Clear admin backlogs and organise information</li>
                 <li>Keep everyday systems and inboxes moving</li>
-                <li>Support AI and automation readiness where it adds value</li>
+                <li>Support AI and automation readiness</li>
                 <li>Help stop problems returning after the hard work is done</li>
               </ul>
             </div>
