@@ -161,7 +161,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
                   value={supportType}
                   onChange={setSupportType}
                   options={[
-                    { value: "Admin Review", label: "Admin Review" },
+                    { value: "Admin Review", label: "Free Admin Review" },
                     { value: "Admin Support", label: "Admin Support" },
                     { value: "Access to Work", label: "Access to Work" },
                     { value: "General enquiry", label: "General enquiry" },

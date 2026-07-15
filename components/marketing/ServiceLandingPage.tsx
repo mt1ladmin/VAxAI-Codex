@@ -17,6 +17,7 @@ import type {
 import {
   sharedAccessToWork,
   sharedOngoingSupportDescription,
+  sharedPricingBasis,
   sharedVaSetupIncluded,
 } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ const HERO_IMAGES: Record<string, string> = {
   "founders-entrepreneurs": "/founder-laptop-graph-meeting.jpg",
   "small-business": "/small-business-boxes.jpg",
   "charities-non-profits": "/charity-volunteers-garden.jpg",
+  "public-sector": "/admin-systems-team.jpg",
 };
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -364,15 +366,28 @@ function PricingPanelContent({
     <div className="px-6 py-7 md:px-8 md:py-8">
       <Eyebrow>Pricing</Eyebrow>
       <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
-        Our Pricing Structure
+        How Our Pricing Works
       </h2>
       <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricingIntro}</p>
 
+      <div className="mt-6 max-w-3xl rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+          {sharedPricingBasis.heading}
+        </p>
+        <div className="mt-3 space-y-3 text-sm leading-7 text-muted md:text-[15px]">
+          {sharedPricingBasis.paragraphs.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
+        </div>
+      </div>
+
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
         <article className="flex flex-col rounded-3xl border border-pine-900/15 bg-cream/50 px-6 py-7 md:px-8">
-          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Full Setup Package</h3>
-          <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">{pricing.fullSetupPrice}</p>
-          <p className="mt-6 text-sm font-medium text-ink md:text-[15px]">This includes:</p>
+          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Project Work &amp; Full Setup</h3>
+          <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
+            Scoped and priced around your organisation, agreed before work begins
+          </p>
+          <p className="mt-6 text-sm font-medium text-ink md:text-[15px]">A full setup can include:</p>
           <ul className="mt-4 space-y-3">
             {fullSetupIncludes.map((item) => (
               <li key={item} className="flex gap-3">
@@ -383,6 +398,11 @@ function PricingPanelContent({
               </li>
             ))}
           </ul>
+          {pricing.paymentPlanNote ? (
+            <p className="mt-6 rounded-2xl border border-pine-900/10 bg-white/70 px-5 py-4 text-sm leading-7 text-muted md:text-[15px]">
+              {pricing.paymentPlanNote}
+            </p>
+          ) : null}
           <div className="mt-8 border-t border-ink/10 pt-6">
             <p className="text-sm font-semibold text-ink md:text-base">{sharedVaSetupIncluded.title}</p>
             <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">
@@ -392,13 +412,13 @@ function PricingPanelContent({
         </article>
 
         <article className="flex flex-col rounded-3xl border border-ink/5 bg-white px-6 py-7 shadow-card md:px-8">
-          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Ongoing Support</h3>
+          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Ongoing Admin Support</h3>
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">{pricing.ongoingSupportPrice}</p>
           <p className="mt-6 flex-1 text-sm leading-7 text-muted md:text-[15px]">
             {sharedOngoingSupportDescription}
           </p>
           <p className="mt-6 text-sm leading-7 text-muted md:text-[15px]">
-            For clients who already have systems in place or have completed the Full Setup Package.
+            For clients who already have systems in place or have completed a full setup with us.
           </p>
         </article>
       </div>
@@ -473,7 +493,7 @@ function PricingBenefitsPanelContent({
         <p className="mt-8 max-w-3xl text-base font-medium leading-8 text-pine-800">{section.closing}</p>
       ) : null}
       <button type="button" onClick={onContact} className={`${btn.accent} mt-8`}>
-        Start your workflow review
+        Get your free Admin Review
         <ArrowRight className="h-4 w-4" />
       </button>
     </div>
@@ -705,7 +725,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 </motion.p>
                 <motion.div variants={fadeUp} className="mt-10 flex flex-wrap gap-4">
                   <button type="button" onClick={() => setContactOpen(true)} className={btn.accent}>
-                    Start your workflow review
+                    Get your free Admin Review
                     <ArrowRight className="h-4 w-4" />
                   </button>
                   {page.heroHasAccessCta ? (
@@ -794,8 +814,8 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                   Ready to understand where support would help most?
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                  We start with how work happens today, then recommend the right mix of virtual assistance, AI,
-                  automation, better processes and human support for your context.
+                  Start with a free Admin Review: a structured review of your administrative operations, free and with no obligation.
+                  We&apos;ll look at where pressure is building and tell you honestly what would help, and what wouldn&apos;t.
                 </p>
                 <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>
                   Book a discovery call

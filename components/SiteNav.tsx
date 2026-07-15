@@ -10,8 +10,9 @@ type Props = {
 
 const audienceLinks = [
   { label: "Founders & Entrepreneurs", href: "/founders-entrepreneurs", image: "/founder-laptop-graph-meeting.jpg" },
-  { label: "Small Business", href: "/small-business", image: "/small-business-boxes.jpg" },
+  { label: "SMEs", href: "/small-business", image: "/small-business-boxes.jpg" },
   { label: "Charities & Non-Profits", href: "/charities-non-profits", image: "/charity-volunteers-garden.jpg" },
+  { label: "Public Sector", href: "/public-sector", image: "/admin-systems-team.jpg" },
 ];
 
 export default function SiteNav({ variant = "dark" }: Props) {
@@ -91,7 +92,8 @@ export default function SiteNav({ variant = "dark" }: Props) {
             </div>
           ) : null}
         </div>
-        <a href="/#experts" className={linkClass}>About</a>
+        <a href="/how-we-help" className={linkClass}>How we help</a>
+        <a href="/about" className={linkClass}>About</a>
         <a href="/#faq" className={linkClass}>FAQ</a>
         <a href="/insights" className={`${isDark ? "text-[#D8FC2E]/80 hover:text-[#D8FC2E]" : "text-[#122428] hover:text-[#122428]/80"} font-semibold`}>
           Insights & Resources
@@ -133,7 +135,8 @@ export default function SiteNav({ variant = "dark" }: Props) {
             </a>
           ))}
           {[
-            { label: "About", href: "/#experts" },
+            { label: "How we help", href: "/how-we-help" },
+            { label: "About", href: "/about" },
             { label: "FAQ", href: "/#faq" },
             { label: "Insights & Resources", href: "/insights" },
           ].map(({ label, href }) => (

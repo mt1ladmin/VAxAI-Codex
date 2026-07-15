@@ -4,22 +4,40 @@ export type JourneyStage = {
 };
 
 export type AudiencePricing = {
-  fullSetupPrice: string;
   ongoingSupportPrice: string;
+  paymentPlanNote?: string;
+};
+
+export const sharedPricingBasis = {
+  heading: "Why we don't publish fixed prices",
+  paragraphs: [
+    "Every organisation's admin is different, so a fixed price would either overcharge you or under-scope the work. Project pricing is based on the scope of the work, its complexity, the timeframe for delivery and how much hands-on admin support is needed alongside it.",
+    "To keep estimates honest, we always test on a small scale first, then use what we learn to assess what the full project involves. The cost is agreed with you before any work begins, so there are no surprises.",
+  ],
 };
 
 export const sharedFullSetupIncludes = [
-  "Thorough review of your current workflows and systems",
+  "A thorough review of your current workflows, systems and information",
+  "Backlog clearing and organisation of documents, records and data",
   "Practical improvements to your existing tools and processes",
-  "Targeted AI and automation only where they genuinely add value",
-  "Upskilling you and your team on any AI tools you already use, or training on new ones if beneficial",
+  "AI and automation readiness, with targeted tools only where they genuinely add value",
+  "Upskilling your team on any AI tools you already use, or training on new ones if beneficial",
 ];
 
 const foundersFullSetupIncludes = [
-  "Thorough review of your current workflows, tools and automations",
+  "A thorough review of your workflows, tools, information and automations",
+  "Backlog clearing and organisation of your documents, records and data",
   "Practical improvements to your existing tools and processes",
-  "Targeted AI and automation only where they genuinely add value",
+  "AI and automation readiness, with targeted tools only where they genuinely add value",
   "One-to-one upskilling on any AI tools you already use, or training on new ones if beneficial",
+];
+
+const publicSectorFullSetupIncludes = [
+  "A thorough review of your workflows, records and information management",
+  "Backlog clearing and organisation of records, correspondence and data",
+  "Practical improvements to your existing tools and processes",
+  "AI and automation readiness, mapped to your governance and information-handling requirements",
+  "Upskilling your team on any tools that are introduced or already in use",
 ];
 
 export const sharedVaSetupIncluded = {
@@ -29,7 +47,7 @@ export const sharedVaSetupIncluded = {
 };
 
 export const sharedOngoingSupportDescription =
-  "Support is flexible. You only pay for hours used. Simpler setups need fewer hours.";
+  "Day-to-day admin support as and when you need it, available as monthly or quarterly arrangements. Support is flexible and you only pay for hours used. Simpler setups need fewer hours.";
 
 export type AudienceSection = {
   heading: string;
@@ -53,9 +71,9 @@ export const sharedAccessToWork = {
 };
 
 const sharedWorkWithUsBullets = [
-  "Lower overall cost: You get skilled support without the full overhead of employment, as the VA manages their own taxes, insurance, and benefits.",
-  "Pay only for what you need: AI and automation handle repetitive work, so human support is mainly for oversight, exceptions, and maintenance. Because your VA deeply understands your systems, you typically need even fewer hours over time.",
-  "Full flexibility: Scale support up or down easily with no long-term commitment.",
+  "Lower overall cost: You get skilled, dedicated support without the overhead of employment, and without pulling your own people away from the work only they can do.",
+  "Pay only for what you need: Once the groundwork is done and the right tasks are automated, human support is mainly for oversight, exceptions and upkeep, so hours typically reduce over time.",
+  "Full flexibility: Scale support up or down, monthly or quarterly, with no long-term commitment, and costs agreed up front so there are no surprises.",
 ];
 
 export type AudiencePage = {
@@ -83,40 +101,39 @@ export type AudiencePage = {
 export const audiencePages: AudiencePage[] = [
   {
     slug: "founders-entrepreneurs",
-    metaTitle: "Virtual Assistant & Admin Support for Founders UK",
+    metaTitle: "Admin Support & AI Readiness for Founders UK",
     metaDescription:
-      "VAxAI helps UK founders and entrepreneurs reduce inbox pressure, follow-up gaps and admin overload with tailored virtual assistance, practical workflows, and AI or automation only where helpful.",
-    serviceType: "Virtual assistance and admin support for founders",
+      "VAxAI helps UK founders and entrepreneurs clear admin backlogs, organise information, prepare for AI and automation, and keep the everyday admin of running a business moving with reliable human support.",
+    serviceType: "Admin support and AI readiness for founders",
     audienceName: "Founders & Entrepreneurs",
-    title: "Support built around how you use AI and run your business",
+    title: "Reduce the admin, so you can focus on growth",
     intro:
-      "Founders and entrepreneurs are increasingly running their business with AI: drafting content, automating admin and generating ideas faster than ever. But speed creates its own pressure. AI-generated work still needs reviewing, tools and automations still need managing, and with fewer resources than bigger competitors, you are often doing all of it alone, on top of the ordinary admin of running a business that was never about AI in the first place. VAxAI starts with an Admin Review of how you run your business, then provides hands-on virtual assistant support, virtual or in person for things like a pitch, meeting or event, to help you decide what to automate, keep AI outputs and automations under control, handle the everyday admin, and take on the client-facing or judgement-based work you would rather keep human.",
+      "When you run a business alone, every unfiled document, unanswered email and half-finished system eventually lands back on you. AI can help, but only if the information and processes behind it are in order, and keeping them in order is itself a job. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear the backlog, organise your information, prepare the groundwork AI and automation need to actually work, and provide reliable human support, virtual or in person for a pitch, meeting or event, for the everyday admin and judgement calls you would rather keep human.",
     heroHasAccessCta: true,
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "Running a business alone means everything eventually lands on you, and AI has changed what that looks like rather than removed it. Instead of writing every email or proposal from scratch, you are now the one reading, judging and rewriting whatever AI hands you before it is good enough to send.",
-        "The outputs multiply faster than the decisions do. A single request can produce several drafts, a dozen ideas or three different approaches, and without someone else to sense-check them, working out which one is actually right for this client is still down to you.",
-        "It is not only outputs that pile up. Every automation you set up to save time, a booking flow, an email sequence, a reporting tool, still needs someone to configure it properly, watch for when it breaks, and update it as your business changes. Larger competitors have whole teams to manage this. As a solo founder, that layer of complexity sits with you too, on top of the work AI was meant to free up.",
-        "And underneath all of that is the admin that was never about AI in the first place: invoicing, chasing payments, scheduling, replying to routine enquiries, keeping records straight. That workload existed long before AI and it does not disappear once AI is in the picture, it just sits alongside the new layer of reviewing and maintaining. Whether or not you use AI at all yet, running a business alone still means carrying both.",
+        "Running a business alone means the admin never really stops. Files pile up in folders only you understand, the inbox fills faster than you can clear it, and the invoicing, scheduling and record-keeping that keep the business running always compete with the client work that actually pays for it.",
+        "AI looks like the way out, and it can genuinely help. But point an AI assistant at a shared drive full of duplicates, outdated versions and files it should never touch, and you get confident answers built on the wrong information. The groundwork has to come first, and as a solo founder there is no one else to do it.",
+        "The same is true of automation. Every booking flow, email sequence or reporting tool you set up to save time still needs configuring properly, watching for when it breaks, and updating as your business changes. Larger competitors have teams for this. For you, it is one more layer on top of everything else.",
+        "And underneath it all is the admin that was never about AI in the first place: chasing payments, replying to routine enquiries, keeping records straight. That workload existed before AI and it does not disappear once AI arrives. It just sits alongside the new work of reviewing outputs and maintaining tools.",
       ],
       bullets: [
-        "Multiple AI drafts, ideas or options for the same task, with no quick way to know which one is genuinely the best fit",
-        "Confident, polished AI outputs that still need a careful second read before you would trust them enough to send",
-        "Automations and tools that need setting up, monitoring and fixing when they quietly stop working",
-        "Hours spent reviewing AI-generated work and maintaining automations instead of doing client work or growth activity",
-        "No one else to sense-check a decision, a draft or a client-facing message before it goes out under your name",
-        "Trying to compete with better-resourced competitors while carrying all of this admin and oversight alone",
-        "The ordinary admin of running a business, invoicing, scheduling, inbox management, that needs doing whether or not AI is involved at all",
+        "A backlog of filing, invoicing, follow-ups or record-keeping that never quite gets cleared",
+        "Documents and information scattered across drives, inboxes and tools, hard to find when you need them",
+        "AI tools that produce confident but unreliable results because the information behind them is disorganised",
+        "Automations that need setting up, monitoring and fixing when they quietly stop working",
+        "Processes that exist only in your head, which makes delegating anything feel impossible",
+        "No one to sense-check a decision, a draft or a client-facing message before it goes out under your name",
+        "Evenings and weekends absorbed by admin instead of the growth work only you can do",
       ],
     },
     delayed: {
       heading: "What happens when support is delayed",
       paragraphs: [
-        "When admin stays dependent on the founder, the business becomes harder to grow without increasing pressure on the person at the centre of it.",
-        "Leads can go cold, client follow-ups can be missed, and valuable work can be delayed because day-to-day admin keeps taking priority. The risk is not only lost time. It is missed opportunities, inconsistent client experience, and a business that becomes harder to hand over, repeat or scale because too much still depends on you holding everything together.",
+        "When the groundwork keeps being postponed, the business becomes harder to grow without increasing pressure on the person at the centre of it.",
+        "Leads go cold, follow-ups get missed and valuable work is delayed because day-to-day admin keeps taking priority. The longer it runs, the harder the backlog is to clear, and the further away AI and automation get from being genuinely useful.",
       ],
-
       bullets: [
         "Missed leads and slower client follow-up",
         "Growth work being pushed behind urgent admin",
@@ -129,13 +146,14 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "Whether AI is already producing your first or second drafts and running a few automations, or you are still working out where it is worth the risk, the same things determine whether it actually helps: deciding what is genuinely worth automating, keeping the outputs and automations working once they are live, and having someone reliable for the ordinary admin and judgement calls you would rather keep human.",
+        "Whether you are already using AI day to day or still deciding whether it is worth the risk, the same things determine whether your admin gets lighter: clearing what has built up, organising the information and processes your business runs on, and having reliable human support for the work that should stay human. That is exactly how our support is structured.",
       ],
-      bulletsLabel: "Three types of support explained:",
+      bulletsLabel: "Four kinds of support explained:",
       bullets: [
-        "AI: Drafts client replies, proposals and content, and pulls together ideas so you are never starting from nothing.",
-        "Automation: Handles the repeat admin behind the scenes, quotes, reminders, bookings, once it has been set up properly and mapped to how you actually work.",
-        "Virtual assistance: A second pair of eyes on AI outputs and decisions, a person who keeps your automations running and catches when something breaks, and reliable support for the everyday admin and client-facing work you would rather a person handled, whether that is virtual or in person for a pitch, meeting or event.",
+        "Backlog recovery: We clear the filing, records, invoicing and follow-ups that have built up, so you are working from a clean slate instead of a growing pile.",
+        "AI & automation readiness: We organise your documents, data and processes so the tools you choose have accurate information to work from. We don't build or sell the AI itself, so our only interest is your readiness.",
+        "Ongoing admin support: A dedicated assistant handles the inbox, scheduling, invoicing and client admin day to day, and gives you a second pair of eyes on AI outputs before they go out under your name, virtually or in person for a pitch, meeting or event.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews stop the backlog rebuilding and catch problems while they are still small.",
       ],
     },
     how: {
@@ -144,15 +162,27 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Admin Review",
+          title: "Free Admin Review",
           paragraphs: [
-            "We start by looking at your admin in general, the invoicing, scheduling, inbox and client admin that comes with running a business, and where it is really coming from. We then look at the admin AI and automation have added on top, the drafts you double-check, the automations you monitor, to get a full picture. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or in person. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
+            "A structured review of how the admin in your business currently works, free and with no obligation. We look at what is going on: where pressure is building, where your systems need strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
           ],
         },
         {
-          title: "Admin Support",
+          title: "Scoping & small-scale test",
           paragraphs: [
-            "Once it is running, a dedicated virtual assistant reviews AI drafts and outputs against your standards, keeps your automations working as your business changes, and takes on the everyday admin and client-facing work you would rather keep human, so ideas, drafts and admin do not just pile up waiting for you to find time.",
+            "If you decide to go further, we scope the work properly: your admin in general, where it is really coming from, and what AI and automation have added on top. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf rather than building these ourselves.",
+          ],
+        },
+        {
+          title: "Prepare & support",
+          paragraphs: [
+            "We do the groundwork: clearing the backlog, organising documents and data, documenting processes and preparing your information for any AI or automation you choose to adopt. Alongside it, a dedicated virtual assistant takes on the everyday admin and the judgement calls you would rather keep human.",
+          ],
+        },
+        {
+          title: "Maintain & improve",
+          paragraphs: [
+            "Admin does not stay fixed on its own. Regular reviews, data hygiene and process reviews keep your systems in shape as your business grows, so improvements last instead of quietly slipping.",
           ],
         },
       ],
@@ -160,81 +190,81 @@ export const audiencePages: AudiencePage[] = [
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support, AI and automation stop being extra things you have to manage alone, and the everyday admin stops being something only you can do. Drafts get checked before they reach you, automations get maintained before they quietly break, and the routine and judgement-based admin has someone reliable behind it.",
-        "You keep the speed AI and automation give you, but the judgement calls, the sense-checking, the maintenance and the everyday admin no longer rest entirely on your evenings and weekends.",
+        "With the right groundwork and support, admin stops being the thing you do instead of growth. Information is organised and findable, the backlog is cleared and stays cleared, and any AI or automation you use is working from accurate information instead of guesswork.",
+        "You keep the speed technology gives you, but the sense-checking, the maintenance and the everyday admin no longer rest entirely on your evenings and weekends.",
       ],
       equation:
-        "Constant AI review and automation upkeep + a second pair of eyes and clear judgement = more time to compete on the work only you can do.",
+        "Cleared backlog + organised information + a second pair of eyes = more time to compete on the work only you can do.",
       bulletsLabel: "You can gain:",
       bullets: [
-        "Less time re-reading, editing and second-guessing AI drafts",
+        "A backlog cleared, and a system that stops it rebuilding",
+        "Documents and data organised so you, and any AI tool you use, can rely on them",
         "Automations that keep working without you having to notice when they break",
         "A trusted second opinion before client-facing work goes out under your name",
-        "Clearer judgement on what is worth automating and what still needs your input",
-        "Reliable support for the everyday admin and judgement calls you would rather keep human than hand to AI",
+        "Processes documented so you can finally delegate with confidence",
+        "Reliable support for the everyday admin you would rather keep human than hand to AI",
         "More protected time for the client work and growth only you can do",
-        "A fairer footing against better-resourced competitors, without needing their headcount",
       ],
     },
     pricing: {
-      fullSetupPrice: "From £2,450 (fixed price)",
       ongoingSupportPrice: "£25 per hour (pay only for what you need)",
+      paymentPlanNote:
+        "Prefer to spread the cost? For project work we can also agree flexible payment plans, for example paying in up to three instalments.",
     },
     pricingIntro:
-      "Support built for solo founders and entrepreneurs, priced so a second pair of eyes, reliable automation upkeep and everyday admin support do not compete with your growth budget.",
+      "Support built for solo founders and entrepreneurs, priced around your actual situation rather than a standard package, so the groundwork and support your business needs do not compete with your growth budget.",
     fullSetupIncludes: foundersFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, that means a second pair of eyes on AI-assisted work, someone keeping your automations running, reliable help with the everyday admin and judgement calls you would rather keep human, and predictable, flexible hours, all without the cost or complexity of hiring.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, that means the groundwork actually getting done, a second pair of eyes on AI-assisted work, reliable help with the everyday admin and judgement calls you would rather keep human, and flexible hours, all without the cost or complexity of hiring.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get a trusted second opinion, fewer things quietly breaking in the background, and reliable, professional help that grows with your business, with the flexibility and peace of mind your work deserves.",
+        "In short: The groundwork gets done, fewer things quietly break in the background, and you get reliable, professional help that grows with your business.",
     },
     related: {
       label: "Founders & Entrepreneurs",
       description:
-        "Founders and entrepreneurs often carry client work, growth, follow-ups and admin at the same time. VAxAI helps create clearer support around how the business actually runs.",
+        "Founders and entrepreneurs often carry client work, growth and the whole admin backlog at the same time. VAxAI clears the backlog and builds support around how the business actually runs.",
       linkLabel: "View Founder & Entrepreneur support",
     },
   },
   {
     slug: "small-business",
-    metaTitle: "Admin Support & Automation for Small Businesses UK",
+    metaTitle: "Admin Support, Backlog Recovery & AI Readiness for SMEs UK",
     metaDescription:
-      "VAxAI helps UK small businesses manage customer enquiries, bookings, invoices, documents, follow-ups and team coordination with practical virtual assistance, workflows and automation.",
-    serviceType: "Admin support and workflow automation for small businesses",
-    audienceName: "Small Businesses",
-    title: "Support built around how your team uses AI and runs the business",
+      "VAxAI helps UK small and medium-sized businesses (SMEs) clear admin backlogs, organise documents and data, prepare for AI and automation, and keep day-to-day admin moving with reliable human support.",
+    serviceType: "Admin support, backlog recovery and AI readiness for SMEs",
+    audienceName: "SMEs",
+    title: "Grow without administrative chaos holding you back",
     intro:
-      "Small businesses are increasingly using AI day to day: drafting replies, automating admin and speeding up routine work. But without one person responsible for it, AI and automation use across a small team can become inconsistent and hard to manage, mistakes can reach customers before anyone catches them, and none of it replaces the rotas, supplier queries, invoicing and filing your team was already managing. VAxAI starts with an Admin Review of how your team works, then provides hands-on virtual assistant support, virtual or on-site when a shift, opening or handover needs someone physically there, to help you decide what to automate, keep AI-assisted work accurate and consistent, and keep the everyday running of the business on track.",
+      "As a business grows, its admin grows faster: more systems, more documents, more processes that live in someone's head. AI and automation promise relief, but they rely on the organised information and clear workflows most growing teams have never had time to build. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear backlogs, organise your information, prepare the groundwork technology needs to work, and provide reliable human support, remote or on-site when a client visit, delivery or handover needs someone there, so your team can stay on the work only they can do.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "AI can draft a reply to a customer, summarise a supplier email or put together a first version of a quote in seconds. The harder part is making sure what it produces actually sounds like your business, is accurate, and does not need checking every single time by whoever happens to be free.",
-        "Without one person responsible for it, AI use in a small team tends to be inconsistent: one person checks everything twice, another sends outputs straight out, and nobody is quite sure where the line should be.",
-        "It is not only customer messages either. As you add more AI tools and automations, quotes, invoicing, scheduling, reporting, they all need setting up properly and keeping an eye on. Without someone responsible for the whole picture, tools pile up faster than anyone has time to manage them, and it becomes unclear what is actually saving time and what is quietly creating more work.",
-        "None of this replaces the admin your team was already dealing with before AI arrived: rotas, supplier queries, filing, chasing invoices, keeping records up to date. That work does not go away, it just now sits next to a new layer of checking and maintaining AI-assisted work. Teams who have not adopted AI yet still feel this pressure, just without the second layer on top.",
+        "Most SMEs do not have an admin problem because people are not working hard enough. Demand grows, resources stay limited, and routine work keeps losing to urgent priorities, until documents are scattered across systems, data no longer matches reality and processes live in whoever has been there longest.",
+        "That is exactly the environment where AI and automation disappoint. Point them at disorganised data and unclear workflows and they produce poor outputs, new problems and more correction work, not time saved. The technology is rarely the issue. The foundations are.",
+        "Even where tools are already in use, someone has to own the whole picture: which automations are actually saving time, which have quietly fallen out of date, and whether AI-assisted work going out to customers is being checked consistently rather than by whoever happens to be free.",
+        "And none of it replaces the admin your team was already carrying: scheduling, supplier queries, invoicing, filing, keeping records up to date. That work does not go away when technology arrives. Without dedicated capacity behind it, it just gets heavier.",
       ],
       bullets: [
-        "Customer-facing replies or documents drafted by AI that need checking before they go out, but no clear person responsible for checking them",
-        "Inconsistent AI use across the team, with no shared view of what is safe to automate and what still needs a human look",
-        "A growing number of AI tools and automations across the business, with no one keeping track of what is actually working",
-        "Time spent verifying AI-generated quotes, summaries or responses against what actually happened",
-        "Automations that quietly stop working or fall out of date as the business changes",
-        "Uncertainty about what customer or business information is safe to put into AI tools",
-        "The everyday running of a small business, rotas, supplier queries, invoicing, filing, that needs doing regardless of how much AI is involved",
+        "Documents scattered across shared drives, inboxes and systems, with no one sure which version is current",
+        "Customer, supplier or project data that no longer matches reality",
+        "Processes that live in someone's head and leave with them",
+        "Backlogs of filing, reporting or record-keeping that grow faster than the team can clear them",
+        "AI tools and automations adopted piecemeal, with no shared view of what is actually working",
+        "Customer-facing work drafted by AI that needs checking, with no clear owner for checking it",
+        "Skilled people stuck on routine admin instead of the work they were hired for",
       ],
     },
     delayed: {
       heading: "What happens when support is delayed",
       paragraphs: [
-        "For small businesses, admin pressure can quickly affect customer experience, cash flow and team coordination.",
-        "When enquiries, bookings, invoices, documents and follow-ups are not handled consistently, the business can look less reliable than it really is, even when the product or service itself is strong. Small delays can become bigger issues: a missed enquiry, a late invoice, an unclear handover, a forgotten quote, or a customer waiting longer than they should.",
+        "For SMEs, admin pressure quickly reaches customers, cash flow and the team itself.",
+        "When enquiries, bookings, invoices, documents and follow-ups are not handled consistently, the business looks less reliable than it really is, even when the product or service is strong. And the longer the groundwork is postponed, the more expensive it becomes, because every new tool is layered on top of information that cannot support it.",
       ],
-
       bullets: [
         "Customer enquiries being missed or answered too slowly",
         "Bookings, invoices or supplier actions slipping through",
@@ -247,13 +277,14 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "Whether your team has already started using AI tools and automations informally or you are holding off until you are confident it will not create more problems than it solves, the same things determine whether it actually helps: deciding what is worth automating consistently across the business, keeping it accurate and up to date, and having someone reliable for the everyday admin and customer-facing decisions you would rather a person handled.",
+        "Whether your team is already using AI informally or holding off until you are confident it will not create more problems than it solves, the same things determine whether it helps: clearing what has built up, organising the information and processes the business runs on, and having reliable human capacity for the work that should stay human. That is exactly how our support is structured.",
       ],
-      bulletsLabel: "Three types of support explained:",
+      bulletsLabel: "Four kinds of support explained:",
       bullets: [
-        "AI: Drafts responses to common enquiries, summarises customer messages and prepares first versions of quotes or updates.",
-        "Automation: Routes enquiries, chases invoices and handles repeat weekly admin consistently, once it has been set up to match how your business actually works.",
-        "Virtual assistance: A person who checks AI-generated, customer-facing work before it goes out, keeps automations running as things change, and takes on the everyday admin and customer decisions you would rather a person handled, whether that is remote or on-site whenever a shift or handover needs someone in the room.",
+        "Backlog recovery: We review, clean and organise the documents, records and data that have built up, and process outstanding reporting and compliance work, so your team stops paying interest on old admin.",
+        "AI & automation readiness: We organise information, separate what is confidential from what is shareable, standardise data and map the processes worth automating, so the tools you choose behave predictably. We don't build or sell the AI itself.",
+        "Ongoing admin support: Reliable capacity for scheduling, inboxes, reporting, document management and the exceptions automation should not handle alone, with customer-facing AI outputs checked consistently before they go out.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews stop the backlog rebuilding as the business grows and changes.",
       ],
     },
     how: {
@@ -262,15 +293,27 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Admin Review",
+          title: "Free Admin Review",
           paragraphs: [
-            "We look at your team's admin in general, rotas, supplier queries, invoicing and customer replies, and where it is really coming from. We then look at the admin AI and automation have added on top, informally or otherwise, to get a full picture of what needs checking and what is safe to automate. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or on-site. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
+            "A structured review of how your team's administrative operations currently work, free and with no obligation. We look at what is going on: where pressure is building, where your systems need strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
           ],
         },
         {
-          title: "Admin Support",
+          title: "Scoping & small-scale test",
           paragraphs: [
-            "A dedicated virtual assistant then checks AI-generated, customer-facing work against your standards, keeps automations running and up to date as your business changes, and takes on the everyday admin and exceptions that a system, or an already stretched team, should not be left to handle alone.",
+            "If you decide to go further, we scope the work properly: your team's admin in general, where it is really coming from, and what AI and automation have added on top, informally or otherwise. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf rather than building these ourselves.",
+          ],
+        },
+        {
+          title: "Prepare & support",
+          paragraphs: [
+            "We do the groundwork: clearing backlogs, organising documents and data, standardising information and documenting the processes worth automating. Alongside it, a dedicated virtual assistant keeps the everyday admin moving and checks customer-facing AI outputs against your standards.",
+          ],
+        },
+        {
+          title: "Maintain & improve",
+          paragraphs: [
+            "Systems drift as businesses grow. Regular reviews, data hygiene and process reviews keep information accurate, automations current and the backlog from quietly rebuilding.",
           ],
         },
       ],
@@ -278,81 +321,79 @@ export const audiencePages: AudiencePage[] = [
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support, AI and automation stop being something individual team members manage their own way, and the everyday admin stops depending on whoever happens to be free. Customer-facing work gets checked consistently, automations get kept up to date, and the routine admin has someone reliable behind it.",
-        "You get the speed of AI-assisted work without it depending on one person remembering to double-check everything, tools quietly falling out of date, or the everyday admin slipping when things get busy.",
+        "With the right groundwork and support, the business stops depending on whoever happens to be free. Information is organised and trustworthy, customer-facing work is checked consistently, and automations stay accurate as things change.",
+        "Growth stops meaning more chaos, because the systems that run the business keep pace with the business itself.",
       ],
       equation:
-        "Inconsistent AI use and unmanaged automations + clear rules and human checking = a business that runs reliably as it grows.",
+        "Organised information + clear processes + dedicated human capacity = a business that runs reliably as it grows.",
       bulletsLabel: "You can gain:",
       bullets: [
-        "Consistent, checked customer communication regardless of who or what drafted it",
-        "A clear, shared view of what AI can be trusted with and what still needs a person",
-        "Automations that keep working reliably instead of quietly falling out of date",
-        "Less time spent verifying AI outputs against what actually happened",
-        "Reduced risk of sending something inaccurate, off-brand or inappropriate to a customer",
-        "Reliable support for the everyday admin and customer decisions you would rather keep human than automate",
-        "More confidence using AI and automation, because someone is responsible for checking it",
+        "Documents and data organised, current and findable across the team",
+        "A cleared backlog, and processes documented so it does not rebuild",
+        "A clear, shared view of what AI and automation can be trusted with",
+        "Customer-facing work checked consistently, regardless of who or what drafted it",
+        "Automations that keep working instead of quietly falling out of date",
+        "Faster onboarding, because how things work is written down",
+        "Skilled people back on the work they were actually hired to do",
       ],
     },
     pricing: {
-      fullSetupPrice: "From £5,250 (fixed price)",
       ongoingSupportPrice: "£35 per hour (pay only for what you need)",
     },
     pricingIntro:
-      "Support built for growing teams, priced so consistent AI checking, reliable automation upkeep and everyday admin support do not add payroll complexity.",
+      "Support built for SMEs and growing teams, priced around your actual situation rather than a standard package, so the groundwork and reliable support your business needs do not add payroll complexity.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For small businesses, that means someone accountable for checking AI-assisted work, keeping automations reliable, and handling the everyday admin your team would rather keep human, without the cost or complexity of a full-time hire.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For SMEs, that means the groundwork actually getting done, someone accountable for keeping information and automations reliable, and dependable cover for the everyday admin your team would rather keep human, without the cost or complexity of a full-time hire.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
-        "In short: You get consistent, trustworthy AI-assisted work, automations that keep working as you grow, and reliable support that keeps operations steady.",
+        "In short: You get organised information, systems that keep working as you grow, and reliable support that keeps operations steady.",
     },
     related: {
-      label: "Small Businesses",
+      label: "SMEs",
       description:
-        "Small businesses feel admin pressure quickly: enquiries, bookings, invoices, documents and follow-ups all need consistent attention.",
-      linkLabel: "View Small Business support",
+        "SMEs feel admin pressure quickly: enquiries, bookings, invoices, documents and follow-ups all need consistent attention.",
+      linkLabel: "View SME support",
     },
   },
   {
     slug: "charities-non-profits",
-    metaTitle: "Virtual Assistant Support for UK Charities & Non-Profits",
+    metaTitle: "Admin Support, Backlog Recovery & AI Readiness for UK Charities",
     metaDescription:
-      "VAxAI helps UK charities and non-profits reduce admin pressure across reporting, volunteer coordination, funding admin, compliance, safeguarding records, inboxes and follow-ups.",
-    serviceType: "Virtual assistance and admin support for charities",
+      "VAxAI helps UK charities and non-profits clear admin backlogs, organise records safely, prepare for AI and automation, and keep funder, volunteer and case admin moving with reliable human support.",
+    serviceType: "Admin support, backlog recovery and AI readiness for charities",
     audienceName: "UK Charities & Non-Profits",
-    title: "Support built around how your charity uses AI and delivers its mission",
+    title: "Less administrative pressure, more capacity for your mission",
     intro:
-      "Charities are increasingly using AI to save time on reporting, case notes and admin. But without clear oversight, AI and automation use can create new risks around safeguarding, confidentiality and funder trust, on top of the funder reporting, volunteer rotas and case file admin that stretched teams long before AI arrived. VAxAI starts with an Admin Review of how your charity works, then provides hands-on virtual assistant support, virtual or in person for an event, service day or site visit where AI cannot stand in, to help you decide where AI genuinely helps, keep it aligned with your mission and safeguarding responsibilities, and take on the day-to-day admin and judgement calls you would rather keep human.",
+      "Charities are asked to do more with less every year, and admin absorbs capacity the mission needs: funder reporting, volunteer coordination, case records, compliance paperwork. AI can help, but charities also hold some of the most sensitive information there is, so the groundwork and oversight matter more, not less. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear backlogs, organise information safely, prepare the groundwork AI and automation need, and provide reliable human support, virtual or in person for an event, service day or site visit, so more of your capacity goes to delivery.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
       paragraphs: [
-        "AI can help draft a funding report, summarise case notes or pull together an update in minutes, work that used to take a member of staff far longer. But charities are also working with some of the most sensitive information there is: beneficiary details, safeguarding records, funder relationships built on trust, and a mission that a generic AI suggestion will not automatically understand.",
-        "The result is often a governance gap. Staff may already be using AI day to day to save time, while trustees and leadership have little visibility into how it is being used, what data has gone into it, or whether anyone is checking the output against what your beneficiaries and funders actually need.",
-        "It is not only drafting either. As referral tracking, volunteer coordination or reporting reminders get automated, someone still needs to set them up properly, keep them accurate, and notice when they stop reflecting how the charity actually works, on top of the admin capacity was supposed to free up.",
-        "Much of the pressure charities face was never about AI at all: funder reporting deadlines, volunteer rotas, case file admin, compliance paperwork. That workload has always stretched thin teams, and it remains just as real for charities who have not touched AI yet. AI adds a new layer of checking on top, it does not replace the underlying admin.",
+        "Charity admin has always stretched thin teams: funder reporting deadlines, volunteer rotas, case file upkeep, compliance paperwork. When capacity is short, routine work builds into backlogs, records drift out of date, and the people delivering services absorb the difference.",
+        "AI looks like a way to claw capacity back, and used well it can be. But charities work with beneficiary details, safeguarding records and funder relationships built on trust. An AI assistant drawing on a shared drive full of outdated policies, duplicates and files it should never access is not a time-saver. It is a risk.",
+        "There is often a governance gap too. Staff may already be using AI day to day to save time, while trustees and leadership have little visibility into how it is being used, what information has gone into it, or whether anyone is checking outputs before they reach funders or beneficiaries.",
+        "None of this replaces the underlying admin. Reporting, rotas and records still need doing whether or not AI is in the picture, and without dedicated capacity, the preparation that would make technology safe and useful keeps being postponed.",
       ],
       bullets: [
-        "AI-drafted reports, case notes or funder updates that need checking against safeguarding and confidentiality requirements before anyone sees them",
+        "Backlogs of reporting, case file upkeep or compliance paperwork that never quite get cleared",
+        "Documents and records scattered across drives and inboxes, with outdated versions still in circulation",
+        "Sensitive information stored alongside everyday files, with no clear separation of what AI tools should be able to touch",
+        "AI-drafted reports or case notes that need checking against safeguarding and confidentiality requirements",
         "Little visibility for trustees or leadership into how AI is actually being used day to day",
-        "AI suggestions that sound plausible but do not reflect what your beneficiaries, funders or front-line staff actually need",
-        "Referral tracking, volunteer coordination or reporting automations that need setting up properly and keeping accurate as things change",
-        "Staff capacity still absorbed by managing tools and systems instead of delivery and relationships",
-        "Uncertainty about being open with funders and beneficiaries about where AI has been used",
-        "The underlying admin of running a charity, funder reporting, volunteer rotas, case file upkeep, that stretches teams whether or not AI is part of the picture",
+        "Volunteer coordination and referral tracking that depend on one stretched person",
+        "Staff and volunteer time absorbed by admin instead of delivery and relationships",
       ],
     },
     delayed: {
       heading: "What happens when support is delayed",
       paragraphs: [
         "For charities, unresolved admin pressure can affect more than internal efficiency.",
-        "It can reduce capacity for service delivery, weaken follow-up with beneficiaries, volunteers, funders and partners, and create risks around reporting, safeguarding records and information handling. When teams are already stretched, even small admin gaps can have a wider impact because the work is connected to trust, accountability and people’s experience of the service.",
+        "It can reduce capacity for service delivery, weaken follow-up with beneficiaries, volunteers, funders and partners, and create risks around reporting, safeguarding records and information handling. When teams are already stretched, even small admin gaps can have a wider impact because the work is connected to trust, accountability and people's experience of the service.",
       ],
-
       bullets: [
         "Delivery teams losing time to repeated manual admin",
         "Funder reporting becoming more stressful and time-consuming",
@@ -365,13 +406,14 @@ export const audiencePages: AudiencePage[] = [
     howWeHelp: {
       heading: "What could help",
       paragraphs: [
-        "Whether staff are already using AI and automation informally to save time on reporting and admin, or your charity is holding back until you are confident it will not create safeguarding or trust risks, the same things determine whether it actually helps: deciding what is appropriate to automate at all, keeping it accurate, safe and aligned with your mission, and having someone reliable for the day-to-day admin and safeguarding-sensitive work you would rather keep human.",
+        "Whether staff are already using AI informally to save time or your charity is holding back until it is confident there is no safeguarding or trust risk, the same things determine whether it helps: clearing what has built up, organising information safely, and having reliable human capacity for the work that should stay human. That is exactly how our support is structured.",
       ],
-      bulletsLabel: "Three types of support explained:",
+      bulletsLabel: "Four kinds of support explained:",
       bullets: [
-        "AI: Drafts reporting notes, summarises funder updates and organises information from meetings or emails.",
-        "Automation: Tracks referrals, reminders and routine reporting steps, once it has been set up to reflect how your services and safeguarding responsibilities actually work.",
-        "Virtual assistance: A person who checks AI-generated reports and communications for accuracy and appropriateness, keeps referral and volunteer systems accurate and up to date, and takes on the day-to-day admin and safeguarding-sensitive work you would rather keep human, whether that is virtual or in person for an event or service day.",
+        "Backlog recovery: We review, clean and organise records, process outstanding reporting and compliance work, and bring case files and volunteer records back up to date.",
+        "AI & automation readiness: We organise information, separate confidential and safeguarding-sensitive material from what tools may access, and map the processes worth automating, always against your safeguarding and funder requirements. We don't build or sell the AI itself.",
+        "Ongoing admin support: Reliable capacity for funder reporting, volunteer coordination, inboxes and case admin, with AI-assisted work checked for accuracy and appropriateness before anyone outside the charity sees it.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews keep records accurate and give trustees ongoing visibility, so new risks do not quietly build up.",
       ],
     },
     how: {
@@ -380,15 +422,27 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Admin Review",
+          title: "Free Admin Review",
           paragraphs: [
-            "We take time to understand your services and beneficiaries, and the funder reporting, volunteer and case admin that comes with running a charity, and where it is really coming from. We then look at the admin AI and automation have added on top, alongside your safeguarding, funder and confidentiality requirements, to get a full picture. From there we develop a strategy with you and recommend the right mix of AI, automation and human admin support, virtual or in person. For complex builds, we do not build these ourselves, we identify trusted external partners and work with them on your behalf.",
+            "A structured review of how your charity's administrative operations currently work, free and with no obligation. We look at what is going on: where pressure is building, where your systems need strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
           ],
         },
         {
-          title: "Admin Support",
+          title: "Scoping & small-scale test",
           paragraphs: [
-            "A dedicated virtual assistant then checks AI-generated reports, case notes and communications before they go out, keeps referral, volunteer and reporting systems accurate as things change, and takes on the everyday funder, volunteer and case admin you would rather a person handled, so trustees and funders stay confident that AI is being used appropriately and transparently.",
+            "If you decide to go further, we take time to understand your services and beneficiaries, then scope the work properly: the funder, volunteer and case admin that comes with running a charity, what AI and automation have added on top, and your safeguarding, funder and confidentiality requirements. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf.",
+          ],
+        },
+        {
+          title: "Prepare & support",
+          paragraphs: [
+            "We do the groundwork: clearing backlogs, organising records safely, separating sensitive material and documenting processes. Alongside it, a dedicated virtual assistant keeps funder, volunteer and case admin moving and checks AI-assisted work before it goes out, so trustees and funders stay confident that AI is being used appropriately and transparently.",
+          ],
+        },
+        {
+          title: "Maintain & improve",
+          paragraphs: [
+            "Charities change: new funders, new volunteers, new requirements. Regular reviews, data hygiene and process reviews keep records accurate and systems reliable, so improvements last beyond the project that created them.",
           ],
         },
       ],
@@ -396,33 +450,32 @@ export const audiencePages: AudiencePage[] = [
     changes: {
       heading: "What changes in practice",
       paragraphs: [
-        "With the right support, AI and automation are checked against your safeguarding, confidentiality and funder requirements as a matter of course, and the everyday funder, volunteer and case admin stops depending on whoever is least stretched that day.",
-        "Trustees and leadership gain visibility into how AI is actually being used, and referral, volunteer and reporting systems stay accurate as your charity changes, so capacity goes further without new risks quietly building up.",
+        "With the right groundwork and support, AI and automation are checked against your safeguarding, confidentiality and funder requirements as a matter of course, and the everyday funder, volunteer and case admin stops depending on whoever is least stretched that day.",
+        "Trustees and leadership can see how AI is actually being used, records stay accurate as the charity changes, and more of every pound and hour goes to the mission.",
       ],
       equation:
-        "AI and automation speeding up admin + human checking against safeguarding and mission = protected capacity you can trust.",
+        "Organised, safe information + human checking against safeguarding and mission = protected capacity you can trust.",
       bulletsLabel: "You can gain:",
       bullets: [
+        "A cleared backlog of reporting, records and compliance work",
+        "Information organised safely, with confidential material clearly separated",
         "Reporting and case notes checked for accuracy and confidentiality before they are shared",
         "Clearer visibility for trustees into how AI is being used across the charity",
-        "Referral, volunteer and reporting systems that stay accurate instead of quietly drifting out of date",
+        "Volunteer, referral and reporting systems that stay accurate instead of quietly drifting",
         "Confidence being open with funders and beneficiaries about where AI has helped",
-        "Less risk of sensitive or safeguarding information ending up in the wrong tool",
-        "Reliable support for the everyday funder, volunteer and case admin you would rather keep human than automate",
         "More staff and volunteer time directed towards delivery and relationships",
       ],
     },
     pricing: {
-      fullSetupPrice: "From £5,250 (fixed price)",
       ongoingSupportPrice: "£35 per hour (pay only for what you need)",
     },
     pricingIntro:
-      "Support built for charities with tight or variable income, priced so safeguarding-aware AI checking, reliable systems and everyday admin support do not compete with delivery budgets.",
+      "Support built for charities with tight or variable income, priced around your actual situation rather than a standard package, so groundwork and safeguarding-aware support do not compete with delivery budgets.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, that means someone accountable for checking AI-assisted work against safeguarding and funder expectations, keeping your systems reliable, and handling the everyday admin you would rather keep human, at a cost that protects your delivery capacity.",
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, that means the groundwork actually getting done, someone accountable for checking AI-assisted work against safeguarding and funder expectations, and dependable cover for the everyday admin you would rather keep human, at a cost that protects your delivery capacity.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
@@ -433,6 +486,135 @@ export const audiencePages: AudiencePage[] = [
       description:
         "UK charities and non-profits are often stretched across delivery, reporting, volunteer coordination, funding admin and communication.",
       linkLabel: "View Charity & Non-Profit support",
+    },
+  },
+  {
+    slug: "public-sector",
+    metaTitle: "Backlog Recovery & AI Readiness for the UK Public Sector",
+    metaDescription:
+      "VAxAI helps UK public sector organisations reduce administrative backlogs, strengthen information management and prepare for AI, automation and smarter ways of working, with experienced people in the loop.",
+    serviceType: "Backlog recovery, information management and AI readiness for public sector organisations",
+    audienceName: "Public Sector",
+    title: "Reduced backlogs and stronger foundations for smarter ways of working",
+    intro:
+      "Public sector teams are expected to modernise while demand rises and resources tighten. Unprocessed records, correspondence volumes and databases that no longer match reality slow services down, and they are also exactly what stops AI and automation from delivering. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear backlogs, strengthen information management and prepare processes for automation, working within your governance and information-handling requirements, with experienced people in the loop throughout.",
+    heroHasAccessCta: false,
+    pressures: {
+      heading: "Does this sound familiar?",
+      paragraphs: [
+        "Backlogs in public sector teams rarely happen because people are not working hard enough. Demand grows, resources are limited, and routine work loses to urgent priorities, until unprocessed records, correspondence and outdated databases start slowing everything else down.",
+        "Modernisation is the standing instruction, and AI and automation are usually part of the plan. But records that are inconsistent between teams, workflows that vary by office and data that no longer matches reality are precisely the conditions in which automation fails, produces poor outputs and creates correction work instead of saving time.",
+        "The preparation that would fix this, reviewing records, standardising data, documenting processes, is real work that someone has to do. Teams already stretched covering business as usual rarely have the capacity, so transformation programmes inherit the problem and the backlog keeps growing.",
+        "And public sector admin carries obligations most organisations do not: information requests, retention schedules, audit trails, statutory reporting. Getting information management right is not just groundwork for technology. It is part of the job.",
+      ],
+      bullets: [
+        "Backlogs of unprocessed records, correspondence or casework building faster than teams can clear them",
+        "Records and data that are inconsistent between teams, systems or offices",
+        "Databases and registers that no longer match reality",
+        "Processes that vary by team and live in individual experience rather than documentation",
+        "Reporting that takes longer every quarter as information gets harder to pull together",
+        "Automation or AI ambitions blocked because the underlying information is not ready",
+        "Skilled staff absorbed by routine administration instead of service delivery",
+      ],
+    },
+    delayed: {
+      heading: "What happens when support is delayed",
+      paragraphs: [
+        "When backlogs and information problems go unaddressed, the effects reach beyond the team: slower services for the public, rising pressure on staff, and growing risk around records, reporting and compliance.",
+        "Digital and AI programmes launched on top of disorganised information tend to cost more, deliver less and erode confidence in future change, which makes the next attempt harder still.",
+      ],
+      bullets: [
+        "Service delays that affect the public directly",
+        "Rising error and compliance risk as records drift out of date",
+        "Reporting and information requests absorbing more staff time",
+        "Transformation programmes stalling on data quality",
+        "Experienced staff leaving, taking undocumented processes with them",
+        "Budgets spent on technology the foundations cannot support",
+      ],
+    },
+    howWeHelp: {
+      heading: "What could help",
+      paragraphs: [
+        "Whether your organisation is preparing a transformation programme or simply trying to get back in control of the day-to-day, the same things determine progress: clearing what has built up, strengthening how information is managed, and having dedicated capacity so preparation does not compete with business as usual. That is exactly how our support is structured.",
+      ],
+      bulletsLabel: "Four kinds of support explained:",
+      bullets: [
+        "Backlog recovery: We review, clean and organise records and correspondence, process outstanding work, and reduce the backlog while documenting workflows so it does not rebuild.",
+        "AI & automation readiness: We standardise data, organise information with appropriate access in mind and map the processes worth automating, so the tools your organisation chooses behave predictably. We don't build or sell the AI itself.",
+        "Ongoing admin support: Reliable additional capacity for reporting, correspondence, record-keeping and routine administration, working within your procedures and information-handling requirements.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews keep records accurate and processes current as demands change.",
+      ],
+    },
+    how: {
+      heading: "",
+      paragraphs: [],
+      journeyLabel: "Our Process",
+      journey: [
+        {
+          title: "Free Admin Review",
+          paragraphs: [
+            "A structured review of how your administrative operations currently work, free and with no obligation. We look at what is going on: where backlogs are building, where information management needs strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
+          ],
+        },
+        {
+          title: "Scoping & small-scale test",
+          paragraphs: [
+            "If you decide to go further, we scope the work properly across the records, correspondence and processes involved, working within your governance, procurement and information-handling requirements. We always test on a small scale first, then use what we learn to assess the full engagement accurately, and the cost is agreed before any work begins. For complex builds we identify trusted external partners and work with them on your behalf.",
+          ],
+        },
+        {
+          title: "Prepare & support",
+          paragraphs: [
+            "We do the groundwork: clearing backlogs, organising and standardising records, and documenting workflows, delivered as dedicated capacity alongside business as usual rather than instead of it, with ongoing support for reporting, correspondence and routine administration where it helps.",
+          ],
+        },
+        {
+          title: "Maintain & improve",
+          paragraphs: [
+            "Demands on public services do not stand still. Regular reviews, data hygiene and process reviews keep records accurate and processes current, so the backlog does not quietly return once the project ends.",
+          ],
+        },
+      ],
+    },
+    changes: {
+      heading: "What changes in practice",
+      paragraphs: [
+        "With dedicated capacity behind the groundwork, backlogs come down without pulling staff away from services, information becomes consistent and reliable, and automation is introduced onto foundations that can actually support it.",
+        "Teams move from constantly catching up to staying in control, and modernisation plans stop stalling on the state of the data.",
+      ],
+      equation:
+        "Cleared backlogs + consistent, reliable information + documented processes = services ready for smarter ways of working.",
+      bulletsLabel: "You can gain:",
+      bullets: [
+        "Backlogs reduced without adding pressure to existing staff",
+        "Records and data made consistent, current and reliable",
+        "Processes documented and standardised across teams",
+        "Reporting and information requests answered faster, from information you can trust",
+        "AI and automation introduced where the foundations genuinely support them",
+        "Reduced risk around records, retention and compliance",
+        "Skilled staff focused on service delivery rather than routine administration",
+      ],
+    },
+    pricing: {
+      ongoingSupportPrice: "£35 per hour (pay only for what you need)",
+    },
+    pricingIntro:
+      "Public sector engagements vary widely in scale and requirements, so support is scoped and priced per organisation, and we are happy to work within your procurement processes.",
+    fullSetupIncludes: publicSectorFullSetupIncludes,
+    workWithUs: {
+      heading: "The Benefits of Our Approach",
+      paragraphs: [
+        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For public sector teams, that means dedicated capacity for the groundwork transformation depends on, delivered alongside business as usual rather than instead of it, by people working to consistent standards and with compliance in mind.",
+      ],
+      bullets: sharedWorkWithUsBullets,
+      closing:
+        "In short: Backlogs come down, information becomes something you can rely on, and preparation is done properly, so technology investment delivers what it promised.",
+    },
+    related: {
+      label: "Public Sector",
+      description:
+        "Public sector teams face rising demand, limited resources and modernisation pressure at the same time. VAxAI provides the capacity to clear backlogs and prepare the foundations.",
+      linkLabel: "View Public Sector support",
     },
   },
 ];

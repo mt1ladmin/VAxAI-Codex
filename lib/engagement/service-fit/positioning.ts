@@ -1,4 +1,4 @@
-/** Shared VAxAI service positioning — used across forms, AI context, and assessments. */
+/** Shared VAxAI service positioning, used across forms, AI context, and assessments. */
 
 export const VAXAI_CORE_OFFERS = [
   "Existing-system and workflow review",
@@ -48,14 +48,12 @@ export const BUILD_VS_IMPROVE = [
   "unclear",
 ] as const;
 
-export const STUDIO_SERVICE_POSITIONING = `VAxAI's strongest offer is wraparound support that helps organisations make better use of existing systems, improve workflows, identify practical AI/automation opportunities, upskill teams, develop VAT-informed AI strategy and guidance, and access flexible virtual assistance for administrative work and AI-enabled processes.
+export const STUDIO_SERVICE_POSITIONING = `VAxAI is an admin support service; admin is the specialism, AI, automation, and human virtual assistance are just the tools. Start from an Admin Review (general admin plus what AI has added), then recommend the right mix, virtual or in person.
 
-Virtual assistance is part of the wider AI and workflow offer — AI may simplify individual tasks, while human support provides coordination, follow-up, judgement, oversight, and consistency.
+Prefer improving what the client already has over new systems or complex AI integration. Bespoke builds only fit small orgs (roughly under ten people) with clear, proportionate needs; anything larger or more complex, including enterprise builds, goes to trusted external partners, not built in-house.
 
-Automation does not remove administrative pressure for everyone. Neurodivergent employees may still find systems, notifications, and automated workflows overwhelming. Where relevant, note how accessible processes and flexible human support could help.
+Primary audience: founders and entrepreneurs, SMEs, and charities and non-profits of all sizes, usually without a large internal operations or AI team. MT1L (home of the VAT Framework: Value, Alignment, Trust) handles deeper AI-value strategy work; VAxAI applies the same standard.
 
-Do not default to recommending a completely new system or complex AI integration where none exists. Prioritise review, improvement, connection, support, and helping teams use what they already have.
-
-A new or bespoke build is only a possible fit where the organisation is relatively small (roughly fewer than ten people), requirements are not highly complex, outcomes are clearly defined, risks are proportionate, and any need for a technical specialist is explicit.`;
+Automation can still overwhelm some staff, including neurodivergent employees; flag accessible, human-backed options where relevant.`;
 
 export const PROSPECT_FINDER_FEATURE_LABEL = "Prospect Finder";
