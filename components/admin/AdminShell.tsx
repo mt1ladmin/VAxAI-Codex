@@ -112,7 +112,7 @@ export default function AdminShell({
     pathname.startsWith("/admin/newsletter");
 
   const shell = (
-    <div className="flex h-screen overflow-hidden bg-white font-sans">
+    <div className="studio-shell flex h-screen overflow-hidden bg-white font-sans">
       {/* Mobile backdrop */}
       {open && (
         <div

@@ -79,7 +79,7 @@ function Toast({ message, visible, action, isError }: { message: string; visible
         visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
       }`}
     >
-      <div className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-xl ${isError ? "bg-red-600" : "bg-[#111111]"}`}>
+      <div className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-xl ${isError ? "bg-red-600" : "bg-pine-900"}`}>
         <Check className={`h-4 w-4 ${isError ? "text-red-200" : "text-emerald-400"}`} />
         {message}
         {action && (

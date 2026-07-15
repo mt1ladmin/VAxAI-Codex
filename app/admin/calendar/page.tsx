@@ -1544,7 +1544,7 @@ export default function CalendarPage() {
         }}
       >
         <div className="flex items-center justify-between">
-          <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-gray-900 text-white" : "text-gray-500"}`}>
+          <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-pine-900 text-white" : "text-gray-500"}`}>
             {day.getDate()}
           </span>
           <button
