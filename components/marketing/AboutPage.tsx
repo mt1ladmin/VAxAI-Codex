@@ -197,13 +197,13 @@ export default function AboutPage() {
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
                   That&apos;s what we&apos;ve built the whole service around. Tell us where administration is
                   slowing you down and we&apos;ll tell you what we&apos;d do about it, starting with a free
-                  Admin Health Check.
+                  Admin Review.
                 </p>
                 <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>
-                  Get your free Admin Health Check
+                  Get your free Admin Review
                   <ArrowRight className="h-4 w-4" />
                 </button>
-                <p className="mt-4 text-xs text-paper/50">A short conversation and review. No obligation.</p>
+                <p className="mt-4 text-xs text-paper/50">A structured review of your administrative operations. Free, with no obligation.</p>
               </div>
             </Reveal>
           </section>

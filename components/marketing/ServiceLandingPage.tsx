@@ -493,7 +493,7 @@ function PricingBenefitsPanelContent({
         <p className="mt-8 max-w-3xl text-base font-medium leading-8 text-pine-800">{section.closing}</p>
       ) : null}
       <button type="button" onClick={onContact} className={`${btn.accent} mt-8`}>
-        Get your free Admin Health Check
+        Get your free Admin Review
         <ArrowRight className="h-4 w-4" />
       </button>
     </div>
@@ -725,7 +725,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 </motion.p>
                 <motion.div variants={fadeUp} className="mt-10 flex flex-wrap gap-4">
                   <button type="button" onClick={() => setContactOpen(true)} className={btn.accent}>
-                    Get your free Admin Health Check
+                    Get your free Admin Review
                     <ArrowRight className="h-4 w-4" />
                   </button>
                   {page.heroHasAccessCta ? (
@@ -814,7 +814,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                   Ready to understand where support would help most?
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                  Start with a free Admin Health Check, a short conversation and review with no obligation.
+                  Start with a free Admin Review: a structured review of your administrative operations, free and with no obligation.
                   We&apos;ll look at where pressure is building and tell you honestly what would help, and what wouldn&apos;t.
                 </p>
                 <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>

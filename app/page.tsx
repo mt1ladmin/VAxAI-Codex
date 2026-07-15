@@ -63,7 +63,7 @@ const helpCards = [
   {
     title: "Maintain & improve",
     copy: "Stop problems returning after the hard work is done.",
-    items: ["Admin health checks", "Data hygiene", "Process reviews", "AI output monitoring"],
+    items: ["Admin reviews", "Data hygiene", "Process reviews", "AI output monitoring"],
     href: "/how-we-help#area-maintain",
     linkLabel: "Explore maintenance",
   },
@@ -98,7 +98,7 @@ const approachStages = [
     num: "03 — Maintain",
     title: "Keep improvements working",
     items: [
-      "Regular admin health checks",
+      "Regular admin reviews",
       "Data hygiene and document reviews",
       "Process reviews",
       "Backlog prevention",
@@ -148,12 +148,12 @@ const gains = [
 
 const faqs = [
   ["Who is VAxAI for?", "VAxAI supports founders and entrepreneurs, small and medium-sized businesses (SMEs), charities and non-profits, and public sector organisations, anywhere administrative pressure is building and technology alone has not fixed it. We are practical, human-led support, not another software product, and we are primarily aimed at organisations without a large internal operations or AI team."],
-  ["What is the free Admin Health Check?", "A short conversation and review, with no obligation. We look at where administrative pressure is building, where your systems need strengthening and what support would make the biggest difference. We will tell you honestly what would help, and what wouldn't, even if that means not working with us."],
-  ["What happens after the Health Check?", "If you want to go further, we carry out a full Admin Review of your organisation's admin, information and processes, including anything AI and automation have added on top. We always test on a small scale first, then use what we learn to scope the full project accurately, and costs are agreed before any work begins, so there are no surprises."],
+  ["What is the free Admin Review?", "A structured review of your current administrative operations to understand what is going on and recommend the right support, free and with no obligation. We look at where pressure is building, where your systems need strengthening and what would make the biggest difference, then tell you honestly what would help, and what wouldn't, even if that means not working with us."],
+  ["What happens after the review?", "If you want to go further, we scope the work properly across your organisation's admin, information and processes, including anything AI and automation have added on top. We always test on a small scale first, then use what we learn to scope the full project accurately, and costs are agreed before any work begins, so there are no surprises."],
   ["Why does preparation matter before AI?", "AI and automation rely on the information and processes behind them. Point them at disorganised data and unclear workflows and they produce poor outputs, new problems and more correction work, not time saved. We do the groundwork, organising information, improving data quality and documenting processes, so the tools you choose can actually work."],
   ["Do you build AI systems yourselves?", "No. We prepare organisations for AI and automation and keep the results working, which means our only interest is your readiness. For complex or enterprise builds, we identify trusted external partners and work with them on your behalf, rather than building these ourselves."],
   ["Why don't you publish fixed prices?", "Because every organisation's admin is different. Project pricing depends on the scope of the work, its complexity, the timeframe for delivery and how much hands-on support is needed alongside it. Day-to-day admin support is charged hourly, as monthly or quarterly arrangements, and project costs are always agreed up front."],
-  ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, monthly or quarterly, scaled up or down as your needs change, and virtual or in person when being there matters. Improvements are also maintained through regular health checks, so they last."],
+  ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, monthly or quarterly, scaled up or down as your needs change, and virtual or in person when being there matters. Improvements are also maintained through regular admin reviews, so they last."],
 ];
 
 /* ------------------------------------------------------------------ */
@@ -401,7 +401,7 @@ export default function Home() {
 
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("Admin Health Check");
+  const [supportType, setSupportType] = useState("Admin Review");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
 
@@ -471,7 +471,7 @@ export default function Home() {
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
               <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
-                Get your free Admin Health Check
+                Get your free Admin Review
                 <ArrowRight className="h-4 w-4" />
               </button>
               <Link href="/how-we-help" className={btn.ghostDark}>
@@ -696,7 +696,7 @@ export default function Home() {
               Questions about VAxAI?
             </h2>
             <p className="mt-6 max-w-prose text-sm leading-7 text-muted">
-              Clear answers on how the free Admin Health Check works, how pricing is agreed, and what
+              Clear answers on how the free Admin Review works, how pricing is agreed, and what
               happens once support begins.
             </p>
             <button
@@ -799,20 +799,20 @@ export default function Home() {
                 Ready to prepare your organisation for smarter ways of working?
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                Start with a free Admin Health Check. We&apos;ll identify where administrative pressure is
+                Start with a free Admin Review. We&apos;ll identify where administrative pressure is
                 building, where your systems need strengthening and what support would make the biggest
                 difference.
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
-                  Get your free Admin Health Check
+                  Get your free Admin Review
                   <ArrowRight className="h-4 w-4" />
                 </button>
                 <button type="button" onClick={() => setIsAccessModalOpen(true)} className={btn.ghostDark}>
                   Access to Work support
                 </button>
               </div>
-              <p className="mt-5 text-xs text-paper/50">A short conversation and review. No obligation.</p>
+              <p className="mt-5 text-xs text-paper/50">A structured review of your administrative operations. Free, with no obligation.</p>
             </div>
             <div className="relative min-h-[260px] md:min-h-0">
               <PhotoCard src={image.cta} className="absolute inset-0 h-full w-full" />
@@ -922,8 +922,7 @@ export default function Home() {
                       value={supportType}
                       onChange={setSupportType}
                       options={[
-                        { value: "Admin Health Check", label: "Admin Health Check (free)" },
-                        { value: "Admin Review", label: "Admin Review" },
+                        { value: "Admin Review", label: "Free Admin Review" },
                         { value: "Admin Support", label: "Admin Support" },
                         { value: "Access to Work", label: "Access to Work" },
                         { value: "General enquiry", label: "General enquiry" },
