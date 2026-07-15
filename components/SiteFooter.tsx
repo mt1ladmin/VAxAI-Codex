@@ -15,7 +15,7 @@ export default function SiteFooter() {
           <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
             <div>
               <div className="flex items-center">
-                <img src="/vaxai-logo.png" alt="VAxAI" className="h-10 w-auto" />
+                <img src="/vaxai.jpg" alt="VAxAI" className="h-10 w-auto" />
               </div>
               <p className="mt-4 max-w-xs text-sm leading-6 text-paper/65">
                 Admin support with AI, automation and human VA oversight.

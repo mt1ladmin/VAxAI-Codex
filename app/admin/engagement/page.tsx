@@ -115,7 +115,7 @@ export default function EngagementOverview() {
   const now = new Date().toISOString();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-full bg-white">
       <div className="border-b border-[#111111]/10 px-8 py-5">
         <div className="flex items-center justify-between gap-4">
           <div>

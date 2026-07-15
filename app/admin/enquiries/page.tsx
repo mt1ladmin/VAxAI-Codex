@@ -309,7 +309,7 @@ export default function EnquiriesPage() {
       <div className="shrink-0 border-b border-[#111111]/10 bg-white px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5F686A]">Client Engagement</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5F686A]">Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">Enquiries</h1>
             <p className="mt-1 max-w-2xl text-sm text-[#5F686A]">
               Inbound interest — qualify against VAxAI wraparound support.

@@ -134,13 +134,13 @@ export default function AdminShell({
         <div className={`flex h-14 items-center border-b border-white/10 px-3 ${open ? "justify-between" : "justify-center"}`}>
           {open && (
             <Link href={homeHref} className="flex min-w-0 items-center gap-2.5">
-              <img src="/vaxai-logo.png" alt="VAxAI" className="h-7 w-auto shrink-0" />
-              <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-acid/80">Studio</span>
+              <img src="/vaxai.jpg" alt="VAxAI" className="h-7 w-auto shrink-0" />
+              <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-paper/50">Studio</span>
             </Link>
           )}
           {!open && (
             <Link href={homeHref} title="VAxAI Studio" className="flex items-center justify-center">
-              <img src="/vaxai-logo.png" alt="VAxAI" className="h-6 w-auto max-w-[2rem] object-contain" />
+              <img src="/vaxai.jpg" alt="VAxAI" className="h-6 w-auto max-w-[2rem] object-contain" />
             </Link>
           )}
           {open && (
@@ -159,7 +159,7 @@ export default function AdminShell({
           <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
             <Link
               href="/admin/posts/new"
-              className={`flex items-center gap-2 rounded-md bg-acid px-3 py-2 text-sm font-semibold text-ink transition-colors hover:brightness-[1.04] ${
+              className={`flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-semibold text-pine-900 transition-colors hover:bg-cream ${
                 !open ? "h-8 w-8 justify-center p-0" : "w-full"
               }`}
               title={!open ? "New post" : undefined}
@@ -198,9 +198,9 @@ export default function AdminShell({
                     key={item.href}
                     href={item.href}
                     title={!open ? item.label : undefined}
-                    className={`mb-0.5 flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
+                    className={`mb-0.5 flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors ${
                       active
-                        ? "bg-white/12 font-semibold text-white ring-1 ring-acid/30"
+                        ? "bg-white/12 font-semibold text-white"
                         : "text-white/60 hover:bg-white/8 hover:text-white"
                     } ${!open ? "justify-center" : ""}`}
                   >
@@ -259,7 +259,7 @@ export default function AdminShell({
       </aside>
 
       {/* Main */}
-      <main className="flex-1 overflow-y-auto bg-white">
+      <main className="flex-1 overflow-y-auto bg-cream/30">
         {/* Mobile top bar — always visible, shows hamburger + open sidebar button on desktop */}
         <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-[#111111]/10 bg-white px-4 py-2 md:hidden">
           <button
@@ -270,10 +270,8 @@ export default function AdminShell({
             <Menu className="h-4 w-4" />
           </button>
           <Link href={homeHref} className="flex items-center gap-2">
-            <span className="rounded-md bg-pine-900 px-1.5 py-1">
-              <img src="/vaxai-logo.png" alt="VAxAI" className="h-5 w-auto" />
-            </span>
-            <span className="text-sm font-semibold text-ink">Studio</span>
+            <img src="/vaxai.jpg" alt="VAxAI" className="h-6 w-auto" />
+            <span className="text-sm font-semibold text-pine-900">Studio</span>
           </Link>
         </div>
 
@@ -292,60 +290,31 @@ export default function AdminShell({
         )}
 
         {(pathname === "/admin/calendar" || pathname === "/admin/posts" || pathname === "/admin/authors" || pathname === "/admin/create-content" || pathname === "/admin/newsletter") && (
-          <div className="sticky top-[41px] z-20 border-b border-[#111111]/10 bg-white px-4 py-3 md:top-0 md:px-8">
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="font-semibold text-[#111111]">Content Hub</span>
-              <div className="relative z-30 flex max-w-full overflow-x-auto overflow-y-hidden rounded-lg border border-[#111111]/15 scrollbar-subtle">
-                <Link
-                  href="/admin/calendar"
-                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
-                    pathname.startsWith("/admin/calendar")
-                      ? "bg-[#122428] text-white"
-                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
-                  }`}
-                >
-                  Calendar
-                </Link>
-                <Link
-                  href="/admin/create-content"
-                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
-                    pathname.startsWith("/admin/create-content")
-                      ? "bg-[#122428] text-white"
-                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
-                  }`}
-                >
-                  Create
-                </Link>
-                <Link
-                  href="/admin/posts"
-                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
-                    pathname.startsWith("/admin/posts")
-                      ? "bg-[#122428] text-white"
-                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
-                  }`}
-                >
-                  Posts
-                </Link>
-                <Link
-                  href="/admin/authors"
-                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
-                    pathname.startsWith("/admin/authors")
-                      ? "bg-[#122428] text-white"
-                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
-                  }`}
-                >
-                  Authors
-                </Link>
-                <Link
-                  href="/admin/newsletter"
-                  className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
-                    pathname.startsWith("/admin/newsletter")
-                      ? "bg-[#122428] text-white"
-                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
-                  }`}
-                >
-                  Newsletter
-                </Link>
+          <div className="sticky top-[41px] z-20 border-b border-pine-900/8 bg-white/95 px-4 py-2.5 backdrop-blur-sm md:top-0 md:px-8">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-pine-700">Content Hub</span>
+              <div className="flex max-w-full gap-1 overflow-x-auto scrollbar-none rounded-xl bg-cream/80 p-1">
+                {[
+                  ["/admin/calendar", "Calendar", "Schedule posts & social"],
+                  ["/admin/create-content", "Create", "Draft with AI"],
+                  ["/admin/posts", "Posts", "All blog posts"],
+                  ["/admin/authors", "Authors", "Byline profiles"],
+                  ["/admin/newsletter", "Newsletter", "Subscribers"],
+                ].map(([href, label, title]) => {
+                  const active = pathname.startsWith(href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      title={title}
+                      className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        active ? "bg-pine-900 text-paper shadow-sm" : "text-muted hover:bg-white hover:text-pine-900"
+                      }`}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>

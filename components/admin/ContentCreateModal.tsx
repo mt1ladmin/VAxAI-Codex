@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Check, Loader2, Sparkles, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ContentType = "blog" | "linkedin" | "instagram" | "facebook" | "all";
 
@@ -151,7 +151,16 @@ const PLACEHOLDERS: Record<ContentType, string> = {
   all: "Describe the topic — e.g. 'Why clearing an admin backlog is usually the first step before a charity can get value from AI'",
 };
 
-export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ContentCreateModal({
+  open,
+  onClose,
+  initialBrief = "",
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** Optional brief from the topic library (does not change generate API). */
+  initialBrief?: string;
+}) {
   const router = useRouter();
   const [step, setStep] = useState<"form" | "preview">("form");
   const [contentType, setContentType] = useState<ContentType>("blog");
@@ -181,6 +190,14 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
     setScheduledSocial(false);
     setStreaming(false);
   };
+
+  useEffect(() => {
+    if (open && initialBrief.trim()) {
+      setBrief(initialBrief);
+      setStep("form");
+      setError("");
+    }
+  }, [open, initialBrief]);
 
   const handleClose = () => {
     reset();

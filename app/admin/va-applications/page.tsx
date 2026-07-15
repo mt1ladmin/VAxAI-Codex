@@ -174,7 +174,7 @@ export default function VaApplicationsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#5F686A]">
-            Talent network
+            Freelance partners
           </p>
           <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[#122428]">
             VA Applications

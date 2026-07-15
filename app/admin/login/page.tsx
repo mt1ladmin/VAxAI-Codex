@@ -43,15 +43,15 @@ export default function AdminLoginPage() {
       <div className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 inline-flex items-center justify-center rounded-xl bg-pine-900 px-4 py-3">
-              <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto" />
+            <div className="mx-auto mb-4 inline-flex items-center justify-center">
+              <img src="/vaxai.jpg" alt="VAxAI" className="h-10 w-auto" />
             </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pine-900">VAxAI Studio</p>
-            <h1 className="mt-1 text-2xl font-semibold text-ink">Sign in</h1>
-            <p className="mt-1 text-sm text-muted">Admin access only</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">VAxAI Studio</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">Sign in</h1>
+            <p className="mt-1 text-sm text-muted">Team access to engagement and content tools</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-pine-900/10 bg-white p-8 shadow-sm">
             <div className="space-y-4">
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-700">

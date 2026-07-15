@@ -51,8 +51,8 @@ function ToolbarBtn({
       type="button"
       onMouseDown={(e) => { e.preventDefault(); onClick(); }}
       title={title}
-      className={`grid h-7 w-7 place-items-center rounded text-sm transition-colors ${
-        active ? "bg-[#122428] text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+      className={`grid h-8 w-8 place-items-center rounded-lg text-sm transition-colors ${
+        active ? "bg-pine-900 text-white" : "text-muted hover:bg-cream hover:text-pine-900"
       }`}
     >
       {children}
@@ -107,23 +107,23 @@ export default function PostEditor({
   };
 
   return (
-    <div className="flex flex-col bg-white">
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-pine-900/10 bg-white shadow-sm">
       {/* Formatting toolbar */}
-      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 border-b border-gray-100 bg-white px-6 py-2">
+      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 border-b border-pine-900/8 bg-white px-4 py-2.5 md:px-5">
         <ToolbarBtn onClick={() => editor?.chain().focus().toggleBold().run()} active={editor?.isActive("bold")} title="Bold">
           <Bold className="h-3.5 w-3.5" />
         </ToolbarBtn>
         <ToolbarBtn onClick={() => editor?.chain().focus().toggleItalic().run()} active={editor?.isActive("italic")} title="Italic">
           <Italic className="h-3.5 w-3.5" />
         </ToolbarBtn>
-        <div className="mx-1 h-5 w-px bg-gray-200" />
+        <div className="mx-1 h-5 w-px bg-pine-900/10" />
         <ToolbarBtn onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} active={editor?.isActive("heading", { level: 2 })} title="Heading 2">
           <span className="text-[11px] font-bold">H2</span>
         </ToolbarBtn>
         <ToolbarBtn onClick={() => editor?.chain().focus().toggleHeading({ level: 4 }).run()} active={editor?.isActive("heading", { level: 4 })} title="Heading 4">
           <span className="text-[11px] font-bold">H4</span>
         </ToolbarBtn>
-        <div className="mx-1 h-5 w-px bg-gray-200" />
+        <div className="mx-1 h-5 w-px bg-pine-900/10" />
         <ToolbarBtn onClick={() => editor?.chain().focus().toggleBlockquote().run()} active={editor?.isActive("blockquote")} title="Blockquote">
           <Quote className="h-3.5 w-3.5" />
         </ToolbarBtn>
@@ -133,7 +133,7 @@ export default function PostEditor({
         <ToolbarBtn onClick={() => editor?.chain().focus().toggleOrderedList().run()} active={editor?.isActive("orderedList")} title="Ordered list">
           <ListOrdered className="h-3.5 w-3.5" />
         </ToolbarBtn>
-        <div className="mx-1 h-5 w-px bg-gray-200" />
+        <div className="mx-1 h-5 w-px bg-pine-900/10" />
         <ToolbarBtn onClick={addLink} active={editor?.isActive("link")} title="Insert link">
           <Link2 className="h-3.5 w-3.5" />
         </ToolbarBtn>
@@ -143,14 +143,14 @@ export default function PostEditor({
         <ToolbarBtn onClick={() => editor?.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
           <Minus className="h-3.5 w-3.5" />
         </ToolbarBtn>
-        <div className="mx-1 h-5 w-px bg-gray-200" />
+        <div className="mx-1 h-5 w-px bg-pine-900/10" />
         <ToolbarBtn onClick={() => editor?.chain().focus().undo().run()} title="Undo">
           <Undo className="h-3.5 w-3.5" />
         </ToolbarBtn>
         <ToolbarBtn onClick={() => editor?.chain().focus().redo().run()} title="Redo">
           <Redo className="h-3.5 w-3.5" />
         </ToolbarBtn>
-        <span className="ml-auto text-xs text-gray-400">{wordCount} {wordCount === 1 ? "word" : "words"}</span>
+        <span className="ml-auto text-xs font-medium text-muted">{wordCount} {wordCount === 1 ? "word" : "words"}</span>
       </div>
 
       {/* Cover image */}
@@ -176,10 +176,10 @@ export default function PostEditor({
           </div>
         </div>
       ) : (
-        <label className="group flex cursor-pointer flex-col items-center justify-center gap-2 border-b border-dashed border-gray-200 bg-gray-50 py-12 text-sm text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
-          <ImageIcon className="h-8 w-8 opacity-40" />
-          <span className="font-semibold">Click to upload a cover image</span>
-          <span className="text-xs">PNG, JPG, WEBP up to 10MB</span>
+        <label className="group flex cursor-pointer flex-col items-center justify-center gap-2 border-b border-dashed border-pine-900/15 bg-cream/40 py-12 text-sm text-muted transition-colors hover:bg-cream hover:text-pine-900">
+          <ImageIcon className="h-8 w-8 opacity-50" />
+          <span className="font-semibold">Add cover image</span>
+          <span className="text-xs">PNG, JPG, WEBP — shown on the post and social previews</span>
           <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
@@ -193,14 +193,14 @@ export default function PostEditor({
       )}
 
       {/* Content area */}
-      <div className="mx-auto w-full max-w-2xl px-8 py-10 pb-40">
+      <div className="mx-auto w-full max-w-2xl px-6 py-10 pb-40 md:px-10">
         {/* Title */}
         <textarea
           value={title}
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder="Post title"
           rows={1}
-          className="w-full resize-none border-none bg-transparent text-4xl font-bold leading-tight text-gray-900 outline-none placeholder:text-gray-300"
+          className="w-full resize-none border-none bg-transparent text-3xl font-semibold leading-tight tracking-tight text-pine-900 outline-none placeholder:text-muted/40 md:text-4xl"
           onInput={(e) => {
             const el = e.currentTarget;
             el.style.height = "auto";
@@ -210,12 +210,13 @@ export default function PostEditor({
 
         {/* Standfirst */}
         <div className="mt-5">
+          <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Standfirst</p>
           <textarea
             value={description}
             onChange={(e) => onDescriptionChange(e.target.value)}
-            placeholder="Standfirst — a brief summary shown under the title and used as the meta description…"
+            placeholder="Short summary under the title — also used as the meta description"
             rows={2}
-            className="w-full resize-none border-none bg-transparent text-lg leading-7 text-gray-500 outline-none placeholder:text-gray-300"
+            className="w-full resize-none border-none bg-transparent text-base leading-7 text-muted outline-none placeholder:text-muted/40 md:text-lg"
             onInput={(e) => {
               const el = e.currentTarget;
               el.style.height = "auto";
@@ -225,8 +226,8 @@ export default function PostEditor({
         </div>
 
         {/* Body */}
-        <div className="mt-6 border-t border-gray-100 pt-6">
-          <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-400">Body</p>
+        <div className="mt-6 border-t border-pine-900/8 pt-6">
+          <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Body</p>
           <EditorContent editor={editor} />
         </div>
       </div>
