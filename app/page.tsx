@@ -28,13 +28,17 @@ const principles: [string, string][] = [
   ["Sustained.", "Improvements maintained, not left to slip"],
 ];
 
-const symptoms = [
-  "Documents scattered and hard to find",
-  "Data that no longer matches reality",
-  "Processes that live in someone's head",
-  "Inboxes and shared drives overflowing",
-  "Reporting that takes longer every quarter",
-  "Skilled people stuck on routine tasks",
+const problemColumns: [string[], string[]] = [
+  [
+    "Documents scattered and hard to find",
+    "Data that no longer matches reality",
+    "Processes that live in someone's head",
+  ],
+  [
+    "Inboxes and shared drives overflowing",
+    "Reporting that takes longer every quarter",
+    "Skilled people stuck on routine tasks",
+  ],
 ];
 
 const helpCards = [
@@ -524,15 +528,22 @@ export default function Home() {
               Administration doesn&rsquo;t fix itself. Even with AI.
             </h2>
           </Reveal>
-          <Stagger className="mt-10 grid gap-x-14 gap-y-0 rounded-3xl border border-ink/8 bg-cream/50 px-7 py-3 md:grid-cols-2 md:px-10">
-            {symptoms.map((symptom) => (
-              <motion.p
-                key={symptom}
-                variants={fadeUp}
-                className="border-b border-ink/10 py-4 text-base leading-7 text-ink last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0"
-              >
-                {symptom}
-              </motion.p>
+          <Stagger className="mt-10 grid gap-x-12 gap-y-8 rounded-3xl border border-ink/8 bg-cream/40 px-7 py-6 md:grid-cols-2 md:gap-x-16 md:px-10 md:py-8">
+            {problemColumns.map((column, columnIndex) => (
+              <motion.div key={columnIndex} variants={fadeUp} className="min-w-0">
+                <ul className="m-0 list-none p-0">
+                  {column.map((item, itemIndex) => (
+                    <li
+                      key={item}
+                      className={`py-4 text-base leading-7 text-ink md:text-[1.05rem] md:leading-8 ${
+                        itemIndex < column.length - 1 ? "border-b border-ink/12" : ""
+                      }`}
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
             ))}
           </Stagger>
           <Reveal>
