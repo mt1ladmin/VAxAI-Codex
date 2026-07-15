@@ -24,7 +24,14 @@ type WorkToday = {
   newEnquiries: Array<{ id: string; name: string; status: string; href: string }>;
 };
 
-type PostItem = { id: string; title: string; status: string; scheduled_at?: string | null; content_type: string };
+type PostItem = {
+  id: string;
+  title: string;
+  status: string;
+  scheduled_at?: string | null;
+  content_type: string;
+  cover_image_url?: string | null;
+};
 
 type Stats = {
   newEnquiries: number;
@@ -177,7 +184,7 @@ export default function EngagementOverview() {
                   hint: "Needs review",
                 },
                 {
-                  label: "VA applications",
+                  label: "VAs",
                   value: "→",
                   href: "/admin/va-applications",
                   hint: "Freelance partners",
@@ -252,7 +259,7 @@ export default function EngagementOverview() {
         <div className="mt-8">
           <div className="mb-3 flex items-center gap-2">
             <h2 className="text-sm font-semibold text-pine-900">Where to work next</h2>
-            <InfoTip text="Prospect Finder is outbound research. Enquiries are inbound. Knowledge Hub holds scripts, sectors and objections for preparation. VA Applications is the freelance partner pipeline." />
+            <InfoTip text="Prospect Finder is outbound research. Enquiries are inbound. Knowledge Hub holds scripts, sectors and objections for preparation. VAs is the freelance partner pipeline." />
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -275,8 +282,8 @@ export default function EngagementOverview() {
                 icon: BookOpen,
               },
               {
-                label: "VA Applications",
-                desc: "Freelance partner applications and talent pool",
+                label: "VAs",
+                desc: "Freelance applications and active talent pool",
                 href: "/admin/va-applications",
                 icon: Users,
               },
@@ -330,11 +337,27 @@ export default function EngagementOverview() {
                     <Link
                       key={p.id}
                       href={`/admin/posts/${p.id}`}
-                      className="flex items-center justify-between gap-2 px-5 py-3 transition-colors hover:bg-cream/50"
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-cream/50 sm:px-5"
                     >
-                      <span className="truncate text-sm font-semibold text-pine-900">{p.title}</span>
-                      <span className="shrink-0 rounded-full bg-cream px-2 py-0.5 text-[10px] font-semibold capitalize text-muted">
-                        {p.status}
+                      <span className="h-12 w-14 shrink-0 overflow-hidden rounded-lg bg-cream ring-1 ring-pine-900/10">
+                        {p.cover_image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={p.cover_image_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="grid h-full w-full place-items-center text-[10px] font-semibold text-muted">
+                            Post
+                          </span>
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-pine-900">{p.title}</span>
+                        <span className="mt-0.5 inline-flex rounded-full bg-cream px-2 py-0.5 text-[10px] font-semibold capitalize text-muted">
+                          {p.status}
+                        </span>
                       </span>
                     </Link>
                   ))}
@@ -366,22 +389,34 @@ export default function EngagementOverview() {
                     <Link
                       key={p.id}
                       href={`/admin/posts/${p.id}`}
-                      className="flex items-center justify-between gap-2 px-5 py-3 transition-colors hover:bg-cream/50"
+                      className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-cream/50 sm:px-5"
                     >
-                      <div className="min-w-0">
+                      <span className="h-12 w-14 shrink-0 overflow-hidden rounded-lg bg-cream ring-1 ring-pine-900/10">
+                        {p.cover_image_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={p.cover_image_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="grid h-full w-full place-items-center text-[10px] font-semibold text-muted">
+                            {(p.content_type || "").toLowerCase().includes("social") ? "Social" : "Blog"}
+                          </span>
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-semibold text-pine-900">{p.title}</span>
                         <span className="text-[10px] text-muted">
                           {(p.content_type || "").toLowerCase().includes("social") ? "Social" : "Blog"}
+                          {p.scheduled_at
+                            ? ` · ${new Date(p.scheduled_at).toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                              })}`
+                            : ""}
                         </span>
-                      </div>
-                      {p.scheduled_at ? (
-                        <span className="shrink-0 rounded-full border border-pine-900/10 px-2 py-0.5 text-[10px] font-semibold text-pine-900">
-                          {new Date(p.scheduled_at).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                          })}
-                        </span>
-                      ) : null}
+                      </span>
                     </Link>
                   ))}
                 </div>

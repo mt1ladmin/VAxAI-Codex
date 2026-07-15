@@ -43,7 +43,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
-      { label: "VA Applications", href: "/admin/va-applications", icon: Users, subtitle: "Freelance partners" },
+      { label: "VAs", href: "/admin/va-applications", icon: Users, subtitle: "Freelance partners" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
       { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen, subtitle: "Playbooks & prep" },
     ],
@@ -66,7 +66,7 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
-      { label: "VA Applications", href: "/admin/va-applications", icon: Users, subtitle: "Freelance partners" },
+      { label: "VAs", href: "/admin/va-applications", icon: Users, subtitle: "Freelance partners" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
       { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen, subtitle: "Playbooks & prep" },
     ],
@@ -130,17 +130,17 @@ export default function AdminShell({
           ${open ? "w-60 translate-x-0" : "-translate-x-full md:translate-x-0 md:w-14"}
         `}
       >
-        {/* Logo — matches public site */}
+        {/* Logo — same asset and treatment as public dark nav (pine + wordmark) */}
         <div className={`flex h-14 items-center border-b border-white/10 px-3 ${open ? "justify-between" : "justify-center"}`}>
           {open && (
-            <Link href={homeHref} className="flex min-w-0 items-center gap-2.5">
-              <img src="/vaxai.jpg" alt="VAxAI" className="h-7 w-auto shrink-0" />
-              <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-paper/50">Studio</span>
+            <Link href={homeHref} className="flex min-w-0 items-center gap-2.5" aria-label="VAxAI Studio home">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto shrink-0" />
+              <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-paper/55">Studio</span>
             </Link>
           )}
           {!open && (
-            <Link href={homeHref} title="VAxAI Studio" className="flex items-center justify-center">
-              <img src="/vaxai.jpg" alt="VAxAI" className="h-6 w-auto max-w-[2rem] object-contain" />
+            <Link href={homeHref} title="VAxAI Studio" className="flex items-center justify-center" aria-label="VAxAI Studio">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-7 w-auto max-w-[2.25rem] object-contain object-left" />
             </Link>
           )}
           {open && (
@@ -269,10 +269,10 @@ export default function AdminShell({
           >
             <Menu className="h-4 w-4" />
           </button>
-          <Link href={homeHref} className="flex items-center gap-2">
-            <img src="/vaxai.jpg" alt="VAxAI" className="h-6 w-auto" />
-            <span className="text-sm font-semibold text-pine-900">Studio</span>
+          <Link href={homeHref} className="flex items-center gap-2 rounded-md bg-pine-900 px-2 py-1">
+            <img src="/vaxai-logo.png" alt="VAxAI" className="h-7 w-auto" />
           </Link>
+          <span className="text-sm font-semibold text-pine-900">Studio</span>
         </div>
 
         {/* Desktop open sidebar button */}

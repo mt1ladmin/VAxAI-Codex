@@ -5,12 +5,15 @@ import { ImageResponse } from "next/og";
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
-/** Browser tab icon — uses the current brand mark from public/vaxai.jpg */
+/**
+ * Browser tab / Google favicon — same wordmark as the public site on pine,
+ * so it matches the home header treatment (not the portrait vaxai.jpg).
+ */
 export default async function Icon() {
   let dataUrl: string | null = null;
   try {
-    const buf = await readFile(join(process.cwd(), "public/vaxai.jpg"));
-    dataUrl = `data:image/jpeg;base64,${buf.toString("base64")}`;
+    const buf = await readFile(join(process.cwd(), "public/vaxai-logo.png"));
+    dataUrl = `data:image/png;base64,${buf.toString("base64")}`;
   } catch {
     dataUrl = null;
   }
@@ -32,8 +35,8 @@ export default async function Icon() {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={dataUrl}
-            width={26}
-            height={26}
+            width={28}
+            height={10}
             style={{ objectFit: "contain" }}
             alt=""
           />

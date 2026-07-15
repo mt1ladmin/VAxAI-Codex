@@ -43,8 +43,8 @@ export default function AdminLoginPage() {
       <div className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 inline-flex items-center justify-center">
-              <img src="/vaxai.jpg" alt="VAxAI" className="h-10 w-auto" />
+            <div className="mx-auto mb-4 inline-flex items-center justify-center rounded-xl bg-pine-900 px-4 py-3">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto" />
             </div>
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">VAxAI Studio</p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">Sign in</h1>

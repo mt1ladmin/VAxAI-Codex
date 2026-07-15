@@ -5,12 +5,12 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
-/** Home-screen / Apple touch icon — current brand mark */
+/** Home-screen icon — pine + site wordmark (matches public dark logo). */
 export default async function AppleIcon() {
   let dataUrl: string | null = null;
   try {
-    const buf = await readFile(join(process.cwd(), "public/vaxai.jpg"));
-    dataUrl = `data:image/jpeg;base64,${buf.toString("base64")}`;
+    const buf = await readFile(join(process.cwd(), "public/vaxai-logo.png"));
+    dataUrl = `data:image/png;base64,${buf.toString("base64")}`;
   } catch {
     dataUrl = null;
   }
@@ -32,8 +32,8 @@ export default async function AppleIcon() {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={dataUrl}
-            width={140}
-            height={140}
+            width={150}
+            height={52}
             style={{ objectFit: "contain" }}
             alt=""
           />

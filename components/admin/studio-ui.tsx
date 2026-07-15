@@ -3,8 +3,8 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Info, X } from "lucide-react";
 
-/** Current brand mark (dropped into public for Studio + site). */
-export const STUDIO_LOGO_SRC = "/vaxai.jpg";
+/** Same wordmark as the public dark nav — designed for pine backgrounds. */
+export const STUDIO_LOGO_SRC = "/vaxai-logo.png";
 
 /** Shared Studio visual language — MT1L pine/cream, high contrast, no yellow chrome. */
 export const studio = {
