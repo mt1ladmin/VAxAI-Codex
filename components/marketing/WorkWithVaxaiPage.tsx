@@ -8,7 +8,6 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import FilingTab from "@/components/FilingTab";
-import { MultiSelect } from "@/components/ui/MultiSelect";
 import {
   VA_APPLICANT_TYPE_LABELS,
   VA_CLIENT_SECTORS,
@@ -72,6 +71,9 @@ const inputClass =
 
 const labelClass = "mb-1.5 block text-sm font-semibold text-ink";
 
+const errorClass =
+  "mt-4 rounded-xl border border-pine-900/15 bg-cream px-3.5 py-3 text-sm leading-6 text-pine-900";
+
 const essentials = [
   "UK-based",
   "Able to prove your identity",
@@ -83,8 +85,8 @@ const essentials = [
 const whyPartner = [
   "We carefully match freelancers to projects and retainers so the fit is right for you and the organisation.",
   "We handle coordination, quality review and client communication, so you can focus on delivering excellent work.",
-  "You stay current on practical AI and automation skills for admin, without paying for separate training elsewhere.",
-  "Some clients use AI tools; others do not. Either way, you will know how to work efficiently and only recommend tools that fit how the organisation already works and what they trust.",
+  "We provide training so you stay current on practical AI and automation skills for admin work.",
+  "Some clients use AI tools; others do not. Either way, you apply the MT1L VAT Framework (Value, Alignment, Trust) to judge when AI adds value, when it does not, whether it fits how the organisation works, and whether it can be trusted in that context — so your admin work stays efficient and appropriate.",
 ];
 
 /** Ordered wizard steps (one focus per screen) */
@@ -121,6 +123,42 @@ const STEP_TITLES: Record<StepId, string> = {
   cv: "Your CV",
   declaration: "Declaration",
 };
+
+/** Chip multi-select — keeps all options visible in the modal (no hidden dropdown). */
+function ChipSelect({
+  values,
+  onChange,
+  options,
+}: {
+  values: string[];
+  onChange: (values: string[]) => void;
+  options: readonly string[];
+}) {
+  const toggle = (opt: string) => {
+    onChange(values.includes(opt) ? values.filter((v) => v !== opt) : [...values, opt]);
+  };
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => {
+        const active = values.includes(opt);
+        return (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => toggle(opt)}
+            className={`rounded-full border px-3 py-1.5 text-left text-xs font-semibold transition-colors md:text-sm ${
+              active
+                ? "border-pine-900 bg-pine-900 text-paper"
+                : "border-ink/12 bg-white text-muted hover:border-ink/30"
+            }`}
+          >
+            {opt}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function WorkWithVaxaiPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -167,7 +205,7 @@ export default function WorkWithVaxaiPage() {
   }, [modalOpen]);
 
   const step = STEPS[stepIndex];
-  const progress = ((stepIndex + 1) / STEPS.length) * 100;
+  const progress = success ? 100 : ((stepIndex + 1) / STEPS.length) * 100;
 
   const industryOptions = useMemo(() => {
     if (!clientSector) return [];
@@ -176,6 +214,7 @@ export default function WorkWithVaxaiPage() {
 
   function openModal() {
     setModalOpen(true);
+    setSuccess(false);
     setStepIndex(0);
     setError(null);
   }
@@ -184,6 +223,10 @@ export default function WorkWithVaxaiPage() {
     if (submitting) return;
     setModalOpen(false);
     setError(null);
+    if (success) {
+      resetForm();
+      setSuccess(false);
+    }
   }
 
   function resetForm() {
@@ -302,10 +345,7 @@ export default function WorkWithVaxaiPage() {
       form.set("has_business_insurance", insurance);
       form.set("can_prove_identity", String(canProveIdentity));
       form.set("specialisms", JSON.stringify(specialisms));
-      form.set(
-        "sectors_interests",
-        `${clientSector}: ${industries.join(", ")}`,
-      );
+      form.set("sectors_interests", `${clientSector}: ${industries.join(", ")}`);
       form.set("client_sector", clientSector);
       form.set("industries", JSON.stringify(industries));
       form.set("work_specialises_in", workSpecialisesIn);
@@ -325,9 +365,7 @@ export default function WorkWithVaxaiPage() {
         return;
       }
       setSuccess(true);
-      setModalOpen(false);
-      resetForm();
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setError(null);
     } catch {
       setError("Network error. Please try again.");
     }
@@ -345,30 +383,30 @@ export default function WorkWithVaxaiPage() {
     switch (step) {
       case "privacy":
         return (
-          <div className="space-y-4">
-            <p className="text-sm leading-7 text-muted">
+          <div className="space-y-5">
+            <p className="text-sm leading-7 text-muted md:text-[15px] md:leading-8">
               Before you start, please read how we handle the information you submit on this
-              application. By continuing you confirm you understand and agree to the policies
-              linked below.
+              application. By continuing you confirm you understand and agree to the policies linked
+              below.
             </p>
-            <div className="rounded-2xl border border-ink/10 bg-cream/40 px-4 py-4 text-sm leading-7 text-muted">
+            <div className="rounded-2xl border border-ink/10 bg-cream/40 px-5 py-5 text-sm leading-7 text-muted md:px-6 md:py-6 md:text-[15px] md:leading-8">
               <p className="font-semibold text-ink">What we collect</p>
-              <p className="mt-2">
-                Your contact details, location, self-employment and insurance readiness, identity
-                confirmation, specialisms, preferred client sectors and industries, availability,
-                CV, and any notes you choose to share. We use this only to review your application,
-                contact you about partnership opportunities, and match you to suitable work.
-              </p>
               <p className="mt-3">
-                We do not sell your data. You can ask us to access, correct or delete your
-                application information at any time by emailing{" "}
+                Your contact details, location, self-employment and insurance readiness, identity
+                confirmation, specialisms, preferred client sectors and industries, availability, CV,
+                and any notes you choose to share. We use this only to review your application, contact
+                you about partnership opportunities, and match you to suitable work with VAxAI.
+              </p>
+              <p className="mt-4">
+                We do not sell your data. You can ask us to access, correct or delete your application
+                information at any time by emailing{" "}
                 <a href="mailto:hello@mt1l.com" className="font-semibold text-pine-800 underline">
                   hello@mt1l.com
                 </a>
                 .
               </p>
             </div>
-            <ul className="space-y-2 text-sm">
+            <ul className="grid gap-2.5 text-sm sm:grid-cols-2">
               <li>
                 <a href="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-pine-800 underline">
                   Privacy Policy
@@ -390,7 +428,7 @@ export default function WorkWithVaxaiPage() {
                 </a>
               </li>
             </ul>
-            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-3 text-sm text-muted">
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm leading-6 text-muted md:px-5 md:py-4">
               <input
                 type="checkbox"
                 checked={policiesAccepted}
@@ -539,12 +577,7 @@ export default function WorkWithVaxaiPage() {
             <p className="text-sm leading-7 text-muted">
               Select any that apply. You do not need every skill listed.
             </p>
-            <MultiSelect
-              values={specialisms}
-              onChange={setSpecialisms}
-              options={[...VA_SPECIALISMS]}
-              placeholder="Choose specialisms…"
-            />
+            <ChipSelect values={specialisms} onChange={setSpecialisms} options={VA_SPECIALISMS} />
           </div>
         );
 
@@ -579,12 +612,7 @@ export default function WorkWithVaxaiPage() {
                 : "Select a sector first."}
             </p>
             {clientSector ? (
-              <MultiSelect
-                values={industries}
-                onChange={setIndustries}
-                options={industryOptions}
-                placeholder="Choose industries…"
-              />
+              <ChipSelect values={industries} onChange={setIndustries} options={industryOptions} />
             ) : null}
           </div>
         );
@@ -700,8 +728,8 @@ export default function WorkWithVaxaiPage() {
         return (
           <div className="space-y-4">
             <p className="text-sm leading-7 text-muted">
-              Please review and confirm before submitting. We will only use this information to
-              assess your application and contact you about freelance opportunities with VAxAI.
+              Please review and confirm before submitting. We will only use this information to assess
+              your application and contact you about freelance opportunities with VAxAI.
             </p>
             <div className="rounded-2xl border border-ink/10 bg-cream/40 px-4 py-4 text-sm leading-6 text-muted">
               <p>
@@ -730,8 +758,8 @@ export default function WorkWithVaxaiPage() {
                 className="mt-1"
               />
               <span>
-                I declare that the information I have provided in this application is true and
-                accurate to the best of my knowledge.
+                I declare that the information I have provided in this application is true and accurate
+                to the best of my knowledge.
               </span>
             </label>
           </div>
@@ -742,11 +770,18 @@ export default function WorkWithVaxaiPage() {
     }
   }
 
+  const modalBodyMin =
+    step === "privacy"
+      ? "min-h-[22rem] sm:min-h-[26rem]"
+      : step === "specialisms" || step === "industries"
+        ? "min-h-[18rem] sm:min-h-[22rem]"
+        : "min-h-[12rem] sm:min-h-[14rem]";
+
   const modal =
     mounted && modalOpen
       ? createPortal(
           <div
-            className="fixed inset-0 z-[100] grid place-items-center bg-ink/55 px-4 py-6 backdrop-blur-md"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/55 px-3 py-4 backdrop-blur-md sm:px-4 sm:py-6"
             role="dialog"
             aria-modal="true"
             aria-labelledby="va-apply-title"
@@ -754,19 +789,21 @@ export default function WorkWithVaxaiPage() {
               if (e.target === e.currentTarget) closeModal();
             }}
           >
-            <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
-              <div className="shrink-0 bg-pine-900 px-5 py-4 text-paper md:px-6">
+            <div className="flex max-h-[min(96vh,920px)] w-full max-w-2xl flex-col overflow-hidden rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+              <div className="shrink-0 bg-pine-900 px-5 py-5 text-paper sm:px-7 sm:py-6">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid">
                       Application
                     </p>
-                    <h2 id="va-apply-title" className="mt-1 text-xl font-semibold leading-tight">
-                      {STEP_TITLES[step]}
+                    <h2 id="va-apply-title" className="mt-1.5 text-xl font-semibold leading-tight sm:text-2xl">
+                      {success ? "Application received" : STEP_TITLES[step]}
                     </h2>
-                    <p className="mt-1 text-xs text-paper/55">
-                      Step {stepIndex + 1} of {STEPS.length}
-                    </p>
+                    {!success ? (
+                      <p className="mt-1.5 text-xs text-paper/55">
+                        Step {stepIndex + 1} of {STEPS.length}
+                      </p>
+                    ) : null}
                   </div>
                   <button
                     type="button"
@@ -777,7 +814,7 @@ export default function WorkWithVaxaiPage() {
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/15">
+                <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-white/15">
                   <div
                     className="h-full rounded-full bg-acid transition-all duration-300 ease-premium"
                     style={{ width: `${progress}%` }}
@@ -785,51 +822,69 @@ export default function WorkWithVaxaiPage() {
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 md:px-6">
-                {renderStep()}
-                {error ? (
-                  <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">
-                    {error}
+              {success ? (
+                <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 text-center sm:px-10 sm:py-14">
+                  <div className="grid h-14 w-14 place-items-center rounded-full bg-pine-900 text-acid">
+                    <Check className="h-7 w-7" />
+                  </div>
+                  <h3 className="mt-6 text-xl font-semibold text-ink sm:text-2xl">
+                    Application received
+                  </h3>
+                  <p className="mt-3 max-w-md text-sm leading-7 text-muted sm:text-base sm:leading-8">
+                    Thank you for applying to partner with VAxAI. We will review your application and
+                    get in touch if there is a good fit.
                   </p>
-                ) : null}
-              </div>
-
-              <div className="flex shrink-0 items-center justify-between gap-3 border-t border-ink/8 bg-white px-5 py-4 md:px-6">
-                <button
-                  type="button"
-                  onClick={goBack}
-                  disabled={stepIndex === 0 || submitting}
-                  className={btn.ghost}
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </button>
-                {step === "declaration" ? (
-                  <button
-                    type="button"
-                    onClick={() => void submitApplication()}
-                    disabled={submitting}
-                    className={btn.primary}
+                  <button type="button" onClick={closeModal} className={`${btn.primary} mt-8`}>
+                    Close
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div
+                    className={`min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7 sm:py-7 ${modalBodyMin}`}
                   >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Submitting…
-                      </>
+                    {renderStep()}
+                    {error ? <p className={errorClass}>{error}</p> : null}
+                  </div>
+
+                  <div className="flex shrink-0 items-center justify-between gap-3 border-t border-ink/8 bg-white px-5 py-4 sm:px-7">
+                    <button
+                      type="button"
+                      onClick={goBack}
+                      disabled={stepIndex === 0 || submitting}
+                      className={btn.ghost}
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      Back
+                    </button>
+                    {step === "declaration" ? (
+                      <button
+                        type="button"
+                        onClick={() => void submitApplication()}
+                        disabled={submitting}
+                        className={btn.primary}
+                      >
+                        {submitting ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Submitting…
+                          </>
+                        ) : (
+                          <>
+                            Submit application
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
+                      </button>
                     ) : (
-                      <>
-                        Submit application
+                      <button type="button" onClick={goNext} className={btn.primary}>
+                        Continue
                         <ArrowRight className="h-4 w-4" />
-                      </>
+                      </button>
                     )}
-                  </button>
-                ) : (
-                  <button type="button" onClick={goNext} className={btn.primary}>
-                    Continue
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>,
           document.body,
@@ -844,15 +899,15 @@ export default function WorkWithVaxaiPage() {
         </header>
 
         <main className="overflow-x-hidden">
-          {/* Hero */}
-          <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-24">
-            <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-              <motion.div initial="hidden" animate="show" variants={fadeUp}>
+          {/* Hero — stacked on mobile, image constrained and readable */}
+          <section className="bg-pine-900 px-4 py-12 text-paper sm:py-16 md:px-8 md:py-24">
+            <div className="mx-auto grid max-w-6xl items-center gap-10 md:gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+              <motion.div initial="hidden" animate="show" variants={fadeUp} className="order-1">
                 <Eyebrow light>Partner with VAxAI</Eyebrow>
-                <h1 className="mt-6 max-w-3xl text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.025em] md:text-5xl">
+                <h1 className="mt-5 max-w-3xl text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.025em] sm:mt-6 sm:text-[2.35rem] md:text-5xl">
                   Become a VAxAI freelancer
                 </h1>
-                <p className="mt-8 max-w-2xl text-base leading-8 text-paper/70 md:text-lg">
+                <p className="mt-6 max-w-2xl text-base leading-8 text-paper/70 sm:mt-8 md:text-lg">
                   We are looking for talented UK-based freelance virtual assistants to help organisations
                   clear admin backlogs, prepare for AI and automation where it adds value, keep ongoing
                   admin systems running, and monitor work so problems do not return.
@@ -861,7 +916,7 @@ export default function WorkWithVaxaiPage() {
                   Our freelancers support project-based work (backlog clearing and AI preparation) as well
                   as monthly retainer services (ongoing admin and maintenance of AI and automation outputs).
                 </p>
-                <div className="mt-10 flex flex-wrap gap-3">
+                <div className="mt-8 flex flex-wrap gap-3 sm:mt-10">
                   <button type="button" onClick={openModal} className={btn.accent}>
                     Start your application
                     <ArrowRight className="h-4 w-4" />
@@ -876,36 +931,22 @@ export default function WorkWithVaxaiPage() {
                 initial={{ opacity: 0, y: 26 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
-                className="relative mx-auto w-full max-w-[440px] lg:max-w-none"
+                className="relative order-2 mx-auto w-full max-w-md sm:max-w-lg lg:max-w-none"
               >
                 <div
-                  className="simplified-hide absolute -inset-3 rotate-2 rounded-[36px] border border-white/10 bg-white/[0.04]"
+                  className="simplified-hide absolute -inset-2 rotate-1 rounded-[28px] border border-white/10 bg-white/[0.04] sm:-inset-3 sm:rotate-2 sm:rounded-[36px]"
                   aria-hidden="true"
                 />
-                <div className="relative aspect-[0.92] overflow-hidden rounded-[28px] ring-1 ring-white/15">
+                <div className="relative aspect-[16/11] overflow-hidden rounded-[22px] ring-1 ring-white/15 sm:aspect-[4/3] sm:rounded-[28px] lg:aspect-[0.92]">
                   <img
                     src={HERO_IMAGE}
                     alt="Freelance professionals collaborating remotely"
-                    className="simplified-photo h-full w-full object-cover"
+                    className="simplified-photo h-full w-full object-cover object-center"
                   />
                 </div>
               </motion.div>
             </div>
           </section>
-
-          {success ? (
-            <section className="px-4 py-12 md:px-8">
-              <div className="mx-auto max-w-2xl rounded-[28px] border border-emerald-200 bg-emerald-50/80 px-7 py-10 text-center">
-                <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-600 text-white">
-                  <Check className="h-6 w-6" />
-                </div>
-                <h2 className="mt-5 text-xl font-semibold text-ink">Application received</h2>
-                <p className="mt-3 text-sm leading-7 text-muted">
-                  Thank you. We will review your application and get in touch if there is a good fit.
-                </p>
-              </div>
-            </section>
-          ) : null}
 
           {/* Who we partner with */}
           <section id="who" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
@@ -971,31 +1012,7 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* AI upskilling */}
-          <section className="px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-3xl">
-              <Reveal>
-                <Eyebrow>AI skills as a perk</Eyebrow>
-                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
-                  Stay current without paying for separate training
-                </h2>
-                <div className="mt-6 space-y-4 text-base leading-8 text-muted">
-                  <p>
-                    A benefit of partnering with VAxAI is practical upskilling on AI and automation for
-                    admin work, so freelancers do not need to buy that learning elsewhere. We help you
-                    understand how AI tools can make admin tasks more efficient across different contexts.
-                  </p>
-                  <p>
-                    Not every organisation wants AI. Some prefer traditional admin support. We only train and
-                    recommend AI strategies where they add real value, align with how the organisation works,
-                    and use tools they already trust.
-                  </p>
-                </div>
-              </Reveal>
-            </div>
-          </section>
-
-          {/* Why partner */}
+          {/* Why partner — includes training / VAT framing (no separate AI perk section) */}
           <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
             <div className="mx-auto max-w-6xl">
               <Reveal>
@@ -1020,22 +1037,34 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* Apply CTA */}
+          {/* Apply CTA — more visible card */}
           <section id="apply" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-3xl text-center">
-              <Reveal>
-                <Eyebrow>Application</Eyebrow>
-                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Ready to partner with us?
-                </h2>
-                <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-muted">
-                  Start your application when you are ready. We will take you through one step at a time,
-                  including privacy, your experience, specialisms, availability and CV.
-                </p>
-                <button type="button" onClick={openModal} className={`${btn.primary} mt-8`}>
-                  Start your application
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+            <div className="mx-auto max-w-6xl">
+              <Reveal className="overflow-hidden rounded-[28px] border border-ink/8 bg-white shadow-lift md:grid md:grid-cols-[1.15fr_0.85fr]">
+                <div className="p-8 md:p-10 lg:p-12">
+                  <Eyebrow>Partner with VAxAI</Eyebrow>
+                  <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                    Ready to partner with us?
+                  </h2>
+                  <p className="mt-5 max-w-xl text-base leading-8 text-muted">
+                    Start your application when you are ready. We take you through one step at a time —
+                    privacy, experience, specialisms, availability and CV — so nothing gets missed.
+                  </p>
+                  <button type="button" onClick={openModal} className={`${btn.primary} mt-8`}>
+                    Start your application
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="flex flex-col justify-center border-t border-ink/5 bg-pine-900 p-8 text-paper md:border-l md:border-t-0 md:p-10">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid">
+                    What happens next
+                  </p>
+                  <ul className="mt-5 space-y-3 text-sm leading-6 text-paper/75">
+                    <li>Submit your application and CV</li>
+                    <li>We review fit, specialisms and availability</li>
+                    <li>We get in touch if there is a good match</li>
+                  </ul>
+                </div>
               </Reveal>
             </div>
           </section>
