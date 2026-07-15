@@ -121,7 +121,11 @@ export default function AboutPage() {
                 <div className="mt-8 max-w-2xl space-y-4 text-base leading-8 text-muted md:text-lg">
                   <p>
                     VAxAI helps founders, SMEs, charities and public sector organisations regain control of
-                    the everyday administration that keeps their work moving.
+                    the everyday administration that keeps their work moving. It is a service by MT1L, home
+                    of the Value, Alignment and Trust (VAT) Framework, which helps leaders make more
+                    informed decisions about AI through the lens of value, alignment and trust. That same
+                    standard shapes every VAxAI recommendation: real value, a genuine fit with how you
+                    work, and an outcome you can trust.
                   </p>
                   <p>
                     We believe technology works best when people, processes and information are ready.
@@ -134,22 +138,7 @@ export default function AboutPage() {
                     work, and human support to prepare information, manage complexity, maintain quality and
                     keep systems working. We help with both sides of that balance.
                   </p>
-                  <p>
-                    VAxAI is a service by MT1L, home of the Value, Alignment and Trust (VAT) Framework,
-                    which helps leaders make more informed decisions about AI through the lens of value,
-                    alignment and trust. That same standard shapes every VAxAI recommendation: real value,
-                    a genuine fit with how you work, and an outcome you can trust.
-                  </p>
                 </div>
-                <a
-                  href="https://mt1l.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${btn.ghostLight} mt-8`}
-                >
-                  Check out MT1L
-                  <ArrowRight className="h-4 w-4" />
-                </a>
                 <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xl font-semibold tracking-tight md:text-2xl">
                   <span>Prepare</span>
                   <ArrowRight className="h-5 w-5 text-pine-700" aria-hidden="true" />
@@ -199,10 +188,21 @@ export default function AboutPage() {
                   slowing you down and we&apos;ll tell you what we&apos;d do about it, starting with a free
                   Admin Review.
                 </p>
-                <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>
-                  Get your free Admin Review
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+                <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+                  <button type="button" onClick={() => setContactOpen(true)} className={btn.accent}>
+                    Get your free Admin Review
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <a
+                    href="https://mt1l.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-paper/90 transition-colors duration-300 hover:border-white/40 hover:text-paper"
+                  >
+                    Check out MT1L
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
                 <p className="mt-4 text-xs text-paper/50">A structured review of your administrative operations. Free, with no obligation.</p>
               </div>
             </Reveal>

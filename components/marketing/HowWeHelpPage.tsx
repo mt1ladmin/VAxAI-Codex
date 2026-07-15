@@ -264,7 +264,7 @@ export default function HowWeHelpPage() {
           </section>
 
           {/* In-house or external comparison */}
-          <section className="bg-cream/60 px-4 py-16 md:px-8 md:py-24">
+          <section id="in-house-or-external" className="scroll-mt-28 bg-cream/60 px-4 py-16 md:px-8 md:py-24">
             <div className="mx-auto max-w-6xl">
               <Reveal>
                 <Eyebrow>In-house or external?</Eyebrow>

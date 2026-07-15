@@ -96,7 +96,7 @@ export default function NewsletterPopup() {
 
   return (
     <div
-      className="newsletter-popup__backdrop fixed inset-0 z-[8800] flex items-end justify-center bg-ink/55 px-4 pb-6 backdrop-blur-sm sm:items-center sm:pb-0"
+      className="newsletter-popup__backdrop fixed inset-0 z-[8800] flex items-end justify-center bg-ink/55 px-4 pb-6 backdrop-blur-md sm:items-center sm:pb-0"
       role="dialog"
       aria-modal="true"
       aria-label="Newsletter sign-up"

@@ -47,7 +47,7 @@ export const sharedVaSetupIncluded = {
 };
 
 export const sharedOngoingSupportDescription =
-  "Day-to-day admin support as and when you need it, available as monthly or quarterly arrangements. Support is flexible and you only pay for hours used. Simpler setups need fewer hours.";
+  "Day-to-day admin support as and when you need it, available as monthly or quarterly arrangements. Support is flexible and you only pay for the hours you need, not the hours used. Simpler setups need fewer hours.";
 
 export type AudienceSection = {
   heading: string;
@@ -144,7 +144,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     howWeHelp: {
-      heading: "What could help",
+      heading: "How we help",
       paragraphs: [
         "Whether you are already using AI day to day or still deciding whether it is worth the risk, the same things determine whether your admin gets lighter: clearing what has built up, organising the information and processes your business runs on, and having reliable human support for the work that should stay human. That is exactly how our support is structured.",
       ],
@@ -275,7 +275,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     howWeHelp: {
-      heading: "What could help",
+      heading: "How we help",
       paragraphs: [
         "Whether your team is already using AI informally or holding off until you are confident it will not create more problems than it solves, the same things determine whether it helps: clearing what has built up, organising the information and processes the business runs on, and having reliable human capacity for the work that should stay human. That is exactly how our support is structured.",
       ],
@@ -404,7 +404,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     howWeHelp: {
-      heading: "What could help",
+      heading: "How we help",
       paragraphs: [
         "Whether staff are already using AI informally to save time or your charity is holding back until it is confident there is no safeguarding or trust risk, the same things determine whether it helps: clearing what has built up, organising information safely, and having reliable human capacity for the work that should stay human. That is exactly how our support is structured.",
       ],
@@ -533,7 +533,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     howWeHelp: {
-      heading: "What could help",
+      heading: "How we help",
       paragraphs: [
         "Whether your organisation is preparing a transformation programme or simply trying to get back in control of the day-to-day, the same things determine progress: clearing what has built up, strengthening how information is managed, and having dedicated capacity so preparation does not compete with business as usual. That is exactly how our support is structured.",
       ],

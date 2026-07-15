@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronRight } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -12,12 +12,10 @@ import type {
   AudiencePage,
   AudiencePricing,
   AudienceSection,
-  JourneyStage,
 } from "@/lib/seo/audience-pages";
 import {
   sharedAccessToWork,
   sharedOngoingSupportDescription,
-  sharedPricingBasis,
   sharedVaSetupIncluded,
 } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
@@ -115,7 +113,7 @@ function PressureBulletCard({ item, index }: { item: string; index: number }) {
   );
 }
 
-type AudienceTabId = "pressures" | "howWeHelp" | "approach" | "changes" | "pricing" | "benefits";
+type AudienceTabId = "pressures" | "howWeHelp" | "changes" | "pricing" | "benefits";
 
 function TabFlowCta({ label, onClick }: { label: string; onClick: () => void }) {
   return (
@@ -123,30 +121,6 @@ function TabFlowCta({ label, onClick }: { label: string; onClick: () => void }) 
       {label}
       <ArrowRight className="h-4 w-4" />
     </button>
-  );
-}
-
-function SupportJourney({ stages }: { stages: JourneyStage[] }) {
-  return (
-    <div className="mt-8 grid gap-6 md:grid-cols-2">
-      {stages.map((stage, index) => (
-        <div
-          key={stage.title}
-          className="relative flex flex-col rounded-3xl border border-ink/5 bg-cream/40 px-6 py-7 md:px-7"
-        >
-          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink">
-            {String(index + 1).padStart(2, "0")}. {stage.title}
-          </h3>
-          <div className="mt-3 space-y-3">
-            {stage.paragraphs.map((paragraph) => (
-              <p key={paragraph} className="text-sm leading-7 text-muted md:text-[15px]">
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -182,7 +156,7 @@ function PressuresPanelContent({
         </Stagger>
       ) : null}
     </div>
-    <TabFlowCta label="See what could help" onClick={onNext} />
+    <TabFlowCta label="See how we help" onClick={onNext} />
     </div>
   );
 }
@@ -221,72 +195,7 @@ function HowWeHelpPanelContent({
           </div>
         </div>
       ) : null}
-      <TabFlowCta label="See our approach" onClick={onNext} />
-    </div>
-  );
-}
-
-function HowPanelContent({
-  badge,
-  section,
-  showIntro = true,
-  onNext,
-}: {
-  badge: string;
-  section: AudienceSection;
-  showIntro?: boolean;
-  onNext: () => void;
-}) {
-  return (
-    <div className="px-6 py-7 md:px-8 md:py-8">
-      {showIntro ? <Eyebrow>{badge}</Eyebrow> : null}
-      {section.heading ? (
-        <h2
-          className={cn(
-            "text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl",
-            showIntro && "mt-4",
-          )}
-        >
-          {section.heading}
-        </h2>
-      ) : null}
-      {section.paragraphs.length > 0 ? (
-        <div className={cn("space-y-4 text-base leading-8 text-muted", (showIntro || section.heading) && "mt-6")}>
-          {section.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      ) : null}
-      {(section.bullets ?? []).length > 0 ? (
-        <div className="mt-8 rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card md:p-8">
-          {section.bulletsLabel ? (
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-              {section.bulletsLabel}
-            </p>
-          ) : null}
-          <div className="grid gap-4">
-            {(section.bullets ?? []).map((item) => (
-              <div key={item} className="flex gap-3">
-                <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-                  ✓
-                </span>
-                <p className="text-sm leading-7 text-muted md:text-[15px]">{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
-      {(section.journey ?? []).length > 0 ? (
-        <>
-          {section.journeyLabel ? (
-            <h2 className="mt-10 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
-              {section.journeyLabel}
-            </h2>
-          ) : null}
-          <SupportJourney stages={section.journey ?? []} />
-          <TabFlowCta label="See what changes in practice" onClick={onNext} />
-        </>
-      ) : null}
+      <TabFlowCta label="See what changes" onClick={onNext} />
     </div>
   );
 }
@@ -362,6 +271,8 @@ function PricingPanelContent({
   onContact: () => void;
   onViewBenefits: () => void;
 }) {
+  const [accessOpen, setAccessOpen] = useState(false);
+
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
       <Eyebrow>Pricing</Eyebrow>
@@ -369,17 +280,6 @@ function PricingPanelContent({
         How Our Pricing Works
       </h2>
       <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricingIntro}</p>
-
-      <div className="mt-6 max-w-3xl rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7">
-        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-          {sharedPricingBasis.heading}
-        </p>
-        <div className="mt-3 space-y-3 text-sm leading-7 text-muted md:text-[15px]">
-          {sharedPricingBasis.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-      </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
         <article className="flex flex-col rounded-3xl border border-pine-900/15 bg-cream/50 px-6 py-7 md:px-8">
@@ -417,9 +317,6 @@ function PricingPanelContent({
           <p className="mt-6 flex-1 text-sm leading-7 text-muted md:text-[15px]">
             {sharedOngoingSupportDescription}
           </p>
-          <p className="mt-6 text-sm leading-7 text-muted md:text-[15px]">
-            For clients who already have systems in place or have completed a full setup with us.
-          </p>
         </article>
       </div>
 
@@ -442,20 +339,33 @@ function PricingPanelContent({
         <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
           {sharedAccessToWork.heading}
         </h3>
-        <div className="mt-3 max-w-3xl space-y-3 text-sm leading-7 text-muted md:text-[15px]">
-          {sharedAccessToWork.paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-        <a
-          href={ACCESS_TO_WORK_URL}
-          target="_blank"
-          rel="noreferrer"
+        <button
+          type="button"
+          onClick={() => setAccessOpen((open) => !open)}
+          aria-expanded={accessOpen}
           className={`${btn.primary} mt-6`}
         >
-          Learn about Access to Work
-          <ArrowRight className="h-4 w-4" />
-        </a>
+          {accessOpen ? "Hide Access to Work details" : "Learn about Access to Work"}
+          <ChevronDown
+            className={cn("h-4 w-4 transition-transform duration-300", accessOpen && "rotate-180")}
+          />
+        </button>
+        {accessOpen ? (
+          <div className="mt-5 max-w-3xl space-y-3 border-t border-pine-900/10 pt-5 text-sm leading-7 text-muted md:text-[15px]">
+            {sharedAccessToWork.paragraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            <a
+              href={ACCESS_TO_WORK_URL}
+              target="_blank"
+              rel="noreferrer"
+              className={`${btn.ghostLight} mt-2`}
+            >
+              Official GOV.UK guidance
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -503,7 +413,6 @@ function PricingBenefitsPanelContent({
 function AudienceTabbedSections({
   pressures,
   howWeHelp,
-  how,
   changes,
   workWithUs,
   pricing,
@@ -513,7 +422,6 @@ function AudienceTabbedSections({
 }: {
   pressures: AudienceSection;
   howWeHelp: AudienceSection;
-  how: AudienceSection;
   changes: AudienceSection;
   workWithUs: AudienceSection;
   pricing: AudiencePricing;
@@ -551,7 +459,6 @@ function AudienceTabbedSections({
   const tabs: { id: AudienceTabId; label: string }[] = [
     { id: "pressures", label: pressures.heading },
     { id: "howWeHelp", label: howWeHelp.heading },
-    { id: "approach", label: "Our approach" },
     { id: "changes", label: changes.heading },
     { id: "pricing", label: "Pricing" },
     { id: "benefits", label: "Why work with us" },
@@ -560,7 +467,6 @@ function AudienceTabbedSections({
   const panelClassName: Record<AudienceTabId, string> = {
     pressures: "bg-white text-ink",
     howWeHelp: "rounded-[28px] border border-ink/5 bg-white text-ink",
-    approach: "rounded-[28px] border border-ink/5 bg-white text-ink",
     changes: "rounded-[28px] border border-ink/5 bg-white text-ink",
     pricing: "rounded-[28px] border border-ink/5 bg-white text-ink",
     benefits: "rounded-[28px] border border-ink/5 bg-white text-ink",
@@ -624,14 +530,6 @@ function AudienceTabbedSections({
         {activeTab === "howWeHelp" ? (
           <HowWeHelpPanelContent
             section={howWeHelp}
-            onNext={() => navigateToTab("approach")}
-          />
-        ) : null}
-        {activeTab === "approach" ? (
-          <HowPanelContent
-            badge="Our approach"
-            section={how}
-            showIntro={false}
             onNext={() => navigateToTab("changes")}
           />
         ) : null}
@@ -683,7 +581,7 @@ function Eyebrow({
 
 export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
-  const { pressures, how, changes } = page;
+  const { pressures, changes } = page;
   const heroImage = HERO_IMAGES[page.slug] ?? "/vaxai-support-control.jpg";
 
   return (
@@ -788,7 +686,6 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
               <AudienceTabbedSections
                 pressures={pressures}
                 howWeHelp={page.howWeHelp}
-                how={how}
                 changes={changes}
                 workWithUs={page.workWithUs}
                 pricing={page.pricing}

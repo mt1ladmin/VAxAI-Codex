@@ -48,6 +48,12 @@ function Eyebrow({
 }
 
 function splitCopyIntoParagraphs(copy: string): string[] {
+  if (copy.includes("\n")) {
+    return copy
+      .split(/\n+/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+  }
   return copy
     .split(/(?<=\.)\s+/)
     .map((part) => part.trim())

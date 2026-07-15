@@ -12,7 +12,7 @@ type Props = {
 
 export default function PublicContactModal({ open, onClose }: Props) {
   const [preferredContact, setPreferredContact] = useState("Email");
-  const [supportType, setSupportType] = useState("Admin Review");
+  const [supportType, setSupportType] = useState("General enquiry");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState<"form" | "submitted" | "calendly">("form");
@@ -24,7 +24,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
     if (!open) {
       setStep("form");
       setWantsDiscoveryCall(null);
-      setSupportType("Admin Review");
+      setSupportType("General enquiry");
       setPreferredContact("Email");
       return;
     }
@@ -88,7 +88,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
 
   const modal = (
     <div
-      className="fixed inset-0 z-[100] grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-labelledby="contact-modal-title"
@@ -161,8 +161,10 @@ export default function PublicContactModal({ open, onClose }: Props) {
                   value={supportType}
                   onChange={setSupportType}
                   options={[
-                    { value: "Admin Review", label: "Free Admin Review" },
-                    { value: "Admin Support", label: "Admin Support" },
+                    { value: "Reduce backlog", label: "Reduce backlog" },
+                    { value: "Prepare for AI and automation", label: "Prepare for AI and automation" },
+                    { value: "Ongoing admin support", label: "Ongoing admin support" },
+                    { value: "Maintain and improve", label: "Maintain and improve" },
                     { value: "Access to Work", label: "Access to Work" },
                     { value: "General enquiry", label: "General enquiry" },
                   ]}

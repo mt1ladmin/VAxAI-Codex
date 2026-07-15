@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ChevronDown, ChevronUp } from 'lucide-react'
 
 export type CookiePreferences = {
   necessary: true
@@ -38,7 +37,6 @@ function dispatch(prefs: CookiePreferences) {
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false)
-  const [showManage, setShowManage] = useState(false)
   const [analytics, setAnalytics] = useState(false)
   const [marketing, setMarketing] = useState(false)
 
@@ -65,7 +63,7 @@ export default function CookieConsent() {
     setVisible(false)
   }
 
-  function saveManaged() {
+  function saveSelection() {
     const prefs: CookiePreferences = { necessary: true, analytics, marketing, decided: true }
     savePreferences(prefs)
     dispatch(prefs)
@@ -79,7 +77,7 @@ export default function CookieConsent() {
       role="dialog"
       aria-modal="true"
       aria-label="Cookie consent"
-      className="cookie-banner__backdrop fixed inset-0 z-[8900] flex items-center justify-center bg-ink/55 px-4 backdrop-blur-sm"
+      className="cookie-banner__backdrop fixed inset-0 z-[8900] flex items-center justify-center bg-ink/55 px-4 backdrop-blur-md"
     >
       <div className="cookie-banner__panel w-full max-w-[540px] rounded-2xl border border-[#122428]/12 bg-white p-6 shadow-[0_16px_56px_rgba(18,36,40,0.18)] sm:p-7">
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#122428]">
@@ -95,62 +93,49 @@ export default function CookieConsent() {
           .
         </p>
 
-        {showManage && (
-          <div className="mt-5 space-y-3 border-t border-gray-200 pt-4">
-            <CategoryRow
-              label="Strictly necessary"
-              description="Required for the website to function — sessions, security and accessibility settings. Cannot be disabled."
-              checked={true}
-              disabled
-              onChange={() => {}}
-            />
-            <CategoryRow
-              label="Analytics"
-              description="Help us understand how visitors use the site so we can improve it. No personal data is sold."
-              checked={analytics}
-              onChange={setAnalytics}
-            />
-            <CategoryRow
-              label="Marketing and communications"
-              description="Used to tailor newsletter communications and measure their effectiveness."
-              checked={marketing}
-              onChange={setMarketing}
-            />
-            <div className="flex flex-col gap-2.5 pt-1 sm:flex-row">
-              <button
-                type="button"
-                onClick={rejectNonEssential}
-                className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
-              >
-                Reject non-essential
-              </button>
-              <button
-                type="button"
-                onClick={saveManaged}
-                className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-4 py-2 text-[12.5px] font-semibold text-[#111111] transition-colors hover:border-[#122428] hover:text-[#122428] sm:flex-none"
-              >
-                Save my preferences
-              </button>
-            </div>
-          </div>
-        )}
+        <div className="mt-5 space-y-3 border-t border-gray-200 pt-4">
+          <CategoryRow
+            label="Strictly necessary"
+            description="Required for the website to function — sessions, security and accessibility settings. Cannot be disabled."
+            checked={true}
+            disabled
+            onChange={() => {}}
+          />
+          <CategoryRow
+            label="Analytics"
+            description="Help us understand how visitors use the site so we can improve it. No personal data is sold."
+            checked={analytics}
+            onChange={setAnalytics}
+          />
+          <CategoryRow
+            label="Marketing and communications"
+            description="Used to tailor newsletter communications and measure their effectiveness."
+            checked={marketing}
+            onChange={setMarketing}
+          />
+        </div>
 
-        <div className="mt-5 flex flex-col gap-2.5 border-t border-gray-200 pt-5 sm:flex-row sm:justify-end">
+        <div className="mt-5 flex flex-col gap-2.5 border-t border-gray-200 pt-5 sm:flex-row sm:flex-wrap sm:justify-end">
           <button
             type="button"
             onClick={acceptAll}
             className="cookie-banner__btn-primary flex-1 rounded-md bg-[#122428] px-5 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 sm:flex-none"
           >
-            Accept all
+            Allow all
           </button>
           <button
             type="button"
-            onClick={() => setShowManage((v) => !v)}
-            aria-expanded={showManage}
-            className="cookie-banner__btn-secondary flex flex-1 items-center justify-center gap-1.5 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#122428] sm:flex-none"
+            onClick={saveSelection}
+            className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#122428] sm:flex-none"
           >
-            Manage preferences
-            {showManage ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            Allow selection
+          </button>
+          <button
+            type="button"
+            onClick={rejectNonEssential}
+            className="cookie-banner__btn-secondary flex-1 rounded-md border border-gray-300 px-5 py-2.5 text-[13px] font-semibold text-[#111111] transition-colors hover:border-[#122428] sm:flex-none"
+          >
+            Deny
           </button>
         </div>
       </div>
