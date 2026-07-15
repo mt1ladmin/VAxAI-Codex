@@ -166,9 +166,9 @@ a {
   margin: 0;
   padding: 0.5rem 1rem;
   border-radius: 0.7rem 0.7rem 0 0;
-  border: 1px solid #cfd9c4;
-  background: #e5f0d4;
-  color: rgba(18, 36, 40, 0.72);
+  border: 1px solid #d5d7d2;
+  background: #eceee9;
+  color: rgba(18, 36, 40, 0.58);
   font-size: 0.75rem;
   font-weight: 650;
   letter-spacing: 0.02em;
@@ -181,15 +181,15 @@ a {
 }
 
 .filing-tab-button:hover {
-  color: #122428;
-  border-color: #c2d0b4;
-  background: #eaf3db;
+  color: rgba(18, 36, 40, 0.78);
+  border-color: #c9ccc5;
+  background: #e6e8e2;
 }
 
 .filing-tab-button[aria-selected="true"],
 .filing-tab-button.is-active {
-  color: #0b171a;
-  border-color: #c2d0b4;
+  color: #1f2c30;
+  border-color: #cfd9c4;
   background: #e5f0d4;
   box-shadow: 0 1px 2px rgba(18, 36, 40, 0.06);
 }
