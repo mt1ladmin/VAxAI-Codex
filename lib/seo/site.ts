@@ -14,7 +14,7 @@ export function absoluteUrl(path = "/"): string {
 
 export const siteConfig = {
   name: "VAxAI",
-  defaultTitle: "VAxAI | Reduce admin. Keep the human in the loop.",
+  defaultTitle: "VAxAI | Reduce admin. Keep people in the loop.",
   defaultDescription:
     "VAxAI helps founders, SMEs, charities and public sector organisations clear admin backlogs, organise information and prepare for AI and automation, with experienced people in the loop.",
   locale: "en_GB",

@@ -152,8 +152,8 @@ const faqs = [
   ["What happens after the review?", "If you want to go further, we scope the work properly across your organisation's admin, information and processes, including anything AI and automation have added on top. We always test on a small scale first, then use what we learn to scope the full project accurately, and costs are agreed before any work begins, so there are no surprises."],
   ["Why does preparation matter before AI?", "AI and automation rely on the information and processes behind them. Point them at disorganised data and unclear workflows and they produce poor outputs, new problems and more correction work, not time saved. We do the groundwork, organising information, improving data quality and documenting processes, so the tools you choose can actually work."],
   ["Do you build AI systems yourselves?", "No. We prepare organisations for AI and automation and keep the results working, which means our only interest is your readiness. For complex or enterprise builds, we identify trusted external partners and can work with them on your behalf, rather than building these ourselves."],
-  ["Why don't you publish fixed prices?", "Because every organisation's admin is different. Project pricing depends on the scope of the work, its complexity, the timeframe for delivery and how much hands-on support is needed alongside it. Day-to-day admin support is charged hourly, as monthly or quarterly arrangements, and project costs are always agreed up front."],
-  ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, monthly or quarterly, scaled up or down as your needs change, and virtual or in person when being there matters. Improvements are also maintained through regular admin reviews, so they last."],
+  ["Why don't you publish fixed prices?", "Because every organisation's admin is different. Project work such as reducing a backlog or preparing for AI is scoped and priced up front. Ongoing admin support and maintain-and-improve work is charged hourly, monthly or quarterly, and you only pay for the hours you need in each period."],
+  ["Can support be flexible?", "Yes. Once you are a VAxAI client, ongoing support can be monthly or quarterly and scaled up or down as your needs change. One month might need more hours than the next. Project work stays defined by scope and timeframe. Support can also be virtual or in person when being there matters."],
 ];
 
 /* ------------------------------------------------------------------ */
@@ -458,7 +458,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce admin. Keep the human in the loop.
+              Reduce admin. Keep people in the loop.
             </motion.h1>
             <motion.p
               variants={fadeUp}
@@ -737,7 +737,7 @@ export default function Home() {
                 Insights &amp; Resources
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-muted">
-                Practical thinking on admin foundations, AI readiness and keeping the human in the loop. If
+                Practical thinking on admin foundations, AI readiness and keeping people in the loop. If
                 something resonates, you can attach it to your enquiry when you get in touch.
               </p>
             </div>

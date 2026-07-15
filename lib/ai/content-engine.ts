@@ -14,7 +14,7 @@ export const CONTENT_MODEL = "claude-haiku-4-5-20251001";
 /* Brand core — what every piece of VAxAI content must understand      */
 /* ------------------------------------------------------------------ */
 
-const BRAND_CORE = `You write content for VAxAI (vaxai.co.uk), a UK-based, human-led operational administration support and AI readiness service. Brand line: "Reduce admin. Keep the human in the loop."
+const BRAND_CORE = `You write content for VAxAI (vaxai.co.uk), a UK-based, human-led operational administration support and AI readiness service. Brand line: "Reduce admin. Keep people in the loop."
 
 WHAT VAXAI DOES
 VAxAI helps organisations build and maintain the strong operational foundations that AI and automation depend on, through four connected services:

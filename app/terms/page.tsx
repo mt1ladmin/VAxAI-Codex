@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <PolicyPage title="Terms of Service" lastUpdated="June 2025">
+    <PolicyPage title="Terms of Service" lastUpdated="July 2026">
       <div className="callout">
         <strong>Important.</strong> By engaging VAxAI or using this website, you agree to be bound by these terms. Please read them before we begin working together. If anything is unclear, contact us at <a href="mailto:hello@mt1l.com">hello@mt1l.com</a> before proceeding.
       </div>
@@ -31,26 +31,31 @@ export default function TermsPage() {
         <li><strong>&ldquo;Proposal&rdquo;</strong> means a written document setting out the scope, deliverables, fees and timeline for a specific Engagement.</li>
         <li><strong>&ldquo;Deliverables&rdquo;</strong> means the outputs, documents, tools or other materials we create specifically for your Engagement.</li>
         <li><strong>&ldquo;Confidential Information&rdquo;</strong> means any information disclosed by one party to the other that is marked as confidential or is clearly sensitive by its nature.</li>
+        <li><strong>&ldquo;Admin Review&rdquo;</strong> means our free, no-obligation review of your administrative operations to understand where pressure is building and recommend appropriate support.</li>
         <li><strong>&ldquo;VAT Framework&rdquo;</strong> means our methodology for evaluating AI and automation initiatives against the criteria of Value, Alignment and Trust.</li>
       </ul>
 
       <h2>3. Our services</h2>
       <p>
-        3.1 VAxAI provides AI and automation consultancy, virtual assistant support and related services. Our three service tiers are:
+        3.1 VAxAI provides operational administration support and AI readiness services for founders, SMEs, charities, non-profits and public sector organisations. We help clear admin backlogs, organise information, prepare the foundations AI and automation need to work, provide ongoing admin support, and maintain improvements over time, with experienced people in the loop throughout.
       </p>
+      <p>3.2 Support is typically structured as follows:</p>
       <ul>
-        <li><strong>Assess</strong> — a structured review of your current AI and automation landscape, identifying where change would create genuine value and where it would not.</li>
-        <li><strong>Assess &amp; Implement</strong> — everything in Assess, plus hands-on implementation of agreed tools, workflows or processes.</li>
-        <li><strong>Assess, Implement &amp; Support</strong> — everything in Assess &amp; Implement, plus ongoing optimisation, team guidance and dedicated support within your agreed package.</li>
+        <li><strong>Free Admin Review</strong> — a structured review of your administrative operations to understand what is going on and recommend the right support, free and with no obligation. You may also tell us directly what you already know you need.</li>
+        <li><strong>Project work</strong> — scoped work with a defined deliverable and timeframe, such as reduce backlog or prepare for AI and automation. Scope, timeline and fees are agreed before work begins.</li>
+        <li><strong>Ongoing support</strong> — day-to-day admin support and maintain-and-improve work, arranged monthly or quarterly. You only pay for the hours you need in each period; capacity can go up or down as the work changes.</li>
       </ul>
       <p>
-        3.2 The specific scope, deliverables, timeline and fees for each Engagement are set out in a Proposal agreed before work begins.
+        3.3 The specific scope, deliverables, timeline and fees for each Engagement are set out in a Proposal agreed before paid work begins.
       </p>
       <p>
-        3.3 Submitting an enquiry or booking a discovery call does not create a contract or any obligation on either side. An Engagement begins only once both parties have agreed a Proposal in writing.
+        3.4 Submitting an enquiry, completing an Admin Review or booking a discovery call does not create a contract or any obligation on either side. An Engagement begins only once both parties have agreed a Proposal in writing.
       </p>
       <p>
-        3.4 We do not provide legal, financial, medical or regulated professional advice. Our services are consultancy in nature and should be reviewed with appropriately qualified advisers before acting in those domains.
+        3.5 We do not provide legal, financial, medical or regulated professional advice. Our services are practical operational and readiness support and should be reviewed with appropriately qualified advisers before acting in those domains.
+      </p>
+      <p>
+        3.6 We do not build complex or enterprise AI systems ourselves. Where that kind of build is needed, we can identify trusted external partners and can work with them on your behalf.
       </p>
 
       <h2>4. Our obligations</h2>
@@ -83,7 +88,7 @@ export default function TermsPage() {
 
       <h2>6. Fees and payment</h2>
       <p>
-        6.1 Fees are agreed in writing before work begins and set out in the relevant Proposal.
+        6.1 Fees are agreed in writing before paid work begins and set out in the relevant Proposal. Project work is scoped and priced up front. Ongoing support is charged hourly under monthly or quarterly arrangements for the hours agreed for that period.
       </p>
       <p>
         6.2 Unless otherwise agreed in writing, invoices are due within 14 days of the invoice date.

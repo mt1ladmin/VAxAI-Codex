@@ -15,8 +15,9 @@ import type {
 } from "@/lib/seo/audience-pages";
 import {
   sharedAccessToWork,
-  sharedOngoingSupportDescription,
-  sharedVaSetupIncluded,
+  sharedOngoingSupport,
+  sharedPricingHowItWorks,
+  sharedProjectWork,
 } from "@/lib/seo/audience-pages";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +29,7 @@ const HERO_IMAGES: Record<string, string> = {
   "founders-entrepreneurs": "/founder-laptop-graph-meeting.jpg",
   "small-business": "/small-business-boxes.jpg",
   "charities-non-profits": "/charity-volunteers-garden.jpg",
-  "public-sector": "/admin-systems-team.jpg",
+  "public-sector": "/istockphoto-1206317971-612x612.jpg",
 };
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -261,13 +262,11 @@ const ACCESS_TO_WORK_URL = "https://www.gov.uk/access-to-work";
 function PricingPanelContent({
   pricing,
   pricingIntro,
-  fullSetupIncludes,
   onContact,
   onViewBenefits,
 }: {
   pricing: AudiencePricing;
   pricingIntro: string;
-  fullSetupIncludes: string[];
   onContact: () => void;
   onViewBenefits: () => void;
 }) {
@@ -279,43 +278,61 @@ function PricingPanelContent({
       <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         How Our Pricing Works
       </h2>
-      <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">{pricingIntro}</p>
+      <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-muted md:text-lg">
+        {sharedPricingHowItWorks.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+        {pricingIntro ? <p>{pricingIntro}</p> : null}
+      </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+      <div className="mt-8 grid gap-6 lg:grid-cols-2 lg:items-start">
         <article className="flex flex-col rounded-3xl border border-pine-900/15 bg-cream/50 px-6 py-7 md:px-8">
-          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Project Work &amp; Full Setup</h3>
+          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">
+            {sharedProjectWork.title}
+          </h3>
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
-            Scoped and priced around your organisation, agreed before work begins
+            {sharedProjectWork.priceLabel}
           </p>
-          <p className="mt-6 text-sm font-medium text-ink md:text-[15px]">A full setup can include:</p>
-          <ul className="mt-4 space-y-3">
-            {fullSetupIncludes.map((item) => (
-              <li key={item} className="flex gap-3">
+          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+            Typically covers
+          </p>
+          <ul className="mt-3 space-y-2">
+            {sharedProjectWork.services.map((service) => (
+              <li key={service} className="flex gap-3">
                 <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
                   ✓
                 </span>
-                <span className="text-sm leading-7 text-muted md:text-[15px]">{item}</span>
+                <span className="text-sm leading-7 text-muted md:text-[15px]">{service}</span>
               </li>
             ))}
           </ul>
-          {pricing.paymentPlanNote ? (
-            <p className="mt-6 rounded-2xl border border-pine-900/10 bg-white/70 px-5 py-4 text-sm leading-7 text-muted md:text-[15px]">
-              {pricing.paymentPlanNote}
-            </p>
-          ) : null}
-          <div className="mt-8 border-t border-ink/10 pt-6">
-            <p className="text-sm font-semibold text-ink md:text-base">{sharedVaSetupIncluded.title}</p>
-            <p className="mt-3 text-sm leading-7 text-muted md:text-[15px]">
-              {sharedVaSetupIncluded.description}
-            </p>
-          </div>
+          <p className="mt-6 flex-1 text-sm leading-7 text-muted md:text-[15px]">
+            {sharedProjectWork.description}
+          </p>
         </article>
 
         <article className="flex flex-col rounded-3xl border border-ink/5 bg-white px-6 py-7 shadow-card md:px-8">
-          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">Ongoing Admin Support</h3>
-          <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">{pricing.ongoingSupportPrice}</p>
+          <h3 className="text-lg font-semibold tracking-[-0.01em] text-ink md:text-xl">
+            {sharedOngoingSupport.title}
+          </h3>
+          <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
+            {pricing.ongoingSupportPrice}
+          </p>
+          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+            Typically covers
+          </p>
+          <ul className="mt-3 space-y-2">
+            {sharedOngoingSupport.services.map((service) => (
+              <li key={service} className="flex gap-3">
+                <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                  ✓
+                </span>
+                <span className="text-sm leading-7 text-muted md:text-[15px]">{service}</span>
+              </li>
+            ))}
+          </ul>
           <p className="mt-6 flex-1 text-sm leading-7 text-muted md:text-[15px]">
-            {sharedOngoingSupportDescription}
+            {sharedOngoingSupport.description}
           </p>
         </article>
       </div>
@@ -417,7 +434,6 @@ function AudienceTabbedSections({
   workWithUs,
   pricing,
   pricingIntro,
-  fullSetupIncludes,
   onContact,
 }: {
   pressures: AudienceSection;
@@ -426,7 +442,6 @@ function AudienceTabbedSections({
   workWithUs: AudienceSection;
   pricing: AudiencePricing;
   pricingIntro: string;
-  fullSetupIncludes: string[];
   onContact: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<AudienceTabId>("pressures");
@@ -544,7 +559,6 @@ function AudienceTabbedSections({
           <PricingPanelContent
             pricing={pricing}
             pricingIntro={pricingIntro}
-            fullSetupIncludes={fullSetupIncludes}
             onContact={onContact}
             onViewBenefits={openBenefitsTab}
           />
@@ -690,7 +704,6 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 workWithUs={page.workWithUs}
                 pricing={page.pricing}
                 pricingIntro={page.pricingIntro}
-                fullSetupIncludes={page.fullSetupIncludes}
                 onContact={() => setContactOpen(true)}
               />
             </Reveal>

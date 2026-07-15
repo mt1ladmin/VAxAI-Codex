@@ -5,15 +5,27 @@ export type JourneyStage = {
 
 export type AudiencePricing = {
   ongoingSupportPrice: string;
-  paymentPlanNote?: string;
 };
 
-export const sharedPricingBasis = {
-  heading: "Why we don't publish fixed prices",
-  paragraphs: [
-    "Every organisation's admin is different, so a fixed price would either overcharge you or under-scope the work. Project pricing is based on the scope of the work, its complexity, the timeframe for delivery and how much hands-on admin support is needed alongside it.",
-    "To keep estimates honest, we always test on a small scale first, then use what we learn to assess what the full project involves. The cost is agreed with you before any work begins, so there are no surprises.",
-  ],
+/** Shared explanation of how pricing is structured across audience pages. */
+export const sharedPricingHowItWorks = [
+  "We usually start with a free Admin Review so we understand where pressure is building, or you can tell us what you already know you need.",
+  "From there, support is either project-based or ongoing, depending on the work.",
+];
+
+export const sharedProjectWork = {
+  title: "Project work",
+  priceLabel: "Scoped and priced before work begins",
+  services: ["Reduce backlog", "Prepare for AI and automation"],
+  description:
+    "Best when there is a defined set of work to complete and a clear timeframe: for example clearing a backlog of documents and records, or preparing information and processes so AI and automation can work properly. We agree the scope, what will be delivered and the cost before anything starts.",
+};
+
+export const sharedOngoingSupport = {
+  title: "Ongoing support",
+  services: ["Ongoing admin support", "Maintain and improve"],
+  description:
+    "Day-to-day admin and upkeep, arranged monthly or quarterly. You only pay for the hours you need: one month might be four hours, the next might be three, depending on what actually needs doing.",
 };
 
 export const sharedFullSetupIncludes = [
@@ -40,15 +52,6 @@ const publicSectorFullSetupIncludes = [
   "Upskilling your team on any tools that are introduced or already in use",
 ];
 
-export const sharedVaSetupIncluded = {
-  title: "VA Setup & Training (included in the package)",
-  description:
-    "We fully brief and train your virtual assistant, whether from our team or one we help you recruit, so they deeply understand your systems, workflows, and preferences.",
-};
-
-export const sharedOngoingSupportDescription =
-  "Day-to-day admin support as and when you need it, available as monthly or quarterly arrangements. Support is flexible and you only pay for the hours you need, not the hours used. Simpler setups need fewer hours.";
-
 export type AudienceSection = {
   heading: string;
   paragraphs: string[];
@@ -72,8 +75,8 @@ export const sharedAccessToWork = {
 
 const sharedWorkWithUsBullets = [
   "Lower overall cost: You get skilled, dedicated support without the overhead of employment, and without pulling your own people away from the work only they can do.",
-  "Pay only for what you need: Once the groundwork is done and the right tasks are automated, human support is mainly for oversight, exceptions and upkeep, so hours typically reduce over time.",
-  "Full flexibility: Scale support up or down, monthly or quarterly, with no long-term commitment, and costs agreed up front so there are no surprises.",
+  "You only pay for the hours you need: Ongoing support is set around what the period actually requires, so capacity can go up or down as the work changes.",
+  "Full flexibility: Scale support up or down, monthly or quarterly, with no long-term commitment, and project costs agreed up front so there are no surprises.",
 ];
 
 export type AudiencePage = {
@@ -207,9 +210,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£25 per hour (pay only for what you need)",
-      paymentPlanNote:
-        "Prefer to spread the cost? For project work we can also agree flexible payment plans, for example paying in up to three instalments.",
+      ongoingSupportPrice: "£25 per hour, monthly or quarterly",
     },
     pricingIntro:
       "Support built for solo founders and entrepreneurs, priced around your actual situation rather than a standard package, so the groundwork and support your business needs do not compete with your growth budget.",
@@ -338,7 +339,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£35 per hour (pay only for what you need)",
+      ongoingSupportPrice: "£35 per hour, monthly or quarterly",
     },
     pricingIntro:
       "Support built for SMEs and growing teams, priced around your actual situation rather than a standard package, so the groundwork and reliable support your business needs do not add payroll complexity.",
@@ -467,7 +468,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£35 per hour (pay only for what you need)",
+      ongoingSupportPrice: "£35 per hour, monthly or quarterly",
     },
     pricingIntro:
       "Support built for charities with tight or variable income, priced around your actual situation rather than a standard package, so groundwork and safeguarding-aware support do not compete with delivery budgets.",
@@ -596,7 +597,7 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£35 per hour (pay only for what you need)",
+      ongoingSupportPrice: "£35 per hour, monthly or quarterly",
     },
     pricingIntro:
       "Public sector engagements vary widely in scale and requirements, so support is scoped and priced per organisation, and we are happy to work within your procurement processes.",

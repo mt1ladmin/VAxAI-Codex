@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
         VAxAI is a service provided by MT1L. MT1L (&ldquo;MT1L&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is the data controller for the personal information described in this policy. We handle it in line with UK data protection law, including the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
       </p>
       <p>
-        We collect very little. This policy explains, in plain English, what we collect when you contact us, engage our services, or access VAxAI Studio — and the rights you have. Questions are welcome at <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
+        VAxAI provides operational administration support and AI readiness services for founders, SMEs, charities, non-profits and public sector organisations. We collect very little personal information. This policy explains, in plain English, what we collect when you contact us, request a free Admin Review, engage our services, or access VAxAI Studio — and the rights you have. Questions are welcome at <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
       </p>
 
       <div className="callout">
@@ -25,7 +25,7 @@ export default function PrivacyPolicyPage() {
 
       <h3>When you get in touch</h3>
       <p>
-        If you submit a contact enquiry or email us directly, we collect your name, email address, and the content of your message, along with any other information you choose to share. We use this to respond to your enquiry and, where relevant, to prepare for any follow-up conversation.
+        If you submit a contact enquiry or email us directly, we collect your name, email address, preferred contact method, the type of support you are interested in (for example reduce backlog, prepare for AI and automation, ongoing admin support, maintain and improve, Access to Work or a general enquiry), and the content of your message, along with any other information you choose to share. We use this to respond to your enquiry, arrange a free Admin Review or discovery call where relevant, and prepare for any follow-up conversation.
       </p>
       <p><em>Basis: Legitimate Interests; Performance of Contract.</em></p>
 
