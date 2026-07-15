@@ -48,9 +48,9 @@ const helpCards = [
     href: "/how-we-help#area-backlog",
     linkLabel: "Explore backlog support",
     bullets: [
-      "Clear built-up admin piles",
-      "Sort documents and records",
-      "Finish outstanding routine work",
+      "A cleared admin backlog",
+      "Records you can find and trust",
+      "Outstanding work brought up to date",
     ],
   },
   {
@@ -59,9 +59,9 @@ const helpCards = [
     href: "/how-we-help#area-ai",
     linkLabel: "Explore AI readiness",
     bullets: [
-      "Organise information for tools",
-      "Document how work actually runs",
-      "Ready data for automation",
+      "Information tools can rely on",
+      "Processes written down clearly",
+      "Safer ground for automation",
     ],
   },
   {
@@ -70,9 +70,9 @@ const helpCards = [
     href: "/how-we-help#area-ongoing",
     linkLabel: "Explore support services",
     bullets: [
-      "Keep inboxes and diaries moving",
-      "Handle day-to-day admin tasks",
-      "Cover routine operational work",
+      "Inboxes and diaries under control",
+      "Day-to-day admin off your plate",
+      "Capacity back for your core work",
     ],
   },
   {
@@ -81,9 +81,9 @@ const helpCards = [
     href: "/how-we-help#area-maintain",
     linkLabel: "Explore maintenance",
     bullets: [
-      "Stop backlogs from rebuilding",
-      "Keep systems clean and current",
-      "Catch issues while still small",
+      "Backlogs that stay cleared",
+      "Systems that stay reliable",
+      "Problems caught early",
     ],
   },
 ];
