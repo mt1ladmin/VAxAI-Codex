@@ -18,7 +18,17 @@ type ApiTopic = ContentTopic & {
   source?: string;
   status?: string;
   research_note?: string | null;
+  conversation_hook?: string | null;
+  live_as_of?: string | null;
+  created_at?: string | null;
 };
+
+function formatLiveAsOf(iso?: string | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso.length === 10 ? `${iso}T12:00:00` : iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
 
 export default function CreateContentPage() {
   const [open, setOpen] = useState(false);
@@ -63,8 +73,17 @@ export default function CreateContentPage() {
   const brief = useMemo(() => {
     const selectedTopics = topics.filter((t) => selected.has(t.id));
     if (!selectedTopics.length) return "";
-    const lines = selectedTopics.map((t) => `- ${t.title}: ${t.angle}`);
-    return `Please create on-brand VAxAI content using these selected topic angles (timeless, practical, human-led; admin foundations before tools; do not sell AI products):\n\n${lines.join("\n")}\n\nWrite for the platform(s) I choose next. Keep examples honest and hypothetical. Close with a clear, proportionate call to action.`;
+    const today = new Date().toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const lines = selectedTopics.map((t) => {
+      const asOf = formatLiveAsOf(t.live_as_of) || today;
+      const hook = t.conversation_hook ? ` Conversation: ${t.conversation_hook}.` : "";
+      return `- ${t.title}: ${t.angle} (relevant as of ${asOf}.${hook})`;
+    });
+    return `Please create on-brand VAxAI content for publication around ${today}. Join live UK conversations where noted, without trend-chasing. Stay human-led: admin foundations before tools; do not sell AI products. Speak to backlog recovery, AI readiness groundwork, ongoing admin and/or maintain-and-improve as the topic implies.\n\nSelected angles:\n${lines.join("\n")}\n\nWrite for the platform(s) I choose next. Keep examples honest and hypothetical. Optimise for search and discussion language people use now. Close with a clear, proportionate call to action.`;
   }, [selected, topics]);
 
   const toggle = (id: string) => {
@@ -151,14 +170,14 @@ export default function CreateContentPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className={studio.sectionTitle}>Topic library</h2>
-                  <InfoTip text="Optional ideas only. After you successfully generate content from selected topics, those items are archived so they are not offered again. Use Refresh topics to add new angles (AI + public research signals)." />
+                  <InfoTip text="Optional ideas only. Refresh pulls live UK signals (AI readiness, backlogs, sector admin pressure) dated to today — the year always follows the calendar (2026, 2027, …). Balance: join live conversations for SEO without hopping on fads. After you generate content from selected topics, those items are archived." />
                 </div>
                 <p className="mt-1 text-sm text-muted">
                   {loadingTopics
                     ? "Loading…"
                     : topics.length === 0
-                      ? "No active topics. Refresh to generate a new set."
-                      : `${topics.length} active · tick any to pre-fill your brief`}
+                      ? "No active topics. Refresh to generate a set for today."
+                      : `${topics.length} active · tick to pre-fill · dates show when the idea was made live`}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -261,11 +280,21 @@ export default function CreateContentPage() {
                             <span className="text-sm font-semibold text-pine-900">{topic.title}</span>
                             {topic.source === "ai" ? (
                               <span className="rounded-full bg-cream px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted">
-                                New
+                                Live
+                              </span>
+                            ) : null}
+                            {formatLiveAsOf(topic.live_as_of) ? (
+                              <span className="rounded-full border border-pine-900/10 px-1.5 py-0.5 text-[10px] font-semibold text-muted">
+                                As of {formatLiveAsOf(topic.live_as_of)}
                               </span>
                             ) : null}
                           </span>
                           <span className="mt-0.5 block text-xs leading-5 text-muted">{topic.angle}</span>
+                          {topic.conversation_hook ? (
+                            <span className="mt-1 block text-[11px] font-medium leading-4 text-pine-800/80">
+                              Conversation: {topic.conversation_hook}
+                            </span>
+                          ) : null}
                           {topic.research_note ? (
                             <span className="mt-1 block text-[11px] leading-4 text-muted/80">
                               {topic.research_note}

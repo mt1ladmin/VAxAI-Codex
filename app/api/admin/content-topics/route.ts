@@ -15,6 +15,7 @@ async function ensureSeedTopics(db: ReturnType<typeof createServiceClient>) {
   const { data: existing } = await db.from("studio_content_topics").select("id, status");
   const byId = new Map((existing ?? []).map((r) => [r.id as string, r.status as string]));
 
+  const today = new Date().toISOString().slice(0, 10);
   const toInsert = CONTENT_TOPICS.filter((t) => !byId.has(t.id)).map((t) => ({
     id: t.id,
     category: t.category,
@@ -23,6 +24,7 @@ async function ensureSeedTopics(db: ReturnType<typeof createServiceClient>) {
     formats: t.formats,
     source: "seed",
     status: "active",
+    live_as_of: today,
   }));
 
   if (toInsert.length) {
