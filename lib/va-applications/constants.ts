@@ -50,18 +50,19 @@ export const VA_STATUS_LABELS: Record<VaApplicationStatus, string> = {
   new: "New",
   contacted: "Contacted",
   verified: "Verified",
-  approved: "Approved",
+  approved: "Active",
   joined: "Joined",
   not_suitable: "Not suitable",
 };
 
+/** Palette: cream, pine, white, ink — no yellow/rainbow chrome */
 export const VA_STATUS_COLORS: Record<VaApplicationStatus, string> = {
-  new: "bg-amber-100 text-amber-900",
-  contacted: "bg-sky-100 text-sky-900",
-  verified: "bg-violet-100 text-violet-900",
-  approved: "bg-emerald-100 text-emerald-900",
-  joined: "bg-pine-900 text-white",
-  not_suitable: "bg-stone-200 text-stone-700",
+  new: "bg-cream text-pine-900 border border-pine-900/10",
+  contacted: "bg-white text-pine-800 border border-pine-900/15",
+  verified: "bg-pine-50 text-pine-900 border border-pine-900/10",
+  approved: "bg-white text-pine-900 border border-pine-900/20",
+  joined: "bg-pine-900 text-paper",
+  not_suitable: "bg-cream/80 text-muted border border-pine-900/10",
 };
 
 /** Statuses shown on the Applications (pipeline) tab */

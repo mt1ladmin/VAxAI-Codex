@@ -71,13 +71,10 @@ function platformInfo(key: string) {
   return PLATFORMS.find((p) => p.key === key) ?? PLATFORMS[0];
 }
 
-function platformChipClasses(platform: string, opts?: { posted?: boolean }) {
-  if (opts?.posted) return "bg-gray-100 text-gray-500 hover:bg-gray-100";
-  if (platform === "linkedin") return "bg-[#0077b5]/10 text-[#0077b5] hover:bg-[#0077b5]/18";
-  if (platform === "instagram") return "bg-pink-50 text-pink-600 hover:bg-pink-100";
-  if (platform === "facebook") return "bg-blue-50 text-blue-600 hover:bg-blue-100";
-  if (platform === "twitter") return "bg-gray-100 text-gray-900 hover:bg-gray-200";
-  return "bg-gray-50 text-gray-700 hover:bg-gray-100";
+/** Calm, high-contrast chips — platform colour only on the icon, not the whole pill. */
+function platformChipClasses(_platform: string, opts?: { posted?: boolean }) {
+  if (opts?.posted) return "bg-cream text-muted hover:bg-cream";
+  return "bg-white text-pine-900 border border-pine-900/10 hover:bg-cream/80";
 }
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -277,25 +274,25 @@ function CalendarBlogGroupCard({
       role="button"
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
-      className={`block w-full cursor-grab overflow-hidden rounded-md border text-left transition-colors hover:border-gray-400 active:cursor-grabbing ${
-        isScheduled ? "border-gray-300 bg-gray-50" : "border-gray-200 bg-white"
+      className={`block w-full cursor-grab overflow-hidden rounded-lg border text-left transition-colors hover:border-pine-900/25 active:cursor-grabbing ${
+        isScheduled ? "border-pine-900/15 bg-cream/60" : "border-pine-900/10 bg-white"
       } ${isDragging ? "opacity-50" : ""}`}
     >
-      {post.cover_image_url ? (
-        <div className={`w-full overflow-hidden bg-gray-100 ${minimal ? "h-9" : "h-12"}`}>
+      {post.cover_image_url && !minimal ? (
+        <div className="h-10 w-full overflow-hidden bg-cream">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
         </div>
       ) : null}
-      <div className="px-1.5 py-1">
+      <div className="px-2 py-1.5">
         <div className="flex items-start gap-1">
-          {isScheduled && <CalendarClock className="mt-0.5 h-2.5 w-2.5 shrink-0 text-gray-500" />}
-          <p className="line-clamp-2 text-[10px] font-semibold leading-tight text-gray-900">
+          {isScheduled && <CalendarClock className="mt-0.5 h-2.5 w-2.5 shrink-0 text-muted" />}
+          <p className="line-clamp-2 text-[11px] font-semibold leading-snug text-pine-900">
             {post.title || "Untitled"}
           </p>
         </div>
         {hasConnected && (
-          <div className="mt-1 space-y-0.5 border-t border-gray-100 pt-1">
+          <div className="mt-1.5 flex flex-wrap gap-1 border-t border-pine-900/8 pt-1.5">
             {connectedSocial.map((s) => {
               const info = platformInfo(s.platform);
               return (
@@ -312,28 +309,30 @@ function CalendarBlogGroupCard({
                     onDragEnd();
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className={`flex cursor-grab items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold active:cursor-grabbing ${platformChipClasses(s.platform)}`}
+                  title={info.label}
+                  className={`flex cursor-grab items-center gap-0.5 rounded-md px-1 py-0.5 text-[9px] font-semibold active:cursor-grabbing ${platformChipClasses(s.platform)}`}
                 >
-                  <info.Icon className="h-2.5 w-2.5 shrink-0" />
-                  <Link2 className="h-2 w-2 shrink-0 opacity-50" />
-                  <span className="truncate">{info.label}</span>
+                  <info.Icon className="h-2.5 w-2.5 shrink-0 opacity-70" style={{ color: info.color }} />
+                  <span className="sr-only sm:not-sr-only sm:inline">{info.label.slice(0, 2)}</span>
                 </div>
               );
             })}
-            {inlineItems.map((item) => {
+            {inlineItems.slice(0, 3).map((item) => {
               const info = platformInfo(item.platform === "share" ? "linkedin" : item.platform);
               const isShare = item.platform === "share";
               return (
                 <div
                   key={item.id}
-                  className={`flex items-center gap-1 rounded px-1 py-0.5 text-[9px] font-semibold ${platformChipClasses(item.platform)}`}
+                  title={isShare ? "Share" : info.label}
+                  className={`flex items-center gap-0.5 rounded-md px-1 py-0.5 text-[9px] font-semibold ${platformChipClasses(item.platform)}`}
                 >
-                  {isShare ? <FileText className="h-2.5 w-2.5 shrink-0" /> : <info.Icon className="h-2.5 w-2.5 shrink-0" />}
-                  <Link2 className="h-2 w-2 shrink-0 opacity-50" />
-                  <span className="truncate">{isShare ? "Share" : info.label}</span>
+                  {isShare ? <FileText className="h-2.5 w-2.5 shrink-0 text-muted" /> : <info.Icon className="h-2.5 w-2.5 shrink-0 opacity-70" style={{ color: info.color }} />}
                 </div>
               );
             })}
+            {inlineItems.length > 3 ? (
+              <span className="text-[9px] font-semibold text-muted">+{inlineItems.length - 3}</span>
+            ) : null}
           </div>
         )}
       </div>
@@ -893,7 +892,7 @@ function SchedulingPanel({
         : noConnectedGroups;
 
   return (
-    <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-xl border border-gray-200 bg-white">
+    <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-2xl border border-pine-900/10 bg-white shadow-sm">
       <div className="shrink-0 border-b border-gray-100 px-4 py-3.5">
         <div className="flex w-fit items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
           <button
@@ -1596,25 +1595,28 @@ export default function CalendarPage() {
   const closePanel = () => setPanelMode("none");
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-full bg-cream/40">
       <div className="overflow-x-auto">
         {/* Header */}
-        <div className="border-b border-gray-100 bg-white px-8 py-6">
-          <div className="flex items-center justify-between gap-4">
+        <div className="border-b border-pine-900/8 bg-white px-4 py-6 md:px-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">VAxAI Studio</p>
-              <h1 className="mt-1 text-2xl font-semibold text-gray-900">Content Calendar</h1>
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Content Hub</p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">Calendar</h1>
+              <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted">
+                See when posts and social pieces go live. Drag to reschedule. The side panel lists connected social still to post.
+              </p>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex overflow-hidden rounded-md border border-gray-200 text-sm font-semibold">
-                <button onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-[#122428] text-white" : "text-gray-500 hover:bg-gray-50"}`}>Month</button>
-                <button onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-[#122428] text-white" : "text-gray-500 hover:bg-gray-50"}`}>Week</button>
+              <div className="flex overflow-hidden rounded-xl border border-pine-900/12 text-sm font-semibold">
+                <button type="button" onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-cream"}`}>Month</button>
+                <button type="button" onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-cream"}`}>Week</button>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="px-8 py-6">
+        <div className="px-4 py-6 md:px-8">
           <div className="grid gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-start">
             <div className="order-2 lg:order-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-5rem)]">
               <SchedulingPanel
@@ -1630,58 +1632,59 @@ export default function CalendarPage() {
 
             <div className="order-1 min-w-0 lg:order-2">
           {/* Nav */}
-          <div className="mb-5 flex items-center gap-3">
-            <button onClick={view === "month" ? prevMonth : prevWeek} className="grid h-8 w-8 place-items-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50">
+          <div className="mb-5 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={view === "month" ? prevMonth : prevWeek} className="grid h-9 w-9 place-items-center rounded-xl border border-pine-900/12 bg-white text-muted hover:bg-cream">
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <h2 className="min-w-[200px] text-center text-base font-semibold text-gray-900">
+            <h2 className="min-w-[11rem] text-center text-base font-semibold text-pine-900">
               {view === "month"
                 ? `${MONTHS[month]} ${year}`
                 : `${weekDays[0].getDate()} ${MONTHS[weekDays[0].getMonth()]} – ${weekDays[6].getDate()} ${MONTHS[weekDays[6].getMonth()]} ${weekDays[6].getFullYear()}`}
             </h2>
-            <button onClick={view === "month" ? nextMonth : nextWeek} className="grid h-8 w-8 place-items-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50">
+            <button type="button" onClick={view === "month" ? nextMonth : nextWeek} className="grid h-9 w-9 place-items-center rounded-xl border border-pine-900/12 bg-white text-muted hover:bg-cream">
               <ChevronRight className="h-4 w-4" />
             </button>
             <button
+              type="button"
               onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); setWeekAnchor(today); }}
-              className="ml-2 rounded-md border border-gray-200 px-3 py-1.5 text-sm font-semibold text-gray-500 hover:bg-gray-50">
+              className="ml-1 rounded-xl border border-pine-900/12 bg-white px-3 py-2 text-sm font-semibold text-pine-900 hover:bg-cream">
               Today
             </button>
           </div>
 
           {loadError ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-6 text-center text-sm text-red-700">
+            <div className="rounded-2xl border border-pine-900/15 bg-cream px-4 py-6 text-center text-sm text-pine-900">
               Could not load posts: {loadError}
             </div>
           ) : loading ? (
-            <div className="py-20 text-center text-sm text-gray-400">Loading…</div>
+            <div className="py-20 text-center text-sm text-muted">Loading…</div>
           ) : view === "month" ? (
-            <div className="overflow-hidden rounded-md border border-gray-200 bg-white">
-              <div className="grid grid-cols-7 border-b border-gray-100">
+            <div className="overflow-hidden rounded-2xl border border-pine-900/10 bg-white shadow-sm">
+              <div className="grid grid-cols-7 border-b border-pine-900/8 bg-cream/40">
                 {DAYS.map((d) => (
-                  <div key={d} className="px-3 py-2.5 text-center text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">{d}</div>
+                  <div key={d} className="px-2 py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.1em] text-muted md:px-3">{d}</div>
                 ))}
               </div>
-              <div className="grid grid-cols-7 divide-x divide-y divide-gray-100">
+              <div className="grid grid-cols-7 divide-x divide-y divide-pine-900/8">
                 {monthDays.map((day, i) => (
-                  <div key={i} className={`overflow-hidden${!day ? " bg-gray-50/50 min-h-[110px]" : ""}`}>
+                  <div key={i} className={`overflow-hidden${!day ? " min-h-[100px] bg-cream/30" : ""}`}>
                     {day && <DayCell day={day} />}
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-md border border-gray-200 bg-white">
-              <div className="grid grid-cols-7 divide-x divide-gray-100">
+            <div className="overflow-hidden rounded-2xl border border-pine-900/10 bg-white shadow-sm">
+              <div className="grid grid-cols-7 divide-x divide-pine-900/8">
                 {weekDays.map((day) => {
                   const isToday = isSameDay(day, today);
                   return (
-                    <div key={day.toISOString()} className="min-h-[380px] overflow-hidden">
-                      <div className={`border-b border-gray-100 px-3 py-3 text-center ${isToday ? "bg-[#122428]" : ""}`}>
-                        <p className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${isToday ? "text-[#D8FC2E]" : "text-gray-400"}`}>
+                    <div key={day.toISOString()} className="min-h-[360px] overflow-hidden">
+                      <div className={`border-b border-pine-900/8 px-2 py-3 text-center md:px-3 ${isToday ? "bg-pine-900" : "bg-cream/40"}`}>
+                        <p className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${isToday ? "text-paper/70" : "text-muted"}`}>
                           {DAYS[(day.getDay() + 6) % 7]}
                         </p>
-                        <p className={`mt-0.5 text-xl font-semibold ${isToday ? "text-white" : "text-gray-900"}`}>{day.getDate()}</p>
+                        <p className={`mt-0.5 text-xl font-semibold ${isToday ? "text-paper" : "text-pine-900"}`}>{day.getDate()}</p>
                       </div>
                       <DayCell day={day} minimal />
                     </div>

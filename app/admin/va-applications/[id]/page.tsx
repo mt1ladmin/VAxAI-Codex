@@ -30,7 +30,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return (
     <div>
       <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#5F686A]">{label}</p>
-      <div className="mt-1.5 text-sm leading-6 text-[#122428]">{children}</div>
+      <div className="mt-1.5 text-sm leading-6 text-pine-900">{children}</div>
     </div>
   );
 }
@@ -106,8 +106,8 @@ export default function VaApplicationDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
         <p className="text-sm text-red-700">{error || "Application not found"}</p>
-        <Link href="/admin/va-applications" className="mt-4 inline-flex text-sm font-semibold text-[#122428]">
-          ← Back to VA Applications
+        <Link href="/admin/va-applications" className="mt-4 inline-flex text-sm font-semibold text-pine-900">
+          ← Back to VAs
         </Link>
       </div>
     );
@@ -117,16 +117,16 @@ export default function VaApplicationDetailPage() {
     <div className="mx-auto max-w-5xl px-4 py-6 md:px-6">
       <Link
         href="/admin/va-applications"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#5F686A] hover:text-[#122428]"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-pine-900"
       >
         <ArrowLeft className="h-4 w-4" />
-        VA Applications
+        VAs
       </Link>
 
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
         {/* Profile card */}
         <div className="w-full shrink-0 space-y-4 lg:w-72">
-          <div className="rounded-2xl border border-[#122428]/10 bg-white p-5">
+          <div className="rounded-2xl border border-pine-900/10 bg-white p-5">
             <ImageUpload
               value={app.photo_url || ""}
               onChange={(url) => void patch({ photo_url: url || null })}
@@ -134,7 +134,7 @@ export default function VaApplicationDetailPage() {
               circular
               aspectClass="aspect-square"
             />
-            <h1 className="mt-4 text-xl font-semibold tracking-tight text-[#122428]">{app.full_name}</h1>
+            <h1 className="mt-4 text-xl font-semibold tracking-tight text-pine-900">{app.full_name}</h1>
             <span
               className={`mt-2 inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${VA_STATUS_COLORS[app.status]}`}
             >
@@ -148,13 +148,13 @@ export default function VaApplicationDetailPage() {
                 href={emailComposeUrl(app.email, { subject: `VAxAI — ${app.full_name}` })}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 text-[#122428] hover:underline"
+                className="flex items-center gap-2 text-pine-900 hover:underline"
               >
                 <Mail className="h-3.5 w-3.5" />
                 {app.email}
               </a>
               {app.telephone ? (
-                <a href={`tel:${app.telephone}`} className="flex items-center gap-2 text-[#122428] hover:underline">
+                <a href={`tel:${app.telephone}`} className="flex items-center gap-2 text-pine-900 hover:underline">
                   <Phone className="h-3.5 w-3.5" />
                   {app.telephone}
                 </a>
@@ -162,7 +162,7 @@ export default function VaApplicationDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#122428]/10 bg-white p-4">
+          <div className="rounded-2xl border border-pine-900/10 bg-white p-4">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#5F686A]">Status</p>
             <div className="mt-2">
               <AppSelect
@@ -189,7 +189,7 @@ export default function VaApplicationDetailPage() {
                   type="button"
                   disabled={saving || app.status === s}
                   onClick={() => void patch({ status: s })}
-                  className="rounded-md border border-[#122428]/12 px-2 py-1 text-[10px] font-semibold text-[#122428] hover:bg-[#F5F8F8] disabled:opacity-40"
+                  className="rounded-md border border-pine-900/12 px-2 py-1 text-[10px] font-semibold text-pine-900 hover:bg-[#F5F8F8] disabled:opacity-40"
                 >
                   {VA_STATUS_LABELS[s]}
                 </button>
@@ -217,8 +217,8 @@ export default function VaApplicationDetailPage() {
 
         {/* Full submission */}
         <div className="min-w-0 flex-1 space-y-4">
-          <div className="rounded-2xl border border-[#122428]/10 bg-white p-6">
-            <h2 className="text-base font-semibold text-[#122428]">Full submission</h2>
+          <div className="rounded-2xl border border-pine-900/10 bg-white p-6">
+            <h2 className="text-base font-semibold text-pine-900">Full submission</h2>
             <p className="mt-1 text-xs text-[#5F686A]">
               Submitted {new Date(app.created_at).toLocaleString("en-GB")}
             </p>
@@ -243,7 +243,7 @@ export default function VaApplicationDetailPage() {
                     {app.specialisms.map((s) => (
                       <span
                         key={s}
-                        className="rounded-full bg-[#F5F8F8] px-2.5 py-1 text-xs font-semibold text-[#122428]"
+                        className="rounded-full bg-[#F5F8F8] px-2.5 py-1 text-xs font-semibold text-pine-900"
                       >
                         {s}
                       </span>
@@ -267,14 +267,14 @@ export default function VaApplicationDetailPage() {
               </Field>
             </div>
 
-            <div className="mt-6 rounded-xl border border-[#122428]/10 bg-[#F5F8F8]/60 p-4">
+            <div className="mt-6 rounded-xl border border-pine-900/10 bg-[#F5F8F8]/60 p-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#5F686A]">CV</p>
               {app.cv_url ? (
                 <a
                   href={app.cv_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#1B343A] hover:underline"
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#122428] hover:underline"
                 >
                   <FileText className="h-4 w-4" />
                   {app.cv_file_name || "Download CV"}
@@ -286,8 +286,8 @@ export default function VaApplicationDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#122428]/10 bg-white p-6">
-            <h2 className="text-base font-semibold text-[#122428]">Availability & profile</h2>
+          <div className="rounded-2xl border border-pine-900/10 bg-white p-6">
+            <h2 className="text-base font-semibold text-pine-900">Availability & profile</h2>
             <p className="mt-1 text-xs text-[#5F686A]">
               Keep this up to date for matching. More profile fields can be added later without redesigning
               the cards.
@@ -298,7 +298,7 @@ export default function VaApplicationDetailPage() {
                 <input
                   value={availabilityHours}
                   onChange={(e) => setAvailabilityHours(e.target.value)}
-                  className="w-full rounded-xl border border-[#122428]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]/40"
+                  className="w-full rounded-xl border border-pine-900/15 bg-white px-3 py-2 text-sm outline-none focus:border-pine-900/40"
                 />
               </div>
               <div>
@@ -306,7 +306,7 @@ export default function VaApplicationDetailPage() {
                 <input
                   value={availabilityNotes}
                   onChange={(e) => setAvailabilityNotes(e.target.value)}
-                  className="w-full rounded-xl border border-[#122428]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]/40"
+                  className="w-full rounded-xl border border-pine-900/15 bg-white px-3 py-2 text-sm outline-none focus:border-pine-900/40"
                 />
               </div>
             </div>
@@ -320,19 +320,19 @@ export default function VaApplicationDetailPage() {
                   last_action: "Availability updated",
                 })
               }
-              className="mt-3 rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
+              className="mt-3 rounded-lg bg-pine-900 px-3 py-2 text-xs font-semibold text-white hover:bg-pine-800 disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save availability"}
             </button>
           </div>
 
-          <div className="rounded-2xl border border-[#122428]/10 bg-white p-6">
-            <h2 className="text-base font-semibold text-[#122428]">Internal notes</h2>
+          <div className="rounded-2xl border border-pine-900/10 bg-white p-6">
+            <h2 className="text-base font-semibold text-pine-900">Internal notes</h2>
             <textarea
               value={adminNotes}
               onChange={(e) => setAdminNotes(e.target.value)}
               rows={5}
-              className="mt-3 w-full rounded-xl border border-[#122428]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]/40"
+              className="mt-3 w-full rounded-xl border border-pine-900/15 bg-white px-3 py-2 text-sm outline-none focus:border-pine-900/40"
               placeholder="Interview notes, client fit, follow-ups…"
             />
             <button
@@ -344,7 +344,7 @@ export default function VaApplicationDetailPage() {
                   last_action: "Notes updated",
                 })
               }
-              className="mt-3 rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
+              className="mt-3 rounded-lg bg-pine-900 px-3 py-2 text-xs font-semibold text-white hover:bg-pine-800 disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save notes"}
             </button>

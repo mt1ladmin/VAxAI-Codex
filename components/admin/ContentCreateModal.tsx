@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Check, Loader2, Sparkles, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ContentType = "blog" | "linkedin" | "instagram" | "facebook" | "all";
 
@@ -151,7 +151,21 @@ const PLACEHOLDERS: Record<ContentType, string> = {
   all: "Describe the topic — e.g. 'Why clearing an admin backlog is usually the first step before a charity can get value from AI'",
 };
 
-export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function ContentCreateModal({
+  open,
+  onClose,
+  initialBrief = "",
+  topicIds = [],
+  onTopicsConsumed,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** Optional brief from the topic library (does not change generate API). */
+  initialBrief?: string;
+  /** Topic library ids used for this brief — archived after a successful generate. */
+  topicIds?: string[];
+  onTopicsConsumed?: (ids: string[]) => void;
+}) {
   const router = useRouter();
   const [step, setStep] = useState<"form" | "preview">("form");
   const [contentType, setContentType] = useState<ContentType>("blog");
@@ -181,6 +195,14 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
     setScheduledSocial(false);
     setStreaming(false);
   };
+
+  useEffect(() => {
+    if (open && initialBrief.trim()) {
+      setBrief(initialBrief);
+      setStep("form");
+      setError("");
+    }
+  }, [open, initialBrief]);
 
   const handleClose = () => {
     reset();
@@ -234,6 +256,14 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
       setEditableResult(data as GeneratedResult);
       if (Array.isArray(data.hashtags)) {
         setHashtagsInput((data.hashtags as string[]).join(", "));
+      }
+      // Archive library topics so the same idea is not offered again
+      if (topicIds.length) {
+        void fetch("/api/admin/content-topics", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: topicIds, action: "use" }),
+        }).then(() => onTopicsConsumed?.(topicIds));
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Generation failed");
