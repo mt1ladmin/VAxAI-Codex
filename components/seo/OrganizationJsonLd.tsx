@@ -3,6 +3,7 @@ import { absoluteUrl, siteConfig } from "@/lib/seo/site";
 export default function OrganizationJsonLd() {
   const siteUrl = absoluteUrl();
   const organizationId = `${siteUrl}/#organization`;
+  const logoUrl = absoluteUrl(siteConfig.logoPath);
 
   const data = {
     "@context": "https://schema.org",
@@ -23,6 +24,8 @@ export default function OrganizationJsonLd() {
         url: siteUrl,
         description: siteConfig.defaultDescription,
         email: siteConfig.email,
+        logo: logoUrl,
+        image: logoUrl,
         areaServed: {
           "@type": "Country",
           name: "United Kingdom",
@@ -33,11 +36,19 @@ export default function OrganizationJsonLd() {
           url: siteConfig.parentOrganization.url,
         },
         serviceType: [
-          "Admin support",
-          "Backlog recovery",
+          "Operational administration support",
+          "Admin backlog recovery",
           "AI and automation readiness",
+          "Ongoing admin support",
+          "Maintain and improve systems",
+          "Access to Work support",
+        ],
+        knowsAbout: [
+          "Administrative foundations",
+          "Backlog management",
+          "AI readiness",
+          "Process improvement",
           "Virtual assistance",
-          "Business process automation",
         ],
       },
     ],

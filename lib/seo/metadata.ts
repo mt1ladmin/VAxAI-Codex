@@ -11,6 +11,12 @@ export function createRootMetadata(): Metadata {
       template: `%s | ${siteConfig.name}`,
     },
     description: siteConfig.defaultDescription,
+    applicationName: siteConfig.name,
+    keywords: [...siteConfig.keywords],
+    authors: [{ name: "VAxAI", url: siteUrl }],
+    creator: "MT1L",
+    publisher: "MT1L",
+    category: "business",
     robots: {
       index: true,
       follow: true,
@@ -19,8 +25,18 @@ export function createRootMetadata(): Metadata {
         follow: true,
         "max-image-preview": "large",
         "max-snippet": -1,
+        "max-video-preview": -1,
       },
     },
+    icons: {
+      icon: [
+        { url: "/icon", type: "image/png", sizes: "32x32" },
+        { url: "/icon.svg", type: "image/svg+xml" },
+      ],
+      apple: [{ url: "/apple-icon", type: "image/png", sizes: "180x180" }],
+      shortcut: ["/icon"],
+    },
+    manifest: "/site.webmanifest",
     openGraph: {
       type: "website",
       locale: siteConfig.locale,
@@ -28,11 +44,23 @@ export function createRootMetadata(): Metadata {
       siteName: siteConfig.name,
       title: siteConfig.defaultTitle,
       description: siteConfig.defaultDescription,
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: siteConfig.defaultTitle,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: siteConfig.defaultTitle,
       description: siteConfig.defaultDescription,
+      images: ["/opengraph-image"],
+    },
+    alternates: {
+      canonical: "/",
     },
   };
 }
@@ -61,11 +89,20 @@ export function createPageMetadata({
       siteName: siteConfig.name,
       title,
       description,
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: ["/opengraph-image"],
     },
   };
 }
@@ -102,13 +139,15 @@ export function createPostMetadata({
       title: pageTitle,
       description: pageDescription,
       publishedTime: publishedAt ?? undefined,
-      images: coverImageUrl ? [{ url: coverImageUrl }] : undefined,
+      images: coverImageUrl
+        ? [{ url: coverImageUrl }]
+        : [{ url: "/opengraph-image", width: 1200, height: 630, alt: pageTitle }],
     },
     twitter: {
-      card: coverImageUrl ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: pageTitle,
       description: pageDescription,
-      images: coverImageUrl ? [coverImageUrl] : undefined,
+      images: coverImageUrl ? [coverImageUrl] : ["/opengraph-image"],
     },
   };
 }

@@ -1,0 +1,22 @@
+{
+  "name": "VAxAI",
+  "short_name": "VAxAI",
+  "description": "Operational administration support for founders, SMEs, charities and public sector organisations. Clear backlogs, prepare for AI and automation, keep people in the loop.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#122428",
+  "theme_color": "#122428",
+  "lang": "en-GB",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
