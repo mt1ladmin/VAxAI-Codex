@@ -165,7 +165,7 @@ export default function VaApplicationsPage() {
         ]
       : [
           { status: "joined", label: "Joined" },
-          { status: "approved", label: "Approved" },
+          { status: "approved", label: "Active" },
           { status: "contacted", label: "Back to pipeline" },
         ];
 
@@ -274,7 +274,7 @@ export default function VaApplicationsPage() {
             type="button"
             disabled={!selected.size}
             onClick={openOpportunityEmail}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#1B343A] px-3 py-2 text-xs font-semibold text-white hover:bg-[#27464D] disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-40"
             title="Open email to selected freelancers about an opportunity"
           >
             <Mail className="h-3.5 w-3.5" />
@@ -320,7 +320,7 @@ export default function VaApplicationsPage() {
               <article
                 key={app.id}
                 className={`group relative flex flex-col rounded-2xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md ${
-                  isSelected ? "border-[#1B343A] ring-2 ring-[#1B343A]/20" : "border-pine-900/10"
+                  isSelected ? "border-[#122428] ring-2 ring-[#122428]/20" : "border-pine-900/10"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -329,7 +329,7 @@ export default function VaApplicationsPage() {
                     onClick={() => toggleSelect(app.id)}
                     className={`mt-1 grid h-5 w-5 shrink-0 place-items-center rounded border ${
                       isSelected
-                        ? "border-[#1B343A] bg-[#1B343A] text-white"
+                        ? "border-[#122428] bg-[#122428] text-white"
                         : "border-pine-900/25 bg-white"
                     }`}
                     aria-label={isSelected ? "Deselect" : "Select"}

@@ -274,7 +274,7 @@ export default function VaApplicationDetailPage() {
                   href={app.cv_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#1B343A] hover:underline"
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#122428] hover:underline"
                 >
                   <FileText className="h-4 w-4" />
                   {app.cv_file_name || "Download CV"}
