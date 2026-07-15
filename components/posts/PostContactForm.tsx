@@ -56,7 +56,7 @@ export default function PostContactForm({ postId, postTitle }: Props) {
       aria-modal="true"
       onMouseDown={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
     >
-      <div className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto rounded-3xl bg-white shadow-2xl">
+      <div className="max-h-[calc(100vh-2rem)] w-full max-w-lg overflow-y-auto scrollbar-none rounded-3xl bg-white shadow-2xl">
         <div className="flex items-start justify-between gap-6 rounded-t-3xl bg-[#122428] px-6 py-5 text-white sm:px-7">
           <div>
             <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#D8FC2E]">VAxAI</p>
