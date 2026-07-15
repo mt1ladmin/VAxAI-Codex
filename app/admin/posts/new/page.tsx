@@ -105,22 +105,22 @@ export default function NewPostPage() {
     <div className="flex h-full flex-col">
       {/* Top bar */}
       <div className="flex shrink-0 items-center gap-3 border-b border-[#111111]/10 bg-white px-4 py-3">
-        <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+        <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <span className="text-sm text-[#6f6b62]">New post</span>
+        <span className="text-sm text-[#5F686A]">New post</span>
         <div className="ml-auto flex items-center gap-2">
           <button
             onClick={() => void save("draft")}
             disabled={saving}
-            className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea] disabled:opacity-50"
+            className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8] disabled:opacity-50"
           >
             Save draft
           </button>
           <button
             onClick={() => setPanelOpen(true)}
             disabled={saving}
-            className="rounded-md bg-[#063b32] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            className="rounded-md bg-[#122428] px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
           >
             Publish
           </button>
@@ -145,37 +145,37 @@ export default function NewPostPage() {
         {panelOpen && (
           <div className="flex w-80 shrink-0 flex-col border-l border-[#111111]/10 bg-white">
             <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6f6b62]">Publish post</p>
-              <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#5F686A]">Publish post</p>
+              <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {published ? (
               <div className="flex-1 overflow-y-auto p-5">
-                <div className="mb-4 flex items-center gap-2 rounded-md bg-[#f3f9f5] p-3">
-                  <Check className="h-4 w-4 text-[#063b32]" />
-                  <p className="text-sm font-semibold text-[#063b32]">Published!</p>
+                <div className="mb-4 flex items-center gap-2 rounded-md bg-[#E3ECEE] p-3">
+                  <Check className="h-4 w-4 text-[#122428]" />
+                  <p className="text-sm font-semibold text-[#122428]">Published!</p>
                 </div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Share</p>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share</p>
                 <div className="space-y-2">
                   <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`} target="_blank" rel="noreferrer"
-                    className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-[#f7f4ea]">
+                    className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-[#F5F8F8]">
                     <Linkedin className="h-4 w-4" /> Share on LinkedIn
                   </a>
                   <div className="flex items-center gap-2 rounded-md border border-[#111111]/10 px-3 py-2.5">
                     <Instagram className="h-4 w-4 shrink-0 text-[#E1306C]" />
-                    <span className="flex-1 truncate text-xs text-[#6f6b62]">{postUrl}</span>
-                    <button onClick={copyLink} className="shrink-0 text-[#6f6b62] hover:text-[#063b32]" title="Copy link">
+                    <span className="flex-1 truncate text-xs text-[#5F686A]">{postUrl}</span>
+                    <button onClick={copyLink} className="shrink-0 text-[#5F686A] hover:text-[#122428]" title="Copy link">
                       <Copy className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <button onClick={copyLink}
-                    className="flex w-full items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-[#f7f4ea]">
+                    className="flex w-full items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-[#F5F8F8]">
                     <Copy className="h-4 w-4" /> Copy link
                   </button>
                 </div>
-                <Link href="/admin/posts" className="mt-4 flex items-center gap-1 text-xs text-[#6f6b62] hover:text-[#111111]">
+                <Link href="/admin/posts" className="mt-4 flex items-center gap-1 text-xs text-[#5F686A] hover:text-[#111111]">
                   <ArrowLeft className="h-3 w-3" /> Back to posts
                 </Link>
               </div>
@@ -184,25 +184,25 @@ export default function NewPostPage() {
                 <div className="flex-1 space-y-6 overflow-y-auto p-5">
                   {/* Share caption */}
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Share caption</label>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share caption</label>
                     <textarea
                       value={sharingCaption}
                       onChange={(e) => setSharingCaption(e.target.value)}
                       rows={3}
                       placeholder="Add a short sharing caption…"
-                      className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32]"
+                      className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#122428]"
                     />
                   </div>
 
                   {/* Connected posts */}
                   <div>
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
-                    <p className="mb-2 text-xs text-[#6f6b62]/70">No connected social posts yet.</p>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Connected posts</p>
+                    <p className="mb-2 text-xs text-[#5F686A]/70">No connected social posts yet.</p>
                     <button
                       type="button"
                       onClick={() => void save("draft")}
                       disabled={saving}
-                      className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[#111111]/20 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:border-[#063b32]/40 hover:text-[#063b32] disabled:opacity-50"
+                      className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[#111111]/20 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:border-[#122428]/40 hover:text-[#122428] disabled:opacity-50"
                     >
                       <Plus className="h-3.5 w-3.5" /> Save draft to add connected post
                     </button>
@@ -210,21 +210,21 @@ export default function NewPostPage() {
 
                   {/* Slug */}
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">URL Slug</label>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">URL Slug</label>
                     <div className="flex items-center rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-xs">
-                      <span className="mr-1 text-[#6f6b62]">/posts/</span>
+                      <span className="mr-1 text-[#5F686A]">/posts/</span>
                       <input
                         value={slug}
                         onChange={(e) => setSlug(e.target.value)}
                         className="flex-1 bg-transparent text-[#111111] outline-none"
                       />
                     </div>
-                    <p className="mt-1 text-[10px] text-[#6f6b62]">Auto-generated from title. Edit to customise.</p>
+                    <p className="mt-1 text-[10px] text-[#5F686A]">Auto-generated from title. Edit to customise.</p>
                   </div>
 
                   {/* Content type */}
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Type</label>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Type</label>
                     <div className="flex flex-wrap gap-1.5">
                       {PRESET_TYPES.map((t) => (
                         <button
@@ -233,8 +233,8 @@ export default function NewPostPage() {
                           onClick={() => { setContentType(t); setShowCustomType(false); }}
                           className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                             activeType === t && !showCustomType
-                              ? "bg-[#063b32] text-white"
-                              : "border border-[#111111]/15 bg-white text-[#6f6b62] hover:border-[#063b32]/40"
+                              ? "bg-[#122428] text-white"
+                              : "border border-[#111111]/15 bg-white text-[#5F686A] hover:border-[#122428]/40"
                           }`}
                         >
                           {t}
@@ -245,8 +245,8 @@ export default function NewPostPage() {
                         onClick={() => setShowCustomType(true)}
                         className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                           showCustomType
-                            ? "bg-[#063b32] text-white"
-                            : "border border-dashed border-[#111111]/20 text-[#6f6b62] hover:border-[#063b32]/40"
+                            ? "bg-[#122428] text-white"
+                            : "border border-dashed border-[#111111]/20 text-[#5F686A] hover:border-[#122428]/40"
                         }`}
                       >
                         + Custom
@@ -258,15 +258,15 @@ export default function NewPostPage() {
                         value={customType}
                         onChange={(e) => setCustomType(e.target.value)}
                         placeholder="Custom type name…"
-                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                       />
                     )}
                   </div>
 
                   {/* Tags */}
                   <div>
-                    <button type="button" onClick={() => setTagsOpen((value) => !value)} className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
-                      <span>Tags {tags.length > 0 && <span className="ml-1 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">{tags.length}</span>}</span>
+                    <button type="button" onClick={() => setTagsOpen((value) => !value)} className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
+                      <span>Tags {tags.length > 0 && <span className="ml-1 rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px] text-[#122428]">{tags.length}</span>}</span>
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform ${tagsOpen ? "rotate-180" : ""}`} />
                     </button>
                     {tagsOpen && (
@@ -275,19 +275,19 @@ export default function NewPostPage() {
                           {tags.map((tag) => (
                             <span key={tag} className="flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">
                               {tag}
-                              <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500"><X className="h-3 w-3" /></button>
+                              <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#5F686A] hover:text-red-500"><X className="h-3 w-3" /></button>
                             </span>
                           ))}
-                          <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} placeholder={tags.length === 0 ? "Add tags…" : ""} className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50" />
+                          <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }} placeholder={tags.length === 0 ? "Add tags…" : ""} className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-[#5F686A]/50" />
                         </div>
-                        <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add.</p>
+                        <p className="mt-1 text-[10px] text-[#5F686A]">Press Enter or comma to add.</p>
                       </div>
                     )}
                   </div>
 
                   {/* Author */}
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Author</label>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Author</label>
                     <AppSelect
                       value={authorId}
                       onChange={setAuthorId}
@@ -296,7 +296,7 @@ export default function NewPostPage() {
                       size="sm"
                     />
                     {authors.length === 0 && (
-                      <p className="mt-1 text-[10px] text-[#6f6b62]">
+                      <p className="mt-1 text-[10px] text-[#5F686A]">
                         <Link href="/admin/authors" className="underline">Add authors</Link> first.
                       </p>
                     )}
@@ -304,19 +304,19 @@ export default function NewPostPage() {
 
                   {/* Publish timing */}
                   <div>
-                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">When to publish</label>
+                    <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">When to publish</label>
                     <div className="flex overflow-hidden rounded-md border border-[#111111]/15 text-xs font-semibold">
                       <button
                         type="button"
                         onClick={() => setPublishMode("now")}
-                        className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
+                        className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}
                       >
                         Publish now
                       </button>
                       <button
                         type="button"
                         onClick={() => setPublishMode("schedule")}
-                        className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}
+                        className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}
                       >
                         Schedule
                       </button>
@@ -326,7 +326,7 @@ export default function NewPostPage() {
                         type="datetime-local"
                         value={scheduledAt}
                         onChange={(e) => setScheduledAt(e.target.value)}
-                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                       />
                     )}
                   </div>
@@ -338,7 +338,7 @@ export default function NewPostPage() {
                     <button
                       onClick={() => void save("published")}
                       disabled={saving}
-                      className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                      className="w-full rounded-md bg-[#122428] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
                     >
                       {saving ? "Publishing…" : "Publish post"}
                     </button>

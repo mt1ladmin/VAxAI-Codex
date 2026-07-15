@@ -130,15 +130,15 @@ export default function PostsPage() {
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">VAxAI Studio</p>
             <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Posts</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">
+            <p className="mt-0.5 text-sm text-[#5F686A]">
               {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
             </p>
           </div>
           <Link
             href="/admin/posts/new"
-            className="flex items-center gap-2 rounded-md bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            className="flex items-center gap-2 rounded-md bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
           >
             <Plus className="h-4 w-4" />
             New post
@@ -150,12 +150,12 @@ export default function PostsPage() {
         {/* Filters */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search posts…"
-              className="w-52 rounded-md border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
+              className="w-52 rounded-md border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#122428]"
             />
           </div>
           <AppSelect
@@ -186,26 +186,26 @@ export default function PostsPage() {
           <div className="ml-auto flex items-center gap-2">
             {selected.size > 0 && (
               <>
-                <span className="text-sm text-[#6f6b62]">{selected.size} selected</span>
-                <button onClick={() => bulkAction("publish")} className="rounded-md border border-[#063b32]/30 bg-[#f3f9f5] px-3 py-1.5 text-xs font-semibold text-[#063b32] hover:bg-[#063b32]/10">Publish</button>
-                <button onClick={() => bulkAction("draft")} className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Move to draft</button>
+                <span className="text-sm text-[#5F686A]">{selected.size} selected</span>
+                <button onClick={() => bulkAction("publish")} className="rounded-md border border-[#122428]/30 bg-[#E3ECEE] px-3 py-1.5 text-xs font-semibold text-[#122428] hover:bg-[#122428]/10">Publish</button>
+                <button onClick={() => bulkAction("draft")} className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Move to draft</button>
                 <button onClick={() => bulkAction("delete")} className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100">Delete</button>
-                <button onClick={() => setSelected(new Set())} className="grid h-7 w-7 place-items-center rounded-md border border-[#111111]/15 bg-white text-[#6f6b62]">
+                <button onClick={() => setSelected(new Set())} className="grid h-7 w-7 place-items-center rounded-md border border-[#111111]/15 bg-white text-[#5F686A]">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </>
             )}
             <div className="flex overflow-hidden rounded-md border border-[#111111]/15 bg-white">
-              <button onClick={() => setView("grid")} className={`grid h-8 w-8 place-items-center ${view === "grid" ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"}`}>
+              <button onClick={() => setView("grid")} className={`grid h-8 w-8 place-items-center ${view === "grid" ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-[#F5F8F8]"}`}>
                 <Grid3X3 className="h-3.5 w-3.5" />
               </button>
-              <button onClick={() => setView("list")} className={`grid h-8 w-8 place-items-center ${view === "list" ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"}`}>
+              <button onClick={() => setView("list")} className={`grid h-8 w-8 place-items-center ${view === "list" ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-[#F5F8F8]"}`}>
                 <LayoutList className="h-3.5 w-3.5" />
               </button>
             </div>
             <button
               onClick={toggleAll}
-              className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+              className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
             >
               {selected.size === filtered.length && filtered.length > 0 ? "Deselect all" : "Select all"}
             </button>
@@ -219,17 +219,17 @@ export default function PostsPage() {
             <button
               type="button"
               onClick={() => void load()}
-              className="mt-4 rounded-md bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+              className="mt-4 rounded-md bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
             >
               Retry
             </button>
           </div>
         ) : loading ? (
-          <div className="py-20 text-center text-sm text-[#6f6b62]">Loading…</div>
+          <div className="py-20 text-center text-sm text-[#5F686A]">Loading…</div>
         ) : filtered.length === 0 ? (
           <div className="rounded-md border border-[#111111]/10 bg-white py-16 text-center">
-            <p className="text-sm text-[#6f6b62]">{posts.length === 0 ? "No posts yet." : "No posts match your filters."}</p>
-            <Link href="/admin/posts/new" className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#063b32] px-4 py-2 text-sm font-semibold text-white">
+            <p className="text-sm text-[#5F686A]">{posts.length === 0 ? "No posts yet." : "No posts match your filters."}</p>
+            <Link href="/admin/posts/new" className="mt-4 inline-flex items-center gap-2 rounded-md bg-[#122428] px-4 py-2 text-sm font-semibold text-white">
               <Plus className="h-4 w-4" /> Create your first post
             </Link>
           </div>
@@ -243,15 +243,15 @@ export default function PostsPage() {
                   event.preventDefault();
                   toggleSelect(post.id);
                 }}
-                className={`group relative overflow-hidden rounded-md border bg-white shadow-sm ${selected.size > 0 ? "cursor-pointer" : ""} ${selected.has(post.id) ? "border-[#063b32] ring-1 ring-[#063b32]/20" : "border-[#111111]/10"}`}
+                className={`group relative overflow-hidden rounded-md border bg-white shadow-sm ${selected.size > 0 ? "cursor-pointer" : ""} ${selected.has(post.id) ? "border-[#122428] ring-1 ring-[#122428]/20" : "border-[#111111]/10"}`}
               >
                 {/* Checkbox — always visible */}
                 <button
                   onClick={(event) => { event.stopPropagation(); toggleSelect(post.id); }}
                   className={`absolute left-2.5 top-2.5 z-20 grid h-5 w-5 place-items-center rounded border-2 shadow-sm transition-colors ${
                     selected.has(post.id)
-                      ? "border-[#063b32] bg-[#063b32]"
-                      : "border-white bg-white/90 hover:border-[#063b32]"
+                      ? "border-[#122428] bg-[#122428]"
+                      : "border-white bg-white/90 hover:border-[#122428]"
                   }`}
                 >
                   {selected.has(post.id) && <Check className="h-3 w-3 text-white" />}
@@ -260,7 +260,7 @@ export default function PostsPage() {
                 {/* Type badge — offset so it doesn't overlap checkbox */}
                 <div className="absolute left-9 top-2.5 z-10">
                   {!selected.has(post.id) && (
-                    <span className="rounded-full bg-[#063b32]/80 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+                    <span className="rounded-full bg-[#122428]/80 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
                       {post.content_type}
                     </span>
                   )}
@@ -287,12 +287,12 @@ export default function PostsPage() {
                 {/* Cover */}
                 <Link
                   href={`/admin/posts/${post.id}`}
-                  className="block w-full aspect-video overflow-hidden bg-[#f7f4ea]"
+                  className="block w-full aspect-video overflow-hidden bg-[#F5F8F8]"
                 >
                   {post.cover_image_url ? (
                     <img src={post.cover_image_url} alt={post.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   ) : (
-                    <div className="grid h-full w-full place-items-center bg-gradient-to-br from-[#063b32] to-[#0a5c48] p-4">
+                    <div className="grid h-full w-full place-items-center bg-gradient-to-br from-[#122428] to-[#1B343A] p-4">
                       <p className="line-clamp-3 text-center text-sm font-semibold leading-tight text-white">{post.title || "Untitled"}</p>
                     </div>
                   )}
@@ -302,23 +302,23 @@ export default function PostsPage() {
                 <div className="p-4">
                   <Link
                     href={`/admin/posts/${post.id}`}
-                    className="line-clamp-2 text-left text-sm font-semibold text-[#111111] leading-snug hover:text-[#063b32]"
+                    className="line-clamp-2 text-left text-sm font-semibold text-[#111111] leading-snug hover:text-[#122428]"
                   >
                     {post.title || "Untitled"}
                   </Link>
-                  <p className="mt-2 text-xs text-[#6f6b62]">
+                  <p className="mt-2 text-xs text-[#5F686A]">
                     Edited {new Date(post.updated_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                   </p>
                   <div className="mt-2 flex items-center justify-between">
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                      post.status === "published" ? "bg-[#063b32]/10 text-[#063b32]" :
+                      post.status === "published" ? "bg-[#122428]/10 text-[#122428]" :
                       post.status === "scheduled" ? "bg-amber-100 text-amber-700" :
-                      "bg-[#f5f274]/60 text-[#6f6b62]"
+                      "bg-[#D8FC2E]/60 text-[#5F686A]"
                     }`}>
                       {post.status}
                     </span>
                     {post.tags.length > 0 && (
-                      <span className="text-[10px] text-[#6f6b62]">{post.tags.slice(0, 2).join(", ")}</span>
+                      <span className="text-[10px] text-[#5F686A]">{post.tags.slice(0, 2).join(", ")}</span>
                     )}
                   </div>
                 </div>
@@ -335,12 +335,12 @@ export default function PostsPage() {
                   event.preventDefault();
                   toggleSelect(post.id);
                 }}
-                className={`group flex items-center gap-4 px-5 py-4 ${selected.size > 0 ? "cursor-pointer" : ""} ${selected.has(post.id) ? "bg-[#063b32]/5" : ""} ${i < filtered.length - 1 ? "border-b border-[#111111]/8" : ""}`}
+                className={`group flex items-center gap-4 px-5 py-4 ${selected.size > 0 ? "cursor-pointer" : ""} ${selected.has(post.id) ? "bg-[#122428]/5" : ""} ${i < filtered.length - 1 ? "border-b border-[#111111]/8" : ""}`}
               >
                 <button
                   onClick={(event) => { event.stopPropagation(); toggleSelect(post.id); }}
                   className={`grid h-4 w-4 shrink-0 place-items-center rounded border ${
-                    selected.has(post.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25"
+                    selected.has(post.id) ? "border-[#122428] bg-[#122428]" : "border-[#111111]/25"
                   }`}
                 >
                   {selected.has(post.id) && <Check className="h-3 w-3 text-white" />}
@@ -348,33 +348,33 @@ export default function PostsPage() {
                 {/* Thumbnail */}
                 <Link
                   href={`/admin/posts/${post.id}`}
-                  className="h-10 w-16 shrink-0 overflow-hidden rounded bg-[#f7f4ea]"
+                  className="h-10 w-16 shrink-0 overflow-hidden rounded bg-[#F5F8F8]"
                 >
                   {post.cover_image_url ? (
                     <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="h-full w-full bg-gradient-to-br from-[#063b32] to-[#0a5c48]" />
+                    <div className="h-full w-full bg-gradient-to-br from-[#122428] to-[#1B343A]" />
                   )}
                 </Link>
                 <div className="flex-1 min-w-0">
                   <Link
                     href={`/admin/posts/${post.id}`}
-                    className="truncate font-semibold text-[#111111] hover:text-[#063b32] block"
+                    className="truncate font-semibold text-[#111111] hover:text-[#122428] block"
                   >
                     {post.title || "Untitled"}
                   </Link>
-                  <p className="text-xs text-[#6f6b62]">{post.content_type} · Edited {new Date(post.updated_at).toLocaleDateString("en-GB")}</p>
+                  <p className="text-xs text-[#5F686A]">{post.content_type} · Edited {new Date(post.updated_at).toLocaleDateString("en-GB")}</p>
                 </div>
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                  post.status === "published" ? "bg-[#063b32]/10 text-[#063b32]" :
+                  post.status === "published" ? "bg-[#122428]/10 text-[#122428]" :
                   post.status === "scheduled" ? "bg-amber-100 text-amber-700" :
-                  "bg-[#f5f274]/60 text-[#6f6b62]"
+                  "bg-[#D8FC2E]/60 text-[#5F686A]"
                 }`}>{post.status}</span>
                 <div className="flex shrink-0 gap-1 opacity-0 group-hover:opacity-100">
-                  <Link href={`/admin/posts/${post.id}`} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]" title="Edit">
+                  <Link href={`/admin/posts/${post.id}`} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]" title="Edit">
                     <Edit2 className="h-3.5 w-3.5" />
                   </Link>
-                  <button onClick={(event) => { event.stopPropagation(); void deletePost(post.id); }} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600" title="Delete">
+                  <button onClick={(event) => { event.stopPropagation(); void deletePost(post.id); }} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-red-50 hover:text-red-600" title="Delete">
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>

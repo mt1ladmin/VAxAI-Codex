@@ -23,7 +23,7 @@ function ToggleBar({
     <button
       type="button"
       onClick={onToggle}
-      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#111111]/10 bg-white px-3 py-1.5 text-xs font-semibold text-[#063b32] transition-colors hover:border-[#063b32]/25 hover:bg-[#063b32]/5"
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#111111]/10 bg-white px-3 py-1.5 text-xs font-semibold text-[#122428] transition-colors hover:border-[#122428]/25 hover:bg-[#122428]/5"
     >
       <ChevronDown
         className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}

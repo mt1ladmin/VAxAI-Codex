@@ -112,7 +112,7 @@ export default function AdminShell({
     pathname.startsWith("/admin/newsletter");
 
   const shell = (
-    <div className="flex h-screen overflow-hidden bg-[#f7f4ea] font-sans">
+    <div className="flex h-screen overflow-hidden bg-cream font-sans">
       {/* Mobile backdrop */}
       {open && (
         <div
@@ -124,30 +124,23 @@ export default function AdminShell({
 
       {/* Sidebar — drawer on mobile, inline on desktop */}
       <aside
-        className={`flex h-full flex-col bg-[#0a1f18] text-white transition-all duration-200
+        className={`flex h-full flex-col bg-pine-900 text-paper transition-all duration-200
           fixed inset-y-0 left-0 z-50
           md:relative md:z-auto md:shrink-0
           ${open ? "w-60 translate-x-0" : "-translate-x-full md:translate-x-0 md:w-14"}
         `}
       >
-        {/* Logo */}
+        {/* Logo — matches public site */}
         <div className={`flex h-14 items-center border-b border-white/10 px-3 ${open ? "justify-between" : "justify-center"}`}>
           {open && (
-            <Link href={homeHref} className="flex items-center gap-2.5">
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
-                VA
-              </span>
-              <div className="leading-none">
-                <span className="block text-sm font-semibold text-white">VAxAI</span>
-                <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-white/40">Studio</span>
-              </div>
+            <Link href={homeHref} className="flex min-w-0 items-center gap-2.5">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-7 w-auto shrink-0" />
+              <span className="block text-[9px] font-semibold uppercase tracking-[0.18em] text-acid/80">Studio</span>
             </Link>
           )}
           {!open && (
-            <Link href={homeHref}>
-              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274] text-[10px] font-black text-[#0a1f18]">
-                VA
-              </span>
+            <Link href={homeHref} title="VAxAI Studio" className="flex items-center justify-center">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-6 w-auto max-w-[2rem] object-contain" />
             </Link>
           )}
           {open && (
@@ -166,7 +159,7 @@ export default function AdminShell({
           <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
             <Link
               href="/admin/posts/new"
-              className={`flex items-center gap-2 rounded-md bg-[#1a5c42] px-3 py-2 text-sm font-semibold text-white hover:bg-[#1f6e4f] transition-colors ${
+              className={`flex items-center gap-2 rounded-md bg-acid px-3 py-2 text-sm font-semibold text-ink transition-colors hover:brightness-[1.04] ${
                 !open ? "h-8 w-8 justify-center p-0" : "w-full"
               }`}
               title={!open ? "New post" : undefined}
@@ -206,7 +199,9 @@ export default function AdminShell({
                     href={item.href}
                     title={!open ? item.label : undefined}
                     className={`mb-0.5 flex items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors ${
-                      active ? "bg-white/12 font-semibold text-white" : "text-white/60 hover:bg-white/8 hover:text-white"
+                      active
+                        ? "bg-white/12 font-semibold text-white ring-1 ring-acid/30"
+                        : "text-white/60 hover:bg-white/8 hover:text-white"
                     } ${!open ? "justify-center" : ""}`}
                   >
                     <item.icon className="h-4 w-4 shrink-0" />
@@ -269,14 +264,16 @@ export default function AdminShell({
         <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-[#111111]/10 bg-white px-4 py-2 md:hidden">
           <button
             onClick={() => setOpen(true)}
-            className="grid h-8 w-8 place-items-center rounded-md border border-[#111111]/15 text-[#063b32]"
+            className="grid h-8 w-8 place-items-center rounded-md border border-[#111111]/15 text-[#122428]"
             aria-label="Open menu"
           >
             <Menu className="h-4 w-4" />
           </button>
           <Link href={homeHref} className="flex items-center gap-2">
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-[#063b32] text-[9px] font-black text-[#f5f274]">VA</span>
-            <span className="text-sm font-semibold text-[#111111]">VAxAI Studio</span>
+            <span className="rounded-md bg-pine-900 px-1.5 py-1">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-5 w-auto" />
+            </span>
+            <span className="text-sm font-semibold text-ink">Studio</span>
           </Link>
         </div>
 
@@ -285,7 +282,7 @@ export default function AdminShell({
           <div className="hidden px-4 pt-2 md:block">
             <button
               onClick={() => setOpen(true)}
-              className="flex items-center gap-1.5 rounded-md border border-[#111111]/15 bg-white px-2.5 py-1 text-xs font-medium text-[#063b32] hover:bg-[#f7f4ea]"
+              className="flex items-center gap-1.5 rounded-md border border-[#111111]/15 bg-white px-2.5 py-1 text-xs font-medium text-[#122428] hover:bg-[#F5F8F8]"
               title="Open sidebar"
             >
               <PanelLeftOpen className="h-3.5 w-3.5" />
@@ -303,8 +300,8 @@ export default function AdminShell({
                   href="/admin/calendar"
                   className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/calendar")
-                      ? "bg-[#063b32] text-white"
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      ? "bg-[#122428] text-white"
+                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
                   }`}
                 >
                   Calendar
@@ -313,8 +310,8 @@ export default function AdminShell({
                   href="/admin/create-content"
                   className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/create-content")
-                      ? "bg-[#063b32] text-white"
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      ? "bg-[#122428] text-white"
+                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
                   }`}
                 >
                   Create
@@ -323,8 +320,8 @@ export default function AdminShell({
                   href="/admin/posts"
                   className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/posts")
-                      ? "bg-[#063b32] text-white"
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      ? "bg-[#122428] text-white"
+                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
                   }`}
                 >
                   Posts
@@ -333,8 +330,8 @@ export default function AdminShell({
                   href="/admin/authors"
                   className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/authors")
-                      ? "bg-[#063b32] text-white"
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      ? "bg-[#122428] text-white"
+                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
                   }`}
                 >
                   Authors
@@ -343,8 +340,8 @@ export default function AdminShell({
                   href="/admin/newsletter"
                   className={`shrink-0 px-3 py-1.5 text-xs font-semibold ${
                     pathname.startsWith("/admin/newsletter")
-                      ? "bg-[#063b32] text-white"
-                      : "text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      ? "bg-[#122428] text-white"
+                      : "text-[#5F686A] hover:bg-[#F5F8F8]"
                   }`}
                 >
                   Newsletter

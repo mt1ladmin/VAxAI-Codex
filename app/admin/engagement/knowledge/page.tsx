@@ -21,16 +21,51 @@ type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "pricing" | 
 const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts", "pricing", "scripts", "objections"];
 
 const TAB_META: Record<Tab, { label: string; title: string; description: string }> = {
-  sectors: { label: "Sectors", title: "Sectors", description: "Sector context for operational admin pressure, backlogs, AI readiness and realistic VAxAI support." },
-  personas: { label: "Personas", title: "Personas", description: "Personas to interpret who may feel admin, backlog, or automation strain." },
-  pain_points: { label: "Pain points", title: "Pain Points", description: "Pain points linked to backlog recovery, AI readiness, ongoing admin support and maintenance, not default new builds." },
-  vat_prompts: { label: "VAT prompts", title: "VAT Prompts", description: "VAT prompts for Value, Alignment, and Trust in AI decisions." },
-  pricing: { label: "Pricing bands", title: "Pricing Bands", description: "Internal pricing bands used to generate indicative value estimates. Not shown to clients." },
-  scripts: { label: "Scripts & blocks", title: "Scripts & Blocks", description: "Approved outreach scripts and reusable message blocks for every channel." },
-  objections: { label: "Objections", title: "Objections", description: "Approved responses for handling common objections consistently." },
+  sectors: {
+    label: "Sectors",
+    title: "Sectors",
+    description:
+      "How admin pressure shows up for founders, SMEs, charities and public sector organisations — and where VAxAI can help with backlog recovery, AI readiness, ongoing support and maintenance.",
+  },
+  personas: {
+    label: "Personas",
+    title: "Personas",
+    description:
+      "Who feels the admin load day to day, so outreach and matching stay human and specific.",
+  },
+  pain_points: {
+    label: "Pain points",
+    title: "Pain Points",
+    description:
+      "Operational pressures VAxAI addresses: clearing backlogs, organising information for AI and automation, keeping essential admin moving, and stopping problems from returning.",
+  },
+  vat_prompts: {
+    label: "VAT prompts",
+    title: "VAT Prompts",
+    description:
+      "Value, Alignment and Trust prompts for judging whether AI or process change genuinely helps — without selling tools or over-promising automation.",
+  },
+  pricing: {
+    label: "Pricing bands",
+    title: "Pricing Bands",
+    description:
+      "Internal scoping bands only. Public pages invite organisations to contact us for a quote after we understand the work and the right person to deliver it.",
+  },
+  scripts: {
+    label: "Scripts & blocks",
+    title: "Scripts & Blocks",
+    description:
+      "Approved outreach language for free Admin Reviews, project work and monthly support — human-led, practical, and free of fixed public prices.",
+  },
+  objections: {
+    label: "Objections",
+    title: "Objections",
+    description:
+      "Consistent responses when organisations push back on cost, capacity, AI risk or whether external support is needed.",
+  },
 };
 
-const INPUT = "w-full rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#111111] outline-none focus:border-[#063b32]";
+const INPUT = "w-full rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#111111] outline-none focus:border-[#122428]";
 const TEXTAREA = `${INPUT} resize-none`;
 
 function CustomSelect({ value, onChange, options, placeholder, className = "" }: {
@@ -49,15 +84,15 @@ function CustomSelect({ value, onChange, options, placeholder, className = "" }:
   const selected = options.find((o) => o.value === value);
   return (
     <div ref={ref} className={`relative ${className}`}>
-      <button type="button" onClick={() => setOpen((v) => !v)} className="flex w-full items-center justify-between rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-left text-sm text-[#111111] outline-none transition-colors hover:border-[#063b32]/40 focus:border-[#063b32]">
-        <span className={selected ? "text-[#111111]" : "text-[#6f6b62]"}>{selected?.label || placeholder}</span>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+      <button type="button" onClick={() => setOpen((v) => !v)} className="flex w-full items-center justify-between rounded-xl border border-[#111111]/15 bg-white px-4 py-2.5 text-left text-sm text-[#111111] outline-none transition-colors hover:border-[#122428]/40 focus:border-[#122428]">
+        <span className={selected ? "text-[#111111]" : "text-[#5F686A]"}>{selected?.label || placeholder}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#5F686A] transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute z-30 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg">
           {options.map((opt) => (
             <button key={opt.value || "__empty"} type="button" onClick={() => { onChange(opt.value); setOpen(false); }}
-              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${value === opt.value ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"}`}>
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${value === opt.value ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"}`}>
               {opt.label}
             </button>
           ))}
@@ -75,16 +110,16 @@ function TagsInput({ value, onChange }: { value: string[]; onChange: (v: string[
     setInput("");
   };
   return (
-    <div className="rounded-lg border border-[#111111]/15 p-2 focus-within:border-[#063b32]">
+    <div className="rounded-lg border border-[#111111]/15 p-2 focus-within:border-[#122428]">
       <div className="flex flex-wrap gap-1.5 mb-1.5">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[11px] font-semibold text-[#6f6b62]">
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
             {tag}<button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="hover:text-red-500">×</button>
           </span>
         ))}
       </div>
       <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
-        placeholder="Type and press Enter" className="w-full text-xs outline-none bg-transparent text-[#111111] placeholder:text-[#6f6b62]" />
+        placeholder="Type and press Enter" className="w-full text-xs outline-none bg-transparent text-[#111111] placeholder:text-[#5F686A]" />
     </div>
   );
 }
@@ -102,7 +137,7 @@ function ConfirmDelete({ onConfirm, onCancel, saving }: { onConfirm: () => void;
     <div className="flex items-center gap-2">
       <span className="text-xs font-semibold text-red-600">Delete?</span>
       <button type="button" onClick={onConfirm} disabled={saving} className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-50 hover:bg-red-700">{saving ? "…" : "Yes"}</button>
-      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-2.5 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">No</button>
+      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-2.5 py-1 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">No</button>
     </div>
   );
 }
@@ -110,8 +145,8 @@ function ConfirmDelete({ onConfirm, onCancel, saving }: { onConfirm: () => void;
 function EditSaveRow({ saving, onSave, onCancel }: { saving: boolean; onSave: () => void; onCancel: () => void }) {
   return (
     <div className="flex justify-end gap-2 pt-2">
-      <button type="button" onClick={onCancel} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"><X className="h-3 w-3" /> Cancel</button>
-      <button type="button" onClick={onSave} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3 w-3" /> {saving ? "Saving…" : "Save"}</button>
+      <button type="button" onClick={onCancel} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3 w-3" /> Cancel</button>
+      <button type="button" onClick={onSave} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3 w-3" /> {saving ? "Saving…" : "Save"}</button>
     </div>
   );
 }
@@ -146,15 +181,15 @@ function SectorCard({ sector, selected, selectMode, onSelect, onDeleted, onSaved
     onDeleted();
   };
 
-  const cardClass = `rounded-xl border bg-white p-5 transition-all ${highlight ? "border-[#063b32] ring-2 ring-[#063b32]/25 bg-[#063b32]/5" : "border-[#111111]/10"} ${editing ? "border-[#063b32]/40" : ""}`;
+  const cardClass = `rounded-xl border bg-white p-5 transition-all ${highlight ? "border-[#122428] ring-2 ring-[#122428]/25 bg-[#122428]/5" : "border-[#111111]/10"} ${editing ? "border-[#122428]/40" : ""}`;
 
   if (editing) {
     return (
       <div className={cardClass}>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-2">Name
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-2">Name
           <input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className={`mt-1 ${INPUT}`} />
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Description
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Description
           <textarea rows={2} value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} className={`mt-1 ${TEXTAREA}`} />
         </label>
         <EditSaveRow saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
@@ -166,26 +201,26 @@ function SectorCard({ sector, selected, selectMode, onSelect, onDeleted, onSaved
     <div className={cardClass} id={highlight ? `sector-${sector.id}` : undefined}>
       <div className="flex items-start gap-2">
         {selectMode && (
-          <input type="checkbox" checked={selected} onChange={onSelect} className="mt-1 h-4 w-4 shrink-0 accent-[#063b32] cursor-pointer" />
+          <input type="checkbox" checked={selected} onChange={onSelect} className="mt-1 h-4 w-4 shrink-0 accent-[#122428] cursor-pointer" />
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <Link href={`/admin/engagement/knowledge/sectors/${sector.id}`} className="font-semibold text-[#111111] hover:text-[#063b32] transition-colors">{sector.name}</Link>
+            <Link href={`/admin/engagement/knowledge/sectors/${sector.id}`} className="font-semibold text-[#111111] hover:text-[#122428] transition-colors">{sector.name}</Link>
             <div className="flex shrink-0 items-center gap-1.5">
               {confirmDelete ? (
                 <ConfirmDelete onConfirm={() => void del()} onCancel={() => setConfirmDelete(false)} saving={deleting} />
               ) : (
                 <>
-                  <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"><Pencil className="h-3 w-3" /></button>
-                  <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#6f6b62] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3 w-3" /></button>
-                  <Link href={`/admin/engagement/knowledge/sectors/${sector.id}`} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"><ArrowRight className="h-3 w-3" /></Link>
+                  <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"><Pencil className="h-3 w-3" /></button>
+                  <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#5F686A] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3 w-3" /></button>
+                  <Link href={`/admin/engagement/knowledge/sectors/${sector.id}`} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"><ArrowRight className="h-3 w-3" /></Link>
                 </>
               )}
             </div>
           </div>
-          {sector.description && <p className="text-sm text-[#6f6b62] line-clamp-2">{sector.description}</p>}
+          {sector.description && <p className="text-sm text-[#5F686A] line-clamp-2">{sector.description}</p>}
           {sector.common_admin_pressures && sector.common_admin_pressures.length > 0 && (
-            <p className="mt-3 text-xs text-[#6f6b62]">{sector.common_admin_pressures.slice(0, 2).join(" · ")}</p>
+            <p className="mt-3 text-xs text-[#5F686A]">{sector.common_admin_pressures.slice(0, 2).join(" · ")}</p>
           )}
         </div>
       </div>
@@ -232,20 +267,20 @@ function PersonaCard({ persona, selected, selectMode, onSelect, onDeleted, onSav
 
   if (editing) {
     return (
-      <div className="rounded-xl border border-[#063b32]/30 bg-white p-5 space-y-3">
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Persona name
+      <div className="rounded-xl border border-[#122428]/30 bg-white p-5 space-y-3">
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Persona name
           <input value={draft.persona_name} onChange={(e) => setDraft((d) => ({ ...d, persona_name: e.target.value }))} className={`mt-1 ${INPUT}`} />
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Typical role
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Typical role
           <input value={draft.typical_role} onChange={(e) => setDraft((d) => ({ ...d, typical_role: e.target.value }))} className={`mt-1 ${INPUT}`} />
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Goals (one per line)
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Goals (one per line)
           <ListInput value={draft.goals} onChange={(v) => setDraft((d) => ({ ...d, goals: v }))} />
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely concerns (one per line)
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Likely concerns (one per line)
           <ListInput value={draft.likely_concerns} onChange={(v) => setDraft((d) => ({ ...d, likely_concerns: v }))} />
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Pressures (one per line)
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Pressures (one per line)
           <ListInput value={draft.pressures} onChange={(v) => setDraft((d) => ({ ...d, pressures: v }))} />
         </label>
         <EditSaveRow saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
@@ -256,7 +291,7 @@ function PersonaCard({ persona, selected, selectMode, onSelect, onDeleted, onSav
   return (
     <div className="rounded-xl border border-[#111111]/10 bg-white p-5">
       <div className="flex items-start gap-2">
-        {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-1 h-4 w-4 shrink-0 accent-[#063b32] cursor-pointer" />}
+        {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-1 h-4 w-4 shrink-0 accent-[#122428] cursor-pointer" />}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
             <p className="font-semibold text-[#111111]">{persona.persona_name}</p>
@@ -265,23 +300,23 @@ function PersonaCard({ persona, selected, selectMode, onSelect, onDeleted, onSav
                 <ConfirmDelete onConfirm={() => void del()} onCancel={() => setConfirmDelete(false)} saving={deleting} />
               ) : (
                 <>
-                  <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"><Pencil className="h-3 w-3" /></button>
-                  <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#6f6b62] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3 w-3" /></button>
+                  <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"><Pencil className="h-3 w-3" /></button>
+                  <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-[#111111]/15 text-[#5F686A] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3 w-3" /></button>
                 </>
               )}
             </div>
           </div>
-          {persona.typical_role && <p className="mt-0.5 text-sm text-[#6f6b62]">{persona.typical_role}</p>}
+          {persona.typical_role && <p className="mt-0.5 text-sm text-[#5F686A]">{persona.typical_role}</p>}
           {persona.goals && persona.goals.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Goals</p>
-              <ul className="space-y-0.5">{persona.goals.slice(0, 3).map((g, i) => <li key={i} className="text-xs text-[#111111] before:content-['·'] before:mr-1.5 before:text-[#6f6b62]">{g}</li>)}</ul>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A] mb-1">Goals</p>
+              <ul className="space-y-0.5">{persona.goals.slice(0, 3).map((g, i) => <li key={i} className="text-xs text-[#111111] before:content-['·'] before:mr-1.5 before:text-[#5F686A]">{g}</li>)}</ul>
             </div>
           )}
           {persona.likely_concerns && persona.likely_concerns.length > 0 && (
             <div className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">Likely concerns</p>
-              <ul className="space-y-0.5">{persona.likely_concerns.slice(0, 2).map((c, i) => <li key={i} className="text-xs text-[#111111] before:content-['·'] before:mr-1.5 before:text-[#6f6b62]">{c}</li>)}</ul>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A] mb-1">Likely concerns</p>
+              <ul className="space-y-0.5">{persona.likely_concerns.slice(0, 2).map((c, i) => <li key={i} className="text-xs text-[#111111] before:content-['·'] before:mr-1.5 before:text-[#5F686A]">{c}</li>)}</ul>
             </div>
           )}
         </div>
@@ -324,16 +359,16 @@ function PainPointRow({ pp, selected, selectMode, onSelect, onDeleted, onSaved }
 
   if (editing) {
     return (
-      <div className="px-5 py-4 space-y-3 bg-[#f7f4ea]/50">
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Title
+      <div className="px-5 py-4 space-y-3 bg-[#F5F8F8]/50">
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Title
           <input value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} className={`mt-1 ${INPUT}`} />
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Category
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Category
           <select value={draft.category} onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))} className={`mt-1 ${INPUT}`}>
             {PAIN_POINT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Plain English definition
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Plain English definition
           <textarea rows={2} value={draft.plain_english_definition} onChange={(e) => setDraft((d) => ({ ...d, plain_english_definition: e.target.value }))} className={`mt-1 ${TEXTAREA}`} />
         </label>
         <EditSaveRow saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
@@ -342,12 +377,12 @@ function PainPointRow({ pp, selected, selectMode, onSelect, onDeleted, onSaved }
   }
 
   return (
-    <div className="flex items-start justify-between px-5 py-4 hover:bg-[#f7f4ea] transition-colors group">
+    <div className="flex items-start justify-between px-5 py-4 hover:bg-[#F5F8F8] transition-colors group">
       <div className="flex items-start gap-3 min-w-0">
-        {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-0.5 h-4 w-4 shrink-0 accent-[#063b32] cursor-pointer" />}
+        {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-0.5 h-4 w-4 shrink-0 accent-[#122428] cursor-pointer" />}
         <div className="min-w-0">
-          <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">{pp.title}</p>
-          {pp.plain_english_definition && <p className="mt-0.5 text-sm text-[#6f6b62] line-clamp-1">{pp.plain_english_definition}</p>}
+          <p className="font-semibold text-[#111111] group-hover:text-[#122428] transition-colors">{pp.title}</p>
+          {pp.plain_english_definition && <p className="mt-0.5 text-sm text-[#5F686A] line-clamp-1">{pp.plain_english_definition}</p>}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1.5 ml-3">
@@ -355,9 +390,9 @@ function PainPointRow({ pp, selected, selectMode, onSelect, onDeleted, onSaved }
           <ConfirmDelete onConfirm={() => void del()} onCancel={() => setConfirmDelete(false)} saving={deleting} />
         ) : (
           <>
-            <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32] opacity-0 group-hover:opacity-100 transition-opacity"><Pencil className="h-3 w-3" /></button>
-            <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#6f6b62] hover:border-red-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="h-3 w-3" /></button>
-            <Link href={`/admin/engagement/pain-points/${pp.id}`} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32] opacity-0 group-hover:opacity-100 transition-opacity"><ArrowRight className="h-3 w-3" /></Link>
+            <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#5F686A] hover:border-[#122428] hover:text-[#122428] opacity-0 group-hover:opacity-100 transition-opacity"><Pencil className="h-3 w-3" /></button>
+            <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#5F686A] hover:border-red-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="h-3 w-3" /></button>
+            <Link href={`/admin/engagement/pain-points/${pp.id}`} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#5F686A] hover:border-[#122428] hover:text-[#122428] opacity-0 group-hover:opacity-100 transition-opacity"><ArrowRight className="h-3 w-3" /></Link>
           </>
         )}
       </div>
@@ -397,11 +432,11 @@ function VatPromptRow({ prompt, selected, selectMode, onSelect, onDeleted, onSav
 
   if (editing) {
     return (
-      <div className="px-5 py-4 space-y-3 bg-[#f7f4ea]/50">
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Prompt
+      <div className="px-5 py-4 space-y-3 bg-[#F5F8F8]/50">
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Prompt
           <textarea rows={3} value={draft.prompt} onChange={(e) => setDraft((d) => ({ ...d, prompt: e.target.value }))} className={`mt-1 ${TEXTAREA}`} />
         </label>
-        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Context tags
+        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Context tags
           <div className="mt-1"><TagsInput value={draft.context_tags} onChange={(v) => setDraft((d) => ({ ...d, context_tags: v }))} /></div>
         </label>
         <EditSaveRow saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
@@ -410,14 +445,14 @@ function VatPromptRow({ prompt, selected, selectMode, onSelect, onDeleted, onSav
   }
 
   return (
-    <div className="flex items-start justify-between px-5 py-3.5 hover:bg-[#f7f4ea]/50 transition-colors group">
+    <div className="flex items-start justify-between px-5 py-3.5 hover:bg-[#F5F8F8]/50 transition-colors group">
       <div className="flex items-start gap-3 min-w-0 flex-1">
-        {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-0.5 h-4 w-4 shrink-0 accent-[#063b32] cursor-pointer" />}
+        {selectMode && <input type="checkbox" checked={selected} onChange={onSelect} className="mt-0.5 h-4 w-4 shrink-0 accent-[#122428] cursor-pointer" />}
         <div className="min-w-0 flex-1">
           <p className="text-sm text-[#111111]">{prompt.prompt}</p>
           {prompt.context_tags && prompt.context_tags.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1">
-              {prompt.context_tags.map((tag) => <span key={tag} className="rounded-full bg-[#f7f4ea] px-2 py-0.5 text-[10px] text-[#6f6b62]">{tag}</span>)}
+              {prompt.context_tags.map((tag) => <span key={tag} className="rounded-full bg-[#F5F8F8] px-2 py-0.5 text-[10px] text-[#5F686A]">{tag}</span>)}
             </div>
           )}
         </div>
@@ -427,8 +462,8 @@ function VatPromptRow({ prompt, selected, selectMode, onSelect, onDeleted, onSav
           <ConfirmDelete onConfirm={() => void del()} onCancel={() => setConfirmDelete(false)} saving={deleting} />
         ) : (
           <>
-            <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32] opacity-0 group-hover:opacity-100 transition-opacity"><Pencil className="h-3 w-3" /></button>
-            <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#6f6b62] hover:border-red-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="h-3 w-3" /></button>
+            <button type="button" onClick={() => setEditing(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#5F686A] hover:border-[#122428] hover:text-[#122428] opacity-0 group-hover:opacity-100 transition-opacity"><Pencil className="h-3 w-3" /></button>
+            <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-6 w-6 place-items-center rounded-md border border-transparent text-[#5F686A] hover:border-red-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="h-3 w-3" /></button>
           </>
         )}
       </div>
@@ -549,25 +584,25 @@ function KnowledgePageInner() {
           <div className="ml-3 flex flex-wrap overflow-hidden rounded-lg border border-[#111111]/15">
             {TAB_KEYS.map((key) => (
               <button key={key} onClick={() => switchTab(key)}
-                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${tab === key ? "bg-[#063b32] text-white" : "text-[#6f6b62] hover:bg-[#f7f4ea]"}`}>
+                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${tab === key ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-[#F5F8F8]"}`}>
                 {TAB_META[key].label}
               </button>
             ))}
           </div>
           {/* Global + button */}
           <button type="button" onClick={() => setAddModalOpen(true)}
-            className="ml-auto flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#063b32]/90 transition-colors">
+            className="ml-auto flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#122428]/90 transition-colors">
             <Plus className="h-3.5 w-3.5" /> Add
           </button>
         </div>
       </div>
 
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">Client Engagement</p>
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{TAB_META[tab].title}</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">{TAB_META[tab].description}</p>
+            <p className="mt-0.5 text-sm text-[#5F686A]">{TAB_META[tab].description}</p>
           </div>
         </div>
       </div>
@@ -578,10 +613,10 @@ function KnowledgePageInner() {
           <div className="flex gap-3 mb-5 flex-wrap">
             {tab !== "vat_prompts" && (
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
                 <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)}
                   placeholder={tab === "pain_points" ? "Search pain points…" : tab === "sectors" ? "Search sectors…" : "Search…"}
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]" />
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#122428]" />
               </div>
             )}
             {tab === "pain_points" && (
@@ -594,8 +629,8 @@ function KnowledgePageInner() {
                   <button key={dim} onClick={() => setDimension(dimension === dim ? "" : dim)}
                     className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
                       dimension === dim
-                        ? dim === "value" ? "bg-[#063b32] text-white" : dim === "alignment" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
-                        : "border border-[#111111]/15 text-[#6f6b62] hover:text-[#111111]"
+                        ? dim === "value" ? "bg-[#122428] text-white" : dim === "alignment" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
+                        : "border border-[#111111]/15 text-[#5F686A] hover:text-[#111111]"
                     }`}>{dim}</button>
                 ))}
               </div>
@@ -603,7 +638,7 @@ function KnowledgePageInner() {
             {/* Select mode toggle */}
             {canSelect && (
               <button type="button" onClick={() => { setSelectMode((v) => !v); setSelectedIds(new Set()); setConfirmBulkDelete(false); }}
-                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${selectMode ? "border-[#063b32] bg-[#063b32]/8 text-[#063b32]" : "border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32]/30"}`}>
+                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${selectMode ? "border-[#122428] bg-[#122428]/8 text-[#122428]" : "border-[#111111]/15 text-[#5F686A] hover:border-[#122428]/30"}`}>
                 {selectMode ? "Cancel select" : "Select"}
               </button>
             )}
@@ -618,7 +653,7 @@ function KnowledgePageInner() {
               <>
                 <span className="text-xs text-red-600">Delete {selectedIds.size} item{selectedIds.size !== 1 ? "s" : ""}?</span>
                 <button type="button" onClick={() => void deleteSelected()} disabled={deletingSelected} className="rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50 hover:bg-red-700">{deletingSelected ? "Deleting…" : "Confirm"}</button>
-                <button type="button" onClick={() => setConfirmBulkDelete(false)} className="text-xs font-semibold text-[#6f6b62] hover:text-[#111111]">Cancel</button>
+                <button type="button" onClick={() => setConfirmBulkDelete(false)} className="text-xs font-semibold text-[#5F686A] hover:text-[#111111]">Cancel</button>
               </>
             ) : (
               <button type="button" onClick={() => setConfirmBulkDelete(true)} className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-100">
@@ -629,17 +664,17 @@ function KnowledgePageInner() {
         )}
 
         {loading ? (
-          <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>
+          <div className="py-16 text-center text-sm text-[#5F686A]">Loading…</div>
         ) : (
           <>
             {/* SECTORS */}
             {tab === "sectors" && (
               sectors.length === 0 ? (
-                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No sectors found.</div>
+                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#5F686A]">No sectors found.</div>
               ) : (
                 <>
                   {highlightIds.size > 0 && (
-                    <p className="mb-4 rounded-xl border border-[#063b32]/20 bg-[#063b32]/5 px-4 py-3 text-sm text-[#063b32]">
+                    <p className="mb-4 rounded-xl border border-[#122428]/20 bg-[#122428]/5 px-4 py-3 text-sm text-[#122428]">
                       Highlighted sectors may be relevant to this prospect based on their sector tags.
                     </p>
                   )}
@@ -656,7 +691,7 @@ function KnowledgePageInner() {
             {/* PERSONAS */}
             {tab === "personas" && (
               personas.length === 0 ? (
-                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No personas found.</div>
+                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#5F686A]">No personas found.</div>
               ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {personas.map((p) => (
@@ -671,16 +706,16 @@ function KnowledgePageInner() {
             {tab === "pain_points" && (
               painPoints.length === 0 ? (
                 <div className="rounded-xl border border-[#111111]/10 py-12 text-center">
-                  <BookOpen className="mx-auto h-8 w-8 text-[#6f6b62]/40 mb-3" />
-                  <p className="text-sm text-[#6f6b62]">No pain points found.</p>
+                  <BookOpen className="mx-auto h-8 w-8 text-[#5F686A]/40 mb-3" />
+                  <p className="text-sm text-[#5F686A]">No pain points found.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {Object.entries(painPoints.reduce<Record<string, PainPoint[]>>((acc, pp) => { (acc[pp.category] ??= []).push(pp); return acc; }, {})).map(([cat, items]) => (
                     <div key={cat} className="rounded-xl border border-[#111111]/10 overflow-hidden">
-                      <div className="flex w-full items-center justify-between px-5 py-4 bg-[#f7f4ea]">
+                      <div className="flex w-full items-center justify-between px-5 py-4 bg-[#F5F8F8]">
                         <span className="font-semibold text-[#111111] text-sm">{cat}</span>
-                        <span className="rounded-full bg-[#111111]/10 px-2 py-0.5 text-xs font-semibold text-[#6f6b62]">{items.length}</span>
+                        <span className="rounded-full bg-[#111111]/10 px-2 py-0.5 text-xs font-semibold text-[#5F686A]">{items.length}</span>
                       </div>
                       <div className="bg-white divide-y divide-[#111111]/5">
                         {items.map((pp) => (
@@ -697,7 +732,7 @@ function KnowledgePageInner() {
             {/* VAT PROMPTS */}
             {tab === "vat_prompts" && (
               vatPrompts.length === 0 ? (
-                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">No prompts found.</div>
+                <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#5F686A]">No prompts found.</div>
               ) : (
                 <div className="space-y-3">
                   {(["value", "alignment", "trust"] as const).filter((dim) => !dimension || dimension === dim).map((dim) => {
@@ -705,8 +740,8 @@ function KnowledgePageInner() {
                     if (dimPrompts.length === 0) return null;
                     return (
                       <div key={dim} className="rounded-xl border border-[#111111]/10 overflow-hidden">
-                        <div className={`px-5 py-3 ${dim === "value" ? "bg-[#063b32]/8" : dim === "alignment" ? "bg-blue-50" : "bg-amber-50"}`}>
-                          <p className={`text-xs font-semibold uppercase tracking-[0.1em] ${dim === "value" ? "text-[#063b32]" : dim === "alignment" ? "text-blue-700" : "text-amber-700"}`}>{dim} ({dimPrompts.length})</p>
+                        <div className={`px-5 py-3 ${dim === "value" ? "bg-[#122428]/8" : dim === "alignment" ? "bg-blue-50" : "bg-amber-50"}`}>
+                          <p className={`text-xs font-semibold uppercase tracking-[0.1em] ${dim === "value" ? "text-[#122428]" : dim === "alignment" ? "text-blue-700" : "text-amber-700"}`}>{dim} ({dimPrompts.length})</p>
                         </div>
                         <div className="divide-y divide-[#111111]/5">
                           {dimPrompts.map((p) => (
@@ -740,7 +775,7 @@ function KnowledgePageInner() {
 
 export default function KnowledgePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white px-8 py-16 text-sm text-[#6f6b62]">Loading knowledge hub…</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-white px-8 py-16 text-sm text-[#5F686A]">Loading knowledge hub…</div>}>
       <KnowledgePageInner />
     </Suspense>
   );

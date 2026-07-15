@@ -52,7 +52,7 @@ function ToolbarBtn({
       onMouseDown={(e) => { e.preventDefault(); onClick(); }}
       title={title}
       className={`grid h-7 w-7 place-items-center rounded text-sm transition-colors ${
-        active ? "bg-[#063b32] text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+        active ? "bg-[#122428] text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
       }`}
     >
       {children}
@@ -234,13 +234,13 @@ export default function PostEditor({
       <style jsx global>{`
         .ProseMirror h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 0.75rem; color: #111; }
         .ProseMirror h4 { font-size: 0.875rem; font-weight: 700; margin: 1.5rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.08em; color: #6b7280; }
-        .ProseMirror blockquote { border-left: 3px solid #063b32; padding-left: 1.25rem; color: #6b7280; font-style: italic; margin: 1.5rem 0; }
+        .ProseMirror blockquote { border-left: 3px solid #122428; padding-left: 1.25rem; color: #6b7280; font-style: italic; margin: 1.5rem 0; }
         .ProseMirror img { max-width: 100%; border-radius: 0.5rem; margin: 1.5rem 0; }
         .ProseMirror hr { border: none; border-top: 1px solid #e5e7eb; margin: 2.5rem 0; }
         .ProseMirror ul { list-style: disc; padding-left: 1.5rem; margin: 1rem 0; }
         .ProseMirror ol { list-style: decimal; padding-left: 1.5rem; margin: 1rem 0; }
         .ProseMirror li { margin: 0.35rem 0; }
-        .ProseMirror a { color: #063b32; text-decoration: underline; }
+        .ProseMirror a { color: #122428; text-decoration: underline; }
         .ProseMirror p { margin: 0.85rem 0; }
         .ProseMirror p:first-child { margin-top: 0; }
       `}</style>

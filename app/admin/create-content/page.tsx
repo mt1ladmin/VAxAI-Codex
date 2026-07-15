@@ -64,9 +64,9 @@ export default function CreateContentPage() {
     <div className="min-h-screen bg-white px-8 py-8">
       <div className="mx-auto max-w-3xl">
         {/* Intro */}
-        <div className="space-y-4 rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/60 px-8 py-8 text-center">
+        <div className="space-y-4 rounded-xl border border-[#111111]/10 bg-[#F5F8F8]/60 px-8 py-8 text-center">
           <p className="text-lg font-semibold text-[#111111]">Create on-brand content using AI</p>
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#6f6b62]">
+          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#5F686A]">
             Generate blog posts, LinkedIn, Instagram and Facebook copy grounded in VAxAI&apos;s
             positioning: strong administrative foundations first, AI and automation second. The AI
             understands the four service areas (backlog recovery, AI readiness, ongoing operational
@@ -75,7 +75,7 @@ export default function CreateContentPage() {
             Content streams in live, closes with a call to action tailored to the topic, and tags are
             built for both Google and AI search with VAxAI always included.
           </p>
-          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#6f6b62]">
+          <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#5F686A]">
             Blog posts include accompanying social copy. You can convert the post directly to a draft
             in your Posts section, and save the social versions to your content calendar with
             scheduled dates.
@@ -83,23 +83,23 @@ export default function CreateContentPage() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            className="rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1B343A]"
           >
             + Create content
           </button>
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:mx-auto lg:max-w-2xl">
-          <button type="button" onClick={() => setShowExamples(true)} className="rounded-xl border border-[#111111]/10 p-5 text-left transition-colors hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/40">
+          <button type="button" onClick={() => setShowExamples(true)} className="rounded-xl border border-[#111111]/10 p-5 text-left transition-colors hover:border-[#122428]/25 hover:bg-[#F5F8F8]/40">
             <div className="flex items-center gap-2">
-              <Lightbulb className="h-4 w-4 text-[#063b32]" />
+              <Lightbulb className="h-4 w-4 text-[#122428]" />
               <p className="text-sm font-semibold text-[#111111]">Review example prompts</p>
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-[#6f6b62]">Browse practical starting points for blogs, LinkedIn, Instagram and Facebook.</p>
+            <p className="mt-2 text-sm leading-relaxed text-[#5F686A]">Browse practical starting points for blogs, LinkedIn, Instagram and Facebook.</p>
           </button>
-          <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-5">
-            <p className="text-sm font-semibold text-[#063b32]">A simple way to find an idea</p>
-            <p className="mt-2 text-sm leading-relaxed text-[#6f6b62]">
+          <div className="rounded-xl border border-[#122428]/15 bg-[#122428]/5 p-5">
+            <p className="text-sm font-semibold text-[#122428]">A simple way to find an idea</p>
+            <p className="mt-2 text-sm leading-relaxed text-[#5F686A]">
               Start with a real operational pressure: a backlog that keeps growing, a shared drive
               nobody trusts, a process that lives in someone&apos;s head, or an AI tool that
               disappointed because the information behind it wasn&apos;t ready. Then ask what
@@ -117,9 +117,9 @@ export default function CreateContentPage() {
             <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <div>
                 <h2 id="example-prompts-title" className="text-base font-semibold text-[#111111]">Example prompts</h2>
-                <p className="mt-0.5 text-xs text-[#6f6b62]">Use these as inspiration, then adapt them to the situation you want to explore.</p>
+                <p className="mt-0.5 text-xs text-[#5F686A]">Use these as inspiration, then adapt them to the situation you want to explore.</p>
               </div>
-              <button type="button" onClick={() => setShowExamples(false)} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]" aria-label="Close examples">
+              <button type="button" onClick={() => setShowExamples(false)} className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]" aria-label="Close examples">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -131,7 +131,7 @@ export default function CreateContentPage() {
                 ["Facebook Post", FACEBOOK_PROMPTS],
               ] as [string, string[]][]).map(([label, prompts]) => (
                 <section key={label} className="overflow-hidden rounded-xl border border-[#111111]/10">
-                  <div className="bg-[#f7f4ea] px-4 py-2.5"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">{label}</p></div>
+                  <div className="bg-[#F5F8F8] px-4 py-2.5"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5F686A]">{label}</p></div>
                   <ul className="divide-y divide-[#111111]/5">
                     {prompts.map((prompt) => <li key={prompt} className="px-4 py-3 text-sm leading-relaxed text-[#111111]">{prompt}</li>)}
                   </ul>

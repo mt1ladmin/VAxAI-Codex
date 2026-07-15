@@ -600,7 +600,7 @@ function SocialPostForm({
           </label>
           <input required value={title} onChange={(e) => setTitle(e.target.value)}
             placeholder="A short label for this post"
-            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]" />
         </div>
 
         {/* Scheduled date */}
@@ -609,7 +609,7 @@ function SocialPostForm({
             Publish date <span className="text-red-500">*</span>
           </label>
           <input required type="date" value={date} onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]" />
         </div>
 
         {/* Content / written post */}
@@ -617,7 +617,7 @@ function SocialPostForm({
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Written post content</label>
           <textarea rows={6} value={content} onChange={(e) => setContent(e.target.value)}
             placeholder="Paste the full post copy here…"
-            className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+            className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]" />
           <p className="mt-1 text-[10px] text-gray-400">{content.trim().split(/\s+/).filter(Boolean).length} words</p>
         </div>
 
@@ -626,13 +626,13 @@ function SocialPostForm({
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-gray-500">Link (optional)</label>
           <input type="url" value={link} onChange={(e) => setLink(e.target.value)}
             placeholder="https://…"
-            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+            className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]" />
         </div>
       </div>
 
       <div className="border-t border-gray-100 p-6">
         <button type="submit" disabled={saving || !title || !date}
-          className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+          className="w-full rounded-md bg-[#122428] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
           {saving ? "Saving…" : initial?.id ? "Update post" : "Save post"}
         </button>
       </div>
@@ -680,7 +680,7 @@ function SocialPostDetail({
             <div className="flex items-center gap-2">
               <p className={`text-xs font-semibold ${info.text}`}>{info.label}</p>
               {isConnectedPost && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[9px] font-semibold text-[#063b32]">
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[9px] font-semibold text-[#122428]">
                   <Link2 className="h-2.5 w-2.5" /> Connected
                 </span>
               )}
@@ -729,7 +729,7 @@ function SocialPostDetail({
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Connected blog post</p>
             <a
               href={post.link!}
-              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-[#063b32] hover:bg-[#f7f4ea]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-[#122428] hover:bg-[#F5F8F8]"
             >
               <ExternalLink className="h-3.5 w-3.5" /> Open post editor
             </a>
@@ -1602,13 +1602,13 @@ export default function CalendarPage() {
         <div className="border-b border-gray-100 bg-white px-8 py-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">VAxAI Studio</p>
               <h1 className="mt-1 text-2xl font-semibold text-gray-900">Content Calendar</h1>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex overflow-hidden rounded-md border border-gray-200 text-sm font-semibold">
-                <button onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-[#063b32] text-white" : "text-gray-500 hover:bg-gray-50"}`}>Month</button>
-                <button onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-[#063b32] text-white" : "text-gray-500 hover:bg-gray-50"}`}>Week</button>
+                <button onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-[#122428] text-white" : "text-gray-500 hover:bg-gray-50"}`}>Month</button>
+                <button onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-[#122428] text-white" : "text-gray-500 hover:bg-gray-50"}`}>Week</button>
               </div>
             </div>
           </div>
@@ -1677,8 +1677,8 @@ export default function CalendarPage() {
                   const isToday = isSameDay(day, today);
                   return (
                     <div key={day.toISOString()} className="min-h-[380px] overflow-hidden">
-                      <div className={`border-b border-gray-100 px-3 py-3 text-center ${isToday ? "bg-[#063b32]" : ""}`}>
-                        <p className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${isToday ? "text-[#f5f274]" : "text-gray-400"}`}>
+                      <div className={`border-b border-gray-100 px-3 py-3 text-center ${isToday ? "bg-[#122428]" : ""}`}>
+                        <p className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${isToday ? "text-[#D8FC2E]" : "text-gray-400"}`}>
                           {DAYS[(day.getDay() + 6) % 7]}
                         </p>
                         <p className={`mt-0.5 text-xl font-semibold ${isToday ? "text-white" : "text-gray-900"}`}>{day.getDate()}</p>
@@ -1702,12 +1702,12 @@ export default function CalendarPage() {
             <div className="ml-auto flex items-center gap-2">
               <a
                 href="/admin/posts/new"
-                className="flex items-center gap-1.5 rounded-md border border-[#063b32] px-3 py-1.5 text-xs font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+                className="flex items-center gap-1.5 rounded-md border border-[#122428] px-3 py-1.5 text-xs font-semibold text-[#122428] hover:bg-[#122428]/5"
               >
                 <FileText className="h-3.5 w-3.5" /> New blog post
               </a>
               <button onClick={() => openNewSocial(toDateStr(today))}
-                className="flex items-center gap-1.5 rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
+                className="flex items-center gap-1.5 rounded-md bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90">
                 <Plus className="h-3.5 w-3.5" /> Add social post
               </button>
             </div>

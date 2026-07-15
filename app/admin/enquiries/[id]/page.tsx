@@ -100,23 +100,23 @@ function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; emai
   const [details, setDetails] = useState(enquiry.details);
   const [saving, setSaving] = useState(false);
   const dirty = name !== enquiry.name || email !== enquiry.email || telephone !== (enquiry.telephone ?? "") || supportType !== enquiry.support_type || details !== enquiry.details;
-  const inputCls = "mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#063b32]";
+  const inputCls = "mt-0.5 w-full rounded-lg border border-[#111111]/15 bg-white px-2.5 py-1.5 text-sm outline-none focus:border-[#122428]";
   return (
     <div className="space-y-2">
       <div>
-        <p className="text-[10px] text-[#6f6b62]">Name</p>
+        <p className="text-[10px] text-[#5F686A]">Name</p>
         <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
       </div>
       <div>
-        <p className="text-[10px] text-[#6f6b62]">Email</p>
+        <p className="text-[10px] text-[#5F686A]">Email</p>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
       </div>
       <div>
-        <p className="text-[10px] text-[#6f6b62]">Telephone</p>
+        <p className="text-[10px] text-[#5F686A]">Telephone</p>
         <input type="tel" value={telephone} onChange={(e) => setTelephone(e.target.value)} placeholder="—" className={inputCls} />
       </div>
       <div>
-        <p className="text-[10px] text-[#6f6b62]">Service interest</p>
+        <p className="text-[10px] text-[#5F686A]">Service interest</p>
         <AppSelect
           value={supportType}
           onChange={setSupportType}
@@ -125,7 +125,7 @@ function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; emai
         />
       </div>
       <div>
-        <p className="text-[10px] text-[#6f6b62]">Description</p>
+        <p className="text-[10px] text-[#5F686A]">Description</p>
         <textarea value={details} onChange={(e) => setDetails(e.target.value)} rows={3} className={`${inputCls} resize-none`} />
       </div>
       {dirty && (
@@ -137,7 +137,7 @@ function ContactDetailsForm({ enquiry, onSave }: { enquiry: { name: string; emai
             await onSave({ name: name.trim(), email: email.trim(), telephone: telephone.trim() || null, support_type: supportType, details });
             setSaving(false);
           }}
-          className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+          className="rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save details"}
         </button>
@@ -152,15 +152,15 @@ function NextActionField({ value, onSave }: { value: string | null; onSave: (val
   const dirty = draft !== (value ?? "");
   return (
     <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Next action</p>
       <textarea
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={3}
         placeholder="Add a next action note…"
-        className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+        className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
       />
-      <p className="text-[10px] text-[#6f6b62]">Saving will overwrite the previous next action note.</p>
+      <p className="text-[10px] text-[#5F686A]">Saving will overwrite the previous next action note.</p>
       {dirty && (
         <button
           type="button"
@@ -170,7 +170,7 @@ function NextActionField({ value, onSave }: { value: string | null; onSave: (val
             await onSave(draft.trim() || null);
             setSaving(false);
           }}
-          className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+          className="rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save next action"}
         </button>
@@ -203,10 +203,10 @@ function AssignmentDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#122428]/40"
       >
-        <span className={selected?.value ? "text-[#111111]" : "text-[#6f6b62]"}>{selected?.label || "Unassigned"}</span>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className={selected?.value ? "text-[#111111]" : "text-[#5F686A]"}>{selected?.label || "Unassigned"}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#5F686A] transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute z-30 mt-1 w-full overflow-hidden rounded-xl border border-[#111111]/15 bg-white shadow-lg">
@@ -215,10 +215,10 @@ function AssignmentDropdown({
               key={opt.value}
               type="button"
               onClick={() => { setOpen(false); if (opt.value !== value) onChange(opt.value); }}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${value === opt.value ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"}`}
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
             >
               <span className="flex-1">{opt.label}</span>
-              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
             </button>
           ))}
         </div>
@@ -516,7 +516,7 @@ function EnquiryDetailContent() {
   };
 
   if (loading && !enquiry) return <HubDetailSkeleton />;
-  if (!enquiry) return <div className="p-8 text-sm text-[#6f6b62]">Enquiry not found.</div>;
+  if (!enquiry) return <div className="p-8 text-sm text-[#5F686A]">Enquiry not found.</div>;
 
   const postTitle = enquiry.connected_post_title || enquiry.posts?.title;
   const notesCount = countNotes(enquiry.admin_notes);
@@ -571,11 +571,11 @@ function EnquiryDetailContent() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-[#111111]">Log as new client</h3>
-                <p className="text-xs text-[#6f6b62]">{enquiry.name}</p>
+                <p className="text-xs text-[#5F686A]">{enquiry.name}</p>
               </div>
             </div>
             <div className="mb-3">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Service being provided *</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#5F686A]">Service being provided *</label>
               <AppSelect
                 value={clientService}
                 onChange={setClientService}
@@ -594,7 +594,7 @@ function EnquiryDetailContent() {
             </div>
             {clientService === "Other" && (
               <div className="mb-3">
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Specify service</label>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#5F686A]">Specify service</label>
                 <input
                   type="text"
                   value={clientServiceOther}
@@ -605,7 +605,7 @@ function EnquiryDetailContent() {
               </div>
             )}
             <div className="mb-4">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Additional notes</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#5F686A]">Additional notes</label>
               <textarea
                 value={clientNote}
                 onChange={(e) => setClientNote(e.target.value)}
@@ -616,7 +616,7 @@ function EnquiryDetailContent() {
             </div>
             <div className="flex gap-3">
               <button type="button" onClick={() => { setShowClientModal(false); setClientService(""); setClientServiceOther(""); setClientNote(""); }}
-                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">
                 Cancel
               </button>
               <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientService || (clientService === "Other" && !clientServiceOther.trim())}
@@ -642,14 +642,14 @@ function EnquiryDetailContent() {
         badge={(tabId) => {
           if (tabId === "tasks" && openWorkCount > 0) {
             return (
-              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+              <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px]">
                 {openWorkCount}
               </span>
             );
           }
           if (tabId === "notes" && notesCount > 0) {
             return (
-              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+              <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px]">
                 {notesCount}
               </span>
             );
@@ -662,26 +662,26 @@ function EnquiryDetailContent() {
         <div className="space-y-4">
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Contact details</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Contact details</p>
               {enquiry.source && (
-                <span className="rounded-full bg-[#f7f4ea] px-2 py-0.5 text-[10px] font-medium text-[#6f6b62]">{enquiry.source}</span>
+                <span className="rounded-full bg-[#F5F8F8] px-2 py-0.5 text-[10px] font-medium text-[#5F686A]">{enquiry.source}</span>
               )}
             </div>
             {enquiry.source === "Website enquiry" ? (
               <>
                 <div>
-                  <p className="text-[10px] text-[#6f6b62]">Name</p>
+                  <p className="text-[10px] text-[#5F686A]">Name</p>
                   <p className="text-sm font-semibold text-[#111111]">{enquiry.name}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] text-[#6f6b62]">Email</p>
-                  <a href={emailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
+                  <p className="text-[10px] text-[#5F686A]">Email</p>
+                  <a href={emailComposeUrl(enquiry.email)} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-[#122428] hover:underline">
                     <Mail className="h-3.5 w-3.5" /> {enquiry.email}
                   </a>
                 </div>
                 {enquiry.telephone && (
                   <div>
-                    <p className="text-[10px] text-[#6f6b62]">Telephone</p>
+                    <p className="text-[10px] text-[#5F686A]">Telephone</p>
                     <a href={`tel:${enquiry.telephone}`} className="flex items-center gap-1.5 text-sm text-[#111111]">
                       <Phone className="h-3.5 w-3.5" /> {enquiry.telephone}
                     </a>
@@ -689,12 +689,12 @@ function EnquiryDetailContent() {
                 )}
                 <div className="border-t border-[#111111]/8 pt-3 space-y-3">
                   <div>
-                    <p className="text-[10px] text-[#6f6b62]">Service interest</p>
+                    <p className="text-[10px] text-[#5F686A]">Service interest</p>
                     <p className="text-sm text-[#111111]">{enquiry.support_type}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-[#6f6b62]">Description</p>
-                    <CollapsibleNote content={enquiry.details} textClassName="text-sm text-[#6f6b62] leading-relaxed" />
+                    <p className="text-[10px] text-[#5F686A]">Description</p>
+                    <CollapsibleNote content={enquiry.details} textClassName="text-sm text-[#5F686A] leading-relaxed" />
                   </div>
                 </div>
               </>
@@ -702,23 +702,23 @@ function EnquiryDetailContent() {
               <ContactDetailsForm enquiry={enquiry} onSave={async (fields) => { await patchEnquiry(fields as Partial<Enquiry>); }} />
             )}
             <div>
-              <p className="text-[10px] text-[#6f6b62]">Received</p>
+              <p className="text-[10px] text-[#5F686A]">Received</p>
               <div className="flex items-center gap-2">
                 <p className="flex items-center gap-1.5 text-sm text-[#111111]">
-                  <Calendar className="h-3.5 w-3.5 text-[#6f6b62]" />
+                  <Calendar className="h-3.5 w-3.5 text-[#5F686A]" />
                   {new Date(enquiry.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </p>
                 {enquiry.source && (
-                  <span className="rounded-full border border-[#111111]/10 px-2 py-0.5 text-[10px] font-medium text-[#6f6b62]">{enquiry.source}</span>
+                  <span className="rounded-full border border-[#111111]/10 px-2 py-0.5 text-[10px] font-medium text-[#5F686A]">{enquiry.source}</span>
                 )}
               </div>
             </div>
             <div className="border-t border-[#111111]/8 pt-3 space-y-3">
               {postTitle && (
                 <div>
-                  <p className="text-[10px] text-[#6f6b62]">Related post</p>
+                  <p className="text-[10px] text-[#5F686A]">Related post</p>
                   {enquiry.connected_post_id ? (
-                    <Link href={`/admin/posts/${enquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#063b32] hover:underline">
+                    <Link href={`/admin/posts/${enquiry.connected_post_id}`} className="flex items-center gap-1 text-sm text-[#122428] hover:underline">
                       <ExternalLink className="h-3.5 w-3.5" /> {postTitle}
                     </Link>
                   ) : (
@@ -730,7 +730,7 @@ function EnquiryDetailContent() {
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Assignment</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Assignment</p>
             <AssignmentDropdown
               value={enquiry.assigned_team_member_id || ""}
               options={[{ value: "", label: "Unassigned" }, ...memberOptions]}
@@ -738,7 +738,7 @@ function EnquiryDetailContent() {
                 void patchEnquiry({ assigned_team_member_id: assignedId || null } as Partial<Enquiry>);
               }}
             />
-            <p className="text-[10px] text-[#6f6b62] mt-1">Engagement status</p>
+            <p className="text-[10px] text-[#5F686A] mt-1">Engagement status</p>
             <StatusSelect value={enquiry.status} onChange={(status) => void updateStatus(status)} loading={updatingStatus} />
             {statusError && (
               <p className="mt-2 text-xs text-red-600 whitespace-pre-wrap">{statusError}</p>
@@ -764,7 +764,7 @@ function EnquiryDetailContent() {
               </div>
             ) : (
               <>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Client</p>
                 <button
                   type="button"
                   onClick={() => setShowClientModal(true)}
@@ -797,7 +797,7 @@ function EnquiryDetailContent() {
               {/* Service fit section */}
               <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Service fit</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Service fit</p>
                   {!editingServiceFit && (
                     <button
                       type="button"
@@ -810,7 +810,7 @@ function EnquiryDetailContent() {
                         });
                         setEditingServiceFit(true);
                       }}
-                      className="text-[10px] font-semibold text-[#063b32] hover:underline"
+                      className="text-[10px] font-semibold text-[#122428] hover:underline"
                     >
                       {enquiry.service_fit_summary || enquiry.likely_need ? "Edit" : "+ Add"}
                     </button>
@@ -820,41 +820,41 @@ function EnquiryDetailContent() {
                 {editingServiceFit ? (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Service fit summary</label>
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Service fit summary</label>
                       <textarea
                         value={serviceFitForm.service_fit_summary}
                         onChange={(e) => setServiceFitForm((f) => ({ ...f, service_fit_summary: e.target.value }))}
                         rows={3}
-                        className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                         autoFocus
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Likely need</label>
+                      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Likely need</label>
                       <textarea
                         value={serviceFitForm.likely_need}
                         onChange={(e) => setServiceFitForm((f) => ({ ...f, likely_need: e.target.value }))}
                         rows={3}
-                        className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                        className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Complexity level</label>
+                        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Complexity level</label>
                         <input
                           value={serviceFitForm.complexity_level}
                           onChange={(e) => setServiceFitForm((f) => ({ ...f, complexity_level: e.target.value }))}
                           placeholder="e.g. Moderate"
-                          className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                          className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                         />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement basis</label>
+                        <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Engagement basis</label>
                         <input
                           value={serviceFitForm.engagement_basis}
                           onChange={(e) => setServiceFitForm((f) => ({ ...f, engagement_basis: e.target.value }))}
                           placeholder="e.g. project, retainer"
-                          className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                          className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                         />
                       </div>
                     </div>
@@ -882,35 +882,35 @@ function EnquiryDetailContent() {
                             setSavingServiceFit(false);
                           }
                         }}
-                        className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                        className="rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
                       >
                         {savingServiceFit ? "Saving…" : "Save"}
                       </button>
                       <button
                         type="button"
                         onClick={() => { setEditingServiceFit(false); setServiceFitError(null); }}
-                        className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                        className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
                       >
                         Cancel
                       </button>
                     </div>
                   </div>
                 ) : enquiry.service_fit_summary || enquiry.likely_need || enquiry.complexity_level || enquiry.engagement_basis ? (
-                  <div className="overflow-hidden rounded-lg border border-[#063b32]/12">
+                  <div className="overflow-hidden rounded-lg border border-[#122428]/12">
                     {/* Complexity + engagement pill bar */}
                     {(enquiry.complexity_level || enquiry.engagement_basis) && (
-                      <div className="flex flex-wrap gap-2 border-b border-[#063b32]/10 bg-[#063b32]/5 px-3 py-2.5">
+                      <div className="flex flex-wrap gap-2 border-b border-[#122428]/10 bg-[#122428]/5 px-3 py-2.5">
                         {enquiry.complexity_level && (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
-                            <span className="text-[#6f6b62] font-medium">Complexity</span>
-                            <span className="h-2.5 w-px bg-[#063b32]/20" />
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#122428]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#122428]">
+                            <span className="text-[#5F686A] font-medium">Complexity</span>
+                            <span className="h-2.5 w-px bg-[#122428]/20" />
                             {enquiry.complexity_level}
                           </span>
                         )}
                         {enquiry.engagement_basis && (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32] capitalize">
-                            <span className="text-[#6f6b62] font-medium">Basis</span>
-                            <span className="h-2.5 w-px bg-[#063b32]/20" />
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#122428]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#122428] capitalize">
+                            <span className="text-[#5F686A] font-medium">Basis</span>
+                            <span className="h-2.5 w-px bg-[#122428]/20" />
                             {enquiry.engagement_basis.replace(/_/g, " ")}
                           </span>
                         )}
@@ -918,21 +918,21 @@ function EnquiryDetailContent() {
                     )}
                     {/* Service fit summary */}
                     {enquiry.service_fit_summary && (
-                      <div className={`px-4 py-3${enquiry.likely_need ? " border-b border-[#063b32]/8" : ""}`}>
-                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Service fit summary</p>
+                      <div className={`px-4 py-3${enquiry.likely_need ? " border-b border-[#122428]/8" : ""}`}>
+                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Service fit summary</p>
                         <p className="text-sm leading-relaxed text-[#111111]">{enquiry.service_fit_summary}</p>
                       </div>
                     )}
                     {/* Likely need */}
                     {enquiry.likely_need && (
                       <div className="px-4 py-3">
-                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
+                        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Likely need</p>
                         <p className="text-sm leading-relaxed text-[#111111]">{enquiry.likely_need}</p>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-[#6f6b62]">No service fit assessment yet.</p>
+                  <p className="text-sm text-[#5F686A]">No service fit assessment yet.</p>
                 )}
               </div>
             </div>

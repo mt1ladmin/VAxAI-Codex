@@ -29,15 +29,15 @@ export function HubTabNav({ tabs, activeTab, onChange, badge }: Props) {
               onClick={() => onChange(tab.id)}
               className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition-colors ${
                 active
-                  ? "border-[#063b32] text-[#063b32]"
-                  : "border-transparent text-[#6f6b62] hover:text-[#111111]"
+                  ? "border-[#122428] text-[#122428]"
+                  : "border-transparent text-[#5F686A] hover:text-[#111111]"
               }`}
             >
               <span className="inline-flex items-center gap-1.5">
                 {tab.label}
                 {tab.editable ? (
                   <Pencil
-                    className={`h-3 w-3 ${active ? "text-[#063b32]/70" : "text-[#6f6b62]/50"}`}
+                    className={`h-3 w-3 ${active ? "text-[#122428]/70" : "text-[#5F686A]/50"}`}
                     aria-hidden
                   />
                 ) : null}

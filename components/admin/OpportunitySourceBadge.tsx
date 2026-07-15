@@ -65,7 +65,7 @@ export function OpportunitySourceBadge({
   return (
     <div className={compact ? "space-y-1" : "space-y-1.5"}>
       {badge}
-      <p className={`text-[#6f6b62] ${compact ? "text-[10px] leading-snug" : "text-sm"}`}>{partyLine}</p>
+      <p className={`text-[#5F686A] ${compact ? "text-[10px] leading-snug" : "text-sm"}`}>{partyLine}</p>
     </div>
   );
 }

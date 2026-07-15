@@ -34,7 +34,7 @@ function copyToClipboard(text: string, setCopied: (id: string) => void, id: stri
   });
 }
 
-const INPUT = "w-full rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#111111] outline-none focus:border-[#063b32] normal-case tracking-normal";
+const INPUT = "w-full rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#111111] outline-none focus:border-[#122428] normal-case tracking-normal";
 const TEXTAREA = `${INPUT} resize-none`;
 
 function ConfirmDelete({ onConfirm, onCancel, saving }: { onConfirm: () => void; onCancel: () => void; saving: boolean }) {
@@ -44,7 +44,7 @@ function ConfirmDelete({ onConfirm, onCancel, saving }: { onConfirm: () => void;
       <button type="button" onClick={onConfirm} disabled={saving} className="rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50 hover:bg-red-700">
         {saving ? "Deleting…" : "Yes, delete"}
       </button>
-      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
+      <button type="button" onClick={onCancel} className="rounded-lg border border-[#111111]/15 px-3 py-1 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Cancel</button>
     </div>
   );
 }
@@ -108,27 +108,27 @@ function PricingCard({ rule, onSaved }: { rule: PricingRule; onSaved: () => void
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="font-semibold text-[#111111]">{rule.name}</p>
-            <p className="text-xs text-[#6f6b62]">{rule.category} · {rule.unit}</p>
+            <p className="text-xs text-[#5F686A]">{rule.category} · {rule.unit}</p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <div className="text-right">
-              <p className="text-sm font-semibold text-[#063b32]">£{(rule.band_low ?? 0).toLocaleString()} – £{(rule.band_high ?? 0).toLocaleString()}</p>
-              {rule.band_expected != null && <p className="text-xs text-[#6f6b62]">Expected: £{rule.band_expected.toLocaleString()}</p>}
+              <p className="text-sm font-semibold text-[#122428]">£{(rule.band_low ?? 0).toLocaleString()} – £{(rule.band_high ?? 0).toLocaleString()}</p>
+              {rule.band_expected != null && <p className="text-xs text-[#5F686A]">Expected: £{rule.band_expected.toLocaleString()}</p>}
             </div>
             {confirmDelete ? (
               <ConfirmDelete onConfirm={() => void del()} onCancel={() => setConfirmDelete(false)} saving={deleting} />
             ) : (
               <div className="flex gap-1.5">
-                <button type="button" onClick={() => setEditing(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"><Pencil className="h-3.5 w-3.5" /></button>
-                <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#6f6b62] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => setEditing(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
               </div>
             )}
           </div>
         </div>
-        {rule.description && <p className="mt-2 text-sm text-[#6f6b62]">{rule.description}</p>}
+        {rule.description && <p className="mt-2 text-sm text-[#5F686A]">{rule.description}</p>}
         {rule.inclusions && rule.inclusions.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {rule.inclusions.map((i) => <span key={i} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{i}</span>)}
+            {rule.inclusions.map((i) => <span key={i} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{i}</span>)}
           </div>
         )}
       </div>
@@ -136,21 +136,21 @@ function PricingCard({ rule, onSaved }: { rule: PricingRule; onSaved: () => void
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-[#063b32]/30 p-5">
+    <div className="space-y-3 rounded-xl border border-[#122428]/30 p-5">
       <div className="grid grid-cols-2 gap-3">
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Name<input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Category<input value={draft.category} onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Name<input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Category<input value={draft.category} onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
       </div>
-      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Unit<input value={draft.unit} onChange={(e) => setDraft((d) => ({ ...d, unit: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Unit<input value={draft.unit} onChange={(e) => setDraft((d) => ({ ...d, unit: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
       <div className="grid grid-cols-3 gap-3">
         {([["band_low", "Band low (£)"], ["band_expected", "Expected (£)"], ["band_high", "Band high (£)"]] as [keyof Pick<PricingDraft, "band_low" | "band_expected" | "band_high">, string][]).map(([key, label]) => (
-          <label key={key} className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{label}<input type="number" value={draft[key]} onChange={(e) => setDraft((d) => ({ ...d, [key]: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+          <label key={key} className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">{label}<input type="number" value={draft[key]} onChange={(e) => setDraft((d) => ({ ...d, [key]: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
         ))}
       </div>
-      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Description<textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} className={`mt-1 ${TEXTAREA}`} /></label>
+      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Description<textarea value={draft.description} onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))} rows={2} className={`mt-1 ${TEXTAREA}`} /></label>
       <div className="flex justify-end gap-2 pt-1">
-        <button type="button" onClick={() => { resetDraft(); setEditing(false); }} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"><X className="h-3.5 w-3.5" /> Cancel</button>
-        <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
+        <button type="button" onClick={() => { resetDraft(); setEditing(false); }} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+        <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
       </div>
     </div>
   );
@@ -222,7 +222,7 @@ function ScriptCard({ script, onSaved }: { script: EngagementScript; onSaved: ()
             <p className="font-semibold text-[#111111]">{script.title}</p>
             <div className="mt-1 flex flex-wrap gap-1.5">
               <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${CHANNEL_COLORS[script.channel] || "bg-gray-100 text-gray-600"}`}>{script.channel}</span>
-              {[script.block_type, script.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{tag}</span>)}
+              {[script.block_type, script.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{tag}</span>)}
               {script.audience_type && <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold text-blue-600">{script.audience_type}</span>}
             </div>
           </div>
@@ -232,37 +232,37 @@ function ScriptCard({ script, onSaved }: { script: EngagementScript; onSaved: ()
             ) : (
               <>
                 <CopyButton copied={copied} onClick={() => { copyToClipboard(script.content, () => setCopied(true), script.id); setTimeout(() => setCopied(false), 2000); }} />
-                <button type="button" onClick={() => setEditing(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"><Pencil className="h-3.5 w-3.5" /></button>
-                <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#6f6b62] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => setEditing(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
               </>
             )}
           </div>
         </div>
-        <div className="rounded-lg bg-[#f7f4ea] px-4 py-3"><p className="whitespace-pre-wrap text-sm text-[#111111]">{script.content}</p></div>
-        {script.last_reviewed && <p className="mt-2 text-[10px] text-[#6f6b62]">Reviewed {new Date(script.last_reviewed).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}{script.content_owner ? ` by ${script.content_owner}` : ""}</p>}
+        <div className="rounded-lg bg-[#F5F8F8] px-4 py-3"><p className="whitespace-pre-wrap text-sm text-[#111111]">{script.content}</p></div>
+        {script.last_reviewed && <p className="mt-2 text-[10px] text-[#5F686A]">Reviewed {new Date(script.last_reviewed).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}{script.content_owner ? ` by ${script.content_owner}` : ""}</p>}
       </div>
     );
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-[#063b32]/30 bg-white p-5">
-      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Title<input value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+    <div className="space-y-3 rounded-xl border border-[#122428]/30 bg-white p-5">
+      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Title<input value={draft.title} onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
       <div className="grid grid-cols-2 gap-3">
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Channel
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Channel
           <select value={draft.channel} onChange={(e) => setDraft((d) => ({ ...d, channel: e.target.value }))} className={`mt-1 ${INPUT}`}>
             {["email", "linkedin", "phone", "in-person", "general"].map((c) => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
           </select>
         </label>
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Block type<input value={draft.block_type} onChange={(e) => setDraft((d) => ({ ...d, block_type: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Block type<input value={draft.block_type} onChange={(e) => setDraft((d) => ({ ...d, block_type: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Tone<input value={draft.tone} onChange={(e) => setDraft((d) => ({ ...d, tone: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Audience type<input value={draft.audience_type} onChange={(e) => setDraft((d) => ({ ...d, audience_type: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Tone<input value={draft.tone} onChange={(e) => setDraft((d) => ({ ...d, tone: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Audience type<input value={draft.audience_type} onChange={(e) => setDraft((d) => ({ ...d, audience_type: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
       </div>
-      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Content<textarea rows={6} value={draft.content} onChange={(e) => setDraft((d) => ({ ...d, content: e.target.value }))} className={`mt-1 ${TEXTAREA}`} /></label>
+      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Content<textarea rows={6} value={draft.content} onChange={(e) => setDraft((d) => ({ ...d, content: e.target.value }))} className={`mt-1 ${TEXTAREA}`} /></label>
       <div className="flex justify-end gap-2 pt-1">
-        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"><X className="h-3.5 w-3.5" /> Cancel</button>
-        <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
+        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+        <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
       </div>
     </div>
   );
@@ -295,8 +295,8 @@ export function ScriptsBlocksPanel() {
     <div>
       <div className="mb-5 flex gap-3">
         <div className="relative max-w-md flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-          <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search scripts…" className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
+          <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search scripts…" className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#122428]" />
         </div>
         <AppSelect value={channel} onChange={setChannel} options={["email", "linkedin", "phone", "in-person", "general"].map((item) => ({ value: item, label: item.charAt(0).toUpperCase() + item.slice(1) }))} placeholder="All channels" size="sm" className="min-w-[9rem]" />
       </div>
@@ -350,14 +350,14 @@ function ObjectionCard({ objection, onSaved }: { objection: Objection; onSaved: 
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="mb-2 flex items-center gap-2">
-              {[objection.category, objection.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{tag}</span>)}
+              {[objection.category, objection.tone].filter(Boolean).map((tag) => <span key={tag} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{tag}</span>)}
             </div>
             <div className="mb-3 rounded-lg border border-amber-100 bg-amber-50 px-4 py-3">
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-amber-700">Objection</p>
               <p className="text-sm italic text-[#111111]">&ldquo;{objection.objection}&rdquo;</p>
             </div>
-            <div className="rounded-lg border border-[#063b32]/15 bg-[#063b32]/5 px-4 py-3">
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#063b32]">Response</p>
+            <div className="rounded-lg border border-[#122428]/15 bg-[#122428]/5 px-4 py-3">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#122428]">Response</p>
               <p className="text-sm text-[#111111]">{objection.response}</p>
             </div>
           </div>
@@ -367,8 +367,8 @@ function ObjectionCard({ objection, onSaved }: { objection: Objection; onSaved: 
             ) : (
               <>
                 <CopyButton copied={copied} onClick={() => { copyToClipboard(objection.response, () => setCopied(true), objection.id); setTimeout(() => setCopied(false), 2000); }} />
-                <button type="button" onClick={() => setEditing(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"><Pencil className="h-3.5 w-3.5" /></button>
-                <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#6f6b62] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => setEditing(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"><Pencil className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => setConfirmDelete(true)} className="grid h-7 w-7 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
               </>
             )}
           </div>
@@ -378,29 +378,29 @@ function ObjectionCard({ objection, onSaved }: { objection: Objection; onSaved: 
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-[#063b32]/30 bg-white p-5">
+    <div className="space-y-3 rounded-xl border border-[#122428]/30 bg-white p-5">
       <div className="grid grid-cols-2 gap-3">
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Category
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Category
           <select value={draft.category} onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))} className={`mt-1 ${INPUT}`}>
             <option value="">None</option>
             {["Cost", "Trust", "Relevance", "Timing", "AI concerns", "Process", "General"].map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </label>
-        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Tone<input value={draft.tone} onChange={(e) => setDraft((d) => ({ ...d, tone: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
+        <label className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Tone<input value={draft.tone} onChange={(e) => setDraft((d) => ({ ...d, tone: e.target.value }))} className={`mt-1 ${INPUT}`} /></label>
       </div>
-      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Objection
+      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Objection
         <div className="mt-1 rounded-lg border border-amber-100 bg-amber-50 p-3">
           <textarea rows={2} value={draft.objection} onChange={(e) => setDraft((d) => ({ ...d, objection: e.target.value }))} className="w-full bg-transparent text-sm italic text-[#111111] outline-none resize-none" />
         </div>
       </label>
-      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Response
-        <div className="mt-1 rounded-lg border border-[#063b32]/15 bg-[#063b32]/5 p-3">
+      <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Response
+        <div className="mt-1 rounded-lg border border-[#122428]/15 bg-[#122428]/5 p-3">
           <textarea rows={3} value={draft.response} onChange={(e) => setDraft((d) => ({ ...d, response: e.target.value }))} className="w-full bg-transparent text-sm text-[#111111] outline-none resize-none" />
         </div>
       </label>
       <div className="flex justify-end gap-2 pt-1">
-        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"><X className="h-3.5 w-3.5" /> Cancel</button>
-        <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
+        <button type="button" onClick={() => setEditing(false)} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+        <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save"}</button>
       </div>
     </div>
   );
@@ -431,8 +431,8 @@ export function ObjectionsPanel() {
     <div>
       <div className="mb-5 flex gap-3">
         <div className="relative max-w-md flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
-          <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search objections…" className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#063b32]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
+          <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search objections…" className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-[#122428]" />
         </div>
         <AppSelect value={category} onChange={setCategory} options={["Cost", "Trust", "Relevance", "Timing", "AI concerns", "Process", "General"].map((item) => ({ value: item, label: item }))} placeholder="All categories" size="sm" className="min-w-[9rem]" />
       </div>
@@ -447,11 +447,11 @@ export function ObjectionsPanel() {
 
 function CopyButton({ copied, onClick }: { copied: boolean; onClick: () => void }) {
   return (
-    <button onClick={onClick} className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${copied ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"}`}>
+    <button onClick={onClick} className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all ${copied ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-[#111111]/15 text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"}`}>
       <Copy className="h-3.5 w-3.5" /> {copied ? "Copied!" : "Copy"}
     </button>
   );
 }
 
-function Loading() { return <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>; }
-function Empty({ children }: { children: React.ReactNode }) { return <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#6f6b62]">{children}</div>; }
+function Loading() { return <div className="py-16 text-center text-sm text-[#5F686A]">Loading…</div>; }
+function Empty({ children }: { children: React.ReactNode }) { return <div className="rounded-xl border border-[#111111]/10 py-12 text-center text-sm text-[#5F686A]">{children}</div>; }

@@ -45,8 +45,8 @@ function CustomSelect({
         onClick={() => setOpen((v) => !v)}
         className="flex w-full min-w-[130px] items-center justify-between rounded-xl border border-[#111111]/15 bg-white px-3 py-2 text-left text-sm"
       >
-        <span className={selected ? "text-[#111111]" : "text-[#6f6b62]"}>{selected?.label || placeholder}</span>
-        <ChevronRight className={`h-4 w-4 text-[#6f6b62] transition-transform ${open ? "rotate-90" : ""}`} />
+        <span className={selected ? "text-[#111111]" : "text-[#5F686A]"}>{selected?.label || placeholder}</span>
+        <ChevronRight className={`h-4 w-4 text-[#5F686A] transition-transform ${open ? "rotate-90" : ""}`} />
       </button>
       {open && (
         <div className="absolute z-40 mt-1 max-h-52 w-full overflow-auto rounded-xl border border-[#111111]/15 bg-white shadow-lg">
@@ -55,7 +55,7 @@ function CustomSelect({
               key={opt.value || "__all"}
               type="button"
               onClick={() => { onChange(opt.value); setOpen(false); }}
-              className="w-full px-3 py-2 text-left text-sm hover:bg-[#f7f4ea]"
+              className="w-full px-3 py-2 text-left text-sm hover:bg-[#F5F8F8]"
             >
               {opt.label}
             </button>
@@ -70,9 +70,9 @@ function statusTone(status: string): string {
   if (status === "Opportunity identified") return "text-emerald-700 font-medium";
   if (status === "Conversation held") return "text-blue-700 font-medium";
   if (status === "Follow up required") return "text-amber-700 font-medium";
-  if (status === "Not suitable") return "text-[#6f6b62]";
-  if (status === "No response") return "text-[#6f6b62]";
-  if (!status) return "text-[#6f6b62]";
+  if (status === "Not suitable") return "text-[#5F686A]";
+  if (status === "No response") return "text-[#5F686A]";
+  if (!status) return "text-[#5F686A]";
   return "text-[#111111]";
 }
 
@@ -349,16 +349,16 @@ export default function ProspectFinderPage() {
       <div className="shrink-0 border-b border-[#111111]/10 bg-white px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5F686A]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">{PROSPECT_FINDER_LABEL}</h1>
-            <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
+            <p className="mt-1 max-w-2xl text-sm text-[#5F686A]">
               Research catalog — assign owners and qualify fit.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1B343A]"
           >
             <Plus className="h-4 w-4" /> Add prospect
           </button>
@@ -367,11 +367,11 @@ export default function ProspectFinderPage() {
         {meta ? (
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-              <p className="text-xs font-semibold text-[#6f6b62]">Total</p>
+              <p className="text-xs font-semibold text-[#5F686A]">Total</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{meta.total_count.toLocaleString()}</p>
             </div>
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-              <p className="text-xs font-semibold text-[#6f6b62]">Have tasks</p>
+              <p className="text-xs font-semibold text-[#5F686A]">Have tasks</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{(meta.with_tasks_count ?? 0).toLocaleString()}</p>
             </div>
             <button
@@ -412,7 +412,7 @@ export default function ProspectFinderPage() {
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
             <input
               value={searchInput}
               onChange={(e) => {
@@ -424,10 +424,10 @@ export default function ProspectFinderPage() {
                 }, 150);
               }}
               placeholder="Search organisation, sector, location, assignee…"
-              className="w-full rounded-xl border border-[#111111]/15 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
+              className="w-full rounded-xl border border-[#111111]/15 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#122428]"
             />
           </div>
-          <Filter className="h-4 w-4 text-[#6f6b62]" />
+          <Filter className="h-4 w-4 text-[#5F686A]" />
           <CustomSelect
             value={region}
             onChange={(v) => updateParams({ region: v || null })}
@@ -453,14 +453,14 @@ export default function ProspectFinderPage() {
             <button
               type="button"
               onClick={clearFilters}
-              className="text-xs font-medium text-[#063b32] hover:underline"
+              className="text-xs font-medium text-[#122428] hover:underline"
             >
               Clear filters
             </button>
           )}
           {isPlatformAdmin && selectedIds.size > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#6f6b62]">{selectedIds.size} selected</span>
+              <span className="text-xs text-[#5F686A]">{selectedIds.size} selected</span>
               <button
                 type="button"
                 disabled={deleting}
@@ -473,7 +473,7 @@ export default function ProspectFinderPage() {
               <button
                 type="button"
                 onClick={() => setSelectedIds(new Set())}
-                className="grid h-7 w-7 place-items-center rounded-full border border-[#111111]/15 bg-white text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="grid h-7 w-7 place-items-center rounded-full border border-[#111111]/15 bg-white text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -484,13 +484,13 @@ export default function ProspectFinderPage() {
 
       <div className="min-h-0 flex-1 overflow-auto">
         {loading && prospects.length === 0 ? (
-          <div className="flex items-center justify-center py-16 text-[#6f6b62]">
+          <div className="flex items-center justify-center py-16 text-[#5F686A]">
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : (
           <table className="w-full min-w-[900px] border-collapse text-sm">
-            <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#f7f4ea]/90 backdrop-blur-sm">
-              <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+            <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#F5F8F8]/90 backdrop-blur-sm">
+              <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
                 {isPlatformAdmin && (
                   <th className="w-10 px-3 py-3">
                     <button
@@ -498,7 +498,7 @@ export default function ProspectFinderPage() {
                       onClick={toggleAll}
                       className={`grid h-4 w-4 place-items-center rounded border ${
                         selectedIds.size === prospects.length && prospects.length > 0
-                          ? "border-[#063b32] bg-[#063b32]"
+                          ? "border-[#122428] bg-[#122428]"
                           : "border-[#111111]/25 bg-white"
                       }`}
                     >
@@ -522,7 +522,7 @@ export default function ProspectFinderPage() {
                 const backQs = searchParams.toString();
                 const href = `/admin/engagement/prospect-outreach/${p.id}${backQs ? `?back=${encodeURIComponent(backQs)}` : ""}`;
                 return (
-                  <tr key={p.id} className="group hover:bg-[#f7f4ea]/40">
+                  <tr key={p.id} className="group hover:bg-[#F5F8F8]/40">
                     {isPlatformAdmin && (
                       <td className="px-3 py-3.5">
                         <button
@@ -530,7 +530,7 @@ export default function ProspectFinderPage() {
                           onClick={(e) => { e.stopPropagation(); toggleSelect(p.id); }}
                           className={`grid h-4 w-4 place-items-center rounded border ${
                             selectedIds.has(p.id)
-                              ? "border-[#063b32] bg-[#063b32]"
+                              ? "border-[#122428] bg-[#122428]"
                               : "border-[#111111]/25 bg-white"
                           }`}
                         >
@@ -539,7 +539,7 @@ export default function ProspectFinderPage() {
                       </td>
                     )}
                     <td className="px-6 py-3.5">
-                      <Link href={href} className="font-medium text-[#111111] group-hover:text-[#063b32]">
+                      <Link href={href} className="font-medium text-[#111111] group-hover:text-[#122428]">
                         {p.organisation_name}
                       </Link>
                       {p.is_client && (
@@ -553,8 +553,8 @@ export default function ProspectFinderPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-3 py-3.5 text-[#6f6b62]">{p.sector_label}</td>
-                    <td className="px-3 py-3.5 text-[#6f6b62]">{p.location}</td>
+                    <td className="px-3 py-3.5 text-[#5F686A]">{p.sector_label}</td>
+                    <td className="px-3 py-3.5 text-[#5F686A]">{p.location}</td>
                     <td className="px-3 py-3.5">
                       <div className="relative">
                         <button
@@ -564,20 +564,20 @@ export default function ProspectFinderPage() {
                         >
                           {p.assigned_team_member_name ? (
                             <>
-                              <User className="h-3.5 w-3.5 text-[#6f6b62]" />
+                              <User className="h-3.5 w-3.5 text-[#5F686A]" />
                               <span className="text-[#111111]">{p.assigned_team_member_name}</span>
                             </>
                           ) : (
-                            <span className="text-[#6f6b62]">—</span>
+                            <span className="text-[#5F686A]">—</span>
                           )}
-                          <ChevronDown className="h-3 w-3 text-[#6f6b62] opacity-50" />
+                          <ChevronDown className="h-3 w-3 text-[#5F686A] opacity-50" />
                         </button>
                         {assigneeMenuId === p.id && (
                           <div className="absolute left-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
                             <button
                               type="button"
                               onClick={() => { void patchProspect(p.id, { assigned_team_member_id: null }); setAssigneeMenuId(null); }}
-                              className="w-full px-3 py-2 text-left text-xs text-[#6f6b62] hover:bg-[#f7f4ea]"
+                              className="w-full px-3 py-2 text-left text-xs text-[#5F686A] hover:bg-[#F5F8F8]"
                             >
                               Unassigned
                             </button>
@@ -586,7 +586,7 @@ export default function ProspectFinderPage() {
                                 key={m.id}
                                 type="button"
                                 onClick={() => { void patchProspect(p.id, { assigned_team_member_id: m.id }); setAssigneeMenuId(null); }}
-                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-[#f7f4ea]"
+                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-[#F5F8F8]"
                               >
                                 {m.display_name}
                               </button>
@@ -610,7 +610,7 @@ export default function ProspectFinderPage() {
                             <button
                               type="button"
                               onClick={() => { void patchProspect(p.id, { engagement_status: null }); setStatusMenuId(null); }}
-                              className={`w-full px-3 py-2 text-left text-xs hover:bg-[#f7f4ea] ${!p.engagement_status ? "font-semibold text-[#063b32]" : "text-[#6f6b62]"}`}
+                              className={`w-full px-3 py-2 text-left text-xs hover:bg-[#F5F8F8] ${!p.engagement_status ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
                             >
                               Not assigned
                             </button>
@@ -619,7 +619,7 @@ export default function ProspectFinderPage() {
                                 key={s}
                                 type="button"
                                 onClick={() => { void patchProspect(p.id, { engagement_status: s }); setStatusMenuId(null); }}
-                                className={`w-full px-3 py-2 text-left text-xs hover:bg-[#f7f4ea] ${statusTone(s)}`}
+                                className={`w-full px-3 py-2 text-left text-xs hover:bg-[#F5F8F8] ${statusTone(s)}`}
                               >
                                 {s}
                               </button>
@@ -628,11 +628,11 @@ export default function ProspectFinderPage() {
                         )}
                       </div>
                     </td>
-                    <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#6f6b62]">
+                    <td className="max-w-[220px] px-6 py-3.5 text-xs text-[#5F686A]">
                       <button
                         type="button"
                         onClick={(ev) => { ev.stopPropagation(); setNextActionPopupId(p.id); setNextActionDraft(p.next_action || p.follow_up_task_title || ""); setStatusMenuId(null); setAssigneeMenuId(null); }}
-                        className="block truncate text-left hover:text-[#063b32] hover:underline"
+                        className="block truncate text-left hover:text-[#122428] hover:underline"
                       >
                         {p.next_action || p.follow_up_task_title || "—"}
                       </button>
@@ -643,7 +643,7 @@ export default function ProspectFinderPage() {
                           type="button"
                           disabled={deleting}
                           onClick={(e) => { e.preventDefault(); void deleteSingle(p.id, p.organisation_name); }}
-                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 place-items-center rounded text-[#6f6b62] hover:bg-red-50 hover:text-red-600 disabled:opacity-30 transition-opacity"
+                          className="opacity-0 group-hover:opacity-100 grid h-6 w-6 place-items-center rounded text-[#5F686A] hover:bg-red-50 hover:text-red-600 disabled:opacity-30 transition-opacity"
                           title="Delete prospect"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -659,7 +659,7 @@ export default function ProspectFinderPage() {
       </div>
 
       <div className="flex shrink-0 items-center justify-between border-t border-[#111111]/10 bg-white px-6 py-3 text-sm">
-        <p className="text-[#6f6b62]">
+        <p className="text-[#5F686A]">
           Page {page} of {totalPages}
           {meta?.filtered_count != null ? ` · ${meta.filtered_count.toLocaleString()} results` : ""}
         </p>
@@ -692,8 +692,8 @@ export default function ProspectFinderPage() {
           <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-semibold text-[#111111]">Next action</h3>
-              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded p-1 hover:bg-[#f7f4ea]">
-                <X className="h-4 w-4 text-[#6f6b62]" />
+              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded p-1 hover:bg-[#F5F8F8]">
+                <X className="h-4 w-4 text-[#5F686A]" />
               </button>
             </div>
             <textarea
@@ -701,11 +701,11 @@ export default function ProspectFinderPage() {
               onChange={(e) => setNextActionDraft(e.target.value)}
               rows={3}
               placeholder="Describe the next action…"
-              className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+              className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
               autoFocus
             />
             <div className="mt-3 flex justify-end gap-2">
-              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]">
+              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#5F686A] hover:bg-[#F5F8F8]">
                 Cancel
               </button>
               <button
@@ -718,7 +718,7 @@ export default function ProspectFinderPage() {
                   setSavingNextAction(false);
                   setNextActionPopupId(null);
                 }}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
               >
                 {savingNextAction && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                 Save
@@ -733,23 +733,23 @@ export default function ProspectFinderPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-serif text-xl text-[#111111]">Add prospect</h2>
-              <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg p-1 hover:bg-[#f7f4ea]">
-                <X className="h-5 w-5 text-[#6f6b62]" />
+              <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg p-1 hover:bg-[#F5F8F8]">
+                <X className="h-5 w-5 text-[#5F686A]" />
               </button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Organisation name *</label>
+                <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Organisation name *</label>
                 <input
                   value={addForm.organisation_name}
                   onChange={(e) => setAddForm((f) => ({ ...f, organisation_name: e.target.value }))}
                   placeholder="Organisation name"
-                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Type</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Type</label>
                   <CustomSelect
                     value={addForm.organisation_type}
                     onChange={(v) => setAddForm((f) => ({ ...f, organisation_type: v as typeof f.organisation_type }))}
@@ -758,7 +758,7 @@ export default function ProspectFinderPage() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Region</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Region</label>
                   <CustomSelect
                     value={addForm.region}
                     onChange={(v) => setAddForm((f) => ({ ...f, region: v }))}
@@ -769,63 +769,63 @@ export default function ProspectFinderPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Location (town/city)</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Location (town/city)</label>
                   <input
                     value={addForm.location}
                     onChange={(e) => setAddForm((f) => ({ ...f, location: e.target.value }))}
                     placeholder="e.g. Norwich"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Website</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Website</label>
                   <input
                     type="url"
                     value={addForm.website}
                     onChange={(e) => setAddForm((f) => ({ ...f, website: e.target.value }))}
                     placeholder="https://…"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Decision maker name</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Decision maker name</label>
                   <input
                     value={addForm.decision_maker_name}
                     onChange={(e) => setAddForm((f) => ({ ...f, decision_maker_name: e.target.value }))}
                     placeholder="Full name"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Decision maker role</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Decision maker role</label>
                   <input
                     value={addForm.decision_maker_role}
                     onChange={(e) => setAddForm((f) => ({ ...f, decision_maker_role: e.target.value }))}
                     placeholder="e.g. CEO"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Email</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Email</label>
                   <input
                     type="email"
                     value={addForm.email}
                     onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
                     placeholder="contact@example.org"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Phone</label>
+                  <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Phone</label>
                   <input
                     value={addForm.phone}
                     onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
                     placeholder="+44 …"
-                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
               </div>
@@ -834,7 +834,7 @@ export default function ProspectFinderPage() {
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 Cancel
               </button>
@@ -842,7 +842,7 @@ export default function ProspectFinderPage() {
                 type="button"
                 disabled={savingAdd || !addForm.organisation_name.trim()}
                 onClick={createNewProspect}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
               >
                 {savingAdd ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                 {savingAdd ? "Saving…" : "Add prospect"}

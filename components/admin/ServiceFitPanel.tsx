@@ -20,7 +20,7 @@ type Props = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]";
+  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]";
 
 function linesFromItems(items: string[] | undefined): string {
   return (items ?? []).join("\n");
@@ -48,10 +48,10 @@ function CollapsibleSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between bg-white px-4 py-3 text-left transition-colors hover:bg-[#f7f4ea]/25"
+        className="flex w-full items-center justify-between bg-white px-4 py-3 text-left transition-colors hover:bg-[#F5F8F8]/25"
       >
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{title}</span>
-        {open ? <ChevronDown className="h-4 w-4 text-[#6f6b62]" /> : <ChevronRight className="h-4 w-4 text-[#6f6b62]" />}
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">{title}</span>
+        {open ? <ChevronDown className="h-4 w-4 text-[#5F686A]" /> : <ChevronRight className="h-4 w-4 text-[#5F686A]" />}
       </button>
       {open && <div className="space-y-3 p-4">{children}</div>}
     </div>
@@ -71,7 +71,7 @@ function ReadableTextBlock({
   const lineCount = text.split("\n").length;
   const isLong = text.length > 320 || lineCount > 6;
   const toneClass = tone === "highlight"
-    ? "border-[#063b32]/15 bg-[#063b32]/5"
+    ? "border-[#122428]/15 bg-[#122428]/5"
     : tone === "warning"
       ? "border-amber-200/80 bg-amber-50/50"
       : "border-[#111111]/10 bg-white";
@@ -79,14 +79,14 @@ function ReadableTextBlock({
   return (
     <div className={`rounded-xl border p-4 ${toneClass}`}>
       <div className="flex items-center justify-between gap-3">
-        <p className={`text-[10px] font-semibold uppercase tracking-wider ${tone === "warning" ? "text-amber-800" : tone === "highlight" ? "text-[#063b32]" : "text-[#6f6b62]"}`}>
+        <p className={`text-[10px] font-semibold uppercase tracking-wider ${tone === "warning" ? "text-amber-800" : tone === "highlight" ? "text-[#122428]" : "text-[#5F686A]"}`}>
           {title}
         </p>
         {isLong && (
           <button
             type="button"
             onClick={() => setExpanded((value) => !value)}
-            className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+            className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline"
           >
             {expanded ? "Minimise" : "Expand"}
             <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
@@ -102,7 +102,7 @@ function ReadableTextBlock({
 
 function TagList({ items, tone }: { items: string[]; tone?: "primary" | "muted" }) {
   const [expanded, setExpanded] = useState(false);
-  if (!items.length) return <p className="text-sm text-[#6f6b62]">—</p>;
+  if (!items.length) return <p className="text-sm text-[#5F686A]">—</p>;
   const isLong = items.length > 4 || items.some((item) => item.length > 220);
   const visibleItems = isLong && !expanded ? items.slice(0, 4) : items;
   return (
@@ -112,7 +112,7 @@ function TagList({ items, tone }: { items: string[]; tone?: "primary" | "muted" 
           <li
             key={item}
             className={`rounded-lg px-3 py-2 text-sm ${
-              tone === "muted" ? "border border-[#111111]/10 text-[#6f6b62]" : "bg-[#063b32]/5 text-[#063b32]"
+              tone === "muted" ? "border border-[#111111]/10 text-[#5F686A]" : "bg-[#122428]/5 text-[#122428]"
             }`}
           >
             {item}
@@ -120,7 +120,7 @@ function TagList({ items, tone }: { items: string[]; tone?: "primary" | "muted" 
         ))}
       </ul>
       {isLong && (
-        <button type="button" onClick={() => setExpanded((value) => !value)} className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+        <button type="button" onClick={() => setExpanded((value) => !value)} className="mt-2 inline-flex items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline">
           {expanded ? "Minimise list" : `Show all ${items.length}`}
           <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
         </button>
@@ -144,7 +144,7 @@ function SectionEditButtons({
         type="button"
         onClick={onSave}
         disabled={saving}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
       >
         {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
         Save all
@@ -152,7 +152,7 @@ function SectionEditButtons({
       <button
         type="button"
         onClick={onCancel}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
       >
         <X className="h-3.5 w-3.5" /> Cancel
       </button>
@@ -253,39 +253,39 @@ function EvidenceAndAssessment({
   if (editing && editable && onSaveFields) {
     return (
       <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-4">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Research Assessment</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Research Assessment</p>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Evidence summary</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Evidence summary</label>
           <textarea value={form.evidence_summary} onChange={(e) => setForm((f) => ({ ...f, evidence_summary: e.target.value }))} rows={5} className={`${inputClass} resize-y leading-relaxed`} autoFocus />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Need rationale</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Need rationale</label>
           <textarea value={form.need_rationale} onChange={(e) => setForm((f) => ({ ...f, need_rationale: e.target.value }))} rows={4} className={`${inputClass} resize-y leading-relaxed`} />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Complexity rationale</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Complexity rationale</label>
           <textarea value={form.complexity_rationale} onChange={(e) => setForm((f) => ({ ...f, complexity_rationale: e.target.value }))} rows={3} className={`${inputClass} resize-y`} />
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Admin capacity</label>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Admin capacity</label>
             <input type="text" value={form.admin_capacity} onChange={(e) => setForm((f) => ({ ...f, admin_capacity: e.target.value }))} className={inputClass} />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">AI / automation use</label>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">AI / automation use</label>
             <input type="text" value={form.ai_automation_use} onChange={(e) => setForm((f) => ({ ...f, ai_automation_use: e.target.value }))} className={inputClass} />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Data sensitivity</label>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Data sensitivity</label>
             <input type="text" value={form.data_sensitivity} onChange={(e) => setForm((f) => ({ ...f, data_sensitivity: e.target.value }))} className={inputClass} />
           </div>
           <div>
-            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Systems landscape</label>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Systems landscape</label>
             <textarea value={form.systems_landscape} onChange={(e) => setForm((f) => ({ ...f, systems_landscape: e.target.value }))} rows={3} className={`${inputClass} resize-y`} />
           </div>
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Open questions <span className="normal-case font-normal">(one per line)</span></label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Open questions <span className="normal-case font-normal">(one per line)</span></label>
           <textarea value={form.open_questions} onChange={(e) => setForm((f) => ({ ...f, open_questions: e.target.value }))} rows={4} placeholder="One question per line" className={`${inputClass} resize-y`} />
         </div>
         <SectionEditButtons saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
@@ -297,12 +297,12 @@ function EvidenceAndAssessment({
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-5">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Research Assessment</p>
-          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Research Assessment</p>
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline">
             <Plus className="h-3 w-3" /> Add
           </button>
         </div>
-        <p className="mt-2 text-sm text-[#6f6b62]">No research assessment added yet.</p>
+        <p className="mt-2 text-sm text-[#5F686A]">No research assessment added yet.</p>
       </div>
     );
   }
@@ -310,9 +310,9 @@ function EvidenceAndAssessment({
   return (
     <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Research Assessment</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Research Assessment</p>
         {editable && onSaveFields && (
-          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline">
             <Pencil className="h-3 w-3" /> Edit
           </button>
         )}
@@ -329,19 +329,19 @@ function EvidenceAndAssessment({
       <div className="grid gap-3 sm:grid-cols-2">
         {data.admin_capacity && (
           <div className="rounded-lg border border-[#111111]/10 p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Admin capacity</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Admin capacity</p>
             <p className="mt-1 text-sm text-[#111111]">{data.admin_capacity}</p>
           </div>
         )}
         {data.ai_automation_use && (
           <div className="rounded-lg border border-[#111111]/10 p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">AI / automation use</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">AI / automation use</p>
             <p className="mt-1 text-sm text-[#111111]">{data.ai_automation_use}</p>
           </div>
         )}
         {data.data_sensitivity && (
           <div className="rounded-lg border border-[#111111]/10 p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Data sensitivity</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Data sensitivity</p>
             <p className="mt-1 text-sm text-[#111111]">{data.data_sensitivity}</p>
           </div>
         )}
@@ -353,14 +353,14 @@ function EvidenceAndAssessment({
       </div>
       {(data.open_questions?.length ?? 0) > 0 && (
         <div className="rounded-xl border border-[#111111]/10 p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Open questions</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Open questions</p>
           <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-[#111111]">
             {data.open_questions!.map((q) => <li key={q}>{q}</li>)}
           </ul>
         </div>
       )}
       {!data.evidence_summary && !data.need_rationale && !data.complexity_rationale && !data.admin_capacity && !data.ai_automation_use && !data.data_sensitivity && !data.systems_landscape && !(data.open_questions?.length) && (
-        <p className="text-sm text-[#6f6b62]">—</p>
+        <p className="text-sm text-[#5F686A]">—</p>
       )}
     </div>
   );
@@ -422,25 +422,25 @@ function VaxaiSupportAndBoundaries({
   if (editing && editable && onSaveFields) {
     return (
       <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-4">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">VAxAI Support</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">VAxAI Support</p>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Best-fit VAxAI support <span className="normal-case font-normal">(one per line)</span></label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Best-fit VAxAI support <span className="normal-case font-normal">(one per line)</span></label>
           <textarea value={form.vaxai_direct_support} onChange={(e) => setForm((f) => ({ ...f, vaxai_direct_support: e.target.value }))} rows={5} placeholder="One item per line" className={`${inputClass} resize-y`} autoFocus />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Partial VAxAI role <span className="normal-case font-normal">(one per line)</span></label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Partial VAxAI role <span className="normal-case font-normal">(one per line)</span></label>
           <textarea value={form.vaxai_partial_support} onChange={(e) => setForm((f) => ({ ...f, vaxai_partial_support: e.target.value }))} rows={4} placeholder="One item per line" className={`${inputClass} resize-y`} />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Specialist / partner may be needed <span className="normal-case font-normal">(one per line)</span></label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Specialist / partner may be needed <span className="normal-case font-normal">(one per line)</span></label>
           <textarea value={form.partner_support} onChange={(e) => setForm((f) => ({ ...f, partner_support: e.target.value }))} rows={3} placeholder="One item per line" className={`${inputClass} resize-y`} />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Capability boundaries</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Capability boundaries</label>
           <textarea value={form.capability_boundaries} onChange={(e) => setForm((f) => ({ ...f, capability_boundaries: e.target.value }))} rows={4} className={`${inputClass} resize-y`} />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Build vs improve</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Build vs improve</label>
           <textarea value={form.bespoke_build_note} onChange={(e) => setForm((f) => ({ ...f, bespoke_build_note: e.target.value }))} rows={3} className={`${inputClass} resize-y`} />
         </div>
         <SectionEditButtons saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
@@ -452,12 +452,12 @@ function VaxaiSupportAndBoundaries({
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-5">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">VAxAI Support</p>
-          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">VAxAI Support</p>
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline">
             <Plus className="h-3 w-3" /> Add
           </button>
         </div>
-        <p className="mt-2 text-sm text-[#6f6b62]">No VAxAI support assessment added yet.</p>
+        <p className="mt-2 text-sm text-[#5F686A]">No VAxAI support assessment added yet.</p>
       </div>
     );
   }
@@ -466,24 +466,24 @@ function VaxaiSupportAndBoundaries({
     <>
       {editable && onSaveFields && (
         <div className="flex justify-end">
-          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline">
             <Pencil className="h-3 w-3" /> Edit
           </button>
         </div>
       )}
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Best-fit VAxAI support</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Best-fit VAxAI support</p>
         <TagList items={data.vaxai_direct_support || []} />
       </div>
       {(data.vaxai_partial_support?.length ?? 0) > 0 && (
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Partial VAxAI role</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Partial VAxAI role</p>
           <TagList items={data.vaxai_partial_support || []} tone="muted" />
         </div>
       )}
       {(data.partner_support?.length ?? 0) > 0 && (
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Specialist / partner may be needed</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Specialist / partner may be needed</p>
           <TagList items={data.partner_support || []} tone="muted" />
         </div>
       )}
@@ -559,17 +559,17 @@ function RecommendedEngagement({
   if (editing && editable && onSaveFields) {
     return (
       <div className="rounded-xl border border-[#111111]/10 bg-white p-5 space-y-4">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement Guide</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Engagement Guide</p>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Recommended engagement</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Recommended engagement</label>
           <textarea value={form.recommended_engagement} onChange={(e) => setForm((f) => ({ ...f, recommended_engagement: e.target.value }))} rows={6} placeholder="Short recommendation on next steps and engagement approach…" className={`${inputClass} resize-y`} autoFocus />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement guide</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Engagement guide</label>
           <textarea value={form.engagement_approach} onChange={(e) => setForm((f) => ({ ...f, engagement_approach: e.target.value }))} rows={18} placeholder="Meeting prep, discovery hooks, recommended entry point, and conversation guidance…" className={`${inputClass} resize-y leading-relaxed`} />
         </div>
         <div>
-          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Accessibility note</label>
+          <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Accessibility note</label>
           <textarea value={form.accessibility_considerations} onChange={(e) => setForm((f) => ({ ...f, accessibility_considerations: e.target.value }))} rows={4} className={`${inputClass} resize-y`} />
         </div>
         <SectionEditButtons saving={saving} onSave={() => void save()} onCancel={() => setEditing(false)} />
@@ -581,12 +581,12 @@ function RecommendedEngagement({
     return (
       <div className="rounded-xl border border-dashed border-[#111111]/15 p-5">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Engagement Guide</p>
-          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Engagement Guide</p>
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline">
             <Plus className="h-3 w-3" /> Add
           </button>
         </div>
-        <p className="mt-2 text-sm text-[#6f6b62]">No engagement guide added yet.</p>
+        <p className="mt-2 text-sm text-[#5F686A]">No engagement guide added yet.</p>
       </div>
     );
   }
@@ -594,9 +594,9 @@ function RecommendedEngagement({
   return (
     <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Engagement Guide</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Engagement Guide</p>
         {editable && onSaveFields && (
-          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline">
+          <button type="button" onClick={startEdit} className="inline-flex items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline">
             <Pencil className="h-3 w-3" /> Edit
           </button>
         )}
@@ -608,7 +608,7 @@ function RecommendedEngagement({
         <ReadableTextBlock title="Engagement guide" text={data.engagement_approach} />
       )}
       {!data.engagement_approach && !data.recommended_engagement && (
-        <p className="text-sm text-[#6f6b62]">—</p>
+        <p className="text-sm text-[#5F686A]">—</p>
       )}
       {data.accessibility_considerations && (
         <ReadableTextBlock title="Accessibility note" text={data.accessibility_considerations} tone="warning" />
@@ -674,7 +674,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
 
   if (resolvedMode === "overview" && !data.service_fit_summary && !data.likely_need && !editable) {
     return (
-      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#5F686A]">
         Service-fit assessment not yet available for this record.
       </div>
     );
@@ -682,7 +682,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
 
   if (resolvedMode === "research" && !editable && !hasResearchAssessmentContent(data)) {
     return (
-      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#5F686A]">
         Detailed research assessment not yet available for this record.
       </div>
     );
@@ -690,7 +690,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
 
   if (resolvedMode === "support" && !editable && !hasVaxaiSupportContent(data)) {
     return (
-      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#5F686A]">
         VAxAI support and boundaries not yet available for this record.
       </div>
     );
@@ -698,7 +698,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
 
   if (resolvedMode === "recommended_engagement" && !editable && !hasRecommendedEngagementContent(data)) {
     return (
-      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#6f6b62]">
+      <div className="rounded-xl border border-dashed border-[#111111]/15 p-4 text-sm text-[#5F686A]">
         Recommended engagement not yet available for this record.
       </div>
     );
@@ -707,46 +707,46 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
   return (
     <div className="space-y-4">
       {showSummary && (
-        <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-4">
+        <div className="rounded-xl border border-[#122428]/15 bg-[#122428]/5 p-4">
           {editingSummary ? (
             <div className="space-y-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[#122428]">Service fit</p>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Service fit summary</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Service fit summary</label>
                 <textarea
                   value={summaryForm.service_fit_summary}
                   onChange={(e) => setSummaryForm((f) => ({ ...f, service_fit_summary: e.target.value }))}
                   rows={3}
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428] resize-y"
                   autoFocus
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Likely need</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Likely need</label>
                 <textarea
                   value={summaryForm.likely_need}
                   onChange={(e) => setSummaryForm((f) => ({ ...f, likely_need: e.target.value }))}
                   rows={2}
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428] resize-y"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Complexity level</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Complexity level</label>
                   <input
                     value={summaryForm.complexity_level}
                     onChange={(e) => setSummaryForm((f) => ({ ...f, complexity_level: e.target.value }))}
                     placeholder="e.g. low, medium, high"
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Engagement basis</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Engagement basis</label>
                   <input
                     value={summaryForm.engagement_basis}
                     onChange={(e) => setSummaryForm((f) => ({ ...f, engagement_basis: e.target.value }))}
                     placeholder="e.g. retainer, project"
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 </div>
               </div>
@@ -755,7 +755,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
                   type="button"
                   onClick={() => void saveSummary()}
                   disabled={savingSummary}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
                 >
                   {savingSummary ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                   Save
@@ -763,7 +763,7 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
                 <button
                   type="button"
                   onClick={() => setEditingSummary(false)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-white/50"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-white/50"
                 >
                   <X className="h-3.5 w-3.5" /> Cancel
                 </button>
@@ -773,12 +773,12 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
             <>
               {/* Header row: label + edit */}
               <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#063b32]">Service fit</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#122428]">Service fit</p>
                 {editable && batchSave && (
                   <button
                     type="button"
                     onClick={startSummaryEdit}
-                    className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#063b32] hover:underline"
+                    className="inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold text-[#122428] hover:underline"
                   >
                     <Pencil className="h-3 w-3" /> Edit
                   </button>
@@ -800,14 +800,14 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
                     </span>
                   )}
                   {data.engagement_basis && data.engagement_basis !== "unknown" && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32] capitalize">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#122428]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#122428] capitalize">
                       <span className="opacity-60">Basis</span>
-                      <span className="h-2.5 w-px bg-[#063b32] opacity-20" />
+                      <span className="h-2.5 w-px bg-[#122428] opacity-20" />
                       {data.engagement_basis.replace(/_/g, " ")} support
                     </span>
                   )}
                   {data.bespoke_build_fit === false && (
-                    <span className="rounded-full border border-[#063b32]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+                    <span className="rounded-full border border-[#122428]/15 bg-white px-2.5 py-0.5 text-[10px] font-semibold text-[#122428]">
                       Improve existing first
                     </span>
                   )}
@@ -816,22 +816,22 @@ export function ServiceFitPanel({ data, compact, mode, editable, onSaveField, on
 
               {/* Summary / likely need */}
               {(data.service_fit_summary || data.likely_need) && (
-                <div className="mt-2.5 overflow-hidden rounded-lg border border-[#063b32]/10 bg-white">
+                <div className="mt-2.5 overflow-hidden rounded-lg border border-[#122428]/10 bg-white">
                   {data.service_fit_summary && (
-                    <div className={`px-3 py-2.5${resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary ? " border-b border-[#063b32]/8" : ""}`}>
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Summary</p>
+                    <div className={`px-3 py-2.5${resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary ? " border-b border-[#122428]/8" : ""}`}>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Summary</p>
                       <p className="text-sm leading-relaxed text-[#111111]">{data.service_fit_summary}</p>
                     </div>
                   )}
                   {resolvedMode === "full" && data.likely_need && data.likely_need !== data.service_fit_summary && (
                     <div className="px-3 py-2.5">
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
-                      <p className="text-sm leading-relaxed text-[#6f6b62]">{data.likely_need}</p>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Likely need</p>
+                      <p className="text-sm leading-relaxed text-[#5F686A]">{data.likely_need}</p>
                     </div>
                   )}
                   {!data.service_fit_summary && data.likely_need && (
                     <div className="px-3 py-2.5">
-                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Likely need</p>
+                      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Likely need</p>
                       <p className="text-sm leading-relaxed text-[#111111]">{data.likely_need}</p>
                     </div>
                   )}

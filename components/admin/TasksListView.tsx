@@ -39,9 +39,9 @@ const TASK_TYPE_BADGE: Record<string, string> = {
   call: "bg-sky-100 text-sky-700",
   email: "bg-violet-100 text-violet-700",
   meeting: "bg-blue-100 text-blue-700",
-  admin: "bg-[#111111]/8 text-[#6f6b62]",
+  admin: "bg-[#111111]/8 text-[#5F686A]",
   research: "bg-teal-100 text-teal-700",
-  other: "bg-[#111111]/8 text-[#6f6b62]",
+  other: "bg-[#111111]/8 text-[#5F686A]",
 };
 
 const BOARD_COLUMNS = [
@@ -51,10 +51,10 @@ const BOARD_COLUMNS = [
 ] as const;
 
 const inputClass =
-  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#063b32] transition-colors";
+  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm appearance-none outline-none focus:border-[#122428] transition-colors";
 
 const selectClass =
-  "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#063b32] appearance-none";
+  "rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-medium text-[#111111] outline-none focus:border-[#122428] appearance-none";
 
 function FormSelect({
   value,
@@ -82,12 +82,12 @@ function FormSelect({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-left text-sm text-[#111111] outline-none transition-colors hover:border-[#063b32]/40"
+        className="flex w-full items-center justify-between gap-2 rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-left text-sm text-[#111111] outline-none transition-colors hover:border-[#122428]/40"
       >
-        <span className={selected ? "text-[#111111]" : "text-[#6f6b62]"}>
+        <span className={selected ? "text-[#111111]" : "text-[#5F686A]"}>
           {selected?.label || placeholder || "Select…"}
         </span>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#5F686A] transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute z-40 mt-1 w-full min-w-[10rem] overflow-hidden rounded-lg border border-[#111111]/15 bg-white shadow-lg">
@@ -95,7 +95,7 @@ function FormSelect({
             <button
               type="button"
               onClick={() => { setOpen(false); onChange(""); }}
-              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] ${!value ? "font-semibold text-[#063b32]" : "text-[#6f6b62]"}`}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-[#F5F8F8] ${!value ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
             >
               {placeholder}
             </button>
@@ -105,10 +105,10 @@ function FormSelect({
               key={opt.value}
               type="button"
               onClick={() => { setOpen(false); onChange(opt.value); }}
-              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-[#f7f4ea] ${value === opt.value ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"}`}
+              className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-[#F5F8F8] ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
             >
               <span>{opt.label}</span>
-              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
             </button>
           ))}
         </div>
@@ -155,14 +155,14 @@ function TaskBoardCard({
     <div
       draggable
       onDragStart={() => onDragStart(task.id)}
-      className={`cursor-grab rounded-lg border bg-white p-3 shadow-sm active:cursor-grabbing transition-colors ${selected ? "border-[#063b32]/40 bg-[#063b32]/5" : "border-[#111111]/10"}`}
+      className={`cursor-grab rounded-lg border bg-white p-3 shadow-sm active:cursor-grabbing transition-colors ${selected ? "border-[#122428]/40 bg-[#122428]/5" : "border-[#111111]/10"}`}
     >
       <div className="flex items-start gap-2">
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onToggleSelect(task.id); }}
           className={`mt-0.5 h-4 w-4 shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
-            selected ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/20 hover:border-[#063b32]"
+            selected ? "border-[#122428] bg-[#122428]" : "border-[#111111]/20 hover:border-[#122428]"
           }`}
           title={selected ? "Deselect" : "Select"}
         >
@@ -173,11 +173,11 @@ function TaskBoardCard({
           onClick={() => onEdit(task)}
           className="flex-1 min-w-0 text-left"
         >
-          <p className={`text-sm font-semibold leading-snug ${task.status === "done" ? "text-[#6f6b62] line-through" : "text-[#111111]"}`}>
+          <p className={`text-sm font-semibold leading-snug ${task.status === "done" ? "text-[#5F686A] line-through" : "text-[#111111]"}`}>
             {task.title}
           </p>
           {task.due_date && (
-            <p className="mt-1 text-[10px] text-[#6f6b62]">
+            <p className="mt-1 text-[10px] text-[#5F686A]">
               {new Date(task.due_date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
             </p>
           )}
@@ -185,7 +185,7 @@ function TaskBoardCard({
             <Link
               href={recordHref}
               onClick={(e) => e.stopPropagation()}
-              className="mt-1 block text-[10px] font-semibold text-[#063b32] hover:underline truncate"
+              className="mt-1 block text-[10px] font-semibold text-[#122428] hover:underline truncate"
             >
               {taskRecordLabel(task)}
             </Link>
@@ -431,12 +431,12 @@ export function TasksListView({
       {showPageHeader && (
         <div className="border-b border-[#111111]/10 px-8 py-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#063b32]/10">
-              <CheckSquare className="h-5 w-5 text-[#063b32]" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#122428]/10">
+              <CheckSquare className="h-5 w-5 text-[#122428]" />
             </div>
             <div>
               <h1 className="text-lg font-semibold text-[#111111]">Tasks Tracker</h1>
-              <p className="text-sm text-[#6f6b62]">
+              <p className="text-sm text-[#5F686A]">
                 Master task list across Prospect Finder and Enquiries
               </p>
             </div>
@@ -448,7 +448,7 @@ export function TasksListView({
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] transition-colors"
+            className="flex items-center gap-2 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1B343A] transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add task
@@ -483,13 +483,13 @@ export function TasksListView({
         </div>
 
         {selectedTaskIds.size > 0 && (
-          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-[#111111]/10 bg-[#f7f4ea] px-4 py-2.5">
+          <div className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-[#111111]/10 bg-[#F5F8F8] px-4 py-2.5">
             <span className="text-xs font-semibold text-[#111111]">{selectedTaskIds.size} selected</span>
             <button
               type="button"
               disabled={bulkMoving || bulkDeleting}
               onClick={() => void bulkMoveTasks("todo")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8] disabled:opacity-50"
             >
               To do
             </button>
@@ -497,7 +497,7 @@ export function TasksListView({
               type="button"
               disabled={bulkMoving || bulkDeleting}
               onClick={() => void bulkMoveTasks("in_progress")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8] disabled:opacity-50"
             >
               In progress
             </button>
@@ -505,7 +505,7 @@ export function TasksListView({
               type="button"
               disabled={bulkMoving || bulkDeleting}
               onClick={() => void bulkMoveTasks("done")}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8] disabled:opacity-50"
             >
               Done
             </button>
@@ -521,7 +521,7 @@ export function TasksListView({
             <button
               type="button"
               onClick={() => setSelectedTaskIds(new Set())}
-              className="ml-auto grid h-6 w-6 place-items-center rounded-full border border-[#111111]/15 text-[#6f6b62] hover:bg-white"
+              className="ml-auto grid h-6 w-6 place-items-center rounded-full border border-[#111111]/15 text-[#5F686A] hover:bg-white"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -530,8 +530,8 @@ export function TasksListView({
 
         {filteredTasks.length === 0 ? (
           <div className="rounded-xl border border-[#111111]/10 py-16 text-center">
-            <CheckSquare className="mx-auto h-8 w-8 text-[#6f6b62]/40 mb-3" />
-            <p className="text-sm text-[#6f6b62]">{tasks.length === 0 ? "No tasks found." : "No tasks match your filters."}</p>
+            <CheckSquare className="mx-auto h-8 w-8 text-[#5F686A]/40 mb-3" />
+            <p className="text-sm text-[#5F686A]">{tasks.length === 0 ? "No tasks found." : "No tasks match your filters."}</p>
           </div>
         ) : (
           <div className="flex gap-3 overflow-x-auto pb-2">
@@ -544,10 +544,10 @@ export function TasksListView({
                   onDragLeave={() => setDropTarget((prev) => (prev === col.id ? null : prev))}
                   onDrop={(e) => { e.preventDefault(); void handleDrop(col.id); }}
                   className={`flex min-w-[280px] flex-1 flex-col rounded-xl border overflow-hidden transition-colors ${
-                    dropTarget === col.id ? "border-[#063b32]/40 bg-[#063b32]/5" : "border-[#111111]/10 bg-[#f7f4ea]/30"
+                    dropTarget === col.id ? "border-[#122428]/40 bg-[#122428]/5" : "border-[#111111]/10 bg-[#F5F8F8]/30"
                   }`}
                 >
-                  <div className="border-b border-[#111111]/10 bg-[#f7f4ea] px-3.5 py-3 flex items-center justify-between gap-2">
+                  <div className="border-b border-[#111111]/10 bg-[#F5F8F8] px-3.5 py-3 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       {items.length > 0 && (
                         <button
@@ -556,10 +556,10 @@ export function TasksListView({
                           title={items.every((t) => selectedTaskIds.has((t as EngagementTask).id)) ? "Deselect all" : "Select all"}
                           className={`h-3.5 w-3.5 shrink-0 rounded border flex items-center justify-center transition-colors ${
                             items.every((t) => selectedTaskIds.has((t as EngagementTask).id))
-                              ? "border-[#063b32] bg-[#063b32]"
+                              ? "border-[#122428] bg-[#122428]"
                               : items.some((t) => selectedTaskIds.has((t as EngagementTask).id))
-                                ? "border-[#063b32] bg-[#063b32]/30"
-                                : "border-[#111111]/30 hover:border-[#063b32]"
+                                ? "border-[#122428] bg-[#122428]/30"
+                                : "border-[#111111]/30 hover:border-[#122428]"
                           }`}
                         >
                           {items.every((t) => selectedTaskIds.has((t as EngagementTask).id)) && (
@@ -569,14 +569,14 @@ export function TasksListView({
                       )}
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${col.color}`}>{col.label}</span>
                     </div>
-                    <span className="text-[10px] font-bold text-[#6f6b62] tabular-nums">{items.length}</span>
+                    <span className="text-[10px] font-bold text-[#5F686A] tabular-nums">{items.length}</span>
                   </div>
                   <div className="min-h-[120px] max-h-[calc(100vh-320px)] overflow-y-auto p-2 space-y-2 scrollbar-subtle">
                     {items.map((t) => (
                       <TaskBoardCard key={(t as EngagementTask).id} task={t as EngagementTask} onToggleStatus={(id, s) => { void toggleTaskStatus(id, s); }} onDragStart={(id: string) => { setDraggingId(id); }} onEdit={openEdit} allowClientLinks={allowClientLinks} selected={Boolean(selectedTaskIds.has((t as EngagementTask).id))} onToggleSelect={toggleTaskSelect} />
                     ))}
                     {items.length === 0 && (
-                      <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-[#111111]/10 text-[11px] text-[#6f6b62]/50">
+                      <div className="flex min-h-[72px] items-center justify-center rounded-lg border border-dashed border-[#111111]/10 text-[11px] text-[#5F686A]/50">
                         Empty
                       </div>
                     )}
@@ -607,14 +607,14 @@ export function TasksListView({
               <button
                 type="button"
                 onClick={() => setAdding(false)}
-                className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-3 p-5">
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Title</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Title</label>
                 <input
                   value={form.title}
                   onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
@@ -625,7 +625,7 @@ export function TasksListView({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Priority</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Priority</label>
                   <AppSelect
                     value={form.priority}
                     onChange={(v) => setForm((f) => ({ ...f, priority: v }))}
@@ -634,7 +634,7 @@ export function TasksListView({
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Due date</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Due date</label>
                   <input
                     type="date"
                     value={form.due_date}
@@ -644,7 +644,7 @@ export function TasksListView({
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Assign to</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Assign to</label>
                 <AppSelect
                   value={form.assigned_team_member_id}
                   onChange={(v) => setForm((f) => ({ ...f, assigned_team_member_id: v }))}
@@ -654,7 +654,7 @@ export function TasksListView({
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Notes</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Notes</label>
                 <textarea
                   value={form.notes}
                   onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
@@ -670,7 +670,7 @@ export function TasksListView({
                 type="button"
                 onClick={() => void saveTask()}
                 disabled={saving || !form.title.trim()}
-                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                 Save task
@@ -678,7 +678,7 @@ export function TasksListView({
               <button
                 type="button"
                 onClick={() => setAdding(false)}
-                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 Cancel
               </button>
@@ -698,20 +698,20 @@ export function TasksListView({
           >
             <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <div className="flex items-center gap-2">
-                <Pencil className="h-4 w-4 text-[#6f6b62]" />
+                <Pencil className="h-4 w-4 text-[#5F686A]" />
                 <p className="text-sm font-semibold text-[#111111]">Edit task</p>
               </div>
               <button
                 type="button"
                 onClick={() => setEditingTask(null)}
-                className="rounded-lg p-1 text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="rounded-lg p-1 text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-3 px-5 py-4">
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Title</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Title</label>
                 <input
                   value={editForm.title}
                   onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
@@ -721,7 +721,7 @@ export function TasksListView({
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Priority</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Priority</label>
                   <AppSelect
                     value={editForm.priority}
                     onChange={(v) => setEditForm((f) => ({ ...f, priority: v }))}
@@ -730,7 +730,7 @@ export function TasksListView({
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Status</label>
+                  <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Status</label>
                   <AppSelect
                     value={editForm.status}
                     onChange={(v) => setEditForm((f) => ({ ...f, status: v }))}
@@ -740,7 +740,7 @@ export function TasksListView({
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Due date</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Due date</label>
                 <input
                   type="date"
                   value={editForm.due_date}
@@ -749,7 +749,7 @@ export function TasksListView({
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62] mb-1">Notes</label>
+                <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A] mb-1">Notes</label>
                 <textarea
                   value={editForm.notes}
                   onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))}
@@ -772,7 +772,7 @@ export function TasksListView({
                     <button
                       type="button"
                       onClick={() => setConfirmDeleteId(null)}
-                      className="flex-1 rounded-lg border border-[#111111]/15 py-2 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]"
+                      className="flex-1 rounded-lg border border-[#111111]/15 py-2 text-sm text-[#5F686A] hover:bg-[#F5F8F8]"
                     >
                       Cancel
                     </button>
@@ -784,7 +784,7 @@ export function TasksListView({
                     type="button"
                     onClick={() => void saveEdit()}
                     disabled={savingEdit || !editForm.title.trim()}
-                    className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-60"
+                    className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1B343A] disabled:opacity-60"
                   >
                     {savingEdit ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     {savingEdit ? "Saving…" : "Save"}
@@ -792,7 +792,7 @@ export function TasksListView({
                   <button
                     type="button"
                     onClick={() => setEditingTask(null)}
-                    className="flex-1 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm text-[#6f6b62] hover:bg-[#f7f4ea]"
+                    className="flex-1 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm text-[#5F686A] hover:bg-[#F5F8F8]"
                   >
                     Cancel
                   </button>

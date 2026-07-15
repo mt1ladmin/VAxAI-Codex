@@ -66,24 +66,24 @@ export default function NewsletterPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-[#111111]">Newsletter</h1>
-          <p className="mt-1 text-sm text-[#6f6b62]">
+          <p className="mt-1 text-sm text-[#5F686A]">
             Email addresses collected from the VAxAI site footer and sign-up popup.
           </p>
         </div>
         <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search subscribers…"
-            className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
+            className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#122428]"
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 py-16 text-sm text-[#6f6b62]">
+        <div className="flex items-center gap-2 py-16 text-sm text-[#5F686A]">
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading subscribers…
         </div>
@@ -92,19 +92,19 @@ export default function NewsletterPage() {
           {error}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#111111]/15 bg-[#f7f4ea]/50 px-6 py-16 text-center">
-          <Mail className="mx-auto h-8 w-8 text-[#6f6b62]/50" />
+        <div className="rounded-xl border border-dashed border-[#111111]/15 bg-[#F5F8F8]/50 px-6 py-16 text-center">
+          <Mail className="mx-auto h-8 w-8 text-[#5F686A]/50" />
           <p className="mt-3 text-sm font-medium text-[#111111]">
             {search ? "No subscribers match your search" : "No subscribers yet"}
           </p>
-          <p className="mt-1 text-sm text-[#6f6b62]">
+          <p className="mt-1 text-sm text-[#5F686A]">
             Sign-ups from the footer and popup will appear here.
           </p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-[#111111]/10">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-[#111111]/10 bg-[#f7f4ea] text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+            <thead className="border-b border-[#111111]/10 bg-[#F5F8F8] text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">
               <tr>
                 <th className="px-4 py-3">Email</th>
                 <th className="hidden px-4 py-3 sm:table-cell">Name</th>
@@ -114,20 +114,20 @@ export default function NewsletterPage() {
             </thead>
             <tbody className="divide-y divide-[#111111]/8 bg-white">
               {filtered.map((s) => (
-                <tr key={s.email} className="hover:bg-[#f7f4ea]/40">
+                <tr key={s.email} className="hover:bg-[#F5F8F8]/40">
                   <td className="px-4 py-3 font-medium text-[#111111]">{s.email}</td>
-                  <td className="hidden px-4 py-3 text-[#6f6b62] sm:table-cell">{s.name ?? "—"}</td>
+                  <td className="hidden px-4 py-3 text-[#5F686A] sm:table-cell">{s.name ?? "—"}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex rounded-full bg-[#063b32]/8 px-2.5 py-0.5 text-xs font-medium text-[#063b32]">
+                    <span className="inline-flex rounded-full bg-[#122428]/8 px-2.5 py-0.5 text-xs font-medium text-[#122428]">
                       {SOURCE_LABELS[s.source] ?? s.source}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[#6f6b62]">{formatDate(s.subscribed_at)}</td>
+                  <td className="px-4 py-3 text-[#5F686A]">{formatDate(s.subscribed_at)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="border-t border-[#111111]/10 bg-[#f7f4ea]/50 px-4 py-2.5 text-xs text-[#6f6b62]">
+          <div className="border-t border-[#111111]/10 bg-[#F5F8F8]/50 px-4 py-2.5 text-xs text-[#5F686A]">
             {filtered.length} subscriber{filtered.length === 1 ? "" : "s"}
             {search && subscribers.length !== filtered.length ? ` (of ${subscribers.length} total)` : ""}
           </div>

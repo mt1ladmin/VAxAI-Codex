@@ -53,7 +53,7 @@ const PLATFORM_META = {
   share: {
     label: "Share text",
     Icon: Share2,
-    style: "text-[#063b32] bg-[#063b32]/10",
+    style: "text-[#122428] bg-[#122428]/10",
     openUrl: null,
   },
 } satisfies Record<SocialPlatform, { label: string; Icon: React.FC<{ className?: string }>; style: string; openUrl: string | null }>;
@@ -84,16 +84,16 @@ export function SocialPostSummaryCard({
   };
 
   return (
-    <div className="rounded-lg border border-[#111111]/10 p-3 transition-colors hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/20">
+    <div className="rounded-lg border border-[#111111]/10 p-3 transition-colors hover:border-[#122428]/25 hover:bg-[#F5F8F8]/20">
       <div className="flex items-center gap-2">
         <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-md ${meta.style}`}>
           <meta.Icon className="h-3.5 w-3.5" />
         </span>
         <span className="min-w-0 flex-1 truncate text-xs font-semibold text-[#111111]">{social.title}</span>
-        <span className="shrink-0 text-[10px] text-[#6f6b62]">{formatShortDate(social.scheduled_date) || "Draft"}</span>
+        <span className="shrink-0 text-[10px] text-[#5F686A]">{formatShortDate(social.scheduled_date) || "Draft"}</span>
       </div>
       {(social.content || social.description) && (
-        <p className="mt-2 line-clamp-2 whitespace-pre-line text-xs leading-relaxed text-[#6f6b62]">
+        <p className="mt-2 line-clamp-2 whitespace-pre-line text-xs leading-relaxed text-[#5F686A]">
           {social.content || social.description}
         </p>
       )}
@@ -101,14 +101,14 @@ export function SocialPostSummaryCard({
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onOpen(); }}
-          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#F5F8F8]"
         >
           Open post
         </button>
         <button
           type="button"
           onClick={copyText}
-          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
         >
           {copied ? <Check className="h-2.5 w-2.5 text-emerald-600" /> : <Copy className="h-2.5 w-2.5" />}
           {copied ? "Copied!" : "Copy text"}
@@ -230,7 +230,7 @@ export function SocialPostPreviewModal({
     setEditForm((f) => ({ ...f, tagInput: "" }));
   };
 
-  const inputCls = "w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]";
+  const inputCls = "w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]";
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 p-4" onClick={editing ? undefined : onClose} role="presentation">
@@ -253,7 +253,7 @@ export function SocialPostPreviewModal({
               </p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]" aria-label="Close social post">
+          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]" aria-label="Close social post">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -370,12 +370,12 @@ export function SocialPostPreviewModal({
           {editing ? (
             <>
               <button type="button" onClick={() => void saveEdit()} disabled={saving || !editForm.title || !editForm.scheduled_date}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50">
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50">
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                 {saving ? "Saving…" : "Save"}
               </button>
               <button type="button" onClick={() => setEditing(false)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">
                 Cancel
               </button>
             </>

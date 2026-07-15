@@ -4,7 +4,7 @@ import { Loader2 } from "lucide-react";
 export function HubDetailSkeleton() {
   return (
     <div className="flex min-h-[50vh] items-center justify-center bg-white">
-      <Loader2 className="h-6 w-6 animate-spin text-[#6f6b62]" />
+      <Loader2 className="h-6 w-6 animate-spin text-[#5F686A]" />
     </div>
   );
 }
@@ -12,7 +12,7 @@ export function HubDetailSkeleton() {
 export function TasksListSkeleton() {
   return (
     <div className="flex items-center justify-center py-16">
-      <Loader2 className="h-6 w-6 animate-spin text-[#6f6b62]" />
+      <Loader2 className="h-6 w-6 animate-spin text-[#5F686A]" />
     </div>
   );
 }

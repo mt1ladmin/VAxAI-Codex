@@ -79,9 +79,9 @@ function defaultScheduleValue(calendarDay?: string, existingIso?: string | null)
 }
 
 const STATUS_STYLES: Record<CalendarBlogPreview["status"], string> = {
-  published: "bg-[#063b32]/10 text-[#063b32]",
+  published: "bg-[#122428]/10 text-[#122428]",
   scheduled: "bg-amber-100 text-amber-800",
-  draft: "bg-[#f5f274]/70 text-[#6f6b62]",
+  draft: "bg-[#D8FC2E]/70 text-[#5F686A]",
 };
 
 function socialLinksToPost(link: string | null | undefined, postId: string) {
@@ -147,7 +147,7 @@ const CONNECTED_PLATFORM_META = {
   instagram: { label: "Instagram", Icon: Instagram, style: "text-pink-600 bg-pink-50" },
   facebook: { label: "Facebook", Icon: Facebook, style: "text-blue-600 bg-blue-50" },
   twitter: { label: "X", Icon: X, style: "text-gray-900 bg-gray-100" },
-  share: { label: "Share text", Icon: Share2, style: "text-[#063b32] bg-[#063b32]/10" },
+  share: { label: "Share text", Icon: Share2, style: "text-[#122428] bg-[#122428]/10" },
 } as const;
 
 function ConnectedPostRow({
@@ -181,7 +181,7 @@ function ConnectedPostRow({
         <button
           type="button"
           onClick={onOpen}
-          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+          className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-[10px] font-semibold text-[#111111] hover:bg-[#F5F8F8]"
         >
           Open post
           <ExternalLink className="h-2.5 w-2.5" />
@@ -304,14 +304,14 @@ export function CalendarItemPreviewModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
+          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]"
           aria-label="Close preview"
         >
           <X className="h-4 w-4" />
         </button>
 
         {displayPost.cover_image_url ? (
-          <div className="aspect-[16/9] w-full shrink-0 overflow-hidden bg-[#f7f4ea]">
+          <div className="aspect-[16/9] w-full shrink-0 overflow-hidden bg-[#F5F8F8]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={displayPost.cover_image_url}
@@ -329,7 +329,7 @@ export function CalendarItemPreviewModal({
               {displayPost.status}
             </span>
             {displayPost.content_type ? (
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-[#6f6b62]">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-[#5F686A]">
                 {displayPost.content_type}
               </span>
             ) : null}
@@ -343,23 +343,23 @@ export function CalendarItemPreviewModal({
           </h2>
 
           {displayDate ? (
-            <p className="text-xs text-[#6f6b62]">
+            <p className="text-xs text-[#5F686A]">
               {displayPost.status === "scheduled" ? "Scheduled for " : displayPost.status === "published" ? "Published " : "Updated "}
               {displayDate}
             </p>
           ) : null}
 
           {displayPost.description ? (
-            <p className="text-sm leading-relaxed text-[#6f6b62]">
+            <p className="text-sm leading-relaxed text-[#5F686A]">
               {displayPost.description}
             </p>
           ) : (
-            <p className="text-sm italic text-[#6f6b62]/60">No description</p>
+            <p className="text-sm italic text-[#5F686A]/60">No description</p>
           )}
 
           {connectedRows.length > 0 && (
             <div>
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5F686A]">
                 Connected posts
               </p>
               <div className="space-y-2">
@@ -410,7 +410,7 @@ export function CalendarItemPreviewModal({
           <div className="flex flex-wrap items-end gap-3 border-t border-[#111111]/8 pt-4">
             <Link
               href={`/admin/posts/${displayPost.id}`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1B343A]"
             >
               Open full post
               <ExternalLink className="h-3.5 w-3.5" />
@@ -418,21 +418,21 @@ export function CalendarItemPreviewModal({
             {onSaveAllDates && (
               <div className="flex flex-wrap items-end gap-2">
                 <label className="flex flex-col gap-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#6f6b62]">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#5F686A]">
                     {masterDateLabel} (all)
                   </span>
                   <input
                     type="datetime-local"
                     value={masterDate}
                     onChange={(e) => setMasterDate(e.target.value)}
-                    className="rounded-md border border-[#111111]/15 px-2.5 py-2 text-xs text-[#111111] outline-none focus:border-[#063b32]/40"
+                    className="rounded-md border border-[#111111]/15 px-2.5 py-2 text-xs text-[#111111] outline-none focus:border-[#122428]/40"
                   />
                 </label>
                 <button
                   type="button"
                   disabled={!masterDate || busy}
                   onClick={() => void onSaveAllDates(masterDate)}
-                  className="rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-40"
+                  className="rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-40"
                 >
                   Save all dates
                 </button>

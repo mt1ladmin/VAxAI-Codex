@@ -29,8 +29,8 @@ import {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#6f6b62]">{label}</p>
-      <div className="mt-1.5 text-sm leading-6 text-[#063b32]">{children}</div>
+      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#5F686A]">{label}</p>
+      <div className="mt-1.5 text-sm leading-6 text-[#122428]">{children}</div>
     </div>
   );
 }
@@ -97,7 +97,7 @@ export default function VaApplicationDetailPage() {
   if (loading) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#6f6b62]" />
+        <Loader2 className="h-6 w-6 animate-spin text-[#5F686A]" />
       </div>
     );
   }
@@ -106,7 +106,7 @@ export default function VaApplicationDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
         <p className="text-sm text-red-700">{error || "Application not found"}</p>
-        <Link href="/admin/va-applications" className="mt-4 inline-flex text-sm font-semibold text-[#063b32]">
+        <Link href="/admin/va-applications" className="mt-4 inline-flex text-sm font-semibold text-[#122428]">
           ← Back to VA Applications
         </Link>
       </div>
@@ -117,7 +117,7 @@ export default function VaApplicationDetailPage() {
     <div className="mx-auto max-w-5xl px-4 py-6 md:px-6">
       <Link
         href="/admin/va-applications"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#6f6b62] hover:text-[#063b32]"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#5F686A] hover:text-[#122428]"
       >
         <ArrowLeft className="h-4 w-4" />
         VA Applications
@@ -126,7 +126,7 @@ export default function VaApplicationDetailPage() {
       <div className="mt-5 flex flex-col gap-6 lg:flex-row lg:items-start">
         {/* Profile card */}
         <div className="w-full shrink-0 space-y-4 lg:w-72">
-          <div className="rounded-2xl border border-[#063b32]/10 bg-white p-5">
+          <div className="rounded-2xl border border-[#122428]/10 bg-white p-5">
             <ImageUpload
               value={app.photo_url || ""}
               onChange={(url) => void patch({ photo_url: url || null })}
@@ -134,13 +134,13 @@ export default function VaApplicationDetailPage() {
               circular
               aspectClass="aspect-square"
             />
-            <h1 className="mt-4 text-xl font-semibold tracking-tight text-[#063b32]">{app.full_name}</h1>
+            <h1 className="mt-4 text-xl font-semibold tracking-tight text-[#122428]">{app.full_name}</h1>
             <span
               className={`mt-2 inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${VA_STATUS_COLORS[app.status]}`}
             >
               {VA_STATUS_LABELS[app.status]}
             </span>
-            <p className="mt-2 text-xs font-medium text-[#6f6b62]">
+            <p className="mt-2 text-xs font-medium text-[#5F686A]">
               {VA_APPLICANT_TYPE_LABELS[app.applicant_type]}
             </p>
             <div className="mt-4 space-y-2 text-sm">
@@ -148,13 +148,13 @@ export default function VaApplicationDetailPage() {
                 href={emailComposeUrl(app.email, { subject: `VAxAI — ${app.full_name}` })}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 text-[#063b32] hover:underline"
+                className="flex items-center gap-2 text-[#122428] hover:underline"
               >
                 <Mail className="h-3.5 w-3.5" />
                 {app.email}
               </a>
               {app.telephone ? (
-                <a href={`tel:${app.telephone}`} className="flex items-center gap-2 text-[#063b32] hover:underline">
+                <a href={`tel:${app.telephone}`} className="flex items-center gap-2 text-[#122428] hover:underline">
                   <Phone className="h-3.5 w-3.5" />
                   {app.telephone}
                 </a>
@@ -162,8 +162,8 @@ export default function VaApplicationDetailPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#063b32]/10 bg-white p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#6f6b62]">Status</p>
+          <div className="rounded-2xl border border-[#122428]/10 bg-white p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#5F686A]">Status</p>
             <div className="mt-2">
               <AppSelect
                 value={app.status}
@@ -189,14 +189,14 @@ export default function VaApplicationDetailPage() {
                   type="button"
                   disabled={saving || app.status === s}
                   onClick={() => void patch({ status: s })}
-                  className="rounded-md border border-[#063b32]/12 px-2 py-1 text-[10px] font-semibold text-[#063b32] hover:bg-[#f7f4ea] disabled:opacity-40"
+                  className="rounded-md border border-[#122428]/12 px-2 py-1 text-[10px] font-semibold text-[#122428] hover:bg-[#F5F8F8] disabled:opacity-40"
                 >
                   {VA_STATUS_LABELS[s]}
                 </button>
               ))}
             </div>
             {app.last_action ? (
-              <p className="mt-3 text-[11px] leading-5 text-[#6f6b62]">
+              <p className="mt-3 text-[11px] leading-5 text-[#5F686A]">
                 Last: {app.last_action}
                 {app.last_action_date
                   ? ` · ${new Date(app.last_action_date).toLocaleString("en-GB")}`
@@ -217,9 +217,9 @@ export default function VaApplicationDetailPage() {
 
         {/* Full submission */}
         <div className="min-w-0 flex-1 space-y-4">
-          <div className="rounded-2xl border border-[#063b32]/10 bg-white p-6">
-            <h2 className="text-base font-semibold text-[#063b32]">Full submission</h2>
-            <p className="mt-1 text-xs text-[#6f6b62]">
+          <div className="rounded-2xl border border-[#122428]/10 bg-white p-6">
+            <h2 className="text-base font-semibold text-[#122428]">Full submission</h2>
+            <p className="mt-1 text-xs text-[#5F686A]">
               Submitted {new Date(app.created_at).toLocaleString("en-GB")}
             </p>
 
@@ -243,7 +243,7 @@ export default function VaApplicationDetailPage() {
                     {app.specialisms.map((s) => (
                       <span
                         key={s}
-                        className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-xs font-semibold text-[#063b32]"
+                        className="rounded-full bg-[#F5F8F8] px-2.5 py-1 text-xs font-semibold text-[#122428]"
                       >
                         {s}
                       </span>
@@ -267,46 +267,46 @@ export default function VaApplicationDetailPage() {
               </Field>
             </div>
 
-            <div className="mt-6 rounded-xl border border-[#063b32]/10 bg-[#f7f4ea]/60 p-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#6f6b62]">CV</p>
+            <div className="mt-6 rounded-xl border border-[#122428]/10 bg-[#F5F8F8]/60 p-4">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#5F686A]">CV</p>
               {app.cv_url ? (
                 <a
                   href={app.cv_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#1a5c42] hover:underline"
+                  className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#1B343A] hover:underline"
                 >
                   <FileText className="h-4 w-4" />
                   {app.cv_file_name || "Download CV"}
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
               ) : (
-                <p className="mt-2 text-sm text-[#6f6b62]">No CV on file</p>
+                <p className="mt-2 text-sm text-[#5F686A]">No CV on file</p>
               )}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#063b32]/10 bg-white p-6">
-            <h2 className="text-base font-semibold text-[#063b32]">Availability & profile</h2>
-            <p className="mt-1 text-xs text-[#6f6b62]">
+          <div className="rounded-2xl border border-[#122428]/10 bg-white p-6">
+            <h2 className="text-base font-semibold text-[#122428]">Availability & profile</h2>
+            <p className="mt-1 text-xs text-[#5F686A]">
               Keep this up to date for matching. More profile fields can be added later without redesigning
               the cards.
             </p>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Hours per week</label>
+                <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Hours per week</label>
                 <input
                   value={availabilityHours}
                   onChange={(e) => setAvailabilityHours(e.target.value)}
-                  className="w-full rounded-xl border border-[#063b32]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]/40"
+                  className="w-full rounded-xl border border-[#122428]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]/40"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold text-[#6f6b62]">Availability notes</label>
+                <label className="mb-1 block text-xs font-semibold text-[#5F686A]">Availability notes</label>
                 <input
                   value={availabilityNotes}
                   onChange={(e) => setAvailabilityNotes(e.target.value)}
-                  className="w-full rounded-xl border border-[#063b32]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]/40"
+                  className="w-full rounded-xl border border-[#122428]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]/40"
                 />
               </div>
             </div>
@@ -320,19 +320,19 @@ export default function VaApplicationDetailPage() {
                   last_action: "Availability updated",
                 })
               }
-              className="mt-3 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0a4d40] disabled:opacity-50"
+              className="mt-3 rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save availability"}
             </button>
           </div>
 
-          <div className="rounded-2xl border border-[#063b32]/10 bg-white p-6">
-            <h2 className="text-base font-semibold text-[#063b32]">Internal notes</h2>
+          <div className="rounded-2xl border border-[#122428]/10 bg-white p-6">
+            <h2 className="text-base font-semibold text-[#122428]">Internal notes</h2>
             <textarea
               value={adminNotes}
               onChange={(e) => setAdminNotes(e.target.value)}
               rows={5}
-              className="mt-3 w-full rounded-xl border border-[#063b32]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]/40"
+              className="mt-3 w-full rounded-xl border border-[#122428]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]/40"
               placeholder="Interview notes, client fit, follow-ups…"
             />
             <button
@@ -344,7 +344,7 @@ export default function VaApplicationDetailPage() {
                   last_action: "Notes updated",
                 })
               }
-              className="mt-3 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#0a4d40] disabled:opacity-50"
+              className="mt-3 rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
             >
               {saving ? "Saving…" : "Save notes"}
             </button>

@@ -82,20 +82,20 @@ export async function fetchActivityLog(query: {
 }
 
 export const ACTIVITY_EVENT_DOT: Record<ActivityEventType, string> = {
-  created: "bg-[#063b32]",
+  created: "bg-[#122428]",
   status_change: "bg-blue-500",
   note_added: "bg-violet-500",
   next_action: "bg-sky-500",
   contact_updated: "bg-slate-500",
-  queued: "bg-[#063b32]",
+  queued: "bg-[#122428]",
   opportunity_created: "bg-amber-500",
   opportunity_linked: "bg-amber-500",
   opportunity_stage: "bg-amber-600",
   task_created: "bg-emerald-500",
   ai_summary: "bg-indigo-500",
-  journey_summary: "bg-[#063b32]",
-  advanced_to_client: "bg-[#063b32]",
+  journey_summary: "bg-[#122428]",
+  advanced_to_client: "bg-[#122428]",
   research_updated: "bg-teal-500",
   assignment_updated: "bg-slate-500",
-  moved_to_prospect_queue: "bg-[#063b32]",
+  moved_to_prospect_queue: "bg-[#122428]",
 };

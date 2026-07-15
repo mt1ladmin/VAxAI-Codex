@@ -38,7 +38,7 @@ export function StatusSelect({
   }, []);
 
   const triggerColor =
-    PROSPECT_QUEUE_STATUS_COLORS[value] || "bg-[#111111]/10 text-[#6f6b62]";
+    PROSPECT_QUEUE_STATUS_COLORS[value] || "bg-[#111111]/10 text-[#5F686A]";
 
   const handleSelect = (status: string) => {
     setOpen(false);
@@ -51,7 +51,7 @@ export function StatusSelect({
         type="button"
         onClick={() => !disabled && !loading && setOpen((v) => !v)}
         disabled={disabled || loading}
-        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40 focus:border-[#063b32] disabled:cursor-not-allowed"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#122428]/40 focus:border-[#122428] disabled:cursor-not-allowed"
       >
         <span
           className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${triggerColor}`}
@@ -59,10 +59,10 @@ export function StatusSelect({
           {value || "Needs review"}
         </span>
         {loading ? (
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#6f6b62]" />
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[#5F686A]" />
         ) : (
           <ChevronDown
-            className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`}
+            className={`h-4 w-4 shrink-0 text-[#5F686A] transition-transform ${open ? "rotate-180" : ""}`}
           />
         )}
       </button>
@@ -71,26 +71,26 @@ export function StatusSelect({
           <button
             type="button"
             onClick={() => handleSelect("")}
-            className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
-              !value ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"
+            className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+              !value ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"
             }`}
           >
             <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
             <span className="flex-1">Needs review</span>
-            {!value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+            {!value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
           </button>
           {PROSPECT_QUEUE_STATUSES.map((status) => (
             <button
               key={status}
               type="button"
               onClick={() => handleSelect(status)}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
-                value === status ? "bg-[#063b32]/8 font-semibold text-[#063b32]" : "text-[#111111]"
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+                value === status ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"
               }`}
             >
               <span className={`h-2 w-2 shrink-0 rounded-full ${statusDotClass(status)}`} />
               <span className="flex-1">{status}</span>
-              {value === status && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+              {value === status && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
             </button>
           ))}
         </div>

@@ -54,9 +54,9 @@ export default function PainPointNavigator() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">Client Engagement</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Pain Point Navigator</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">
+        <p className="mt-0.5 text-sm text-[#5F686A]">
           Search a phrase from the conversation — &ldquo;inbox&rdquo;, &ldquo;reporting takes days&rdquo;, &ldquo;things fall through gaps&rdquo;.
         </p>
       </div>
@@ -65,18 +65,18 @@ export default function PainPointNavigator() {
         {/* Search bar */}
         <div className="flex gap-3 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
             <input
               ref={inputRef}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search a pain point, phrase or symptom…"
-              className="w-full rounded-lg border border-[#111111]/15 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#063b32] transition-colors"
+              className="w-full rounded-lg border border-[#111111]/15 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#122428] transition-colors"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6f6b62] hover:text-[#111111]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5F686A] hover:text-[#111111]"
               >
                 ×
               </button>
@@ -93,18 +93,18 @@ export default function PainPointNavigator() {
         </div>
 
         {loading ? (
-          <div className="py-20 text-center text-sm text-[#6f6b62]">Loading…</div>
+          <div className="py-20 text-center text-sm text-[#5F686A]">Loading…</div>
         ) : painPoints.length === 0 ? (
           <div className="rounded-xl border border-[#111111]/10 bg-white py-16 text-center">
-            <Zap className="mx-auto h-8 w-8 text-[#6f6b62]/40 mb-3" />
+            <Zap className="mx-auto h-8 w-8 text-[#5F686A]/40 mb-3" />
             <p className="text-sm font-semibold text-[#111111]">No pain points found</p>
-            <p className="mt-1 text-sm text-[#6f6b62]">Try different words or browse all categories</p>
+            <p className="mt-1 text-sm text-[#5F686A]">Try different words or browse all categories</p>
           </div>
         ) : (
           <div className="space-y-3">
             {/* Quick result count */}
             {search && (
-              <p className="text-sm text-[#6f6b62]">
+              <p className="text-sm text-[#5F686A]">
                 {painPoints.length} result{painPoints.length !== 1 ? "s" : ""} for &ldquo;{search}&rdquo;
               </p>
             )}
@@ -115,17 +115,17 @@ export default function PainPointNavigator() {
                 <div key={cat} className="rounded-xl border border-[#111111]/10 overflow-hidden">
                   <button
                     onClick={() => toggle(cat)}
-                    className="flex w-full items-center justify-between px-5 py-4 bg-[#f7f4ea] hover:bg-[#f0ead8] transition-colors"
+                    className="flex w-full items-center justify-between px-5 py-4 bg-[#F5F8F8] hover:bg-[#f0ead8] transition-colors"
                   >
                     <span className="font-semibold text-[#111111] text-sm">{cat}</span>
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-[#111111]/10 px-2 py-0.5 text-xs font-semibold text-[#6f6b62]">
+                      <span className="rounded-full bg-[#111111]/10 px-2 py-0.5 text-xs font-semibold text-[#5F686A]">
                         {items.length}
                       </span>
                       {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-[#6f6b62]" />
+                        <ChevronDown className="h-4 w-4 text-[#5F686A]" />
                       ) : (
-                        <ChevronRight className="h-4 w-4 text-[#6f6b62]" />
+                        <ChevronRight className="h-4 w-4 text-[#5F686A]" />
                       )}
                     </div>
                   </button>
@@ -135,24 +135,24 @@ export default function PainPointNavigator() {
                         <Link
                           key={pp.id}
                           href={`/admin/engagement/pain-points/${pp.id}`}
-                          className="flex items-start justify-between px-5 py-4 hover:bg-[#f7f4ea] transition-colors group"
+                          className="flex items-start justify-between px-5 py-4 hover:bg-[#F5F8F8] transition-colors group"
                         >
                           <div className="min-w-0">
-                            <p className="font-semibold text-[#111111] group-hover:text-[#063b32] transition-colors">
+                            <p className="font-semibold text-[#111111] group-hover:text-[#122428] transition-colors">
                               {pp.title}
                             </p>
                             {pp.plain_english_definition && (
-                              <p className="mt-0.5 text-sm text-[#6f6b62] line-clamp-1">
+                              <p className="mt-0.5 text-sm text-[#5F686A] line-clamp-1">
                                 {pp.plain_english_definition}
                               </p>
                             )}
                             {(pp as PainPoint & { synonyms?: string[] }).synonyms?.length ? (
-                              <p className="mt-1 text-xs text-[#6f6b62]/70">
+                              <p className="mt-1 text-xs text-[#5F686A]/70">
                                 Also: {(pp as PainPoint & { synonyms?: string[] }).synonyms?.slice(0, 4).join(", ")}
                               </p>
                             ) : null}
                           </div>
-                          <ChevronRight className="h-4 w-4 shrink-0 mt-1 text-[#6f6b62] group-hover:text-[#063b32] transition-colors" />
+                          <ChevronRight className="h-4 w-4 shrink-0 mt-1 text-[#5F686A] group-hover:text-[#122428] transition-colors" />
                         </Link>
                       ))}
                     </div>

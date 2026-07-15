@@ -117,7 +117,7 @@ export const OUTREACH_REGIONS = [
 ] as const;
 
 export const NEED_SCORE_COLORS: Record<number, string> = {
-  5: "bg-[#063b32]/15 text-[#063b32]",
+  5: "bg-[#122428]/15 text-[#122428]",
   4: "bg-emerald-100 text-emerald-800",
   3: "bg-amber-100 text-amber-800",
   2: "bg-slate-100 text-slate-600",
