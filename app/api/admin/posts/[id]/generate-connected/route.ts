@@ -1,21 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { createSessionClient } from "@/lib/supabase";
+import { CONNECTED_SCHEMA, CONTENT_MODEL, buildConnectedSystem } from "@/lib/ai/content-engine";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MODEL = "claude-haiku-4-5-20251001";
-
-const SYSTEM = `You turn VAxAI blog posts into connected social copy for a UK audience of small businesses, charities and professional teams.
-
-Focus on how VAxAI helps with admin relief, workflow improvement, and sensible use of AI and automation. Do not name the VAT Framework or MT1L unless the source article explicitly does.
-
-Return practical, publish-ready social copy:
-- sharing_caption: 2-3 sentences for general sharing
-- linkedin_post: 150-250 words, professional, no emojis, ends with a specific VAxAI call to action tailored to the article
-- instagram_caption: 60-100 words, direct and human, ends with a VAxAI call to action
-- hashtags: array of strings without # symbols; always include "VAxAI" plus relevant topic tags
-
-British English. No em dashes. Return JSON only.`;
 
 async function assertAuth() {
   const supabase = await createSessionClient();
@@ -55,14 +43,13 @@ export async function POST(
       "",
       "Article content:",
       bodyText.slice(0, 6000),
-      "",
-      'Return JSON with exactly: "sharing_caption", "linkedin_post", "instagram_caption", "hashtags" (string array).',
     ].filter(Boolean).join("\n");
 
     const response = await anthropic.messages.create({
-      model: MODEL,
+      model: CONTENT_MODEL,
       max_tokens: 1400,
-      system: [{ type: "text", text: SYSTEM, cache_control: { type: "ephemeral" } }],
+      system: buildConnectedSystem(),
+      output_config: { format: { type: "json_schema", schema: CONNECTED_SCHEMA } },
       messages: [{ role: "user", content: userPrompt }],
     });
 

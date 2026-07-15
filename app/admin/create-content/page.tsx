@@ -5,42 +5,55 @@ import { Lightbulb, X } from "lucide-react";
 import { ContentCreateModal } from "@/components/admin/ContentCreateModal";
 
 const BLOG_PROMPTS = [
-  "Your team is busy, but is admin the real problem? How to tell whether you need better processes, automation or more human support",
-  "What should you automate first? A practical way for small organisations to identify the tasks worth changing",
-  "When automation creates more work: five warning signs that a process is not ready for AI",
-  "A virtual assistant, an AI tool or both? How to choose the right support for the work that keeps piling up",
-  "Why your team keeps avoiding the new system—and what that may be telling you about the system itself",
-  "The hidden cost of workarounds: how spreadsheets, inboxes and informal processes quietly drain your team's time",
-  "What happens after the AI demonstration? The practical work needed to make a new tool useful in everyday operations",
-  "Should this task be automated at all? A practical checklist for small teams before changing a process",
-  "From “we need AI” to a clearer problem: how to define what your organisation is actually trying to improve",
-  "What good virtual assistance looks like when the work cannot be reduced to a task list",
+  "Administration doesn't fix itself: why backlogs build gradually as organisations grow, and how to start clearing one",
+  "Before you roll out Microsoft Copilot: how to organise a shared drive so an AI assistant has something reliable to work from",
+  "The admin audit nobody wants to do: a practical way to find out where your organisation's time is actually going",
+  "Why AI projects inherit your filing system: what disorganised information does to automation, and how to prepare",
+  "Grant reporting backlogs: a practical route for charities to catch up without pulling staff away from delivery",
+  "What 'AI readiness' actually means in practice: data quality, documented processes and organised information",
+  "The hidden cost of routine administration: how inboxes, filing and reporting quietly consume senior leaders' time",
+  "A cleared backlog returns unless someone maintains it: why monitoring and data hygiene matter as much as the cleanup",
+  "Records, retention and readiness: why public sector transformation usually starts with information management",
+  "Documenting processes that live in someone's head: a practical first step before any workflow automation",
 ];
 
 const LINKEDIN_PROMPTS = [
-  "Not every repetitive task should be automated. Some are repetitive because the process itself needs fixing.",
-  "“We need AI” is often the proposed solution—not the original problem.",
-  "The best place to find an automation opportunity may be the task your team has quietly created three workarounds for.",
-  "If a new system only works when one person remembers every step, it is not really a system.",
-  "A virtual assistant should not become another person you have to chase. Good support reduces the need to remember, follow up and hold everything together.",
-  "Teams do not resist change only because they fear technology. Sometimes they can see problems the decision-makers have missed.",
-  "Saving five minutes on a task means little if the new process creates uncertainty, duplication or extra checking.",
-  "Before automating a process, ask the person who actually does the work what makes it difficult.",
-  "The question is not simply, “Can AI do this?” It is, “What happens to the work, the people and the outcome if it does?”",
-  "Sometimes the most useful AI decision is deciding not to introduce another tool.",
+  "AI projects rarely fail because of the technology. They fail because the information underneath was never organised.",
+  "Most organisations don't have an AI problem. They have a filing problem that AI makes visible.",
+  "A backlog is not a sign that people aren't working hard enough. It's a sign that demand grew and capacity didn't.",
+  "Point an AI assistant at a messy shared drive and you don't get time savings. You get confident answers built on the wrong files.",
+  "Before automating a process, write it down. If it can't be documented, it can't be automated.",
+  "Senior people spending hours on routine admin isn't dedication. It's an operations gap that nobody has had capacity to fix.",
+  "Clean data is not a technical requirement. It's an operational habit, and someone has to own it.",
+  "The most valuable AI preparation work looks nothing like AI: organising records, removing duplicates, documenting workflows.",
+  "Maintenance is the unglamorous half of transformation. Improvements slip the moment nobody is checking.",
+  "The question is not 'can AI do this task?' It's 'is the information behind this task ready for anything to do it?'",
 ];
 
 const INSTAGRAM_PROMPTS = [
-  "You may not need another tool. You may need a clearer process.",
-  "Repetitive does not always mean ready to automate.",
-  "A system that depends on memory is not a system.",
-  "Start with the task everyone avoids.",
-  "Good support should reduce follow-up—not create more of it.",
-  "The workaround is often where the real problem is hiding.",
-  "Automate the right work, not simply the easiest work.",
-  "Ask the person doing the task before changing the task.",
-  "Sometimes the best automation decision is “not yet.”",
-  "Less admin is good. Better admin is the goal.",
+  "Organise the shared drive before you buy the AI tool.",
+  "A backlog builds slowly, then all at once. Start with one drawer.",
+  "If the process lives in someone's head, it isn't a process yet.",
+  "Duplicate files are where good automations go to die.",
+  "Your future AI assistant can only be as good as your filing.",
+  "Ten minutes of data hygiene a week beats a rescue project a year.",
+  "Admin doesn't fix itself. Even with AI.",
+  "Write the process down before you automate it.",
+  "Clean records first. Clever tools second.",
+  "The unglamorous work is the work that makes AI work.",
+];
+
+const FACEBOOK_PROMPTS = [
+  "That filing backlog everyone avoids: a gentle way to finally start clearing it",
+  "The relief of an organised shared drive, and three small habits that keep it that way",
+  "Drowning in an inbox that never empties? A practical routine that helps",
+  "Why the 'we'll sort the paperwork later' pile keeps growing, and what actually works",
+  "One simple weekly habit that stops admin building up again after a big cleanup",
+  "For small charities: an easier way to keep volunteer records tidy without extra software",
+  "When everyone is too busy for the admin, that's usually the sign it needs help",
+  "Before trying an AI tool, try this: tidy the folder it would be reading from",
+  "The to-do list isn't the problem. The forty places information lives might be.",
+  "A calmer way to handle the end-of-month reporting scramble",
 ];
 
 export default function CreateContentPage() {
@@ -54,10 +67,18 @@ export default function CreateContentPage() {
         <div className="space-y-4 rounded-xl border border-[#111111]/10 bg-[#f7f4ea]/60 px-8 py-8 text-center">
           <p className="text-lg font-semibold text-[#111111]">Create on-brand content using AI</p>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#6f6b62]">
-            Generate blog posts, LinkedIn posts, and Instagram captions grounded in VAxAI&apos;s full offer — virtual administration, AI and automation support, system reviews, and training. The AI shapes each piece around practical value, contextual fit and trustworthy advice, without naming the VAT Framework unless your brief asks for it. Every piece leads its call to action with how VAxAI could help — tailored to the content generated, including in the connected social posts. Tags are built for both Google and AI search, with VAxAI always included.
+            Generate blog posts, LinkedIn, Instagram and Facebook copy grounded in VAxAI&apos;s
+            positioning: strong administrative foundations first, AI and automation second. The AI
+            understands the four service areas (backlog recovery, AI readiness, ongoing operational
+            administration, monitoring and maintenance), writes for the audience your brief implies,
+            keeps every example honest and hypothetical, and shapes each piece to its platform.
+            Content streams in live, closes with a call to action tailored to the topic, and tags are
+            built for both Google and AI search with VAxAI always included.
           </p>
           <p className="mx-auto max-w-2xl text-sm leading-relaxed text-[#6f6b62]">
-            Blog posts include accompanying LinkedIn and Instagram copy. You can convert the post directly to a draft in your Posts section, and save the social versions to your content calendar with scheduled dates.
+            Blog posts include accompanying social copy. You can convert the post directly to a draft
+            in your Posts section, and save the social versions to your content calendar with
+            scheduled dates.
           </p>
           <button
             type="button"
@@ -74,12 +95,15 @@ export default function CreateContentPage() {
               <Lightbulb className="h-4 w-4 text-[#063b32]" />
               <p className="text-sm font-semibold text-[#111111]">Review example prompts</p>
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-[#6f6b62]">Browse practical starting points for blogs, LinkedIn, and Instagram.</p>
+            <p className="mt-2 text-sm leading-relaxed text-[#6f6b62]">Browse practical starting points for blogs, LinkedIn, Instagram and Facebook.</p>
           </button>
           <div className="rounded-xl border border-[#063b32]/15 bg-[#063b32]/5 p-5">
             <p className="text-sm font-semibold text-[#063b32]">A simple way to find an idea</p>
             <p className="mt-2 text-sm leading-relaxed text-[#6f6b62]">
-              Start with an admin frustration, workaround or task people avoid. Ask whether a VA, AI or automation could help—or make things worse—then explore whether the advice is genuinely useful, fits how the team actually works, and would build confidence in practice.
+              Start with a real operational pressure: a backlog that keeps growing, a shared drive
+              nobody trusts, a process that lives in someone&apos;s head, or an AI tool that
+              disappointed because the information behind it wasn&apos;t ready. Then ask what
+              practical, human-led work would fix the foundations, and write about that.
             </p>
           </div>
         </div>
@@ -104,6 +128,7 @@ export default function CreateContentPage() {
                 ["Blog Post", BLOG_PROMPTS],
                 ["LinkedIn Post", LINKEDIN_PROMPTS],
                 ["Instagram Post", INSTAGRAM_PROMPTS],
+                ["Facebook Post", FACEBOOK_PROMPTS],
               ] as [string, string[]][]).map(([label, prompts]) => (
                 <section key={label} className="overflow-hidden rounded-xl border border-[#111111]/10">
                   <div className="bg-[#f7f4ea] px-4 py-2.5"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">{label}</p></div>
