@@ -120,16 +120,16 @@ function SocialPreviewModal({
         <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
           <div>
             <h3 className="text-sm font-semibold text-[#111111]">Social versions ready to copy</h3>
-            <p className="mt-0.5 text-xs text-[#6f6b62]">Post link is embedded — copy and go.</p>
+            <p className="mt-0.5 text-xs text-[#5F686A]">Post link is embedded — copy and go.</p>
           </div>
-          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#f7f4ea]">
+          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#F5F8F8]">
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto space-y-4 p-5">
           {social.sharing_caption && (
             <div className="rounded-xl border border-[#111111]/10 p-4">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Sharing caption</p>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Sharing caption</p>
               <p className="text-sm text-[#111111] whitespace-pre-line">{social.sharing_caption}</p>
             </div>
           )}
@@ -138,7 +138,7 @@ function SocialPreviewModal({
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Linkedin className="h-4 w-4 text-[#0077B5]" />
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">LinkedIn post</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">LinkedIn post</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <a href="https://www.linkedin.com/feed/" target="_blank" rel="noreferrer"
@@ -146,7 +146,7 @@ function SocialPreviewModal({
                     <Linkedin className="h-3 w-3" /> Post
                   </a>
                   <button type="button" onClick={() => void copy(liContent, "li")}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
+                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-[#F5F8F8]">
                     {copiedLi ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
                     {copiedLi ? "Copied!" : "Copy"}
                   </button>
@@ -154,7 +154,7 @@ function SocialPreviewModal({
               </div>
               <p className="text-sm text-[#111111] whitespace-pre-line">{social.linkedin_post}</p>
               {postUrl && <p className="mt-2 text-xs text-[#0077B5] break-all">{postUrl}</p>}
-              {hashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{hashtagStr}</p>}
+              {hashtagStr && <p className="mt-1 text-xs text-[#5F686A]">{hashtagStr}</p>}
             </div>
           )}
           {social.instagram_caption && (
@@ -162,7 +162,7 @@ function SocialPreviewModal({
               <div className="mb-2 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Instagram className="h-4 w-4 text-[#E1306C]" />
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Instagram caption</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Instagram caption</p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"
@@ -170,7 +170,7 @@ function SocialPreviewModal({
                     <Instagram className="h-3 w-3" /> Post
                   </a>
                   <button type="button" onClick={() => void copy(igContent, "ig")}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#6f6b62] hover:bg-[#f7f4ea]">
+                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-[#F5F8F8]">
                     {copiedIg ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
                     {copiedIg ? "Copied!" : "Copy"}
                   </button>
@@ -178,7 +178,7 @@ function SocialPreviewModal({
               </div>
               <p className="text-sm text-[#111111] whitespace-pre-line">{social.instagram_caption}</p>
               {postUrl && <p className="mt-2 text-xs text-[#E1306C] break-all">{postUrl}</p>}
-              {hashtagStr && <p className="mt-1 text-xs text-[#6f6b62]">{hashtagStr}</p>}
+              {hashtagStr && <p className="mt-1 text-xs text-[#5F686A]">{hashtagStr}</p>}
             </div>
           )}
         </div>
@@ -186,7 +186,7 @@ function SocialPreviewModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-xl bg-[#063b32] py-2.5 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            className="w-full rounded-xl bg-[#122428] py-2.5 text-sm font-semibold text-white hover:bg-[#1B343A]"
           >
             Done
           </button>
@@ -201,12 +201,12 @@ function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; on
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
         <h3 className="text-base font-semibold text-[#111111]">Delete this post?</h3>
-        <p className="mt-1 text-sm text-[#6f6b62]">This action cannot be undone.</p>
+        <p className="mt-1 text-sm text-[#5F686A]">This action cannot be undone.</p>
         <div className="mt-5 flex gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+            className="flex-1 rounded-lg border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
           >
             Cancel
           </button>
@@ -591,7 +591,7 @@ export default function EditPostPage() {
   const activeType = showCustomType && customType ? customType : contentType;
 
   if (loading) {
-    return <div className="grid h-full place-items-center text-sm text-[#6f6b62]">Loading…</div>;
+    return <div className="grid h-full place-items-center text-sm text-[#5F686A]">Loading…</div>;
   }
 
   return (
@@ -625,7 +625,7 @@ export default function EditPostPage() {
             <div className="space-y-4 p-5">
               {/* Platform */}
               <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Platform</label>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Platform</label>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { key: "linkedin", Icon: Linkedin, label: "LinkedIn", color: "#0077b5" },
@@ -648,33 +648,33 @@ export default function EditPostPage() {
               </div>
               {/* Title */}
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Title <span className="text-red-500">*</span></label>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Title <span className="text-red-500">*</span></label>
                 <input
                   value={addSocialForm.title}
                   onChange={(e) => setAddSocialForm((f) => ({ ...f, title: e.target.value }))}
                   placeholder="A short label for this post"
-                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                 />
               </div>
               {/* Date */}
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Publish date <span className="text-red-500">*</span></label>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Publish date <span className="text-red-500">*</span></label>
                 <input
                   type="date"
                   value={addSocialForm.scheduled_date}
                   onChange={(e) => setAddSocialForm((f) => ({ ...f, scheduled_date: e.target.value }))}
-                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                 />
               </div>
               {/* Content */}
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Post content</label>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Post content</label>
                 <textarea
                   rows={4}
                   value={addSocialForm.content}
                   onChange={(e) => setAddSocialForm((f) => ({ ...f, content: e.target.value }))}
                   placeholder="Paste the post copy here…"
-                  className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                 />
               </div>
             </div>
@@ -683,7 +683,7 @@ export default function EditPostPage() {
                 type="button"
                 disabled={addingSocial || !addSocialForm.title || !addSocialForm.scheduled_date}
                 onClick={() => void addConnectedPost()}
-                className="w-full rounded-lg bg-[#063b32] py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                className="w-full rounded-lg bg-[#122428] py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
               >
                 {addingSocial ? <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Saving…</span> : "Save post"}
               </button>
@@ -712,12 +712,12 @@ export default function EditPostPage() {
 
       {/* Top bar */}
       <div className="flex shrink-0 items-center gap-3 border-b border-[#111111]/10 bg-white px-4 py-3">
-        <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+        <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <span className="text-sm text-[#6f6b62]">Edit post</span>
+        <span className="text-sm text-[#5F686A]">Edit post</span>
         {autoSaveStatus === "saving" && (
-          <span className="ml-3 flex items-center gap-1 text-xs text-[#6f6b62]">
+          <span className="ml-3 flex items-center gap-1 text-xs text-[#5F686A]">
             <Loader2 className="h-3 w-3 animate-spin" /> Auto-saving…
           </span>
         )}
@@ -727,13 +727,13 @@ export default function EditPostPage() {
           </span>
         )}
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={() => setShowDeleteConfirm(true)} className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-red-50 hover:text-red-600">
+          <button onClick={() => setShowDeleteConfirm(true)} className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-red-50 hover:text-red-600">
             <Trash2 className="h-4 w-4" />
           </button>
           <button
             onClick={() => void save("draft")}
             disabled={saving}
-            className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea] disabled:opacity-50"
+            className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8] disabled:opacity-50"
           >
             Save draft
           </button>
@@ -741,7 +741,7 @@ export default function EditPostPage() {
             type="button"
             onClick={() => setPanelOpen(true)}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8] disabled:opacity-50"
           >
             <Settings className="h-3.5 w-3.5" />
             {isPublished ? "Settings" : "Publish"}
@@ -766,10 +766,10 @@ export default function EditPostPage() {
         {panelOpen && (
           <div className="flex w-80 shrink-0 flex-col border-l border-[#111111]/10 bg-white">
             <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-5 py-4">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#6f6b62]">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#5F686A]">
                 {isPublished ? "Post settings" : "Publish post"}
               </p>
-              <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+              <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -777,20 +777,20 @@ export default function EditPostPage() {
             <div className="flex-1 space-y-6 overflow-y-auto p-5">
               {/* Share caption */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Share caption</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share caption</label>
                 <textarea
                   value={socialDraft?.sharing_caption ?? ""}
                   onChange={(e) => setSocialDraft((d) => ({ ...d, sharing_caption: e.target.value || undefined }))}
                   rows={3}
                   placeholder="Add a short sharing caption…"
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32] resize-none"
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#122428] resize-none"
                 />
               </div>
 
               {/* Share on LinkedIn + Copy link */}
               {isPublished && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Share</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share</p>
                   <div className="space-y-2">
                     <a
                       href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`}
@@ -813,18 +813,18 @@ export default function EditPostPage() {
               {/* Connected posts */}
               <div>
                 <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Connected posts</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Connected posts</p>
                   <button
                     type="button"
                     onClick={() => void generateConnected()}
                     disabled={connectedGenerating}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#063b32]/20 px-2 py-1 text-[10px] font-semibold text-[#063b32] hover:bg-[#063b32]/5 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-md border border-[#122428]/20 px-2 py-1 text-[10px] font-semibold text-[#122428] hover:bg-[#122428]/5 disabled:opacity-50"
                   >
                     {connectedGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
                     {connectedGenerating ? "Generating…" : "Generate"}
                   </button>
                 </div>
-                <p className="mb-2 text-[11px] leading-relaxed text-[#6f6b62]/80">
+                <p className="mb-2 text-[11px] leading-relaxed text-[#5F686A]/80">
                   Creates LinkedIn and Instagram copy from your current article draft.
                 </p>
                 {connectedError && (
@@ -834,23 +834,23 @@ export default function EditPostPage() {
                   <div className="mb-3 space-y-3">
                     {socialDraft?.linkedin_post && (
                       <div>
-                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">LinkedIn post</label>
+                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">LinkedIn post</label>
                         <textarea
                           value={socialDraft.linkedin_post}
                           onChange={(e) => setSocialDraft((d) => ({ ...d, linkedin_post: e.target.value || undefined }))}
                           rows={5}
-                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32]"
+                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#122428]"
                         />
                       </div>
                     )}
                     {socialDraft?.instagram_caption && (
                       <div>
-                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Instagram caption</label>
+                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Instagram caption</label>
                         <textarea
                           value={socialDraft.instagram_caption}
                           onChange={(e) => setSocialDraft((d) => ({ ...d, instagram_caption: e.target.value || undefined }))}
                           rows={4}
-                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#063b32]"
+                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#122428]"
                         />
                       </div>
                     )}
@@ -867,12 +867,12 @@ export default function EditPostPage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="mb-2 text-xs text-[#6f6b62]/70">No connected social posts yet.</p>
+                  <p className="mb-2 text-xs text-[#5F686A]/70">No connected social posts yet.</p>
                 )}
                 <button
                   type="button"
                   onClick={() => setShowAddSocial(true)}
-                  className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[#111111]/20 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:border-[#063b32]/40 hover:text-[#063b32]"
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[#111111]/20 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:border-[#122428]/40 hover:text-[#122428]"
                 >
                   <Plus className="h-3.5 w-3.5" /> Add connected post
                 </button>
@@ -880,31 +880,31 @@ export default function EditPostPage() {
 
               {/* URL Slug */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">URL Slug</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">URL Slug</label>
                 <div className="flex items-center rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-xs">
-                  <span className="mr-1 text-[#6f6b62]">/posts/</span>
+                  <span className="mr-1 text-[#5F686A]">/posts/</span>
                   <input value={slug} onChange={(e) => setSlug(e.target.value)} className="flex-1 bg-transparent text-[#111111] outline-none" />
                 </div>
               </div>
 
               {/* Type */}
               <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Type</label>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Type</label>
                 <div className="flex flex-wrap gap-1.5">
                   {PRESET_TYPES.map((t) => (
                     <button key={t} type="button" onClick={() => { setContentType(t); setShowCustomType(false); }}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${activeType === t && !showCustomType ? "bg-[#063b32] text-white" : "border border-[#111111]/15 bg-white text-[#6f6b62] hover:border-[#063b32]/40"}`}>
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${activeType === t && !showCustomType ? "bg-[#122428] text-white" : "border border-[#111111]/15 bg-white text-[#5F686A] hover:border-[#122428]/40"}`}>
                       {t}
                     </button>
                   ))}
                   <button type="button" onClick={() => setShowCustomType(true)}
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${showCustomType ? "bg-[#063b32] text-white" : "border border-dashed border-[#111111]/20 text-[#6f6b62]"}`}>
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${showCustomType ? "bg-[#122428] text-white" : "border border-dashed border-[#111111]/20 text-[#5F686A]"}`}>
                     + Custom
                   </button>
                 </div>
                 {showCustomType && (
                   <input autoFocus value={customType} onChange={(e) => setCustomType(e.target.value)} placeholder="Custom type…"
-                    className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+                    className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]" />
                 )}
               </div>
 
@@ -913,9 +913,9 @@ export default function EditPostPage() {
                 <button
                   type="button"
                   onClick={() => setTagsOpen((o) => !o)}
-                  className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]"
+                  className="flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]"
                 >
-                  <span>Tags {tags.length > 0 && <span className="ml-1 rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] text-[#063b32]">{tags.length}</span>}</span>
+                  <span>Tags {tags.length > 0 && <span className="ml-1 rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px] text-[#122428]">{tags.length}</span>}</span>
                   <ChevronDown className={`h-3.5 w-3.5 transition-transform ${tagsOpen ? "rotate-180" : ""}`} />
                 </button>
                 {tagsOpen && (
@@ -924,22 +924,22 @@ export default function EditPostPage() {
                       {tags.map((tag) => (
                         <span key={tag} className="flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-[#111111]">
                           {tag}
-                          <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#6f6b62] hover:text-red-500"><X className="h-3 w-3" /></button>
+                          <button type="button" onClick={() => setTags(tags.filter((t) => t !== tag))} className="text-[#5F686A] hover:text-red-500"><X className="h-3 w-3" /></button>
                         </span>
                       ))}
                       <input value={tagInput} onChange={(e) => setTagInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
                         placeholder={tags.length === 0 ? "Add tags…" : ""}
-                        className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-[#6f6b62]/50" />
+                        className="min-w-[80px] flex-1 bg-transparent text-sm outline-none placeholder:text-[#5F686A]/50" />
                     </div>
-                    <p className="mt-1 text-[10px] text-[#6f6b62]">Press Enter or comma to add.</p>
+                    <p className="mt-1 text-[10px] text-[#5F686A]">Press Enter or comma to add.</p>
                   </div>
                 )}
               </div>
 
               {/* Author */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">Author</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Author</label>
                 <AppSelect
                   value={authorId}
                   onChange={setAuthorId}
@@ -951,24 +951,24 @@ export default function EditPostPage() {
 
               {/* Publication date shown on site */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
                   Publication date
                 </label>
-                <p className="mb-2 text-[11px] leading-relaxed text-[#6f6b62]/70">
+                <p className="mb-2 text-[11px] leading-relaxed text-[#5F686A]/70">
                   The date shown on the article and across listings. Set this to reflect when the post first went live.
                 </p>
                 <input
                   type="datetime-local"
                   value={publishedAt}
                   onChange={(e) => { setPublishedAt(e.target.value); setPublishedAtSaved(false); }}
-                  className="w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                 />
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <button
                     type="button"
                     onClick={() => void savePublishedAt()}
                     disabled={saving || !publishedAt}
-                    className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 ${publishedAtSaved ? "bg-emerald-50 text-emerald-700" : "bg-[#063b32] text-white hover:opacity-90"}`}
+                    className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 ${publishedAtSaved ? "bg-emerald-50 text-emerald-700" : "bg-[#122428] text-white hover:opacity-90"}`}
                   >
                     {publishedAtSaved ? "Saved" : "Save date"}
                   </button>
@@ -980,13 +980,13 @@ export default function EditPostPage() {
                       setPublishedAt(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
                       setPublishedAtSaved(false);
                     }}
-                    className="text-xs text-[#6f6b62] hover:text-[#063b32]"
+                    className="text-xs text-[#5F686A] hover:text-[#122428]"
                   >
                     Use now
                   </button>
                 </div>
                 {!isPublished && (
-                  <p className="mt-2 text-[10px] text-[#6f6b62]/60">
+                  <p className="mt-2 text-[10px] text-[#5F686A]/60">
                     For a draft, this becomes the publication date when you publish.
                   </p>
                 )}
@@ -995,20 +995,20 @@ export default function EditPostPage() {
               {/* Publish timing */}
               {!isPublished && (
                 <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">When to publish</label>
+                  <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">When to publish</label>
                   <div className="flex overflow-hidden rounded-md border border-[#111111]/15 text-xs font-semibold">
                     <button type="button" onClick={() => setPublishMode("now")}
-                      className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}>
+                      className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}>
                       Publish now
                     </button>
                     <button type="button" onClick={() => setPublishMode("schedule")}
-                      className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#063b32] text-white" : "bg-white text-[#6f6b62] hover:bg-gray-50"}`}>
+                      className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}>
                       Schedule
                     </button>
                   </div>
                   {publishMode === "schedule" && (
                     <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)}
-                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]" />
+                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]" />
                   )}
                 </div>
               )}
@@ -1018,7 +1018,7 @@ export default function EditPostPage() {
             <div className="shrink-0 border-t border-[#111111]/10 px-5 py-4">
               {publishMode === "now" || isPublished ? (
                 <button onClick={() => void save("published")} disabled={saving}
-                  className="w-full rounded-md bg-[#063b32] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                  className="w-full rounded-md bg-[#122428] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
                   {saving ? "Saving…" : isPublished ? "Update post" : "Publish post"}
                 </button>
               ) : (
@@ -1029,7 +1029,7 @@ export default function EditPostPage() {
               )}
               {isPublished && (
                 <button onClick={() => void save("draft")} disabled={saving}
-                  className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-gray-100 disabled:opacity-50">
+                  className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-gray-100 disabled:opacity-50">
                   Move to draft
                 </button>
               )}

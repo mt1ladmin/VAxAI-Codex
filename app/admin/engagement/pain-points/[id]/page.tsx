@@ -49,8 +49,8 @@ export default function PainPointDetailPage() {
     trust: "bg-amber-50 border-amber-200 text-amber-700",
   };
 
-  if (loading) return <div className="p-8 text-sm text-[#6f6b62]">Loading…</div>;
-  if (!pp) return <div className="p-8 text-sm text-[#6f6b62]">Pain point not found.</div>;
+  if (loading) return <div className="p-8 text-sm text-[#5F686A]">Loading…</div>;
+  if (!pp) return <div className="p-8 text-sm text-[#5F686A]">Pain point not found.</div>;
 
   const Section = ({
     title, icon, id: sid, children,
@@ -60,13 +60,13 @@ export default function PainPointDetailPage() {
       <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
         <button
           onClick={() => setExpandedSection(open ? null : sid)}
-          className="flex w-full items-center justify-between px-5 py-4 bg-white hover:bg-[#f7f4ea] transition-colors"
+          className="flex w-full items-center justify-between px-5 py-4 bg-white hover:bg-[#F5F8F8] transition-colors"
         >
           <div className="flex items-center gap-3">
-            <span className="text-[#063b32]">{icon}</span>
+            <span className="text-[#122428]">{icon}</span>
             <span className="font-semibold text-[#111111] text-sm">{title}</span>
           </div>
-          {open ? <ChevronDown className="h-4 w-4 text-[#6f6b62]" /> : <ChevronRight className="h-4 w-4 text-[#6f6b62]" />}
+          {open ? <ChevronDown className="h-4 w-4 text-[#5F686A]" /> : <ChevronRight className="h-4 w-4 text-[#5F686A]" />}
         </button>
         {open && <div className="border-t border-[#111111]/10 bg-white px-5 py-4">{children}</div>}
       </div>
@@ -76,8 +76,8 @@ export default function PainPointDetailPage() {
   const List = ({ items }: { items: string[] | null | undefined }) => (
     <ul className="space-y-1.5">
       {(items || []).map((item, i) => (
-        <li key={i} className="flex items-start gap-2 text-sm text-[#6f6b62]">
-          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#063b32]" />
+        <li key={i} className="flex items-start gap-2 text-sm text-[#5F686A]">
+          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#122428]" />
           {item}
         </li>
       ))}
@@ -92,23 +92,23 @@ export default function PainPointDetailPage() {
         title={pp.title}
       />
       <div className="border-b border-[#111111]/8 bg-white px-8 pb-5 pt-4">
-        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#063b32]">
+        <span className="text-xs font-semibold uppercase tracking-[0.12em] text-[#122428]">
           {pp.category}
         </span>
         {pp.plain_english_definition ? (
-          <p className="mt-1.5 max-w-2xl text-sm text-[#6f6b62]">{pp.plain_english_definition}</p>
+          <p className="mt-1.5 max-w-2xl text-sm text-[#5F686A]">{pp.plain_english_definition}</p>
         ) : null}
       </div>
 
       <div className="px-8 py-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-1 space-y-4">
-          <div className="rounded-xl border border-[#f5f274] bg-[#f5f274]/10 p-5">
+          <div className="rounded-xl border border-[#D8FC2E] bg-[#D8FC2E]/10 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#111111] mb-3">
               Key prompts
             </p>
             {pp.natural_questions?.slice(0, 1).map((q, i) => (
               <div key={i} className="mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A] mb-1">
                   Natural next question
                 </p>
                 <p className="text-sm font-semibold text-[#111111]">&ldquo;{q}&rdquo;</p>
@@ -116,7 +116,7 @@ export default function PainPointDetailPage() {
             ))}
             {vatByDimension("value")[0] && (
               <div className="mb-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62] mb-1">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A] mb-1">
                   VAT — Value
                 </p>
                 <p className="text-sm text-[#111111]">{vatByDimension("value")[0].prompt}</p>
@@ -138,7 +138,7 @@ export default function PainPointDetailPage() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {pp.recommendation_pathways.map((path, i) => (
-                  <span key={i} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs font-semibold text-[#6f6b62]">
+                  <span key={i} className="rounded-full bg-[#F5F8F8] px-3 py-1 text-xs font-semibold text-[#5F686A]">
                     {path}
                   </span>
                 ))}
@@ -161,7 +161,7 @@ export default function PainPointDetailPage() {
           )}
 
           {pp.last_reviewed && (
-            <p className="text-xs text-[#6f6b62]">
+            <p className="text-xs text-[#5F686A]">
               Last reviewed: {new Date(pp.last_reviewed).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
               {pp.content_owner && ` · ${pp.content_owner}`}
             </p>
@@ -175,7 +175,7 @@ export default function PainPointDetailPage() {
             <Section title="What a person may say" icon={<MessageSquare className="h-4 w-4" />} id="says">
               <div className="flex flex-wrap gap-2">
                 {pp.what_person_says.map((s, i) => (
-                  <span key={i} className="rounded-full border border-[#063b32]/20 bg-[#063b32]/5 px-3 py-1.5 text-sm text-[#063b32]">
+                  <span key={i} className="rounded-full border border-[#122428]/20 bg-[#122428]/5 px-3 py-1.5 text-sm text-[#122428]">
                     &ldquo;{s}&rdquo;
                   </span>
                 ))}
@@ -209,7 +209,7 @@ export default function PainPointDetailPage() {
             <Section title="Natural discovery questions" icon={<MessageSquare className="h-4 w-4" />} id="questions">
               <div className="space-y-2">
                 {pp.natural_questions.map((q, i) => (
-                  <div key={i} className="rounded-lg bg-[#f7f4ea] px-4 py-3">
+                  <div key={i} className="rounded-lg bg-[#F5F8F8] px-4 py-3">
                     <p className="text-sm text-[#111111]">&ldquo;{q}&rdquo;</p>
                   </div>
                 ))}
@@ -237,7 +237,7 @@ export default function PainPointDetailPage() {
               <List items={pp.human_va_responsibilities} />
               {pp.tasks_remain_human?.length ? (
                 <>
-                  <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+                  <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
                     Should remain human-led
                   </p>
                   <List items={pp.tasks_remain_human} />
@@ -267,7 +267,7 @@ export default function PainPointDetailPage() {
                       </div>
                       <div className="space-y-1.5">
                         {prompts.map((v) => (
-                          <p key={v.id} className="text-sm text-[#6f6b62]">· {v.prompt}</p>
+                          <p key={v.id} className="text-sm text-[#5F686A]">· {v.prompt}</p>
                         ))}
                       </div>
                     </div>
@@ -287,8 +287,8 @@ export default function PainPointDetailPage() {
           {/* Explanation to prospect */}
           {pp.explanation_to_prospect && (
             <Section title="Suggested explanation to prospect" icon={<MessageSquare className="h-4 w-4" />} id="explain">
-              <div className="rounded-lg border border-[#063b32]/20 bg-[#063b32]/5 p-4">
-                <p className="text-sm text-[#063b32] italic">&ldquo;{pp.explanation_to_prospect}&rdquo;</p>
+              <div className="rounded-lg border border-[#122428]/20 bg-[#122428]/5 p-4">
+                <p className="text-sm text-[#122428] italic">&ldquo;{pp.explanation_to_prospect}&rdquo;</p>
               </div>
             </Section>
           )}
@@ -304,7 +304,7 @@ export default function PainPointDetailPage() {
                   <Link
                     key={rid}
                     href={`/admin/engagement/pain-points/${rid}`}
-                    className="flex items-center gap-1 rounded-full border border-[#111111]/10 px-3 py-1.5 text-sm text-[#111111] hover:border-[#063b32]/30 hover:bg-[#f7f4ea]"
+                    className="flex items-center gap-1 rounded-full border border-[#111111]/10 px-3 py-1.5 text-sm text-[#111111] hover:border-[#122428]/30 hover:bg-[#F5F8F8]"
                   >
                     <Zap className="h-3 w-3 text-amber-500" />
                     Related
@@ -323,7 +323,7 @@ export default function PainPointDetailPage() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {(pp as PainPointDetail).synonyms?.map((s) => (
-                  <span key={s.id} className="rounded-full bg-[#f7f4ea] px-2.5 py-1 text-xs text-[#6f6b62]">
+                  <span key={s.id} className="rounded-full bg-[#F5F8F8] px-2.5 py-1 text-xs text-[#5F686A]">
                     {s.phrase}
                   </span>
                 ))}

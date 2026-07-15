@@ -7,7 +7,7 @@ import { formatRevenue } from "@/lib/engagement/prospect-outreach/snapshot";
 import { ServiceFitPanel } from "@/components/admin/ServiceFitPanel";
 
 const inputClass =
-  "w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]";
+  "w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]";
 
 type PatchFn = (partial: Partial<ProspectOutreachRecord>) => void;
 
@@ -29,14 +29,14 @@ function Field({
   if (!editable) {
     return (
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">{label}</p>
         <p className="mt-1 text-sm text-[#111111] whitespace-pre-wrap">{value || "—"}</p>
       </div>
     );
   }
   return (
     <div>
-      <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+      <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">
         {label}
       </label>
       {multiline ? (
@@ -71,13 +71,13 @@ export function ProspectProfileHeader({
           <input
             value={data.organisation_name}
             onChange={(e) => patch({ organisation_name: e.target.value })}
-            className="font-serif text-lg text-[#111111] rounded-xl border border-[#111111]/15 px-3 py-1.5 outline-none focus:border-[#063b32] w-full"
+            className="font-serif text-lg text-[#111111] rounded-xl border border-[#111111]/15 px-3 py-1.5 outline-none focus:border-[#122428] w-full"
           />
         ) : (
           <h2 className="font-serif text-lg text-[#111111]">{data.organisation_name}</h2>
         )}
       </div>
-      <p className="text-xs text-[#6f6b62]">
+      <p className="text-xs text-[#5F686A]">
         {data.organisation_type} · {data.location}, {data.region}
       </p>
     </div>
@@ -97,7 +97,7 @@ export function ProspectOrganisationCard({
 
   return (
     <div className="rounded-xl border border-[#111111]/10 p-4 space-y-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Organisation</p>
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Organisation</p>
       {editable ? (
         <>
           <Field label="Location" value={data.location} editable onChange={(v) => patch({ location: v })} />
@@ -120,16 +120,16 @@ export function ProspectOrganisationCard({
       ) : (
         <>
           <p className="text-sm text-[#111111]">{data.sector_label || data.organisation_type}</p>
-          <p className="text-sm text-[#6f6b62]">{data.location}, {data.region}</p>
+          <p className="text-sm text-[#5F686A]">{data.location}, {data.region}</p>
           <p className="text-sm">Employees: {data.employees ?? "—"}</p>
           <p className="text-sm">Revenue: {formatRevenue(data.annual_revenue_gbp)}</p>
-          {data.revenue_basis && <p className="text-xs text-[#6f6b62]">{data.revenue_basis}</p>}
+          {data.revenue_basis && <p className="text-xs text-[#5F686A]">{data.revenue_basis}</p>}
           {data.website && (
             <a
               href={data.website.startsWith("http") ? data.website : `https://${data.website}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-[#063b32] hover:underline"
+              className="inline-flex items-center gap-1 text-sm text-[#122428] hover:underline"
             >
               <ExternalLink className="h-3.5 w-3.5" /> Website
             </a>
@@ -156,7 +156,7 @@ export function ProspectDecisionMakerCard({
   return (
     <div className="rounded-xl border border-[#111111]/10 p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Decision maker</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Decision maker</p>
         {headerAction}
       </div>
       {editable ? (
@@ -179,19 +179,19 @@ export function ProspectDecisionMakerCard({
       ) : (
         <>
           <p className="flex items-center gap-2 text-sm font-medium text-[#111111]">
-            <User className="h-4 w-4 shrink-0 text-[#063b32]" />
+            <User className="h-4 w-4 shrink-0 text-[#122428]" />
             {data.decision_maker_name || "Not captured"}
             {data.decision_maker_role && (
-              <span className="font-normal text-[#6f6b62]">— {data.decision_maker_role}</span>
+              <span className="font-normal text-[#5F686A]">— {data.decision_maker_role}</span>
             )}
           </p>
           {data.email && (
-            <a href={`mailto:${data.email}`} className="flex items-center gap-2 text-sm text-[#063b32] hover:underline">
+            <a href={`mailto:${data.email}`} className="flex items-center gap-2 text-sm text-[#122428] hover:underline">
               <Mail className="h-4 w-4" /> {data.email}
             </a>
           )}
           {data.phone && (
-            <a href={`tel:${data.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 text-sm text-[#063b32] hover:underline">
+            <a href={`tel:${data.phone.replace(/\s/g, "")}`} className="flex items-center gap-1.5 text-sm text-[#122428] hover:underline">
               <Phone className="h-4 w-4" /> {data.phone}
             </a>
           )}
@@ -211,7 +211,7 @@ export function ProspectResearchEvidenceCard({
   onChange?: PatchFn;
 }) {
   return (
-    <div className="rounded-xl border border-[#111111]/10 bg-[#063b32]/5 p-4">
+    <div className="rounded-xl border border-[#111111]/10 bg-[#122428]/5 p-4">
       <Field
         label="Research evidence"
         value={data.need_rationale}
@@ -230,10 +230,10 @@ export function ProspectTagList({ data }: { data: ProspectOutreachRecord }) {
   return (
     <div className="flex flex-wrap gap-2">
       {sectorTags.map((t) => (
-        <span key={t} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs text-[#063b32]">{t}</span>
+        <span key={t} className="rounded-full bg-[#F5F8F8] px-3 py-1 text-xs text-[#122428]">{t}</span>
       ))}
       {painTags.map((t) => (
-        <span key={t} className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs text-[#6f6b62]">{t}</span>
+        <span key={t} className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs text-[#5F686A]">{t}</span>
       ))}
     </div>
   );
@@ -278,15 +278,15 @@ export function ProspectResearchPanel({ data, editable, onChange, compact }: Pro
       <ProspectTagList data={data} />
 
       {!compact && (data.financial_source_url || data.contact_source_url) && (
-        <div className="text-xs text-[#6f6b62]">
+        <div className="text-xs text-[#5F686A]">
           <p className="font-semibold uppercase tracking-wider">Sources</p>
           {data.financial_source_url && (
-            <a href={data.financial_source_url} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-[#063b32] hover:underline">
+            <a href={data.financial_source_url} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-[#122428] hover:underline">
               Financial: {data.financial_source_url}
             </a>
           )}
           {data.contact_source_url && (
-            <a href={data.contact_source_url} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-[#063b32] hover:underline">
+            <a href={data.contact_source_url} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-[#122428] hover:underline">
               Contact: {data.contact_source_url}
             </a>
           )}

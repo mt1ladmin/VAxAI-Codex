@@ -119,8 +119,8 @@ function postProcess(result: Record<string, unknown>): Record<string, unknown> {
 function EditSection({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-      <div className="flex items-center bg-[#f7f4ea] px-4 py-2">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">{label}</p>
+      <div className="flex items-center bg-[#F5F8F8] px-4 py-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5F686A]">{label}</p>
       </div>
       <div className="px-4 py-3">{children}</div>
     </div>
@@ -128,9 +128,9 @@ function EditSection({ label, children }: { label: string; children: React.React
 }
 
 const taClass =
-  "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y leading-relaxed";
+  "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428] resize-y leading-relaxed";
 const inputClass =
-  "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]";
+  "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]";
 
 const CONTENT_TYPES: { value: ContentType; label: string }[] = [
   { value: "blog", label: "Blog Post" },
@@ -410,7 +410,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                   : `${CONTENT_TYPES.find((t) => t.value === contentType)?.label} — Edit & Save`}
             </h2>
             {step === "preview" && (
-              <p className="text-xs text-[#6f6b62] mt-0.5">
+              <p className="text-xs text-[#5F686A] mt-0.5">
                 {streaming
                   ? "The draft is streaming in — fields fill as they are written"
                   : "Edit the AI draft below, then save or schedule"}
@@ -420,7 +420,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
           <button
             type="button"
             onClick={handleClose}
-            className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#f7f4ea]"
+            className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#F5F8F8]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -438,8 +438,8 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                     onClick={() => setContentType(t.value)}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                       contentType === t.value
-                        ? "bg-[#063b32] text-white"
-                        : "border border-[#111111]/15 text-[#6f6b62] hover:border-[#063b32]/40"
+                        ? "bg-[#122428] text-white"
+                        : "border border-[#111111]/15 text-[#5F686A] hover:border-[#122428]/40"
                     }`}
                   >
                     {t.label}
@@ -448,7 +448,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
               </div>
 
               <div>
-                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">
+                <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">
                   Brief / topic <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -456,11 +456,11 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                   onChange={(e) => setBrief(e.target.value)}
                   rows={5}
                   placeholder={PLACEHOLDERS[contentType]}
-                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-y"
+                  className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428] resize-y"
                 />
               </div>
 
-              <p className="text-xs text-[#6f6b62]">
+              <p className="text-xs text-[#5F686A]">
                 Every piece is written to VAxAI&apos;s positioning: strong administrative foundations
                 first, AI and automation second. The AI knows the four service areas, the audiences and
                 each platform&apos;s purpose, keeps examples honest, and closes with a call to action
@@ -499,7 +499,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                       rows={2}
                       className={taClass}
                     />
-                    <p className="mt-1 text-[10px] text-[#6f6b62]">{(blog.seo_description ?? "").length} / 160 chars</p>
+                    <p className="mt-1 text-[10px] text-[#5F686A]">{(blog.seo_description ?? "").length} / 160 chars</p>
                   </EditSection>
 
                   <EditSection label="Blog post body">
@@ -507,7 +507,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                       className="prose prose-sm max-w-none text-[#111111] max-h-48 overflow-y-auto text-sm [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-3 [&_h2]:mb-1 [&_ul]:list-disc [&_ul]:pl-4 [&_p]:mb-2"
                       dangerouslySetInnerHTML={{ __html: blog.body_html ?? "" }}
                     />
-                    <p className="mt-2 text-[10px] text-[#6f6b62]">
+                    <p className="mt-2 text-[10px] text-[#5F686A]">
                       Body is fully editable in the post editor after saving.
                     </p>
                   </EditSection>
@@ -629,7 +629,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                     placeholder="tag1, tag2, tag3"
                     className={inputClass}
                   />
-                  <p className="mt-1 text-[10px] text-[#6f6b62]">Comma-separated — no # needed.</p>
+                  <p className="mt-1 text-[10px] text-[#5F686A]">Comma-separated — no # needed.</p>
                 </EditSection>
               )}
 
@@ -646,13 +646,13 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                         type="date"
                         value={singleScheduleDate}
                         onChange={(e) => setSingleScheduleDate(e.target.value)}
-                        className="rounded-md border border-[#111111]/15 px-2 py-1.5 text-sm outline-none focus:border-[#063b32]"
+                        className="rounded-md border border-[#111111]/15 px-2 py-1.5 text-sm outline-none focus:border-[#122428]"
                       />
                       <button
                         type="button"
                         disabled={!singleScheduleDate || singleSaving}
                         onClick={() => void saveSingleToCalendar()}
-                        className="inline-flex items-center gap-1 rounded-md bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                        className="inline-flex items-center gap-1 rounded-md bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
                       >
                         {singleSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
                         Save
@@ -671,14 +671,14 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                     </span>
                   ) : (
                     <div className="space-y-1.5">
-                      <p className="text-xs text-[#6f6b62]">
+                      <p className="text-xs text-[#5F686A]">
                         Optional — pick a date to schedule the LinkedIn, Instagram and Facebook posts at the same time.
                       </p>
                       <input
                         type="date"
                         value={scheduleDate}
                         onChange={(e) => setScheduleDate(e.target.value)}
-                        className="rounded-md border border-[#111111]/15 px-2 py-1.5 text-sm outline-none focus:border-[#063b32]"
+                        className="rounded-md border border-[#111111]/15 px-2 py-1.5 text-sm outline-none focus:border-[#122428]"
                       />
                     </div>
                   )}
@@ -695,7 +695,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
               <button
                 type="button"
                 onClick={handleClose}
-                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]"
+                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A]"
               >
                 Cancel
               </button>
@@ -703,7 +703,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                 type="button"
                 disabled={brief.trim().length === 0 || generating}
                 onClick={() => void generate()}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#122428] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
               >
                 {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 {generating ? "Generating…" : "Generate with AI"}
@@ -722,7 +722,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                   setSingleSaved(false);
                   setSingleScheduleDate("");
                 }}
-                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] disabled:opacity-50"
+                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] disabled:opacity-50"
               >
                 ← Start over
               </button>
@@ -730,7 +730,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]"
+                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A]"
                 >
                   Close
                 </button>
@@ -739,7 +739,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                     type="button"
                     disabled={converting || streaming}
                     onClick={() => void convertToDraftPost()}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#122428] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
                   >
                     {converting && <Loader2 className="h-4 w-4 animate-spin" />}
                     Save as draft post
@@ -750,7 +750,7 @@ export function ContentCreateModal({ open, onClose }: { open: boolean; onClose: 
                     type="button"
                     disabled={converting || scheduling || streaming}
                     onClick={() => void saveAll()}
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#063b32] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#122428] px-5 py-2 text-sm font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
                   >
                     {(converting || scheduling) && <Loader2 className="h-4 w-4 animate-spin" />}
                     {scheduleDate ? "Schedule social & save post" : "Save as draft post"}

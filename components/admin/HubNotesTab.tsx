@@ -19,7 +19,7 @@ type Props = {
 };
 
 const inputClass =
-  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32] resize-none";
+  "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428] resize-none";
 
 const PREVIEW_LINES = 2;
 
@@ -100,7 +100,7 @@ export function HubNotesTab({
           <button
             type="button"
             onClick={onShowAddNote}
-            className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42]"
+            className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A]"
           >
             <Plus className="h-3.5 w-3.5" /> New note
           </button>
@@ -121,7 +121,7 @@ export function HubNotesTab({
           >
             <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <p className="text-sm font-semibold text-[#111111]">New note</p>
-              <button type="button" onClick={onHideAddNote} className="grid h-7 w-7 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]">
+              <button type="button" onClick={onHideAddNote} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -140,7 +140,7 @@ export function HubNotesTab({
                 type="button"
                 onClick={() => void onSave()}
                 disabled={saving || !noteText.trim()}
-                className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                 Save note
@@ -148,7 +148,7 @@ export function HubNotesTab({
               <button
                 type="button"
                 onClick={onHideAddNote}
-                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 Cancel
               </button>
@@ -164,9 +164,9 @@ export function HubNotesTab({
               <button
                 type="button"
                 onClick={() => openNote(index)}
-                className="w-full rounded-xl border border-[#111111]/10 bg-white p-4 text-left transition-colors hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/20"
+                className="w-full rounded-xl border border-[#111111]/10 bg-white p-4 text-left transition-colors hover:border-[#122428]/25 hover:bg-[#F5F8F8]/20"
               >
-                <p className="text-xs font-semibold text-[#6f6b62]">{entry.header || "Note"}</p>
+                <p className="text-xs font-semibold text-[#5F686A]">{entry.header || "Note"}</p>
                 <p
                   className="mt-1 text-sm text-[#111111] leading-relaxed"
                   style={{
@@ -185,7 +185,7 @@ export function HubNotesTab({
       ) : (
         !showAddNote && (
           <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white py-10 text-center">
-            <p className="text-sm text-[#6f6b62]">No notes yet.</p>
+            <p className="text-sm text-[#5F686A]">No notes yet.</p>
           </div>
         )
       )}
@@ -204,7 +204,7 @@ export function HubNotesTab({
               <button
                 type="button"
                 onClick={closeModal}
-                className="shrink-0 rounded-lg p-1 text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="shrink-0 rounded-lg p-1 text-[#5F686A] hover:bg-[#F5F8F8]"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -230,7 +230,7 @@ export function HubNotesTab({
                         type="button"
                         onClick={() => void saveEdit()}
                         disabled={savingEdit || !editDraft.trim()}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
                       >
                         {savingEdit ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                         Save
@@ -241,7 +241,7 @@ export function HubNotesTab({
                           setEditingInModal(false);
                           setEditDraft(viewingEntry.body);
                         }}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
                       >
                         Cancel
                       </button>
@@ -250,7 +250,7 @@ export function HubNotesTab({
                     <button
                       type="button"
                       onClick={startEdit}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#063b32] hover:underline"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-[#122428] hover:underline"
                     >
                       <Pencil className="h-3 w-3" /> Edit
                     </button>

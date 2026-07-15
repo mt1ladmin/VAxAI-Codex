@@ -8,7 +8,7 @@ type Props = {
 };
 
 const actionClass =
-  "flex items-center gap-1.5 rounded-lg border border-[#111111]/12 bg-white px-3.5 py-2 text-sm font-semibold text-[#111111] shadow-sm transition-colors hover:bg-[#f7f4ea]/80";
+  "flex items-center gap-1.5 rounded-lg border border-[#111111]/12 bg-white px-3.5 py-2 text-sm font-semibold text-[#111111] shadow-sm transition-colors hover:bg-[#F5F8F8]/80";
 
 export function HubQuickActions({ onAddNote, onAddTask }: Props) {
   return (

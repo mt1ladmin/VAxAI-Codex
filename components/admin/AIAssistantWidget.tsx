@@ -50,17 +50,17 @@ type SearchResult = {
 
 
 const TYPE_BADGE: Record<string, string> = {
-  enquiry: "bg-[#f7f4ea] text-[#6f6b62]",
-  client: "bg-[#f7f4ea] text-[#6f6b62]",
-  prospect: "bg-[#f7f4ea] text-[#6f6b62]",
-  outreach: "bg-[#f7f4ea] text-[#6f6b62]",
+  enquiry: "bg-[#F5F8F8] text-[#5F686A]",
+  client: "bg-[#F5F8F8] text-[#5F686A]",
+  prospect: "bg-[#F5F8F8] text-[#5F686A]",
+  outreach: "bg-[#F5F8F8] text-[#5F686A]",
 };
 
 const TYPE_DOT: Record<string, string> = {
   enquiry: "bg-violet-500",
-  client: "bg-[#063b32]",
-  prospect: "bg-[#063b32]",
-  outreach: "bg-[#063b32]",
+  client: "bg-[#122428]",
+  prospect: "bg-[#122428]",
+  outreach: "bg-[#122428]",
 };
 
 type PanelSize = "large" | "xl";
@@ -133,7 +133,7 @@ function TypingIndicator() {
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="h-1.5 w-1.5 rounded-full bg-[#6f6b62]/50 animate-pulse"
+          className="h-1.5 w-1.5 rounded-full bg-[#5F686A]/50 animate-pulse"
           style={{ animationDelay: `${i * 150}ms` }}
         />
       ))}
@@ -151,7 +151,7 @@ function ChatMessage({
   if (msg.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#063b32] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm whitespace-pre-wrap break-words">
+        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#122428] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm whitespace-pre-wrap break-words">
           {msg.content}
         </div>
       </div>
@@ -163,7 +163,7 @@ function ChatMessage({
   return (
     <div className="flex gap-2.5 pr-2">
       <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#111111]/8 bg-white shadow-sm">
-        <Sparkles className="h-3 w-3 text-[#063b32]" />
+        <Sparkles className="h-3 w-3 text-[#122428]" />
       </div>
       <div className="min-w-0 flex-1 space-y-2">
         <div className="max-w-full overflow-hidden rounded-2xl rounded-bl-md border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-[13px] leading-[1.65] text-[#111111] break-words space-y-2.5">
@@ -177,7 +177,7 @@ function ChatMessage({
           <button
             type="button"
             onClick={() => onSaveToNotes(msg.content)}
-            className="flex items-center gap-1.5 rounded-lg border border-[#063b32]/15 px-2.5 py-1 text-[11px] font-semibold text-[#063b32] hover:bg-[#063b32]/5"
+            className="flex items-center gap-1.5 rounded-lg border border-[#122428]/15 px-2.5 py-1 text-[11px] font-semibold text-[#122428] hover:bg-[#122428]/5"
           >
             <BookmarkPlus className="h-3 w-3" />
             Save to notes
@@ -526,7 +526,7 @@ function ChatPanel({
           >
             <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
             <span className="truncate text-xs font-medium text-[#111111]">{contextLabel}</span>
-            <ChevronDown className="h-3 w-3 shrink-0 text-[#6f6b62]/70" />
+            <ChevronDown className="h-3 w-3 shrink-0 text-[#5F686A]/70" />
           </button>
         ) : (
           <div className="flex min-w-0 flex-1 items-center gap-2 px-1">
@@ -541,7 +541,7 @@ function ChatPanel({
             onClick={() => void openSummariseModal()}
             disabled={summarising || sessionLoading}
             title="Summarise full conversation"
-            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[#063b32] hover:bg-[#063b32]/5 disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[#122428] hover:bg-[#122428]/5 disabled:opacity-40"
           >
             {summarising ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
             Summarise
@@ -554,7 +554,7 @@ function ChatPanel({
             onClick={() => void startNewChat()}
             disabled={resetting || sessionLoading}
             title="Start a new chat"
-            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[#6f6b62] hover:bg-[#111111]/[0.03] hover:text-[#111111] disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium text-[#5F686A] hover:bg-[#111111]/[0.03] hover:text-[#111111] disabled:opacity-40"
           >
             {resetting ? (
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -571,18 +571,18 @@ function ChatPanel({
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 space-y-5">
         {sessionLoading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-5 w-5 animate-spin text-[#6f6b62]" />
+            <Loader2 className="h-5 w-5 animate-spin text-[#5F686A]" />
           </div>
         ) : sessionError ? (
           <div className="flex flex-col items-center gap-3 py-8 text-center">
             <p className="text-xs font-semibold text-red-600">Chat unavailable</p>
-            <p className="text-[11px] text-[#6f6b62] leading-relaxed max-w-[220px]">
+            <p className="text-[11px] text-[#5F686A] leading-relaxed max-w-[220px]">
               {sessionError}
             </p>
             <button
               type="button"
               onClick={() => void loadSession()}
-              className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#f7f4ea]"
+              className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8]"
             >
               Retry
             </button>
@@ -590,13 +590,13 @@ function ChatPanel({
         ) : messages.length === 0 ? (
           <div className="space-y-4 pt-4">
             <div className="flex items-center justify-center">
-              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#063b32] shadow-md">
-                <Bot className="h-5 w-5 text-[#f5f274]" />
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#122428] shadow-md">
+                <Bot className="h-5 w-5 text-[#D8FC2E]" />
               </div>
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold text-[#111111]">Ask about this account</p>
-              <p className="mt-1 text-xs text-[#6f6b62]">
+              <p className="mt-1 text-xs text-[#5F686A]">
                 Paste rough notes, prep for a call, or ask what to do next — I use the live account record.
               </p>
             </div>
@@ -606,7 +606,7 @@ function ChatPanel({
                   key={s}
                   type="button"
                   onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                  className="w-full rounded-xl border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-left text-xs text-[#6f6b62] hover:border-[#063b32]/20 hover:bg-white transition-colors"
+                  className="w-full rounded-xl border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-left text-xs text-[#5F686A] hover:border-[#122428]/20 hover:bg-white transition-colors"
                 >
                   {s}
                 </button>
@@ -626,7 +626,7 @@ function ChatPanel({
         {sending && (
           <div className="flex gap-2.5 pr-2">
             <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#111111]/8 bg-white shadow-sm">
-              <Sparkles className="h-3 w-3 text-[#063b32]" />
+              <Sparkles className="h-3 w-3 text-[#122428]" />
             </div>
             <TypingIndicator />
           </div>
@@ -647,7 +647,7 @@ function ChatPanel({
 
       {/* Input */}
       <div className="shrink-0 border-t border-[#111111]/8 bg-[#faf9f6] px-4 py-3">
-        <div className="flex items-end gap-2 rounded-2xl border border-[#111111]/12 bg-white px-3 py-2.5 shadow-sm focus-within:border-[#063b32]/40 focus-within:ring-2 focus-within:ring-[#063b32]/10 transition-all">
+        <div className="flex items-end gap-2 rounded-2xl border border-[#111111]/12 bg-white px-3 py-2.5 shadow-sm focus-within:border-[#122428]/40 focus-within:ring-2 focus-within:ring-[#122428]/10 transition-all">
           <textarea
             ref={inputRef}
             value={input}
@@ -655,19 +655,19 @@ function ChatPanel({
             onKeyDown={handleKeyDown}
             placeholder="Message AI assistant…"
             rows={1}
-            className="flex-1 resize-none overflow-y-auto bg-transparent text-[13px] text-[#111111] placeholder-[#6f6b62] outline-none"
+            className="flex-1 resize-none overflow-y-auto bg-transparent text-[13px] text-[#111111] placeholder-[#5F686A] outline-none"
             style={{ maxHeight: "120px", minHeight: "24px" }}
           />
           <button
             type="button"
             onClick={() => void sendMessage()}
             disabled={!input.trim() || sending || !!sessionError}
-            className="shrink-0 grid h-8 w-8 place-items-center rounded-xl bg-[#063b32] text-white shadow-sm hover:bg-[#1a5c42] disabled:opacity-40 transition-colors"
+            className="shrink-0 grid h-8 w-8 place-items-center rounded-xl bg-[#122428] text-white shadow-sm hover:bg-[#1B343A] disabled:opacity-40 transition-colors"
           >
             <Send className="h-3.5 w-3.5" />
           </button>
         </div>
-        <p className="mt-1.5 text-center text-[10px] text-[#6f6b62]/80">Enter to send · Shift+Enter for new line</p>
+        <p className="mt-1.5 text-center text-[10px] text-[#5F686A]/80">Enter to send · Shift+Enter for new line</p>
       </div>
 
       <SaveSummaryModal
@@ -718,20 +718,20 @@ function ContextPicker({
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
       <div className="shrink-0">
         <p className="text-sm font-semibold text-[#111111]">Select an account</p>
-        <p className="mt-0.5 text-xs text-[#6f6b62]">
+        <p className="mt-0.5 text-xs text-[#5F686A]">
           Search current Website Enquiries or Prospect Finder records to start a conversation.
         </p>
       </div>
-      <div className="flex items-center gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 shadow-sm focus-within:border-[#063b32] focus-within:ring-2 focus-within:ring-[#063b32]/8">
-        <Search className="h-4 w-4 shrink-0 text-[#6f6b62]" />
+      <div className="flex items-center gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 shadow-sm focus-within:border-[#122428] focus-within:ring-2 focus-within:ring-[#122428]/8">
+        <Search className="h-4 w-4 shrink-0 text-[#5F686A]" />
         <input
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Name, email, or organisation…"
-          className="flex-1 bg-transparent text-sm text-[#111111] placeholder-[#6f6b62] outline-none"
+          className="flex-1 bg-transparent text-sm text-[#111111] placeholder-[#5F686A] outline-none"
         />
-        {searching && <Loader2 className="h-4 w-4 animate-spin text-[#6f6b62]" />}
+        {searching && <Loader2 className="h-4 w-4 animate-spin text-[#5F686A]" />}
       </div>
 
       {results.length > 0 && (
@@ -741,14 +741,14 @@ function ContextPicker({
               key={`${r.type}-${r.id}`}
               type="button"
               onClick={() => onSelect(r.type, r.id, r.label)}
-              className="flex w-full items-center gap-3 border-b border-[#111111]/8 px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#f7f4ea]/50"
+              className="flex w-full items-center gap-3 border-b border-[#111111]/8 px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#F5F8F8]/50"
             >
-              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[10px] font-bold uppercase ${TYPE_BADGE[r.type] ?? "bg-[#f7f4ea] text-[#6f6b62]"}`}>
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[10px] font-bold uppercase ${TYPE_BADGE[r.type] ?? "bg-[#F5F8F8] text-[#5F686A]"}`}>
                 {r.label.slice(0, 1)}
               </span>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-[#111111]">{r.label}</p>
-                <p className="truncate text-xs text-[#6f6b62]">
+                <p className="truncate text-xs text-[#5F686A]">
                   {TYPE_LABEL[r.type]}{r.sublabel ? ` · ${r.sublabel}` : ""}{r.status ? ` · ${r.status}` : ""}
                 </p>
               </div>
@@ -758,7 +758,7 @@ function ContextPicker({
       )}
 
       {query.length >= 2 && !searching && results.length === 0 && (
-        <p className="text-center text-xs text-[#6f6b62] py-4">No accounts found matching "{query}"</p>
+        <p className="text-center text-xs text-[#5F686A] py-4">No accounts found matching "{query}"</p>
       )}
     </div>
   );
@@ -950,13 +950,13 @@ export function AIAssistantWidget() {
         type="button"
         onMouseDown={handleButtonMouseDown}
         style={{ bottom: position.bottom, right: position.right }}
-        className="fixed z-40 grid h-12 w-12 place-items-center rounded-full bg-[#063b32] shadow-lg hover:bg-[#1a5c42] transition-colors cursor-grab active:cursor-grabbing select-none"
+        className="fixed z-40 grid h-12 w-12 place-items-center rounded-full bg-[#122428] shadow-lg hover:bg-[#1B343A] transition-colors cursor-grab active:cursor-grabbing select-none"
         title="VAxAI Assistant (drag to move)"
       >
         {isOpen ? (
-          <ChevronDown className="h-5 w-5 text-[#f5f274]" />
+          <ChevronDown className="h-5 w-5 text-[#D8FC2E]" />
         ) : (
-          <Sparkles className="h-5 w-5 text-[#f5f274]" />
+          <Sparkles className="h-5 w-5 text-[#D8FC2E]" />
         )}
       </button>
 
@@ -977,9 +977,9 @@ export function AIAssistantWidget() {
           />
 
           {/* Header */}
-          <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
-            <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
-              <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
+          <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#122428] px-4 py-3">
+            <div className="grid h-7 w-7 place-items-center rounded-full bg-[#D8FC2E]">
+              <Sparkles className="h-3.5 w-3.5 text-[#122428]" />
             </div>
             <span className="flex-1 text-sm font-semibold text-white">VAxAI Assistant</span>
             <button
@@ -1006,14 +1006,14 @@ export function AIAssistantWidget() {
           {/* Body */}
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {viewingDifferentAccount && hasAccountContext && (
-              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#111111]/10 bg-[#f7f4ea]/60 px-3 py-2">
-                <p className="text-[11px] text-[#6f6b62]">
+              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#111111]/10 bg-[#F5F8F8]/60 px-3 py-2">
+                <p className="text-[11px] text-[#5F686A]">
                   Viewing another account
                 </p>
                 <button
                   type="button"
                   onClick={handleReturnToPage}
-                  className="shrink-0 text-[11px] font-semibold text-[#063b32] hover:underline"
+                  className="shrink-0 text-[11px] font-semibold text-[#122428] hover:underline"
                 >
                   Use current page
                 </button>
@@ -1064,9 +1064,9 @@ export function AIChatHistory({
 
   return (
     <div className="flex h-[min(600px,calc(100vh-14rem))] max-h-[70vh] flex-col overflow-hidden rounded-xl border border-[#111111]/10 shadow-sm">
-      <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#0a1f18] px-4 py-3">
-        <div className="grid h-7 w-7 place-items-center rounded-full bg-[#f5f274]">
-          <Sparkles className="h-3.5 w-3.5 text-[#0a1f18]" />
+      <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#122428] px-4 py-3">
+        <div className="grid h-7 w-7 place-items-center rounded-full bg-[#D8FC2E]">
+          <Sparkles className="h-3.5 w-3.5 text-[#122428]" />
         </div>
         <span className="flex-1 text-sm font-semibold text-white">VAxAI Assistant</span>
         <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />

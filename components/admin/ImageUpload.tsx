@@ -70,7 +70,7 @@ export default function ImageUpload({ value, onChange, label, aspectClass = "asp
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className={`flex w-full items-center justify-center gap-2 border border-dashed border-gray-300 bg-gray-50 text-sm font-semibold text-gray-500 transition-colors hover:border-[#063b32]/40 hover:bg-gray-100 hover:text-[#063b32] disabled:opacity-60 ${roundedClass} ${
+          className={`flex w-full items-center justify-center gap-2 border border-dashed border-gray-300 bg-gray-50 text-sm font-semibold text-gray-500 transition-colors hover:border-[#122428]/40 hover:bg-gray-100 hover:text-[#122428] disabled:opacity-60 ${roundedClass} ${
             circular ? "h-20 w-20 flex-col text-[10px]" : `${aspectClass} p-6`
           }`}
         >

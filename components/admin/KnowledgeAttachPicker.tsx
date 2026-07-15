@@ -119,7 +119,7 @@ export function KnowledgeAttachPicker({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-[#063b32]"
+        className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold text-[#122428]"
       >
         <BookOpen className="h-4 w-4" />
         Attach sector / persona / pain point guidance
@@ -152,7 +152,7 @@ export function KnowledgeAttachPicker({
             type="button"
             onClick={() => void save()}
             disabled={saving}
-            className="mt-1 flex items-center gap-1.5 rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white"
+            className="mt-1 flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white"
           >
             {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
             Save attachments
@@ -191,13 +191,13 @@ function PickerGroup({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 bg-white px-3 py-2.5 text-left transition-colors hover:bg-[#f7f4ea]/25"
+        className="flex w-full items-center justify-between gap-2 bg-white px-3 py-2.5 text-left transition-colors hover:bg-[#F5F8F8]/25"
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{title}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">{title}</span>
             {selected.length > 0 && (
-              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#063b32]">
+              <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px] font-semibold text-[#122428]">
                 {selected.length}
               </span>
             )}
@@ -207,7 +207,7 @@ function PickerGroup({
           )}
         </div>
         <ChevronDown
-          className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${expanded ? "rotate-180" : ""}`}
+          className={`h-4 w-4 shrink-0 text-[#5F686A] transition-transform ${expanded ? "rotate-180" : ""}`}
         />
       </button>
       {expanded && (
@@ -219,8 +219,8 @@ function PickerGroup({
               onClick={() => onToggle(o.id)}
               className={`rounded-full px-2 py-0.5 ${
                 selected.includes(o.id)
-                  ? "bg-[#063b32] text-white"
-                  : "border border-[#111111]/15 bg-white text-[#6f6b62]"
+                  ? "bg-[#122428] text-white"
+                  : "border border-[#111111]/15 bg-white text-[#5F686A]"
               }`}
             >
               {o.label}

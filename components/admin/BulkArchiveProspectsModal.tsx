@@ -37,12 +37,12 @@ export function BulkArchiveProspectsModal({ open, count, onClose, onConfirm }: P
             <AlertTriangle className="h-5 w-5 text-amber-600" />
             <h2 className="text-base font-semibold text-[#111111]">Archive {count} prospect(s)</h2>
           </div>
-          <button type="button" onClick={onClose} className="text-[#6f6b62] hover:text-[#111111]">
+          <button type="button" onClick={onClose} className="text-[#5F686A] hover:text-[#111111]">
             <X className="h-5 w-5" />
           </button>
         </div>
         <div className="space-y-4 px-6 py-5">
-          <p className="text-sm text-[#6f6b62]">
+          <p className="text-sm text-[#5F686A]">
             Records will be removed from Prospect Finder lists. This does not delete Prospect Queue engagements already created.
           </p>
           <p className="text-sm text-[#111111]">
@@ -51,13 +51,13 @@ export function BulkArchiveProspectsModal({ open, count, onClose, onConfirm }: P
           <input
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+            className="w-full rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
             placeholder="ARCHIVE"
             autoFocus
           />
         </div>
         <div className="flex justify-end gap-2 border-t border-[#111111]/10 px-6 py-4">
-          <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62]">
+          <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A]">
             Cancel
           </button>
           <button

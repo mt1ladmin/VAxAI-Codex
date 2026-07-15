@@ -6,7 +6,7 @@ import { Check, Pencil, Trash2, X } from "lucide-react";
 import { RecordBackNav } from "@/components/admin/RecordBackNav";
 import { type SectorProfile } from "@/lib/engagement/types";
 
-const INPUT = "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32]";
+const INPUT = "w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#122428]";
 const TEXTAREA = `${INPUT} resize-none`;
 
 function TagsEditor({ value, onChange }: { value: string[]; onChange: (v: string[]) => void }) {
@@ -17,10 +17,10 @@ function TagsEditor({ value, onChange }: { value: string[]; onChange: (v: string
     setInput("");
   };
   return (
-    <div className="rounded-lg border border-[#111111]/15 bg-white p-2 focus-within:border-[#063b32]">
+    <div className="rounded-lg border border-[#111111]/15 bg-white p-2 focus-within:border-[#122428]">
       <div className="flex flex-wrap gap-1.5 mb-2">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-xs font-semibold text-[#6f6b62]">
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-xs font-semibold text-[#5F686A]">
             {tag}
             <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="hover:text-red-500 leading-none">×</button>
           </span>
@@ -29,7 +29,7 @@ function TagsEditor({ value, onChange }: { value: string[]; onChange: (v: string
       <input value={input} onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
         placeholder="Type and press Enter to add"
-        className="w-full bg-transparent text-sm outline-none text-[#111111] placeholder:text-[#6f6b62]" />
+        className="w-full bg-transparent text-sm outline-none text-[#111111] placeholder:text-[#5F686A]" />
     </div>
   );
 }
@@ -47,7 +47,7 @@ function ReadList({ items }: { items: string[] }) {
     <ul className="space-y-1.5">
       {items.map((item, i) => (
         <li key={i} className="flex gap-2 text-sm text-[#111111]">
-          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#063b32]/40 shrink-0" />
+          <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#122428]/40 shrink-0" />
           {item}
         </li>
       ))}
@@ -58,8 +58,8 @@ function ReadList({ items }: { items: string[] }) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
-      <div className="bg-[#f7f4ea] px-5 py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">{title}</p>
+      <div className="bg-[#F5F8F8] px-5 py-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">{title}</p>
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -68,9 +68,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function EditSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-[#063b32]/20 overflow-hidden">
-      <div className="bg-[#063b32]/8 px-5 py-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#063b32]">{title}</p>
+    <div className="rounded-xl border border-[#122428]/20 overflow-hidden">
+      <div className="bg-[#122428]/8 px-5 py-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#122428]">{title}</p>
       </div>
       <div className="p-5">{children}</div>
     </div>
@@ -181,7 +181,7 @@ export default function SectorDetailPage() {
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((d) => d ? { ...d, [key]: value } : d);
 
-  if (loading) return <div className="p-12 text-center text-sm text-[#6f6b62]">Loading…</div>;
+  if (loading) return <div className="p-12 text-center text-sm text-[#5F686A]">Loading…</div>;
   if (!sector) return <div className="p-12 text-center text-sm text-red-600">Sector not found.</div>;
 
   return (
@@ -190,26 +190,26 @@ export default function SectorDetailPage() {
 
       {/* Header */}
       <div className="border-b border-[#111111]/8 bg-white px-8 pb-6 pt-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Sector profile</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">Sector profile</p>
 
         {editing && draft ? (
           <div className="mt-3 space-y-3 max-w-2xl">
-            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Sector name
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Sector name
               <input value={draft.name} onChange={(e) => set("name", e.target.value)} className={`mt-1 ${INPUT}`} />
             </label>
-            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Description
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Description
               <textarea rows={2} value={draft.description} onChange={(e) => set("description", e.target.value)} className={`mt-1 ${TEXTAREA}`} />
             </label>
-            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">Audience types
+            <label className="block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Audience types
               <div className="mt-1"><TagsEditor value={draft.audience_types} onChange={(v) => set("audience_types", v)} /></div>
             </label>
           </div>
         ) : (
           <>
-            {sector.description && <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">{sector.description}</p>}
+            {sector.description && <p className="mt-1 max-w-2xl text-sm text-[#5F686A]">{sector.description}</p>}
             {sector.audience_types && sector.audience_types.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {sector.audience_types.map((a) => <span key={a} className="rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[10px] font-semibold text-[#6f6b62]">{a}</span>)}
+                {sector.audience_types.map((a) => <span key={a} className="rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[10px] font-semibold text-[#5F686A]">{a}</span>)}
               </div>
             )}
           </>
@@ -219,20 +219,20 @@ export default function SectorDetailPage() {
         <div className="mt-4 flex items-center gap-2">
           {editing ? (
             <>
-              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"><X className="h-3.5 w-3.5" /> Cancel</button>
-              <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save changes"}</button>
+              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+              <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save changes"}</button>
             </>
           ) : (
             <>
-              <button type="button" onClick={startEdit} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:border-[#063b32] hover:text-[#063b32]"><Pencil className="h-3.5 w-3.5" /> Edit</button>
+              <button type="button" onClick={startEdit} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:border-[#122428] hover:text-[#122428]"><Pencil className="h-3.5 w-3.5" /> Edit</button>
               {confirmDelete ? (
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-red-600">Delete this sector?</span>
                   <button type="button" onClick={() => void del()} disabled={deleting} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 hover:bg-red-700">{deleting ? "Deleting…" : "Yes, delete"}</button>
-                  <button type="button" onClick={() => setConfirmDelete(false)} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
+                  <button type="button" onClick={() => setConfirmDelete(false)} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Cancel</button>
                 </div>
               ) : (
-                <button type="button" onClick={() => setConfirmDelete(true)} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /> Delete</button>
+                <button type="button" onClick={() => setConfirmDelete(true)} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:border-red-400 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /> Delete</button>
               )}
             </>
           )}
@@ -287,8 +287,8 @@ export default function SectorDetailPage() {
             </EditSection>
 
             <div className="flex justify-end gap-2 pt-2">
-              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"><X className="h-3.5 w-3.5" /> Cancel</button>
-              <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save changes"}</button>
+              <button type="button" onClick={cancelEdit} disabled={saving} className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"><X className="h-3.5 w-3.5" /> Cancel</button>
+              <button type="button" onClick={() => void save()} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"><Check className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Save changes"}</button>
             </div>
           </>
         ) : (
@@ -314,7 +314,7 @@ export default function SectorDetailPage() {
             {sector.common_systems && sector.common_systems.length > 0 && (
               <Section title="Common systems and tools">
                 <div className="flex flex-wrap gap-2">
-                  {sector.common_systems.map((s) => <span key={s} className="rounded-full bg-[#f7f4ea] px-3 py-1 text-xs font-semibold text-[#6f6b62]">{s}</span>)}
+                  {sector.common_systems.map((s) => <span key={s} className="rounded-full bg-[#F5F8F8] px-3 py-1 text-xs font-semibold text-[#5F686A]">{s}</span>)}
                 </div>
               </Section>
             )}
@@ -361,7 +361,7 @@ export default function SectorDetailPage() {
               <Section title="Evidence and sources">
                 <ul className="space-y-1">
                   {sector.evidence_sources.map((s, i) => (
-                    <li key={i} className="text-sm text-[#063b32] hover:underline">
+                    <li key={i} className="text-sm text-[#122428] hover:underline">
                       {s.startsWith("http") ? <a href={s} target="_blank" rel="noopener noreferrer">{s}</a> : s}
                     </li>
                   ))}

@@ -4,14 +4,14 @@ type Tone = "default" | "brand" | "amber" | "notes" | "muted";
 
 const TONE_STYLES: Record<Tone, { card: string; value: string; label: string }> = {
   default: {
-    card: "border-[#111111]/10 bg-white hover:border-[#063b32]/20 hover:bg-[#f7f4ea]/30",
+    card: "border-[#111111]/10 bg-white hover:border-[#122428]/20 hover:bg-[#F5F8F8]/30",
     value: "text-[#111111]",
-    label: "text-[#6f6b62]",
+    label: "text-[#5F686A]",
   },
   brand: {
-    card: "border-[#063b32]/15 bg-[#063b32]/5 hover:border-[#063b32]/25 hover:bg-[#063b32]/8",
-    value: "text-[#063b32]",
-    label: "text-[#063b32]/80",
+    card: "border-[#122428]/15 bg-[#122428]/5 hover:border-[#122428]/25 hover:bg-[#122428]/8",
+    value: "text-[#122428]",
+    label: "text-[#122428]/80",
   },
   amber: {
     card: "border-amber-200 bg-amber-50/60 hover:border-amber-300 hover:bg-amber-50",
@@ -24,9 +24,9 @@ const TONE_STYLES: Record<Tone, { card: string; value: string; label: string }> 
     label: "text-violet-700",
   },
   muted: {
-    card: "border-[#111111]/10 bg-[#f7f4ea]/40 hover:border-[#111111]/15 hover:bg-[#f7f4ea]/60",
+    card: "border-[#111111]/10 bg-[#F5F8F8]/40 hover:border-[#111111]/15 hover:bg-[#F5F8F8]/60",
     value: "text-[#111111]",
-    label: "text-[#6f6b62]",
+    label: "text-[#5F686A]",
   },
 };
 

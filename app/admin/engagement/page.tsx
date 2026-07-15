@@ -52,7 +52,7 @@ function SectionCard({
 }) {
   return (
     <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
-      <div className="flex items-center justify-between border-b border-[#111111]/5 px-5 py-3.5 bg-[#f7f4ea]/50">
+      <div className="flex items-center justify-between border-b border-[#111111]/5 px-5 py-3.5 bg-[#F5F8F8]/50">
         <h2 className="text-sm font-semibold text-[#111111]">{title}</h2>
         {action}
       </div>
@@ -120,7 +120,7 @@ export default function EngagementOverview() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-semibold text-[#111111]">Overview</h1>
-            <p className="mt-0.5 text-sm text-[#6f6b62]">
+            <p className="mt-0.5 text-sm text-[#5F686A]">
               Prospect assessment, outreach, enquiries, tasks, and Knowledge Hub — aligned to VAxAI wraparound support.
             </p>
           </div>
@@ -139,16 +139,16 @@ export default function EngagementOverview() {
           {stats.loading
             ? [1, 2].map((i) => (
                 <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-                  <div className="h-3 w-20 rounded bg-[#f7f4ea]" />
-                  <div className="mt-3 h-8 w-12 rounded bg-[#f7f4ea]/80" />
+                  <div className="h-3 w-20 rounded bg-[#F5F8F8]" />
+                  <div className="mt-3 h-8 w-12 rounded bg-[#F5F8F8]/80" />
                 </div>
               ))
             : [
                 { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
                 { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
               ].map(({ label, value, href, color }) => (
-                <Link key={label} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#063b32]/30 transition-colors">
-                  <p className="text-xs font-semibold text-[#6f6b62]">{label}</p>
+                <Link key={label} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#122428]/30 transition-colors">
+                  <p className="text-xs font-semibold text-[#5F686A]">{label}</p>
                   <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
                 </Link>
               ))}
@@ -157,18 +157,18 @@ export default function EngagementOverview() {
         <div className="grid gap-4 lg:grid-cols-2">
           <SectionCard
             title="Overdue tasks"
-            action={<Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
+            action={<Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#122428] hover:underline">View all</Link>}
           >
             {workLoading ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
+              <p className="px-5 py-4 text-sm text-[#5F686A]">Loading…</p>
             ) : !workToday?.overdueTasks.length ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">None — good.</p>
+              <p className="px-5 py-4 text-sm text-[#5F686A]">None — good.</p>
             ) : (
               <div className="divide-y divide-[#111111]/5">
                 {workToday.overdueTasks.map((t) => (
                   <Link key={t.id} href={t.href} className="block px-5 py-3 hover:bg-red-50/40">
                     <p className="text-sm font-semibold text-[#111111] truncate">{t.title}</p>
-                    {t.contact_name && <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{t.contact_name}</p>}
+                    {t.contact_name && <p className="mt-0.5 text-xs text-[#5F686A] truncate">{t.contact_name}</p>}
                   </Link>
                 ))}
               </div>
@@ -177,18 +177,18 @@ export default function EngagementOverview() {
 
           <SectionCard
             title="New enquiries"
-            action={<Link href="/admin/enquiries" className="text-xs font-semibold text-[#063b32] hover:underline">View all</Link>}
+            action={<Link href="/admin/enquiries" className="text-xs font-semibold text-[#122428] hover:underline">View all</Link>}
           >
             {workLoading ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">Loading…</p>
+              <p className="px-5 py-4 text-sm text-[#5F686A]">Loading…</p>
             ) : !workToday?.newEnquiries.length ? (
-              <p className="px-5 py-4 text-sm text-[#6f6b62]">Inbox clear.</p>
+              <p className="px-5 py-4 text-sm text-[#5F686A]">Inbox clear.</p>
             ) : (
               <div className="divide-y divide-[#111111]/5">
                 {workToday.newEnquiries.map((e) => (
-                  <Link key={e.id} href={e.href} className="block px-5 py-3 hover:bg-[#f7f4ea]/50">
+                  <Link key={e.id} href={e.href} className="block px-5 py-3 hover:bg-[#F5F8F8]/50">
                     <p className="text-sm font-semibold text-[#111111] truncate">{e.name}</p>
-                    <p className="mt-0.5 text-xs text-[#6f6b62] truncate">{e.status}</p>
+                    <p className="mt-0.5 text-xs text-[#5F686A] truncate">{e.status}</p>
                   </Link>
                 ))}
               </div>
@@ -202,15 +202,15 @@ export default function EngagementOverview() {
             { label: "Prepare for a prospect", desc: "Sectors, personas, objections, and VAT-informed prompts to help you prepare for a conversation", href: "/admin/engagement/knowledge", icon: Users },
             { label: "Knowledge library", desc: "Full playbook — pain points, scripts, pricing bands, and approved outreach blocks", href: "/admin/engagement/knowledge", icon: Zap },
           ].map(({ label, desc, href, icon: Icon }) => (
-            <Link key={href} href={href} className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3.5 hover:border-[#063b32]/25 hover:bg-[#f7f4ea]/40 transition-colors">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#063b32]/8 text-[#063b32]">
+            <Link key={href} href={href} className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3.5 hover:border-[#122428]/25 hover:bg-[#F5F8F8]/40 transition-colors">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#122428]/8 text-[#122428]">
                 <Icon className="h-4 w-4" />
               </span>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-[#111111]">{label}</p>
-                <p className="text-xs text-[#6f6b62]">{desc}</p>
+                <p className="text-xs text-[#5F686A]">{desc}</p>
               </div>
-              <ArrowRight className="h-4 w-4 shrink-0 text-[#6f6b62]/40" />
+              <ArrowRight className="h-4 w-4 shrink-0 text-[#5F686A]/40" />
             </Link>
           ))}
         </div>
@@ -221,13 +221,13 @@ export default function EngagementOverview() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <SectionCard
             title="Recent posts"
-            action={<Link href="/admin/posts" className="text-xs font-semibold text-[#063b32] hover:underline">All posts</Link>}
+            action={<Link href="/admin/posts" className="text-xs font-semibold text-[#122428] hover:underline">All posts</Link>}
           >
             {stats.loading ? (
-              <p className="px-5 py-6 text-sm text-[#6f6b62]">Loading…</p>
+              <p className="px-5 py-6 text-sm text-[#5F686A]">Loading…</p>
             ) : stats.recentPosts.length === 0 ? (
-              <p className="px-5 py-6 text-sm text-[#6f6b62]">
-                No posts yet. <Link href="/admin/posts/new" className="text-[#063b32] underline">Write one</Link>
+              <p className="px-5 py-6 text-sm text-[#5F686A]">
+                No posts yet. <Link href="/admin/posts/new" className="text-[#122428] underline">Write one</Link>
               </p>
             ) : (
               <div className="divide-y divide-[#111111]/5">
@@ -235,9 +235,9 @@ export default function EngagementOverview() {
                   const statusColor =
                     p.status === "published" ? "bg-emerald-100 text-emerald-700"
                     : p.status === "scheduled" ? "bg-blue-100 text-blue-700"
-                    : "bg-[#f7f4ea] text-[#6f6b62]";
+                    : "bg-[#F5F8F8] text-[#5F686A]";
                   return (
-                    <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors">
+                    <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#F5F8F8]/50 transition-colors">
                       <span className="text-sm font-semibold text-[#111111] truncate">{p.title}</span>
                       <span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${statusColor}`}>{p.status}</span>
                     </Link>
@@ -249,23 +249,23 @@ export default function EngagementOverview() {
 
           <SectionCard
             title="Upcoming posts"
-            action={<Link href="/admin/calendar" className="text-xs font-semibold text-[#063b32] hover:underline">Calendar</Link>}
+            action={<Link href="/admin/calendar" className="text-xs font-semibold text-[#122428] hover:underline">Calendar</Link>}
           >
             {stats.loading ? (
-              <p className="px-5 py-6 text-sm text-[#6f6b62]">Loading…</p>
+              <p className="px-5 py-6 text-sm text-[#5F686A]">Loading…</p>
             ) : stats.upcomingPosts.length === 0 ? (
-              <p className="px-5 py-6 text-sm text-[#6f6b62]">
-                No upcoming scheduled posts. <Link href="/admin/posts/new" className="text-[#063b32] underline">Schedule one</Link>
+              <p className="px-5 py-6 text-sm text-[#5F686A]">
+                No upcoming scheduled posts. <Link href="/admin/posts/new" className="text-[#122428] underline">Schedule one</Link>
               </p>
             ) : (
               <div className="divide-y divide-[#111111]/5">
                 {stats.upcomingPosts.map((p) => {
                   const isSocial = (p.content_type || "").toLowerCase().includes("social");
                   return (
-                    <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#f7f4ea]/50 transition-colors">
+                    <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#F5F8F8]/50 transition-colors">
                       <div className="min-w-0">
                         <span className="block text-sm font-semibold text-[#111111] truncate">{p.title}</span>
-                        <span className="text-[10px] text-[#6f6b62]">{isSocial ? "Social" : "Blog"}</span>
+                        <span className="text-[10px] text-[#5F686A]">{isSocial ? "Social" : "Blog"}</span>
                       </div>
                       {p.scheduled_at && (
                         <span className="ml-2 shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">

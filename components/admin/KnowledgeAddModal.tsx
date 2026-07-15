@@ -19,13 +19,13 @@ const SECTION_LABELS: Record<Section, string> = {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#6f6b62]">{label}</span>
+      <span className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">{label}</span>
       {children}
     </label>
   );
 }
 
-const INPUT = "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#063b32]";
+const INPUT = "w-full rounded-lg border border-[#111111]/15 px-3 py-2 text-sm text-[#111111] outline-none focus:border-[#122428]";
 const TEXTAREA = `${INPUT} resize-none`;
 
 function TagsInput({ value, onChange, placeholder }: { value: string[]; onChange: (v: string[]) => void; placeholder?: string }) {
@@ -39,10 +39,10 @@ function TagsInput({ value, onChange, placeholder }: { value: string[]; onChange
   };
 
   return (
-    <div className="rounded-lg border border-[#111111]/15 p-2 focus-within:border-[#063b32]">
+    <div className="rounded-lg border border-[#111111]/15 p-2 focus-within:border-[#122428]">
       <div className="flex flex-wrap gap-1.5 mb-2">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#f7f4ea] px-2.5 py-0.5 text-[11px] font-semibold text-[#6f6b62]">
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
             {tag}
             <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="hover:text-red-500">×</button>
           </span>
@@ -54,7 +54,7 @@ function TagsInput({ value, onChange, placeholder }: { value: string[]; onChange
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); add(); } }}
         placeholder={placeholder ?? "Type and press Enter"}
-        className="w-full text-sm outline-none bg-transparent text-[#111111] placeholder:text-[#6f6b62]"
+        className="w-full text-sm outline-none bg-transparent text-[#111111] placeholder:text-[#5F686A]"
       />
     </div>
   );
@@ -207,8 +207,8 @@ function VatPromptForm({ onSave, onClose }: { onSave: () => void; onClose: () =>
             <button key={dim} type="button" onClick={() => setD({ ...d, dimension: dim })}
               className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
                 d.dimension === dim
-                  ? dim === "value" ? "bg-[#063b32] text-white" : dim === "alignment" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
-                  : "border border-[#111111]/15 text-[#6f6b62] hover:text-[#111111]"
+                  ? dim === "value" ? "bg-[#122428] text-white" : dim === "alignment" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
+                  : "border border-[#111111]/15 text-[#5F686A] hover:text-[#111111]"
               }`}>{dim}</button>
           ))}
         </div>
@@ -290,8 +290,8 @@ function ObjectionForm({ onSave, onClose }: { onSave: () => void; onClose: () =>
         </div>
       </Field>
       <Field label="Response *">
-        <div className="rounded-lg border border-[#063b32]/15 bg-[#063b32]/5 p-3">
-          <textarea rows={3} value={d.response} onChange={(e) => setD({ ...d, response: e.target.value })} className="w-full bg-transparent text-sm text-[#111111] outline-none resize-none placeholder:text-[#063b32]/40" placeholder="Approved response…" />
+        <div className="rounded-lg border border-[#122428]/15 bg-[#122428]/5 p-3">
+          <textarea rows={3} value={d.response} onChange={(e) => setD({ ...d, response: e.target.value })} className="w-full bg-transparent text-sm text-[#111111] outline-none resize-none placeholder:text-[#122428]/40" placeholder="Approved response…" />
         </div>
       </Field>
       <Footer saving={saving} onSave={() => void save()} onClose={onClose} disabled={!d.objection.trim() || !d.response.trim()} />
@@ -343,8 +343,8 @@ function PricingForm({ onSave, onClose }: { onSave: () => void; onClose: () => v
 function Footer({ saving, onSave, onClose, disabled }: { saving: boolean; onSave: () => void; onClose: () => void; disabled?: boolean }) {
   return (
     <div className="flex justify-end gap-2 border-t border-[#111111]/10 pt-4">
-      <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">Cancel</button>
-      <button type="button" onClick={onSave} disabled={saving || disabled} className="flex items-center gap-2 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+      <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Cancel</button>
+      <button type="button" onClick={onSave} disabled={saving || disabled} className="flex items-center gap-2 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
         <Plus className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Add"}
       </button>
     </div>
@@ -392,12 +392,12 @@ export function KnowledgeAddModal({ open, defaultSection, onClose, onSaved }: {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#111111]/10 px-6 py-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#063b32]">Knowledge Hub</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#122428]">Knowledge Hub</p>
             <h2 className="text-lg font-semibold text-[#111111]">
               {section ? `Add ${SECTION_LABELS[section]}` : "What would you like to add?"}
             </h2>
           </div>
-          <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-lg border border-[#111111]/15 text-[#6f6b62] hover:bg-[#f7f4ea]">
+          <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:bg-[#F5F8F8]">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -411,7 +411,7 @@ export function KnowledgeAddModal({ open, defaultSection, onClose, onSaved }: {
                   key={key}
                   type="button"
                   onClick={() => setSection(key)}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left transition-all hover:border-[#063b32]/40 hover:bg-[#f7f4ea]"
+                  className="rounded-xl border border-[#111111]/10 p-4 text-left transition-all hover:border-[#122428]/40 hover:bg-[#F5F8F8]"
                 >
                   <p className="font-semibold text-[#111111] text-sm">{label}</p>
                 </button>
@@ -422,7 +422,7 @@ export function KnowledgeAddModal({ open, defaultSection, onClose, onSaved }: {
           {/* Back button when form showing */}
           {section && (
             <div className="mb-4">
-              <button type="button" onClick={() => setSection("")} className="text-xs font-semibold text-[#6f6b62] hover:text-[#063b32]">
+              <button type="button" onClick={() => setSection("")} className="text-xs font-semibold text-[#5F686A] hover:text-[#122428]">
                 ← Change section
               </button>
             </div>

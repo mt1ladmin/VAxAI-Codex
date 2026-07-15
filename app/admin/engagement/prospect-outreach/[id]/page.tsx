@@ -45,15 +45,15 @@ function NextActionField({ value, onSave }: { value: string | null; onSave: (val
   const dirty = draft !== (value ?? "");
   return (
     <div className="rounded-xl border border-[#111111]/10 p-4 space-y-2">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Next action</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Next action</p>
       <textarea
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         rows={3}
         placeholder="Add a next action note…"
-        className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+        className="w-full resize-none rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
       />
-      <p className="text-[10px] text-[#6f6b62]">Saving will overwrite the previous next action note.</p>
+      <p className="text-[10px] text-[#5F686A]">Saving will overwrite the previous next action note.</p>
       {dirty && (
         <button
           type="button"
@@ -63,7 +63,7 @@ function NextActionField({ value, onSave }: { value: string | null; onSave: (val
             await onSave(draft.trim() || null);
             setSaving(false);
           }}
-          className="rounded-lg bg-[#063b32] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+          className="rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save next action"}
         </button>
@@ -96,12 +96,12 @@ function AssignmentDropdown({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40"
+        className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#122428]/40"
       >
-        <span className={selected?.value ? "text-[#111111]" : "text-[#6f6b62]"}>
+        <span className={selected?.value ? "text-[#111111]" : "text-[#5F686A]"}>
           {selected?.label || "Unassigned"}
         </span>
-        <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#5F686A] transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div className="absolute z-30 mt-1 w-full overflow-hidden rounded-xl border border-[#111111]/15 bg-white shadow-lg">
@@ -110,12 +110,12 @@ function AssignmentDropdown({
               key={opt.value || "__unassigned"}
               type="button"
               onClick={() => { setOpen(false); onChange(opt.value); }}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
-                value === opt.value ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+                value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"
               }`}
             >
               <span className="flex-1">{opt.label}</span>
-              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+              {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
             </button>
           ))}
         </div>
@@ -356,7 +356,7 @@ function ProspectFinderDetailContent() {
   };
 
   if (loading && !record) return <HubDetailSkeleton />;
-  if (!record) return <div className="p-8 text-sm text-[#6f6b62]">Prospect not found.</div>;
+  if (!record) return <div className="p-8 text-sm text-[#5F686A]">Prospect not found.</div>;
 
   const openTasks = tasks.filter((t) => t.status !== "done");
   const doneTasks = tasks.filter((t) => t.status === "done");
@@ -386,11 +386,11 @@ function ProspectFinderDetailContent() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-[#111111]">Log as new client</h3>
-                <p className="text-xs text-[#6f6b62]">{record.organisation_name}</p>
+                <p className="text-xs text-[#5F686A]">{record.organisation_name}</p>
               </div>
             </div>
             <div className="mb-3">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Service being provided *</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#5F686A]">Service being provided *</label>
               <AppSelect
                 value={clientService}
                 onChange={setClientService}
@@ -408,7 +408,7 @@ function ProspectFinderDetailContent() {
             </div>
             {clientService === "Other" && (
               <div className="mb-3">
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Specify service</label>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#5F686A]">Specify service</label>
                 <input
                   type="text"
                   value={clientServiceOther}
@@ -419,7 +419,7 @@ function ProspectFinderDetailContent() {
               </div>
             )}
             <div className="mb-4">
-              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#6f6b62]">Additional notes</label>
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-[#5F686A]">Additional notes</label>
               <textarea
                 value={clientNote}
                 onChange={(e) => setClientNote(e.target.value)}
@@ -430,7 +430,7 @@ function ProspectFinderDetailContent() {
             </div>
             <div className="flex gap-3">
               <button type="button" onClick={() => { setShowClientModal(false); setClientService(""); setClientServiceOther(""); setClientNote(""); }}
-                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]">
+                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">
                 Cancel
               </button>
               <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientService || (clientService === "Other" && !clientServiceOther.trim())}
@@ -456,26 +456,26 @@ function ProspectFinderDetailContent() {
         badge={(tabId) => {
           if (tabId === "tasks" && openTasks.length > 0) {
             return (
-              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+              <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px]">
                 {openTasks.length}
               </span>
             );
           }
           if (tabId === "research" && hasResearchAssessmentContent(record)) {
-            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
+            return <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
           }
           if (tabId === "vaxai_support" && hasVaxaiSupportContent(record)) {
-            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
+            return <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
           }
           if (
             tabId === "engagement_guide" &&
             (hasRecommendedEngagementContent(record) || record.engagement_approach)
           ) {
-            return <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
+            return <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px]">✓</span>;
           }
           if (tabId === "notes" && notesCount > 0) {
             return (
-              <span className="rounded-full bg-[#063b32]/10 px-1.5 py-0.5 text-[10px]">
+              <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px]">
                 {notesCount}
               </span>
             );
@@ -488,13 +488,13 @@ function ProspectFinderDetailContent() {
         <div className="space-y-4">
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Summary</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Summary</p>
               {summaryEditing ? (
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => { setSummaryEditing(false); void load({ silent: true }); }}
-                    className="text-xs text-[#6f6b62] hover:text-[#111111]"
+                    className="text-xs text-[#5F686A] hover:text-[#111111]"
                   >
                     Cancel
                   </button>
@@ -502,7 +502,7 @@ function ProspectFinderDetailContent() {
                     type="button"
                     onClick={() => void saveSummary()}
                     disabled={summarySaving}
-                    className="text-xs font-semibold text-[#063b32] hover:underline disabled:opacity-50"
+                    className="text-xs font-semibold text-[#122428] hover:underline disabled:opacity-50"
                   >
                     {summarySaving ? "Saving…" : "Save"}
                   </button>
@@ -511,7 +511,7 @@ function ProspectFinderDetailContent() {
                 <button
                   type="button"
                   onClick={() => setSummaryEditing(true)}
-                  className="flex items-center gap-1 text-xs text-[#6f6b62] hover:text-[#063b32]"
+                  className="flex items-center gap-1 text-xs text-[#5F686A] hover:text-[#122428]"
                 >
                   <Pencil className="h-3 w-3" /> Edit
                 </button>
@@ -537,7 +537,7 @@ function ProspectFinderDetailContent() {
                     <button
                       type="button"
                       onClick={() => { setDmEditing(false); void load({ silent: true }); }}
-                      className="text-xs text-[#6f6b62] hover:text-[#111111]"
+                      className="text-xs text-[#5F686A] hover:text-[#111111]"
                     >
                       Cancel
                     </button>
@@ -545,7 +545,7 @@ function ProspectFinderDetailContent() {
                       type="button"
                       onClick={() => void saveDm()}
                       disabled={dmSaving}
-                      className="text-xs font-semibold text-[#063b32] hover:underline disabled:opacity-50"
+                      className="text-xs font-semibold text-[#122428] hover:underline disabled:opacity-50"
                     >
                       {dmSaving ? "Saving…" : "Save"}
                     </button>
@@ -554,7 +554,7 @@ function ProspectFinderDetailContent() {
                   <button
                     type="button"
                     onClick={() => setDmEditing(true)}
-                    className="flex items-center gap-1 text-xs text-[#6f6b62] hover:text-[#063b32]"
+                    className="flex items-center gap-1 text-xs text-[#5F686A] hover:text-[#122428]"
                   >
                     <Pencil className="h-3 w-3" /> Edit
                   </button>
@@ -564,7 +564,7 @@ function ProspectFinderDetailContent() {
           </div>
 
           <div className="rounded-xl border border-[#111111]/10 p-5 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Assignment</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Assignment</p>
             <AssignmentDropdown
               value={record.assigned_team_member_id || ""}
               options={[{ value: "", label: "Unassigned" }, ...memberOptions]}
@@ -578,14 +578,14 @@ function ProspectFinderDetailContent() {
               }}
             />
             <div className="relative">
-              <p className="mb-1 text-[10px] text-[#6f6b62]">Engagement status</p>
+              <p className="mb-1 text-[10px] text-[#5F686A]">Engagement status</p>
               <button
                 type="button"
                 onClick={() => setStatusDropdownOpen((v) => !v)}
-                className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#063b32]/40"
+                className="flex w-full items-center justify-between gap-2 rounded-xl border border-[#111111]/15 bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors hover:border-[#122428]/40"
               >
                 <span className="text-[#111111]">{record.engagement_status || "Not assigned"}</span>
-                <ChevronDown className={`h-4 w-4 shrink-0 text-[#6f6b62] transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`h-4 w-4 shrink-0 text-[#5F686A] transition-transform ${statusDropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {statusDropdownOpen && (
                 <div className="absolute z-30 mt-1 w-full min-w-[14rem] overflow-hidden rounded-xl border border-[#111111]/15 bg-white shadow-lg">
@@ -598,12 +598,12 @@ function ProspectFinderDetailContent() {
                         void patchWorkflow({ engagement_status: null });
                       }
                     }}
-                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
-                      !record.engagement_status ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#6f6b62]"
+                    className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+                      !record.engagement_status ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#5F686A]"
                     }`}
                   >
                     <span className="flex-1">Not assigned</span>
-                    {!record.engagement_status && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+                    {!record.engagement_status && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
                   </button>
                   {FINDER_ENGAGEMENT_STATUSES.map((s) => (
                     <button
@@ -616,12 +616,12 @@ function ProspectFinderDetailContent() {
                           void patchWorkflow({ engagement_status: s });
                         }
                       }}
-                      className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#f7f4ea] ${
-                        record.engagement_status === s ? "bg-[#063b32]/5 font-semibold text-[#063b32]" : "text-[#111111]"
+                      className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+                        record.engagement_status === s ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"
                       }`}
                     >
                       <span className="flex-1">{s}</span>
-                      {record.engagement_status === s && <Check className="h-3.5 w-3.5 shrink-0 text-[#063b32]" />}
+                      {record.engagement_status === s && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
                     </button>
                   ))}
                 </div>
@@ -648,7 +648,7 @@ function ProspectFinderDetailContent() {
               </div>
             ) : (
               <>
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Client</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Client</p>
                 <button
                   type="button"
                   onClick={() => setShowClientModal(true)}
@@ -688,7 +688,7 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "research" && (
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">Research assessment</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Research assessment</p>
               <ServiceFitPanel
                 data={record}
                 mode="research"
@@ -700,7 +700,7 @@ function ProspectFinderDetailContent() {
 
           {activeTab === "vaxai_support" && (
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#6f6b62]">VAxAI support and boundaries</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">VAxAI support and boundaries</p>
               <ServiceFitPanel
                 data={record}
                 mode="support"

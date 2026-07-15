@@ -114,8 +114,8 @@ function statusTone(status: string): string {
   if (status === "Conversation held") return "text-sky-700 font-medium";
   if (status === "Follow up required") return "text-amber-700 font-medium";
   if (status === "Contact attempted") return "text-blue-700";
-  if (status === "Not suitable" || status === "No response") return "text-[#6f6b62]";
-  return "text-[#6f6b62]";
+  if (status === "Not suitable" || status === "No response") return "text-[#5F686A]";
+  return "text-[#5F686A]";
 }
 
 function matchesDateFilter(e: Enquiry, filter: DateFilter): boolean {
@@ -309,16 +309,16 @@ export default function EnquiriesPage() {
       <div className="shrink-0 border-b border-[#111111]/10 bg-white px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#6f6b62]">Client Engagement</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#5F686A]">Client Engagement</p>
             <h1 className="mt-1 font-serif text-2xl text-[#111111]">Enquiries</h1>
-            <p className="mt-1 max-w-2xl text-sm text-[#6f6b62]">
+            <p className="mt-1 max-w-2xl text-sm text-[#5F686A]">
               Inbound interest — qualify against VAxAI wraparound support.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42]"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1B343A]"
           >
             <Plus className="h-4 w-4" /> Add enquiry
           </button>
@@ -328,11 +328,11 @@ export default function EnquiriesPage() {
         {!loading && (
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-              <p className="text-xs font-semibold text-[#6f6b62]">Total</p>
+              <p className="text-xs font-semibold text-[#5F686A]">Total</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{metrics.total.toLocaleString()}</p>
             </div>
             <div className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-              <p className="text-xs font-semibold text-[#6f6b62]">Have tasks</p>
+              <p className="text-xs font-semibold text-[#5F686A]">Have tasks</p>
               <p className="mt-1 text-2xl font-bold tabular-nums text-[#111111]">{metrics.haveTasks.toLocaleString()}</p>
             </div>
             <button
@@ -374,15 +374,15 @@ export default function EnquiriesPage() {
         {/* Filter bar */}
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <div className="relative min-w-[200px] flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6f6b62]" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search name, email, details, organisation…"
-              className="w-full rounded-xl border border-[#111111]/15 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#063b32]"
+              className="w-full rounded-xl border border-[#111111]/15 py-2 pl-9 pr-3 text-sm outline-none focus:border-[#122428]"
             />
           </div>
-          <Filter className="h-4 w-4 shrink-0 text-[#6f6b62]" />
+          <Filter className="h-4 w-4 shrink-0 text-[#5F686A]" />
           <FilterSelect
             value={dateFilter}
             onChange={(v) => setDateFilter(v as DateFilter)}
@@ -419,14 +419,14 @@ export default function EnquiriesPage() {
                 setSourceFilter("all");
                 setStatusFilter("all");
               }}
-              className="text-xs font-medium text-[#063b32] hover:underline"
+              className="text-xs font-medium text-[#122428] hover:underline"
             >
               Clear filters
             </button>
           )}
           {selected.size > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-[#6f6b62]">{selected.size} selected</span>
+              <span className="text-xs text-[#5F686A]">{selected.size} selected</span>
               <button
                 type="button"
                 disabled={deleting}
@@ -439,7 +439,7 @@ export default function EnquiriesPage() {
               <button
                 type="button"
                 onClick={() => setSelected(new Set())}
-                className="grid h-7 w-7 place-items-center rounded-full border border-[#111111]/15 bg-white text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="grid h-7 w-7 place-items-center rounded-full border border-[#111111]/15 bg-white text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -451,20 +451,20 @@ export default function EnquiriesPage() {
       {/* Table */}
       <div className="min-h-0 flex-1 overflow-auto">
         {loading && enquiries.length === 0 ? (
-          <div className="flex items-center justify-center py-16 text-[#6f6b62]">
+          <div className="flex items-center justify-center py-16 text-[#5F686A]">
             <Loader2 className="h-6 w-6 animate-spin" />
           </div>
         ) : (
           <table className="w-full min-w-[900px] border-collapse text-sm">
-            <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#f7f4ea]/90 backdrop-blur-sm">
-              <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#6f6b62]">
+            <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#F5F8F8]/90 backdrop-blur-sm">
+              <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
                 <th className="w-10 px-3 py-3">
                   <button
                     type="button"
                     onClick={toggleAll}
                     className={`grid h-4 w-4 place-items-center rounded border ${
                       selected.size === filtered.length && filtered.length > 0
-                        ? "border-[#063b32] bg-[#063b32]"
+                        ? "border-[#122428] bg-[#122428]"
                         : "border-[#111111]/25 bg-white"
                     }`}
                   >
@@ -486,26 +486,26 @@ export default function EnquiriesPage() {
             <tbody className="divide-y divide-[#111111]/5">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-16 text-center text-sm text-[#6f6b62]">
+                  <td colSpan={9} className="py-16 text-center text-sm text-[#5F686A]">
                     {enquiries.length === 0 ? "No enquiries yet." : "No enquiries match your filters."}
                   </td>
                 </tr>
               ) : (
                 filtered.map((e) => (
-                  <tr key={e.id} className="group hover:bg-[#f7f4ea]/40">
+                  <tr key={e.id} className="group hover:bg-[#F5F8F8]/40">
                     <td className="px-3 py-3.5">
                       <button
                         type="button"
                         onClick={(ev) => { ev.stopPropagation(); toggleSelect(e.id); }}
                         className={`grid h-4 w-4 place-items-center rounded border ${
-                          selected.has(e.id) ? "border-[#063b32] bg-[#063b32]" : "border-[#111111]/25 bg-white"
+                          selected.has(e.id) ? "border-[#122428] bg-[#122428]" : "border-[#111111]/25 bg-white"
                         }`}
                       >
                         {selected.has(e.id) && <Check className="h-3 w-3 text-white" />}
                       </button>
                     </td>
                     <td className="px-6 py-3.5">
-                      <Link href={`/admin/enquiries/${e.id}`} className="font-medium text-[#111111] hover:text-[#063b32]">
+                      <Link href={`/admin/enquiries/${e.id}`} className="font-medium text-[#111111] hover:text-[#122428]">
                         {e.name}
                       </Link>
                       {e.is_client && (
@@ -513,9 +513,9 @@ export default function EnquiriesPage() {
                           Client
                         </span>
                       )}
-                      <p className="truncate text-[11px] text-[#6f6b62]">{e.email}</p>
+                      <p className="truncate text-[11px] text-[#5F686A]">{e.email}</p>
                     </td>
-                    <td className="px-3 py-3.5 text-[#6f6b62]">{e.organisation?.name || "—"}</td>
+                    <td className="px-3 py-3.5 text-[#5F686A]">{e.organisation?.name || "—"}</td>
                     <td className="px-3 py-3.5">
                       <span className="text-xs text-[#111111]">
                         {e.support_type}
@@ -530,20 +530,20 @@ export default function EnquiriesPage() {
                         >
                           {e.assigned_team_member_name ? (
                             <>
-                              <User className="h-3.5 w-3.5 text-[#6f6b62]" />
+                              <User className="h-3.5 w-3.5 text-[#5F686A]" />
                               <span className="text-[#111111]">{e.assigned_team_member_name}</span>
                             </>
                           ) : (
-                            <span className="text-[#6f6b62]">—</span>
+                            <span className="text-[#5F686A]">—</span>
                           )}
-                          <ChevronDown className="h-3 w-3 text-[#6f6b62] opacity-50" />
+                          <ChevronDown className="h-3 w-3 text-[#5F686A] opacity-50" />
                         </button>
                         {assigneeMenuId === e.id && (
                           <div className="absolute left-0 top-full z-20 mt-1 w-44 overflow-hidden rounded-lg border border-[#111111]/10 bg-white shadow-lg">
                             <button
                               type="button"
                               onClick={() => { void patchEnquiry(e.id, { assigned_team_member_id: null }); setAssigneeMenuId(null); }}
-                              className="w-full px-3 py-2 text-left text-xs text-[#6f6b62] hover:bg-[#f7f4ea]"
+                              className="w-full px-3 py-2 text-left text-xs text-[#5F686A] hover:bg-[#F5F8F8]"
                             >
                               Unassigned
                             </button>
@@ -552,7 +552,7 @@ export default function EnquiriesPage() {
                                 key={m.id}
                                 type="button"
                                 onClick={() => { void patchEnquiry(e.id, { assigned_team_member_id: m.id }); setAssigneeMenuId(null); }}
-                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-[#f7f4ea]"
+                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-[#F5F8F8]"
                               >
                                 {m.display_name}
                               </button>
@@ -576,8 +576,8 @@ export default function EnquiriesPage() {
                             <button
                               type="button"
                               onClick={() => void updateStatus(e.id, "")}
-                              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-[#f7f4ea] ${
-                                isUnreviewedEnquiry(e.status) ? "font-semibold text-[#063b32]" : "text-[#6f6b62]"
+                              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-[#F5F8F8] ${
+                                isUnreviewedEnquiry(e.status) ? "font-semibold text-[#122428]" : "text-[#5F686A]"
                               }`}
                             >
                               <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
@@ -588,7 +588,7 @@ export default function EnquiriesPage() {
                                 key={s.key}
                                 type="button"
                                 onClick={() => void updateStatus(e.id, s.key)}
-                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-[#f7f4ea]"
+                                className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs hover:bg-[#F5F8F8]"
                               >
                                 <span className={`h-2 w-2 shrink-0 rounded-full ${(ENQUIRY_STATUS_COLORS[s.key] ?? "").split(" ")[0]}`} />
                                 {s.label}
@@ -598,7 +598,7 @@ export default function EnquiriesPage() {
                         )}
                       </div>
                     </td>
-                    <td className="max-w-[200px] px-6 py-3.5 text-xs text-[#6f6b62]">
+                    <td className="max-w-[200px] px-6 py-3.5 text-xs text-[#5F686A]">
                       <button
                         type="button"
                         onClick={(ev) => {
@@ -608,15 +608,15 @@ export default function EnquiriesPage() {
                           setStatusMenuId(null);
                           setAssigneeMenuId(null);
                         }}
-                        className="block w-full truncate text-left hover:text-[#063b32]"
+                        className="block w-full truncate text-left hover:text-[#122428]"
                       >
-                        {e.next_action || <span className="text-[#6f6b62]/50">Add next action…</span>}
+                        {e.next_action || <span className="text-[#5F686A]/50">Add next action…</span>}
                       </button>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3.5 text-xs text-[#6f6b62]">
+                    <td className="whitespace-nowrap px-3 py-3.5 text-xs text-[#5F686A]">
                       {new Date(e.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                       {e.source && (
-                        <p className="mt-0.5 text-[10px] text-[#6f6b62]/70">{e.source}</p>
+                        <p className="mt-0.5 text-[10px] text-[#5F686A]/70">{e.source}</p>
                       )}
                       {e.wants_discovery_call && (
                         <span className="mt-0.5 inline-block rounded-full bg-sky-100 px-1.5 py-0.5 text-[9px] font-semibold text-sky-700">DC</span>
@@ -627,7 +627,7 @@ export default function EnquiriesPage() {
                         type="button"
                         disabled={deleting}
                         onClick={(ev) => { ev.preventDefault(); void deleteSingle(e.id, e.name); }}
-                        className="opacity-0 group-hover:opacity-100 grid h-6 w-6 place-items-center rounded text-[#6f6b62] hover:bg-red-50 hover:text-red-600 disabled:opacity-30 transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 grid h-6 w-6 place-items-center rounded text-[#5F686A] hover:bg-red-50 hover:text-red-600 disabled:opacity-30 transition-opacity"
                         title="Delete enquiry"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -643,7 +643,7 @@ export default function EnquiriesPage() {
 
       {/* Footer count */}
       <div className="flex shrink-0 items-center border-t border-[#111111]/10 bg-white px-6 py-3 text-sm">
-        <p className="text-[#6f6b62]">
+        <p className="text-[#5F686A]">
           {filtered.length.toLocaleString()} {filtered.length === 1 ? "enquiry" : "enquiries"}
           {filtered.length !== enquiries.length && ` · ${enquiries.length.toLocaleString()} total`}
         </p>
@@ -667,7 +667,7 @@ export default function EnquiriesPage() {
           >
             <div className="border-b border-[#111111]/10 px-5 py-4">
               <p className="text-sm font-semibold text-[#111111]">Next action</p>
-              <p className="mt-0.5 text-xs text-[#6f6b62]">Saving will overwrite the previous next action note.</p>
+              <p className="mt-0.5 text-xs text-[#5F686A]">Saving will overwrite the previous next action note.</p>
             </div>
             <div className="p-5">
               <textarea
@@ -675,7 +675,7 @@ export default function EnquiriesPage() {
                 onChange={(e) => setNextActionDraft(e.target.value)}
                 rows={4}
                 placeholder="Describe the next action…"
-                className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                 autoFocus
               />
             </div>
@@ -683,7 +683,7 @@ export default function EnquiriesPage() {
               <button
                 type="button"
                 onClick={() => setNextActionPopupId(null)}
-                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-xs font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="rounded-lg border border-[#111111]/15 px-4 py-2 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
               >
                 Cancel
               </button>
@@ -697,7 +697,7 @@ export default function EnquiriesPage() {
                   setSavingNextAction(false);
                   setNextActionPopupId(null);
                 }}
-                className="rounded-lg bg-[#063b32] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                className="rounded-lg bg-[#122428] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
               >
                 {savingNextAction ? "Saving…" : "Save"}
               </button>
@@ -725,7 +725,7 @@ export default function EnquiriesPage() {
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="grid h-8 w-8 place-items-center rounded-md text-[#6f6b62] hover:bg-[#f7f4ea]"
+                className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -739,7 +739,7 @@ export default function EnquiriesPage() {
                     type="text"
                     value={addForm.name}
                     onChange={(e) => setAddForm((f) => ({ ...f, name: e.target.value }))}
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                     placeholder="Jane Smith"
                   />
                 </div>
@@ -749,7 +749,7 @@ export default function EnquiriesPage() {
                     type="email"
                     value={addForm.email}
                     onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
-                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                     placeholder="jane@example.com"
                   />
                 </div>
@@ -769,7 +769,7 @@ export default function EnquiriesPage() {
                   value={addForm.details}
                   onChange={(e) => setAddForm((f) => ({ ...f, details: e.target.value }))}
                   rows={4}
-                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                  className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   placeholder="What are they looking for help with?"
                 />
               </div>
@@ -790,7 +790,7 @@ export default function EnquiriesPage() {
                       type="tel"
                       value={addForm.telephone}
                       onChange={(e) => setAddForm((f) => ({ ...f, telephone: e.target.value }))}
-                      className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                      className="w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                       placeholder="+44 7700 900000"
                     />
                   </div>
@@ -810,7 +810,7 @@ export default function EnquiriesPage() {
                     value={addForm.source_other}
                     onChange={(e) => setAddForm((f) => ({ ...f, source_other: e.target.value }))}
                     placeholder="Describe how they got in touch…"
-                    className="mt-2 w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+                    className="mt-2 w-full rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
                   />
                 )}
               </div>
@@ -819,7 +819,7 @@ export default function EnquiriesPage() {
                   type="checkbox"
                   checked={addForm.wants_discovery_call}
                   onChange={(e) => setAddForm((f) => ({ ...f, wants_discovery_call: e.target.checked }))}
-                  className="h-4 w-4 rounded border-[#111111]/25 accent-[#063b32]"
+                  className="h-4 w-4 rounded border-[#111111]/25 accent-[#122428]"
                 />
                 <span className="text-sm text-[#111111]">Discovery call requested</span>
               </label>
@@ -827,7 +827,7 @@ export default function EnquiriesPage() {
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#6f6b62] hover:bg-[#f7f4ea]"
+                  className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
                 >
                   Cancel
                 </button>
@@ -835,7 +835,7 @@ export default function EnquiriesPage() {
                   type="button"
                   onClick={() => void createEnquiry()}
                   disabled={savingAdd || !addForm.name.trim() || !addForm.email.trim() || !addForm.details.trim()}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#063b32] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a5c42] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50"
                 >
                   {savingAdd ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                   {savingAdd ? "Saving…" : "Create enquiry"}

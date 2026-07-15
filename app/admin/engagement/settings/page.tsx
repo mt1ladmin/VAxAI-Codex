@@ -24,15 +24,15 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-white">
       <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">Client Engagement</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">Client Engagement</p>
         <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Settings</h1>
-        <p className="mt-0.5 text-sm text-[#6f6b62]">
+        <p className="mt-0.5 text-sm text-[#5F686A]">
           Manage the team members available for assignments across Client Engagement.
         </p>
       </div>
 
       <div className="px-8 py-6">
-        <p className="mb-4 text-sm text-[#6f6b62]">
+        <p className="mb-4 text-sm text-[#5F686A]">
           Inactive members keep existing assignments but cannot be selected for new work.
         </p>
         <div className="mb-4 flex gap-2">
@@ -40,7 +40,7 @@ export default function SettingsPage() {
             value={newMemberName}
             onChange={(e) => setNewMemberName(e.target.value)}
             placeholder="New team member name"
-            className="flex-1 rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#063b32]"
+            className="flex-1 rounded-xl border border-[#111111]/15 px-3 py-2 text-sm outline-none focus:border-[#122428]"
           />
           <button
             type="button"
@@ -54,14 +54,14 @@ export default function SettingsPage() {
               setNewMemberName("");
               void load();
             }}
-            className="rounded-xl bg-[#063b32] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-xl bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
             Add member
           </button>
         </div>
 
         {loading ? (
-          <div className="py-16 text-center text-sm text-[#6f6b62]">Loading…</div>
+          <div className="py-16 text-center text-sm text-[#5F686A]">Loading…</div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-[#111111]/10 divide-y divide-[#111111]/5">
             {teamMembers.map((member) => (

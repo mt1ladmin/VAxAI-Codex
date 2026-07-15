@@ -43,12 +43,12 @@ export default function AdminLoginPage() {
       <div className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full bg-[#063b32] text-sm font-bold text-[#f5f274]">
-              VA
+            <div className="mx-auto mb-4 inline-flex items-center justify-center rounded-xl bg-pine-900 px-4 py-3">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto" />
             </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#063b32]">VAxAI Studio</p>
-            <h1 className="mt-1 text-2xl font-semibold text-gray-900">Sign in</h1>
-            <p className="mt-1 text-sm text-gray-400">Admin access only</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pine-900">VAxAI Studio</p>
+            <h1 className="mt-1 text-2xl font-semibold text-ink">Sign in</h1>
+            <p className="mt-1 text-sm text-muted">Admin access only</p>
           </div>
 
           <form onSubmit={handleSubmit} className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm">
@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-[#063b32] focus:ring-1 focus:ring-[#063b32]"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-pine-900 focus:ring-1 focus:ring-pine-900"
                   placeholder="you@example.com"
                 />
               </div>
@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-[#063b32] focus:ring-1 focus:ring-[#063b32]"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-pine-900 focus:ring-1 focus:ring-pine-900"
                   placeholder="••••••••"
                 />
               </div>
@@ -92,7 +92,7 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-lg bg-[#063b32] px-4 py-2.5 text-sm font-semibold text-[#f5f274] transition-opacity hover:opacity-90 disabled:opacity-50"
+                className="w-full rounded-lg bg-acid px-4 py-2.5 text-sm font-semibold text-ink transition-opacity hover:brightness-[1.04] disabled:opacity-50"
               >
                 {loading ? "Signing in…" : "Sign in"}
               </button>
