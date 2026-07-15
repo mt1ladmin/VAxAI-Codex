@@ -108,7 +108,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Founders & Entrepreneurs",
     title: "Reduce the admin, so you can focus on growth",
     intro:
-      "When you run a business alone, every unfiled document, unanswered email and half-finished system eventually lands back on you. AI can help, but only if the information and processes behind it are in order, and keeping them in order is itself a job. VAxAI starts with a free Admin Health Check to see where the pressure is building. From there we clear the backlog, organise your information, prepare the groundwork AI and automation need to actually work, and provide reliable human support, virtual or in person for a pitch, meeting or event, for the everyday admin and judgement calls you would rather keep human.",
+      "When you run a business alone, every unfiled document, unanswered email and half-finished system eventually lands back on you. AI can help, but only if the information and processes behind it are in order, and keeping them in order is itself a job. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear the backlog, organise your information, prepare the groundwork AI and automation need to actually work, and provide reliable human support, virtual or in person for a pitch, meeting or event, for the everyday admin and judgement calls you would rather keep human.",
     heroHasAccessCta: true,
     pressures: {
       heading: "Does this sound familiar?",
@@ -153,7 +153,7 @@ export const audiencePages: AudiencePage[] = [
         "Backlog recovery: We clear the filing, records, invoicing and follow-ups that have built up, so you are working from a clean slate instead of a growing pile.",
         "AI & automation readiness: We organise your documents, data and processes so the tools you choose have accurate information to work from. We don't build or sell the AI itself, so our only interest is your readiness.",
         "Ongoing admin support: A dedicated assistant handles the inbox, scheduling, invoicing and client admin day to day, and gives you a second pair of eyes on AI outputs before they go out under your name, virtually or in person for a pitch, meeting or event.",
-        "Maintain & improve: Regular admin health checks, data hygiene and process reviews stop the backlog rebuilding and catch problems while they are still small.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews stop the backlog rebuilding and catch problems while they are still small.",
       ],
     },
     how: {
@@ -162,15 +162,15 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Free Admin Health Check",
+          title: "Free Admin Review",
           paragraphs: [
-            "A short conversation and review, with no obligation. We look at where administrative pressure is building in your business, where your systems need strengthening and what support would make the biggest difference, then tell you honestly what would help, and what wouldn't.",
+            "A structured review of how the admin in your business currently works, free and with no obligation. We look at what is going on: where pressure is building, where your systems need strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
           ],
         },
         {
-          title: "Admin Review & small-scale test",
+          title: "Scoping & small-scale test",
           paragraphs: [
-            "If you decide to go further, we carry out a full Admin Review: your admin in general, where it is really coming from, and what AI and automation have added on top. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf rather than building these ourselves.",
+            "If you decide to go further, we scope the work properly: your admin in general, where it is really coming from, and what AI and automation have added on top. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf rather than building these ourselves.",
           ],
         },
         {
@@ -182,7 +182,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Maintain & improve",
           paragraphs: [
-            "Admin does not stay fixed on its own. Regular health checks, data hygiene and process reviews keep your systems in shape as your business grows, so improvements last instead of quietly slipping.",
+            "Admin does not stay fixed on its own. Regular reviews, data hygiene and process reviews keep your systems in shape as your business grows, so improvements last instead of quietly slipping.",
           ],
         },
       ],
@@ -239,7 +239,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "SMEs",
     title: "Grow without administrative chaos holding you back",
     intro:
-      "As a business grows, its admin grows faster: more systems, more documents, more processes that live in someone's head. AI and automation promise relief, but they rely on the organised information and clear workflows most growing teams have never had time to build. VAxAI starts with a free Admin Health Check to see where the pressure is building. From there we clear backlogs, organise your information, prepare the groundwork technology needs to work, and provide reliable human support, remote or on-site when a client visit, delivery or handover needs someone there, so your team can stay on the work only they can do.",
+      "As a business grows, its admin grows faster: more systems, more documents, more processes that live in someone's head. AI and automation promise relief, but they rely on the organised information and clear workflows most growing teams have never had time to build. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear backlogs, organise your information, prepare the groundwork technology needs to work, and provide reliable human support, remote or on-site when a client visit, delivery or handover needs someone there, so your team can stay on the work only they can do.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -284,7 +284,7 @@ export const audiencePages: AudiencePage[] = [
         "Backlog recovery: We review, clean and organise the documents, records and data that have built up, and process outstanding reporting and compliance work, so your team stops paying interest on old admin.",
         "AI & automation readiness: We organise information, separate what is confidential from what is shareable, standardise data and map the processes worth automating, so the tools you choose behave predictably. We don't build or sell the AI itself.",
         "Ongoing admin support: Reliable capacity for scheduling, inboxes, reporting, document management and the exceptions automation should not handle alone, with customer-facing AI outputs checked consistently before they go out.",
-        "Maintain & improve: Regular admin health checks, data hygiene and process reviews stop the backlog rebuilding as the business grows and changes.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews stop the backlog rebuilding as the business grows and changes.",
       ],
     },
     how: {
@@ -293,15 +293,15 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Free Admin Health Check",
+          title: "Free Admin Review",
           paragraphs: [
-            "A short conversation and review, with no obligation. We look at where administrative pressure is building across your team, where your systems need strengthening and what support would make the biggest difference, then tell you honestly what would help, and what wouldn't.",
+            "A structured review of how your team's administrative operations currently work, free and with no obligation. We look at what is going on: where pressure is building, where your systems need strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
           ],
         },
         {
-          title: "Admin Review & small-scale test",
+          title: "Scoping & small-scale test",
           paragraphs: [
-            "If you decide to go further, we carry out a full Admin Review: your team's admin in general, where it is really coming from, and what AI and automation have added on top, informally or otherwise. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf rather than building these ourselves.",
+            "If you decide to go further, we scope the work properly: your team's admin in general, where it is really coming from, and what AI and automation have added on top, informally or otherwise. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf rather than building these ourselves.",
           ],
         },
         {
@@ -313,7 +313,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Maintain & improve",
           paragraphs: [
-            "Systems drift as businesses grow. Regular health checks, data hygiene and process reviews keep information accurate, automations current and the backlog from quietly rebuilding.",
+            "Systems drift as businesses grow. Regular reviews, data hygiene and process reviews keep information accurate, automations current and the backlog from quietly rebuilding.",
           ],
         },
       ],
@@ -368,7 +368,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "UK Charities & Non-Profits",
     title: "Less administrative pressure, more capacity for your mission",
     intro:
-      "Charities are asked to do more with less every year, and admin absorbs capacity the mission needs: funder reporting, volunteer coordination, case records, compliance paperwork. AI can help, but charities also hold some of the most sensitive information there is, so the groundwork and oversight matter more, not less. VAxAI starts with a free Admin Health Check to see where the pressure is building. From there we clear backlogs, organise information safely, prepare the groundwork AI and automation need, and provide reliable human support, virtual or in person for an event, service day or site visit, so more of your capacity goes to delivery.",
+      "Charities are asked to do more with less every year, and admin absorbs capacity the mission needs: funder reporting, volunteer coordination, case records, compliance paperwork. AI can help, but charities also hold some of the most sensitive information there is, so the groundwork and oversight matter more, not less. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear backlogs, organise information safely, prepare the groundwork AI and automation need, and provide reliable human support, virtual or in person for an event, service day or site visit, so more of your capacity goes to delivery.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -413,7 +413,7 @@ export const audiencePages: AudiencePage[] = [
         "Backlog recovery: We review, clean and organise records, process outstanding reporting and compliance work, and bring case files and volunteer records back up to date.",
         "AI & automation readiness: We organise information, separate confidential and safeguarding-sensitive material from what tools may access, and map the processes worth automating, always against your safeguarding and funder requirements. We don't build or sell the AI itself.",
         "Ongoing admin support: Reliable capacity for funder reporting, volunteer coordination, inboxes and case admin, with AI-assisted work checked for accuracy and appropriateness before anyone outside the charity sees it.",
-        "Maintain & improve: Regular admin health checks, data hygiene and process reviews keep records accurate and give trustees ongoing visibility, so new risks do not quietly build up.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews keep records accurate and give trustees ongoing visibility, so new risks do not quietly build up.",
       ],
     },
     how: {
@@ -422,15 +422,15 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Free Admin Health Check",
+          title: "Free Admin Review",
           paragraphs: [
-            "A short conversation and review, with no obligation. We look at where administrative pressure is building across your charity, where your systems need strengthening and what support would make the biggest difference, then tell you honestly what would help, and what wouldn't.",
+            "A structured review of how your charity's administrative operations currently work, free and with no obligation. We look at what is going on: where pressure is building, where your systems need strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
           ],
         },
         {
-          title: "Admin Review & small-scale test",
+          title: "Scoping & small-scale test",
           paragraphs: [
-            "If you decide to go further, we take time to understand your services and beneficiaries, then carry out a full Admin Review: the funder, volunteer and case admin that comes with running a charity, what AI and automation have added on top, and your safeguarding, funder and confidentiality requirements. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf.",
+            "If you decide to go further, we take time to understand your services and beneficiaries, then scope the work properly: the funder, volunteer and case admin that comes with running a charity, what AI and automation have added on top, and your safeguarding, funder and confidentiality requirements. We always test on a small scale first, then use what we learn to assess the full project accurately, and the cost is agreed with you before any work begins. For complex builds we identify trusted external partners and work with them on your behalf.",
           ],
         },
         {
@@ -442,7 +442,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Maintain & improve",
           paragraphs: [
-            "Charities change: new funders, new volunteers, new requirements. Regular health checks, data hygiene and process reviews keep records accurate and systems reliable, so improvements last beyond the project that created them.",
+            "Charities change: new funders, new volunteers, new requirements. Regular reviews, data hygiene and process reviews keep records accurate and systems reliable, so improvements last beyond the project that created them.",
           ],
         },
       ],
@@ -497,7 +497,7 @@ export const audiencePages: AudiencePage[] = [
     audienceName: "Public Sector",
     title: "Reduced backlogs and stronger foundations for smarter ways of working",
     intro:
-      "Public sector teams are expected to modernise while demand rises and resources tighten. Unprocessed records, correspondence volumes and databases that no longer match reality slow services down, and they are also exactly what stops AI and automation from delivering. VAxAI starts with a free Admin Health Check to see where the pressure is building. From there we clear backlogs, strengthen information management and prepare processes for automation, working within your governance and information-handling requirements, with experienced people in the loop throughout.",
+      "Public sector teams are expected to modernise while demand rises and resources tighten. Unprocessed records, correspondence volumes and databases that no longer match reality slow services down, and they are also exactly what stops AI and automation from delivering. VAxAI starts with a free Admin Review to see where the pressure is building. From there we clear backlogs, strengthen information management and prepare processes for automation, working within your governance and information-handling requirements, with experienced people in the loop throughout.",
     heroHasAccessCta: false,
     pressures: {
       heading: "Does this sound familiar?",
@@ -542,7 +542,7 @@ export const audiencePages: AudiencePage[] = [
         "Backlog recovery: We review, clean and organise records and correspondence, process outstanding work, and reduce the backlog while documenting workflows so it does not rebuild.",
         "AI & automation readiness: We standardise data, organise information with appropriate access in mind and map the processes worth automating, so the tools your organisation chooses behave predictably. We don't build or sell the AI itself.",
         "Ongoing admin support: Reliable additional capacity for reporting, correspondence, record-keeping and routine administration, working within your procedures and information-handling requirements.",
-        "Maintain & improve: Regular admin health checks, data hygiene and process reviews keep records accurate and processes current as demands change.",
+        "Maintain & improve: Regular admin reviews, data hygiene and process reviews keep records accurate and processes current as demands change.",
       ],
     },
     how: {
@@ -551,15 +551,15 @@ export const audiencePages: AudiencePage[] = [
       journeyLabel: "Our Process",
       journey: [
         {
-          title: "Free Admin Health Check",
+          title: "Free Admin Review",
           paragraphs: [
-            "A short conversation and review, with no obligation. We look at where administrative pressure is building, where information management needs strengthening and what support would make the biggest difference, then tell you honestly what would help, and what wouldn't.",
+            "A structured review of how your administrative operations currently work, free and with no obligation. We look at what is going on: where backlogs are building, where information management needs strengthening and what support would make the biggest difference, then recommend the right support honestly, even if that means not working with us.",
           ],
         },
         {
-          title: "Admin Review & small-scale test",
+          title: "Scoping & small-scale test",
           paragraphs: [
-            "If you decide to go further, we carry out a full Admin Review of the records, correspondence and processes involved, working within your governance, procurement and information-handling requirements. We always test on a small scale first, then use what we learn to assess the full engagement accurately, and the cost is agreed before any work begins. For complex builds we identify trusted external partners and work with them on your behalf.",
+            "If you decide to go further, we scope the work properly across the records, correspondence and processes involved, working within your governance, procurement and information-handling requirements. We always test on a small scale first, then use what we learn to assess the full engagement accurately, and the cost is agreed before any work begins. For complex builds we identify trusted external partners and work with them on your behalf.",
           ],
         },
         {
@@ -571,7 +571,7 @@ export const audiencePages: AudiencePage[] = [
         {
           title: "Maintain & improve",
           paragraphs: [
-            "Demands on public services do not stand still. Regular health checks, data hygiene and process reviews keep records accurate and processes current, so the backlog does not quietly return once the project ends.",
+            "Demands on public services do not stand still. Regular reviews, data hygiene and process reviews keep records accurate and processes current, so the backlog does not quietly return once the project ends.",
           ],
         },
       ],

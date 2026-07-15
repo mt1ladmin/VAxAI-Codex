@@ -142,7 +142,7 @@ const supportAreas: SupportArea[] = [
     ],
     listLabel: "We help you",
     items: [
-      "Run regular admin health checks",
+      "Run regular admin reviews",
       "Keep documents and data clean and current",
       "Review processes as your organisation changes",
       "Monitor AI outputs and catch new bottlenecks early",
@@ -208,7 +208,7 @@ export default function HowWeHelpPage() {
               </p>
               <div className="mt-10">
                 <button type="button" onClick={() => setContactOpen(true)} className={btn.accent}>
-                  Get your free Admin Health Check
+                  Get your free Admin Review
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
@@ -329,14 +329,14 @@ export default function HowWeHelpPage() {
                   Not sure where to start?
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                  That&apos;s what the Admin Health Check is for. We&apos;ll look at where pressure is building and
+                  That&apos;s what the free Admin Review is for. We&apos;ll look at where pressure is building and
                   tell you honestly what would help, and what wouldn&apos;t.
                 </p>
                 <button type="button" onClick={() => setContactOpen(true)} className={`${btn.accent} mt-9`}>
-                  Get your free Admin Health Check
+                  Get your free Admin Review
                   <ArrowRight className="h-4 w-4" />
                 </button>
-                <p className="mt-4 text-xs text-paper/50">A short conversation and review. No obligation.</p>
+                <p className="mt-4 text-xs text-paper/50">A structured review of your administrative operations. Free, with no obligation.</p>
               </div>
             </Reveal>
           </section>
