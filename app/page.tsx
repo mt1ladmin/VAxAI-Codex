@@ -47,24 +47,44 @@ const helpCards = [
     copy: "Clear the work that has built up and restore control.",
     href: "/how-we-help#area-backlog",
     linkLabel: "Explore backlog support",
+    bullets: [
+      "Clear built-up admin piles",
+      "Sort documents and records",
+      "Finish outstanding routine work",
+    ],
   },
   {
     title: "AI & automation readiness",
     copy: "Create the organised information technology needs to work.",
     href: "/how-we-help#area-ai",
     linkLabel: "Explore AI readiness",
+    bullets: [
+      "Organise information for tools",
+      "Document how work actually runs",
+      "Ready data for automation",
+    ],
   },
   {
     title: "Ongoing admin support",
     copy: "Keep essential work moving without stretching your team.",
     href: "/how-we-help#area-ongoing",
     linkLabel: "Explore support services",
+    bullets: [
+      "Keep inboxes and diaries moving",
+      "Handle day-to-day admin tasks",
+      "Cover routine operational work",
+    ],
   },
   {
     title: "Maintain & improve",
     copy: "Stop problems returning after the hard work is done.",
     href: "/how-we-help#area-maintain",
     linkLabel: "Explore maintenance",
+    bullets: [
+      "Stop backlogs from rebuilding",
+      "Keep systems clean and current",
+      "Catch issues while still small",
+    ],
   },
 ];
 
@@ -73,16 +93,28 @@ const approachStages = [
     num: "01 — Prepare",
     title: "Build the right foundations",
     outcome: "clearer information and reliable ways of working.",
+    bullets: [
+      "Clear admin backlogs first",
+      "Build stronger operational foundations",
+    ],
   },
   {
     num: "02 — Support",
     title: "Keep essential work moving",
     outcome: "more capacity for the work only your team can do.",
+    bullets: [
+      "Keep essential admin moving",
+      "Free people for strategic work",
+    ],
   },
   {
     num: "03 — Maintain",
     title: "Keep improvements working",
     outcome: "systems that keep supporting you as you grow.",
+    bullets: [
+      "Prevent backlogs from returning",
+      "Keep automations working properly",
+    ],
   },
 ];
 
@@ -335,7 +367,15 @@ function HelpCard({ card }: { card: (typeof helpCards)[number] }) {
         className="group flex h-full flex-col rounded-3xl border border-ink/8 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift md:p-7"
       >
         <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{card.title}</h3>
-        <p className="mt-2 flex-1 text-sm leading-6 text-muted">{card.copy}</p>
+        <p className="mt-2 text-sm leading-6 text-muted">{card.copy}</p>
+        <ul className="mt-4 flex-1 space-y-2">
+          {card.bullets.map((bullet) => (
+            <li key={bullet} className="flex gap-2 text-sm leading-5 text-muted">
+              <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-pine-800" aria-hidden="true" />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
         <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-pine-800">
           {card.linkLabel}
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
@@ -570,7 +610,15 @@ export default function Home() {
                 }`}
               >
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-acid">{stage.num}</p>
-                <h3 className="mt-4 flex-1 text-xl font-semibold tracking-tight">{stage.title}</h3>
+                <h3 className="mt-4 text-xl font-semibold tracking-tight">{stage.title}</h3>
+                <ul className="mt-5 flex-1 space-y-2.5">
+                  {stage.bullets.map((bullet) => (
+                    <li key={bullet} className="flex gap-2.5 text-sm leading-5 text-paper/75">
+                      <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-acid" aria-hidden="true" />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
                 <p className="mt-6 border-t border-white/15 pt-5 text-sm leading-6 text-paper/65">
                   <span className="font-semibold text-paper">Outcome:</span> {stage.outcome}
                 </p>
