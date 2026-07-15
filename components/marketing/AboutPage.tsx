@@ -117,17 +117,6 @@ export default function AboutPage() {
                     standard shapes every VAxAI recommendation: real value, a genuine fit with how you
                     work, and an outcome you can trust.
                   </p>
-                  <p>
-                    We believe technology works best when people, processes and information are ready.
-                    Organised information, reliable data and clear processes aren&apos;t optional extras.
-                    They&apos;re what allow organisations to operate effectively and adopt AI and automation
-                    with confidence.
-                  </p>
-                  <p>
-                    The most effective organisations combine both: AI and automation to reduce repetitive
-                    work, and human support to prepare information, manage complexity, maintain quality and
-                    keep systems working. We help with both sides of that balance.
-                  </p>
                 </div>
                 <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xl font-semibold tracking-tight md:text-2xl">
                   <span>Prepare</span>
