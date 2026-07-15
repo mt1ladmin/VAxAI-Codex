@@ -8,152 +8,193 @@ import {
   ChevronDown,
   ExternalLink,
   MailCheck,
+  Menu,
   ShieldCheck,
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
-import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
+import { experts } from "@/lib/experts";
+import type { Expert } from "@/lib/experts";
 
 const image = {
   hero:
     "/homepage-hero-digital-business.jpg",
+  expert:
+    "/vaxai-support-control.jpg",
+  thesia: "/thesia-profile.jpg",
+  rebecca: "/rebecca-bradshaw.jpg",
   cta: "/footer-team-smiling.jpg",
 };
 
-const principles: [string, string][] = [
-  ["Human led.", "Experienced people, not just tools"],
-  ["AI aware.", "We prepare organisations for it, we don't sell it"],
-  ["Practical.", "Real work done, not another strategy deck"],
-  ["Sustained.", "Improvements maintained, not left to slip"],
-];
-
-const symptoms = [
-  "Documents scattered and hard to find",
-  "Data that no longer matches reality",
-  "Processes that live in someone's head",
-  "Inboxes and shared drives overflowing",
-  "Reporting that takes longer every quarter",
-  "Skilled people stuck on routine tasks",
-];
-
-const helpCards = [
+const tools = [
   {
-    title: "Reduce backlogs",
-    copy: "Clear the work that has built up and restore control.",
-    items: ["Document reviews", "Data cleanup", "Outstanding reports", "Record organisation"],
-    href: "/how-we-help#area-backlog",
-    linkLabel: "Explore backlog support",
+    name: "Claude",
+    logo: "https://cdn.simpleicons.org/claude/D97757",
   },
   {
-    title: "Prepare for AI & automation",
-    copy: "Create the organised information technology needs to work.",
-    items: ["Document organisation", "Data quality", "Process mapping", "Workflow preparation"],
-    href: "/how-we-help#area-ai",
-    linkLabel: "Explore AI readiness",
+    name: "Microsoft Copilot",
+    logo: "https://copilot.microsoft.com/favicon.ico",
   },
   {
-    title: "Ongoing admin support",
-    copy: "Keep essential work moving without stretching your team.",
-    items: ["Inbox support", "Reporting", "Document management", "Routine administration"],
-    href: "/how-we-help#area-ongoing",
-    linkLabel: "Explore support services",
+    name: "ChatGPT",
+    logo: "https://cdn.simpleicons.org/chatgpt/74AA9C",
   },
   {
-    title: "Maintain & improve",
-    copy: "Stop problems returning after the hard work is done.",
-    items: ["Admin reviews", "Data hygiene", "Process reviews", "AI output monitoring"],
-    href: "/how-we-help#area-maintain",
-    linkLabel: "Explore maintenance",
+    name: "Gemini",
+    logo: "https://cdn.simpleicons.org/googlegemini/8E75B2",
+  },
+  {
+    name: "Perplexity",
+    logo: "https://cdn.simpleicons.org/perplexity/1FB8CD",
+  },
+  {
+    name: "Zapier",
+    logo: "https://cdn.simpleicons.org/zapier/FF4F00",
+  },
+  {
+    name: "Make",
+    logo: "https://cdn.simpleicons.org/make/6D00CC",
+  },
+  {
+    name: "Power Automate",
+    logo: "https://www.google.com/s2/favicons?domain=powerautomate.microsoft.com&sz=64",
+  },
+  {
+    name: "n8n",
+    logo: "https://cdn.simpleicons.org/n8n/EA4B71",
   },
 ];
 
-const approachStages = [
-  {
-    num: "01 — Prepare",
-    title: "Build the right foundations",
-    items: [
-      "Document and shared drive organisation",
-      "Data quality improvement",
-      "Process documentation",
-      "Backlog reduction",
-      "AI and automation readiness",
-    ],
-    outcome: "clearer information and reliable ways of working.",
-  },
-  {
-    num: "02 — Support",
-    title: "Keep essential work moving",
-    items: [
-      "Inbox and calendar support",
-      "Reporting",
-      "Document management",
-      "HR, finance and project administration",
-      "Routine operational tasks",
-    ],
-    outcome: "more capacity for the work only your team can do.",
-  },
-  {
-    num: "03 — Maintain",
-    title: "Keep improvements working",
-    items: [
-      "Regular admin reviews",
-      "Data hygiene and document reviews",
-      "Process reviews",
-      "Backlog prevention",
-      "AI output monitoring",
-    ],
-    outcome: "systems that keep supporting you as you grow.",
-  },
-];
-
-type Audience = {
+type CaseStudy = {
   title: string;
-  copy: string;
+  subtitle: string;
   href: string;
+  teaser: string;
+  paragraphs?: string[];
+  workflowPoints?: string[];
+  results?: string[];
+  closing?: string;
+  placeholder?: boolean;
 };
 
-const audiences: Audience[] = [
+const caseStudies: CaseStudy[] = [
   {
-    title: "Founders & Entrepreneurs",
-    copy: "Reduce the admin taking you away from growth, strategy and the work only you can do.",
+    title: "Founder & Entrepreneur",
+    subtitle: "Freeing up your time so you can focus on growth.",
     href: "/founders-entrepreneurs",
+    teaser: "A founder was spending several hours each week managing emails, scheduling meetings, tracking actions and chasing follow-ups.",
+    paragraphs: [
+      "Rather than introducing more software, we simplified how work flowed day to day before automating the repetitive tasks and providing ongoing support where human judgement still mattered.",
+    ],
+    results: [
+      "Significant reduction in admin time",
+      "Fewer missed follow-ups",
+      "Clearer priorities and workload",
+      "More time for clients and business growth",
+    ],
+    closing: "A practical solution built around the way they already worked, not the other way around.",
   },
   {
-    title: "SMEs",
-    copy: "Clearer systems and processes that let you grow without administrative chaos holding you back.",
+    title: "Small Business",
+    subtitle: "Creating clearer, more efficient ways of working.",
     href: "/small-business",
+    teaser: "A growing organisation was using multiple systems to manage projects, documents and client information. As the team grew, it became increasingly difficult to know where information belonged or who owned what.",
+    paragraphs: [
+      "We reviewed how work moved across the organisation before introducing clearer processes and improving the way their existing systems worked together.",
+    ],
+    results: [
+      "Less duplication",
+      "Clear ownership of information",
+      "Faster onboarding",
+      "Less time spent searching for files",
+    ],
+    closing: "Clearer processes made the technology easier to use, not the other way around.",
   },
   {
     title: "Charities & Non-Profits",
-    copy: "Less administrative pressure, so more of your capacity goes to your mission.",
+    subtitle: "Reducing admin so more time and money goes into delivering your mission.",
     href: "/charities-non-profits",
-  },
-  {
-    title: "Public Sector",
-    copy: "Reduced backlogs and stronger information management, ready for smarter ways of working.",
-    href: "/public-sector",
+    teaser: "Important messages, requests and updates were arriving through multiple channels, making it difficult to maintain visibility and respond consistently.",
+    paragraphs: [
+      "We designed a central communication workflow that brought information together, automated repetitive organisation and kept people responsible for the decisions that mattered.",
+    ],
+    results: [
+      "Better visibility",
+      "Faster response times",
+      "Fewer missed actions",
+      "Less manual administration",
+      "One trusted place for communication and tasks",
+    ],
+    closing: "Automation handled the routine work while people remained in control.",
   },
 ];
 
-const gains = [
-  "Clearer, better organised systems",
-  "More capacity for your team",
-  "More reliable information",
-  "Fewer backlogs and surprises",
-  "Reduced risk of problems returning",
-  "The right conditions for AI and automation to succeed",
+const plans = [
+  {
+    step: "01",
+    title: "Assessment",
+    label: "Assess",
+    copy: [
+      "We begin by understanding how work currently happens. Together we identify where time is being lost, where unnecessary pressure is building and which improvements are likely to make the biggest difference before deciding what should change.",
+    ],
+    items: [
+      "Admin, workflow and capacity review",
+      "AI, automation and process opportunities",
+      "Risks, gaps and priorities",
+      "Practical recommendations and next steps",
+    ],
+  },
+  {
+    step: "02",
+    title: "Strategy, Implementation & Team Training",
+    label: "Assess + Implement",
+    copy: [
+      "Using the findings from the assessment, we implement the agreed improvements. This may involve simplifying processes, making better use of existing tools, introducing AI or automation where appropriate, creating clearer ways of working or helping your team build confidence using new systems.",
+    ],
+    items: [
+      "Everything included in Assess",
+      "Process and workflow improvement",
+      "Tool selection, setup and implementation",
+      "AI and automation support where appropriate",
+      "Team training",
+      "Documentation and handover",
+    ],
+  },
+  {
+    step: "03",
+    title: "Recommended: Ongoing Support",
+    label: "Assess + Implement + Support",
+    featured: true,
+    copy: [
+      "Work doesn't stand still, and neither should your systems. As your organisation grows, priorities shift and new challenges emerge, we continue refining the way work happens. Support may include virtual assistance, process improvements, system optimisation, team coaching and ongoing AI guidance so that your ways of working continue to evolve alongside your organisation.",
+    ],
+    items: [
+      "Everything included in Assess and Implement",
+      "Ongoing process and system optimisation",
+      "Virtual assistance where human support is still needed",
+      "Team guidance and troubleshooting",
+      "Monitoring and ongoing adjustments",
+      "Dedicated support hours within your package",
+    ],
+  },
+];
+
+const vatPrinciples = [
+  ["01", "Value", "We focus on changes that create genuine, measurable benefit, reducing admin pressure, freeing up time and creating capacity for the work that actually matters. Not change for its own sake."],
+  ["02", "Alignment", "We check that what we recommend fits how your organisation actually works, including its people, tools, data and ways of doing things, without adding complexity or asking people to work against the grain."],
+  ["03", "Trust", "We are transparent about how things work, keep human judgement at the centre, and make sure the people affected understand and feel confident in the result. AI supports the work; it never replaces the people behind it."],
 ];
 
 const faqs = [
-  ["Who is VAxAI for?", "VAxAI supports founders and entrepreneurs, small and medium-sized businesses (SMEs), charities and non-profits, and public sector organisations, anywhere administrative pressure is building and technology alone has not fixed it. We are practical, human-led support, not another software product, and we are primarily aimed at organisations without a large internal operations or AI team."],
-  ["What is the free Admin Review?", "A structured review of your current administrative operations to understand what is going on and recommend the right support, free and with no obligation. We look at where pressure is building, where your systems need strengthening and what would make the biggest difference, then tell you honestly what would help, and what wouldn't, even if that means not working with us."],
-  ["What happens after the review?", "If you want to go further, we scope the work properly across your organisation's admin, information and processes, including anything AI and automation have added on top. We always test on a small scale first, then use what we learn to scope the full project accurately, and costs are agreed before any work begins, so there are no surprises."],
-  ["Why does preparation matter before AI?", "AI and automation rely on the information and processes behind them. Point them at disorganised data and unclear workflows and they produce poor outputs, new problems and more correction work, not time saved. We do the groundwork, organising information, improving data quality and documenting processes, so the tools you choose can actually work."],
-  ["Do you build AI systems yourselves?", "No. We prepare organisations for AI and automation and keep the results working, which means our only interest is your readiness. For complex or enterprise builds, we identify trusted external partners and work with them on your behalf, rather than building these ourselves."],
-  ["Why don't you publish fixed prices?", "Because every organisation's admin is different. Project pricing depends on the scope of the work, its complexity, the timeframe for delivery and how much hands-on support is needed alongside it. Day-to-day admin support is charged hourly, as monthly or quarterly arrangements, and project costs are always agreed up front."],
-  ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, monthly or quarterly, scaled up or down as your needs change, and virtual or in person when being there matters. Improvements are also maintained through regular admin reviews, so they last."],
+  ["Who is VAxAI for?", "VAxAI is for founders, entrepreneurs, small businesses, charities and non-profits who need practical support with admin, workflows, AI and automation, without being pushed into tools or systems that do not fit how they actually work."],
+  ["What does the Admin Review include?", "It is based on your unique case. We look at your admin in general and where it is really coming from, then at the admin AI has added on top, to get a full picture. From there we give you a practical admin strategy covering the right mix of AI, automation and human support, which you can use yourself or ask us to build."],
+  ["How do you decide whether AI is needed?", "We check it against MT1L's VAT Framework before recommending it. If AI does not clear that bar, we recommend automation, better processes or human support instead."],
+  ["Why does pricing vary?", "Pricing varies because each client’s workflows, tools and support needs are different. We explain this clearly during the Admin Review stage, before any Admin Support begins."],
+  ["What does VA oversight mean?", "A trained VA understands your automation, monitors exceptions, manages tasks AI should not touch, and reduces the stress of AI going rogue."],
+  ["Can support be flexible?", "Yes. Once you are a VAxAI client, support can be ad hoc, weekly, monthly, or annual. We can also provide in-person support at extra cost when needed."],
+  ["Do you build AI systems yourselves?", "No. For complex or enterprise AI builds, we identify trusted external partners and work with them on your behalf, rather than building these ourselves."],
 ];
 
 /* ------------------------------------------------------------------ */
@@ -218,7 +259,7 @@ function Stagger({
 }
 
 /* ------------------------------------------------------------------ */
-/* Shared component language — buttons, eyebrows, accordions           */
+/* Shared component language — buttons, eyebrows, titles, accordions   */
 /* ------------------------------------------------------------------ */
 
 const btn = {
@@ -269,6 +310,126 @@ function PhotoCard({
       style={{ backgroundImage: `url(${src})` }}
       aria-hidden="true"
     />
+  );
+}
+
+function MiniLogo() {
+  return (
+    <a href="#top" className="flex items-center" aria-label="VAxAI home">
+      <img src="/vaxai-logo.png" alt="VAxAI" className="h-8 w-auto" />
+    </a>
+  );
+}
+
+function SectionTitle({
+  eyebrow,
+  title,
+  copy,
+  prompt,
+  light = false,
+  narrow = false,
+}: {
+  eyebrow?: string;
+  title: string;
+  copy?: string;
+  prompt?: string;
+  light?: boolean;
+  narrow?: boolean;
+}) {
+  return (
+    <Reveal className={`mx-auto text-center ${narrow ? "max-w-xl" : "max-w-2xl"}`}>
+      {eyebrow ? (
+        <div className="mb-4">
+          <Eyebrow light={light} center>
+            {eyebrow}
+          </Eyebrow>
+        </div>
+      ) : null}
+      <h2
+        className={`text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem] ${
+          light ? "text-paper" : "text-ink"
+        }`}
+      >
+        {title}
+      </h2>
+      {copy ? (
+        <p
+          className={`mx-auto mt-6 max-w-xl text-sm leading-7 md:text-base md:leading-8 ${
+            light ? "text-paper/65" : "text-muted"
+          }`}
+        >
+          {copy}
+        </p>
+      ) : null}
+      {prompt ? (
+        <p
+          className={`mx-auto mt-4 max-w-xl text-sm font-medium leading-7 ${
+            light ? "text-paper/80" : "text-ink/80"
+          }`}
+        >
+          {prompt}
+        </p>
+      ) : null}
+    </Reveal>
+  );
+}
+
+function ToolLogo({ tool }: { tool: (typeof tools)[number] }) {
+  const [hasFailed, setHasFailed] = useState(false);
+
+  if (hasFailed) {
+    return (
+      <span
+        className="grid h-8 w-8 place-items-center rounded-full bg-white/10 text-[10px] font-bold text-paper/80"
+        aria-hidden="true"
+      >
+        {tool.name
+          .split(" ")
+          .map((word) => word[0])
+          .join("")
+          .slice(0, 2)}
+      </span>
+    );
+  }
+
+  return (
+    <img
+      src={tool.logo}
+      alt=""
+      className="h-7 w-7 object-contain"
+      loading="lazy"
+      onError={() => setHasFailed(true)}
+    />
+  );
+}
+
+function ToolMarquee() {
+  return (
+    <div className="relative overflow-hidden">
+      <div
+        className="simplified-hide pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-pine-900 to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="simplified-hide pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-pine-900 to-transparent"
+        aria-hidden="true"
+      />
+      <div className="flex w-max items-center gap-14 animate-tool-scroll">
+        {[...tools, ...tools].map((tool, index) => (
+          <div
+            key={`${tool.name}-${index}`}
+            className="flex items-center gap-3 text-sm font-medium text-paper/60"
+            aria-label={index < tools.length ? tool.name : undefined}
+            aria-hidden={index >= tools.length}
+          >
+            <span className="grid h-8 w-8 shrink-0 place-items-center">
+              <ToolLogo tool={tool} />
+            </span>
+            <span className="whitespace-nowrap">{tool.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -326,11 +487,11 @@ const audienceCardStyles = [
   { border: "border-acid/30", bg: "bg-[#f4f5e6]", hover: "hover:bg-[#eff0df]", accent: "text-pine-900" },
 ];
 
-function AudienceCard({
-  audience,
+function SupportAudienceCard({
+  study,
   index,
 }: {
-  audience: Audience;
+  study: CaseStudy;
   index: number;
 }) {
   const style = audienceCardStyles[index % audienceCardStyles.length];
@@ -338,18 +499,18 @@ function AudienceCard({
   return (
     <motion.div variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }}>
       <Link
-        href={audience.href}
+        href={study.href}
         className={`group flex h-full flex-col rounded-3xl border p-6 transition-colors duration-500 hover:shadow-card md:p-7 ${style.border} ${style.bg} ${style.hover}`}
       >
         <span className="text-[11px] font-bold tracking-[0.16em] text-pine-700/70">
           {String(index + 1).padStart(2, "0")}
         </span>
         <div className="mt-4 flex-1">
-          <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{audience.title}</h3>
-          <p className="mt-2 text-sm leading-6 text-muted">{audience.copy}</p>
+          <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{study.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-muted">{study.subtitle}</p>
         </div>
         <span className={`mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold ${style.accent}`}>
-          How we help
+          Explore how we help
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
         </span>
       </Link>
@@ -357,29 +518,93 @@ function AudienceCard({
   );
 }
 
-function HelpCard({ card }: { card: (typeof helpCards)[number] }) {
+function ExpertProfileCard({ expert }: { expert: Expert }) {
   return (
-    <motion.div variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }} className="h-full">
-      <Link
-        href={card.href}
-        className="group flex h-full flex-col rounded-3xl border border-ink/8 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift md:p-7"
-      >
-        <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{card.title}</h3>
-        <p className="mt-2 text-sm leading-6 text-muted">{card.copy}</p>
-        <ul className="mt-4 flex-1 space-y-1.5">
-          {card.items.map((item) => (
-            <li key={item} className="flex items-baseline gap-2.5 text-[13px] leading-6 text-muted">
-              <span className="h-1 w-1 shrink-0 rounded-full bg-pine-700" aria-hidden="true" />
-              {item}
-            </li>
-          ))}
-        </ul>
-        <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-pine-800">
-          {card.linkLabel}
+    <article
+      aria-label={`${expert.name}, ${expert.role}`}
+      className="group relative overflow-hidden rounded-[28px]"
+    >
+      <PhotoCard
+        src={expert.photo}
+        className="aspect-[0.9] transition-transform duration-500 ease-premium group-hover:scale-[1.03]"
+      />
+      <div
+        className="photo-text-overlay absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20"
+        aria-hidden="true"
+      />
+      <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">{expert.role}</p>
+        <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">{expert.name}</h3>
+        <Link
+          href={`/about/${expert.slug}`}
+          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors hover:text-white"
+        >
+          Read more
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+        </Link>
+      </div>
+    </article>
+  );
+}
+
+function PlanCard({
+  plan,
+  onContact,
+}: {
+  plan: (typeof plans)[number];
+  onContact: () => void;
+}) {
+  const featured = Boolean(plan.featured);
+
+  return (
+    <motion.article
+      variants={fadeUp}
+      className={`relative flex flex-col rounded-[28px] border p-7 md:p-8 ${
+        featured
+          ? "border-pine-900 bg-pine-900 text-paper shadow-lift lg:-mt-4"
+          : "border-ink/10 bg-white shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift"
+      }`}
+    >
+      <div className="flex min-h-7 items-center justify-between gap-4">
+        <span
+          className={`grid h-10 w-10 place-items-center rounded-full text-xs font-bold ${
+            featured
+              ? "border border-white/15 bg-white/10 text-acid"
+              : "border border-pine-900/15 bg-pine-50 text-pine-800"
+          }`}
+        >
+          {plan.step}
         </span>
-      </Link>
-    </motion.div>
+        {featured ? (
+          <span className="rounded-full bg-acid px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-ink">
+            Recommended
+          </span>
+        ) : null}
+      </div>
+      <p
+        className={`mt-7 text-[11px] font-bold uppercase tracking-[0.16em] ${
+          featured ? "text-acid/80" : "text-muted"
+        }`}
+      >
+        {plan.title}
+      </p>
+      <h3 className="mt-3 text-2xl font-semibold leading-tight tracking-tight">{plan.label}</h3>
+      <div
+        className={`mt-4 space-y-3 text-sm leading-7 ${
+          featured ? "text-paper/70" : "text-muted"
+        }`}
+      >
+        {plan.copy.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
+      </div>
+
+      {featured ? (
+        <button type="button" onClick={onContact} className={`${btn.accent} mt-8 w-full`}>
+          Book a discovery call
+        </button>
+      ) : null}
+    </motion.article>
   );
 }
 
@@ -397,6 +622,7 @@ type PostPreview = {
 export default function Home() {
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [openCase, setOpenCase] = useState<number | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const [contactStep, setContactStep] = useState<"form" | "submitted" | "calendly">("form");
@@ -404,6 +630,7 @@ export default function Home() {
   const [supportType, setSupportType] = useState("Admin Review");
   const [wantsDiscoveryCall, setWantsDiscoveryCall] = useState<boolean | null>(null);
   const [previewPosts, setPreviewPosts] = useState<PostPreview[]>([]);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/posts?limit=3")
@@ -438,50 +665,94 @@ export default function Home() {
   return (
     <main id="top" className="min-h-screen bg-paper text-ink">
 
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-pine-900/90 px-4 backdrop-blur-md md:px-8">
-        <SiteNav variant="dark" />
-      </header>
-
       {/* ------------------------------------------------------------ */}
       {/* Hero — deep pine panel with soft tonal glows                  */}
       {/* ------------------------------------------------------------ */}
-      <section className="relative overflow-hidden bg-pine-900 px-4 pb-20 pt-10 text-paper md:px-8 md:pb-28 md:pt-14">
+      <section className="relative overflow-hidden bg-pine-900 px-4 pb-36 pt-5 text-paper md:px-8 md:pb-44">
         <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute -top-40 right-[-12%] h-[480px] w-[480px] rounded-full bg-pine-700/50 blur-3xl" />
           <div className="absolute left-[-8%] top-1/3 h-[380px] w-[380px] rounded-full bg-pine-800/60 blur-3xl" />
           <div className="absolute bottom-[-10%] right-[20%] h-72 w-72 rounded-full bg-acid/[0.06] blur-3xl" />
         </div>
 
-        <div className="relative mx-auto grid max-w-6xl gap-14 md:grid-cols-[1fr_0.85fr] md:items-center">
+        <nav className="relative mx-auto flex max-w-6xl items-center justify-between">
+          <MiniLogo />
+          <div className="hidden items-center gap-6 text-xs font-semibold text-paper/60 md:flex">
+            <a href="/founders-entrepreneurs" className="transition-colors duration-200 hover:text-paper">Founders</a>
+            <a href="/small-business" className="transition-colors duration-200 hover:text-paper">Small Business</a>
+            <a href="/charities-non-profits" className="transition-colors duration-200 hover:text-paper">Charities</a>
+            <a href="/#experts" className="transition-colors duration-200 hover:text-paper">About</a>
+            <a href="#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
+            <a href="/insights" className="text-acid/70 transition-colors duration-200 hover:text-acid">Insights &amp; Resources</a>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsContactModalOpen(true)}
+            className="hidden rounded-full bg-acid px-5 py-2 text-xs font-semibold text-ink transition-all duration-300 ease-premium hover:brightness-[1.04] hover:shadow-lift md:inline-flex"
+          >
+            Get in touch
+          </button>
+          <button
+            onClick={() => setMobileNavOpen((o) => !o)}
+            className="grid h-9 w-9 place-items-center rounded-full border border-white/15 transition-colors duration-200 hover:border-white/35 md:hidden"
+            aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+          >
+            {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
+        </nav>
+
+        {/* Mobile menu */}
+        {mobileNavOpen && (
+          <div className="relative mx-auto max-w-6xl md:hidden">
+            <div className="mt-3 flex flex-col gap-1 rounded-3xl border border-white/10 bg-pine-950/90 p-4 backdrop-blur">
+              {[
+                { label: "Founders", href: "/founders-entrepreneurs" },
+                { label: "Small Business", href: "/small-business" },
+                { label: "Charities", href: "/charities-non-profits" },
+                { label: "About", href: "/#experts" },
+                { label: "FAQ", href: "#faq" },
+                { label: "Insights & Resources", href: "/insights" },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  onClick={() => setMobileNavOpen(false)}
+                  className="rounded-full px-4 py-2.5 text-sm font-semibold text-paper/80 transition-colors duration-200 hover:bg-white/10 hover:text-paper"
+                >
+                  {label}
+                </a>
+              ))}
+              <button
+                type="button"
+                onClick={() => { setMobileNavOpen(false); setIsContactModalOpen(true); }}
+                className="mt-2 rounded-full bg-acid px-4 py-2.5 text-center text-sm font-semibold text-ink"
+              >
+                Get in touch
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="relative mx-auto mt-16 grid max-w-6xl gap-14 md:mt-20 md:grid-cols-[1fr_0.85fr] md:items-center">
           <motion.div variants={stagger} initial="hidden" animate="show">
             <motion.h1
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce admin. Keep the human in the loop.
+              Reduce admin. Keep the Human Touch.
             </motion.h1>
             <motion.p
               variants={fadeUp}
               className="mt-7 max-w-xl text-base leading-7 text-paper/70 md:text-lg md:leading-8"
             >
-              AI and automation need strong foundations to work. We help founders, small and medium-sized
-              businesses (SMEs), charities and public sector organisations organise information, clear
-              administrative backlogs and prepare for smarter ways of working, without adding pressure to
-              already stretched teams.
+              We help founders, small businesses and charities reduce admin, streamline operations and make AI a practical part of everyday work through the right combination of AI, automation, smarter processes and hands-on in person or virtual administrative support.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-10 flex flex-wrap items-center gap-4">
-              <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
-                Get your free Admin Review
+              <a href="#services" className={btn.accent}>
+                Explore Support
                 <ArrowRight className="h-4 w-4" />
-              </button>
-              <Link href="/how-we-help" className={btn.ghostDark}>
-                Explore how we help
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              </a>
             </motion.div>
-            <motion.p variants={fadeUp} className="mt-6 text-xs font-medium text-paper/45">
-              UK based · Human led · No obligation
-            </motion.p>
           </motion.div>
 
           <motion.div
@@ -498,206 +769,104 @@ export default function Home() {
           </motion.div>
         </div>
 
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.5, ease: EASE }}
+          className="relative mx-auto mt-24 max-w-6xl"
+        >
+          <p className="mx-auto max-w-2xl text-center text-[11px] font-semibold uppercase tracking-[0.2em] text-paper/40">
+            AI and automation is not always the answer, but when it is, we help you make the most of it.
+          </p>
+          <div className="mt-7">
+            <ToolMarquee />
+          </div>
+        </motion.div>
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Principles strip — how we work, in one line                   */}
-      {/* ------------------------------------------------------------ */}
-      <section className="border-b border-ink/5 bg-cream/70 px-4 py-7 md:px-8">
-        <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-          {principles.map(([lead, rest]) => (
-            <p key={lead} className="text-sm leading-6 text-muted">
-              <span className="font-semibold text-ink">{lead}</span> {rest}
-            </p>
-          ))}
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* The problem — admin doesn't fix itself, even with AI          */}
+      {/* AI can do the task, someone still has to make it work — leads */}
+      {/* straight into the Who VAxAI is for cards                      */}
       {/* ------------------------------------------------------------ */}
       <section id="services" className="relative px-4 py-16 md:px-8 md:py-24">
         <div className="mx-auto max-w-6xl">
           <Reveal>
-            <Eyebrow>The problem</Eyebrow>
-            <h2 className="mt-4 max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Administration doesn&rsquo;t fix itself. Even with AI.
+            <h2 className="max-w-3xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+              Admin Doesn&rsquo;t Fix Itself, Even with AI
             </h2>
-          </Reveal>
-          <Stagger className="mt-10 grid gap-x-14 gap-y-0 rounded-3xl border border-ink/8 bg-cream/50 px-7 py-3 md:grid-cols-2 md:px-10">
-            {symptoms.map((symptom) => (
-              <motion.p
-                key={symptom}
-                variants={fadeUp}
-                className="border-b border-ink/10 py-4 text-base leading-7 text-ink last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0"
-              >
-                {symptom}
-              </motion.p>
-            ))}
-          </Stagger>
-          <Reveal>
-            <p className="mt-12 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
-              Many organisations look to AI and automation to solve this. But technology relies on the
-              information and processes behind it. Point AI at disorganised data and unclear workflows and it
-              produces <strong className="font-semibold text-ink">poor outputs, new problems and more correction work</strong>, not time saved.
+            <p className="mt-6 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Founders, small businesses and charities are expected to do more with less, and AI does not remove that pressure on its own. Without understanding where admin work is building up, your bussiness or charity risk making decisions based on assumptions rather than the reality of how work gets done.
             </p>
-            <p className="mt-8 max-w-3xl border-l-2 border-acid pl-5 text-lg font-medium leading-8 text-ink md:text-xl">
-              The result: wasted budget, frustrated teams and technology that fails to deliver.
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              Admin rarely disappears when it is overlooked. It often shifts elsewhere- into unpaid hours, leadership time, stretched teams, or additional pressure on people already responsible for delivering core work. Similarly, reducing support on the assumption that AI will absorb everything can create new risks if the work still requires oversight, judgement, relationships and human input.
+            </p>
+            <p className="mt-5 max-w-4xl text-lg leading-8 text-muted md:text-xl md:leading-9">
+              That’s where VAxAI comes in. We start with an Admin Review to understand where time is being spent, where pressure is building, and what support is actually needed. This helps us identify where AI and automation can add value, where human support remains important, and how to create a practical approach that fits your organisation’s needs.
+            </p>
+            <p className="mt-8 max-w-4xl text-lg font-medium leading-8 text-ink md:text-xl md:leading-9">
+              Explore how VAxAI can support you:
             </p>
           </Reveal>
+
+          <div className="mt-10">
+            <Stagger className="grid gap-4 sm:grid-cols-3">
+              {caseStudies.map((study, index) => (
+                <SupportAudienceCard key={study.href} study={study} index={index} />
+              ))}
+            </Stagger>
+          </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* How we help — four kinds of support                           */}
+      {/* About — MT1L, the VAT Framework, then the people              */}
       {/* ------------------------------------------------------------ */}
-      <section className="px-4 pb-16 md:px-8 md:pb-24">
+      <section id="experts" className="px-4 py-24 md:px-8 md:py-32">
         <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <Eyebrow>How we help</Eyebrow>
-            <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Practical support for the admin that slows organisations down
+          <Reveal className="max-w-3xl">
+            <Eyebrow>About</Eyebrow>
+            <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              About VAxAI
             </h2>
-          </Reveal>
-          <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {helpCards.map((card) => (
-              <HelpCard key={card.href} card={card} />
-            ))}
-          </Stagger>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* Our approach — Prepare. Support. Maintain.                    */}
-      {/* ------------------------------------------------------------ */}
-      <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <Eyebrow light>Our approach</Eyebrow>
-            <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Prepare. Support. Maintain.
-            </h2>
-            <p className="mt-6 max-w-2xl text-base leading-8 text-paper/65 md:text-lg">
-              We don&rsquo;t start with technology. We start with the administration your organisation
-              relies on every day, and we stay involved so improvements last.
+            <p className="mt-6 text-base leading-7 text-muted md:text-lg md:leading-8">
+              VAxAI is a service by MT1L, home of the Value, Alignment and Trust (VAT) Framework, which helps leaders make more informed decisions about AI through the lens of value, alignment and trust. That same standard shapes every VAxAI recommendation: real value, a genuine fit with how you work, and an outcome you can trust.
             </p>
+            <a
+              href="https://mt1l.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${btn.ghostLight} mt-6`}
+            >
+              Check out MT1L
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </Reveal>
-          <Stagger className="mt-12 grid overflow-hidden rounded-[28px] border border-white/15 md:grid-cols-3">
-            {approachStages.map((stage, index) => (
-              <motion.div
-                key={stage.num}
-                variants={fadeUp}
-                className={`flex flex-col p-7 md:p-8 ${
-                  index < approachStages.length - 1
-                    ? "border-b border-white/15 md:border-b-0 md:border-r"
-                    : ""
-                }`}
-              >
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-acid">{stage.num}</p>
-                <h3 className="mt-4 text-xl font-semibold tracking-tight">{stage.title}</h3>
-                <ul className="mt-5 flex-1 space-y-2">
-                  {stage.items.map((item) => (
-                    <li key={item} className="flex items-baseline gap-2.5 text-sm leading-7 text-paper/65">
-                      <span className="h-1 w-1 shrink-0 rounded-full bg-acid/70" aria-hidden="true" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-6 border-t border-white/15 pt-5 text-sm leading-6 text-paper/65">
-                  <span className="font-semibold text-paper">Outcome:</span> {stage.outcome}
-                </p>
-              </motion.div>
-            ))}
-          </Stagger>
-        </div>
-      </section>
 
-      {/* ------------------------------------------------------------ */}
-      {/* Who we help — four audiences                                  */}
-      {/* ------------------------------------------------------------ */}
-      <section className="px-4 py-16 md:px-8 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <Eyebrow>Who we help</Eyebrow>
-            <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              Support built around your organisation
-            </h2>
+          <Reveal className="mt-16 md:mt-20">
+            <Eyebrow>The people behind VAxAI</Eyebrow>
           </Reveal>
-          <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {audiences.map((audience, index) => (
-              <AudienceCard key={audience.href} audience={audience} index={index} />
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            {experts.map((expert) => (
+              <Reveal key={expert.name}>
+                <ExpertProfileCard expert={expert} />
+              </Reveal>
             ))}
-          </Stagger>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* Why external support                                          */}
-      {/* ------------------------------------------------------------ */}
-      <section className="px-4 pb-16 md:px-8 md:pb-24">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-16">
-          <Reveal>
-            <Eyebrow>Why external support</Eyebrow>
-            <h2 className="mt-4 max-w-md text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              The work before AI is the work nobody has capacity for
-            </h2>
-          </Reveal>
-          <Reveal>
-            <p className="text-base leading-8 text-muted">
-              Preparing for AI and automation is practical groundwork: organising documents, improving data
-              quality, standardising processes, retiring outdated records. Your team already has a full-time
-              job. Without dedicated capacity, preparation stalls, backlogs grow and transformation gets
-              harder.
-            </p>
-            <p className="mt-5 text-base leading-8 text-muted">
-              There&rsquo;s an opportunity cost too. Every hour a senior person spends on routine
-              administration is an hour not spent on strategy, funding, service delivery or clients, work
-              worth far more than the admin itself.
-            </p>
-            <p className="mt-6 text-base font-semibold leading-8 text-ink">
-              VAxAI provides the capacity to complete the essential groundwork, so your people stay focused
-              on theirs.
-            </p>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
-      {/* What you gain                                                 */}
-      {/* ------------------------------------------------------------ */}
-      <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal>
-            <Eyebrow light>What you gain</Eyebrow>
-            <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-              More than admin support. Stronger ways of working.
-            </h2>
-          </Reveal>
-          <Stagger className="mt-10 grid gap-x-12 gap-y-4 sm:grid-cols-2">
-            {gains.map((gain) => (
-              <motion.p key={gain} variants={fadeUp} className="flex gap-3 text-base leading-7 text-paper/80 md:text-lg">
-                <span className="mt-1 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-                  ✓
-                </span>
-                {gain}
-              </motion.p>
-            ))}
-          </Stagger>
+          </div>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ */}
       {/* FAQ — split layout with smooth accordion                      */}
       {/* ------------------------------------------------------------ */}
-      <section id="faq" className="px-4 py-16 md:px-8 md:py-24">
+      <section id="faq" className="px-4 py-8 md:px-8 md:py-12">
         <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.75fr_1fr] md:gap-16">
           <Reveal>
+            <Eyebrow>Frequently asked questions</Eyebrow>
             <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
               Questions about VAxAI?
             </h2>
             <p className="mt-6 max-w-prose text-sm leading-7 text-muted">
-              Clear answers on how the free Admin Review works, how pricing is agreed, and what
-              happens once support begins.
+              Clear answers on how the Admin Review works, what it costs, and what happens once support begins.
             </p>
             <button
               type="button"
@@ -725,16 +894,17 @@ export default function Home() {
       {/* ------------------------------------------------------------ */}
       {/* Insights preview                                              */}
       {/* ------------------------------------------------------------ */}
-      <section className="px-4 pb-24 md:px-8 md:pb-28">
+      <section className="px-4 py-24 md:px-8 md:py-28">
         <div className="mx-auto max-w-6xl">
           <Reveal className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
+              <Eyebrow>Insights &amp; Resources</Eyebrow>
               <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
-                Insights &amp; Resources
+                From VAxAI
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-muted">
-                Practical thinking on admin foundations, AI readiness and keeping the human in the loop. If
-                something resonates, you can attach it to your enquiry when you get in touch.
+                Our insights cover practical approaches to AI, automation and admin. If something
+                resonates, you can attach it to your enquiry when you get in touch.
               </p>
             </div>
             <a href="/insights" className={`${btn.ghostLight} mt-6 shrink-0 md:mt-0`}>
@@ -796,23 +966,20 @@ export default function Home() {
             <div className="p-8 md:p-14">
               <Eyebrow light>Start the conversation</Eyebrow>
               <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
-                Ready to prepare your organisation for smarter ways of working?
+                Less admin, more progress on your mission and growth.
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-paper/65 md:text-base md:leading-8">
-                Start with a free Admin Review. We&apos;ll identify where administrative pressure is
-                building, where your systems need strengthening and what support would make the biggest
-                difference.
+                Tell us where the pressure is building, the everyday admin or what AI has added on top, and we&apos;ll help you find what actually eases it.
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-4">
                 <button type="button" onClick={() => setIsContactModalOpen(true)} className={btn.accent}>
-                  Get your free Admin Review
+                  Get in touch
                   <ArrowRight className="h-4 w-4" />
                 </button>
                 <button type="button" onClick={() => setIsAccessModalOpen(true)} className={btn.ghostDark}>
                   Access to Work support
                 </button>
               </div>
-              <p className="mt-5 text-xs text-paper/50">A structured review of your administrative operations. Free, with no obligation.</p>
             </div>
             <div className="relative min-h-[260px] md:min-h-0">
               <PhotoCard src={image.cta} className="absolute inset-0 h-full w-full" />
@@ -922,7 +1089,7 @@ export default function Home() {
                       value={supportType}
                       onChange={setSupportType}
                       options={[
-                        { value: "Admin Review", label: "Free Admin Review" },
+                        { value: "Admin Review", label: "Admin Review" },
                         { value: "Admin Support", label: "Admin Support" },
                         { value: "Access to Work", label: "Access to Work" },
                         { value: "General enquiry", label: "General enquiry" },
@@ -990,6 +1157,81 @@ export default function Home() {
               )}
             </div>
           )}
+        </div>
+      ) : null}
+
+      {openCase !== null && caseStudies[openCase] && !caseStudies[openCase].placeholder ? (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) setOpenCase(null); }}
+        >
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-[28px] bg-white shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+            <div className="flex items-start justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-6 text-paper md:px-10">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Case study</p>
+                <h2 className="mt-3 max-w-xl text-2xl font-semibold leading-tight tracking-tight">{caseStudies[openCase].title}</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpenCase(null)}
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper transition-colors duration-200 hover:bg-white/20"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="bg-white p-6 md:p-10">
+              <p className="text-sm leading-7 text-muted">{caseStudies[openCase].teaser}</p>
+              {caseStudies[openCase].paragraphs?.map((p, pi) => (
+                <p key={pi} className="mt-4 text-sm leading-7 text-muted">{p}</p>
+              ))}
+              {caseStudies[openCase].workflowPoints && (
+                <ul className="mt-4 grid gap-2 rounded-2xl border border-ink/10 bg-white p-5">
+                  {caseStudies[openCase].workflowPoints!.map((pt) => (
+                    <li key={pt} className="flex gap-3 text-sm leading-6 text-muted">
+                      <span className="mt-[9px] h-1 w-3 shrink-0 rounded-full bg-ink/20" aria-hidden="true" />
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {caseStudies[openCase].results && (
+                <div className="mt-6">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-pine-800">Results</p>
+                  <ul className="mt-3 grid gap-2">
+                    {caseStudies[openCase].results!.map((r) => (
+                      <li key={r} className="flex gap-3 text-sm leading-6 text-muted">
+                        <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">✓</span>
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {caseStudies[openCase].closing && (
+                <p className="mt-6 text-sm leading-7 text-muted italic">{caseStudies[openCase].closing}</p>
+              )}
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setOpenCase(null); setIsContactModalOpen(true); }}
+                  className={btn.primary}
+                >
+                  Work with us
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpenCase(null)}
+                  className={btn.ghostLight}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       ) : null}
 
