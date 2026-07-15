@@ -18,6 +18,7 @@ import {
   Plus,
   Send,
   Settings,
+  Users,
   X,
 } from "lucide-react";
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
@@ -42,6 +43,7 @@ const navSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
+      { label: "VA Applications", href: "/admin/va-applications", icon: Users, subtitle: "Freelance partners" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
       { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen, subtitle: "Playbooks & prep" },
     ],
@@ -64,6 +66,7 @@ const memberNavSections: Array<{ section: string; items: NavItem[] }> = [
       { label: "Overview", href: "/admin/engagement", icon: Handshake, subtitle: "Daily work" },
       { label: PROSPECT_FINDER_LABEL, href: PROSPECT_FINDER_PATH, icon: Search, subtitle: "Research & qualify" },
       { label: "Enquiries", href: "/admin/enquiries", icon: MessageSquare, subtitle: "Inbound" },
+      { label: "VA Applications", href: "/admin/va-applications", icon: Users, subtitle: "Freelance partners" },
       { label: "Task Tracker", href: "/admin/engagement/pipeline", icon: CheckSquare, subtitle: "All tasks" },
       { label: "Knowledge Hub", href: "/admin/engagement/knowledge", icon: BookOpen, subtitle: "Playbooks & prep" },
     ],

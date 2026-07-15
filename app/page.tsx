@@ -130,8 +130,8 @@ const faqs = [
   ["What happens after the review?", "If you want to go further, we scope the work properly across your organisation's admin, information and processes, including anything AI and automation have added on top. We always test on a small scale first, then use what we learn to scope the full project accurately, and costs are agreed before any work begins, so there are no surprises."],
   ["Why does preparation matter before AI?", "AI and automation rely on the information and processes behind them. Point them at disorganised data and unclear workflows and they produce poor outputs, new problems and more correction work, not time saved. We do the groundwork, organising information, improving data quality and documenting processes, so the tools you choose can actually work."],
   ["Do you build AI systems yourselves?", "No. We prepare organisations for AI and automation and keep the results working, which means our only interest is your readiness. For complex or enterprise builds, we identify trusted external partners and can work with them on your behalf, rather than building these ourselves."],
-  ["Why don't you publish fixed prices?", "Because every organisation's admin is different. Project work such as reducing a backlog or preparing for AI is scoped and priced up front. Ongoing admin support and maintain-and-improve work is charged hourly, monthly or quarterly, and you only pay for the hours you need in each period."],
-  ["Can support be flexible?", "Yes. Once you are a VAxAI client, ongoing support can be monthly or quarterly and scaled up or down as your needs change. One month might need more hours than the next. Project work stays defined by scope and timeframe. Support can also be virtual or in person when being there matters."],
+  ["Why don't you publish fixed prices?", "Because every organisation's admin is different. We need to understand what you need, what the person supporting you would actually be doing, and the right match for the work before we quote. Project work is scoped and priced up front. Ongoing support is typically arranged monthly and can scale up or down. Contact us for a quote."],
+  ["Can support be flexible?", "Yes. Once you are a VAxAI client, ongoing support can scale up or down as your needs change. One month might need more capacity than the next. Project work stays defined by scope and timeframe. Support can also be virtual or in person when being there matters."],
 ];
 
 /* ------------------------------------------------------------------ */
@@ -659,6 +659,40 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
+      {/* Work with VAxAI — freelance partner CTA                       */}
+      {/* ------------------------------------------------------------ */}
+      <section className="px-4 py-16 md:px-8 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal className="overflow-hidden rounded-[28px] border border-ink/5 bg-white shadow-card md:grid md:grid-cols-[1.2fr_0.8fr]">
+            <div className="p-8 md:p-10">
+              <Eyebrow>Partner with us</Eyebrow>
+              <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
+                Work with VAxAI as a freelance assistant
+              </h2>
+              <p className="mt-5 max-w-xl text-base leading-8 text-muted">
+                UK-based freelancers help us deliver backlog recovery, AI readiness groundwork, ongoing
+                admin and maintenance for founders, SMEs, charities and public sector teams. Experienced
+                professionals and early-career talent are both welcome.
+              </p>
+              <a href="/work-with-vaxai" className={`${btn.primary} mt-8`}>
+                Become a VAxAI freelancer
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+            <div className="flex flex-col justify-center border-t border-ink/5 bg-pine-900 p-8 text-paper md:border-l md:border-t-0 md:p-10">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid">What freelancers do</p>
+              <ul className="mt-5 space-y-3 text-sm leading-6 text-paper/75">
+                <li>Clear admin backlogs and organise information</li>
+                <li>Keep everyday systems and inboxes moving</li>
+                <li>Support AI and automation readiness where it adds value</li>
+                <li>Help stop problems returning after the hard work is done</li>
+              </ul>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ */}
       {/* FAQ — split layout with smooth accordion                      */}
       {/* ------------------------------------------------------------ */}
       <section id="faq" className="px-4 py-16 md:px-8 md:py-24">
@@ -668,7 +702,7 @@ export default function Home() {
               Questions about VAxAI?
             </h2>
             <p className="mt-6 max-w-prose text-sm leading-7 text-muted">
-              Clear answers on how the free Admin Review works, how pricing is agreed, and what
+              Clear answers on how the free Admin Review works, how quotes are agreed, and what
               happens once support begins.
             </p>
             <button

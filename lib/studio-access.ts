@@ -8,6 +8,7 @@ export type StudioMembership = {
 /** Page routes a studio member (non–platform-admin) may access */
 const MEMBER_PAGE_PREFIXES = [
   "/admin/enquiries",
+  "/admin/va-applications",
   "/admin/calendar",
   "/admin/create-content",
   "/admin/posts",
@@ -21,6 +22,7 @@ const MEMBER_PAGE_PREFIXES = [
 /** API routes a studio member may call */
 const MEMBER_API_PREFIXES = [
   "/api/admin/enquiries",
+  "/api/admin/va-applications",
   "/api/admin/engagement/work-today",
   "/api/admin/posts",
   "/api/admin/authors",

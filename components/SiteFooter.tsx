@@ -38,6 +38,7 @@ export default function SiteFooter() {
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Company</p>
                 <div className="grid gap-3.5 text-paper/62">
                   <a href="/about" className="transition-colors duration-200 hover:text-paper">About</a>
+                  <a href="/work-with-vaxai" className="transition-colors duration-200 hover:text-paper">Work with VAxAI</a>
                   <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors duration-200 hover:text-paper">MT1L</a>
                   <button type="button" onClick={() => setContactOpen(true)} className="text-left transition-colors duration-200 hover:text-paper">
                     Contact

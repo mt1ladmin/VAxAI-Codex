@@ -312,7 +312,7 @@ function PricingPanelContent({
             {sharedOngoingSupport.title}
           </h3>
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
-            {pricing.ongoingSupportPrice}
+            {pricing.ongoingSupportPrice || sharedOngoingSupport.priceLabel}
           </p>
           <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
             Typically covers

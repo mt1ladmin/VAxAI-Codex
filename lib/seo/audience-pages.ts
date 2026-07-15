@@ -10,12 +10,13 @@ export type AudiencePricing = {
 /** Shared explanation of how pricing is structured across audience pages. */
 export const sharedPricingHowItWorks = [
   "We usually start with a free Admin Review so we understand where pressure is building, or you can tell us what you already know you need.",
-  "From there, support is either project-based or ongoing, depending on the work.",
+  "From there, support is either project-based or ongoing, depending on the work. Every engagement is scoped around what you actually need, who is the right fit to deliver it, and how much capacity makes sense month to month.",
+  "We do not publish fixed prices on the site. Contact us for a quote so we can understand the work properly and put the right person and arrangement in place.",
 ];
 
 export const sharedProjectWork = {
   title: "Project work",
-  priceLabel: "Scoped and priced before work begins",
+  priceLabel: "Contact us for a quote",
   services: ["Reduce backlog", "Prepare for AI and automation"],
   description:
     "Best when there is a defined set of work to complete and a clear timeframe: for example clearing a backlog of documents and records, or preparing information and processes so AI and automation can work properly. We agree the scope, what will be delivered and the cost before anything starts.",
@@ -23,9 +24,10 @@ export const sharedProjectWork = {
 
 export const sharedOngoingSupport = {
   title: "Ongoing support",
+  priceLabel: "Contact us for a quote",
   services: ["Ongoing admin support", "Maintain and improve"],
   description:
-    "Day-to-day admin and upkeep, arranged monthly or quarterly. You only pay for the hours you need: one month might be four hours, the next might be three, depending on what actually needs doing.",
+    "Day-to-day admin and upkeep, arranged as a monthly retainer that can scale up or down as needs change. Hours are set around what the period actually requires, so support stays practical rather than fixed to a rigid package.",
 };
 
 export const sharedFullSetupIncludes = [
@@ -69,8 +71,9 @@ export const sharedAccessToWork = {
 
 const sharedWorkWithUsBullets = [
   "Lower overall cost: You get skilled, dedicated support without the overhead of employment, and without pulling your own people away from the work only they can do.",
-  "You only pay for the hours you need: Ongoing support is set around what the period actually requires, so capacity can go up or down as the work changes.",
-  "Full flexibility: Scale support up or down, monthly or quarterly, with no long-term commitment, and project costs agreed up front so there are no surprises.",
+  "You only pay for the support you need: Ongoing capacity is set around what the period actually requires, so it can go up or down as the work changes.",
+  "Full flexibility: Scale support up or down each month, with no long-term commitment, and project costs agreed up front so there are no surprises.",
+  "The right person for the work: We match specialists carefully and coordinate quality, so you receive reliable support without running recruitment yourself.",
 ];
 
 export type AudiencePage = {
@@ -204,15 +207,15 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£25 per hour, monthly or quarterly",
+      ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Support built for solo founders and entrepreneurs, priced around your actual situation rather than a standard package, so the groundwork and support your business needs do not compete with your growth budget.",
+      "Support built for solo founders and entrepreneurs, scoped around your actual situation rather than a standard package. Tell us what you need and we will recommend the right arrangement and person, then quote clearly before work begins.",
     fullSetupIncludes: foundersFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, that means the groundwork actually getting done, a second pair of eyes on AI-assisted work, reliable help with the everyday admin and judgement calls you would rather keep human, and flexible hours, all without the cost or complexity of hiring.",
+        "Our support model is built to give you high-quality, sustainable help without stretching your budget. As a solo founder, that means the groundwork actually getting done, a second pair of eyes on AI-assisted work, reliable help with the everyday admin and judgement calls you would rather keep human, and flexible capacity, all without the cost or complexity of hiring.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
@@ -333,15 +336,15 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£35 per hour, monthly or quarterly",
+      ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Support built for SMEs and growing teams, priced around your actual situation rather than a standard package, so the groundwork and reliable support your business needs do not add payroll complexity.",
+      "Support built for SMEs and growing teams, scoped around your actual situation rather than a standard package. Contact us for a quote so we can understand the work, match the right support, and agree costs before anything starts.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For SMEs, that means the groundwork actually getting done, someone accountable for keeping information and automations reliable, and dependable cover for the everyday admin your team would rather keep human, without the cost or complexity of a full-time hire.",
+        "Our support model is built to give you high-quality, sustainable help without stretching your budget. For SMEs, that means the groundwork actually getting done, someone accountable for keeping information and automations reliable, and dependable cover for the everyday admin your team would rather keep human, without the cost or complexity of a full-time hire.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
@@ -462,15 +465,15 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£35 per hour, monthly or quarterly",
+      ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Support built for charities with tight or variable income, priced around your actual situation rather than a standard package, so groundwork and safeguarding-aware support do not compete with delivery budgets.",
+      "Support built for charities with tight or variable income, scoped around your actual situation rather than a standard package. Contact us for a quote so groundwork and safeguarding-aware support can be planned around delivery budgets.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, that means the groundwork actually getting done, someone accountable for checking AI-assisted work against safeguarding and funder expectations, and dependable cover for the everyday admin you would rather keep human, at a cost that protects your delivery capacity.",
+        "Our support model is built to give you high-quality, sustainable help without stretching your budget. For charities with tight or variable income, that means the groundwork actually getting done, someone accountable for checking AI-assisted work against safeguarding and funder expectations, and dependable cover for the everyday admin you would rather keep human, at a cost that protects your delivery capacity.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
@@ -591,15 +594,15 @@ export const audiencePages: AudiencePage[] = [
       ],
     },
     pricing: {
-      ongoingSupportPrice: "£35 per hour, monthly or quarterly",
+      ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Public sector engagements vary widely in scale and requirements, so support is scoped and priced per organisation, and we are happy to work within your procurement processes.",
+      "Public sector engagements vary widely in scale and requirements, so support is scoped and quoted per organisation. Contact us to discuss what you need; we are happy to work within your procurement processes.",
     fullSetupIncludes: publicSectorFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
       paragraphs: [
-        "Our pricing and support model is built to give you high-quality, sustainable help without stretching your budget. For public sector teams, that means dedicated capacity for the groundwork transformation depends on, delivered alongside business as usual rather than instead of it, by people working to consistent standards and with compliance in mind.",
+        "Our support model is built to give you high-quality, sustainable help without stretching your budget. For public sector teams, that means dedicated capacity for the groundwork transformation depends on, delivered alongside business as usual rather than instead of it, by people working to consistent standards and with compliance in mind.",
       ],
       bullets: sharedWorkWithUsBullets,
       closing:
