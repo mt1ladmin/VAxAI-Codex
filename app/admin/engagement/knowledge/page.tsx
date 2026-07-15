@@ -21,9 +21,9 @@ type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "pricing" | 
 const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts", "pricing", "scripts", "objections"];
 
 const TAB_META: Record<Tab, { label: string; title: string; description: string }> = {
-  sectors: { label: "Sectors", title: "Sectors", description: "Sector context for workflow pressure, admin burden, and realistic VAxAI support." },
-  personas: { label: "Personas", title: "Personas", description: "Personas to interpret who may feel admin, system, or automation strain." },
-  pain_points: { label: "Pain points", title: "Pain Points", description: "Pain points linked to review, training, virtual assistance, and improvement — not default new builds." },
+  sectors: { label: "Sectors", title: "Sectors", description: "Sector context for operational admin pressure, backlogs, AI readiness and realistic VAxAI support." },
+  personas: { label: "Personas", title: "Personas", description: "Personas to interpret who may feel admin, backlog, or automation strain." },
+  pain_points: { label: "Pain points", title: "Pain Points", description: "Pain points linked to backlog recovery, AI readiness, ongoing admin support and maintenance, not default new builds." },
   vat_prompts: { label: "VAT prompts", title: "VAT Prompts", description: "VAT prompts for Value, Alignment, and Trust in AI decisions." },
   pricing: { label: "Pricing bands", title: "Pricing Bands", description: "Internal pricing bands used to generate indicative value estimates. Not shown to clients." },
   scripts: { label: "Scripts & blocks", title: "Scripts & Blocks", description: "Approved outreach scripts and reusable message blocks for every channel." },

@@ -1,14 +1,14 @@
 /** Shared VAxAI service positioning, used across forms, AI context, and assessments. */
 
 export const VAXAI_CORE_OFFERS = [
-  "Existing-system and workflow review",
-  "AI and automation opportunity assessment",
+  "Admin Review of workflows, systems and information",
+  "Backlog recovery and information organisation",
   "AI readiness and practical upskilling",
-  "Team training and workshops",
-  "VAT-informed AI strategy and decision support",
+  "AI and automation readiness groundwork (data quality, document organisation, process documentation)",
+  "VAT-informed AI decision support",
   "AI guidance and policy development",
-  "Ongoing or ad hoc virtual assistance",
-  "Support managing existing systems and processes",
+  "Ongoing operational administration and virtual assistance",
+  "Monitoring and maintenance of systems, data and processes",
 ] as const;
 
 export const VAXAI_PARTIAL_OFFERS = [
@@ -48,12 +48,14 @@ export const BUILD_VS_IMPROVE = [
   "unclear",
 ] as const;
 
-export const STUDIO_SERVICE_POSITIONING = `VAxAI is an admin support service; admin is the specialism, AI, automation, and human virtual assistance are just the tools. Start from an Admin Review (general admin plus what AI has added), then recommend the right mix, virtual or in person.
+export const STUDIO_SERVICE_POSITIONING = `VAxAI is a UK-based, human-led operational administration support and AI readiness service. Brand line: "Reduce admin. Keep the human in the loop." Four connected service areas: backlog recovery, AI and automation readiness (organised information, clean data, documented processes), ongoing operational administration, and monitoring and maintenance. The journey is Prepare, then Support, then Maintain. Strong administrative foundations first, AI and automation second.
 
-Prefer improving what the client already has over new systems or complex AI integration. Bespoke builds only fit small orgs (roughly under ten people) with clear, proportionate needs; anything larger or more complex, including enterprise builds, goes to trusted external partners, not built in-house.
+Everything starts with the free Admin Review: a structured review of the organisation's administrative operations to understand what is going on and recommend the right support. Further work is scoped properly and always tested on a small scale first, with costs agreed before any work begins. There are no fixed project prices; pricing depends on scope, complexity, timeframe and how much hands-on support is needed. Ongoing day-to-day support is hourly (£25 for solo founders, £35 for organisations) as monthly or quarterly arrangements, and instalment plans can be agreed for project work.
 
-Primary audience: founders and entrepreneurs, SMEs, and charities and non-profits of all sizes, usually without a large internal operations or AI team. MT1L (home of the VAT Framework: Value, Alignment, Trust) handles deeper AI-value strategy work; VAxAI applies the same standard.
+Prefer improving what the client already has over new systems or complex AI integration. VAxAI does not build or sell AI. Bespoke builds only fit small orgs (roughly under ten people) with clear, proportionate needs; anything larger or more complex, including enterprise builds, goes to trusted external partners, not built in-house.
 
-Automation can still overwhelm some staff, including neurodivergent employees; flag accessible, human-backed options where relevant.`;
+Primary audience: founders and entrepreneurs, SMEs, charities and non-profits, and public sector organisations, usually without a large internal operations or AI team. MT1L (home of the VAT Framework: Value, Alignment, Trust) handles deeper AI-value strategy work; VAxAI applies the same standard.
+
+Automation can still overwhelm some staff, including neurodivergent employees; flag accessible, human-backed options where relevant. Access to Work may cover support for eligible individuals.`;
 
 export const PROSPECT_FINDER_FEATURE_LABEL = "Prospect Finder";
