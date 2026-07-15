@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
@@ -87,13 +86,15 @@ function ExpertProfileCard({ expert }: { expert: Expert }) {
       <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">{expert.role}</p>
         <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">{expert.name}</h3>
-        <Link
-          href={`/about/${expert.slug}`}
+        <a
+          href={expert.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
           className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors hover:text-white"
         >
-          Read more
+          Connect
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
-        </Link>
+        </a>
       </div>
     </article>
   );

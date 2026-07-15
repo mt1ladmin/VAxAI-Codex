@@ -65,12 +65,6 @@ export type AudienceSection = {
 
 export const sharedAccessToWork = {
   heading: "Your VAxAI support could cost you nothing",
-  paragraphs: [
-    "If you are eligible, Access to Work may help cover support such as virtual assistance, admin support, workflow tools or support using digital systems.",
-    "We can help you understand what this may involve and how VAxAI support could fit around your work.",
-    "Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult. The review looks at where your admin is coming from and what it actually involves day to day. You would then explain how it affects you, and whether it is tied to your disability or health condition and how, so it is clear where the support needs to sit. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.",
-    "We are not medical professionals, and this is not a diagnosis of any kind. We simply help you understand the reality of your admin, not diagnose or determine the disability link ourselves.",
-  ],
 };
 
 const sharedWorkWithUsBullets = [
