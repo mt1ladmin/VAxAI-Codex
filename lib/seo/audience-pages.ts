@@ -10,8 +10,7 @@ export type AudiencePricing = {
 /** Shared explanation of how pricing is structured across audience pages. */
 export const sharedPricingHowItWorks = [
   "We usually start with a free Admin Review so we understand where pressure is building, or you can tell us what you already know you need.",
-  "From there, support is either project-based or ongoing, depending on the work. Every engagement is scoped around what you actually need, who is the right fit to deliver it, and how much capacity makes sense month to month.",
-  "We do not publish fixed prices on the site. Contact us for a quote so we can understand the work properly and put the right person and arrangement in place.",
+  "From there, support is either project-based or ongoing, depending on the work.",
 ];
 
 export const sharedProjectWork = {
@@ -210,7 +209,7 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Support built for solo founders and entrepreneurs, scoped around your actual situation rather than a standard package. Tell us what you need and we will recommend the right arrangement and person, then quote clearly before work begins.",
+      "Support built for solo founders and entrepreneurs, rather than a standard package. We quote clearly before work begins.",
     fullSetupIncludes: foundersFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
@@ -339,7 +338,7 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Support built for SMEs and growing teams, scoped around your actual situation rather than a standard package. Contact us for a quote so we can understand the work, match the right support, and agree costs before anything starts.",
+      "Support built for SMEs and growing teams, rather than a standard package. Costs are agreed before anything starts.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
@@ -468,7 +467,7 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Support built for charities with tight or variable income, scoped around your actual situation rather than a standard package. Contact us for a quote so groundwork and safeguarding-aware support can be planned around delivery budgets.",
+      "Support built for charities with tight or variable income, rather than a standard package — planned around delivery budgets and safeguarding expectations.",
     fullSetupIncludes: sharedFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",
@@ -597,7 +596,7 @@ export const audiencePages: AudiencePage[] = [
       ongoingSupportPrice: "Contact us for a quote",
     },
     pricingIntro:
-      "Public sector engagements vary widely in scale and requirements, so support is scoped and quoted per organisation. Contact us to discuss what you need; we are happy to work within your procurement processes.",
+      "Public sector engagements vary widely, so we quote per organisation and work within your procurement processes.",
     fullSetupIncludes: publicSectorFullSetupIncludes,
     workWithUs: {
       heading: "The Benefits of Our Approach",

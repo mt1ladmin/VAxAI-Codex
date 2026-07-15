@@ -116,7 +116,7 @@ export default function PublicContactModal({ open, onClose }: Props) {
           </div>
         </div>
       ) : (
-        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto scrollbar-none rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
           <div className="flex items-start justify-between gap-6 bg-[#122428] px-6 py-6 text-paper md:px-10 rounded-t-3xl">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Contact VAxAI</p>

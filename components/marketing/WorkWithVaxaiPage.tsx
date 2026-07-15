@@ -86,7 +86,7 @@ const whyPartner = [
   "We carefully match freelancers to projects and retainers so the fit is right for you and the organisation.",
   "We handle coordination, quality review and client communication, so you can focus on delivering excellent work.",
   "We provide training so you stay current on practical AI and automation skills for admin work.",
-  "Some clients use AI tools; others do not. Either way, you apply the MT1L VAT Framework (Value, Alignment, Trust) to judge when AI adds value, when it does not, whether it fits how the organisation works, and whether it can be trusted in that context — so your admin work stays efficient and appropriate.",
+  "Some clients use AI tools; others do not. Either way, you apply the MT1L VAT Framework (Value, Alignment, Trust) so AI is only used where it helps, fits how the organisation works, and can be trusted.",
 ];
 
 /** Ordered wizard steps (one focus per screen) */
@@ -841,7 +841,7 @@ export default function WorkWithVaxaiPage() {
               ) : (
                 <>
                   <div
-                    className={`min-h-0 flex-1 overflow-y-auto px-5 py-6 sm:px-7 sm:py-7 ${modalBodyMin}`}
+                    className={`min-h-0 flex-1 overflow-y-auto scrollbar-none px-5 py-6 sm:px-7 sm:py-7 ${modalBodyMin}`}
                   >
                     {renderStep()}
                     {error ? <p className={errorClass}>{error}</p> : null}
