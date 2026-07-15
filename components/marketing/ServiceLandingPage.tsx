@@ -8,6 +8,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
+import FilingTab from "@/components/FilingTab";
 import type {
   AudiencePage,
   AudiencePricing,
@@ -180,9 +181,7 @@ function HowWeHelpPanelContent({
       {(section.bullets ?? []).length > 0 ? (
         <div className="mt-8 rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card md:p-8">
           {section.bulletsLabel ? (
-            <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-              {section.bulletsLabel}
-            </p>
+            <FilingTab className="mb-5">{section.bulletsLabel}</FilingTab>
           ) : null}
           <div className="grid gap-4">
             {(section.bullets ?? []).map((item) => (
@@ -235,9 +234,7 @@ function ChangesPanelContent({
         {(section.bullets ?? []).length > 0 ? (
           <div className="rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card backdrop-blur-sm md:p-8">
             {section.bulletsLabel ? (
-              <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                {section.bulletsLabel}
-              </p>
+              <FilingTab className="mb-5">{section.bulletsLabel}</FilingTab>
             ) : null}
             <div className="grid gap-4">
               {(section.bullets ?? []).map((item) => (
@@ -293,9 +290,7 @@ function PricingPanelContent({
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
             {sharedProjectWork.priceLabel}
           </p>
-          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-            Typically covers
-          </p>
+          <FilingTab className="mt-5">Typically covers</FilingTab>
           <ul className="mt-3 space-y-2">
             {sharedProjectWork.services.map((service) => (
               <li key={service} className="flex gap-3">
@@ -318,9 +313,7 @@ function PricingPanelContent({
           <p className="mt-2 text-sm font-semibold text-pine-800 md:text-base">
             {pricing.ongoingSupportPrice}
           </p>
-          <p className="mt-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-            Typically covers
-          </p>
+          <FilingTab className="mt-5">Typically covers</FilingTab>
           <ul className="mt-3 space-y-2">
             {sharedOngoingSupport.services.map((service) => (
               <li key={service} className="flex gap-3">
@@ -353,7 +346,7 @@ function PricingPanelContent({
           id="access-to-work"
           className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
         >
-          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
+          <FilingTab>Access to Work</FilingTab>
           <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
             {sharedAccessToWork.heading}
           </h3>
@@ -481,7 +474,7 @@ function AudienceTabbedSections({
     <div>
       <div className="relative md:static">
         <div
-          className="-mx-2 flex gap-2 overflow-x-auto border-b border-ink/10 px-2 pb-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+          className="-mx-2 flex gap-2 overflow-x-auto border-b border-ink/10 px-2 pb-1 pt-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
           role="tablist"
           aria-label="Explore how VAxAI can support you"
         >
@@ -497,10 +490,8 @@ function AudienceTabbedSections({
                 aria-controls={`audience-panel-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "shrink-0 rounded-full px-4 py-2.5 text-left text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800",
-                  isActive
-                    ? "bg-pine-900 text-paper"
-                    : "bg-cream/70 text-ink/75 hover:bg-cream hover:text-ink",
+                  "filing-tab-button shrink-0 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800",
+                  isActive && "is-active",
                 )}
               >
                 {tab.label}
@@ -565,19 +556,7 @@ function Eyebrow({
   children: React.ReactNode;
   light?: boolean;
 }) {
-  return (
-    <p
-      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
-        light ? "text-acid/90" : "text-pine-700"
-      }`}
-    >
-      <span
-        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
-        aria-hidden="true"
-      />
-      {children}
-    </p>
-  );
+  return <FilingTab light={light}>{children}</FilingTab>;
 }
 
 export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {

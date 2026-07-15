@@ -7,6 +7,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
+import FilingTab from "@/components/FilingTab";
 import { experts } from "@/lib/experts";
 import type { Expert } from "@/lib/experts";
 
@@ -53,19 +54,7 @@ function Eyebrow({
   children: React.ReactNode;
   light?: boolean;
 }) {
-  return (
-    <p
-      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
-        light ? "text-acid/90" : "text-pine-700"
-      }`}
-    >
-      <span
-        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
-        aria-hidden="true"
-      />
-      {children}
-    </p>
-  );
+  return <FilingTab light={light}>{children}</FilingTab>;
 }
 
 function ExpertProfileCard({ expert }: { expert: Expert }) {

@@ -7,6 +7,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
+import FilingTab from "@/components/FilingTab";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -52,19 +53,7 @@ function Eyebrow({
   children: React.ReactNode;
   light?: boolean;
 }) {
-  return (
-    <p
-      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
-        light ? "text-acid/90" : "text-pine-700"
-      }`}
-    >
-      <span
-        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
-        aria-hidden="true"
-      />
-      {children}
-    </p>
-  );
+  return <FilingTab light={light}>{children}</FilingTab>;
 }
 
 type SupportArea = {
@@ -239,9 +228,7 @@ export default function HowWeHelpPage() {
                   </div>
                   <div>
                     <div className="rounded-3xl border border-pine-900/10 bg-white/80 p-6 shadow-card md:p-8">
-                      <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                        {area.listLabel}
-                      </p>
+                      <FilingTab className="mb-5">{area.listLabel}</FilingTab>
                       <div className="grid gap-4">
                         {area.items.map((item) => (
                           <div key={item} className="flex gap-3">
@@ -254,7 +241,7 @@ export default function HowWeHelpPage() {
                       </div>
                     </div>
                     <div className="mt-5 rounded-r-2xl border-l-[3px] border-pine-700 bg-pine-50/70 px-6 py-5">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">For example</p>
+                      <FilingTab>For example</FilingTab>
                       <p className="mt-2 text-sm leading-7 text-ink md:text-[15px]">{area.example}</p>
                     </div>
                   </div>

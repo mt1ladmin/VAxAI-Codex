@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
+import FilingTab from "@/components/FilingTab";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -240,17 +241,9 @@ function Eyebrow({
   center?: boolean;
 }) {
   return (
-    <p
-      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
-        center ? "justify-center" : ""
-      } ${light ? "text-acid/90" : "text-pine-700"}`}
-    >
-      <span
-        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
-        aria-hidden="true"
-      />
+    <FilingTab light={light} center={center}>
       {children}
-    </p>
+    </FilingTab>
   );
 }
 
@@ -455,7 +448,19 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce admin. Keep people in the loop.
+              Reduce admin. Keep{" "}
+              <span className="hero-word-circle">
+                people
+                <svg
+                  className="hero-word-circle__ring"
+                  viewBox="0 0 100 48"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <ellipse cx="50" cy="24" rx="46" ry="20" />
+                </svg>
+              </span>{" "}
+              in the loop.
             </motion.h1>
             <motion.p
               variants={fadeUp}
@@ -728,8 +733,9 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <Reveal className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
+              <Eyebrow>Insights &amp; Resources</Eyebrow>
               <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
-                Insights &amp; Resources
+                From VAxAI
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-muted">
                 Practical thinking on admin foundations, AI readiness and keeping people in the loop. If

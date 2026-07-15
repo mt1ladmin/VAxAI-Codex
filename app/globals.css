@@ -88,6 +88,119 @@ a {
   animation-play-state: paused;
 }
 
+/* ------------------------------------------------------------------ */
+/* Filing-system labels — pale sage file-folder tabs                   */
+/* ------------------------------------------------------------------ */
+
+.filing-tab {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.5rem 1.05rem 0.48rem;
+  border-radius: 0.65rem 0.65rem 0.2rem 0.2rem;
+  border: 1px solid rgba(39, 70, 77, 0.14);
+  border-bottom: 2px solid rgba(18, 36, 40, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, #e4f0e6 0%, #d5e6d8 100%);
+  color: #122428;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 2px 0 rgba(18, 36, 40, 0.04),
+    0 6px 14px rgba(18, 36, 40, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+.filing-tab--center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Interactive file tabs (audience page tablist) */
+.filing-tab-button {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.55rem 1.05rem 0.5rem;
+  border-radius: 0.65rem 0.65rem 0.15rem 0.15rem;
+  border: 1px solid rgba(39, 70, 77, 0.12);
+  border-bottom: 2px solid rgba(18, 36, 40, 0.1);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 40%),
+    linear-gradient(180deg, #edf4ee 0%, #e2ebe3 100%);
+  color: rgba(18, 36, 40, 0.72);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+  transition:
+    background 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.filing-tab-button:hover {
+  color: #122428;
+  border-color: rgba(39, 70, 77, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, #e4f0e6 0%, #d5e6d8 100%);
+}
+
+.filing-tab-button[aria-selected="true"],
+.filing-tab-button.is-active {
+  color: #0b171a;
+  border-color: rgba(39, 70, 77, 0.18);
+  border-bottom-color: rgba(18, 36, 40, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 42%),
+    linear-gradient(180deg, #dff0e1 0%, #cfe4d2 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 2px 0 rgba(18, 36, 40, 0.05),
+    0 8px 16px rgba(18, 36, 40, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Hand-drawn style accent ring for highlighted hero words */
+.hero-word-circle {
+  position: relative;
+  display: inline-block;
+  padding: 0 0.12em;
+  white-space: nowrap;
+}
+
+.hero-word-circle__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 118%;
+  height: 132%;
+  transform: translate(-50%, -52%);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.hero-word-circle__ring ellipse {
+  fill: none;
+  stroke: #d8fc2e;
+  stroke-width: 3.25;
+  vector-effect: non-scaling-stroke;
+}
+
 /* Policy page body styles */
 .policy-body h2 { font-size: 1.2rem; font-weight: 700; margin: 2.5rem 0 0.6rem; color: #111; }
 .policy-body h3 { font-size: 1rem; font-weight: 700; margin: 1.75rem 0 0.4rem; color: #1f2937; }
@@ -142,6 +255,15 @@ html.simplified-mode img { filter: grayscale(1) contrast(1.25) !important; }
    background above paints over the photo underneath and hides it. */
 html.simplified-mode .photo-text-overlay {
   background-color: transparent !important;
+}
+
+/* Filing tabs keep a readable paper-tab look in simplified mode */
+html.simplified-mode .filing-tab,
+html.simplified-mode .filing-tab-button {
+  background: #e8f0e9 !important;
+  color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
 }
 
 /* Cookie consent banner and newsletter popup stay styled in all accessibility modes */
