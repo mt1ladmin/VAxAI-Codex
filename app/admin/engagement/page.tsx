@@ -6,12 +6,16 @@ import { isUnreviewedEnquiry } from "@/lib/enquiries/constants";
 import {
   AlertCircle,
   ArrowRight,
+  BookOpen,
+  CalendarDays,
+  CheckSquare,
+  MessageSquare,
+  Search,
   Users,
-  Send,
-  Zap,
 } from "lucide-react";
-import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
+import { PROSPECT_FINDER_LABEL, PROSPECT_FINDER_PATH } from "@/lib/engagement/journey";
 import { useUserEmail } from "@/lib/user-email-context";
+import { InfoTip, StudioPageHeader, studio } from "@/components/admin/studio-ui";
 
 type WorkToday = {
   overdueTasks: Array<{ id: string; title: string; due_date: string | null; href: string; contact_name: string | null }>;
@@ -31,11 +35,14 @@ type Stats = {
   loading: boolean;
 };
 
-function AlertPill({ count, label, href, color }: { count: number; label: string; href: string; color: string }) {
+function AlertPill({ count, label, href }: { count: number; label: string; href: string }) {
   if (count === 0) return null;
   return (
-    <Link href={href} className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-semibold transition-opacity hover:opacity-80 ${color}`}>
-      <AlertCircle className="h-3.5 w-3.5" />
+    <Link
+      href={href}
+      className="inline-flex items-center gap-2 rounded-full border border-pine-900/15 bg-white px-3.5 py-1.5 text-sm font-semibold text-pine-900 shadow-sm transition-colors hover:bg-cream"
+    >
+      <AlertCircle className="h-3.5 w-3.5 text-pine-800" />
       {count} {label}
     </Link>
   );
@@ -43,17 +50,22 @@ function AlertPill({ count, label, href, color }: { count: number; label: string
 
 function SectionCard({
   title,
+  hint,
   action,
   children,
 }: {
   title: string;
+  hint?: string;
   action?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[#111111]/10 bg-white overflow-hidden">
-      <div className="flex items-center justify-between border-b border-[#111111]/5 px-5 py-3.5 bg-[#F5F8F8]/50">
-        <h2 className="text-sm font-semibold text-[#111111]">{title}</h2>
+    <div className={`${studio.card} overflow-hidden`}>
+      <div className="flex items-start justify-between gap-3 border-b border-pine-900/8 bg-cream/40 px-5 py-3.5">
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold text-pine-900">{title}</h2>
+          {hint ? <p className="mt-0.5 text-xs text-muted">{hint}</p> : null}
+        </div>
         {action}
       </div>
       {children}
@@ -76,6 +88,7 @@ export default function EngagementOverview() {
 
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
+    const now = new Date().toISOString();
 
     Promise.all([
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
@@ -86,7 +99,8 @@ export default function EngagementOverview() {
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
 
-      const isUpcoming = (p: PostItem) => !!p.scheduled_at && p.status !== "published" && p.scheduled_at > now;
+      const isUpcoming = (p: PostItem) =>
+        !!p.scheduled_at && p.status !== "published" && p.scheduled_at > now;
 
       setStats({
         newEnquiries: enqData.filter((e) => isUnreviewedEnquiry(e.status as string)).length,
@@ -112,63 +126,97 @@ export default function EngagementOverview() {
       .finally(() => setWorkLoading(false));
   }, [userEmail]);
 
-  const now = new Date().toISOString();
-
   return (
-    <div className="min-h-full bg-white">
-      <div className="border-b border-[#111111]/10 px-8 py-5">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-semibold text-[#111111]">Overview</h1>
-            <p className="mt-0.5 text-sm text-[#5F686A]">
-              Prospect assessment, outreach, enquiries, tasks, and Knowledge Hub — aligned to VAxAI wraparound support.
-            </p>
-          </div>
+    <div className={`${studio.page} ${studio.pagePad}`}>
+      <div className={studio.max}>
+        <StudioPageHeader
+          eyebrow="Client engagement"
+          title="Overview"
+          description="What needs attention today: enquiries, tasks, prospects and content — without digging through every list."
+          info="Start here each day. Overdue tasks and new enquiries surface first. Shortcuts open Prospect Finder, Knowledge Hub and Content Hub with the same data as before."
+          actions={
+            <Link href="/admin/enquiries" className={studio.btnPrimary}>
+              <MessageSquare className="h-4 w-4" />
+              Enquiries
+            </Link>
+          }
+        />
 
-        </div>
-        {!stats.loading && (stats.overdueTasks > 0 || stats.newEnquiries > 0) && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            <AlertPill count={stats.overdueTasks} label="overdue task(s)" href="/admin/engagement/pipeline" color="bg-red-100 text-red-700" />
-            <AlertPill count={stats.newEnquiries} label="new enquiry(ies)" href="/admin/enquiries" color="bg-blue-100 text-blue-700" />
+        {!stats.loading && (stats.overdueTasks > 0 || stats.newEnquiries > 0) ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            <AlertPill count={stats.overdueTasks} label="overdue tasks" href="/admin/engagement/pipeline" />
+            <AlertPill count={stats.newEnquiries} label="new enquiries" href="/admin/enquiries" />
           </div>
-        )}
-      </div>
+        ) : null}
 
-      <div className="px-8 py-6 space-y-6">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {stats.loading
-            ? [1, 2].map((i) => (
-                <div key={i} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3">
-                  <div className="h-3 w-20 rounded bg-[#F5F8F8]" />
-                  <div className="mt-3 h-8 w-12 rounded bg-[#F5F8F8]/80" />
+            ? [1, 2, 3, 4].map((i) => (
+                <div key={i} className={`${studio.card} px-4 py-3.5`}>
+                  <div className="h-3 w-20 rounded bg-cream" />
+                  <div className="mt-3 h-8 w-12 rounded bg-cream/80" />
                 </div>
               ))
             : [
-                { label: "Tasks overdue", value: stats.overdueTasks, href: "/admin/engagement/pipeline", color: "text-red-600" },
-                { label: "New enquiries", value: stats.newEnquiries, href: "/admin/enquiries", color: "text-blue-600" },
-              ].map(({ label, value, href, color }) => (
-                <Link key={label} href={href} className="rounded-xl border border-[#111111]/10 bg-white px-4 py-3 hover:border-[#122428]/30 transition-colors">
-                  <p className="text-xs font-semibold text-[#5F686A]">{label}</p>
-                  <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>
+                {
+                  label: "Tasks overdue",
+                  value: stats.overdueTasks,
+                  href: "/admin/engagement/pipeline",
+                  hint: "Needs action",
+                },
+                {
+                  label: "Open tasks",
+                  value: stats.openTasks,
+                  href: "/admin/engagement/pipeline",
+                  hint: "All active",
+                },
+                {
+                  label: "New enquiries",
+                  value: stats.newEnquiries,
+                  href: "/admin/enquiries",
+                  hint: "Needs review",
+                },
+                {
+                  label: "VA applications",
+                  value: "→",
+                  href: "/admin/va-applications",
+                  hint: "Freelance partners",
+                },
+              ].map(({ label, value, href, hint }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className={`${studio.card} px-4 py-3.5 transition-colors hover:border-pine-900/25`}
+                >
+                  <p className={studio.label}>{label}</p>
+                  <p className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">{value}</p>
+                  <p className="mt-0.5 text-xs text-muted">{hint}</p>
                 </Link>
               ))}
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <SectionCard
             title="Overdue tasks"
-            action={<Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-[#122428] hover:underline">View all</Link>}
+            hint="From the task tracker — open one to continue"
+            action={
+              <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-pine-900 hover:underline">
+                All tasks
+              </Link>
+            }
           >
             {workLoading ? (
-              <p className="px-5 py-4 text-sm text-[#5F686A]">Loading…</p>
+              <p className="px-5 py-4 text-sm text-muted">Loading…</p>
             ) : !workToday?.overdueTasks.length ? (
-              <p className="px-5 py-4 text-sm text-[#5F686A]">None — good.</p>
+              <p className="px-5 py-6 text-sm text-muted">None overdue.</p>
             ) : (
-              <div className="divide-y divide-[#111111]/5">
+              <div className="divide-y divide-pine-900/8">
                 {workToday.overdueTasks.map((t) => (
-                  <Link key={t.id} href={t.href} className="block px-5 py-3 hover:bg-red-50/40">
-                    <p className="text-sm font-semibold text-[#111111] truncate">{t.title}</p>
-                    {t.contact_name && <p className="mt-0.5 text-xs text-[#5F686A] truncate">{t.contact_name}</p>}
+                  <Link key={t.id} href={t.href} className="block px-5 py-3 transition-colors hover:bg-cream/50">
+                    <p className="truncate text-sm font-semibold text-pine-900">{t.title}</p>
+                    {t.contact_name ? (
+                      <p className="mt-0.5 truncate text-xs text-muted">{t.contact_name}</p>
+                    ) : null}
                   </Link>
                 ))}
               </div>
@@ -177,18 +225,23 @@ export default function EngagementOverview() {
 
           <SectionCard
             title="New enquiries"
-            action={<Link href="/admin/enquiries" className="text-xs font-semibold text-[#122428] hover:underline">View all</Link>}
+            hint="Inbound interest waiting for a first look"
+            action={
+              <Link href="/admin/enquiries" className="text-xs font-semibold text-pine-900 hover:underline">
+                All enquiries
+              </Link>
+            }
           >
             {workLoading ? (
-              <p className="px-5 py-4 text-sm text-[#5F686A]">Loading…</p>
+              <p className="px-5 py-4 text-sm text-muted">Loading…</p>
             ) : !workToday?.newEnquiries.length ? (
-              <p className="px-5 py-4 text-sm text-[#5F686A]">Inbox clear.</p>
+              <p className="px-5 py-6 text-sm text-muted">Inbox clear.</p>
             ) : (
-              <div className="divide-y divide-[#111111]/5">
+              <div className="divide-y divide-pine-900/8">
                 {workToday.newEnquiries.map((e) => (
-                  <Link key={e.id} href={e.href} className="block px-5 py-3 hover:bg-[#F5F8F8]/50">
-                    <p className="text-sm font-semibold text-[#111111] truncate">{e.name}</p>
-                    <p className="mt-0.5 text-xs text-[#5F686A] truncate">{e.status}</p>
+                  <Link key={e.id} href={e.href} className="block px-5 py-3 transition-colors hover:bg-cream/50">
+                    <p className="truncate text-sm font-semibold text-pine-900">{e.name}</p>
+                    <p className="mt-0.5 truncate text-xs text-muted">{e.status || "Needs review"}</p>
                   </Link>
                 ))}
               </div>
@@ -196,88 +249,161 @@ export default function EngagementOverview() {
           </SectionCard>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {[
-            { label: PROSPECT_FINDER_LABEL, desc: "Researched organisations — assign, qualify, and move opportunities to the queue", href: "/admin/engagement/prospect-outreach", icon: Send },
-            { label: "Prepare for a prospect", desc: "Sectors, personas, objections, and VAT-informed prompts to help you prepare for a conversation", href: "/admin/engagement/knowledge", icon: Users },
-            { label: "Knowledge library", desc: "Full playbook — pain points, scripts, pricing bands, and approved outreach blocks", href: "/admin/engagement/knowledge", icon: Zap },
-          ].map(({ label, desc, href, icon: Icon }) => (
-            <Link key={href} href={href} className="flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-white px-4 py-3.5 hover:border-[#122428]/25 hover:bg-[#F5F8F8]/40 transition-colors">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#122428]/8 text-[#122428]">
-                <Icon className="h-4 w-4" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-[#111111]">{label}</p>
-                <p className="text-xs text-[#5F686A]">{desc}</p>
-              </div>
-              <ArrowRight className="h-4 w-4 shrink-0 text-[#5F686A]/40" />
-            </Link>
-          ))}
+        <div className="mt-8">
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-pine-900">Where to work next</h2>
+            <InfoTip text="Prospect Finder is outbound research. Enquiries are inbound. Knowledge Hub holds scripts, sectors and objections for preparation. VA Applications is the freelance partner pipeline." />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                label: PROSPECT_FINDER_LABEL,
+                desc: "Research and qualify organisations before outreach",
+                href: PROSPECT_FINDER_PATH,
+                icon: Search,
+              },
+              {
+                label: "Enquiries",
+                desc: "Inbound website and direct interest",
+                href: "/admin/enquiries",
+                icon: MessageSquare,
+              },
+              {
+                label: "Knowledge Hub",
+                desc: "Sectors, pain points, scripts and objections",
+                href: "/admin/engagement/knowledge",
+                icon: BookOpen,
+              },
+              {
+                label: "VA Applications",
+                desc: "Freelance partner applications and talent pool",
+                href: "/admin/va-applications",
+                icon: Users,
+              },
+            ].map(({ label, desc, href, icon: Icon }) => (
+              <Link
+                key={href + label}
+                href={href}
+                className={`${studio.card} flex items-start gap-3 p-4 transition-colors hover:border-pine-900/25`}
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-pine-900 text-paper">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-pine-900">{label}</p>
+                  <p className="mt-0.5 text-xs leading-5 text-muted">{desc}</p>
+                </div>
+                <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted" />
+              </Link>
+            ))}
+          </div>
         </div>
 
-
-        <p className="text-sm font-semibold text-[#111111]">Content & publishing</p>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <SectionCard
-            title="Recent posts"
-            action={<Link href="/admin/posts" className="text-xs font-semibold text-[#122428] hover:underline">All posts</Link>}
-          >
-            {stats.loading ? (
-              <p className="px-5 py-6 text-sm text-[#5F686A]">Loading…</p>
-            ) : stats.recentPosts.length === 0 ? (
-              <p className="px-5 py-6 text-sm text-[#5F686A]">
-                No posts yet. <Link href="/admin/posts/new" className="text-[#122428] underline">Write one</Link>
-              </p>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {stats.recentPosts.map((p) => {
-                  const statusColor =
-                    p.status === "published" ? "bg-emerald-100 text-emerald-700"
-                    : p.status === "scheduled" ? "bg-blue-100 text-blue-700"
-                    : "bg-[#F5F8F8] text-[#5F686A]";
-                  return (
-                    <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#F5F8F8]/50 transition-colors">
-                      <span className="text-sm font-semibold text-[#111111] truncate">{p.title}</span>
-                      <span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize ${statusColor}`}>{p.status}</span>
+        <div className="mt-8">
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-pine-900">Content</h2>
+            <Link href="/admin/calendar" className="text-xs font-semibold text-pine-900 hover:underline">
+              Open Content Hub
+            </Link>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <SectionCard
+              title="Recent posts"
+              action={
+                <Link href="/admin/posts" className="text-xs font-semibold text-pine-900 hover:underline">
+                  All posts
+                </Link>
+              }
+            >
+              {stats.loading ? (
+                <p className="px-5 py-6 text-sm text-muted">Loading…</p>
+              ) : stats.recentPosts.length === 0 ? (
+                <p className="px-5 py-6 text-sm text-muted">
+                  No posts yet.{" "}
+                  <Link href="/admin/posts/new" className="font-semibold text-pine-900 underline">
+                    Write one
+                  </Link>
+                </p>
+              ) : (
+                <div className="divide-y divide-pine-900/8">
+                  {stats.recentPosts.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/admin/posts/${p.id}`}
+                      className="flex items-center justify-between gap-2 px-5 py-3 transition-colors hover:bg-cream/50"
+                    >
+                      <span className="truncate text-sm font-semibold text-pine-900">{p.title}</span>
+                      <span className="shrink-0 rounded-full bg-cream px-2 py-0.5 text-[10px] font-semibold capitalize text-muted">
+                        {p.status}
+                      </span>
                     </Link>
-                  );
-                })}
-              </div>
-            )}
-          </SectionCard>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
 
-          <SectionCard
-            title="Upcoming posts"
-            action={<Link href="/admin/calendar" className="text-xs font-semibold text-[#122428] hover:underline">Calendar</Link>}
-          >
-            {stats.loading ? (
-              <p className="px-5 py-6 text-sm text-[#5F686A]">Loading…</p>
-            ) : stats.upcomingPosts.length === 0 ? (
-              <p className="px-5 py-6 text-sm text-[#5F686A]">
-                No upcoming scheduled posts. <Link href="/admin/posts/new" className="text-[#122428] underline">Schedule one</Link>
-              </p>
-            ) : (
-              <div className="divide-y divide-[#111111]/5">
-                {stats.upcomingPosts.map((p) => {
-                  const isSocial = (p.content_type || "").toLowerCase().includes("social");
-                  return (
-                    <Link key={p.id} href={`/admin/posts/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-[#F5F8F8]/50 transition-colors">
+            <SectionCard
+              title="Upcoming on the calendar"
+              action={
+                <Link href="/admin/calendar" className="inline-flex items-center gap-1 text-xs font-semibold text-pine-900 hover:underline">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  Calendar
+                </Link>
+              }
+            >
+              {stats.loading ? (
+                <p className="px-5 py-6 text-sm text-muted">Loading…</p>
+              ) : stats.upcomingPosts.length === 0 ? (
+                <p className="px-5 py-6 text-sm text-muted">
+                  Nothing scheduled.{" "}
+                  <Link href="/admin/create-content" className="font-semibold text-pine-900 underline">
+                    Create content
+                  </Link>
+                </p>
+              ) : (
+                <div className="divide-y divide-pine-900/8">
+                  {stats.upcomingPosts.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/admin/posts/${p.id}`}
+                      className="flex items-center justify-between gap-2 px-5 py-3 transition-colors hover:bg-cream/50"
+                    >
                       <div className="min-w-0">
-                        <span className="block text-sm font-semibold text-[#111111] truncate">{p.title}</span>
-                        <span className="text-[10px] text-[#5F686A]">{isSocial ? "Social" : "Blog"}</span>
-                      </div>
-                      {p.scheduled_at && (
-                        <span className="ml-2 shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-700">
-                          {new Date(p.scheduled_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                        <span className="block truncate text-sm font-semibold text-pine-900">{p.title}</span>
+                        <span className="text-[10px] text-muted">
+                          {(p.content_type || "").toLowerCase().includes("social") ? "Social" : "Blog"}
                         </span>
-                      )}
+                      </div>
+                      {p.scheduled_at ? (
+                        <span className="shrink-0 rounded-full border border-pine-900/10 px-2 py-0.5 text-[10px] font-semibold text-pine-900">
+                          {new Date(p.scheduled_at).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </span>
+                      ) : null}
                     </Link>
-                  );
-                })}
-              </div>
-            )}
-          </SectionCard>
+                  ))}
+                </div>
+              )}
+            </SectionCard>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <Link
+            href="/admin/engagement/pipeline"
+            className={`${studio.card} flex items-center gap-3 p-4 transition-colors hover:border-pine-900/25`}
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-cream text-pine-900">
+              <CheckSquare className="h-4 w-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-pine-900">Task tracker</p>
+              <p className="text-xs text-muted">All follow-ups and work items in one list</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted" />
+          </Link>
         </div>
       </div>
     </div>

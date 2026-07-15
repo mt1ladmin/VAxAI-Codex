@@ -576,38 +576,38 @@ function KnowledgePageInner() {
   const canSelect = ["sectors", "personas", "pain_points", "vat_prompts"].includes(tab);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-full bg-cream/40">
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 border-b border-[#111111]/10 bg-white px-8 py-3">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-semibold text-[#111111]">Knowledge</span>
-          <div className="ml-3 flex flex-wrap overflow-hidden rounded-lg border border-[#111111]/15">
+      <div className="sticky top-0 z-30 border-b border-pine-900/8 bg-white/95 px-4 py-2.5 backdrop-blur-sm md:px-8">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-pine-700">Knowledge Hub</span>
+          <div className="flex max-w-full flex-wrap gap-1 overflow-x-auto rounded-xl bg-cream/80 p-1 scrollbar-none">
             {TAB_KEYS.map((key) => (
-              <button key={key} onClick={() => switchTab(key)}
-                className={`px-4 py-1.5 text-xs font-semibold transition-colors ${tab === key ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-[#F5F8F8]"}`}>
+              <button key={key} type="button" onClick={() => switchTab(key)}
+                className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${tab === key ? "bg-pine-900 text-white shadow-sm" : "text-muted hover:bg-white hover:text-pine-900"}`}>
                 {TAB_META[key].label}
               </button>
             ))}
           </div>
           {/* Global + button */}
           <button type="button" onClick={() => setAddModalOpen(true)}
-            className="ml-auto flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#122428]/90 transition-colors">
+            className="ml-auto flex items-center gap-1.5 rounded-xl bg-pine-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-pine-800 transition-colors">
             <Plus className="h-3.5 w-3.5" /> Add
           </button>
         </div>
       </div>
 
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
+      <div className="border-b border-pine-900/8 bg-white px-4 py-6 md:px-8">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">Client Engagement</p>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">{TAB_META[tab].title}</h1>
-            <p className="mt-0.5 text-sm text-[#5F686A]">{TAB_META[tab].description}</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">{TAB_META[tab].title}</h1>
+            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted">{TAB_META[tab].description}</p>
           </div>
         </div>
       </div>
 
-      <div className="px-8 py-6">
+      <div className="px-4 py-6 md:px-8">
         {/* Search + filters */}
         {!(["pricing", "scripts", "objections"] as Tab[]).includes(tab) && (
           <div className="flex gap-3 mb-5 flex-wrap">
@@ -775,7 +775,7 @@ function KnowledgePageInner() {
 
 export default function KnowledgePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-white px-8 py-16 text-sm text-[#5F686A]">Loading knowledge hub…</div>}>
+    <Suspense fallback={<div className="min-h-full bg-cream/40 px-8 py-16 text-sm text-muted">Loading knowledge hub…</div>}>
       <KnowledgePageInner />
     </Suspense>
   );
