@@ -103,18 +103,70 @@ export const VA_SPECIALISMS = [
   "Human review of AI-assisted work",
 ] as const;
 
-export const VA_SECTOR_INTEREST_OPTIONS = [
+/** Top-level client contexts applicants prefer to support */
+export const VA_CLIENT_SECTORS = [
   "Founders & entrepreneurs",
-  "Small & medium businesses",
-  "Charities & non-profits",
   "Public sector",
-  "Professional services",
-  "Healthcare & wellbeing",
-  "Education",
-  "Retail & e-commerce",
-  "Technology",
-  "Other",
+  "Private sector",
 ] as const;
+export type VaClientSector = (typeof VA_CLIENT_SECTORS)[number];
+
+/** UK industries / domains shown after the applicant picks a client sector */
+export const VA_INDUSTRIES_BY_SECTOR: Record<VaClientSector, readonly string[]> = {
+  "Founders & entrepreneurs": [
+    "Technology & software",
+    "Professional & business services",
+    "Creative & media",
+    "E-commerce & retail",
+    "Health & wellbeing",
+    "Education & training",
+    "Food & hospitality",
+    "Finance & fintech",
+    "Property & real estate",
+    "Marketing & communications",
+    "Sustainability & environment",
+    "Consumer products",
+    "Other / multi-sector",
+  ],
+  "Public sector": [
+    "Central government",
+    "Local government",
+    "NHS & healthcare",
+    "Education (state / public)",
+    "Policing & criminal justice",
+    "Defence & security",
+    "Emergency services",
+    "Social care",
+    "Housing & social housing",
+    "Transport & infrastructure",
+    "Regulatory bodies & agencies",
+    "Devolved administrations",
+    "Arms-length bodies",
+    "Public corporations",
+    "Other public services",
+  ],
+  "Private sector": [
+    "Agriculture, forestry & fishing",
+    "Mining & quarrying",
+    "Manufacturing",
+    "Energy & utilities",
+    "Water, sewerage & waste",
+    "Construction",
+    "Wholesale & retail trade",
+    "Transportation & storage",
+    "Accommodation & food services",
+    "Information & communication",
+    "Financial & insurance services",
+    "Real estate",
+    "Professional, scientific & technical",
+    "Administrative & support services",
+    "Education (private / independent)",
+    "Human health & social work",
+    "Arts, entertainment & recreation",
+    "Charities & non-profits",
+    "Other service activities",
+  ],
+};
 
 export type VaApplication = {
   id: string;

@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
         VAxAI is a service provided by MT1L. MT1L (&ldquo;MT1L&rdquo;, &ldquo;we&rdquo;, &ldquo;us&rdquo;) is the data controller for the personal information described in this policy. We handle it in line with UK data protection law, including the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018.
       </p>
       <p>
-        VAxAI provides operational administration support and AI readiness services for founders, SMEs, charities, non-profits and public sector organisations. We collect very little personal information. This policy explains, in plain English, what we collect when you contact us, request a free Admin Review, engage our services, or access VAxAI Studio — and the rights you have. Questions are welcome at <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
+        VAxAI provides operational administration support and AI readiness services for founders, SMEs, charities, non-profits and public sector organisations. We collect very little personal information. This policy explains, in plain English, what we collect when you contact us, request a free Admin Review, apply to work with us as a freelance virtual assistant, engage our services, or access VAxAI Studio — and the rights you have. Questions are welcome at <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
       </p>
 
       <div className="callout">
@@ -45,6 +45,18 @@ export default function PrivacyPolicyPage() {
         If we work with you, we collect and use information shared in the course of that engagement — in calls, emails, meetings or materials — to deliver and improve the quality of our services.
       </p>
       <p><em>Basis: Performance of Contract; Legitimate Interests.</em></p>
+
+      <h3>When you apply to work with VAxAI as a freelancer</h3>
+      <p>
+        If you submit an application via the Work with VAxAI page, we collect the information you provide in that form, which may include your name, email address, telephone number, location, confirmation that you are UK-based and able to prove your identity, self-employment and business insurance readiness, specialisms, preferred client sectors and industries, description of the work you specialise in, knowledge of AI systems and automations, availability, optional notes, and your CV (uploaded as a document file). We may also store a profile photo if one is later added during onboarding.
+      </p>
+      <p>
+        We use this information to review your application, contact you about next steps, assess suitability for client work, match you to projects or retainers, coordinate onboarding, and keep an accurate record of freelancers we work with or have considered. Application records are held in our systems (including VAxAI Studio) and CV files are stored securely with our hosting and storage providers.
+      </p>
+      <p>
+        Before you submit, the application journey asks you to confirm you have read and agree to this Privacy Policy and our other site policies, and to declare that the information you provide is true and accurate.
+      </p>
+      <p><em>Basis: Performance of Contract (steps at your request before a freelance engagement); Legitimate Interests (recruiting and coordinating suitable freelancers for client delivery).</em></p>
 
       <h3>When you sign up to our newsletter</h3>
       <p>
@@ -107,6 +119,8 @@ export default function PrivacyPolicyPage() {
       <h2>How long we keep your information</h2>
       <ul>
         <li><strong>Enquiry data (where no engagement follows)</strong> — up to two years from your last interaction.</li>
+        <li><strong>Freelance applications (where no engagement follows)</strong> — up to two years from your last interaction, or sooner if you ask us to delete your application.</li>
+        <li><strong>Freelance partners we engage</strong> — for the duration of the working relationship and then up to five years for operational and legal records.</li>
         <li><strong>Client data</strong> — for the duration of the engagement and then five years.</li>
         <li><strong>B2B research records</strong> — reviewed regularly; removed when no longer relevant, when contact has concluded, or when you ask us to stop.</li>
         <li><strong>Studio access data</strong> — for the duration of access and a reasonable period after it ends.</li>

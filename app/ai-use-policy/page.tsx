@@ -36,6 +36,9 @@ export default function AiUsePolicyPage() {
         <li>
           <strong>Internal tools and this website.</strong> We may use AI to help design internal workflows and digital tools that support delivery, always alongside, not instead of, human decision-making. We do not build complex or enterprise AI systems for clients ourselves; where that is needed, we can work with trusted external partners on your behalf.
         </li>
+        <li>
+          <strong>Freelance partner coordination.</strong> Where people apply to work with VAxAI as freelancers, we may use AI tools inside VAxAI Studio to help our team organise applications, draft internal notes or suggest possible matches to client work. A person always decides who to contact and who is engaged. We do not use automated decision-making alone to accept or reject applications.
+        </li>
       </ul>
 
       <h2>A person is always responsible</h2>

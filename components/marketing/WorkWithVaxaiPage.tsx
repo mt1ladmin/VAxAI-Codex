@@ -1,26 +1,29 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, Check, FileUp, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileUp, Loader2, X } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import FilingTab from "@/components/FilingTab";
 import { MultiSelect } from "@/components/ui/MultiSelect";
-import { AppSelect } from "@/components/ui/AppSelect";
 import {
   VA_APPLICANT_TYPE_LABELS,
+  VA_CLIENT_SECTORS,
+  VA_INDUSTRIES_BY_SECTOR,
   VA_INSURANCE_LABELS,
-  VA_SECTOR_INTEREST_OPTIONS,
   VA_SELF_EMPLOYED_LABELS,
   VA_SPECIALISMS,
   type VaApplicantType,
+  type VaClientSector,
   type VaInsuranceStatus,
   type VaSelfEmployedStatus,
 } from "@/lib/va-applications/constants";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const HERO_IMAGE = "/hero-remote-work-circles.jpg";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 26 },
@@ -54,8 +57,10 @@ const btn = {
     "inline-flex items-center justify-center gap-2 rounded-full bg-acid px-6 py-3 text-sm font-semibold text-ink transition-all duration-300 ease-premium hover:brightness-[1.04] hover:shadow-lift",
   primary:
     "inline-flex items-center justify-center gap-2 rounded-full bg-pine-900 px-6 py-3 text-sm font-semibold text-paper transition-all duration-300 ease-premium hover:bg-pine-800 hover:shadow-lift disabled:opacity-60",
-  ghostLight:
-    "inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold text-ink transition-colors duration-300 hover:border-ink/35 hover:bg-white",
+  ghost:
+    "inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 px-5 py-2.5 text-sm font-semibold text-ink transition-colors duration-300 hover:border-ink/35 hover:bg-white disabled:opacity-40",
+  ghostDark:
+    "inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-paper/90 transition-colors duration-300 hover:border-white/45 hover:text-paper",
 };
 
 function Eyebrow({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
@@ -82,7 +87,48 @@ const whyPartner = [
   "Some clients use AI tools; others do not. Either way, you will know how to work efficiently and only recommend tools that fit how the organisation already works and what they trust.",
 ];
 
+/** Ordered wizard steps (one focus per screen) */
+const STEPS = [
+  "privacy",
+  "path",
+  "contact",
+  "setup",
+  "specialisms",
+  "sector",
+  "industries",
+  "work",
+  "ai",
+  "availability",
+  "notes",
+  "cv",
+  "declaration",
+] as const;
+
+type StepId = (typeof STEPS)[number];
+
+const STEP_TITLES: Record<StepId, string> = {
+  privacy: "Before you start",
+  path: "About you",
+  contact: "Your details",
+  setup: "Self-employment setup",
+  specialisms: "Your specialisms",
+  sector: "Who you want to support",
+  industries: "Industries & domains",
+  work: "Work you specialise in",
+  ai: "AI & automation",
+  availability: "Your availability",
+  notes: "Anything else?",
+  cv: "Your CV",
+  declaration: "Declaration",
+};
+
 export default function WorkWithVaxaiPage() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const [policiesAccepted, setPoliciesAccepted] = useState(false);
   const [applicantType, setApplicantType] = useState<VaApplicantType | "">("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -93,51 +139,157 @@ export default function WorkWithVaxaiPage() {
   const [canProveIdentity, setCanProveIdentity] = useState(false);
   const [ukBased, setUkBased] = useState(true);
   const [specialisms, setSpecialisms] = useState<string[]>([]);
-  const [sectors, setSectors] = useState<string[]>([]);
+  const [clientSector, setClientSector] = useState<VaClientSector | "">("");
+  const [industries, setIndustries] = useState<string[]>([]);
   const [workSpecialisesIn, setWorkSpecialisesIn] = useState("");
   const [aiKnowledge, setAiKnowledge] = useState("");
   const [availabilityHours, setAvailabilityHours] = useState("");
   const [availabilityNotes, setAvailabilityNotes] = useState("");
   const [coverNote, setCoverNote] = useState("");
   const [cvFile, setCvFile] = useState<File | null>(null);
+  const [declarationAccepted, setDeclarationAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
-  const scrollToForm = () => {
-    document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  useEffect(() => setMounted(true), []);
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
+  useEffect(() => {
+    if (!modalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeModal();
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [modalOpen]);
+
+  const step = STEPS[stepIndex];
+  const progress = ((stepIndex + 1) / STEPS.length) * 100;
+
+  const industryOptions = useMemo(() => {
+    if (!clientSector) return [];
+    return [...VA_INDUSTRIES_BY_SECTOR[clientSector]];
+  }, [clientSector]);
+
+  function openModal() {
+    setModalOpen(true);
+    setStepIndex(0);
     setError(null);
+  }
 
-    if (!applicantType) {
-      setError("Please choose whether you are an experienced freelancer or early career.");
+  function closeModal() {
+    if (submitting) return;
+    setModalOpen(false);
+    setError(null);
+  }
+
+  function resetForm() {
+    setStepIndex(0);
+    setPoliciesAccepted(false);
+    setApplicantType("");
+    setFullName("");
+    setEmail("");
+    setTelephone("");
+    setLocation("");
+    setSelfEmployed("");
+    setInsurance("will_arrange");
+    setCanProveIdentity(false);
+    setUkBased(true);
+    setSpecialisms([]);
+    setClientSector("");
+    setIndustries([]);
+    setWorkSpecialisesIn("");
+    setAiKnowledge("");
+    setAvailabilityHours("");
+    setAvailabilityNotes("");
+    setCoverNote("");
+    setCvFile(null);
+    setDeclarationAccepted(false);
+    setError(null);
+  }
+
+  function validateStep(id: StepId): string | null {
+    switch (id) {
+      case "privacy":
+        return policiesAccepted
+          ? null
+          : "Please confirm you have read and agree to our policies before continuing.";
+      case "path":
+        return applicantType ? null : "Please choose the option that best describes you.";
+      case "contact":
+        if (!fullName.trim()) return "Please enter your full name.";
+        if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email)) {
+          return "Please enter a valid email address.";
+        }
+        if (!ukBased) return "We currently only partner with UK-based freelancers.";
+        if (!canProveIdentity) {
+          return "You must be able to prove your identity to work with client organisations.";
+        }
+        return null;
+      case "setup":
+        return selfEmployed ? null : "Please select your self-employment setup.";
+      case "specialisms":
+        return specialisms.length ? null : "Please select at least one specialism.";
+      case "sector":
+        return clientSector ? null : "Please choose a sector.";
+      case "industries":
+        return industries.length ? null : "Please select at least one industry or domain.";
+      case "work":
+        return workSpecialisesIn.trim()
+          ? null
+          : "Please tell us about the work you specialise in.";
+      case "ai":
+        return aiKnowledge.trim()
+          ? null
+          : "Please share your knowledge of AI systems and automations (honesty is fine if you are new to this).";
+      case "availability":
+        return availabilityHours.trim() || availabilityNotes.trim()
+          ? null
+          : "Please tell us about your availability.";
+      case "notes":
+        return null;
+      case "cv":
+        return cvFile ? null : "Please upload your CV as a PDF or Word document.";
+      case "declaration":
+        return declarationAccepted
+          ? null
+          : "Please confirm that the information you have provided is true and accurate.";
+      default:
+        return null;
+    }
+  }
+
+  function goNext() {
+    const err = validateStep(step);
+    if (err) {
+      setError(err);
       return;
     }
-    if (!selfEmployed) {
-      setError("Please tell us about your self-employment setup.");
+    setError(null);
+    if (stepIndex < STEPS.length - 1) setStepIndex((i) => i + 1);
+  }
+
+  function goBack() {
+    setError(null);
+    if (stepIndex > 0) setStepIndex((i) => i - 1);
+  }
+
+  async function submitApplication() {
+    const err = validateStep("declaration");
+    if (err) {
+      setError(err);
       return;
     }
-    if (!ukBased) {
-      setError("We currently only partner with UK-based freelancers.");
-      return;
-    }
-    if (!canProveIdentity) {
-      setError("You must be able to prove your identity to work with client organisations.");
-      return;
-    }
-    if (!cvFile) {
-      setError("Please upload your CV as a PDF or Word document.");
-      return;
-    }
-    if (!availabilityHours.trim() && !availabilityNotes.trim()) {
-      setError("Please tell us about your availability.");
+    if (!cvFile || !applicantType || !selfEmployed || !clientSector) {
+      setError("Please complete all required steps.");
       return;
     }
 
     setSubmitting(true);
+    setError(null);
     try {
       const form = new FormData();
       form.set("applicant_type", applicantType);
@@ -150,12 +302,19 @@ export default function WorkWithVaxaiPage() {
       form.set("has_business_insurance", insurance);
       form.set("can_prove_identity", String(canProveIdentity));
       form.set("specialisms", JSON.stringify(specialisms));
-      form.set("sectors_interests", sectors.join(", "));
+      form.set(
+        "sectors_interests",
+        `${clientSector}: ${industries.join(", ")}`,
+      );
+      form.set("client_sector", clientSector);
+      form.set("industries", JSON.stringify(industries));
       form.set("work_specialises_in", workSpecialisesIn);
       form.set("ai_knowledge", aiKnowledge);
       form.set("availability_hours_per_week", availabilityHours);
       form.set("availability_notes", availabilityNotes);
       form.set("cover_note", coverNote);
+      form.set("policies_accepted", "true");
+      form.set("declaration_accepted", "true");
       form.set("cv", cvFile);
 
       const res = await fetch("/api/va-applications", { method: "POST", body: form });
@@ -166,12 +325,516 @@ export default function WorkWithVaxaiPage() {
         return;
       }
       setSuccess(true);
+      setModalOpen(false);
+      resetForm();
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
       setError("Network error. Please try again.");
     }
     setSubmitting(false);
   }
+
+  const choiceCard = (active: boolean) =>
+    `w-full rounded-2xl border px-4 py-4 text-left text-sm transition-colors ${
+      active
+        ? "border-pine-800 bg-pine-50 font-semibold text-pine-900"
+        : "border-ink/10 bg-cream/30 text-muted hover:border-ink/25"
+    }`;
+
+  function renderStep() {
+    switch (step) {
+      case "privacy":
+        return (
+          <div className="space-y-4">
+            <p className="text-sm leading-7 text-muted">
+              Before you start, please read how we handle the information you submit on this
+              application. By continuing you confirm you understand and agree to the policies
+              linked below.
+            </p>
+            <div className="rounded-2xl border border-ink/10 bg-cream/40 px-4 py-4 text-sm leading-7 text-muted">
+              <p className="font-semibold text-ink">What we collect</p>
+              <p className="mt-2">
+                Your contact details, location, self-employment and insurance readiness, identity
+                confirmation, specialisms, preferred client sectors and industries, availability,
+                CV, and any notes you choose to share. We use this only to review your application,
+                contact you about partnership opportunities, and match you to suitable work.
+              </p>
+              <p className="mt-3">
+                We do not sell your data. You can ask us to access, correct or delete your
+                application information at any time by emailing{" "}
+                <a href="mailto:hello@mt1l.com" className="font-semibold text-pine-800 underline">
+                  hello@mt1l.com
+                </a>
+                .
+              </p>
+            </div>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a href="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-pine-800 underline">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" target="_blank" rel="noreferrer" className="font-semibold text-pine-800 underline">
+                  Terms of Service
+                </a>
+              </li>
+              <li>
+                <a href="/ai-use-policy" target="_blank" rel="noreferrer" className="font-semibold text-pine-800 underline">
+                  AI Use Policy
+                </a>
+              </li>
+              <li>
+                <a href="/edi-policy" target="_blank" rel="noreferrer" className="font-semibold text-pine-800 underline">
+                  JEF / EDI Policy
+                </a>
+              </li>
+            </ul>
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-3 text-sm text-muted">
+              <input
+                type="checkbox"
+                checked={policiesAccepted}
+                onChange={(e) => setPoliciesAccepted(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                I have read and agree to the Privacy Policy, Terms of Service, AI Use Policy and JEF
+                Policy, and I am happy to proceed with this application.
+              </span>
+            </label>
+          </div>
+        );
+
+      case "path":
+        return (
+          <div className="space-y-3">
+            <p className="text-sm leading-7 text-muted">
+              Which best describes you? This helps us support you appropriately.
+            </p>
+            {(Object.keys(VA_APPLICANT_TYPE_LABELS) as VaApplicantType[]).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  setApplicantType(key);
+                  if (key === "early_career" && !selfEmployed) setSelfEmployed("need_setup_help");
+                }}
+                className={choiceCard(applicantType === key)}
+              >
+                {VA_APPLICANT_TYPE_LABELS[key]}
+              </button>
+            ))}
+          </div>
+        );
+
+      case "contact":
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className={labelClass} htmlFor="va-full-name">
+                Full name *
+              </label>
+              <input
+                id="va-full-name"
+                className={inputClass}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                autoComplete="name"
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="va-email">
+                Email *
+              </label>
+              <input
+                id="va-email"
+                type="email"
+                className={inputClass}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="va-phone">
+                Phone number
+              </label>
+              <input
+                id="va-phone"
+                type="tel"
+                className={inputClass}
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+                autoComplete="tel"
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="va-location">
+                Location (town / region)
+              </label>
+              <input
+                id="va-location"
+                className={inputClass}
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Manchester"
+              />
+            </div>
+            <label className="flex items-start gap-3 text-sm text-muted">
+              <input
+                type="checkbox"
+                checked={ukBased}
+                onChange={(e) => setUkBased(e.target.checked)}
+                className="mt-1"
+              />
+              I am based in the UK *
+            </label>
+            <label className="flex items-start gap-3 text-sm text-muted">
+              <input
+                type="checkbox"
+                checked={canProveIdentity}
+                onChange={(e) => setCanProveIdentity(e.target.checked)}
+                className="mt-1"
+              />
+              I can prove my identity for client onboarding *
+            </label>
+          </div>
+        );
+
+      case "setup":
+        return (
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <p className={labelClass}>Self-employment setup *</p>
+              {(Object.keys(VA_SELF_EMPLOYED_LABELS) as VaSelfEmployedStatus[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setSelfEmployed(key)}
+                  className={choiceCard(selfEmployed === key)}
+                >
+                  {VA_SELF_EMPLOYED_LABELS[key]}
+                </button>
+              ))}
+            </div>
+            <div className="space-y-2">
+              <p className={labelClass}>Business insurance</p>
+              {(Object.keys(VA_INSURANCE_LABELS) as VaInsuranceStatus[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setInsurance(key)}
+                  className={choiceCard(insurance === key)}
+                >
+                  {VA_INSURANCE_LABELS[key]}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "specialisms":
+        return (
+          <div className="space-y-3">
+            <p className="text-sm leading-7 text-muted">
+              Select any that apply. You do not need every skill listed.
+            </p>
+            <MultiSelect
+              values={specialisms}
+              onChange={setSpecialisms}
+              options={[...VA_SPECIALISMS]}
+              placeholder="Choose specialisms…"
+            />
+          </div>
+        );
+
+      case "sector":
+        return (
+          <div className="space-y-3">
+            <p className="text-sm leading-7 text-muted">
+              Which type of organisation are you most interested in supporting?
+            </p>
+            {VA_CLIENT_SECTORS.map((sector) => (
+              <button
+                key={sector}
+                type="button"
+                onClick={() => {
+                  setClientSector(sector);
+                  setIndustries([]);
+                }}
+                className={choiceCard(clientSector === sector)}
+              >
+                {sector}
+              </button>
+            ))}
+          </div>
+        );
+
+      case "industries":
+        return (
+          <div className="space-y-3">
+            <p className="text-sm leading-7 text-muted">
+              {clientSector
+                ? `Select the industries or domains within ${clientSector.toLowerCase()} that interest you.`
+                : "Select a sector first."}
+            </p>
+            {clientSector ? (
+              <MultiSelect
+                values={industries}
+                onChange={setIndustries}
+                options={industryOptions}
+                placeholder="Choose industries…"
+              />
+            ) : null}
+          </div>
+        );
+
+      case "work":
+        return (
+          <div>
+            <label className={labelClass} htmlFor="va-work">
+              Work you specialise in *
+            </label>
+            <textarea
+              id="va-work"
+              rows={6}
+              className={inputClass}
+              value={workSpecialisesIn}
+              onChange={(e) => setWorkSpecialisesIn(e.target.value)}
+              placeholder="Describe the kinds of admin or support work you do best."
+            />
+          </div>
+        );
+
+      case "ai":
+        return (
+          <div>
+            <label className={labelClass} htmlFor="va-ai">
+              Your knowledge of AI systems and automations *
+            </label>
+            <textarea
+              id="va-ai"
+              rows={6}
+              className={inputClass}
+              value={aiKnowledge}
+              onChange={(e) => setAiKnowledge(e.target.value)}
+              placeholder="Tools you have used, comfort level, or interest in learning."
+            />
+          </div>
+        );
+
+      case "availability":
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className={labelClass} htmlFor="va-hours">
+                Typical hours available per week *
+              </label>
+              <input
+                id="va-hours"
+                className={inputClass}
+                value={availabilityHours}
+                onChange={(e) => setAvailabilityHours(e.target.value)}
+                placeholder="e.g. 10–15 hours"
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="va-avail-notes">
+                Availability notes
+              </label>
+              <input
+                id="va-avail-notes"
+                className={inputClass}
+                value={availabilityNotes}
+                onChange={(e) => setAvailabilityNotes(e.target.value)}
+                placeholder="e.g. evenings, term-time only"
+              />
+            </div>
+          </div>
+        );
+
+      case "notes":
+        return (
+          <div>
+            <label className={labelClass} htmlFor="va-notes">
+              Anything else you would like us to know?
+            </label>
+            <textarea
+              id="va-notes"
+              rows={5}
+              className={inputClass}
+              value={coverNote}
+              onChange={(e) => setCoverNote(e.target.value)}
+              placeholder="Optional"
+            />
+          </div>
+        );
+
+      case "cv":
+        return (
+          <div>
+            <label className={labelClass} htmlFor="va-cv">
+              Upload your CV (PDF or Word) *
+            </label>
+            <label
+              htmlFor="va-cv"
+              className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-ink/20 bg-cream/40 px-6 py-10 text-center transition-colors hover:border-pine-800/40"
+            >
+              <FileUp className="h-6 w-6 text-pine-800" />
+              <span className="text-sm font-semibold text-ink">
+                {cvFile ? cvFile.name : "Click to upload your CV"}
+              </span>
+              <span className="text-xs text-muted">PDF, DOC or DOCX · max 8MB</span>
+              <input
+                id="va-cv"
+                type="file"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="sr-only"
+                onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
+              />
+            </label>
+          </div>
+        );
+
+      case "declaration":
+        return (
+          <div className="space-y-4">
+            <p className="text-sm leading-7 text-muted">
+              Please review and confirm before submitting. We will only use this information to
+              assess your application and contact you about freelance opportunities with VAxAI.
+            </p>
+            <div className="rounded-2xl border border-ink/10 bg-cream/40 px-4 py-4 text-sm leading-6 text-muted">
+              <p>
+                <span className="font-semibold text-ink">Name:</span> {fullName || "—"}
+              </p>
+              <p className="mt-1">
+                <span className="font-semibold text-ink">Email:</span> {email || "—"}
+              </p>
+              <p className="mt-1">
+                <span className="font-semibold text-ink">Path:</span>{" "}
+                {applicantType ? VA_APPLICANT_TYPE_LABELS[applicantType] : "—"}
+              </p>
+              <p className="mt-1">
+                <span className="font-semibold text-ink">Sector focus:</span>{" "}
+                {clientSector ? `${clientSector} (${industries.join(", ") || "—"})` : "—"}
+              </p>
+              <p className="mt-1">
+                <span className="font-semibold text-ink">CV:</span> {cvFile?.name || "—"}
+              </p>
+            </div>
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-3 text-sm text-muted">
+              <input
+                type="checkbox"
+                checked={declarationAccepted}
+                onChange={(e) => setDeclarationAccepted(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                I declare that the information I have provided in this application is true and
+                accurate to the best of my knowledge.
+              </span>
+            </label>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  }
+
+  const modal =
+    mounted && modalOpen
+      ? createPortal(
+          <div
+            className="fixed inset-0 z-[100] grid place-items-center bg-ink/55 px-4 py-6 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="va-apply-title"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) closeModal();
+            }}
+          >
+            <div className="flex max-h-[92vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
+              <div className="shrink-0 bg-pine-900 px-5 py-4 text-paper md:px-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid">
+                      Application
+                    </p>
+                    <h2 id="va-apply-title" className="mt-1 text-xl font-semibold leading-tight">
+                      {STEP_TITLES[step]}
+                    </h2>
+                    <p className="mt-1 text-xs text-paper/55">
+                      Step {stepIndex + 1} of {STEPS.length}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-paper"
+                    aria-label="Close application"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-acid transition-all duration-300 ease-premium"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 md:px-6">
+                {renderStep()}
+                {error ? (
+                  <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-800">
+                    {error}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="flex shrink-0 items-center justify-between gap-3 border-t border-ink/8 bg-white px-5 py-4 md:px-6">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  disabled={stepIndex === 0 || submitting}
+                  className={btn.ghost}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </button>
+                {step === "declaration" ? (
+                  <button
+                    type="button"
+                    onClick={() => void submitApplication()}
+                    disabled={submitting}
+                    className={btn.primary}
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Submitting…
+                      </>
+                    ) : (
+                      <>
+                        Submit application
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button type="button" onClick={goNext} className={btn.primary}>
+                    Continue
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
 
   return (
     <>
@@ -183,7 +846,7 @@ export default function WorkWithVaxaiPage() {
         <main className="overflow-x-hidden">
           {/* Hero */}
           <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-24">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
               <motion.div initial="hidden" animate="show" variants={fadeUp}>
                 <Eyebrow light>Partner with VAxAI</Eyebrow>
                 <h1 className="mt-6 max-w-3xl text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.025em] md:text-5xl">
@@ -199,17 +862,50 @@ export default function WorkWithVaxaiPage() {
                   as monthly retainer services (ongoing admin and maintenance of AI and automation outputs).
                 </p>
                 <div className="mt-10 flex flex-wrap gap-3">
-                  <button type="button" onClick={scrollToForm} className={btn.accent}>
-                    Apply to partner with us
+                  <button type="button" onClick={openModal} className={btn.accent}>
+                    Start your application
                     <ArrowRight className="h-4 w-4" />
                   </button>
-                  <a href="#who" className={btn.ghostLight.replace("text-ink", "text-paper border-white/25 hover:border-white/50")}>
+                  <a href="#who" className={btn.ghostDark}>
                     Who we partner with
                   </a>
                 </div>
               </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 26 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+                className="relative mx-auto w-full max-w-[440px] lg:max-w-none"
+              >
+                <div
+                  className="simplified-hide absolute -inset-3 rotate-2 rounded-[36px] border border-white/10 bg-white/[0.04]"
+                  aria-hidden="true"
+                />
+                <div className="relative aspect-[0.92] overflow-hidden rounded-[28px] ring-1 ring-white/15">
+                  <img
+                    src={HERO_IMAGE}
+                    alt="Freelance professionals collaborating remotely"
+                    className="simplified-photo h-full w-full object-cover"
+                  />
+                </div>
+              </motion.div>
             </div>
           </section>
+
+          {success ? (
+            <section className="px-4 py-12 md:px-8">
+              <div className="mx-auto max-w-2xl rounded-[28px] border border-emerald-200 bg-emerald-50/80 px-7 py-10 text-center">
+                <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-600 text-white">
+                  <Check className="h-6 w-6" />
+                </div>
+                <h2 className="mt-5 text-xl font-semibold text-ink">Application received</h2>
+                <p className="mt-3 text-sm leading-7 text-muted">
+                  Thank you. We will review your application and get in touch if there is a good fit.
+                </p>
+              </div>
+            </section>
+          ) : null}
 
           {/* Who we partner with */}
           <section id="who" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
@@ -220,59 +916,28 @@ export default function WorkWithVaxaiPage() {
                   Essentials first. Experience can grow with the work.
                 </h2>
                 <p className="mt-6 max-w-2xl text-base leading-8 text-muted md:text-lg">
-                  We actively welcome experienced professionals and motivated people early in their careers,
-                  including students and those who would traditionally enter entry-level admin roles, who
-                  are impacted by AI and automation. If you are not fully set up yet, you can still apply.
-                  We can help you understand the process of freelancing and getting ready for client work.
+                  We actively welcome experienced professionals and motivated people early in their careers
+                  who want to build meaningful freelance work. If you are not fully set up yet, you can still
+                  apply. We can help you understand the process of freelancing and getting ready for client
+                  work.
                 </p>
               </Reveal>
 
-              <div className="mt-10 grid gap-6 lg:grid-cols-2">
-                <Reveal className="rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                    Essential for this work
-                  </p>
-                  <ul className="mt-5 space-y-3">
-                    {essentials.map((item) => (
-                      <li key={item} className="flex gap-3 text-sm leading-7 text-muted md:text-[15px]">
-                        <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-                          ✓
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="mt-6 text-sm leading-7 text-muted">
-                    In the UK, sole traders do not register with Companies House. When self-employed earnings
-                    go over the £1,000 trading allowance in a tax year, you register for Self Assessment with
-                    HMRC as a sole trader. You can start before registering; we can help early-career
-                    applicants understand what that involves.
-                  </p>
-                </Reveal>
-
-                <Reveal className="rounded-[28px] border border-pine-900/10 bg-pine-50/50 p-7 md:p-8">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                    Two ways in
-                  </p>
-                  <div className="mt-5 space-y-5">
-                    <div>
-                      <h3 className="text-lg font-semibold text-ink">Experienced freelancers</h3>
-                      <p className="mt-2 text-sm leading-7 text-muted md:text-[15px]">
-                        Already working independently (or nearly ready) and looking for well-matched client
-                        work with clear coordination and quality standards.
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-ink">Early career / getting started</h3>
-                      <p className="mt-2 text-sm leading-7 text-muted md:text-[15px]">
-                        Motivated talent building experience. You may not be fully set up yet. Tell us, and
-                        we can support you in understanding freelancing, HMRC setup when it applies, and how
-                        VAxAI work is delivered. Your CV still helps us see your strengths.
-                      </p>
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
+              <Reveal className="mt-10 max-w-2xl rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
+                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+                  Essential for this work
+                </p>
+                <ul className="mt-5 space-y-3">
+                  {essentials.map((item) => (
+                    <li key={item} className="flex gap-3 text-sm leading-7 text-muted md:text-[15px]">
+                      <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                        ✓
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
             </div>
           </section>
 
@@ -306,9 +971,9 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* AI upskilling + young talent */}
+          {/* AI upskilling */}
           <section className="px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:gap-16">
+            <div className="mx-auto max-w-3xl">
               <Reveal>
                 <Eyebrow>AI skills as a perk</Eyebrow>
                 <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
@@ -323,30 +988,9 @@ export default function WorkWithVaxaiPage() {
                   <p>
                     Not every organisation wants AI. Some prefer traditional admin support. We only train and
                     recommend AI strategies where they add real value, align with how the organisation works,
-                    and use tools they already trust. You decide, with us, what is appropriate for each client.
-                  </p>
-                  <p>
-                    For early-career freelancers we offer more guidance to get started. For experienced
-                    professionals, support is lighter and focused on staying aligned with client standards and
-                    new tools, not on hand-holding.
+                    and use tools they already trust.
                   </p>
                 </div>
-              </Reveal>
-              <Reveal className="rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                  Opportunities for young talent
-                </p>
-                <h3 className="mt-3 text-xl font-semibold tracking-tight text-ink">
-                  A path into meaningful freelance work
-                </h3>
-                <p className="mt-4 text-sm leading-7 text-muted md:text-[15px]">
-                  Where clients are open to working with talented young professionals entering freelancing,
-                  we can offer reduced rates. These freelancers receive structured orientation and ongoing
-                  access to AI and admin upskilling. Less years of experience does not mean less value: fresh
-                  perspectives, relevant qualifications and strong motivation matter. It is a practical way
-                  for organisations to access motivated talent while creating opportunities for the generation
-                  most affected by AI-driven changes in admin roles.
-                </p>
               </Reveal>
             </div>
           </section>
@@ -362,7 +1006,10 @@ export default function WorkWithVaxaiPage() {
               </Reveal>
               <div className="mt-10 grid gap-4 sm:grid-cols-2">
                 {whyPartner.map((item) => (
-                  <Reveal key={item} className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-5">
+                  <Reveal
+                    key={item}
+                    className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-5"
+                  >
                     <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
                       ✓
                     </span>
@@ -373,294 +1020,23 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* Application form */}
+          {/* Apply CTA */}
           <section id="apply" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-3xl">
+            <div className="mx-auto max-w-3xl text-center">
               <Reveal>
                 <Eyebrow>Application</Eyebrow>
                 <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Apply to work with VAxAI
+                  Ready to partner with us?
                 </h2>
-                <p className="mt-6 text-base leading-8 text-muted">
-                  Upload your CV and tell us about your sectors, specialisms, availability and AI knowledge.
-                  That helps us match you to the right projects and retainers.
+                <p className="mx-auto mt-6 max-w-xl text-base leading-8 text-muted">
+                  Start your application when you are ready. We will take you through one step at a time,
+                  including privacy, your experience, specialisms, availability and CV.
                 </p>
+                <button type="button" onClick={openModal} className={`${btn.primary} mt-8`}>
+                  Start your application
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </Reveal>
-
-              {success ? (
-                <Reveal className="mt-10 rounded-[28px] border border-emerald-200 bg-emerald-50/80 px-7 py-10 text-center">
-                  <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-600 text-white">
-                    <Check className="h-6 w-6" />
-                  </div>
-                  <h3 className="mt-5 text-xl font-semibold text-ink">Application received</h3>
-                  <p className="mt-3 text-sm leading-7 text-muted">
-                    Thank you. We will review your application and get in touch if there is a good fit. If you
-                    applied as early career, we may also follow up with practical next steps on getting set up.
-                  </p>
-                </Reveal>
-              ) : (
-                <form onSubmit={onSubmit} className="mt-10 space-y-8 rounded-[28px] border border-ink/5 bg-white p-6 shadow-card md:p-8">
-                  <fieldset className="space-y-4">
-                    <legend className="text-sm font-semibold text-ink">How would you describe yourself?</legend>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {(Object.keys(VA_APPLICANT_TYPE_LABELS) as VaApplicantType[]).map((key) => (
-                        <button
-                          key={key}
-                          type="button"
-                          onClick={() => {
-                            setApplicantType(key);
-                            if (key === "early_career" && !selfEmployed) {
-                              setSelfEmployed("need_setup_help");
-                            }
-                          }}
-                          className={`rounded-2xl border px-4 py-4 text-left text-sm transition-colors ${
-                            applicantType === key
-                              ? "border-pine-800 bg-pine-50 font-semibold text-pine-900"
-                              : "border-ink/10 bg-cream/30 text-muted hover:border-ink/25"
-                          }`}
-                        >
-                          {VA_APPLICANT_TYPE_LABELS[key]}
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
-
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div className="sm:col-span-2">
-                      <label className={labelClass} htmlFor="full_name">
-                        Full name *
-                      </label>
-                      <input
-                        id="full_name"
-                        required
-                        className={inputClass}
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className={labelClass} htmlFor="email">
-                        Email *
-                      </label>
-                      <input
-                        id="email"
-                        type="email"
-                        required
-                        className={inputClass}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <label className={labelClass} htmlFor="telephone">
-                        Telephone
-                      </label>
-                      <input
-                        id="telephone"
-                        type="tel"
-                        className={inputClass}
-                        value={telephone}
-                        onChange={(e) => setTelephone(e.target.value)}
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className={labelClass} htmlFor="location">
-                        Location (town / region)
-                      </label>
-                      <input
-                        id="location"
-                        className={inputClass}
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        placeholder="e.g. Manchester"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="flex items-start gap-3 text-sm text-muted">
-                      <input
-                        type="checkbox"
-                        checked={ukBased}
-                        onChange={(e) => setUkBased(e.target.checked)}
-                        className="mt-1"
-                      />
-                      I am based in the UK *
-                    </label>
-                    <label className="flex items-start gap-3 text-sm text-muted">
-                      <input
-                        type="checkbox"
-                        checked={canProveIdentity}
-                        onChange={(e) => setCanProveIdentity(e.target.checked)}
-                        className="mt-1"
-                      />
-                      I can prove my identity for client onboarding *
-                    </label>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>Self-employment setup *</label>
-                    <AppSelect
-                      value={selfEmployed}
-                      onChange={(v) => setSelfEmployed(v as VaSelfEmployedStatus)}
-                      options={[
-                        { value: "", label: "Select…" },
-                        ...Object.entries(VA_SELF_EMPLOYED_LABELS).map(([value, label]) => ({
-                          value,
-                          label,
-                        })),
-                      ]}
-                    />
-                    <p className="mt-2 text-xs leading-5 text-muted">
-                      You do not need Companies House registration as a sole trader. HMRC Self Assessment
-                      applies when self-employed earnings exceed the £1,000 trading allowance in a tax year.
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>Business insurance</label>
-                    <AppSelect
-                      value={insurance}
-                      onChange={(v) => setInsurance(v as VaInsuranceStatus)}
-                      options={Object.entries(VA_INSURANCE_LABELS).map(([value, label]) => ({
-                        value,
-                        label,
-                      }))}
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>Specialisms (select any that apply)</label>
-                    <MultiSelect
-                      values={specialisms}
-                      onChange={setSpecialisms}
-                      options={[...VA_SPECIALISMS]}
-                      placeholder="Choose specialisms…"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelClass}>Sectors / interests</label>
-                    <MultiSelect
-                      values={sectors}
-                      onChange={setSectors}
-                      options={[...VA_SECTOR_INTEREST_OPTIONS]}
-                      placeholder="Sectors you enjoy supporting…"
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelClass} htmlFor="work_specialises">
-                      Work you specialise in
-                    </label>
-                    <textarea
-                      id="work_specialises"
-                      rows={4}
-                      className={inputClass}
-                      value={workSpecialisesIn}
-                      onChange={(e) => setWorkSpecialisesIn(e.target.value)}
-                      placeholder="Describe the kinds of admin or support work you do best."
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelClass} htmlFor="ai_knowledge">
-                      Your knowledge of AI systems and automations
-                    </label>
-                    <textarea
-                      id="ai_knowledge"
-                      rows={4}
-                      className={inputClass}
-                      value={aiKnowledge}
-                      onChange={(e) => setAiKnowledge(e.target.value)}
-                      placeholder="Tools you have used, comfort level, or interest in learning. Honesty is fine if you are new to this."
-                    />
-                  </div>
-
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <div>
-                      <label className={labelClass} htmlFor="availability_hours">
-                        Typical hours available per week *
-                      </label>
-                      <input
-                        id="availability_hours"
-                        className={inputClass}
-                        value={availabilityHours}
-                        onChange={(e) => setAvailabilityHours(e.target.value)}
-                        placeholder="e.g. 10–15 hours"
-                      />
-                    </div>
-                    <div>
-                      <label className={labelClass} htmlFor="availability_notes">
-                        Availability notes
-                      </label>
-                      <input
-                        id="availability_notes"
-                        className={inputClass}
-                        value={availabilityNotes}
-                        onChange={(e) => setAvailabilityNotes(e.target.value)}
-                        placeholder="e.g. evenings, term-time only"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={labelClass} htmlFor="cover_note">
-                      Anything else we should know?
-                    </label>
-                    <textarea
-                      id="cover_note"
-                      rows={3}
-                      className={inputClass}
-                      value={coverNote}
-                      onChange={(e) => setCoverNote(e.target.value)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className={labelClass} htmlFor="cv">
-                      CV (PDF or Word) *
-                    </label>
-                    <label
-                      htmlFor="cv"
-                      className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-ink/20 bg-cream/40 px-6 py-8 text-center transition-colors hover:border-pine-800/40"
-                    >
-                      <FileUp className="h-6 w-6 text-pine-800" />
-                      <span className="text-sm font-semibold text-ink">
-                        {cvFile ? cvFile.name : "Click to upload your CV"}
-                      </span>
-                      <span className="text-xs text-muted">PDF, DOC or DOCX · max 8MB</span>
-                      <input
-                        id="cv"
-                        type="file"
-                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                        className="sr-only"
-                        onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
-                      />
-                    </label>
-                  </div>
-
-                  {error ? (
-                    <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-                      {error}
-                    </p>
-                  ) : null}
-
-                  <button type="submit" disabled={submitting} className={`${btn.primary} w-full sm:w-auto`}>
-                    {submitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Submitting…
-                      </>
-                    ) : (
-                      <>
-                        Submit application
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
             </div>
           </section>
         </main>
@@ -668,6 +1044,7 @@ export default function WorkWithVaxaiPage() {
         <SiteFooter />
         <SimplifiedModeToggle />
       </div>
+      {modal}
     </>
   );
 }

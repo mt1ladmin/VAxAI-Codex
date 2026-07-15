@@ -10,9 +10,12 @@ import {
 import { createServiceClient } from "@/lib/supabase";
 import {
   VA_APPLICANT_TYPES,
+  VA_CLIENT_SECTORS,
+  VA_INDUSTRIES_BY_SECTOR,
   VA_INSURANCE_STATUSES,
   VA_SELF_EMPLOYED_STATUSES,
   VA_SPECIALISMS,
+  type VaClientSector,
 } from "@/lib/va-applications/constants";
 
 const MAX_CV_BYTES = 8 * 1024 * 1024; // 8MB
@@ -22,22 +25,30 @@ const ALLOWED_CV_TYPES = new Set([
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
 
-function parseSpecialisms(raw: FormDataEntryValue | null): string[] {
+function parseStringArray(
+  raw: FormDataEntryValue | null,
+  allowed: readonly string[],
+  max = 30,
+): string[] {
   if (typeof raw !== "string" || !raw.trim()) return [];
+  const allowedSet = new Set(allowed);
   try {
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return [];
-    const allowed = new Set<string>(VA_SPECIALISMS as unknown as string[]);
     return parsed
-      .filter((s): s is string => typeof s === "string" && allowed.has(s))
-      .slice(0, 20);
+      .filter((s): s is string => typeof s === "string" && allowedSet.has(s))
+      .slice(0, max);
   } catch {
     return raw
       .split(",")
       .map((s) => s.trim())
-      .filter((s) => (VA_SPECIALISMS as readonly string[]).includes(s))
-      .slice(0, 20);
+      .filter((s) => allowedSet.has(s))
+      .slice(0, max);
   }
+}
+
+function parseSpecialisms(raw: FormDataEntryValue | null): string[] {
+  return parseStringArray(raw, VA_SPECIALISMS as unknown as string[], 20);
 }
 
 export async function POST(req: NextRequest) {
@@ -72,12 +83,25 @@ export async function POST(req: NextRequest) {
   const canProveIdentity = asBoolean(form.get("can_prove_identity"));
   const ukBased = form.get("uk_based") == null ? true : asBoolean(form.get("uk_based"));
   const specialisms = parseSpecialisms(form.get("specialisms"));
-  const sectorsInterests = cleanOptionalText(form.get("sectors_interests"), 2_000);
+  const clientSectorRaw = cleanText(form.get("client_sector"), 80);
+  const clientSector =
+    clientSectorRaw && (VA_CLIENT_SECTORS as readonly string[]).includes(clientSectorRaw)
+      ? (clientSectorRaw as VaClientSector)
+      : null;
+  const industryAllowed = clientSector
+    ? VA_INDUSTRIES_BY_SECTOR[clientSector]
+    : ([] as readonly string[]);
+  const industries = parseStringArray(form.get("industries"), industryAllowed, 25);
+  const sectorsInterests =
+    cleanOptionalText(form.get("sectors_interests"), 2_000) ||
+    (clientSector ? `${clientSector}: ${industries.join(", ")}` : null);
   const workSpecialisesIn = cleanOptionalText(form.get("work_specialises_in"), 4_000);
   const aiKnowledge = cleanOptionalText(form.get("ai_knowledge"), 4_000);
   const availabilityHours = cleanOptionalText(form.get("availability_hours_per_week"), 80);
   const availabilityNotes = cleanOptionalText(form.get("availability_notes"), 2_000);
   const coverNote = cleanOptionalText(form.get("cover_note"), 4_000);
+  const policiesAccepted = asBoolean(form.get("policies_accepted"));
+  const declarationAccepted = asBoolean(form.get("declaration_accepted"));
 
   if (!fullName || !email) {
     return NextResponse.json({ error: "Name and email are required" }, { status: 400, headers });
@@ -97,6 +121,12 @@ export async function POST(req: NextRequest) {
   if (!canProveIdentity) {
     return NextResponse.json(
       { error: "You must be able to prove your identity to work with client organisations" },
+      { status: 400, headers },
+    );
+  }
+  if (!policiesAccepted || !declarationAccepted) {
+    return NextResponse.json(
+      { error: "You must accept our policies and the accuracy declaration" },
       { status: 400, headers },
     );
   }
@@ -177,6 +207,12 @@ export async function POST(req: NextRequest) {
     status: "new",
     last_action: "Application submitted via website",
     last_action_date: new Date().toISOString(),
+    profile_extras: {
+      client_sector: clientSector,
+      industries,
+      policies_accepted: true,
+      declaration_accepted: true,
+    },
   });
 
   if (insertError) {
