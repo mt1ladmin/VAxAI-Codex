@@ -15,7 +15,7 @@ export const experts: Expert[] = [
   {
     slug: "thesia-kouloungou",
     name: "Thesia Kouloungou",
-    role: "Founder and CEO, MT1L and VAxAI",
+    role: "Founder, MT1L and VAxAI",
     copy: `Hi, I'm Thesia.
 
 I work with founders, SMEs, charities and public sector organisations to understand where administrative pressure is building, what is slowing work down, and what practical support is needed to create stronger operational foundations.
@@ -36,7 +36,7 @@ Real value comes from creating strong administrative foundations first. My role 
       "https://www.linkedin.com/in/thesia-nkoula?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
     metaTitle: "Thesia Kouloungou",
     metaDescription:
-      "Meet Thesia Kouloungou, Founder and CEO of MT1L and VAxAI, leading Admin Review, workflow support and practical AI, automation and human support for UK organisations.",
+      "Meet Thesia Kouloungou, Founder of MT1L and VAxAI, leading Admin Review, workflow support and practical AI, automation and human support for UK organisations.",
     showMt1lLink: true,
   },
   {
@@ -64,8 +64,3 @@ Where additional capacity is needed, I also support the recruitment, vetting and
   },
 ];
 
-export function getExpert(slug: string): Expert | undefined {
-  return experts.find((expert) => expert.slug === slug);
-}
-
-export const expertPaths = experts.map((expert) => `/about/${expert.slug}`);

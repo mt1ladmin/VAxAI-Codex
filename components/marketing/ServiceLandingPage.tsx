@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
-import { ArrowRight, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronRight } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -262,16 +262,16 @@ const ACCESS_TO_WORK_URL = "https://www.gov.uk/access-to-work";
 function PricingPanelContent({
   pricing,
   pricingIntro,
+  showAccessToWork = false,
   onContact,
   onViewBenefits,
 }: {
   pricing: AudiencePricing;
   pricingIntro: string;
+  showAccessToWork?: boolean;
   onContact: () => void;
   onViewBenefits: () => void;
 }) {
-  const [accessOpen, setAccessOpen] = useState(false);
-
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
       <Eyebrow>Pricing</Eyebrow>
@@ -348,42 +348,26 @@ function PricingPanelContent({
         </button>
       </div>
 
-      <div
-        id="access-to-work"
-        className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
-      >
-        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
-        <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
-          {sharedAccessToWork.heading}
-        </h3>
-        <button
-          type="button"
-          onClick={() => setAccessOpen((open) => !open)}
-          aria-expanded={accessOpen}
-          className={`${btn.primary} mt-6`}
+      {showAccessToWork ? (
+        <div
+          id="access-to-work"
+          className="scroll-mt-24 mt-8 rounded-3xl border border-pine-900/10 bg-pine-50/60 px-6 py-6 md:px-7"
         >
-          {accessOpen ? "Hide Access to Work details" : "Learn about Access to Work"}
-          <ChevronDown
-            className={cn("h-4 w-4 transition-transform duration-300", accessOpen && "rotate-180")}
-          />
-        </button>
-        {accessOpen ? (
-          <div className="mt-5 max-w-3xl space-y-3 border-t border-pine-900/10 pt-5 text-sm leading-7 text-muted md:text-[15px]">
-            {sharedAccessToWork.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-            <a
-              href={ACCESS_TO_WORK_URL}
-              target="_blank"
-              rel="noreferrer"
-              className={`${btn.ghostLight} mt-2`}
-            >
-              Official GOV.UK guidance
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-        ) : null}
-      </div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">Access to Work</p>
+          <h3 className="mt-3 text-base font-semibold tracking-[-0.01em] text-ink md:text-lg">
+            {sharedAccessToWork.heading}
+          </h3>
+          <a
+            href={ACCESS_TO_WORK_URL}
+            target="_blank"
+            rel="noreferrer"
+            className={`${btn.primary} mt-6`}
+          >
+            Official GOV.UK guidance
+            <ArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -434,6 +418,7 @@ function AudienceTabbedSections({
   workWithUs,
   pricing,
   pricingIntro,
+  showAccessToWork = false,
   onContact,
 }: {
   pressures: AudienceSection;
@@ -442,6 +427,7 @@ function AudienceTabbedSections({
   workWithUs: AudienceSection;
   pricing: AudiencePricing;
   pricingIntro: string;
+  showAccessToWork?: boolean;
   onContact: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<AudienceTabId>("pressures");
@@ -559,6 +545,7 @@ function AudienceTabbedSections({
           <PricingPanelContent
             pricing={pricing}
             pricingIntro={pricingIntro}
+            showAccessToWork={showAccessToWork}
             onContact={onContact}
             onViewBenefits={openBenefitsTab}
           />
@@ -704,6 +691,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 workWithUs={page.workWithUs}
                 pricing={page.pricing}
                 pricingIntro={page.pricingIntro}
+                showAccessToWork={page.heroHasAccessCta}
                 onContact={() => setContactOpen(true)}
               />
             </Reveal>

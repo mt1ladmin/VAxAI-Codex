@@ -6,9 +6,7 @@ import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   ArrowRight,
   ChevronDown,
-  ExternalLink,
   MailCheck,
-  ShieldCheck,
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
@@ -395,7 +393,6 @@ type PostPreview = {
 };
 
 export default function Home() {
-  const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -810,9 +807,6 @@ export default function Home() {
                   Get your free Admin Review
                   <ArrowRight className="h-4 w-4" />
                 </button>
-                <button type="button" onClick={() => setIsAccessModalOpen(true)} className={btn.ghostDark}>
-                  Access to Work support
-                </button>
               </div>
               <p className="mt-5 text-xs text-paper/50">A structured review of your administrative operations. Free, with no obligation.</p>
             </div>
@@ -997,105 +991,6 @@ export default function Home() {
         </div>
       ) : null}
 
-      {isAccessModalOpen ? (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-ink/55 px-4 py-8 backdrop-blur-md"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="access-work-title"
-        >
-          <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-[28px] bg-paper shadow-[0_30px_100px_rgba(0,0,0,0.25)]">
-            <div className="flex items-start justify-between gap-6 rounded-t-[28px] bg-pine-900 px-6 py-6 text-paper md:px-10">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-acid">Access to Work</p>
-                <h2 id="access-work-title" className="mt-3 max-w-2xl text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
-                  Your support might cost you nothing
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAccessModalOpen(false)}
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-paper transition-colors duration-200 hover:bg-white/20"
-                aria-label="Close Access to Work information"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="grid gap-6 p-6 md:grid-cols-[1fr_0.9fr] md:p-10">
-              <div>
-                <p className="text-base leading-7 text-muted">
-                  If you are eligible, Access to Work may cover some or all of your VAxAI support. We can help you
-                  understand what evidence and admin may be needed, while Access to Work makes the final decision.
-                </p>
-
-                <p className="mt-4 text-base leading-7 text-muted">
-                  Our Admin Review can also help individuals eligible for Access to Work, for example neurodivergent professionals who find admin particularly difficult. The review looks at where your admin is coming from and what it actually involves day to day. You would then explain how it affects you, and whether it is tied to your disability or health condition and how, so it is clear where the support needs to sit. For individuals this is a lighter-touch version of the review, so get in touch to discuss what this could look like for you.
-                </p>
-
-                <div className="mt-6 rounded-2xl border border-ink/10 bg-cream/70 p-5">
-                  <p className="text-sm font-semibold text-ink">What we do not do</p>
-                  <ul className="mt-3 space-y-3 text-sm leading-6 text-muted">
-                    <li>We do not decide whether you are eligible or guarantee funding.</li>
-                    <li>We do not make decisions on behalf of Access to Work.</li>
-                    <li>Access to Work assesses each application and confirms approved support.</li>
-                    <li>We are not medical professionals, and this is not a diagnosis of any kind. We simply help you understand the reality of your admin, not diagnose or determine the disability link ourselves.</li>
-                  </ul>
-                </div>
-
-                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAccessModalOpen(false);
-                      setIsContactModalOpen(true);
-                    }}
-                    className={btn.primary}
-                  >
-                    Talk to us about Access to Work
-                  </button>
-                  <a
-                    href="https://www.gov.uk/access-to-work"
-                    target="_blank"
-                    rel="noreferrer"
-                    className={btn.ghostLight}
-                  >
-                    Official GOV.UK guidance
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-pine-900/15 bg-white p-5">
-                <div className="flex gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pine-900 text-acid">
-                    <ShieldCheck className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <h3 className="font-semibold">Government-backed support</h3>
-                    <p className="mt-1 text-sm text-muted">A grant, not a loan or benefit.</p>
-                  </div>
-                </div>
-                <p className="mt-5 text-sm leading-6 text-muted">
-                  Access to Work can help people with a disability or health condition get or stay in work.
-                </p>
-                <div className="mt-5 grid gap-3 border-t border-ink/10 pt-5">
-                  {[
-                    ["Who can apply?", "People with a disability or health condition that affects their work."],
-                    ["How much?", "The support depends on your needs and what Access to Work approves."],
-                    ["How does it work?", "We can help you understand the process and prepare practical support details."],
-                  ].map(([title, copy]) => (
-                    <div key={title} className="rounded-xl bg-paper p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-pine-800">{title}</p>
-                      <p className="mt-1 text-sm leading-6 text-ink">{copy}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
       <style jsx global>{`
         .simplified-mode {
           background: #fff !important;
