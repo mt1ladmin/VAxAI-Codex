@@ -136,8 +136,7 @@ function PressuresPanelContent({
     <div>
     <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-16">
       <div>
-        <Eyebrow>Where pressure builds</Eyebrow>
-        <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
+        <h2 className="text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
           {section.heading}
         </h2>
         <div className="mt-6 space-y-4 text-base leading-8 text-muted">
@@ -171,8 +170,7 @@ function HowWeHelpPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>{section.heading}</Eyebrow>
-      <div className="mt-6 space-y-4 text-base leading-8 text-muted">
+      <div className="space-y-4 text-base leading-8 text-muted">
         {section.paragraphs.map((paragraph) => (
           <p key={paragraph}>{paragraph}</p>
         ))}
@@ -216,8 +214,7 @@ function ChangesPanelContent({
     <div className="px-6 py-7 md:px-8 md:py-8">
       <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
-          {showIntro ? <Eyebrow>{badge}</Eyebrow> : null}
-          <div className={cn("space-y-4 text-base leading-8 text-muted", showIntro && "mt-5")}>
+          <div className="space-y-4 text-base leading-8 text-muted">
             {section.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
@@ -274,8 +271,7 @@ function PricingPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>Pricing</Eyebrow>
-      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+      <h2 className="text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         How Our Pricing Works
       </h2>
       <div className="mt-6 max-w-3xl space-y-4 text-base leading-8 text-muted md:text-lg">
@@ -381,8 +377,7 @@ function PricingBenefitsPanelContent({
 }) {
   return (
     <div className="px-6 py-7 md:px-8 md:py-8">
-      <Eyebrow>Why work with us</Eyebrow>
-      <h2 className="mt-4 text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
+      <h2 className="text-2xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-3xl">
         {section.heading}
       </h2>
       <p className="mt-6 max-w-3xl text-base leading-8 text-muted md:text-lg">
@@ -481,7 +476,7 @@ function AudienceTabbedSections({
     <div>
       <div className="relative md:static">
         <div
-          className="-mx-2 flex gap-2 overflow-x-auto border-b border-ink/10 px-2 pb-4 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
+          className="-mx-2 flex gap-2 overflow-x-auto border-b border-ink/10 px-2 pb-1 pt-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0"
           role="tablist"
           aria-label="Explore how VAxAI can support you"
         >
@@ -497,10 +492,8 @@ function AudienceTabbedSections({
                 aria-controls={`audience-panel-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "shrink-0 rounded-full px-4 py-2.5 text-left text-sm font-semibold transition-colors duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800",
-                  isActive
-                    ? "bg-pine-900 text-paper"
-                    : "bg-cream/70 text-ink/75 hover:bg-cream hover:text-ink",
+                  "filing-tab-button shrink-0 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800",
+                  isActive && "is-active",
                 )}
               >
                 {tab.label}
@@ -558,27 +551,6 @@ function AudienceTabbedSections({
   );
 }
 
-function Eyebrow({
-  children,
-  light = false,
-}: {
-  children: React.ReactNode;
-  light?: boolean;
-}) {
-  return (
-    <p
-      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
-        light ? "text-acid/90" : "text-pine-700"
-      }`}
-    >
-      <span
-        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
-        aria-hidden="true"
-      />
-      {children}
-    </p>
-  );
-}
 
 export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
   const [contactOpen, setContactOpen] = useState(false);
@@ -607,12 +579,9 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
               animate="show"
             >
               <div>
-                <motion.div variants={fadeUp}>
-                  <Eyebrow light>Who we support · {page.audienceName}</Eyebrow>
-                </motion.div>
                 <motion.h1
                   variants={fadeUp}
-                  className="mt-6 max-w-2xl text-[2.35rem] font-semibold leading-[1.03] tracking-[-0.025em] md:text-5xl lg:text-[3.25rem]"
+                  className="max-w-2xl text-[2.35rem] font-semibold leading-[1.03] tracking-[-0.025em] md:text-5xl lg:text-[3.25rem]"
                 >
                   {page.title}
                 </motion.h1>
@@ -705,10 +674,7 @@ export default function ServiceLandingPage({ page }: ServiceLandingPageProps) {
                 <div className="absolute bottom-[-30%] right-[25%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
               </div>
               <div className="relative">
-                <div className="flex justify-center">
-                  <Eyebrow light>Work with VAxAI</Eyebrow>
-                </div>
-                <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                <h2 className="mx-auto max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
                   Ready to understand where support would help most?
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">

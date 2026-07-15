@@ -10,6 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
+import FilingTab from "@/components/FilingTab";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -27,13 +28,17 @@ const principles: [string, string][] = [
   ["Sustained.", "Improvements maintained, not left to slip"],
 ];
 
-const symptoms = [
-  "Documents scattered and hard to find",
-  "Data that no longer matches reality",
-  "Processes that live in someone's head",
-  "Inboxes and shared drives overflowing",
-  "Reporting that takes longer every quarter",
-  "Skilled people stuck on routine tasks",
+const problemColumns: [string[], string[]] = [
+  [
+    "Documents scattered and hard to find",
+    "Data that no longer matches reality",
+    "Processes that live in someone's head",
+  ],
+  [
+    "Inboxes and shared drives overflowing",
+    "Reporting that takes longer every quarter",
+    "Skilled people stuck on routine tasks",
+  ],
 ];
 
 const helpCards = [
@@ -240,17 +245,9 @@ function Eyebrow({
   center?: boolean;
 }) {
   return (
-    <p
-      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
-        center ? "justify-center" : ""
-      } ${light ? "text-acid/90" : "text-pine-700"}`}
-    >
-      <span
-        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
-        aria-hidden="true"
-      />
+    <FilingTab light={light} center={center}>
       {children}
-    </p>
+    </FilingTab>
   );
 }
 
@@ -455,7 +452,19 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce admin. Keep people in the loop.
+              Reduce admin. Keep{" "}
+              <span className="hero-word-circle">
+                people
+                <svg
+                  className="hero-word-circle__ring"
+                  viewBox="0 0 100 48"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <ellipse cx="50" cy="24" rx="46" ry="20" />
+                </svg>
+              </span>{" "}
+              in the loop.
             </motion.h1>
             <motion.p
               variants={fadeUp}
@@ -519,15 +528,20 @@ export default function Home() {
               Administration doesn&rsquo;t fix itself. Even with AI.
             </h2>
           </Reveal>
-          <Stagger className="mt-10 grid gap-x-14 gap-y-0 rounded-3xl border border-ink/8 bg-cream/50 px-7 py-3 md:grid-cols-2 md:px-10">
-            {symptoms.map((symptom) => (
-              <motion.p
-                key={symptom}
-                variants={fadeUp}
-                className="border-b border-ink/10 py-4 text-base leading-7 text-ink last:border-b-0 md:[&:nth-last-child(-n+2)]:border-b-0"
-              >
-                {symptom}
-              </motion.p>
+          <Stagger className="mt-10 grid gap-x-12 gap-y-2 md:grid-cols-2 md:gap-x-16">
+            {problemColumns.map((column, columnIndex) => (
+              <motion.div key={columnIndex} variants={fadeUp} className="min-w-0">
+                <ul className="m-0 list-none p-0">
+                  {column.map((item) => (
+                    <li
+                      key={item}
+                      className="border-b border-ink/12 py-4 text-base leading-7 text-ink md:text-[1.05rem] md:leading-8"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
             ))}
           </Stagger>
           <Reveal>
@@ -728,8 +742,9 @@ export default function Home() {
         <div className="mx-auto max-w-6xl">
           <Reveal className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
+              <Eyebrow>Insights &amp; Resources</Eyebrow>
               <h2 className="mt-4 text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
-                Insights &amp; Resources
+                From VAxAI
               </h2>
               <p className="mt-5 max-w-xl text-sm leading-7 text-muted">
                 Practical thinking on admin foundations, AI readiness and keeping people in the loop. If
@@ -793,8 +808,7 @@ export default function Home() {
           </div>
           <div className="relative grid md:grid-cols-[1.05fr_0.95fr]">
             <div className="p-8 md:p-14">
-              <Eyebrow light>Start the conversation</Eyebrow>
-              <h2 className="mt-4 max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
+              <h2 className="max-w-md text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-[2.75rem]">
                 Ready to prepare your organisation for smarter ways of working?
               </h2>
               <p className="mt-6 max-w-md text-sm leading-7 text-paper/65 md:text-base md:leading-8">

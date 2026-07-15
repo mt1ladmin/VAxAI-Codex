@@ -7,6 +7,7 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import PublicContactModal from "@/components/PublicContactModal";
+import FilingTab from "@/components/FilingTab";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -52,19 +53,7 @@ function Eyebrow({
   children: React.ReactNode;
   light?: boolean;
 }) {
-  return (
-    <p
-      className={`flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] ${
-        light ? "text-acid/90" : "text-pine-700"
-      }`}
-    >
-      <span
-        className={`simplified-hide h-1.5 w-1.5 rounded-full ${light ? "bg-acid" : "bg-pine-700"}`}
-        aria-hidden="true"
-      />
-      {children}
-    </p>
-  );
+  return <FilingTab light={light}>{children}</FilingTab>;
 }
 
 type SupportArea = {
@@ -198,8 +187,7 @@ export default function HowWeHelpPage() {
               animate="show"
               variants={fadeUp}
             >
-              <Eyebrow light>How we help</Eyebrow>
-              <h1 className="mt-6 max-w-3xl text-[2.35rem] font-semibold leading-[1.05] tracking-[-0.025em] md:text-5xl">
+              <h1 className="max-w-3xl text-[2.35rem] font-semibold leading-[1.05] tracking-[-0.025em] md:text-5xl">
                 Practical support for the administrative challenges that slow organisations down
               </h1>
               <p className="mt-7 max-w-2xl text-base leading-8 text-paper/70 md:text-lg">
@@ -322,10 +310,7 @@ export default function HowWeHelpPage() {
                 <div className="absolute bottom-[-30%] right-[25%] h-72 w-72 rounded-full bg-acid/[0.07] blur-3xl" />
               </div>
               <div className="relative">
-                <div className="flex justify-center">
-                  <Eyebrow light>Work with VAxAI</Eyebrow>
-                </div>
-                <h2 className="mx-auto mt-4 max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                <h2 className="mx-auto max-w-xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
                   Not sure where to start?
                 </h2>
                 <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-paper/65 md:text-base md:leading-8">

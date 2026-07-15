@@ -88,6 +88,133 @@ a {
   animation-play-state: paused;
 }
 
+/* ------------------------------------------------------------------ */
+/* Filing-system labels — cream pill tab + full-width rule             */
+/* Matches mock: soft rounded label sitting on a thin divider line.    */
+/* ------------------------------------------------------------------ */
+
+.filing-tab-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0;
+  margin: 0;
+}
+
+.filing-tab-row--center {
+  justify-content: center;
+}
+
+.filing-tab-row--center .filing-tab-rule {
+  display: none;
+}
+
+.filing-tab {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 36, 40, 0.1);
+  background: #eef1e4;
+  color: #2a3538;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+  box-shadow: none;
+}
+
+.filing-tab-rule {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  height: 1px;
+  margin: 0;
+  margin-left: 0;
+  background: rgba(18, 36, 40, 0.12);
+  align-self: center;
+}
+
+/* Dark sections: muted pill, light rule */
+.filing-tab-row--on-dark .filing-tab {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.filing-tab-row--on-dark .filing-tab-rule {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Interactive file tabs (audience page tablist) — pill only, no rule */
+.filing-tab-button {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 36, 40, 0.1);
+  background: #f4f5ef;
+  color: rgba(18, 36, 40, 0.7);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  transition:
+    background 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.filing-tab-button:hover {
+  color: #122428;
+  border-color: rgba(18, 36, 40, 0.16);
+  background: #eef1e4;
+}
+
+.filing-tab-button[aria-selected="true"],
+.filing-tab-button.is-active {
+  color: #0b171a;
+  border-color: rgba(18, 36, 40, 0.16);
+  background: #e8ecda;
+  box-shadow: 0 1px 2px rgba(18, 36, 40, 0.06);
+}
+
+/* Hand-drawn style accent ring for highlighted hero words */
+.hero-word-circle {
+  position: relative;
+  display: inline-block;
+  padding: 0 0.12em;
+  white-space: nowrap;
+}
+
+.hero-word-circle__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 118%;
+  height: 132%;
+  transform: translate(-50%, -52%);
+  pointer-events: none;
+  overflow: visible;
+}
+
+.hero-word-circle__ring ellipse {
+  fill: none;
+  stroke: #d8fc2e;
+  stroke-width: 3.25;
+  vector-effect: non-scaling-stroke;
+}
+
 /* Policy page body styles */
 .policy-body h2 { font-size: 1.2rem; font-weight: 700; margin: 2.5rem 0 0.6rem; color: #111; }
 .policy-body h3 { font-size: 1rem; font-weight: 700; margin: 1.75rem 0 0.4rem; color: #1f2937; }
@@ -142,6 +269,18 @@ html.simplified-mode img { filter: grayscale(1) contrast(1.25) !important; }
    background above paints over the photo underneath and hides it. */
 html.simplified-mode .photo-text-overlay {
   background-color: transparent !important;
+}
+
+/* Filing tabs keep a readable paper-tab look in simplified mode */
+html.simplified-mode .filing-tab,
+html.simplified-mode .filing-tab-button {
+  background: #eef1e4 !important;
+  color: #000 !important;
+  border-color: #000 !important;
+  box-shadow: none !important;
+}
+html.simplified-mode .filing-tab-rule {
+  background: #000 !important;
 }
 
 /* Cookie consent banner and newsletter popup stay styled in all accessibility modes */
