@@ -9,8 +9,8 @@ type FilingTabProps = {
 };
 
 /**
- * File-folder section label: soft cream pill tab + full-width divider line.
- * Matches the mock screenshots (tab sits on the left of a thin rule).
+ * File-folder section label: top-rounded tab sitting on a continuous
+ * full-width rule that meets the tab’s bottom corners (mock screenshots).
  */
 export default function FilingTab({
   children,

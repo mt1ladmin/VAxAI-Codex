@@ -89,20 +89,22 @@ a {
 }
 
 /* ------------------------------------------------------------------ */
-/* Filing-system labels — cream pill tab + full-width rule             */
-/* Matches mock: soft rounded label sitting on a thin divider line.    */
+/* Filing-system labels — folder tab + continuous bottom rule          */
+/* Top corners only rounded; bottom edge meets the full-width line.    */
 /* ------------------------------------------------------------------ */
 
 .filing-tab-row {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   width: 100%;
   gap: 0;
   margin: 0;
+  border-bottom: 1px solid #cfd9c4;
 }
 
 .filing-tab-row--center {
   justify-content: center;
+  border-bottom-color: transparent;
 }
 
 .filing-tab-row--center .filing-tab-rule {
@@ -115,44 +117,47 @@ a {
   flex-shrink: 0;
   width: fit-content;
   max-width: 100%;
-  margin: 0;
-  padding: 0.42rem 0.95rem;
-  border-radius: 999px;
-  border: 1px solid rgba(18, 36, 40, 0.1);
-  background: #eef1e4;
-  color: #2a3538;
-  font-size: 0.625rem;
+  margin: 0 0 -1px 0;
+  padding: 0.55rem 1.15rem 0.5rem;
+  border-radius: 0.7rem 0.7rem 0 0;
+  border: 1px solid #cfd9c4;
+  border-bottom-color: transparent;
+  background: #e5f0d4;
+  color: #1f2c30;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
-  line-height: 1.2;
+  letter-spacing: 0.12em;
+  line-height: 1.25;
   text-transform: uppercase;
   position: relative;
   z-index: 1;
   box-shadow: none;
 }
 
+/* Kept for markup compatibility; the row border is the continuous rule. */
 .filing-tab-rule {
   flex: 1 1 auto;
-  min-width: 1.5rem;
-  height: 1px;
+  min-width: 0;
+  height: 0;
   margin: 0;
-  margin-left: 0;
-  background: rgba(18, 36, 40, 0.12);
-  align-self: center;
+  border: 0;
+  background: transparent;
+  align-self: flex-end;
 }
 
-/* Dark sections: muted pill, light rule */
+/* Dark sections: muted tab, light rule */
+.filing-tab-row--on-dark {
+  border-bottom-color: rgba(255, 255, 255, 0.16);
+}
+
 .filing-tab-row--on-dark .filing-tab {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.16);
+  border-bottom-color: transparent;
+  color: rgba(255, 255, 255, 0.88);
 }
 
-.filing-tab-row--on-dark .filing-tab-rule {
-  background: rgba(255, 255, 255, 0.14);
-}
-
-/* Interactive file tabs (audience page tablist) — pill only, no rule */
+/* Interactive file tabs (audience page tablist) */
 .filing-tab-button {
   display: inline-flex;
   align-items: center;
@@ -160,10 +165,10 @@ a {
   max-width: 100%;
   margin: 0;
   padding: 0.5rem 1rem;
-  border-radius: 999px;
-  border: 1px solid rgba(18, 36, 40, 0.1);
-  background: #f4f5ef;
-  color: rgba(18, 36, 40, 0.7);
+  border-radius: 0.7rem 0.7rem 0 0;
+  border: 1px solid #cfd9c4;
+  background: #e5f0d4;
+  color: rgba(18, 36, 40, 0.72);
   font-size: 0.75rem;
   font-weight: 650;
   letter-spacing: 0.02em;
@@ -177,15 +182,15 @@ a {
 
 .filing-tab-button:hover {
   color: #122428;
-  border-color: rgba(18, 36, 40, 0.16);
-  background: #eef1e4;
+  border-color: #c2d0b4;
+  background: #eaf3db;
 }
 
 .filing-tab-button[aria-selected="true"],
 .filing-tab-button.is-active {
   color: #0b171a;
-  border-color: rgba(18, 36, 40, 0.16);
-  background: #e8ecda;
+  border-color: #c2d0b4;
+  background: #e5f0d4;
   box-shadow: 0 1px 2px rgba(18, 36, 40, 0.06);
 }
 
@@ -274,13 +279,13 @@ html.simplified-mode .photo-text-overlay {
 /* Filing tabs keep a readable paper-tab look in simplified mode */
 html.simplified-mode .filing-tab,
 html.simplified-mode .filing-tab-button {
-  background: #eef1e4 !important;
+  background: #e5f0d4 !important;
   color: #000 !important;
   border-color: #000 !important;
   box-shadow: none !important;
 }
-html.simplified-mode .filing-tab-rule {
-  background: #000 !important;
+html.simplified-mode .filing-tab-row {
+  border-bottom-color: #000 !important;
 }
 
 /* Cookie consent banner and newsletter popup stay styled in all accessibility modes */
