@@ -45,48 +45,24 @@ const helpCards = [
   {
     title: "Backlog recovery",
     copy: "Clear the work that has built up and restore control.",
-    items: [
-      "Review, clean and organise documents and records",
-      "Improve data quality and remove duplicates",
-      "Process outstanding reports and compliance work",
-      "Document workflows so the backlog doesn't rebuild",
-    ],
     href: "/how-we-help#area-backlog",
     linkLabel: "Explore backlog support",
   },
   {
     title: "AI & automation readiness",
     copy: "Create the organised information technology needs to work.",
-    items: [
-      "Organise documents and knowledge for AI tools",
-      "Separate internal, confidential and shareable information",
-      "Standardise data so automation behaves predictably",
-      "Map and document processes worth automating",
-    ],
     href: "/how-we-help#area-ai",
     linkLabel: "Explore AI readiness",
   },
   {
     title: "Ongoing admin support",
     copy: "Keep essential work moving without stretching your team.",
-    items: [
-      "Inbox, calendar and meeting coordination",
-      "Reporting and data collection",
-      "Document management",
-      "HR, finance, compliance and project administration",
-    ],
     href: "/how-we-help#area-ongoing",
     linkLabel: "Explore support services",
   },
   {
     title: "Maintain & improve",
     copy: "Stop problems returning after the hard work is done.",
-    items: [
-      "Run regular admin reviews",
-      "Keep documents and data clean and current",
-      "Review processes as your organisation changes",
-      "Monitor AI outputs and catch new bottlenecks early",
-    ],
     href: "/how-we-help#area-maintain",
     linkLabel: "Explore maintenance",
   },
@@ -96,26 +72,16 @@ const approachStages = [
   {
     num: "01 — Prepare",
     title: "Build the right foundations",
-    items: [
-      "Reduce backlog",
-      "Prepare for AI and automation",
-    ],
     outcome: "clearer information and reliable ways of working.",
   },
   {
     num: "02 — Support",
     title: "Keep essential work moving",
-    items: [
-      "Ongoing admin support",
-    ],
     outcome: "more capacity for the work only your team can do.",
   },
   {
     num: "03 — Maintain",
     title: "Keep improvements working",
-    items: [
-      "Maintain and improve",
-    ],
     outcome: "systems that keep supporting you as you grow.",
   },
 ];
@@ -369,15 +335,7 @@ function HelpCard({ card }: { card: (typeof helpCards)[number] }) {
         className="group flex h-full flex-col rounded-3xl border border-ink/8 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift md:p-7"
       >
         <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{card.title}</h3>
-        <p className="mt-2 text-sm leading-6 text-muted">{card.copy}</p>
-        <ul className="mt-4 flex-1 space-y-1.5">
-          {card.items.map((item) => (
-            <li key={item} className="flex items-baseline gap-2.5 text-[13px] leading-6 text-muted">
-              <span className="h-1 w-1 shrink-0 rounded-full bg-pine-700" aria-hidden="true" />
-              {item}
-            </li>
-          ))}
-        </ul>
+        <p className="mt-2 flex-1 text-sm leading-6 text-muted">{card.copy}</p>
         <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-pine-800">
           {card.linkLabel}
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
@@ -612,15 +570,7 @@ export default function Home() {
                 }`}
               >
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-acid">{stage.num}</p>
-                <h3 className="mt-4 text-xl font-semibold tracking-tight">{stage.title}</h3>
-                <ul className="mt-5 flex-1 space-y-2">
-                  {stage.items.map((item) => (
-                    <li key={item} className="flex items-baseline gap-2.5 text-sm leading-7 text-paper/65">
-                      <span className="h-1 w-1 shrink-0 rounded-full bg-acid/70" aria-hidden="true" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                <h3 className="mt-4 flex-1 text-xl font-semibold tracking-tight">{stage.title}</h3>
                 <p className="mt-6 border-t border-white/15 pt-5 text-sm leading-6 text-paper/65">
                   <span className="font-semibold text-paper">Outcome:</span> {stage.outcome}
                 </p>
