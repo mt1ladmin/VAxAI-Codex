@@ -9,6 +9,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import FilingTab from "@/components/FilingTab";
 import PublicContactModal from "@/components/PublicContactModal";
+import { openNewsletterPopup } from "@/components/NewsletterPopup";
 import {
   VA_AI_KNOWLEDGE_OPTIONS,
   VA_CLIENT_SECTORS,
@@ -1143,9 +1144,9 @@ export default function WorkWithVaxaiPage() {
                     Get in touch
                     <ArrowRight className="h-4 w-4" />
                   </button>
-                  <a href="#site-newsletter" className={btn.ghost}>
+                  <button type="button" onClick={openNewsletterPopup} className={btn.ghost}>
                     Sign up to our newsletter
-                  </a>
+                  </button>
                 </div>
               </Reveal>
             </div>

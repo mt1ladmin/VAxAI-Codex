@@ -7,6 +7,19 @@ import {
   maxBodyBytes,
 } from "@/lib/security/validate";
 import { publicWriteClient } from "@/lib/security/public-db";
+import { createServiceClient } from "@/lib/supabase";
+
+function newsletterWriteClient() {
+  // Prefer service role so sign-ups always land in Studio even if anon RLS is misconfigured
+  if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    try {
+      return createServiceClient();
+    } catch {
+      /* fall through */
+    }
+  }
+  return publicWriteClient();
+}
 
 export async function POST(req: NextRequest) {
   if (!maxBodyBytes(req, 8_000)) {
@@ -36,7 +49,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const db = publicWriteClient();
+    const db = newsletterWriteClient();
     if (!db) {
       return NextResponse.json({ error: "Database not configured" }, { status: 503, headers });
     }
@@ -48,7 +61,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (error && error.code !== "23505") {
-      console.error("Newsletter insert error:", error.code ?? "unknown");
+      console.error("Newsletter insert error:", error.code ?? "unknown", error.message);
       return NextResponse.json({ error: "Unable to subscribe right now." }, { status: 500, headers });
     }
 

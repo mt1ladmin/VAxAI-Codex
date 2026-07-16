@@ -8,6 +8,14 @@ const STORAGE_KEY = 'vaxai-newsletter-popup'
 const COOKIE_STORAGE_KEY = 'vaxai-cookie-consent'
 const DELAY_MS = 60_000
 
+/** Dispatch from any page to open the same newsletter modal (e.g. “Sign up to our newsletter”). */
+export const OPEN_NEWSLETTER_POPUP_EVENT = 'vaxai-open-newsletter-popup'
+
+export function openNewsletterPopup() {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new CustomEvent(OPEN_NEWSLETTER_POPUP_EVENT))
+}
+
 type PopupState = 'dismissed' | 'subscribed'
 type SubmitStatus = 'idle' | 'loading' | 'done' | 'error'
 
@@ -58,9 +66,18 @@ export default function NewsletterPopup() {
     function onConsentDecided() {
       schedulePopup()
     }
+    function onOpenRequested() {
+      // Intentional click — show even if the timed prompt was dismissed earlier
+      setEmail('')
+      setStatus('idle')
+      setError('')
+      setVisible(true)
+    }
     window.addEventListener(COOKIE_CONSENT_EVENT, onConsentDecided)
+    window.addEventListener(OPEN_NEWSLETTER_POPUP_EVENT, onOpenRequested)
     return () => {
       window.removeEventListener(COOKIE_CONSENT_EVENT, onConsentDecided)
+      window.removeEventListener(OPEN_NEWSLETTER_POPUP_EVENT, onOpenRequested)
       if (timerRef.current) clearTimeout(timerRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
