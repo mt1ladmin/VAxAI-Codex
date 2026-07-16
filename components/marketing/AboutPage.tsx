@@ -61,25 +61,25 @@ function ExpertProfileCard({ expert }: { expert: Expert }) {
   return (
     <article
       aria-label={`${expert.name}, ${expert.role}`}
-      className="group relative overflow-hidden rounded-[28px]"
+      className="group relative overflow-hidden rounded-[24px] shadow-card ring-1 ring-ink/5"
     >
       <div
-        className="simplified-photo aspect-[0.9] bg-cover bg-center transition-transform duration-500 ease-premium group-hover:scale-[1.03]"
+        className="simplified-photo aspect-[4/5] bg-cover bg-center transition-transform duration-500 ease-premium group-hover:scale-[1.03]"
         style={{ backgroundImage: `url(${expert.photo})` }}
         aria-hidden="true"
       />
       <div
-        className="photo-text-overlay absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/20"
+        className="photo-text-overlay absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-transparent"
         aria-hidden="true"
       />
-      <div className="absolute inset-x-0 bottom-0 p-6 md:p-8">
+      <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-white/75">{expert.role}</p>
-        <h3 className="mt-2 text-xl font-semibold tracking-tight text-white">{expert.name}</h3>
+        <h3 className="mt-1.5 text-lg font-semibold tracking-tight text-white md:text-xl">{expert.name}</h3>
         <a
           href={expert.linkedin}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors hover:text-white"
+          className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-white/90 transition-colors hover:text-white"
         >
           Connect
           <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
@@ -101,14 +101,14 @@ export default function AboutPage() {
 
         <main className="overflow-x-hidden">
           {/* About + people images */}
-          <section className="px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-start md:gap-14">
-              <motion.div initial="hidden" animate="show" variants={fadeUp}>
+          <section className="px-4 pb-20 pt-14 md:px-8 md:pb-28 md:pt-20">
+            <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-start lg:gap-16 xl:gap-20">
+              <motion.div initial="hidden" animate="show" variants={fadeUp} className="min-w-0">
                 <Eyebrow>About VAxAI</Eyebrow>
-                <h1 className="mt-6 max-w-2xl text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.025em] md:text-5xl">
+                <h1 className="mt-5 max-w-xl text-[2.2rem] font-semibold leading-[1.1] tracking-[-0.025em] sm:text-[2.5rem] md:mt-6 md:text-[2.75rem]">
                   Built through experience, not theory.
                 </h1>
-                <div className="mt-8 max-w-2xl space-y-5 text-base leading-8 text-muted md:text-lg">
+                <div className="mt-8 max-w-xl space-y-6 text-base leading-8 text-muted md:mt-10 md:space-y-7 md:text-[1.0625rem] md:leading-8">
                   <p>
                     VAxAI wasn&apos;t created from a business plan. It grew from the way we were already
                     working.
@@ -118,7 +118,7 @@ export default function AboutPage() {
                     creation and day-to-day operations. Like many organisations, we quickly discovered that
                     AI worked best when the right foundations were already in place.
                   </p>
-                  <ul className="space-y-2 border-l-2 border-acid pl-5">
+                  <ul className="space-y-3 border-l-2 border-acid py-1 pl-5">
                     <li>The quality of the information going in mattered.</li>
                     <li>Processes needed to be organised.</li>
                     <li>Documents needed to be consistent.</li>
@@ -145,23 +145,25 @@ export default function AboutPage() {
                     keep work running smoothly.
                   </p>
                 </div>
-                <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xl font-semibold tracking-tight md:text-2xl">
-                  <span>Prepare</span>
-                  <ArrowRight className="h-5 w-5 text-pine-700" aria-hidden="true" />
-                  <span>Support</span>
-                  <ArrowRight className="h-5 w-5 text-pine-700" aria-hidden="true" />
-                  <span>Maintain</span>
+                <div className="mt-12 border-t border-ink/10 pt-10 md:mt-14 md:pt-12">
+                  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xl font-semibold tracking-tight md:text-2xl">
+                    <span>Prepare</span>
+                    <ArrowRight className="h-5 w-5 text-pine-700" aria-hidden="true" />
+                    <span>Support</span>
+                    <ArrowRight className="h-5 w-5 text-pine-700" aria-hidden="true" />
+                    <span>Maintain</span>
+                  </div>
+                  <p className="mt-4 text-sm font-medium text-muted md:text-base">
+                    Always with experienced people in the loop.
+                  </p>
                 </div>
-                <p className="mt-4 text-sm font-medium text-muted md:text-base">
-                  Always with experienced people in the loop.
-                </p>
               </motion.div>
 
               <motion.div
                 initial="hidden"
                 animate="show"
                 variants={fadeUp}
-                className="grid gap-6"
+                className="mx-auto grid w-full max-w-sm gap-8 sm:max-w-md lg:sticky lg:top-28 lg:mx-0 lg:max-w-none lg:gap-10"
               >
                 {experts.map((expert) => (
                   <ExpertProfileCard key={expert.name} expert={expert} />
@@ -171,7 +173,7 @@ export default function AboutPage() {
           </section>
 
           {/* Closing CTA */}
-          <section className="px-4 pb-16 md:px-8 md:pb-24">
+          <section className="px-4 pb-20 md:px-8 md:pb-28">
             <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-6 py-14 text-center text-paper md:px-12 md:py-16">
               <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
                 <div className="absolute -top-24 left-[-8%] h-80 w-80 rounded-full bg-pine-700/40 blur-3xl" />
