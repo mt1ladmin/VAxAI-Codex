@@ -89,18 +89,6 @@ const essentials = [
   "Experience handling confidential or sensitive information in a professional setting",
 ];
 
-/** Value of a freelance VA path for early-career professionals */
-const earlyCareerValueCards = [
-  {
-    title: "Real client experience, not just training",
-    copy: "Build practical admin experience on genuine projects and retainers, so you develop a track record that traditional entry-level routes are offering less of.",
-  },
-  {
-    title: "Skills that stay relevant as AI grows",
-    copy: "Learn how strong admin foundations and human oversight work alongside AI and automation — useful, future-facing skills for a career that can grow with you.",
-  },
-];
-
 const CONVICTION_OPTIONS = ["No", "Yes", "I do not wish to say"] as const;
 const START_SOON_OPTIONS = ["Yes", "No"] as const;
 
@@ -1176,17 +1164,6 @@ export default function WorkWithVaxaiPage() {
                   </button>
                 </div>
               </Reveal>
-              <div className="mt-10 grid gap-4 sm:grid-cols-2">
-                {earlyCareerValueCards.map((card) => (
-                  <Reveal
-                    key={card.title}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-5 py-5"
-                  >
-                    <h3 className="text-base font-semibold tracking-tight text-paper">{card.title}</h3>
-                    <p className="mt-3 text-sm leading-7 text-paper/80 md:text-[15px]">{card.copy}</p>
-                  </Reveal>
-                ))}
-              </div>
             </div>
           </section>
 
