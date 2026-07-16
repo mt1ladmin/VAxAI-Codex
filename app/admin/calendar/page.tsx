@@ -320,8 +320,8 @@ function CalendarBlogGroupCard({
             : "border-pine-900/10 bg-white"
       } ${isDragging ? "opacity-50" : ""}`}
     >
-      {post.cover_image_url && !minimal ? (
-        <div className="h-10 w-full overflow-hidden bg-white">
+      {post.cover_image_url ? (
+        <div className={`w-full overflow-hidden bg-white ${minimal ? "h-14" : "h-10"}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
         </div>

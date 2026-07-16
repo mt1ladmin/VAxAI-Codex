@@ -260,6 +260,114 @@ function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; on
   );
 }
 
+/** Ask for publication date before first publish. */
+function PublishDateModal({
+  saving,
+  onPublishToday,
+  onPublishWithDate,
+  onCancel,
+}: {
+  saving: boolean;
+  onPublishToday: () => void;
+  onPublishWithDate: (datetimeLocal: string) => void;
+  onCancel: () => void;
+}) {
+  const [step, setStep] = useState<"choose" | "pick">("choose");
+  const [dateValue, setDateValue] = useState(nowDatetimeLocal);
+
+  return (
+    <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-base font-semibold text-[#111111]">Publication date</h3>
+            <p className="mt-1 text-sm leading-6 text-[#5F686A]">
+              {step === "choose"
+                ? "Publish with today's date, or choose a different date for the live article."
+                : "Pick the date and time shown on the article and listings."}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={saving}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {step === "choose" ? (
+          <div className="mt-5 space-y-2">
+            <button
+              type="button"
+              disabled={saving}
+              onClick={onPublishToday}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#122428] py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Publish for today{"'"}s date
+            </button>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => {
+                setDateValue(nowDatetimeLocal());
+                setStep("pick");
+              }}
+              className="flex w-full items-center justify-center rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#111111] hover:bg-pine-50 disabled:opacity-50"
+            >
+              Choose a different date
+            </button>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={onCancel}
+              className="w-full py-2 text-sm font-semibold text-[#5F686A] hover:text-[#111111] disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="mt-5 space-y-3">
+            <label className="block">
+              <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
+                Publication date
+              </span>
+              <input
+                type="datetime-local"
+                value={dateValue}
+                onChange={(e) => setDateValue(e.target.value)}
+                className="w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
+              />
+            </label>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => setStep("choose")}
+                className="rounded-xl border border-[#111111]/15 px-4 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                disabled={saving || !dateValue}
+                onClick={() => onPublishWithDate(dateValue)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Publish now
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PublishedSuccessModal({
   postUrl,
   postTitle,
@@ -365,8 +473,7 @@ export default function EditPostPage() {
   const [isPublished, setIsPublished] = useState(false);
   const [postUrl, setPostUrl] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
-  const [publishedAt, setPublishedAt] = useState(nowDatetimeLocal);
-  const [publishedAtSaved, setPublishedAtSaved] = useState(false);
+  const [publishedAt, setPublishedAt] = useState("");
   const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
   const [linkedSocial, setLinkedSocial] = useState<LinkedSocialPost[]>([]);
 
@@ -390,6 +497,7 @@ export default function EditPostPage() {
   const [showConnectedPosts, setShowConnectedPosts] = useState(false);
   const [showPublishedSuccess, setShowPublishedSuccess] = useState(false);
   const [publishedSuccessWasUpdate, setPublishedSuccessWasUpdate] = useState(false);
+  const [showPublishDateModal, setShowPublishDateModal] = useState(false);
 
   // Auto-save
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -442,8 +550,7 @@ export default function EditPostPage() {
           const pad = (n: number) => String(n).padStart(2, "0");
           setPublishedAt(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`);
         } else {
-          // Default to current date/time until the editor changes it
-          setPublishedAt(nowDatetimeLocal());
+          setPublishedAt("");
         }
         if (p.status === "scheduled" && p.scheduled_at) {
           const dt = new Date(p.scheduled_at);
@@ -555,29 +662,7 @@ export default function EditPostPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft, id]);
 
-  const savePublishedAt = async () => {
-    setSaving(true);
-    manualSaveLock.current = true;
-    cancelAutoSave();
-    try {
-      const res = await fetch(`/api/admin/posts/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          published_at: toIsoOrNull(publishedAt),
-        }),
-      });
-      if (res.ok) {
-        setPublishedAtSaved(true);
-        setTimeout(() => setPublishedAtSaved(false), 3000);
-      }
-    } finally {
-      manualSaveLock.current = false;
-      setSaving(false);
-    }
-  };
-
-  const save = useCallback(async (status: "draft" | "published" | "scheduled") => {
+  const save = useCallback(async (status: "draft" | "published" | "scheduled", publishDateOverride?: string) => {
     setSaving(true);
     setPublishError("");
     // Cancel pending and in-flight auto-saves so they cannot overwrite publish with draft
@@ -590,7 +675,11 @@ export default function EditPostPage() {
     const wasAlreadyPublished = isPublished;
     let json: { data?: { slug?: string; status?: string; published_at?: string | null }; error?: string; hint?: string } = {};
     try {
-      const publishedAtIso = toIsoOrNull(publishedAt);
+      const effectivePublishedAt =
+        status === "published"
+          ? (publishDateOverride ?? (publishedAt || nowDatetimeLocal()))
+          : publishedAt;
+      const publishedAtIso = toIsoOrNull(effectivePublishedAt);
       const hashtags = Array.isArray(socialDraft?.hashtags) ? socialDraft!.hashtags! : [];
       const liveSlug = slug || slugify(title || "untitled");
       const res = await fetch(`/api/admin/posts/${id}`, {
@@ -608,10 +697,10 @@ export default function EditPostPage() {
           status,
           // Publishing now clears any leftover schedule
           scheduled_at: status === "published" ? null : toIsoOrNull(scheduledAt),
-          ...(publishedAtIso
-            ? { published_at: publishedAtIso }
-            : status === "published"
-              ? { published_at: new Date().toISOString() }
+          ...(status === "published"
+            ? { published_at: publishedAtIso ?? new Date().toISOString() }
+            : publishedAtIso
+              ? { published_at: publishedAtIso }
               : {}),
           sharing_caption: socialDraft?.sharing_caption ?? null,
           linkedin_post: socialDraft?.linkedin_post ?? null,
@@ -661,10 +750,13 @@ export default function EditPostPage() {
 
     if (status === "published") {
       const liveUrl = `${getSiteUrl()}/posts/${savedSlug}`;
+      const usedDate = publishDateOverride ?? (publishedAt || nowDatetimeLocal());
+      setPublishedAt(usedDate);
       setIsPublished(true);
       isPublishedRef.current = true;
       setPostUrl(liveUrl);
       setScheduledAt("");
+      setShowPublishDateModal(false);
       setPanelOpen(true);
       setPublishedSuccessWasUpdate(wasAlreadyPublished);
       setShowPublishedSuccess(true);
@@ -683,6 +775,15 @@ export default function EditPostPage() {
       showToast("Post scheduled", { label: "View calendar →", href: "/admin/calendar" });
     }
   }, [id, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, publishedAt, socialDraft, isPublished]);
+
+  const requestPublish = () => {
+    if (isPublished) {
+      // Already live — update content without re-asking for a date
+      void save("published");
+      return;
+    }
+    setShowPublishDateModal(true);
+  };
 
   const deletePost = async () => {
     await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
@@ -727,6 +828,22 @@ export default function EditPostPage() {
             ) {
               setShowSocialPreview(true);
             }
+          }}
+        />
+      )}
+
+      {showPublishDateModal && (
+        <PublishDateModal
+          saving={saving}
+          onCancel={() => setShowPublishDateModal(false)}
+          onPublishToday={() => {
+            const today = nowDatetimeLocal();
+            setPublishedAt(today);
+            void save("published", today);
+          }}
+          onPublishWithDate={(datetimeLocal) => {
+            setPublishedAt(datetimeLocal);
+            void save("published", datetimeLocal);
           }}
         />
       )}
@@ -793,7 +910,7 @@ export default function EditPostPage() {
           </button>
           <button
             type="button"
-            onClick={() => void save("published")}
+            onClick={requestPublish}
             disabled={saving}
             className="rounded-md bg-[#122428] px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
           >
@@ -963,50 +1080,25 @@ export default function EditPostPage() {
                 />
               </div>
 
-              {/* Publication date shown on site */}
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
-                  Publication date
-                </label>
-                <p className="mb-2 text-[11px] leading-relaxed text-[#5F686A]/70">
-                  The date shown on the article and across listings. Set this to reflect when the post first went live.
-                </p>
-                <input
-                  type="datetime-local"
-                  value={publishedAt}
-                  onChange={(e) => { setPublishedAt(e.target.value); setPublishedAtSaved(false); }}
-                  className="w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
-                />
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void savePublishedAt()}
-                    disabled={saving || !publishedAt}
-                    className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 ${publishedAtSaved ? "bg-acid/50 text-ink" : "bg-[#122428] text-white hover:opacity-90"}`}
-                  >
-                    {publishedAtSaved ? "Saved" : "Save date"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const now = new Date();
-                      const pad = (n: number) => String(n).padStart(2, "0");
-                      setPublishedAt(`${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`);
-                      setPublishedAtSaved(false);
-                    }}
-                    className="text-xs text-[#5F686A] hover:text-[#122428]"
-                  >
-                    Use now
-                  </button>
-                </div>
-                {!isPublished && (
-                  <p className="mt-2 text-[10px] text-[#5F686A]/60">
-                    For a draft, this becomes the publication date when you publish.
+              {/* Publication date — only after a date was chosen at publish (or loaded from an already-published post) */}
+              {publishedAt ? (
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
+                    Publication date
+                  </label>
+                  <p className="mb-2 text-[11px] leading-relaxed text-[#5F686A]/70">
+                    The date shown on the article and across listings.
                   </p>
-                )}
-              </div>
+                  <input
+                    type="datetime-local"
+                    value={publishedAt}
+                    onChange={(e) => setPublishedAt(e.target.value)}
+                    className="w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
+                  />
+                </div>
+              ) : null}
 
-              {/* Publish timing — Publish now publishes immediately; Schedule uses the date below */}
+              {/* Publish timing — Publish now asks for a date; Schedule uses the date below */}
               {!isPublished && (
                 <div>
                   <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">When to publish</label>
@@ -1015,7 +1107,7 @@ export default function EditPostPage() {
                       type="button"
                       onClick={() => {
                         setPublishMode("now");
-                        void save("published");
+                        requestPublish();
                       }}
                       disabled={saving}
                       className={`flex-1 py-2 transition-colors disabled:opacity-50 ${publishMode === "now" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}
