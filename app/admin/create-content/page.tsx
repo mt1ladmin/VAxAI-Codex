@@ -44,7 +44,7 @@ export default function CreateContentPage() {
   const [categoryFilter, setCategoryFilter] = useState<TopicCategoryId | "all">("all");
   const [archivedCategoryFilter, setArchivedCategoryFilter] = useState<TopicCategoryId | "all">("all");
   /** Hidden by default so first visit is calm — open only when needed. */
-  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(true);
   const [archivedOpen, setArchivedOpen] = useState(false);
   const [topics, setTopics] = useState<ApiTopic[]>([]);
   const [archivedTopics, setArchivedTopics] = useState<ApiTopic[]>([]);
