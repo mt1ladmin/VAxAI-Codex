@@ -534,8 +534,8 @@ export default function Home() {
                 Get your free Admin Review
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <Link href="/how-we-help" className={btn.ghostDark}>
-                Explore how we help
+              <Link href="/about" className={btn.ghostDark}>
+                Learn more about us
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </motion.div>
