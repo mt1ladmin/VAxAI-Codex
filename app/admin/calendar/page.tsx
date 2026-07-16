@@ -416,7 +416,8 @@ type ConnectedPostGroup = {
   pendingCount: number;
 };
 
-type SchedulingTab = "published" | "draft" | "none";
+/** Side panel: only published posts — pending connected social, or none yet. */
+type SchedulingTab = "pending" | "none";
 
 function hasValidDate(iso: string | null | undefined) {
   return !!iso && iso.trim() !== "";
@@ -479,23 +480,29 @@ function postHasConnectedContent(post: Post, socialPosts: SocialPost[]): boolean
   return false;
 }
 
+/** Published posts with no linked/inline social copy yet. */
 function buildNoConnectedPostGroups(posts: Post[], socialPosts: SocialPost[]): ConnectedPostGroup[] {
   return posts
-    .filter((post) => !postHasConnectedContent(post, socialPosts))
+    .filter(
+      (post) =>
+        post.status === "published" && !postHasConnectedContent(post, socialPosts),
+    )
     .map((post) => ({ post, items: [], pendingCount: 0 }));
 }
 
-function buildConnectedPostGroups(
+/**
+ * Published posts that have connected content with at least one item still to post.
+ * Fully completed (blog published + all connected marked posted) are excluded.
+ */
+function buildPendingConnectedPostGroups(
   posts: Post[],
   socialPosts: SocialPost[],
-  tab: Exclude<SchedulingTab, "none">,
 ): ConnectedPostGroup[] {
   const groups: ConnectedPostGroup[] = [];
 
   for (const post of posts) {
-    const isPublishedTab = tab === "published";
-    if (isPublishedTab && post.status !== "published") continue;
-    if (!isPublishedTab && post.status !== "draft" && post.status !== "scheduled") continue;
+    if (post.status !== "published") continue;
+
     const linked = socialPosts.filter((s) => socialLinksToPost(s.link, post.id));
     const linkedByPlatform = new Map(linked.map((s) => [s.platform, s]));
     const inlinePlatforms: Array<{ key: string; label: string }> = [
@@ -520,6 +527,7 @@ function buildConnectedPostGroups(
       if (!social.posted_at) pendingCount += 1;
     }
 
+    // No connected content → "none" tab; all posted → completed, hide from panel
     if (!hasConnectedContent || pendingCount === 0) continue;
 
     groups.push({
@@ -877,18 +885,6 @@ function ConnectedPostCard({
   tab: SchedulingTab;
 }) {
   const { post, pendingCount } = group;
-  const statusLabel =
-    tab === "none"
-      ? post.status === "published"
-        ? "Published blog post"
-        : post.status === "scheduled"
-          ? "Scheduled blog post"
-          : "Draft blog post"
-      : tab === "published"
-        ? "Published blog post"
-        : post.status === "scheduled"
-          ? "Scheduled blog post"
-          : "Draft blog post";
 
   return (
     <li>
@@ -912,12 +908,17 @@ function ConnectedPostCard({
         <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
           <span className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-[9px] font-semibold text-gray-600">
             <FileText className="h-2.5 w-2.5" />
-            {statusLabel}
+            Published blog post
           </span>
-          {pendingCount > 0 && (
+          {tab === "pending" && pendingCount > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-pine-100 px-2 py-0.5 text-[9px] font-semibold text-pine-800">
               <Link2 className="h-2.5 w-2.5" />
               {pendingCount} to post
+            </span>
+          )}
+          {tab === "none" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[9px] font-semibold text-gray-600">
+              No connected content
             </span>
           )}
         </div>
@@ -927,45 +928,29 @@ function ConnectedPostCard({
 }
 
 function SchedulingPanel({
-  publishedConnectedGroups,
-  draftConnectedGroups,
+  pendingConnectedGroups,
   noConnectedGroups,
   onSelectPost,
 }: {
-  publishedConnectedGroups: ConnectedPostGroup[];
-  draftConnectedGroups: ConnectedPostGroup[];
+  pendingConnectedGroups: ConnectedPostGroup[];
   noConnectedGroups: ConnectedPostGroup[];
   onSelectPost: (post: Post) => void;
 }) {
-  const [tab, setTab] = useState<SchedulingTab>("published");
-  const activeGroups =
-    tab === "published"
-      ? publishedConnectedGroups
-      : tab === "draft"
-        ? draftConnectedGroups
-        : noConnectedGroups;
+  const [tab, setTab] = useState<SchedulingTab>("pending");
+  const activeGroups = tab === "pending" ? pendingConnectedGroups : noConnectedGroups;
 
   return (
     <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-2xl border border-pine-900/10 bg-white shadow-sm">
       <div className="shrink-0 border-b border-gray-100 px-4 py-3.5">
-        <div className="flex w-fit items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
+        <div className="flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
           <button
             type="button"
-            onClick={() => setTab("published")}
+            onClick={() => setTab("pending")}
             className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
-              tab === "published" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
+              tab === "pending" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
             }`}
           >
-            Published
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab("draft")}
-            className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
-              tab === "draft" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
-            }`}
-          >
-            Drafts
+            Connected to post
           </button>
           <button
             type="button"
@@ -979,11 +964,9 @@ function SchedulingPanel({
         </div>
         <h3 className="mt-3 text-sm font-semibold text-gray-900">Connected content</h3>
         <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500">
-          {tab === "published"
-            ? "Published posts with connected content still to post. Click a post to view, schedule, or mark items as posted."
-            : tab === "draft"
-              ? "Draft and scheduled posts with connected content still to post. Click a post to manage connected items."
-              : "Posts with no connected social content yet. Click a post to open or set dates."}
+          {tab === "pending"
+            ? "Published posts with connected social still to post. Click a post to manage or mark items as posted."
+            : "Published posts with no connected social content yet. Click a post to open and add connected posts."}
         </p>
         <span className="mt-2 inline-flex rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
           {activeGroups.length}
@@ -992,11 +975,9 @@ function SchedulingPanel({
       <ul className="min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain p-3">
         {activeGroups.length === 0 ? (
           <li className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-            {tab === "published"
-              ? "All connected content has been posted"
-              : tab === "draft"
-                ? "No draft posts with connected content to post"
-                : "All posts have connected content"}
+            {tab === "pending"
+              ? "No published posts with connected content left to post"
+              : "Every published post has connected content"}
           </li>
         ) : (
           activeGroups.map((group) => (
@@ -1070,13 +1051,8 @@ export default function CalendarPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const publishedConnectedGroups = useMemo(
-    () => buildConnectedPostGroups(posts, socialPosts, "published"),
-    [posts, socialPosts],
-  );
-
-  const draftConnectedGroups = useMemo(
-    () => buildConnectedPostGroups(posts, socialPosts, "draft"),
+  const pendingConnectedGroups = useMemo(
+    () => buildPendingConnectedPostGroups(posts, socialPosts),
     [posts, socialPosts],
   );
 
@@ -1661,8 +1637,7 @@ export default function CalendarPage() {
           <div className="grid gap-5 lg:grid-cols-[minmax(220px,260px)_minmax(0,1fr)] lg:items-start">
             <div className="order-2 lg:order-1 lg:sticky lg:top-4 lg:max-h-[calc(100vh-5rem)]">
               <SchedulingPanel
-                publishedConnectedGroups={publishedConnectedGroups}
-                draftConnectedGroups={draftConnectedGroups}
+                pendingConnectedGroups={pendingConnectedGroups}
                 noConnectedGroups={noConnectedGroups}
                 onSelectPost={(post) => {
                   setPreviewPost(post);
