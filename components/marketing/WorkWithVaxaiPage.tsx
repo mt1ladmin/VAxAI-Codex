@@ -25,7 +25,7 @@ import {
 } from "@/lib/va-applications/constants";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const HERO_IMAGE = "/hero-remote-work-circles.jpg";
+const HERO_IMAGE = "/image.jpg";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 26 },
