@@ -155,9 +155,9 @@ export default function AboutPage() {
                     working.
                   </p>
                   <p>
-                    While building MT1L, we explored how AI could support research, administration, content
-                    creation and day-to-day operations. Like many organisations, we quickly discovered that
-                    AI worked best when the right foundations were already in place.
+                    While building MT1L, Thesia explored how AI could support a range of tasks in different
+                    areas of the work. Like many organisations, she quickly discovered that AI worked best
+                    when the right foundations were already in place.
                   </p>
                   <ul className="space-y-3 border-l-2 border-acid py-1 pl-5">
                     <li>The quality of the information going in mattered.</li>
@@ -167,23 +167,23 @@ export default function AboutPage() {
                   </ul>
                   <p>Without that foundation, AI could only do so much.</p>
                   <p>
-                    As we refined our own ways of working, we began testing different approaches, combining
-                    AI with practical administrative support and continually learning what genuinely
-                    improved the way work got done. Every improvement taught us something new - not just
-                    about technology, but about the importance of preparation, organisation and human
-                    oversight.
+                    Once Rebecca joined as her virtual assistant, they began refining their ways of
+                    working, testing different approaches that combined AI with practical administrative
+                    support and learning what genuinely improved the way work got done. Every improvement
+                    taught them something new - not just about technology, but about the importance of
+                    preparation, organisation and human oversight.
                   </p>
                   <p>
-                    Conversations with leaders across various industries, together with our own experience
-                    and professional backgrounds, made us realise this wasn&apos;t just a challenge we were
-                    solving for ourselves. It reflected a much broader need, particularly as organisations
-                    across every sector began exploring AI.
+                    Conversations with leaders across various industries, together with their own experience
+                    and professional backgrounds, made them realise this wasn&apos;t just a challenge they
+                    were solving for themselves. It reflected a much broader need, particularly as
+                    organisations across every sector began exploring AI.
                   </p>
                   <p>
-                    Today, we help founders, SMEs, charities and public sector organisations build the
-                    foundations that allow AI and automation to create real value. We prepare
-                    administration, provide ongoing operational support and help maintain the systems that
-                    keep work running smoothly.
+                    Today, they help founders, SMEs, charities and public sector organisations build the
+                    foundations that allow AI and automation to create real value, working with a network of
+                    professional freelance virtual assistants. Together they prepare administration, provide
+                    ongoing operational support and help maintain the systems that keep work running smoothly.
                   </p>
                 </div>
                 <div className="mt-12 border-t border-ink/10 pt-10 md:mt-14 md:pt-12">
