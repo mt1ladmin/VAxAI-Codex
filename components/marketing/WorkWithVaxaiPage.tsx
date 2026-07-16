@@ -38,12 +38,15 @@ const viewport = { once: true, margin: "-70px" } as const;
 function Reveal({
   children,
   className = "",
+  id,
 }: {
   children: React.ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
     <motion.div
+      id={id}
       className={className}
       variants={fadeUp}
       initial="hidden"
@@ -1040,7 +1043,7 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* Who we partner with + Specialisms — side by side */}
+          {/* Who we partner with + Supporting early careers — side by side */}
           <section id="who" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
             <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:gap-12 md:items-start">
               <Reveal>
@@ -1063,31 +1066,12 @@ export default function WorkWithVaxaiPage() {
                 </div>
               </Reveal>
 
-              <Reveal>
-                <Eyebrow>Specialisms we value</Eyebrow>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {VA_SPECIALISMS.map((s) => (
-                    <span
-                      key={s}
-                      className="rounded-full border border-ink/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-ink/80 md:text-sm"
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </Reveal>
-            </div>
-          </section>
-
-          {/* Supporting early careers */}
-          <section id="early-careers" className="scroll-mt-24 bg-cream/50 px-4 py-16 md:px-8 md:py-20">
-            <div className="mx-auto max-w-6xl">
-              <Reveal className="max-w-3xl">
+              <Reveal id="early-careers" className="scroll-mt-24">
                 <Eyebrow>Supporting early careers</Eyebrow>
-                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
                   Pathways into freelance admin work
                 </h2>
-                <p className="mt-6 text-base leading-8 text-muted md:text-lg">
+                <p className="mt-5 text-base leading-8 text-muted">
                   AI and automation are reshaping many traditional entry-level and admin roles, reducing
                   some of the opportunities that young people have historically used to start their
                   careers. If you are interested in a career in freelance administrative work, get in
