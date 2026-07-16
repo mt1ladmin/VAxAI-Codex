@@ -72,6 +72,13 @@ function toIsoOrNull(value: string | null | undefined): string | null {
   return d.toISOString();
 }
 
+/** Default publication date/time for the settings field (now, until the user edits it). */
+function nowDatetimeLocal(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
 function htmlToPlainText(html: string) {
   return html
     .replace(/<br\s*\/?>/gi, "\n")
@@ -358,7 +365,7 @@ export default function EditPostPage() {
   const [isPublished, setIsPublished] = useState(false);
   const [postUrl, setPostUrl] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
-  const [publishedAt, setPublishedAt] = useState("");
+  const [publishedAt, setPublishedAt] = useState(nowDatetimeLocal);
   const [publishedAtSaved, setPublishedAtSaved] = useState(false);
   const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
   const [linkedSocial, setLinkedSocial] = useState<LinkedSocialPost[]>([]);
@@ -434,6 +441,9 @@ export default function EditPostPage() {
           const dt = new Date(p.published_at);
           const pad = (n: number) => String(n).padStart(2, "0");
           setPublishedAt(`${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`);
+        } else {
+          // Default to current date/time until the editor changes it
+          setPublishedAt(nowDatetimeLocal());
         }
         if (p.status === "scheduled" && p.scheduled_at) {
           const dt = new Date(p.scheduled_at);
