@@ -18,7 +18,7 @@ export default function SiteFooter() {
                 <img src="/vaxai-logo.png" alt="VAxAI" className="h-10 w-auto" />
               </div>
               <p className="mt-4 max-w-xs text-sm leading-6 text-paper/65">
-                Admin support with AI, automation and human VA oversight.
+                Human-led admin support and AI readiness, with people in the loop.
               </p>
               <NewsletterForm />
             </div>
