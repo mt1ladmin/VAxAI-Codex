@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import {
+  CalendarClock,
   CheckCircle2,
   ExternalLink,
   Facebook,
+  FileEdit,
   Instagram,
   Linkedin,
+  Loader2,
   Share2,
   Trash2,
   X,
@@ -54,6 +57,12 @@ type Props = {
   onClose: () => void;
   onDeleteAll?: () => Promise<void>;
   onMarkConnectedPosted?: (target: ConnectedTarget) => Promise<void>;
+  /** Update schedule date/time for a scheduled post (ISO string). */
+  onReschedule?: (iso: string) => Promise<void>;
+  /** Publish a scheduled post now. */
+  onPublishScheduled?: () => Promise<void>;
+  /** Move a published post back to draft. */
+  onMoveToDraft?: () => Promise<void>;
 };
 
 function formatDate(iso: string | null | undefined) {
@@ -63,6 +72,20 @@ function formatDate(iso: string | null | undefined) {
     month: "long",
     year: "numeric",
   });
+}
+
+function toDatetimeLocalValue(iso: string | null | undefined, fallbackDay?: string): string {
+  if (iso) {
+    const d = new Date(iso);
+    if (!Number.isNaN(d.getTime())) {
+      const pad = (n: number) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+  }
+  if (fallbackDay) return `${fallbackDay}T09:00`;
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 const STATUS_STYLES: Record<CalendarBlogPreview["status"], string> = {
@@ -199,16 +222,22 @@ function ConnectedPostRow({
 export function CalendarItemPreviewModal({
   post,
   linkedSocial: linkedSocialProp,
+  calendarDay,
   busy,
   onClose,
   onDeleteAll,
   onMarkConnectedPosted,
+  onReschedule,
+  onPublishScheduled,
+  onMoveToDraft,
 }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>(linkedSocialProp ?? []);
   const [activeRow, setActiveRow] = useState<ConnectedRow | null>(null);
   const [fullPost, setFullPost] = useState<CalendarBlogPreview | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [markingActive, setMarkingActive] = useState(false);
+  const [scheduleValue, setScheduleValue] = useState("");
+  const [statusBusy, setStatusBusy] = useState(false);
 
   useEffect(() => {
     if (linkedSocialProp) {
@@ -230,6 +259,12 @@ export function CalendarItemPreviewModal({
   }, [post.id]);
 
   const displayPost = fullPost ?? post;
+
+  useEffect(() => {
+    if (displayPost.status === "scheduled") {
+      setScheduleValue(toDatetimeLocalValue(displayPost.scheduled_at, calendarDay));
+    }
+  }, [displayPost.status, displayPost.scheduled_at, calendarDay, displayPost.id]);
 
   const connectedRows = useMemo((): ConnectedRow[] => {
     const fromTable = linkedSocial;
@@ -417,25 +452,126 @@ export function CalendarItemPreviewModal({
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-2 border-t border-[#111111]/8 pt-4">
-            <Link
-              href={`/admin/posts/${displayPost.id}`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1B343A]"
-            >
-              Open full post
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Link>
-            {onDeleteAll && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => setShowDeleteConfirm(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-40"
-                title="Delete blog post and connected content"
+          <div className="space-y-3 border-t border-[#111111]/8 pt-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={`/admin/posts/${displayPost.id}`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1B343A]"
               >
-                <Trash2 className="h-4 w-4" />
-                Delete
-              </button>
+                Open full post
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+              {onDeleteAll && (
+                <button
+                  type="button"
+                  disabled={busy || statusBusy}
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-40"
+                  title="Delete blog post and connected content"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+              )}
+              {displayPost.status === "scheduled" && onPublishScheduled && (
+                <button
+                  type="button"
+                  disabled={busy || statusBusy}
+                  onClick={() => {
+                    setStatusBusy(true);
+                    void onPublishScheduled()
+                      .then(() => {
+                        setFullPost((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                status: "published",
+                                published_at: new Date().toISOString(),
+                                scheduled_at: null,
+                              }
+                            : prev,
+                        );
+                      })
+                      .finally(() => setStatusBusy(false));
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-pine-900/15 bg-acid/50 px-3 py-2.5 text-sm font-semibold text-ink hover:bg-acid/70 disabled:opacity-40"
+                >
+                  {statusBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                  Publish now
+                </button>
+              )}
+              {displayPost.status === "published" && onMoveToDraft && (
+                <button
+                  type="button"
+                  disabled={busy || statusBusy}
+                  onClick={() => {
+                    setStatusBusy(true);
+                    void onMoveToDraft()
+                      .then(() => {
+                        setFullPost((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                status: "draft",
+                                published_at: null,
+                              }
+                            : prev,
+                        );
+                      })
+                      .finally(() => setStatusBusy(false));
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-40"
+                >
+                  {statusBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileEdit className="h-4 w-4" />}
+                  Move to draft
+                </button>
+              )}
+            </div>
+
+            {displayPost.status === "scheduled" && onReschedule && (
+              <div className="flex flex-wrap items-end gap-2 rounded-lg border border-amber-200/80 bg-amber-50/50 p-3">
+                <label className="flex min-w-[12rem] flex-1 flex-col gap-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-amber-900/70">
+                    Scheduled date &amp; time
+                  </span>
+                  <input
+                    type="datetime-local"
+                    value={scheduleValue}
+                    onChange={(e) => setScheduleValue(e.target.value)}
+                    className="rounded-md border border-amber-200 bg-white px-2.5 py-2 text-xs text-[#111111] outline-none focus:border-amber-400"
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={busy || statusBusy || !scheduleValue}
+                  onClick={() => {
+                    if (!scheduleValue) return;
+                    setStatusBusy(true);
+                    const iso = new Date(scheduleValue).toISOString();
+                    void onReschedule(iso)
+                      .then(() => {
+                        setFullPost((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                status: "scheduled",
+                                scheduled_at: iso,
+                              }
+                            : prev,
+                        );
+                      })
+                      .finally(() => setStatusBusy(false));
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-40"
+                >
+                  {statusBusy ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CalendarClock className="h-3.5 w-3.5" />
+                  )}
+                  Save schedule
+                </button>
+              </div>
             )}
           </div>
         </div>

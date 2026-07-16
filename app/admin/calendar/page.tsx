@@ -1366,6 +1366,82 @@ export default function CalendarPage() {
     }
   };
 
+  const reschedulePreviewPost = async (iso: string) => {
+    if (!previewPost) return;
+    setConnectedBusy(true);
+    try {
+      await fetch(`/api/admin/posts/${previewPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "scheduled", scheduled_at: iso, published_at: null }),
+      });
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === previewPost.id
+            ? { ...p, status: "scheduled", scheduled_at: iso, published_at: null }
+            : p,
+        ),
+      );
+      setPreviewPost((prev) =>
+        prev ? { ...prev, status: "scheduled", scheduled_at: iso, published_at: null } : prev,
+      );
+      await load({ silent: true });
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
+  const publishScheduledPreviewPost = async () => {
+    if (!previewPost) return;
+    setConnectedBusy(true);
+    try {
+      const now = new Date().toISOString();
+      await fetch(`/api/admin/posts/${previewPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "published", published_at: now, scheduled_at: null }),
+      });
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === previewPost.id
+            ? { ...p, status: "published", published_at: now, scheduled_at: null }
+            : p,
+        ),
+      );
+      setPreviewPost((prev) =>
+        prev ? { ...prev, status: "published", published_at: now, scheduled_at: null } : prev,
+      );
+      await load({ silent: true });
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
+  const movePreviewPostToDraft = async () => {
+    if (!previewPost) return;
+    setConnectedBusy(true);
+    try {
+      await fetch(`/api/admin/posts/${previewPost.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "draft", published_at: null }),
+      });
+      setPosts((prev) =>
+        prev.map((p) =>
+          p.id === previewPost.id
+            ? { ...p, status: "draft", published_at: null }
+            : p,
+        ),
+      );
+      setPreviewPost((prev) =>
+        prev ? { ...prev, status: "draft", published_at: null } : prev,
+      );
+      await load({ silent: true });
+    } finally {
+      setConnectedBusy(false);
+    }
+  };
+
   const markConnectedFromPreview = async (
     target: { type: "social"; socialId: string } | { type: "inline"; platform: string },
   ) => {
@@ -1807,6 +1883,9 @@ export default function CalendarPage() {
           }}
           onDeleteAll={deleteAllFromPreview}
           onMarkConnectedPosted={markConnectedFromPreview}
+          onReschedule={reschedulePreviewPost}
+          onPublishScheduled={publishScheduledPreviewPost}
+          onMoveToDraft={movePreviewPostToDraft}
         />
       ) : null}
     </div>
