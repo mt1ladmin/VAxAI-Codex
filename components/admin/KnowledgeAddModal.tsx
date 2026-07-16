@@ -203,11 +203,11 @@ function VatPromptForm({ onSave, onClose }: { onSave: () => void; onClose: () =>
     <div className="space-y-4">
       <Field label="Dimension *">
         <div className="flex gap-2">
-          {(["value", "alignment", "trust"] as const).map((dim) => (
+          {(["value", "trust", "alignment"] as const).map((dim) => (
             <button key={dim} type="button" onClick={() => setD({ ...d, dimension: dim })}
               className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
                 d.dimension === dim
-                  ? dim === "value" ? "bg-pine-900 text-paper" : dim === "alignment" ? "bg-pine-700 text-paper" : "bg-acid text-ink"
+                  ? dim === "value" ? "bg-pine-900 text-paper" : dim === "trust" ? "bg-acid text-ink" : "bg-pine-700 text-paper"
                   : "border border-[#111111]/15 text-[#5F686A] hover:text-[#111111]"
               }`}>{dim}</button>
           ))}

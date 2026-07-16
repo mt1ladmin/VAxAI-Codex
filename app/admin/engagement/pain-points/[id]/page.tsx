@@ -42,7 +42,7 @@ export default function PainPointDetailPage() {
   const vatByDimension = (dim: "value" | "alignment" | "trust") =>
     (pp?.vat_prompts || []).filter((v) => v.dimension === dim);
 
-  const dimLabel = { value: "Value", alignment: "Alignment", trust: "Trust" };
+  const dimLabel = { value: "Value", trust: "Trust", alignment: "Alignment" };
   const dimColor = {
     value: "bg-acid/50 border-acid/60 text-ink",
     alignment: "bg-pine-100 border-pine-200 text-pine-800",
@@ -117,7 +117,7 @@ export default function PainPointDetailPage() {
             {vatByDimension("value")[0] && (
               <div className="mb-3">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A] mb-1">
-                  VAT — Value
+                  VTA — Value
                 </p>
                 <p className="text-sm text-[#111111]">{vatByDimension("value")[0].prompt}</p>
               </div>
@@ -253,11 +253,11 @@ export default function PainPointDetailPage() {
             </Section>
           ) : null}
 
-          {/* VAT prompts */}
-          {(["value", "alignment", "trust"] as const).some((d) => vatByDimension(d).length > 0) && (
-            <Section title="VAT prompts — Value, Alignment and Trust" icon={<Target className="h-4 w-4" />} id="vat">
+          {/* VTA prompts */}
+          {(["value", "trust", "alignment"] as const).some((d) => vatByDimension(d).length > 0) && (
+            <Section title="VTA prompts — Value, Trust and Alignment" icon={<Target className="h-4 w-4" />} id="vat">
               <div className="space-y-4">
-                {(["value", "alignment", "trust"] as const).map((dim) => {
+                {(["value", "trust", "alignment"] as const).map((dim) => {
                   const prompts = vatByDimension(dim);
                   if (!prompts.length) return null;
                   return (

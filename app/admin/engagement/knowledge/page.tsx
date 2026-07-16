@@ -73,10 +73,10 @@ const TAB_META: Record<
     icon: Target,
   },
   vat_prompts: {
-    label: "VAT prompts",
-    title: "VAT prompts",
+    label: "VTA prompts",
+    title: "VTA prompts",
     description:
-      "Value, Alignment and Trust questions for service-led conversations: Free Admin Review first, which of the four services fits, and where people must stay accountable.",
+      "Value, Trust and Alignment questions for service-led conversations: Free Admin Review first, which of the four services fits, and where people must stay accountable.",
     icon: Scale,
   },
   pricing: {
@@ -656,7 +656,7 @@ function PainPointRow({ pp, selected, selectMode, onSelect, onDeleted, onSaved }
   );
 }
 
-// ── VAT Prompt row ─────────────────────────────────────────────────────────
+// ── VTA Prompt row ─────────────────────────────────────────────────────────
 
 function VatPromptRow({ prompt, selected, selectMode, onSelect, onDeleted, onSaved }: {
   prompt: VatPrompt; selected: boolean; selectMode: boolean; onSelect: () => void;
@@ -966,7 +966,7 @@ function KnowledgePageInner() {
               ) : null}
               {tab === "vat_prompts" ? (
                 <div className="flex flex-wrap gap-1 rounded-lg border border-pine-900/10 bg-white p-0.5">
-                  {(["value", "alignment", "trust"] as const).map((dim) => {
+                  {(["value", "trust", "alignment"] as const).map((dim) => {
                     const on = dimension === dim;
                     return (
                       <button
@@ -1143,10 +1143,10 @@ function KnowledgePageInner() {
 
                 {tab === "vat_prompts" &&
                   (vatPrompts.length === 0 ? (
-                    <EmptyState title="No prompts found" hint="Try another VAT dimension filter." />
+                    <EmptyState title="No prompts found" hint="Try another VTA dimension filter." />
                   ) : (
                     <div className="space-y-3">
-                      {(["value", "alignment", "trust"] as const)
+                      {(["value", "trust", "alignment"] as const)
                         .filter((dim) => !dimension || dimension === dim)
                         .map((dim) => {
                           const dimPrompts = vatPrompts.filter((p) => p.dimension === dim);

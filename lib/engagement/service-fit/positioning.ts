@@ -5,7 +5,7 @@ export const VAXAI_CORE_OFFERS = [
   "Backlog recovery and information organisation",
   "AI readiness and practical upskilling",
   "AI and automation readiness groundwork (data quality, document organisation, process documentation)",
-  "VAT-informed AI decision support",
+  "VTA-informed AI decision support",
   "AI guidance and policy development",
   "Ongoing operational administration and virtual assistance",
   "Monitoring and maintenance of systems, data and processes",
@@ -54,7 +54,7 @@ Everything starts with the free Admin Review: a structured review of the organis
 
 Prefer improving what the client already has over new systems or complex AI integration. VAxAI does not build or sell AI. Bespoke builds only fit small orgs (roughly under ten people) with clear, proportionate needs; anything larger or more complex, including enterprise builds, goes to trusted external partners, not built in-house.
 
-Primary audience: founders and entrepreneurs, SMEs, charities and non-profits, and public sector organisations, usually without a large internal operations or AI team. MT1L (home of the VAT Framework: Value, Alignment, Trust) handles deeper AI-value strategy work; VAxAI applies the same standard.
+Primary audience: founders and entrepreneurs, SMEs, charities and non-profits, and public sector organisations, usually without a large internal operations or AI team. MT1L (home of the VTA Framework: Value, Trust, Alignment) handles deeper AI-value strategy work; VAxAI applies the same standard.
 
 Automation can still overwhelm some staff, including neurodivergent employees; flag accessible, human-backed options where relevant. Access to Work may cover support for eligible individuals.`;
 

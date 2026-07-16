@@ -4,14 +4,14 @@ import PolicyPage from "@/components/PolicyPage";
 export const metadata: Metadata = {
   title: "JEF Policy | VAxAI",
   description:
-    "Justice, Equity and Fairness (JEF) are embedded in the VAT Framework that guides MT1L and VAxAI.",
+    "Justice, Equity and Fairness (JEF) are embedded in the VTA Framework that guides MT1L and VAxAI.",
 };
 
 export default function JefPolicyPage() {
   return (
     <PolicyPage title="JEF Policy" lastUpdated="July 2026">
       <p>
-        Justice, Equity and Fairness (JEF) are embedded in the VAT Framework&trade; that guides MT1L
+        Justice, Equity and Fairness (JEF) are embedded in the VTA Framework&trade; that guides MT1L
         and VAxAI. This policy explains what that means in practice, including how we understand
         social mobility and how these principles shape the way VAxAI supports founders, SMEs,
         charities, non-profits and public sector organisations.
@@ -63,8 +63,8 @@ export default function JefPolicyPage() {
         ongoing admin support and work with collaborators.
       </p>
 
-      <h2>Embedded in the VAT Framework&trade;</h2>
-      <p>The VAT Framework&trade; guides VAxAI&rsquo;s approach, and JEF is embedded within it.</p>
+      <h2>Embedded in the VTA Framework&trade;</h2>
+      <p>The VTA Framework&trade; guides VAxAI&rsquo;s approach, and JEF is embedded within it.</p>
       <p>
         The framework asks not only whether something creates value, but value for whom. It asks
         whether an approach fits the client&rsquo;s reality, including their capacity, tools,
@@ -89,7 +89,7 @@ export default function JefPolicyPage() {
         participation and social mobility.
       </p>
       <p>
-        That experience helped shape the VAT Framework&trade; and the way VAxAI works with clients.
+        That experience helped shape the VTA Framework&trade; and the way VAxAI works with clients.
         It is why Justice, Equity and Fairness are embedded in our approach rather than treated as a
         separate piece of work.
       </p>
@@ -180,20 +180,20 @@ export default function JefPolicyPage() {
         <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
       </p>
 
-      <h2>How this reflects the VAT Framework&trade;</h2>
+      <h2>How this reflects the VTA Framework&trade;</h2>
       <p>
-        The VAT Framework&trade; asks whether something creates meaningful Value, fits the
-        client&rsquo;s reality through Alignment and can be Trusted by the people it affects.
+        The VTA Framework&trade; asks whether something creates meaningful Value, can be Trusted
+        by the people it affects, and fits the client&rsquo;s reality through Alignment.
       </p>
       <p>
         Justice, Equity, Fairness and social mobility are not separate from that test. They are
         embedded within it.
       </p>
       <p>
-        Value requires asking who benefits and who may be left behind. Alignment requires
-        understanding whether the support fits the client&rsquo;s capacity, tools, confidence and
-        ways of working. Trust requires people to understand what is being introduced, how it affects
-        them and where human oversight remains in place.
+        Value requires asking who benefits and who may be left behind. Trust requires people to
+        understand what is being introduced, how it affects them and where human oversight remains
+        in place. Alignment requires understanding whether the support fits the client&rsquo;s
+        capacity, tools, confidence and ways of working.
       </p>
       <p>
         That is why JEF sits within VAxAI&rsquo;s approach: because better support depends not only on

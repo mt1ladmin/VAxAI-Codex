@@ -172,7 +172,7 @@ export default function PrivacyPolicyPage() {
       </ul>
 
       <div className="callout">
-        <strong>How this reflects the VAT Framework.</strong> We apply the same test to how we handle data that we apply to any change: does it create genuine <em>Value</em>, does it reflect our commitment to treating people with respect (<em>Alignment</em>), and can it be <em>Trusted</em> by the people it affects? We collect only what serves a clear purpose, handle it with care, and are transparent about what we do and what rights you have — including the right to say no.
+        <strong>How this reflects the VTA Framework.</strong> We apply the same test to how we handle data that we apply to any change: does it create genuine <em>Value</em>, can it be <em>Trusted</em> by the people it affects, and does it reflect our commitment to treating people with respect (<em>Alignment</em>)? We collect only what serves a clear purpose, handle it with care, and are transparent about what we do and what rights you have — including the right to say no.
       </div>
     </PolicyPage>
   );

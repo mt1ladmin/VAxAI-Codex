@@ -56,7 +56,7 @@ export const TOPIC_CATEGORIES: { id: TopicCategoryId; label: string; blurb: stri
   {
     id: "mindset",
     label: "Positioning & trust",
-    blurb: "Human-led work, VAT thinking, and honest limits.",
+    blurb: "Human-led work, VTA thinking, and honest limits.",
   },
 ];
 
@@ -239,7 +239,7 @@ export const CONTENT_TOPICS: ContentTopic[] = [
   {
     id: "vat-framework-plain",
     category: "mindset",
-    title: "Value, Alignment, Trust — in plain English",
+    title: "Value, Trust, Alignment — in plain English",
     angle: "How we judge whether AI or a process change should be used.",
     formats: ["blog", "linkedin"],
   },

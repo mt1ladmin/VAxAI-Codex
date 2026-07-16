@@ -106,7 +106,7 @@ function main() {
       meta: {
         ...catalog.meta,
         methodology:
-          "Service-fit reassessment (June 2026): wraparound review, workflow improvement, training, VAT-informed AI strategy, and virtual assistance — not default new-system builds.",
+          "Service-fit reassessment (June 2026): wraparound review, workflow improvement, training, VTA-informed AI strategy, and virtual assistance — not default new-system builds.",
       },
       prospects: reassessed,
     };

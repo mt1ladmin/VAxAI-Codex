@@ -50,7 +50,7 @@ export default function SiteFooter() {
                 <div className="grid gap-3.5 text-paper/62">
                   <a href="/#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
                   <a href="/founders-entrepreneurs#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
-                  <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors duration-200 hover:text-paper">VAT Framework</a>
+                  <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors duration-200 hover:text-paper">VTA Framework</a>
                 </div>
               </div>
               <div>

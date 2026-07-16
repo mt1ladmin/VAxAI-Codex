@@ -32,7 +32,7 @@ export default function TermsPage() {
         <li><strong>&ldquo;Deliverables&rdquo;</strong> means the outputs, documents, tools or other materials we create specifically for your Engagement.</li>
         <li><strong>&ldquo;Confidential Information&rdquo;</strong> means any information disclosed by one party to the other that is marked as confidential or is clearly sensitive by its nature.</li>
         <li><strong>&ldquo;Admin Review&rdquo;</strong> means our free, no-obligation review of your administrative operations to understand where pressure is building and recommend appropriate support.</li>
-        <li><strong>&ldquo;VAT Framework&rdquo;</strong> means our methodology for evaluating AI and automation initiatives against the criteria of Value, Alignment and Trust.</li>
+        <li><strong>&ldquo;VTA Framework&rdquo;</strong> means our methodology for evaluating AI and automation initiatives against the criteria of Value, Trust and Alignment.</li>
       </ul>
 
       <h2>3. Our services</h2>
@@ -63,7 +63,7 @@ export default function TermsPage() {
         4.1 We will carry out our services with reasonable care and skill, and in accordance with the agreed Proposal.
       </p>
       <p>
-        4.2 We apply the VAT Framework to all our work — ensuring that what we recommend creates genuine Value, fits your organisation (Alignment), and can be Trusted by the people it affects. This means we may advise against a course of action you have requested if we believe it does not meet those standards.
+        4.2 We apply the VTA Framework to all our work — ensuring that what we recommend creates genuine Value, can be Trusted by the people it affects, and fits your organisation (Alignment). This means we may advise against a course of action you have requested if we believe it does not meet those standards.
       </p>
       <p>
         4.3 We will keep you reasonably informed of progress and flag any issues that may affect delivery as soon as we are aware of them.
@@ -111,7 +111,7 @@ export default function TermsPage() {
         7.1 Subject to full payment of agreed fees, Deliverables created specifically for your Engagement become your property on completion.
       </p>
       <p>
-        7.2 We retain ownership of our underlying methodology, frameworks (including the VAT Framework), proprietary tools, templates and know-how developed independently of your Engagement. Nothing in these terms transfers ownership of those to you.
+        7.2 We retain ownership of our underlying methodology, frameworks (including the VTA Framework), proprietary tools, templates and know-how developed independently of your Engagement. Nothing in these terms transfers ownership of those to you.
       </p>
       <p>
         7.3 Where we use third-party tools, software or content in delivering our services, ownership remains with those third parties and is subject to their respective licences.
@@ -210,7 +210,7 @@ export default function TermsPage() {
       </p>
 
       <div className="callout">
-        <strong>How this reflects the VAT Framework.</strong> These terms are written in the same spirit as the framework we apply to our client work: clear and purposeful (<em>Value</em>), fair to both sides and consistent with how we work (<em>Alignment</em>), and transparent about what each party can expect (<em>Trust</em>).
+        <strong>How this reflects the VTA Framework.</strong> These terms are written in the same spirit as the framework we apply to our client work: clear and purposeful (<em>Value</em>), transparent about what each party can expect (<em>Trust</em>), and fair to both sides and consistent with how we work (<em>Alignment</em>).
       </div>
 
       <p>Questions: <a href="mailto:hello@mt1l.com">hello@mt1l.com</a></p>

@@ -72,7 +72,7 @@ export function buildEnquiryContextSummary(
     enquiry.next_action ? `Next action: ${enquiry.next_action}` : null,
     enquiry.last_action ? `Last action: ${enquiry.last_action}` : null,
     enquiry.admin_notes ? `Team notes:\n${enquiry.admin_notes}` : null,
-    `YOUR FOCUS: Qualify the inbound need against VAxAI's wraparound offer — review and improve existing systems, training, VAT-informed strategy, and virtual assistance. Avoid defaulting to a new system build unless the enquiry clearly fits a small, bounded scope. Use Knowledge Hub for sector-specific language.`,
+    `YOUR FOCUS: Qualify the inbound need against VAxAI's wraparound offer — review and improve existing systems, training, VTA-informed strategy, and virtual assistance. Avoid defaulting to a new system build unless the enquiry clearly fits a small, bounded scope. Use Knowledge Hub for sector-specific language.`,
   ]
     .filter(Boolean)
     .join("\n");

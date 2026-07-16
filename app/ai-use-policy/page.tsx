@@ -10,7 +10,7 @@ export default function AiUsePolicyPage() {
   return (
     <PolicyPage title="AI Use Policy" lastUpdated="July 2026">
       <div className="callout">
-        VAxAI is a service provided by MT1L. VAxAI helps organisations reduce administrative pressure and prepare for AI and automation with people in the loop. MT1L&rsquo;s VAT Framework asks whether a change creates genuine Value, fits the organisation (Alignment) and can be Trusted by the people affected. We hold our own use of AI to the same standard. This policy explains, in plain English, where we use AI, how it works and how we keep human judgement at the centre.
+        VAxAI is a service provided by MT1L. VAxAI helps organisations reduce administrative pressure and prepare for AI and automation with people in the loop. MT1L&rsquo;s VTA Framework asks whether a change creates genuine Value, can be Trusted by the people affected, and fits the organisation (Alignment). We hold our own use of AI to the same standard. This policy explains, in plain English, where we use AI, how it works and how we keep human judgement at the centre.
       </div>
 
       <h2>Our approach</h2>
@@ -25,7 +25,7 @@ export default function AiUsePolicyPage() {
       <p>We use AI in a small number of clearly defined ways:</p>
       <ul>
         <li>
-          <strong>Service delivery and readiness work.</strong> AI helps us analyse information, organise material, surface considerations across Value, Alignment and Trust, and sense-check thinking we have already developed during Admin Reviews, project work and ongoing support. A person always reviews, adjusts and takes responsibility for the final output.
+          <strong>Service delivery and readiness work.</strong> AI helps us analyse information, organise material, surface considerations across Value, Trust and Alignment, and sense-check thinking we have already developed during Admin Reviews, project work and ongoing support. A person always reviews, adjusts and takes responsibility for the final output.
         </li>
         <li>
           <strong>Drafting and editing.</strong> We use AI to help draft, edit and structure text — for example, tidying wording, checking for clarity, or shaping a first draft that we then review and own. We do not use AI to generate ideas we have not worked through ourselves first. A person always reviews and owns what goes out.
@@ -51,7 +51,7 @@ export default function AiUsePolicyPage() {
 
       <h2>A considered, transparent approach</h2>
       <p>
-        The VAT Framework recognises that trust has to be earned, and that not everyone trusts AI in the same way. We are open about where we use it, and we never require anyone to use it to work with us.
+        The VTA Framework recognises that trust has to be earned, and that not everyone trusts AI in the same way. We are open about where we use it, and we never require anyone to use it to work with us.
       </p>
       <p>
         Part of our longer-term thinking is to stay conscious of dependency. We aim to design our tools and ways of working so they are sustainable and can stand on their own, keeping a clear view of the non-AI way of doing things. That way the value of our work continues whatever happens with any single technology, and AI strengthens what we do rather than becoming the only way we can do it.
@@ -83,12 +83,12 @@ export default function AiUsePolicyPage() {
         We review our AI-assisted work to reduce the risk of unfair, biased or misleading output. AI can reflect and amplify historical bias if trained on data that contains stereotypes or structural inequalities, so we apply human oversight to catch and correct this. This sits alongside our broader commitment to Justice, Equity and Fairness (JEF). The same questions we ask about any change apply here: who benefits, who might be left out, and who carries any risk. See our <a href="/edi-policy">JEF Policy</a> for more.
       </p>
 
-      <h2>The VAT Framework and our AI use</h2>
+      <h2>The VTA Framework and our AI use</h2>
       <p>We apply the same framework to our own AI use that we use to advise clients:</p>
       <ul>
         <li><strong>Value</strong> — we use AI where it genuinely improves our work, not as a default. The thinking always comes first.</li>
-        <li><strong>Alignment</strong> — our use of AI fits our values: transparent, proportionate and human-led. We accommodate those who prefer not to use it, and we check our AI-assisted work for fairness and bias.</li>
         <li><strong>Trust</strong> — we are open about where and how we use AI, we maintain human oversight throughout, and we support your right to choose a fully human path.</li>
+        <li><strong>Alignment</strong> — our use of AI fits our values: transparent, proportionate and human-led. We accommodate those who prefer not to use it, and we check our AI-assisted work for fairness and bias.</li>
       </ul>
 
       <h2>Changes to this policy</h2>

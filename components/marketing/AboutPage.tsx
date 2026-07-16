@@ -112,10 +112,10 @@ export default function AboutPage() {
                   <p>
                     VAxAI helps founders, SMEs, charities and public sector organisations regain control of
                     the everyday administration that keeps their work moving. It is a service by MT1L, home
-                    of the Value, Alignment and Trust (VAT) Framework, which helps leaders make more
-                    informed decisions about AI through the lens of value, alignment and trust. That same
-                    standard shapes every VAxAI recommendation: real value, a genuine fit with how you
-                    work, and an outcome you can trust.
+                    of the Value, Trust and Alignment (VTA) Framework, which helps leaders make more
+                    informed decisions about AI through the lens of value, trust and alignment. That same
+                    standard shapes every VAxAI recommendation: real value, an outcome you can trust,
+                    and a genuine fit with how you work.
                   </p>
                 </div>
                 <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xl font-semibold tracking-tight md:text-2xl">

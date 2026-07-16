@@ -216,7 +216,7 @@ function buildCapabilityBoundaries(complexity: ComplexityLevel, bespoke: boolean
     return "VAxAI can lead discovery, workflow design, training, and virtual assistance. Any bespoke build should stay small in scope; larger technical delivery needs a specialist partner.";
   }
   if (complexity === "High" || complexity === "Very high") {
-    return "VAxAI is well placed for review, training, VAT-informed strategy, and virtual assistance. Complex integrations or enterprise system replacement are outside direct delivery and need a partner.";
+    return "VAxAI is well placed for review, training, VTA-informed strategy, and virtual assistance. Complex integrations or enterprise system replacement are outside direct delivery and need a partner.";
   }
   return "VAxAI can directly support review, improvement, training, policy guidance, and virtual assistance within existing tools. New builds are not the default starting point.";
 }
