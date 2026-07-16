@@ -469,16 +469,17 @@ export default function WorkWithVaxaiPage() {
               <p className="font-semibold text-ink">What we collect</p>
               <p className="mt-3">
                 Your contact details (name, email, phone if provided), location (town / region),
-                confirmation that you are based in the UK and can prove your identity,
+                confirmation that you are based in the UK and can prove you are human,
                 self-employment and Professional Indemnity insurance readiness, equipment and
                 workspace status, specialisms, sectors and industries you have worked with,
                 years of experience and optional experience notes, AI and automation knowledge,
                 availability (hours, preferred days or times, and whether you can start within
-                2–4 weeks), confidentiality and integrity confirmations, optional disclosure about
-                criminal offences, fraud or financial misconduct, your CV, optional LinkedIn or
-                portfolio link, and any other notes you choose to share. We use this only to review
-                your interest, contact you about partnership opportunities, and match you to suitable
-                work with VAxAI.
+                2–4 weeks), confidentiality and integrity confirmations (including willingness to
+                sign an NDA and Data Processing Agreement, provide references, and complete a basic
+                background check if required), your answer to a question about criminal offences,
+                fraud or financial misconduct, your CV, optional LinkedIn or portfolio link, and any
+                other notes you choose to share. We use this only to review your interest, contact you
+                about partnership opportunities, and match you to suitable work with VAxAI.
               </p>
               <p className="mt-4">
                 We do not sell your data. You can ask us to access, correct or delete your application
@@ -812,7 +813,7 @@ export default function WorkWithVaxaiPage() {
         return (
           <div className="space-y-4">
             <p className="text-sm leading-7 text-muted">
-              This work often involves access to confidential client information.
+              This work often involves working with confidential information.
             </p>
             <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm leading-6 text-muted">
               <input

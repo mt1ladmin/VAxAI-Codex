@@ -49,7 +49,7 @@ export default function TermsPage() {
         3.3 The specific scope, deliverables, timeline and fees for each Engagement are set out in a Proposal agreed before paid work begins.
       </p>
       <p>
-        3.4 Submitting an enquiry, completing an Admin Review, booking a discovery call, or applying to work with VAxAI as a freelance virtual assistant does not create a contract or any obligation on either side. An Engagement begins only once both parties have agreed a Proposal in writing. Freelance applications are assessed at our discretion; submitting an application does not guarantee work, onboarding or a place on our talent network.
+        3.4 Submitting an enquiry, completing an Admin Review, booking a discovery call, or registering interest in the VAxAI VA partner network does not create a contract or any obligation on either side. An Engagement begins only once both parties have agreed a Proposal in writing. Freelance applications and expressions of interest are assessed at our discretion; submitting the form does not guarantee work, onboarding or a place on our talent network.
       </p>
       <p>
         3.5 We do not provide legal, financial, medical or regulated professional advice. Our services are practical operational and readiness support and should be reviewed with appropriately qualified advisers before acting in those domains.
@@ -77,7 +77,7 @@ export default function TermsPage() {
         5.1 You agree to provide us, in a timely manner, with all information, access and materials we reasonably need to carry out our services. Delays caused by late provision of these may affect delivery timelines, and we accept no liability for such delays.
       </p>
       <p>
-        5.1A If you apply to work with VAxAI as a freelancer, you confirm that the information and documents you submit (including your CV) are true and accurate to the best of your knowledge, that you are entitled to work in the UK on a self-employed basis for the work described, and that you will keep your setup (including tax registration when required and appropriate insurance) in order before any client work begins.
+        5.1A If you register interest in the VAxAI VA partner network, you confirm that the information and documents you submit (including your CV) are true and accurate to the best of your knowledge; that you are based in the UK and entitled to work in the UK for the work described; that you will keep your setup (including tax registration when required and appropriate Professional Indemnity insurance) in order before any client work begins; and that you understand the work often involves working with confidential information and may require you to sign a Non-Disclosure Agreement and Data Processing Agreement, provide references, and complete a basic background check if required for certain client work.
       </p>
       <p>
         5.2 You are responsible for ensuring that information you provide is accurate and that you have the right to share it with us.

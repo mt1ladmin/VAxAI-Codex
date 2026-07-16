@@ -46,17 +46,20 @@ export default function PrivacyPolicyPage() {
       </p>
       <p><em>Basis: Performance of Contract; Legitimate Interests.</em></p>
 
-      <h3>When you apply to work with VAxAI as a freelancer</h3>
+      <h3>When you register interest in the VAxAI VA partner network</h3>
       <p>
-        If you submit an application via the Work with VAxAI page, we collect the information you provide in that form, which may include your name, email address, telephone number, location, confirmation that you are UK-based and able to prove your identity, self-employment and business insurance readiness, specialisms, preferred client sectors and industries, description of the work you specialise in, knowledge of AI systems and automations, availability, optional notes, and your CV (uploaded as a document file). We may also store a profile photo if one is later added during onboarding.
+        If you submit the form on our Join the VAxAI VA partner network page, we collect the information you provide, which may include: your name, email address, telephone number (if provided), location (town / region), confirmation that you are based in the UK and can prove you are human, self-employment and Professional Indemnity insurance readiness, equipment and workspace confirmations, specialisms, sectors and industries you have worked with, years of relevant experience and any optional experience notes, knowledge of AI tools and automations for admin work, availability (typical hours, preferred working days or times, and whether you can start within the next 2–4 weeks), confidentiality and integrity confirmations (including willingness to sign a Non-Disclosure Agreement and Data Processing Agreement, provide professional references, and complete a basic background check if required for certain client work), your answer to a question about whether you have ever been convicted of a criminal offence, fraud or financial misconduct (including if you prefer not to say), your CV (uploaded as a document file), an optional LinkedIn or portfolio link, and any other notes you choose to share. We may also store a profile photo if one is later added during onboarding.
       </p>
       <p>
-        We use this information to review your application, contact you about next steps, assess suitability for client work, match you to projects or retainers, coordinate onboarding, and keep an accurate record of freelancers we work with or have considered. Application records are held in our systems (including VAxAI Studio) and CV files are stored securely with our hosting and storage providers.
+        We use this information to review your interest, contact you about next steps, assess suitability for client work (which often involves working with confidential information), match you to projects or retainers, coordinate onboarding, and keep an accurate record of freelancers we work with or have considered. Application records are held in our systems (including VAxAI Studio) and CV files are stored securely with our hosting and storage providers.
       </p>
       <p>
-        Before you submit, the application journey asks you to confirm you have read and agree to this Privacy Policy and our other site policies, and to declare that the information you provide is true and accurate.
+        Where you answer the criminal offence, fraud or financial misconduct question, we process that information only for assessing suitability and risk for client delivery that may involve confidential or sensitive work. You may choose not to say. We do not use automated decision-making alone to accept or reject applications.
       </p>
-      <p><em>Basis: Performance of Contract (steps at your request before a freelance engagement); Legitimate Interests (recruiting and coordinating suitable freelancers for client delivery).</em></p>
+      <p>
+        Before you submit, the journey asks you to confirm you have read and agree to this Privacy Policy, our Terms of Service, AI Use Policy and JEF / EDI Policy.
+      </p>
+      <p><em>Basis: Performance of Contract (steps at your request before a freelance engagement); Legitimate Interests (recruiting and coordinating suitable freelancers for client delivery). Where applicable for conviction-related answers, we process only as necessary for employment or engagement purposes under UK data protection law.</em></p>
 
       <h3>When you sign up to our newsletter</h3>
       <p>
