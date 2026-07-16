@@ -85,7 +85,6 @@ const essentials = [
   "Professional Indemnity insurance arranged before any client work begins",
   "A reliable computer, stable high-speed internet, and a quiet professional workspace",
   "Proven discretion, professionalism and attention to detail",
-  "Willingness to sign our standard Non-Disclosure Agreement and Data Processing Agreement",
   "Experience handling confidential or sensitive information in a professional setting",
 ];
 
