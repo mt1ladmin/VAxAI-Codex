@@ -262,6 +262,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (!Object.prototype.hasOwnProperty.call(picked, "scheduled_at")) {
         update.scheduled_at = null;
       }
+    } else if (status === "scheduled") {
+      // Must have a go-live time; otherwise refuse so cron can never miss it
+      const scheduledAt = update.scheduled_at;
+      if (!scheduledAt || typeof scheduledAt !== "string") {
+        return NextResponse.json(
+          { error: "scheduled_at is required when status is scheduled" },
+          { status: 400 },
+        );
+      }
+      // Stay unpublished until cron (or publish-due) flips status
+      if (!hasExplicitPublishedAt) {
+        update.published_at = null;
+      }
     } else if (status === "draft" && !hasExplicitPublishedAt) {
       update.published_at = null;
     }

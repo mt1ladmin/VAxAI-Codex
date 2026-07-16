@@ -44,6 +44,15 @@ async function getPost(slug: string): Promise<Post | null> {
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
   const { createClient } = await import("@supabase/supabase-js");
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+  // If this post was scheduled and its time has passed, go live before lookup
+  try {
+    const { publishDueScheduledPosts } = await import("@/lib/posts/publish-due");
+    await publishDueScheduledPosts(db, { limit: 20 });
+  } catch {
+    /* non-fatal */
+  }
+
   const { data } = await db
     .from("posts")
     .select("id,title,slug,description,body_html,cover_image_url,content_type,tags,author_id,published_at")

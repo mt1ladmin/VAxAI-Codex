@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { publishDueScheduledPosts } from "@/lib/posts/publish-due";
 import { createSessionClient, createServiceClient } from "@/lib/supabase";
 
 async function assertAuth() {
@@ -56,6 +57,14 @@ export async function GET(req: NextRequest) {
     await assertAuth();
     const status = req.nextUrl.searchParams.get("status");
     const db = createServiceClient();
+
+    // Best-effort: flip any due scheduled posts before listing (covers missed cron ticks)
+    try {
+      await publishDueScheduledPosts(db, { limit: 25 });
+    } catch {
+      /* non-fatal */
+    }
+
     // Fallback must not reference columns that may not exist yet
     const baseColumns =
       "id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,body_html,sharing_caption,linkedin_post,instagram_caption,social_hashtags";
@@ -92,6 +101,13 @@ export async function POST(req: NextRequest) {
     };
     const title = body.title ?? "Untitled";
     const rawSlug = body.slug || slugify(title);
+    const status = body.status ?? "draft";
+    if (status === "scheduled" && !body.scheduled_at) {
+      return NextResponse.json(
+        { error: "scheduled_at is required when status is scheduled" },
+        { status: 400 },
+      );
+    }
     const db = createServiceClient();
     // ensure unique slug
     let slug = rawSlug;
@@ -112,9 +128,9 @@ export async function POST(req: NextRequest) {
       tags: body.tags ?? [],
       author_id: body.author_id ?? null,
       cover_image_url: body.cover_image_url ?? null,
-      status: body.status ?? "draft",
-      published_at: body.status === "published" ? now : null,
-      scheduled_at: body.scheduled_at ?? null,
+      status,
+      published_at: status === "published" ? now : null,
+      scheduled_at: status === "scheduled" ? (body.scheduled_at ?? null) : (body.scheduled_at ?? null),
       updated_at: now,
       sharing_caption: body.sharing_caption ?? null,
       linkedin_post: body.linkedin_post ?? null,
