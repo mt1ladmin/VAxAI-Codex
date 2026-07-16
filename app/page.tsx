@@ -756,40 +756,6 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ */}
-      {/* Work with VAxAI — freelance partner CTA                       */}
-      {/* ------------------------------------------------------------ */}
-      <section className="px-4 py-16 md:px-8 md:py-20">
-        <div className="mx-auto max-w-6xl">
-          <Reveal className="overflow-hidden rounded-[28px] border border-ink/5 bg-white shadow-card md:grid md:grid-cols-[1.2fr_0.8fr]">
-            <div className="p-8 md:p-10">
-              <Eyebrow>Partner with us</Eyebrow>
-              <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
-                Work with VAxAI as a freelance assistant
-              </h2>
-              <p className="mt-5 max-w-xl text-base leading-8 text-muted">
-                UK-based freelancers help us deliver backlog recovery, AI readiness groundwork, ongoing
-                admin and maintenance for founders, SMEs, charities and public sector teams. Experienced
-                professionals and early-career talent are both welcome.
-              </p>
-              <a href="/work-with-vaxai" className={`${btn.primary} mt-8`}>
-                Become a VAxAI freelancer
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-            <div className="flex flex-col justify-center border-t border-ink/5 bg-pine-900 p-8 text-paper md:border-l md:border-t-0 md:p-10">
-              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid">What freelancers do</p>
-              <ul className="mt-5 space-y-3 text-sm leading-6 text-paper/75">
-                <li>Clear admin backlogs and organise information</li>
-                <li>Keep everyday systems and inboxes moving</li>
-                <li>Support AI and automation readiness</li>
-                <li>Help stop problems returning after the hard work is done</li>
-              </ul>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------ */}
       {/* FAQ — split layout with smooth accordion                      */}
       {/* ------------------------------------------------------------ */}
       <section id="faq" className="px-4 py-16 md:px-8 md:py-24">

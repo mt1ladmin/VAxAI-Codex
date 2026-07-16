@@ -11,10 +11,11 @@ import { createServiceClient } from "@/lib/supabase";
 import {
   VA_APPLICANT_TYPES,
   VA_CLIENT_SECTORS,
-  VA_INDUSTRIES_BY_SECTOR,
+  VA_EXPERIENCE_YEARS,
   VA_INSURANCE_STATUSES,
   VA_SELF_EMPLOYED_STATUSES,
   VA_SPECIALISMS,
+  industriesForSectors,
   type VaClientSector,
 } from "@/lib/va-applications/constants";
 
@@ -73,42 +74,72 @@ export async function POST(req: NextRequest) {
   const email = cleanEmail(form.get("email"));
   const telephone = cleanOptionalText(form.get("telephone"), 40);
   const location = cleanOptionalText(form.get("location"), 120);
-  const applicantType = allowlist(form.get("applicant_type"), VA_APPLICANT_TYPES, "");
+  const applicantType =
+    allowlist(form.get("applicant_type"), VA_APPLICANT_TYPES, "experienced") || "experienced";
   const selfEmployedStatus = allowlist(
     form.get("self_employed_status"),
     VA_SELF_EMPLOYED_STATUSES,
     "",
   );
-  const hasInsurance = allowlist(form.get("has_business_insurance"), VA_INSURANCE_STATUSES, "will_arrange");
+  const hasInsurance = allowlist(
+    form.get("has_business_insurance"),
+    VA_INSURANCE_STATUSES,
+    "will_arrange",
+  );
   const canProveIdentity = asBoolean(form.get("can_prove_identity"));
   const ukBased = form.get("uk_based") == null ? true : asBoolean(form.get("uk_based"));
   const specialisms = parseSpecialisms(form.get("specialisms"));
-  const clientSectorRaw = cleanText(form.get("client_sector"), 80);
-  const clientSector =
-    clientSectorRaw && (VA_CLIENT_SECTORS as readonly string[]).includes(clientSectorRaw)
-      ? (clientSectorRaw as VaClientSector)
-      : null;
-  const industryAllowed = clientSector
-    ? VA_INDUSTRIES_BY_SECTOR[clientSector]
-    : ([] as readonly string[]);
-  const industries = parseStringArray(form.get("industries"), industryAllowed, 25);
+
+  // Multi-select sectors (preferred) with single-sector fallback for older clients
+  let clientSectors = parseStringArray(
+    form.get("client_sectors"),
+    VA_CLIENT_SECTORS as unknown as string[],
+    8,
+  ) as VaClientSector[];
+  if (clientSectors.length === 0) {
+    const clientSectorRaw = cleanText(form.get("client_sector"), 80);
+    if (clientSectorRaw && (VA_CLIENT_SECTORS as readonly string[]).includes(clientSectorRaw)) {
+      clientSectors = [clientSectorRaw as VaClientSector];
+    }
+  }
+
+  const industryAllowed = industriesForSectors(clientSectors);
+  const industries = parseStringArray(form.get("industries"), industryAllowed, 40);
   const sectorsInterests =
     cleanOptionalText(form.get("sectors_interests"), 2_000) ||
-    (clientSector ? `${clientSector}: ${industries.join(", ")}` : null);
+    (clientSectors.length
+      ? clientSectors.map((s) => `${s}: ${industries.join(", ")}`).join(" | ")
+      : null);
   const workSpecialisesIn = cleanOptionalText(form.get("work_specialises_in"), 4_000);
+  const experienceYearsRaw = cleanOptionalText(form.get("experience_years"), 40);
+  const experienceYears =
+    experienceYearsRaw &&
+    (VA_EXPERIENCE_YEARS as readonly string[]).includes(experienceYearsRaw)
+      ? experienceYearsRaw
+      : experienceYearsRaw;
   const aiKnowledge = cleanOptionalText(form.get("ai_knowledge"), 4_000);
   const availabilityHours = cleanOptionalText(form.get("availability_hours_per_week"), 80);
   const availabilityNotes = cleanOptionalText(form.get("availability_notes"), 2_000);
   const coverNote = cleanOptionalText(form.get("cover_note"), 4_000);
+  const linkedinUrl = cleanOptionalText(form.get("linkedin_url"), 500);
+  const hasComputer = asBoolean(form.get("has_computer"));
+  const hasInternet = asBoolean(form.get("has_internet"));
+  const hasQuietSpace = asBoolean(form.get("has_quiet_space"));
+  const agreeNda = asBoolean(form.get("agree_nda"));
+  const agreeReferences = asBoolean(form.get("agree_references"));
+  const agreeBackgroundCheck = asBoolean(form.get("agree_background_check"));
   const policiesAccepted = asBoolean(form.get("policies_accepted"));
   const declarationAccepted = asBoolean(form.get("declaration_accepted"));
 
   if (!fullName || !email) {
     return NextResponse.json({ error: "Name and email are required" }, { status: 400, headers });
   }
-  if (!applicantType || !selfEmployedStatus) {
+  if (!location) {
+    return NextResponse.json({ error: "Location is required" }, { status: 400, headers });
+  }
+  if (!selfEmployedStatus) {
     return NextResponse.json(
-      { error: "Please select your experience path and self-employment status" },
+      { error: "Please select your self-employment status" },
       { status: 400, headers },
     );
   }
@@ -126,13 +157,25 @@ export async function POST(req: NextRequest) {
   }
   if (!policiesAccepted || !declarationAccepted) {
     return NextResponse.json(
-      { error: "You must accept our policies and the accuracy declaration" },
+      { error: "You must accept our policies and confirm the application statements" },
       { status: 400, headers },
     );
   }
   if (!availabilityHours && !availabilityNotes) {
     return NextResponse.json(
       { error: "Please tell us about your availability" },
+      { status: 400, headers },
+    );
+  }
+  if (clientSectors.length === 0) {
+    return NextResponse.json(
+      { error: "Please select at least one organisation type you have worked with" },
+      { status: 400, headers },
+    );
+  }
+  if (!agreeNda || !agreeReferences || !agreeBackgroundCheck) {
+    return NextResponse.json(
+      { error: "Please confirm the contracts and professionalism statements" },
       { status: 400, headers },
     );
   }
@@ -208,8 +251,21 @@ export async function POST(req: NextRequest) {
     last_action: "Application submitted via website",
     last_action_date: new Date().toISOString(),
     profile_extras: {
-      client_sector: clientSector,
+      client_sectors: clientSectors,
+      client_sector: clientSectors[0] ?? null,
       industries,
+      experience_years: experienceYears || null,
+      linkedin_url: linkedinUrl || null,
+      equipment: {
+        computer: hasComputer,
+        internet: hasInternet,
+        quiet_space: hasQuietSpace,
+      },
+      contracts: {
+        nda_dpa: agreeNda,
+        references: agreeReferences,
+        background_check: agreeBackgroundCheck,
+      },
       policies_accepted: true,
       declaration_accepted: true,
     },

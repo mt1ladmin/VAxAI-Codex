@@ -8,14 +8,17 @@ import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
 import FilingTab from "@/components/FilingTab";
+import PublicContactModal from "@/components/PublicContactModal";
 import {
-  VA_APPLICANT_TYPE_LABELS,
+  VA_AI_KNOWLEDGE_OPTIONS,
   VA_CLIENT_SECTORS,
-  VA_INDUSTRIES_BY_SECTOR,
+  VA_EXPERIENCE_YEARS,
+  VA_INSURANCE_FORM_OPTIONS,
   VA_INSURANCE_LABELS,
+  VA_SELF_EMPLOYED_FORM_OPTIONS,
   VA_SELF_EMPLOYED_LABELS,
   VA_SPECIALISMS,
-  type VaApplicantType,
+  industriesForSectors,
   type VaClientSector,
   type VaInsuranceStatus,
   type VaSelfEmployedStatus,
@@ -75,53 +78,54 @@ const errorClass =
   "mt-4 rounded-xl border border-pine-900/15 bg-cream px-3.5 py-3 text-sm leading-6 text-pine-900";
 
 const essentials = [
-  "UK-based",
+  "Based in the UK",
   "Able to prove your identity",
   "Set up (or ready to set up) as self-employed with HMRC when required",
-  "Business insurance arranged before client work begins",
-  "Discretion, professionalism and attention to detail",
+  "Business insurance (Professional Indemnity as a minimum) arranged before client work begins",
+  "Reliable computer, stable internet, and a quiet professional workspace",
+  "Discretion, professionalism, attention to detail, and willingness to sign our standard NDA and Data Processing Agreement",
 ];
 
 const whyPartner = [
   "We carefully match freelancers to projects and retainers so the fit is right for you and the organisation.",
-  "We handle coordination, quality review and client communication, so you can focus on delivering excellent work.",
-  "We provide training so you stay current on practical AI and automation skills for admin work.",
-  "Some clients use AI tools; others do not. Either way, you apply the MT1L VAT Framework (Value, Alignment, Trust) so AI is only used where it helps, fits how the organisation works, and can be trusted.",
+  "We provide clear briefs and structured onboarding so you can focus on delivering excellent work.",
+  "You can join free workshops and events on AI and automation skills for admin roles.",
+  "You choose the work that suits your skills and availability, with transparent terms throughout.",
 ];
 
 /** Ordered wizard steps (one focus per screen) */
 const STEPS = [
   "privacy",
-  "path",
   "contact",
   "setup",
+  "equipment",
   "specialisms",
   "sector",
   "industries",
-  "work",
+  "experience",
   "ai",
   "availability",
-  "notes",
+  "contracts",
   "cv",
-  "declaration",
+  "notes",
 ] as const;
 
 type StepId = (typeof STEPS)[number];
 
 const STEP_TITLES: Record<StepId, string> = {
   privacy: "Before you start",
-  path: "About you",
   contact: "Your details",
-  setup: "Self-employment setup",
-  specialisms: "Your specialisms",
-  sector: "Who you want to support",
-  industries: "Industries & domains",
-  work: "Work you specialise in",
-  ai: "AI & automation",
-  availability: "Your availability",
-  notes: "Anything else?",
+  setup: "Self-employment and insurance readiness",
+  equipment: "Equipment and workspace",
+  specialisms: "Specialisms",
+  sector: "Sectors you have worked with",
+  industries: "Industries and domains",
+  experience: "Experience",
+  ai: "AI and automation",
+  availability: "Availability",
+  contracts: "Contracts and professionalism",
   cv: "Your CV",
-  declaration: "Declaration",
+  notes: "Anything else",
 };
 
 /** Chip multi-select — keeps all options visible in the modal (no hidden dropdown). */
@@ -162,30 +166,37 @@ function ChipSelect({
 
 export default function WorkWithVaxaiPage() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const [policiesAccepted, setPoliciesAccepted] = useState(false);
-  const [applicantType, setApplicantType] = useState<VaApplicantType | "">("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
   const [location, setLocation] = useState("");
   const [selfEmployed, setSelfEmployed] = useState<VaSelfEmployedStatus | "">("");
-  const [insurance, setInsurance] = useState<VaInsuranceStatus>("will_arrange");
+  const [insurance, setInsurance] = useState<VaInsuranceStatus | "">("");
   const [canProveIdentity, setCanProveIdentity] = useState(false);
-  const [ukBased, setUkBased] = useState(true);
+  const [ukBased, setUkBased] = useState(false);
+  const [hasComputer, setHasComputer] = useState(false);
+  const [hasInternet, setHasInternet] = useState(false);
+  const [hasQuietSpace, setHasQuietSpace] = useState(false);
   const [specialisms, setSpecialisms] = useState<string[]>([]);
-  const [clientSector, setClientSector] = useState<VaClientSector | "">("");
+  const [clientSectors, setClientSectors] = useState<VaClientSector[]>([]);
   const [industries, setIndustries] = useState<string[]>([]);
-  const [workSpecialisesIn, setWorkSpecialisesIn] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [experienceNote, setExperienceNote] = useState("");
   const [aiKnowledge, setAiKnowledge] = useState("");
   const [availabilityHours, setAvailabilityHours] = useState("");
   const [availabilityNotes, setAvailabilityNotes] = useState("");
+  const [agreeNda, setAgreeNda] = useState(false);
+  const [agreeReferences, setAgreeReferences] = useState(false);
+  const [agreeBackgroundCheck, setAgreeBackgroundCheck] = useState(false);
   const [coverNote, setCoverNote] = useState("");
   const [cvFile, setCvFile] = useState<File | null>(null);
-  const [declarationAccepted, setDeclarationAccepted] = useState(false);
+  const [linkedinUrl, setLinkedinUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -207,10 +218,7 @@ export default function WorkWithVaxaiPage() {
   const step = STEPS[stepIndex];
   const progress = success ? 100 : ((stepIndex + 1) / STEPS.length) * 100;
 
-  const industryOptions = useMemo(() => {
-    if (!clientSector) return [];
-    return [...VA_INDUSTRIES_BY_SECTOR[clientSector]];
-  }, [clientSector]);
+  const industryOptions = useMemo(() => industriesForSectors(clientSectors), [clientSectors]);
 
   function openModal() {
     setModalOpen(true);
@@ -232,26 +240,41 @@ export default function WorkWithVaxaiPage() {
   function resetForm() {
     setStepIndex(0);
     setPoliciesAccepted(false);
-    setApplicantType("");
     setFullName("");
     setEmail("");
     setTelephone("");
     setLocation("");
     setSelfEmployed("");
-    setInsurance("will_arrange");
+    setInsurance("");
     setCanProveIdentity(false);
-    setUkBased(true);
+    setUkBased(false);
+    setHasComputer(false);
+    setHasInternet(false);
+    setHasQuietSpace(false);
     setSpecialisms([]);
-    setClientSector("");
+    setClientSectors([]);
     setIndustries([]);
-    setWorkSpecialisesIn("");
+    setExperienceYears("");
+    setExperienceNote("");
     setAiKnowledge("");
     setAvailabilityHours("");
     setAvailabilityNotes("");
+    setAgreeNda(false);
+    setAgreeReferences(false);
+    setAgreeBackgroundCheck(false);
     setCoverNote("");
     setCvFile(null);
-    setDeclarationAccepted(false);
+    setLinkedinUrl("");
     setError(null);
+  }
+
+  function toggleSector(sector: VaClientSector) {
+    setClientSectors((prev) => {
+      const next = prev.includes(sector) ? prev.filter((s) => s !== sector) : [...prev, sector];
+      const allowed = new Set(industriesForSectors(next));
+      setIndustries((inds) => inds.filter((i) => allowed.has(i)));
+      return next;
+    });
   }
 
   function validateStep(id: StepId): string | null {
@@ -260,46 +283,55 @@ export default function WorkWithVaxaiPage() {
         return policiesAccepted
           ? null
           : "Please confirm you have read and agree to our policies before continuing.";
-      case "path":
-        return applicantType ? null : "Please choose the option that best describes you.";
       case "contact":
         if (!fullName.trim()) return "Please enter your full name.";
         if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email)) {
           return "Please enter a valid email address.";
         }
+        if (!location.trim()) return "Please enter your location (town / region).";
         if (!ukBased) return "We currently only partner with UK-based freelancers.";
         if (!canProveIdentity) {
           return "You must be able to prove your identity to work with client organisations.";
         }
         return null;
       case "setup":
-        return selfEmployed ? null : "Please select your self-employment setup.";
+        if (!selfEmployed) return "Please select your self-employment setup.";
+        if (!insurance) return "Please select your business insurance status.";
+        return null;
+      case "equipment":
+        if (!hasComputer || !hasInternet || !hasQuietSpace) {
+          return "Please confirm you have a reliable computer, stable internet and a quiet workspace.";
+        }
+        return null;
       case "specialisms":
         return specialisms.length ? null : "Please select at least one specialism.";
       case "sector":
-        return clientSector ? null : "Please choose a sector.";
+        return clientSectors.length
+          ? null
+          : "Please select at least one type of organisation you have worked with.";
       case "industries":
-        return industries.length ? null : "Please select at least one industry or domain.";
-      case "work":
-        return workSpecialisesIn.trim()
+        return industries.length
           ? null
-          : "Please tell us about the work you specialise in.";
+          : "Please select at least one industry or domain for the sectors you chose.";
+      case "experience":
+        return experienceYears ? null : "Please select your years of relevant experience.";
       case "ai":
-        return aiKnowledge.trim()
+        return aiKnowledge
           ? null
-          : "Please share your knowledge of AI systems and automations (honesty is fine if you are new to this).";
+          : "Please select your current knowledge of AI tools and automations.";
       case "availability":
-        return availabilityHours.trim() || availabilityNotes.trim()
+        return availabilityHours.trim()
           ? null
-          : "Please tell us about your availability.";
-      case "notes":
+          : "Please tell us your typical hours available per week.";
+      case "contracts":
+        if (!agreeNda || !agreeReferences || !agreeBackgroundCheck) {
+          return "Please confirm all three professionalism statements to continue.";
+        }
         return null;
       case "cv":
         return cvFile ? null : "Please upload your CV as a PDF or Word document.";
-      case "declaration":
-        return declarationAccepted
-          ? null
-          : "Please confirm that the information you have provided is true and accurate.";
+      case "notes":
+        return null;
       default:
         return null;
     }
@@ -321,12 +353,22 @@ export default function WorkWithVaxaiPage() {
   }
 
   async function submitApplication() {
-    const err = validateStep("declaration");
+    const err = validateStep("notes");
     if (err) {
       setError(err);
       return;
     }
-    if (!cvFile || !applicantType || !selfEmployed || !clientSector) {
+    // Re-validate critical prior steps before submit
+    for (const id of STEPS) {
+      if (id === "notes") continue;
+      const stepErr = validateStep(id);
+      if (stepErr) {
+        setError(stepErr);
+        setStepIndex(STEPS.indexOf(id));
+        return;
+      }
+    }
+    if (!cvFile || !selfEmployed || !insurance) {
       setError("Please complete all required steps.");
       return;
     }
@@ -335,7 +377,7 @@ export default function WorkWithVaxaiPage() {
     setError(null);
     try {
       const form = new FormData();
-      form.set("applicant_type", applicantType);
+      form.set("applicant_type", "experienced");
       form.set("full_name", fullName);
       form.set("email", email);
       form.set("telephone", telephone);
@@ -345,14 +387,25 @@ export default function WorkWithVaxaiPage() {
       form.set("has_business_insurance", insurance);
       form.set("can_prove_identity", String(canProveIdentity));
       form.set("specialisms", JSON.stringify(specialisms));
-      form.set("sectors_interests", `${clientSector}: ${industries.join(", ")}`);
-      form.set("client_sector", clientSector);
+      form.set("client_sectors", JSON.stringify(clientSectors));
       form.set("industries", JSON.stringify(industries));
-      form.set("work_specialises_in", workSpecialisesIn);
+      form.set(
+        "sectors_interests",
+        clientSectors.map((s) => `${s}: ${industries.filter((i) => industriesForSectors([s]).includes(i)).join(", ") || industries.join(", ")}`).join(" | "),
+      );
+      form.set("work_specialises_in", experienceNote);
+      form.set("experience_years", experienceYears);
       form.set("ai_knowledge", aiKnowledge);
       form.set("availability_hours_per_week", availabilityHours);
       form.set("availability_notes", availabilityNotes);
       form.set("cover_note", coverNote);
+      form.set("linkedin_url", linkedinUrl);
+      form.set("has_computer", String(hasComputer));
+      form.set("has_internet", String(hasInternet));
+      form.set("has_quiet_space", String(hasQuietSpace));
+      form.set("agree_nda", String(agreeNda));
+      form.set("agree_references", String(agreeReferences));
+      form.set("agree_background_check", String(agreeBackgroundCheck));
       form.set("policies_accepted", "true");
       form.set("declaration_accepted", "true");
       form.set("cv", cvFile);
@@ -385,17 +438,17 @@ export default function WorkWithVaxaiPage() {
         return (
           <div className="space-y-5">
             <p className="text-sm leading-7 text-muted md:text-[15px] md:leading-8">
-              Before you start, please read how we handle the information you submit on this
-              application. By continuing you confirm you understand and agree to the policies linked
-              below.
+              Please read how we handle the information you submit. By continuing you confirm you
+              understand and agree to the policies linked below.
             </p>
             <div className="rounded-2xl border border-ink/10 bg-cream/40 px-5 py-5 text-sm leading-7 text-muted md:px-6 md:py-6 md:text-[15px] md:leading-8">
               <p className="font-semibold text-ink">What we collect</p>
               <p className="mt-3">
                 Your contact details, location, self-employment and insurance readiness, identity
-                confirmation, specialisms, preferred client sectors and industries, availability, CV,
-                and any notes you choose to share. We use this only to review your application, contact
-                you about partnership opportunities, and match you to suitable work with VAxAI.
+                confirmation, equipment and workspace status, specialisms, preferred client types,
+                availability, CV, and any notes you choose to share. We use this only to review your
+                application, contact you about partnership opportunities, and match you to suitable
+                work with VAxAI.
               </p>
               <p className="mt-4">
                 We do not sell your data. You can ask us to access, correct or delete your application
@@ -436,32 +489,10 @@ export default function WorkWithVaxaiPage() {
                 className="mt-1"
               />
               <span>
-                I have read and agree to the Privacy Policy, Terms of Service, AI Use Policy and JEF
-                Policy, and I am happy to proceed with this application.
+                I have read and agree to the Privacy Policy, Terms of Service, AI Use Policy and JEF /
+                EDI Policy, and I am happy to proceed with this application.
               </span>
             </label>
-          </div>
-        );
-
-      case "path":
-        return (
-          <div className="space-y-3">
-            <p className="text-sm leading-7 text-muted">
-              Which best describes you? This helps us support you appropriately.
-            </p>
-            {(Object.keys(VA_APPLICANT_TYPE_LABELS) as VaApplicantType[]).map((key) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => {
-                  setApplicantType(key);
-                  if (key === "early_career" && !selfEmployed) setSelfEmployed("need_setup_help");
-                }}
-                className={choiceCard(applicantType === key)}
-              >
-                {VA_APPLICANT_TYPE_LABELS[key]}
-              </button>
-            ))}
           </div>
         );
 
@@ -508,7 +539,7 @@ export default function WorkWithVaxaiPage() {
             </div>
             <div>
               <label className={labelClass} htmlFor="va-location">
-                Location (town / region)
+                Location (town / region) *
               </label>
               <input
                 id="va-location"
@@ -544,7 +575,7 @@ export default function WorkWithVaxaiPage() {
           <div className="space-y-5">
             <div className="space-y-2">
               <p className={labelClass}>Self-employment setup *</p>
-              {(Object.keys(VA_SELF_EMPLOYED_LABELS) as VaSelfEmployedStatus[]).map((key) => (
+              {VA_SELF_EMPLOYED_FORM_OPTIONS.map((key) => (
                 <button
                   key={key}
                   type="button"
@@ -556,8 +587,8 @@ export default function WorkWithVaxaiPage() {
               ))}
             </div>
             <div className="space-y-2">
-              <p className={labelClass}>Business insurance</p>
-              {(Object.keys(VA_INSURANCE_LABELS) as VaInsuranceStatus[]).map((key) => (
+              <p className={labelClass}>Business insurance (Professional Indemnity as a minimum) *</p>
+              {VA_INSURANCE_FORM_OPTIONS.map((key) => (
                 <button
                   key={key}
                   type="button"
@@ -568,6 +599,42 @@ export default function WorkWithVaxaiPage() {
                 </button>
               ))}
             </div>
+          </div>
+        );
+
+      case "equipment":
+        return (
+          <div className="space-y-3">
+            <p className="text-sm leading-7 text-muted">
+              Confirm you have what you need for professional remote work.
+            </p>
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm text-muted">
+              <input
+                type="checkbox"
+                checked={hasComputer}
+                onChange={(e) => setHasComputer(e.target.checked)}
+                className="mt-1"
+              />
+              I have a reliable computer/laptop suitable for professional work *
+            </label>
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm text-muted">
+              <input
+                type="checkbox"
+                checked={hasInternet}
+                onChange={(e) => setHasInternet(e.target.checked)}
+                className="mt-1"
+              />
+              I have a stable, high-speed internet connection *
+            </label>
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm text-muted">
+              <input
+                type="checkbox"
+                checked={hasQuietSpace}
+                onChange={(e) => setHasQuietSpace(e.target.checked)}
+                className="mt-1"
+              />
+              I have a quiet space where I can work without major interruptions *
+            </label>
           </div>
         );
 
@@ -585,17 +652,15 @@ export default function WorkWithVaxaiPage() {
         return (
           <div className="space-y-3">
             <p className="text-sm leading-7 text-muted">
-              Which type of organisation are you most interested in supporting?
+              Which types of organisation have you worked with? Select all that apply. On the next
+              step you can choose industries within the sectors you select.
             </p>
             {VA_CLIENT_SECTORS.map((sector) => (
               <button
                 key={sector}
                 type="button"
-                onClick={() => {
-                  setClientSector(sector);
-                  setIndustries([]);
-                }}
-                className={choiceCard(clientSector === sector)}
+                onClick={() => toggleSector(sector)}
+                className={choiceCard(clientSectors.includes(sector))}
               >
                 {sector}
               </button>
@@ -607,47 +672,66 @@ export default function WorkWithVaxaiPage() {
         return (
           <div className="space-y-3">
             <p className="text-sm leading-7 text-muted">
-              {clientSector
-                ? `Select the industries or domains within ${clientSector.toLowerCase()} that interest you.`
-                : "Select a sector first."}
+              {clientSectors.length
+                ? `Select the industries or domains within ${clientSectors.join(", ").toLowerCase()} that you have worked with.`
+                : "Select at least one sector first."}
             </p>
-            {clientSector ? (
+            {clientSectors.length ? (
               <ChipSelect values={industries} onChange={setIndustries} options={industryOptions} />
             ) : null}
           </div>
         );
 
-      case "work":
+      case "experience":
         return (
-          <div>
-            <label className={labelClass} htmlFor="va-work">
-              Work you specialise in *
-            </label>
-            <textarea
-              id="va-work"
-              rows={6}
-              className={inputClass}
-              value={workSpecialisesIn}
-              onChange={(e) => setWorkSpecialisesIn(e.target.value)}
-              placeholder="Describe the kinds of admin or support work you do best."
-            />
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <p className={labelClass}>
+                Roughly how many years of relevant admin / PA / support experience do you have? *
+              </p>
+              {VA_EXPERIENCE_YEARS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setExperienceYears(opt)}
+                  className={choiceCard(experienceYears === opt)}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="va-experience-note">
+                Optional: Brief note on your most relevant recent experience (2–3 sentences)
+              </label>
+              <textarea
+                id="va-experience-note"
+                rows={4}
+                className={inputClass}
+                value={experienceNote}
+                onChange={(e) => setExperienceNote(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
           </div>
         );
 
       case "ai":
         return (
-          <div>
-            <label className={labelClass} htmlFor="va-ai">
-              Your knowledge of AI systems and automations *
-            </label>
-            <textarea
-              id="va-ai"
-              rows={6}
-              className={inputClass}
-              value={aiKnowledge}
-              onChange={(e) => setAiKnowledge(e.target.value)}
-              placeholder="Tools you have used, comfort level, or interest in learning."
-            />
+          <div className="space-y-2">
+            <p className={labelClass}>
+              Your current knowledge of AI tools and automations for admin work *
+            </p>
+            {VA_AI_KNOWLEDGE_OPTIONS.map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setAiKnowledge(opt)}
+                className={choiceCard(aiKnowledge === opt)}
+              >
+                {opt}
+              </button>
+            ))}
           </div>
         );
 
@@ -668,14 +752,89 @@ export default function WorkWithVaxaiPage() {
             </div>
             <div>
               <label className={labelClass} htmlFor="va-avail-notes">
-                Availability notes
+                Preferred working days / times (optional notes)
               </label>
               <input
                 id="va-avail-notes"
                 className={inputClass}
                 value={availabilityNotes}
                 onChange={(e) => setAvailabilityNotes(e.target.value)}
-                placeholder="e.g. evenings, term-time only"
+                placeholder="e.g. mornings, term-time only"
+              />
+            </div>
+          </div>
+        );
+
+      case "contracts":
+        return (
+          <div className="space-y-3">
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm leading-6 text-muted">
+              <input
+                type="checkbox"
+                checked={agreeNda}
+                onChange={(e) => setAgreeNda(e.target.checked)}
+                className="mt-1"
+              />
+              I understand that successful applicants will be asked to sign a Non-Disclosure Agreement
+              and Data Processing Agreement before any client work begins *
+            </label>
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm leading-6 text-muted">
+              <input
+                type="checkbox"
+                checked={agreeReferences}
+                onChange={(e) => setAgreeReferences(e.target.checked)}
+                className="mt-1"
+              />
+              I am willing to provide professional references if requested *
+            </label>
+            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm leading-6 text-muted">
+              <input
+                type="checkbox"
+                checked={agreeBackgroundCheck}
+                onChange={(e) => setAgreeBackgroundCheck(e.target.checked)}
+                className="mt-1"
+              />
+              I am willing to complete a basic background check if required for certain client work *
+            </label>
+          </div>
+        );
+
+      case "cv":
+        return (
+          <div className="space-y-5">
+            <div>
+              <label className={labelClass} htmlFor="va-cv">
+                Upload your CV *
+              </label>
+              <label
+                htmlFor="va-cv"
+                className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-ink/20 bg-cream/40 px-6 py-10 text-center transition-colors hover:border-pine-800/40"
+              >
+                <FileUp className="h-6 w-6 text-pine-800" />
+                <span className="text-sm font-semibold text-ink">
+                  {cvFile ? cvFile.name : "Click to upload your CV"}
+                </span>
+                <span className="text-xs text-muted">PDF, DOC or DOCX · max 8MB</span>
+                <input
+                  id="va-cv"
+                  type="file"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="sr-only"
+                  onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
+                />
+              </label>
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="va-linkedin">
+                Optional: Link to LinkedIn or portfolio
+              </label>
+              <input
+                id="va-linkedin"
+                type="url"
+                className={inputClass}
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
+                placeholder="https://"
               />
             </div>
           </div>
@@ -685,7 +844,7 @@ export default function WorkWithVaxaiPage() {
         return (
           <div>
             <label className={labelClass} htmlFor="va-notes">
-              Anything else you would like us to know?
+              Is there anything else you would like us to know? (optional)
             </label>
             <textarea
               id="va-notes"
@@ -695,73 +854,6 @@ export default function WorkWithVaxaiPage() {
               onChange={(e) => setCoverNote(e.target.value)}
               placeholder="Optional"
             />
-          </div>
-        );
-
-      case "cv":
-        return (
-          <div>
-            <label className={labelClass} htmlFor="va-cv">
-              Upload your CV (PDF or Word) *
-            </label>
-            <label
-              htmlFor="va-cv"
-              className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-ink/20 bg-cream/40 px-6 py-10 text-center transition-colors hover:border-pine-800/40"
-            >
-              <FileUp className="h-6 w-6 text-pine-800" />
-              <span className="text-sm font-semibold text-ink">
-                {cvFile ? cvFile.name : "Click to upload your CV"}
-              </span>
-              <span className="text-xs text-muted">PDF, DOC or DOCX · max 8MB</span>
-              <input
-                id="va-cv"
-                type="file"
-                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                className="sr-only"
-                onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
-              />
-            </label>
-          </div>
-        );
-
-      case "declaration":
-        return (
-          <div className="space-y-4">
-            <p className="text-sm leading-7 text-muted">
-              Please review and confirm before submitting. We will only use this information to assess
-              your application and contact you about freelance opportunities with VAxAI.
-            </p>
-            <div className="rounded-2xl border border-ink/10 bg-cream/40 px-4 py-4 text-sm leading-6 text-muted">
-              <p>
-                <span className="font-semibold text-ink">Name:</span> {fullName || "—"}
-              </p>
-              <p className="mt-1">
-                <span className="font-semibold text-ink">Email:</span> {email || "—"}
-              </p>
-              <p className="mt-1">
-                <span className="font-semibold text-ink">Path:</span>{" "}
-                {applicantType ? VA_APPLICANT_TYPE_LABELS[applicantType] : "—"}
-              </p>
-              <p className="mt-1">
-                <span className="font-semibold text-ink">Sector focus:</span>{" "}
-                {clientSector ? `${clientSector} (${industries.join(", ") || "—"})` : "—"}
-              </p>
-              <p className="mt-1">
-                <span className="font-semibold text-ink">CV:</span> {cvFile?.name || "—"}
-              </p>
-            </div>
-            <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-3 text-sm text-muted">
-              <input
-                type="checkbox"
-                checked={declarationAccepted}
-                onChange={(e) => setDeclarationAccepted(e.target.checked)}
-                className="mt-1"
-              />
-              <span>
-                I declare that the information I have provided in this application is true and accurate
-                to the best of my knowledge.
-              </span>
-            </label>
           </div>
         );
 
@@ -831,8 +923,8 @@ export default function WorkWithVaxaiPage() {
                     Application received
                   </h3>
                   <p className="mt-3 max-w-md text-sm leading-7 text-muted sm:text-base sm:leading-8">
-                    Thank you for applying to partner with VAxAI. We will review your application and
-                    get in touch if there is a good fit.
+                    Thank you for applying to partner with VAxAI. We will review fit, specialisms,
+                    setup readiness and availability, and get in touch if there is a good match.
                   </p>
                   <button type="button" onClick={closeModal} className={`${btn.primary} mt-8`}>
                     Close
@@ -857,7 +949,7 @@ export default function WorkWithVaxaiPage() {
                       <ArrowLeft className="h-4 w-4" />
                       Back
                     </button>
-                    {step === "declaration" ? (
+                    {step === "notes" ? (
                       <button
                         type="button"
                         onClick={() => void submitApplication()}
@@ -899,7 +991,7 @@ export default function WorkWithVaxaiPage() {
         </header>
 
         <main className="overflow-x-hidden">
-          {/* Hero — stacked on mobile, image constrained and readable */}
+          {/* Hero */}
           <section className="bg-pine-900 px-4 py-12 text-paper sm:py-16 md:px-8 md:py-24">
             <div className="mx-auto grid max-w-6xl items-center gap-10 md:gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
               <motion.div initial="hidden" animate="show" variants={fadeUp} className="order-1">
@@ -908,13 +1000,12 @@ export default function WorkWithVaxaiPage() {
                   Become a VAxAI freelancer
                 </h1>
                 <p className="mt-6 max-w-2xl text-base leading-8 text-paper/70 sm:mt-8 md:text-lg">
-                  We are looking for talented UK-based freelance virtual assistants to help organisations
-                  clear admin backlogs, prepare for AI and automation where it adds value, keep ongoing
-                  admin systems running, and monitor work so problems do not return.
+                  We work with skilled UK-based freelance virtual assistants who help organisations
+                  clear admin backlogs, prepare for practical AI and automation, keep systems running
+                  smoothly, and prevent problems from returning.
                 </p>
                 <p className="mt-4 max-w-2xl text-base leading-8 text-paper/70 md:text-lg">
-                  Our freelancers support project-based work (backlog clearing and AI preparation) as well
-                  as monthly retainer services (ongoing admin and maintenance of AI and automation outputs).
+                  Our freelancers deliver both project-based work and monthly retainers.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3 sm:mt-10">
                   <button type="button" onClick={openModal} className={btn.accent}>
@@ -954,20 +1045,19 @@ export default function WorkWithVaxaiPage() {
               <Reveal>
                 <Eyebrow>Who we partner with</Eyebrow>
                 <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Essentials first. Experience can grow with the work.
+                  Experienced freelancers, flexible quality support
                 </h2>
                 <p className="mt-6 max-w-2xl text-base leading-8 text-muted md:text-lg">
-                  We actively welcome experienced professionals and motivated people early in their careers
-                  who want to build meaningful freelance work. If you are not fully set up yet, you can still
-                  apply. We can help you understand the process of freelancing and getting ready for client
-                  work.
+                  We work with experienced UK-based freelance virtual assistants who want to deliver
+                  high-quality admin support on a flexible basis.
                 </p>
               </Reveal>
 
               <Reveal className="mt-10 max-w-2xl rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                  Essential for this work
+                  Essential requirements
                 </p>
+                <p className="mt-2 text-sm text-muted">These are non-negotiable for client work:</p>
                 <ul className="mt-5 space-y-3">
                   {essentials.map((item) => (
                     <li key={item} className="flex gap-3 text-sm leading-7 text-muted md:text-[15px]">
@@ -991,9 +1081,7 @@ export default function WorkWithVaxaiPage() {
                   Useful strengths, not hard gates
                 </h2>
                 <p className="mt-6 max-w-2xl text-base leading-8 text-muted md:text-lg">
-                  These map to the work we actually deliver for founders, SMEs, charities and public sector
-                  organisations. You do not need every skill on the list. Treat them as a guide, and apply if
-                  you can contribute. Some people join to deepen skills through real projects.
+                  Apply if you can contribute in one or more areas:
                 </p>
               </Reveal>
               <div className="mt-8 flex flex-wrap gap-2">
@@ -1006,13 +1094,10 @@ export default function WorkWithVaxaiPage() {
                   </span>
                 ))}
               </div>
-              <p className="mt-8 max-w-2xl text-sm leading-7 text-muted">
-                Discretion, professionalism and careful attention to detail matter on every engagement.
-              </p>
             </div>
           </section>
 
-          {/* Why partner — includes training / VAT framing (no separate AI perk section) */}
+          {/* Why partner */}
           <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
             <div className="mx-auto max-w-6xl">
               <Reveal>
@@ -1037,7 +1122,36 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* Apply CTA — more visible card */}
+          {/* Supporting early careers — new section */}
+          <section id="early-careers" className="scroll-mt-24 bg-cream/50 px-4 py-16 md:px-8 md:py-20">
+            <div className="mx-auto max-w-6xl">
+              <Reveal className="max-w-3xl">
+                <Eyebrow>Supporting early careers</Eyebrow>
+                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                  Pathways into freelance admin work
+                </h2>
+                <p className="mt-6 text-base leading-8 text-muted md:text-lg">
+                  AI and automation are reshaping many traditional entry-level and admin roles, reducing
+                  some of the opportunities that young people have historically used to start their
+                  careers. If you are interested in a career in freelance administrative work, get in
+                  touch or sign up to our newsletter. Stay up to date with VAxAI insights on admin, AI
+                  and automation, and be the first to know about opportunities for early-career
+                  professionals as they arise.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <button type="button" onClick={() => setContactOpen(true)} className={btn.primary}>
+                    Get in touch
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <a href="#site-newsletter" className={btn.ghost}>
+                    Sign up to our newsletter
+                  </a>
+                </div>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* Apply CTA */}
           <section id="apply" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
             <div className="mx-auto max-w-6xl">
               <Reveal className="overflow-hidden rounded-[28px] border border-ink/8 bg-white shadow-lift md:grid md:grid-cols-[1.15fr_0.85fr]">
@@ -1047,8 +1161,8 @@ export default function WorkWithVaxaiPage() {
                     Ready to partner with us?
                   </h2>
                   <p className="mt-5 max-w-xl text-base leading-8 text-muted">
-                    Start your application when you are ready. We take you through one step at a time —
-                    privacy, experience, specialisms, availability and CV — so nothing gets missed.
+                    Start your application when ready. We guide you step by step through privacy,
+                    experience, specialisms, setup readiness, availability and CV.
                   </p>
                   <button type="button" onClick={openModal} className={`${btn.primary} mt-8`}>
                     Start your application
@@ -1059,21 +1173,24 @@ export default function WorkWithVaxaiPage() {
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-acid">
                     What happens next
                   </p>
-                  <ul className="mt-5 space-y-3 text-sm leading-6 text-paper/75">
+                  <ol className="mt-5 list-decimal space-y-3 pl-5 text-sm leading-6 text-paper/75">
                     <li>Submit your application and CV</li>
-                    <li>We review fit, specialisms and availability</li>
-                    <li>We get in touch if there is a good match</li>
-                  </ul>
+                    <li>We review fit, specialisms, setup readiness and availability</li>
+                    <li>We contact you if there is a good match and invite you to the next stage</li>
+                  </ol>
                 </div>
               </Reveal>
             </div>
           </section>
         </main>
 
-        <SiteFooter />
+        <div id="site-newsletter">
+          <SiteFooter />
+        </div>
         <SimplifiedModeToggle />
       </div>
       {modal}
+      <PublicContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
     </>
   );
 }

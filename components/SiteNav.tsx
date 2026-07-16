@@ -94,7 +94,7 @@ export default function SiteNav({ variant = "dark" }: Props) {
         </div>
         <a href="/how-we-help" className={linkClass}>How we help</a>
         <a href="/about" className={linkClass}>About</a>
-        <a href="/work-with-vaxai" className={linkClass}>Work with VAxAI</a>
+        <a href="/work-with-vaxai" className={linkClass}>Join VAxAI VA network</a>
         <a href="/#faq" className={linkClass}>FAQ</a>
         <a href="/insights" className={`${isDark ? "text-[#D8FC2E]/80 hover:text-[#D8FC2E]" : "text-[#122428] hover:text-[#122428]/80"} font-semibold`}>
           Insights & Resources
@@ -138,7 +138,7 @@ export default function SiteNav({ variant = "dark" }: Props) {
           {[
             { label: "How we help", href: "/how-we-help" },
             { label: "About", href: "/about" },
-            { label: "Work with VAxAI", href: "/work-with-vaxai" },
+            { label: "Join VAxAI VA network", href: "/work-with-vaxai" },
             { label: "FAQ", href: "/#faq" },
             { label: "Insights & Resources", href: "/insights" },
           ].map(({ label, href }) => (

@@ -22,14 +22,33 @@ export const VA_SELF_EMPLOYED_LABELS: Record<VaSelfEmployedStatus, string> = {
   need_setup_help: "I am new to this and would like help understanding the process",
 };
 
+/** Shown on the public application form (subset of statuses). */
+export const VA_SELF_EMPLOYED_FORM_OPTIONS: VaSelfEmployedStatus[] = [
+  "registered_hmrc",
+  "will_register",
+];
+
 export const VA_INSURANCE_STATUSES = ["yes", "no", "will_arrange"] as const;
 export type VaInsuranceStatus = (typeof VA_INSURANCE_STATUSES)[number];
 
 export const VA_INSURANCE_LABELS: Record<VaInsuranceStatus, string> = {
-  yes: "Yes, I have business insurance",
+  yes: "Yes, I already have business insurance",
   no: "Not yet",
-  will_arrange: "I will arrange insurance before client work starts",
+  will_arrange: "I will arrange it before any client work starts",
 };
+
+/** Shown on the public application form (subset of statuses). */
+export const VA_INSURANCE_FORM_OPTIONS: VaInsuranceStatus[] = ["yes", "will_arrange"];
+
+export const VA_EXPERIENCE_YEARS = ["1–3 years", "3–5 years", "5+ years"] as const;
+export type VaExperienceYears = (typeof VA_EXPERIENCE_YEARS)[number];
+
+export const VA_AI_KNOWLEDGE_OPTIONS = [
+  "Limited / learning",
+  "Some practical experience",
+  "Confident using and reviewing AI-assisted work",
+] as const;
+export type VaAiKnowledgeOption = (typeof VA_AI_KNOWLEDGE_OPTIONS)[number];
 
 /**
  * Pipeline statuses.
@@ -83,91 +102,115 @@ export const VA_APPROVED_STATUSES: VaApplicationStatus[] = ["approved", "joined"
  */
 export const VA_SPECIALISMS = [
   "Administrative support",
-  "Document organisation & backlog clearing",
-  "Data entry & data hygiene",
+  "Document organisation and backlog clearing",
+  "Data entry and data hygiene",
   "Email management",
-  "Calendar & diary management",
-  "Executive / founder support",
+  "Calendar and diary management",
+  "Executive and founder support",
   "Research",
-  "Customer service & enquiries",
-  "CRM & records management",
+  "Customer service and enquiries",
+  "CRM and records management",
   "Process documentation",
   "Project coordination",
-  "Sales & pipeline admin",
+  "Sales and pipeline admin",
   "Social media admin",
-  "E-commerce / Shopify admin",
+  "E-commerce and Shopify admin",
   "HR admin",
-  "IT & systems admin (light)",
-  "Charity & funder admin",
-  "Public sector records & correspondence",
+  "IT and systems admin (light)",
+  "Charity and funder admin",
+  "Public sector records and correspondence",
   "Support for neurodivergent professionals",
   "Human review of AI-assisted work",
 ] as const;
 
-/** Top-level client contexts applicants prefer to support */
+/** Organisation types applicants have worked with / want to support */
 export const VA_CLIENT_SECTORS = [
-  "Founders & entrepreneurs",
+  "Founders and entrepreneurs",
+  "Private sector SMEs",
+  "Charities / non-profits",
   "Public sector",
-  "Private sector",
 ] as const;
 export type VaClientSector = (typeof VA_CLIENT_SECTORS)[number];
 
-/** UK industries / domains shown after the applicant picks a client sector */
+/** Industries / domains shown after the applicant picks client sector(s) */
 export const VA_INDUSTRIES_BY_SECTOR: Record<VaClientSector, readonly string[]> = {
-  "Founders & entrepreneurs": [
-    "Technology & software",
-    "Professional & business services",
-    "Creative & media",
-    "E-commerce & retail",
-    "Health & wellbeing",
-    "Education & training",
-    "Food & hospitality",
-    "Finance & fintech",
-    "Property & real estate",
-    "Marketing & communications",
-    "Sustainability & environment",
+  "Founders and entrepreneurs": [
+    "Technology and software",
+    "Professional and business services",
+    "Creative and media",
+    "E-commerce and retail",
+    "Health and wellbeing",
+    "Education and training",
+    "Food and hospitality",
+    "Finance and fintech",
+    "Property and real estate",
+    "Marketing and communications",
+    "Sustainability and environment",
     "Consumer products",
     "Other / multi-sector",
+  ],
+  "Private sector SMEs": [
+    "Agriculture, forestry and fishing",
+    "Manufacturing",
+    "Energy and utilities",
+    "Construction and trades",
+    "Wholesale and retail trade",
+    "Transportation and storage",
+    "Accommodation and food services",
+    "Information and communication",
+    "Financial and insurance services",
+    "Real estate",
+    "Professional, scientific and technical",
+    "Administrative and support services",
+    "Education (private / independent)",
+    "Human health and social work",
+    "Arts, entertainment and recreation",
+    "Other service activities",
+  ],
+  "Charities / non-profits": [
+    "Grant-funded charities",
+    "Social enterprises and CICs",
+    "Membership and associations",
+    "Faith and community organisations",
+    "Health and wellbeing non-profits",
+    "Education and youth",
+    "Housing and homelessness",
+    "Environment and sustainability",
+    "Arts and culture",
+    "International development",
+    "Other charity / non-profit",
   ],
   "Public sector": [
     "Central government",
     "Local government",
-    "NHS & healthcare",
+    "NHS and healthcare",
     "Education (state / public)",
-    "Policing & criminal justice",
-    "Defence & security",
+    "Policing and criminal justice",
+    "Defence and security",
     "Emergency services",
     "Social care",
-    "Housing & social housing",
-    "Transport & infrastructure",
-    "Regulatory bodies & agencies",
+    "Housing and social housing",
+    "Transport and infrastructure",
+    "Regulatory bodies and agencies",
     "Devolved administrations",
     "Arms-length bodies",
     "Public corporations",
     "Other public services",
   ],
-  "Private sector": [
-    "Agriculture, forestry & fishing",
-    "Mining & quarrying",
-    "Manufacturing",
-    "Energy & utilities",
-    "Water, sewerage & waste",
-    "Construction",
-    "Wholesale & retail trade",
-    "Transportation & storage",
-    "Accommodation & food services",
-    "Information & communication",
-    "Financial & insurance services",
-    "Real estate",
-    "Professional, scientific & technical",
-    "Administrative & support services",
-    "Education (private / independent)",
-    "Human health & social work",
-    "Arts, entertainment & recreation",
-    "Charities & non-profits",
-    "Other service activities",
-  ],
 };
+
+/** Union of industry options for one or more selected client sectors */
+export function industriesForSectors(sectors: readonly string[]): string[] {
+  const allowed = new Set<string>();
+  for (const sector of sectors) {
+    if ((VA_CLIENT_SECTORS as readonly string[]).includes(sector)) {
+      for (const item of VA_INDUSTRIES_BY_SECTOR[sector as VaClientSector]) {
+        allowed.add(item);
+      }
+    }
+  }
+  return [...allowed];
+}
 
 export type VaApplication = {
   id: string;
