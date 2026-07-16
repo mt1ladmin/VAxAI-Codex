@@ -237,10 +237,10 @@ export const CONTENT_TOPICS: ContentTopic[] = [
   },
   // Mindset
   {
-    id: "vat-framework-plain",
+    id: "vta-framework-plain",
     category: "mindset",
     title: "Value, Trust, Alignment — in plain English",
-    angle: "How we judge whether AI or a process change should be used.",
+    angle: "How we judge whether AI or a process change should be used (VTA Framework).",
     formats: ["blog", "linkedin"],
   },
   {

@@ -25,6 +25,9 @@ VAxAI helps organisations build and maintain the strong operational foundations 
 
 The journey is Prepare, then Support, then Maintain. VAxAI does not build or sell AI, and is neither a traditional VA agency nor an anti-AI voice. Technology is part of the solution, never the starting point.
 
+NAMING
+MT1L's decision framework is the VTA Framework (Value, Trust, Alignment) — always in that order. Never write "VAT Framework" or "Value, Alignment and Trust" for the framework. UK tax VAT is unrelated and must not be confused with VTA.
+
 THE STORY EVERY PIECE SERVES
 Strong administrative foundations first. AI and automation second. Administration does not fix itself, and backlogs build gradually as organisations grow. Many organisations attempt AI before preparing their operations, but AI depends on organised information, clean data and documented processes. Preparing those foundations is practical human work most teams have no capacity for, and even after adoption people remain essential for judgement, oversight, quality and exceptions. Routine operational admin quietly consumes senior people's time; the answer is people, good processes and carefully introduced technology working together.
 
