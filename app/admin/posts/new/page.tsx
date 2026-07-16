@@ -9,6 +9,7 @@ import {
   Check,
   ChevronDown,
   Copy,
+  ExternalLink,
   Instagram,
   Plus,
   X,
@@ -23,6 +24,84 @@ const PRESET_TYPES = ["Insight", "Research", "Article", "Guide", "Case Study", "
 
 function slugify(text: string) {
   return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
+}
+
+function PublishedSuccessModal({
+  postUrl,
+  postTitle,
+  onClose,
+}: {
+  postUrl: string;
+  postTitle?: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+            <Check className="h-5 w-5" strokeWidth={2.5} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-semibold text-[#111111]">Post published</h3>
+            <p className="mt-1 text-sm leading-6 text-[#5F686A]">
+              This post has been published and is now live on the site.
+              {postTitle ? (
+                <>
+                  {" "}
+                  <span className="font-medium text-[#111111]">{postTitle}</span>
+                </>
+              ) : null}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {postUrl ? (
+          <a
+            href={postUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-pine-50/60 px-4 py-3 text-sm font-semibold text-[#122428] transition-colors hover:border-[#122428]/25 hover:bg-pine-50"
+          >
+            <ExternalLink className="h-4 w-4 shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block">View post on the site</span>
+              <span className="mt-0.5 block truncate text-xs font-normal text-[#5F686A]">{postUrl}</span>
+            </span>
+          </a>
+        ) : null}
+
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-[#111111]/15 px-4 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50"
+          >
+            Close
+          </button>
+          {postUrl ? (
+            <a
+              href={postUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            >
+              <ExternalLink className="h-4 w-4" />
+              View post
+            </a>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function NewPostPage() {
@@ -43,6 +122,7 @@ export default function NewPostPage() {
   const [saving, setSaving] = useState(false);
   const [published, setPublished] = useState(false);
   const [postUrl, setPostUrl] = useState("");
+  const [showPublishedSuccess, setShowPublishedSuccess] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [publishMode, setPublishMode] = useState<"now" | "schedule">("now");
   const [sharingCaption, setSharingCaption] = useState("");
@@ -82,8 +162,10 @@ export default function NewPostPage() {
     setSaving(false);
     if (json.data) {
       if (status === "published") {
+        const liveUrl = `${window.location.origin}/posts/${json.data.slug}`;
         setPublished(true);
-        setPostUrl(`${window.location.origin}/posts/${json.data.slug}`);
+        setPostUrl(liveUrl);
+        setShowPublishedSuccess(true);
       } else {
         router.push(`/admin/posts/${json.data.id}`);
       }
@@ -102,6 +184,14 @@ export default function NewPostPage() {
 
   return (
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col md:h-full md:min-h-0">
+      {showPublishedSuccess && (
+        <PublishedSuccessModal
+          postUrl={postUrl}
+          postTitle={title || undefined}
+          onClose={() => setShowPublishedSuccess(false)}
+        />
+      )}
+
       {/* Top bar */}
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-pine-900/10 bg-white px-3 py-3 sm:gap-3 sm:px-4">
         <Link href="/admin/posts" className="grid h-10 w-10 place-items-center rounded-xl text-muted hover:bg-pine-50" title="Back to posts">
@@ -159,9 +249,22 @@ export default function NewPostPage() {
 
             {published ? (
               <div className="flex-1 overflow-y-auto p-5">
-                <div className="mb-4 flex items-center gap-2 rounded-md bg-[#E3ECEE] p-3">
-                  <Check className="h-4 w-4 text-[#122428]" />
-                  <p className="text-sm font-semibold text-[#122428]">Published!</p>
+                <div className="mb-4 rounded-md bg-[#E3ECEE] p-3">
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-[#122428]" />
+                    <p className="text-sm font-semibold text-[#122428]">Published!</p>
+                  </div>
+                  {postUrl ? (
+                    <a
+                      href={postUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[#122428] underline underline-offset-2 hover:opacity-80"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      View post on the site
+                    </a>
+                  ) : null}
                 </div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share</p>
                 <div className="space-y-2">

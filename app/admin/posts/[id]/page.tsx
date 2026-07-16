@@ -9,6 +9,7 @@ import {
   Check,
   ChevronDown,
   Copy,
+  ExternalLink,
   Instagram,
   Linkedin,
   Loader2,
@@ -243,6 +244,90 @@ function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; on
   );
 }
 
+function PublishedSuccessModal({
+  postUrl,
+  postTitle,
+  wasUpdate,
+  onClose,
+}: {
+  postUrl: string;
+  postTitle?: string;
+  wasUpdate?: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[95] flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600">
+            <Check className="h-5 w-5" strokeWidth={2.5} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-semibold text-[#111111]">
+              {wasUpdate ? "Post updated" : "Post published"}
+            </h3>
+            <p className="mt-1 text-sm leading-6 text-[#5F686A]">
+              {wasUpdate
+                ? "Your changes are live on the site."
+                : "This post has been published and is now live on the site."}
+              {postTitle ? (
+                <>
+                  {" "}
+                  <span className="font-medium text-[#111111]">{postTitle}</span>
+                </>
+              ) : null}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {postUrl ? (
+          <a
+            href={postUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 flex items-center gap-3 rounded-xl border border-[#111111]/10 bg-pine-50/60 px-4 py-3 text-sm font-semibold text-[#122428] transition-colors hover:border-[#122428]/25 hover:bg-pine-50"
+          >
+            <ExternalLink className="h-4 w-4 shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block">View post on the site</span>
+              <span className="mt-0.5 block truncate text-xs font-normal text-[#5F686A]">{postUrl}</span>
+            </span>
+          </a>
+        ) : null}
+
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-[#111111]/15 px-4 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50"
+          >
+            Close
+          </button>
+          {postUrl ? (
+            <a
+              href={postUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            >
+              <ExternalLink className="h-4 w-4" />
+              View post
+            </a>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function EditPostPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -287,6 +372,8 @@ export default function EditPostPage() {
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showConnectedPosts, setShowConnectedPosts] = useState(false);
+  const [showPublishedSuccess, setShowPublishedSuccess] = useState(false);
+  const [publishedSuccessWasUpdate, setPublishedSuccessWasUpdate] = useState(false);
 
   // Auto-save
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -486,15 +573,17 @@ export default function EditPostPage() {
     }
     setSaving(false);
     if (status === "published") {
+      const liveSlug = slug || slugify(title || "untitled");
+      const liveUrl = `${window.location.origin}/posts/${liveSlug}`;
       setIsPublished(true);
-      setPostUrl(`${window.location.origin}/posts/${slug}`);
+      setPostUrl(liveUrl);
       setPanelOpen(true);
-      // Always show the confirmation toast immediately
-      showToast(wasAlreadyPublished ? "Post updated" : "Post published");
-      // Show social preview popup if social content exists (non-blocking)
-      if (socialDraft?.linkedin_post || socialDraft?.instagram_caption || socialDraft?.facebook_post) {
-        setShowSocialPreview(true);
-      }
+      setPublishedSuccessWasUpdate(wasAlreadyPublished);
+      setShowPublishedSuccess(true);
+      showToast(
+        wasAlreadyPublished ? "Post updated" : "Post published",
+        { label: "View post →", href: liveUrl },
+      );
     } else if (status === "draft" && isPublished) {
       setIsPublished(false);
       showToast("Moved to draft");
@@ -533,6 +622,24 @@ export default function EditPostPage() {
   return (
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col md:h-full md:min-h-0">
       <Toast message={toastMsg} visible={toastVisible} action={toastAction} isError={toastIsError} />
+
+      {showPublishedSuccess && (
+        <PublishedSuccessModal
+          postUrl={postUrl}
+          postTitle={title || undefined}
+          wasUpdate={publishedSuccessWasUpdate}
+          onClose={() => {
+            setShowPublishedSuccess(false);
+            // After first publish, offer social copy if any was generated
+            if (
+              !publishedSuccessWasUpdate &&
+              (socialDraft?.linkedin_post || socialDraft?.instagram_caption || socialDraft?.facebook_post)
+            ) {
+              setShowSocialPreview(true);
+            }
+          }}
+        />
+      )}
 
       {showSocialPreview && socialDraft && (
         <SocialPreviewModal
