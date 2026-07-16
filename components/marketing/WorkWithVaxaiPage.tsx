@@ -26,8 +26,6 @@ import {
 } from "@/lib/va-applications/constants";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const HERO_IMAGE = "/image.jpg";
-
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 26 },
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
@@ -83,7 +81,6 @@ const errorClass =
 
 const essentials = [
   "Based in the UK",
-  "Able to prove your identity",
   "Set up (or ready to set up) as self-employed with HMRC when required",
   "Business insurance (Professional Indemnity as a minimum) arranged before client work begins",
   "Reliable computer, stable internet, and a quiet professional workspace",
@@ -1023,32 +1020,13 @@ export default function WorkWithVaxaiPage() {
               </motion.div>
 
               <motion.div
+                id="who"
                 initial={{ opacity: 0, y: 26 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
-                className="relative order-2 mx-auto w-full max-w-md sm:max-w-lg lg:max-w-none"
+                className="relative order-2 mx-auto w-full max-w-md scroll-mt-24 sm:max-w-lg lg:max-w-none"
               >
-                <div
-                  className="simplified-hide absolute -inset-2 rotate-1 rounded-[28px] border border-white/10 bg-white/[0.04] sm:-inset-3 sm:rotate-2 sm:rounded-[36px]"
-                  aria-hidden="true"
-                />
-                <div className="relative aspect-[16/11] overflow-hidden rounded-[22px] ring-1 ring-white/15 sm:aspect-[4/3] sm:rounded-[28px] lg:aspect-[0.92]">
-                  <img
-                    src={HERO_IMAGE}
-                    alt="Freelance professionals collaborating remotely"
-                    className="simplified-photo h-full w-full object-cover object-center"
-                  />
-                </div>
-              </motion.div>
-            </div>
-          </section>
-
-          {/* Who we partner with + Supporting early careers — side by side */}
-          <section id="who" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:gap-12 md:items-start">
-              <Reveal>
-                <Eyebrow>Who we partner with</Eyebrow>
-                <div className="mt-6 rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
+                <div className="rounded-[28px] border border-ink/5 bg-white p-7 text-ink shadow-card md:p-8">
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
                     Essential requirements
                   </p>
@@ -1064,9 +1042,14 @@ export default function WorkWithVaxaiPage() {
                     ))}
                   </ul>
                 </div>
-              </Reveal>
+              </motion.div>
+            </div>
+          </section>
 
-              <Reveal id="early-careers" className="scroll-mt-24">
+          {/* Supporting early careers */}
+          <section id="early-careers" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <Reveal className="max-w-3xl">
                 <Eyebrow>Supporting early careers</Eyebrow>
                 <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
                   Pathways into freelance admin work
