@@ -1077,13 +1077,54 @@ export default function WorkWithVaxaiPage() {
               </motion.div>
 
               <motion.div
-                id="who"
                 initial={{ opacity: 0, y: 26 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
-                className="relative order-2 mx-auto w-full max-w-md scroll-mt-24 sm:max-w-lg lg:max-w-none"
+                className="relative order-2 mx-auto w-full max-w-md sm:max-w-lg lg:max-w-none"
               >
-                <div className="rounded-[28px] border border-ink/5 bg-white p-7 text-ink shadow-card md:p-8">
+                <div
+                  className="simplified-hide absolute -inset-2 rotate-1 rounded-[28px] border border-white/10 bg-white/[0.04] sm:-inset-3 sm:rotate-2 sm:rounded-[36px]"
+                  aria-hidden="true"
+                />
+                <div className="relative aspect-[16/11] overflow-hidden rounded-[22px] bg-pine-900 ring-1 ring-white/15 sm:aspect-[4/3] sm:rounded-[28px] lg:aspect-[0.92]">
+                  <img
+                    src="/pexels-diva-plavalaguna-6937658.jpg"
+                    alt="Professional remote work"
+                    className="simplified-photo h-full w-full object-cover object-center"
+                  />
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Supporting early careers + What you'll need */}
+          <section id="early-careers" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
+            <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:gap-12 md:items-start">
+              <Reveal>
+                <Eyebrow>Supporting early careers</Eyebrow>
+                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
+                  Pathways into freelance admin work
+                </h2>
+                <p className="mt-5 text-base leading-8 text-muted">
+                  AI and automation are reshaping many traditional entry-level and admin roles, reducing
+                  some of the opportunities that young people have historically used to start their
+                  careers. If you are interested in a career in freelance administrative work, get in
+                  touch or sign up to our newsletter, and be the first to know about opportunities for
+                  early-career professionals as they arise.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <button type="button" onClick={() => setContactOpen(true)} className={btn.primary}>
+                    Get in touch
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <button type="button" onClick={openNewsletterPopup} className={btn.ghost}>
+                    Sign up to our newsletter
+                  </button>
+                </div>
+              </Reveal>
+
+              <Reveal id="who" className="scroll-mt-24">
+                <div className="rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
                     What you&rsquo;ll need
                   </p>
@@ -1105,34 +1146,6 @@ export default function WorkWithVaxaiPage() {
                     clients expect, particularly when work involves confidential information, systems
                     access, or personal data.
                   </p>
-                </div>
-              </motion.div>
-            </div>
-          </section>
-
-          {/* Supporting early careers */}
-          <section id="early-careers" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-6xl">
-              <Reveal className="max-w-3xl">
-                <Eyebrow>Supporting early careers</Eyebrow>
-                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
-                  Pathways into freelance admin work
-                </h2>
-                <p className="mt-5 text-base leading-8 text-muted">
-                  AI and automation are reshaping many traditional entry-level and admin roles, reducing
-                  some of the opportunities that young people have historically used to start their
-                  careers. If you are interested in a career in freelance administrative work, get in
-                  touch or sign up to our newsletter, and be the first to know about opportunities for
-                  early-career professionals as they arise.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <button type="button" onClick={() => setContactOpen(true)} className={btn.primary}>
-                    Get in touch
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  <button type="button" onClick={openNewsletterPopup} className={btn.ghost}>
-                    Sign up to our newsletter
-                  </button>
                 </div>
               </Reveal>
             </div>
