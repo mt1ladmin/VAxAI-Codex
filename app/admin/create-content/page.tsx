@@ -5,7 +5,6 @@ import { Check, ChevronDown, Loader2, Sparkles, Wand2 } from "lucide-react";
 import { ContentCreateModal } from "@/components/admin/ContentCreateModal";
 import {
   InfoTip,
-  StudioPageHeader,
   studio,
 } from "@/components/admin/studio-ui";
 import {
@@ -120,18 +119,18 @@ export default function CreateContentPage() {
   return (
     <div className={`${studio.page} ${studio.pagePad}`}>
       <div className={studio.max}>
-        <StudioPageHeader
-          title="Create content"
-          description="Start with Create when you already know the angle. Open the topic library only if you want optional ideas — used topics are removed so you do not rework the same brief."
-          info="Generate drafts with AI, then edit before saving to Posts or the calendar. Topics you generate from are archived so the library stays fresh. Refresh topics uses AI plus light public research signals."
-        />
+        <div className="flex flex-wrap items-start gap-2">
+          <p className="min-w-0 flex-1 text-sm leading-6 text-muted">
+            Start with Create when you already know the angle. Open the topic library only if you want optional ideas — used topics are removed so you do not rework the same brief.
+          </p>
+          <InfoTip text="Generate drafts with AI, then edit before saving to Posts or the calendar. Topics you generate from are archived so the library stays fresh. Refresh topics uses AI plus light public research signals." />
+        </div>
 
         {/* Always-visible create / library controls */}
-        <div className={`sticky top-14 z-20 mt-6 ${studio.card} ${studio.cardPad} border-pine-900/10 bg-white/95 shadow-sm backdrop-blur-md md:top-12`}>
+        <div className={`sticky top-14 z-20 mt-5 ${studio.card} ${studio.cardPad} border-pine-900/10 bg-white/95 shadow-sm backdrop-blur-md md:top-12`}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className={studio.sectionTitle}>Create</p>
-              <p className="mt-1 text-sm leading-6 text-muted">
+              <p className="text-sm leading-6 text-muted">
                 Write your own brief, or open the library for optional starting points.
                 {selected.size > 0
                   ? ` ${selected.size} topic${selected.size === 1 ? "" : "s"} selected.`

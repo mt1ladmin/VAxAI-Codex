@@ -13,7 +13,6 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { MultiSelect } from "@/components/ui/MultiSelect";
 
@@ -128,14 +127,11 @@ export default function PostsPage() {
 
   return (
     <div className="min-h-full bg-white">
-      <div className="border-b border-pine-900/8 bg-white px-8 py-6">
+      <div className="border-b border-pine-900/8 bg-white px-8 py-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 flex-1">
-            <FilingTab>Posts</FilingTab>
-            <p className="mt-3 text-sm text-muted">
-              {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
-            </p>
-          </div>
+          <p className="min-w-0 flex-1 text-sm text-muted">
+            {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
+          </p>
           <Link
             href="/admin/posts/new"
             className="flex shrink-0 items-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"

@@ -296,7 +296,7 @@ export default function AdminShell({
           pathname === "/admin/authors" ||
           pathname === "/admin/create-content" ||
           pathname === "/admin/newsletter") && (
-          <div className="sticky top-[41px] z-20 border-b border-pine-900/8 bg-white/95 px-4 py-2.5 backdrop-blur-sm md:top-0 md:px-8">
+          <div className="sticky top-[41px] z-20 bg-white/95 px-4 pt-4 pb-0 backdrop-blur-sm md:top-0 md:px-8">
             <ContentHubNav />
           </div>
         )}

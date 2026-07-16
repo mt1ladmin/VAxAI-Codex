@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { CalendarItemPreviewModal } from "@/components/admin/CalendarItemPreviewModal";
 import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
-import FilingTab from "@/components/FilingTab";
 import {
   CalendarClock,
   CheckCircle2,
@@ -1599,14 +1598,11 @@ export default function CalendarPage() {
     <div className="min-h-full bg-white">
       <div className="overflow-x-auto">
         {/* Header */}
-        <div className="border-b border-pine-900/8 bg-white px-4 py-6 md:px-8">
+        <div className="border-b border-pine-900/8 bg-white px-4 py-5 md:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <FilingTab>Calendar</FilingTab>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-                See when posts and social pieces go live. Drag to reschedule. The side panel lists connected social still to post.
-              </p>
-            </div>
+            <p className="max-w-xl text-sm leading-6 text-muted">
+              See when posts and social pieces go live. Drag to reschedule. The side panel lists connected social still to post.
+            </p>
             <div className="flex shrink-0 overflow-hidden rounded-xl border border-pine-900/12 text-sm font-semibold">
               <button type="button" onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Month</button>
               <button type="button" onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Week</button>

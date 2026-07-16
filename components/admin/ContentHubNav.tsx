@@ -12,8 +12,8 @@ const TABS = [
 ] as const;
 
 /**
- * Single Content Hub tab strip — side by side, filing-tab style:
- * grey when idle, light green when selected.
+ * Content Hub section tabs — same filing-tab pattern as Knowledge Hub
+ * (side by side, grey idle, light green when selected).
  */
 export function ContentHubNav({ className = "" }: { className?: string }) {
   const pathname = usePathname();
@@ -22,7 +22,7 @@ export function ContentHubNav({ className = "" }: { className?: string }) {
     <div
       role="tablist"
       aria-label="Content Hub sections"
-      className={`flex w-full max-w-full flex-nowrap items-end gap-1.5 overflow-x-auto scrollbar-none border-b border-[#d5d8d1] ${className}`}
+      className={`flex max-w-full flex-wrap gap-1.5 border-b border-[#d5d8d1] ${className}`}
     >
       {TABS.map(({ href, label, title }) => {
         const active =
