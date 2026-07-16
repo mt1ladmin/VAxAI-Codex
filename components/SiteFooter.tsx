@@ -64,7 +64,7 @@ export default function SiteFooter() {
                 <div className="grid gap-3.5 text-paper/62">
                   <a href="/privacy" className="transition-colors duration-200 hover:text-paper">Privacy</a>
                   <a href="/terms" className="transition-colors duration-200 hover:text-paper">Terms</a>
-                  <a href="/edi-policy" className="transition-colors duration-200 hover:text-paper">JEF Policy</a>
+                  <a href="/edi-policy" className="transition-colors duration-200 hover:text-paper">Justice, Equity and Fairness</a>
                   <a href="/ai-use-policy" className="transition-colors duration-200 hover:text-paper">AI Use</a>
                   <CookieSettingsButton />
                   <a href="/admin/login" className="mt-1 text-xs text-paper/45 transition-colors duration-200 hover:text-paper/70">VAxAI Studio</a>
