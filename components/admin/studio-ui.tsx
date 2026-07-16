@@ -7,39 +7,55 @@ import { Info, X } from "lucide-react";
 export const STUDIO_LOGO_SRC = "/vaxai-logo.png";
 
 /**
- * Shared Studio visual language — matches public site:
- * white surfaces, pine-900 (#122428) for dark chrome, acid lime for accents, ink for type.
- * Avoid grey-green page washes and rainbow status colours.
+ * Studio visual system — calm “archive / admin workspace” feel.
+ *
+ * Strategy (keep this quiet):
+ * - White surfaces, soft borders, sparse elevation
+ * - Pine-900 only for sidebar chrome + rare primary actions
+ * - Acid lime only as a small status accent (e.g. New), never large fills
+ * - Hierarchy from typography, spacing, and grouping — not colour blocks
+ * - Folder/file metaphor via layout and subtle labels, not loud decoration
  */
 export const studio = {
   page: "min-h-full bg-white",
   pagePad: "px-4 py-6 md:px-8 md:py-8",
   max: "mx-auto max-w-7xl",
-  card: "rounded-2xl border border-pine-900/10 bg-white shadow-sm",
-  cardQuiet: "rounded-2xl border border-pine-900/8 bg-white",
-  cardPad: "p-5 md:p-6",
-  eyebrow: "text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700",
-  title: "text-2xl font-semibold tracking-tight text-pine-900 md:text-[1.65rem]",
-  subtitle: "mt-1.5 max-w-2xl text-sm leading-6 text-muted",
-  label: "text-[11px] font-semibold uppercase tracking-[0.1em] text-muted",
+  /** Soft workspace panel (file browser pane) */
+  panel: "rounded-xl border border-pine-900/[0.08] bg-white",
+  panelMuted: "rounded-xl border border-pine-900/[0.06] bg-pine-50/40",
+  card: "rounded-xl border border-pine-900/[0.08] bg-white shadow-[0_1px_2px_rgba(18,36,40,0.04)]",
+  cardQuiet: "rounded-xl border border-pine-900/[0.06] bg-white",
+  cardPad: "p-4 md:p-5",
+  eyebrow: "text-[10px] font-semibold uppercase tracking-[0.14em] text-muted",
+  title: "text-xl font-semibold tracking-tight text-pine-900 md:text-2xl",
+  subtitle: "mt-1 max-w-2xl text-sm leading-6 text-muted",
+  label: "text-[10px] font-semibold uppercase tracking-[0.1em] text-muted",
   input:
-    "w-full rounded-xl border border-pine-900/12 bg-white px-3.5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-muted/60 focus:border-pine-900/35 focus:ring-2 focus:ring-pine-900/8",
+    "w-full rounded-lg border border-pine-900/10 bg-white px-3 py-2 text-sm text-ink outline-none transition-colors placeholder:text-muted/55 focus:border-pine-900/25 focus:ring-2 focus:ring-pine-900/[0.06]",
   btnPrimary:
-    "inline-flex items-center justify-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-pine-800 disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-lg bg-pine-900 px-3.5 py-2 text-sm font-semibold text-paper transition-colors hover:bg-pine-800 disabled:opacity-50",
   btnSecondary:
-    "inline-flex items-center justify-center gap-2 rounded-xl border border-pine-900/12 bg-white px-4 py-2.5 text-sm font-semibold text-pine-900 transition-colors hover:bg-pine-50 hover:border-pine-900/25 disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-lg border border-pine-900/12 bg-white px-3.5 py-2 text-sm font-semibold text-pine-900 transition-colors hover:bg-pine-50/80 hover:border-pine-900/20 disabled:opacity-50",
   btnGhost:
-    "inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-muted transition-colors hover:bg-pine-50 hover:text-pine-900 disabled:opacity-50",
+    "inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted transition-colors hover:bg-pine-50 hover:text-pine-900 disabled:opacity-50",
   btnDanger:
-    "inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50",
-  chip: "inline-flex items-center gap-1.5 rounded-full border border-pine-900/10 bg-white px-2.5 py-1 text-[11px] font-semibold text-pine-900",
-  chipActive: "inline-flex items-center gap-1.5 rounded-full border border-pine-900 bg-pine-900 px-2.5 py-1 text-[11px] font-semibold text-paper",
-  chipAccent: "inline-flex items-center gap-1.5 rounded-full bg-acid px-2.5 py-1 text-[11px] font-semibold text-ink",
+    "inline-flex items-center justify-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50",
+  /** Quiet filter chip */
+  chip: "inline-flex items-center gap-1.5 rounded-md border border-pine-900/10 bg-white px-2.5 py-1 text-[11px] font-medium text-pine-900",
+  /** Selected without solid black block */
+  chipActive:
+    "inline-flex items-center gap-1.5 rounded-md border border-pine-900/20 bg-pine-50 px-2.5 py-1 text-[11px] font-semibold text-pine-900",
+  /** Rare accent — soft acid wash, not neon slab */
+  chipAccent:
+    "inline-flex items-center gap-1.5 rounded-md border border-acid/50 bg-acid/25 px-2.5 py-1 text-[11px] font-semibold text-ink",
   tableHead: "text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-muted",
-  empty: "rounded-2xl border border-dashed border-pine-900/15 bg-white px-6 py-14 text-center",
+  empty: "rounded-xl border border-dashed border-pine-900/12 bg-white px-6 py-14 text-center",
   sectionTitle: "text-sm font-semibold text-pine-900",
   muted: "text-sm text-muted",
-  divider: "border-t border-pine-900/8",
+  divider: "border-t border-pine-900/[0.07]",
+  /** Folder-row active state in side lists */
+  folderActive: "bg-pine-50 text-pine-900 border-l-2 border-l-pine-900",
+  folderIdle: "text-muted hover:bg-pine-50/70 hover:text-pine-900 border-l-2 border-l-transparent",
 } as const;
 
 export function StudioPageHeader({
@@ -56,7 +72,7 @@ export function StudioPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         {eyebrow ? <p className={studio.eyebrow}>{eyebrow}</p> : null}
         <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -100,7 +116,7 @@ export function InfoTip({ text, label = "More about this" }: { text: string; lab
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((v) => !v)}
-        className="grid h-5 w-5 place-items-center rounded-full border border-pine-900/20 bg-white text-pine-800 transition-colors hover:border-pine-900/40 hover:bg-pine-50"
+        className="grid h-5 w-5 place-items-center rounded-full border border-pine-900/15 bg-white text-pine-700 transition-colors hover:border-pine-900/30 hover:bg-pine-50"
       >
         <Info className="h-3 w-3" strokeWidth={2.5} />
       </button>

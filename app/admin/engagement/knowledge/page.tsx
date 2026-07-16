@@ -14,11 +14,12 @@ import {
 import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
-  BookOpen,
-  Building2,
   Check,
   ChevronDown,
   CircleDollarSign,
+  FileText,
+  Folder,
+  FolderOpen,
   MessageSquareQuote,
   MessageSquareText,
   Pencil,
@@ -57,8 +58,8 @@ const TAB_META: Record<
     label: "Sectors",
     title: "Sectors",
     description:
-      "How admin pressure shows up for founders, SMEs, charities and public sector — and where VAxAI helps.",
-    icon: Building2,
+      "How admin pressure shows up for founders, SMEs, charities and public sector, and where VAxAI helps.",
+    icon: Folder,
   },
   personas: {
     label: "Personas",
@@ -184,11 +185,11 @@ function IconButton({
 
 function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-pine-900/15 bg-white px-6 py-16 text-center">
-      <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-pine-900 text-acid">
-        <BookOpen className="h-5 w-5" />
+    <div className="rounded-xl border border-dashed border-pine-900/12 bg-white px-6 py-14 text-center">
+      <div className="mx-auto grid h-10 w-10 place-items-center rounded-lg border border-pine-900/10 bg-pine-50 text-pine-700">
+        <FolderOpen className="h-4 w-4" />
       </div>
-      <p className="mt-4 text-sm font-semibold text-pine-900">{title}</p>
+      <p className="mt-3 text-sm font-semibold text-pine-900">{title}</p>
       {hint ? <p className="mx-auto mt-1.5 max-w-sm text-sm text-muted">{hint}</p> : null}
     </div>
   );
@@ -316,11 +317,11 @@ function SectorCard({ sector, selected, selectMode, onSelect, onDeleted, onSaved
     onDeleted();
   };
 
-  const cardClass = `group relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition-all hover:shadow-card ${
+  const cardClass = `group relative overflow-hidden rounded-xl border bg-white p-4 transition-colors ${
     highlight
-      ? "border-pine-900 ring-2 ring-pine-900/15"
-      : "border-pine-900/10 hover:border-pine-900/20"
-  } ${editing ? "border-pine-900/30" : ""}`;
+      ? "border-pine-900/25 bg-pine-50/50"
+      : "border-pine-900/[0.08] hover:border-pine-900/15"
+  } ${editing ? "border-pine-900/20" : ""}`;
 
   if (editing) {
     return (
@@ -349,7 +350,7 @@ function SectorCard({ sector, selected, selectMode, onSelect, onDeleted, onSaved
 
   return (
     <div className={cardClass} id={highlight ? `sector-${sector.id}` : undefined}>
-      {highlight ? <span className="absolute inset-y-0 left-0 w-1 bg-acid" aria-hidden /> : null}
+      {highlight ? <span className="absolute inset-y-0 left-0 w-0.5 bg-pine-900/40" aria-hidden /> : null}
       <div className="flex items-start gap-3">
         {selectMode && (
           <input
@@ -359,11 +360,11 @@ function SectorCard({ sector, selected, selectMode, onSelect, onDeleted, onSaved
             className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-pine-900"
           />
         )}
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-pine-900 text-acid">
-          <Building2 className="h-4 w-4" />
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-pine-900/10 bg-pine-50 text-pine-700">
+          <Folder className="h-4 w-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="mb-1.5 flex items-start justify-between gap-2">
+          <div className="mb-1 flex items-start justify-between gap-2">
             <Link
               href={`/admin/engagement/knowledge/sectors/${sector.id}`}
               className="text-sm font-semibold text-pine-900 transition-colors hover:text-pine-700"
@@ -390,11 +391,11 @@ function SectorCard({ sector, selected, selectMode, onSelect, onDeleted, onSaved
           </div>
           {sector.description ? <p className="line-clamp-2 text-sm leading-6 text-muted">{sector.description}</p> : null}
           {sector.common_admin_pressures && sector.common_admin_pressures.length > 0 ? (
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
               {sector.common_admin_pressures.slice(0, 2).map((p) => (
                 <span
                   key={p}
-                  className="rounded-full border border-pine-900/10 bg-pine-50 px-2 py-0.5 text-[10px] font-semibold text-pine-800"
+                  className="rounded-md border border-pine-900/8 bg-white px-2 py-0.5 text-[10px] font-medium text-muted"
                 >
                   {p}
                 </span>
@@ -481,7 +482,7 @@ function PersonaCard({ persona, selected, selectMode, onSelect, onDeleted, onSav
   }
 
   return (
-    <div className="group rounded-2xl border border-pine-900/10 bg-white p-5 shadow-sm transition-all hover:border-pine-900/20 hover:shadow-card">
+    <div className="group rounded-xl border border-pine-900/[0.08] bg-white p-4 transition-colors hover:border-pine-900/15">
       <div className="flex items-start gap-3">
         {selectMode ? (
           <input
@@ -491,14 +492,14 @@ function PersonaCard({ persona, selected, selectMode, onSelect, onDeleted, onSav
             className="mt-1 h-4 w-4 shrink-0 cursor-pointer accent-pine-900"
           />
         ) : null}
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pine-900 text-sm font-bold text-acid">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-pine-900/10 bg-pine-50 text-xs font-semibold text-pine-800">
           {persona.persona_name.slice(0, 1).toUpperCase()}
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-start justify-between gap-2">
             <div>
               <p className="text-sm font-semibold text-pine-900">{persona.persona_name}</p>
-              {persona.typical_role ? <p className="mt-0.5 text-xs font-medium text-muted">{persona.typical_role}</p> : null}
+              {persona.typical_role ? <p className="mt-0.5 text-xs text-muted">{persona.typical_role}</p> : null}
             </div>
             <div className="flex shrink-0 items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               {confirmDelete ? (
@@ -516,12 +517,12 @@ function PersonaCard({ persona, selected, selectMode, onSelect, onDeleted, onSav
             </div>
           </div>
           {persona.goals && persona.goals.length > 0 ? (
-            <div className="mt-3 rounded-xl border border-pine-900/8 bg-pine-50/70 px-3 py-2.5">
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-pine-700">Goals</p>
-              <ul className="space-y-1">
+            <div className="mt-2.5 border-t border-pine-900/[0.06] pt-2.5">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Goals</p>
+              <ul className="space-y-0.5">
                 {persona.goals.slice(0, 3).map((g, i) => (
                   <li key={i} className="text-xs leading-5 text-ink">
-                    <span className="mr-1.5 text-pine-600">·</span>
+                    <span className="mr-1.5 text-muted">·</span>
                     {g}
                   </li>
                 ))}
@@ -530,7 +531,7 @@ function PersonaCard({ persona, selected, selectMode, onSelect, onDeleted, onSav
           ) : null}
           {persona.likely_concerns && persona.likely_concerns.length > 0 ? (
             <div className="mt-2">
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Likely concerns</p>
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Likely concerns</p>
               <ul className="space-y-0.5">
                 {persona.likely_concerns.slice(0, 2).map((c, i) => (
                   <li key={i} className="text-xs leading-5 text-muted">
@@ -870,7 +871,7 @@ function KnowledgePageInner() {
             ? vatPrompts.length
             : null;
 
-  const renderNavButton = (key: Tab) => {
+  const folderRow = (key: Tab) => {
     const meta = TAB_META[key];
     const Icon = meta.icon;
     const active = tab === key;
@@ -879,365 +880,352 @@ function KnowledgePageInner() {
         key={key}
         type="button"
         onClick={() => switchTab(key)}
-        className={`group flex min-w-[7.5rem] flex-1 items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-all sm:min-w-0 ${
+        className={`flex w-full items-center gap-2.5 rounded-r-md px-3 py-2 text-left text-sm transition-colors ${
           active
-            ? "bg-pine-900 text-paper shadow-sm"
-            : "bg-white text-muted hover:bg-pine-50 hover:text-pine-900 border border-pine-900/8"
+            ? "border-l-2 border-l-pine-900 bg-pine-50 font-semibold text-pine-900"
+            : "border-l-2 border-l-transparent text-muted hover:bg-pine-50/60 hover:text-pine-900"
         }`}
       >
-        <span
-          className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${
-            active ? "bg-acid text-ink" : "bg-pine-50 text-pine-800 group-hover:bg-white"
-          }`}
-        >
-          <Icon className="h-3.5 w-3.5" />
-        </span>
-        <span className={`text-xs font-semibold leading-tight ${active ? "text-paper" : "text-pine-900"}`}>
-          {meta.label}
-        </span>
+        <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? "text-pine-800" : "text-muted"}`} />
+        <span className="truncate">{meta.label}</span>
       </button>
     );
   };
 
   return (
     <div className="min-h-full bg-white">
-      {/* Hub chrome */}
-      <div className="border-b border-pine-900/8 bg-white">
-        <div className="px-4 pb-5 pt-6 md:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex items-start gap-3">
-              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-pine-900 text-acid">
-                <BookOpen className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Client engagement</p>
-                <h1 className="mt-0.5 text-2xl font-semibold tracking-tight text-pine-900">Knowledge Hub</h1>
-                <p className="mt-1 max-w-xl text-sm leading-6 text-muted">
-                  Playbooks for outreach, scoping and delivery — organised so you can find the right language fast.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setAddModalOpen(true)}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-acid px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-acid/90"
-            >
-              <Plus className="h-4 w-4" />
-              Add entry
-            </button>
+      {/* Quiet page header */}
+      <div className="border-b border-pine-900/[0.07] px-4 py-5 md:px-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Client engagement</p>
+            <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-pine-900 md:text-2xl">Knowledge Hub</h1>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-muted">
+              Organised playbooks for outreach, scoping and delivery.
+            </p>
           </div>
-
-          {/* Grouped navigation */}
-          <div className="mt-6 space-y-3">
-            <div>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Library</p>
-              <div className="flex flex-wrap gap-2">{LIBRARY_TABS.map(renderNavButton)}</div>
-            </div>
-            <div>
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Sales tools</p>
-              <div className="flex flex-wrap gap-2">{SALES_TABS.map(renderNavButton)}</div>
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-pine-900 px-3.5 py-2 text-sm font-semibold text-paper transition-colors hover:bg-pine-800"
+          >
+            <Plus className="h-4 w-4" />
+            Add entry
+          </button>
         </div>
       </div>
 
-      {/* Active section header + tools */}
-      <div className="sticky top-0 z-20 border-b border-pine-900/8 bg-white/95 px-4 py-4 backdrop-blur-md md:px-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-pine-900/10 bg-pine-50 text-pine-900">
-              <ActiveIcon className="h-4 w-4" />
-            </span>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-lg font-semibold tracking-tight text-pine-900">{TAB_META[tab].title}</h2>
-                {itemCount != null && !loading ? (
-                  <span className="rounded-full bg-pine-900 px-2 py-0.5 text-[10px] font-bold text-paper">
-                    {itemCount}
-                  </span>
-                ) : null}
-              </div>
-              <p className="mt-0.5 max-w-2xl text-sm leading-6 text-muted">{TAB_META[tab].description}</p>
-            </div>
-          </div>
-
-          {!(["pricing", "scripts", "objections"] as Tab[]).includes(tab) ? (
-            <div className="flex flex-wrap items-center gap-2">
-              {tab !== "vat_prompts" ? (
-                <div className="relative min-w-[12rem] flex-1 sm:max-w-xs">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-                  <input
-                    ref={inputRef}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder={
-                      tab === "pain_points"
-                        ? "Search pain points…"
-                        : tab === "sectors"
-                          ? "Search sectors…"
-                          : "Search…"
-                    }
-                    className="w-full rounded-xl border border-pine-900/12 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-pine-900/40 focus:ring-2 focus:ring-pine-900/8"
-                  />
-                </div>
-              ) : null}
-              {tab === "pain_points" ? (
-                <CustomSelect
-                  value={category}
-                  onChange={setCategory}
-                  placeholder="All categories"
-                  className="w-48"
-                  options={[
-                    { value: "", label: "All categories" },
-                    ...PAIN_POINT_CATEGORIES.map((c) => ({ value: c, label: c })),
-                  ]}
-                />
-              ) : null}
-              {tab === "vat_prompts" ? (
-                <div className="flex flex-wrap gap-1.5 rounded-xl border border-pine-900/10 bg-white p-1">
-                  {(["value", "alignment", "trust"] as const).map((dim) => {
-                    const on = dimension === dim;
-                    return (
-                      <button
-                        key={dim}
-                        type="button"
-                        onClick={() => setDimension(on ? "" : dim)}
-                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold capitalize transition-colors ${
-                          on
-                            ? dim === "value"
-                              ? "bg-pine-900 text-paper"
-                              : dim === "alignment"
-                                ? "bg-pine-700 text-paper"
-                                : "bg-acid text-ink"
-                            : "text-muted hover:bg-pine-50 hover:text-pine-900"
-                        }`}
-                      >
-                        {dim}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
-              {canSelect ? (
+      {/* File-browser layout: folder rail + content pane */}
+      <div className="flex min-h-[calc(100vh-8rem)] flex-col md:flex-row">
+        {/* Folder rail */}
+        <aside className="shrink-0 border-b border-pine-900/[0.07] md:w-56 md:border-b-0 md:border-r md:border-pine-900/[0.07]">
+          {/* Mobile: horizontal quiet tabs */}
+          <div className="flex gap-1 overflow-x-auto px-3 py-2 md:hidden">
+            {TAB_KEYS.map((key) => {
+              const active = tab === key;
+              return (
                 <button
+                  key={key}
                   type="button"
-                  onClick={() => {
-                    setSelectMode((v) => !v);
-                    setSelectedIds(new Set());
-                    setConfirmBulkDelete(false);
-                  }}
-                  className={`rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
-                    selectMode
-                      ? "border-pine-900 bg-pine-900 text-paper"
-                      : "border-pine-900/12 bg-white text-muted hover:border-pine-900/25 hover:text-pine-900"
+                  onClick={() => switchTab(key)}
+                  className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    active
+                      ? "bg-pine-50 text-pine-900 ring-1 ring-pine-900/15"
+                      : "text-muted hover:bg-pine-50/70 hover:text-pine-900"
                   }`}
                 >
-                  {selectMode ? "Cancel select" : "Select"}
+                  {TAB_META[key].label}
                 </button>
+              );
+            })}
+          </div>
+          {/* Desktop: folder list */}
+          <nav className="hidden py-4 md:block">
+            <p className="mb-1.5 px-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Library</p>
+            <div className="space-y-0.5">{LIBRARY_TABS.map(folderRow)}</div>
+            <p className="mb-1.5 mt-5 px-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+              Sales tools
+            </p>
+            <div className="space-y-0.5">{SALES_TABS.map(folderRow)}</div>
+          </nav>
+        </aside>
+
+        {/* Content pane */}
+        <div className="min-w-0 flex-1">
+          <div className="sticky top-0 z-20 border-b border-pine-900/[0.07] bg-white/95 px-4 py-3.5 backdrop-blur-md md:px-6">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <ActiveIcon className="h-4 w-4 shrink-0 text-pine-700" />
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <h2 className="text-base font-semibold tracking-tight text-pine-900">{TAB_META[tab].title}</h2>
+                    {itemCount != null && !loading ? (
+                      <span className="text-xs tabular-nums text-muted">{itemCount} items</span>
+                    ) : null}
+                  </div>
+                  <p className="mt-0.5 line-clamp-1 text-xs text-muted md:line-clamp-2 md:text-sm md:leading-5">
+                    {TAB_META[tab].description}
+                  </p>
+                </div>
+              </div>
+
+              {!(["pricing", "scripts", "objections"] as Tab[]).includes(tab) ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  {tab !== "vat_prompts" ? (
+                    <div className="relative min-w-[11rem] flex-1 sm:max-w-xs">
+                      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+                      <input
+                        ref={inputRef}
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder={
+                          tab === "pain_points"
+                            ? "Search…"
+                            : tab === "sectors"
+                              ? "Search sectors…"
+                              : "Search…"
+                        }
+                        className="w-full rounded-lg border border-pine-900/10 bg-white py-1.5 pl-8 pr-3 text-sm outline-none focus:border-pine-900/25 focus:ring-2 focus:ring-pine-900/[0.06]"
+                      />
+                    </div>
+                  ) : null}
+                  {tab === "pain_points" ? (
+                    <CustomSelect
+                      value={category}
+                      onChange={setCategory}
+                      placeholder="All categories"
+                      className="w-44"
+                      options={[
+                        { value: "", label: "All categories" },
+                        ...PAIN_POINT_CATEGORIES.map((c) => ({ value: c, label: c })),
+                      ]}
+                    />
+                  ) : null}
+                  {tab === "vat_prompts" ? (
+                    <div className="flex flex-wrap gap-1 rounded-lg border border-pine-900/10 bg-white p-0.5">
+                      {(["value", "alignment", "trust"] as const).map((dim) => {
+                        const on = dimension === dim;
+                        return (
+                          <button
+                            key={dim}
+                            type="button"
+                            onClick={() => setDimension(on ? "" : dim)}
+                            className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
+                              on
+                                ? "bg-pine-50 font-semibold text-pine-900 ring-1 ring-pine-900/12"
+                                : "text-muted hover:bg-pine-50/70 hover:text-pine-900"
+                            }`}
+                          >
+                            {dim}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                  {canSelect ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectMode((v) => !v);
+                        setSelectedIds(new Set());
+                        setConfirmBulkDelete(false);
+                      }}
+                      className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                        selectMode
+                          ? "border-pine-900/20 bg-pine-50 text-pine-900"
+                          : "border-pine-900/10 bg-white text-muted hover:border-pine-900/20 hover:text-pine-900"
+                      }`}
+                    >
+                      {selectMode ? "Cancel select" : "Select"}
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
             </div>
-          ) : null}
-        </div>
-      </div>
+          </div>
 
-      <div className="px-4 py-6 md:px-8 md:py-8">
-        {selectMode && selectedIds.size > 0 ? (
-          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-red-100 bg-red-50 px-4 py-3">
-            <span className="rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-bold text-white">
-              {selectedIds.size}
-            </span>
-            <span className="text-xs font-semibold text-red-700">selected</span>
-            {confirmBulkDelete ? (
-              <>
-                <span className="text-xs text-red-600">
-                  Delete {selectedIds.size} item{selectedIds.size !== 1 ? "s" : ""}?
-                </span>
-                <button
-                  type="button"
-                  onClick={() => void deleteSelected()}
-                  disabled={deletingSelected}
-                  className="rounded-lg bg-red-600 px-3 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-                >
-                  {deletingSelected ? "Deleting…" : "Confirm"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirmBulkDelete(false)}
-                  className="text-xs font-semibold text-muted hover:text-ink"
-                >
-                  Cancel
-                </button>
-              </>
+          <div className="px-4 py-5 md:px-6 md:py-6">
+            {selectMode && selectedIds.size > 0 ? (
+              <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-red-100 bg-red-50/80 px-3.5 py-2.5">
+                <span className="text-xs font-semibold text-red-700">{selectedIds.size} selected</span>
+                {confirmBulkDelete ? (
+                  <>
+                    <span className="text-xs text-red-600">
+                      Delete {selectedIds.size} item{selectedIds.size !== 1 ? "s" : ""}?
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => void deleteSelected()}
+                      disabled={deletingSelected}
+                      className="rounded-md bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                    >
+                      {deletingSelected ? "Deleting…" : "Confirm"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmBulkDelete(false)}
+                      className="text-xs font-semibold text-muted hover:text-ink"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmBulkDelete(true)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-white px-2.5 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-3 w-3" /> Delete selected
+                  </button>
+                )}
+              </div>
+            ) : null}
+
+            {loading ? (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-28 animate-pulse rounded-xl border border-pine-900/[0.06] bg-pine-50/50" />
+                ))}
+              </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setConfirmBulkDelete(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-100"
-              >
-                <Trash2 className="h-3 w-3" /> Delete selected
-              </button>
-            )}
-          </div>
-        ) : null}
-
-        {loading ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-36 animate-pulse rounded-2xl border border-pine-900/8 bg-pine-50/80" />
-            ))}
-          </div>
-        ) : (
-          <>
-            {tab === "sectors" &&
-              (sectors.length === 0 ? (
-                <EmptyState title="No sectors found" hint="Try another search, or add a sector with Add entry." />
-              ) : (
-                <>
-                  {highlightIds.size > 0 ? (
-                    <p className="mb-5 rounded-2xl border border-pine-900/15 bg-pine-900 px-4 py-3 text-sm text-paper">
-                      <span className="mr-2 inline-block rounded bg-acid px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink">
-                        Match
-                      </span>
-                      Highlighted sectors may be relevant to this prospect based on their sector tags.
-                    </p>
-                  ) : null}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {sectors.map((s) => (
-                      <SectorCard
-                        key={s.id}
-                        sector={s}
-                        selected={selectedIds.has(s.id)}
-                        selectMode={selectMode}
-                        onSelect={() => toggleSelect(s.id)}
-                        onDeleted={reload}
-                        onSaved={reload}
-                        highlight={highlightIds.has(s.id)}
-                      />
-                    ))}
-                  </div>
-                </>
-              ))}
-
-            {tab === "personas" &&
-              (personas.length === 0 ? (
-                <EmptyState title="No personas found" hint="Add a persona to keep outreach specific." />
-              ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                  {personas.map((p) => (
-                    <PersonaCard
-                      key={p.id}
-                      persona={p}
-                      selected={selectedIds.has(p.id)}
-                      selectMode={selectMode}
-                      onSelect={() => toggleSelect(p.id)}
-                      onDeleted={reload}
-                      onSaved={reload}
-                    />
-                  ))}
-                </div>
-              ))}
-
-            {tab === "pain_points" &&
-              (painPoints.length === 0 ? (
-                <EmptyState title="No pain points found" hint="Clear filters or add a new pain point." />
-              ) : (
-                <div className="space-y-4">
-                  {Object.entries(
-                    painPoints.reduce<Record<string, PainPoint[]>>((acc, pp) => {
-                      (acc[pp.category] ??= []).push(pp);
-                      return acc;
-                    }, {}),
-                  ).map(([cat, items]) => (
-                    <section key={cat} className="overflow-hidden rounded-2xl border border-pine-900/10 bg-white shadow-sm">
-                      <header className="flex items-center justify-between gap-3 border-b border-pine-900/8 bg-pine-900 px-5 py-3.5">
-                        <div className="flex items-center gap-2.5">
-                          <span className="grid h-7 w-7 place-items-center rounded-lg bg-acid/90 text-ink">
-                            <Target className="h-3.5 w-3.5" />
+              <>
+                {tab === "sectors" &&
+                  (sectors.length === 0 ? (
+                    <EmptyState title="No sectors found" hint="Try another search, or add a sector with Add entry." />
+                  ) : (
+                    <>
+                      {highlightIds.size > 0 ? (
+                        <p className="mb-4 rounded-lg border border-pine-900/10 bg-pine-50/80 px-3.5 py-2.5 text-sm text-pine-900">
+                          <span className="mr-2 text-[10px] font-semibold uppercase tracking-wide text-muted">
+                            Suggested
                           </span>
-                          <h3 className="text-sm font-semibold text-paper">{cat}</h3>
-                        </div>
-                        <span className="rounded-full bg-white/12 px-2.5 py-0.5 text-[11px] font-bold text-paper">
-                          {items.length}
-                        </span>
-                      </header>
-                      <div className="divide-y divide-pine-900/6">
-                        {items.map((pp) => (
-                          <PainPointRow
-                            key={pp.id}
-                            pp={pp}
-                            selected={selectedIds.has(pp.id)}
+                          Highlighted sectors may be relevant to this prospect based on their sector tags.
+                        </p>
+                      ) : null}
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                        {sectors.map((s) => (
+                          <SectorCard
+                            key={s.id}
+                            sector={s}
+                            selected={selectedIds.has(s.id)}
                             selectMode={selectMode}
-                            onSelect={() => toggleSelect(pp.id)}
+                            onSelect={() => toggleSelect(s.id)}
                             onDeleted={reload}
                             onSaved={reload}
+                            highlight={highlightIds.has(s.id)}
                           />
                         ))}
                       </div>
-                    </section>
+                    </>
                   ))}
-                </div>
-              ))}
 
-            {tab === "vat_prompts" &&
-              (vatPrompts.length === 0 ? (
-                <EmptyState title="No prompts found" hint="Try another VAT dimension filter." />
-              ) : (
-                <div className="space-y-4">
-                  {(["value", "alignment", "trust"] as const)
-                    .filter((dim) => !dimension || dimension === dim)
-                    .map((dim) => {
-                      const dimPrompts = vatPrompts.filter((p) => p.dimension === dim);
-                      if (dimPrompts.length === 0) return null;
-                      const header =
-                        dim === "value"
-                          ? "bg-pine-900 text-paper"
-                          : dim === "alignment"
-                            ? "bg-pine-800 text-paper"
-                            : "bg-acid text-ink";
-                      return (
+                {tab === "personas" &&
+                  (personas.length === 0 ? (
+                    <EmptyState title="No personas found" hint="Add a persona to keep outreach specific." />
+                  ) : (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                      {personas.map((p) => (
+                        <PersonaCard
+                          key={p.id}
+                          persona={p}
+                          selected={selectedIds.has(p.id)}
+                          selectMode={selectMode}
+                          onSelect={() => toggleSelect(p.id)}
+                          onDeleted={reload}
+                          onSaved={reload}
+                        />
+                      ))}
+                    </div>
+                  ))}
+
+                {tab === "pain_points" &&
+                  (painPoints.length === 0 ? (
+                    <EmptyState title="No pain points found" hint="Clear filters or add a new pain point." />
+                  ) : (
+                    <div className="space-y-3">
+                      {Object.entries(
+                        painPoints.reduce<Record<string, PainPoint[]>>((acc, pp) => {
+                          (acc[pp.category] ??= []).push(pp);
+                          return acc;
+                        }, {}),
+                      ).map(([cat, items]) => (
                         <section
-                          key={dim}
-                          className="overflow-hidden rounded-2xl border border-pine-900/10 bg-white shadow-sm"
+                          key={cat}
+                          className="overflow-hidden rounded-xl border border-pine-900/[0.08] bg-white"
                         >
-                          <header className={`flex items-center justify-between px-5 py-3.5 ${header}`}>
+                          <header className="flex items-center justify-between gap-3 border-b border-pine-900/[0.06] bg-pine-50/50 px-4 py-2.5">
                             <div className="flex items-center gap-2">
-                              <Scale className="h-4 w-4 opacity-80" />
-                              <p className="text-xs font-bold uppercase tracking-[0.12em]">
-                                {dim}
-                              </p>
+                              <FolderOpen className="h-3.5 w-3.5 text-pine-700" />
+                              <h3 className="text-sm font-semibold text-pine-900">{cat}</h3>
                             </div>
-                            <span
-                              className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                                dim === "trust" ? "bg-ink/10 text-ink" : "bg-white/15 text-paper"
-                              }`}
-                            >
-                              {dimPrompts.length}
-                            </span>
+                            <span className="text-xs tabular-nums text-muted">{items.length}</span>
                           </header>
-                          <div className="divide-y divide-pine-900/6">
-                            {dimPrompts.map((p) => (
-                              <VatPromptRow
-                                key={p.id}
-                                prompt={p}
-                                selected={selectedIds.has(p.id)}
+                          <div className="divide-y divide-pine-900/[0.05]">
+                            {items.map((pp) => (
+                              <PainPointRow
+                                key={pp.id}
+                                pp={pp}
+                                selected={selectedIds.has(pp.id)}
                                 selectMode={selectMode}
-                                onSelect={() => toggleSelect(p.id)}
+                                onSelect={() => toggleSelect(pp.id)}
                                 onDeleted={reload}
                                 onSaved={reload}
                               />
                             ))}
                           </div>
                         </section>
-                      );
-                    })}
-                </div>
-              ))}
+                      ))}
+                    </div>
+                  ))}
 
-            {tab === "pricing" ? <PricingBandsPanel /> : null}
-            {tab === "scripts" ? <ScriptsBlocksPanel /> : null}
-            {tab === "objections" ? <ObjectionsPanel /> : null}
-          </>
-        )}
+                {tab === "vat_prompts" &&
+                  (vatPrompts.length === 0 ? (
+                    <EmptyState title="No prompts found" hint="Try another VAT dimension filter." />
+                  ) : (
+                    <div className="space-y-3">
+                      {(["value", "alignment", "trust"] as const)
+                        .filter((dim) => !dimension || dimension === dim)
+                        .map((dim) => {
+                          const dimPrompts = vatPrompts.filter((p) => p.dimension === dim);
+                          if (dimPrompts.length === 0) return null;
+                          return (
+                            <section
+                              key={dim}
+                              className="overflow-hidden rounded-xl border border-pine-900/[0.08] bg-white"
+                            >
+                              <header className="flex items-center justify-between border-b border-pine-900/[0.06] bg-pine-50/50 px-4 py-2.5">
+                                <div className="flex items-center gap-2">
+                                  <FileText className="h-3.5 w-3.5 text-pine-700" />
+                                  <p className="text-sm font-semibold capitalize text-pine-900">{dim}</p>
+                                </div>
+                                <span className="text-xs tabular-nums text-muted">{dimPrompts.length}</span>
+                              </header>
+                              <div className="divide-y divide-pine-900/[0.05]">
+                                {dimPrompts.map((p) => (
+                                  <VatPromptRow
+                                    key={p.id}
+                                    prompt={p}
+                                    selected={selectedIds.has(p.id)}
+                                    selectMode={selectMode}
+                                    onSelect={() => toggleSelect(p.id)}
+                                    onDeleted={reload}
+                                    onSaved={reload}
+                                  />
+                                ))}
+                              </div>
+                            </section>
+                          );
+                        })}
+                    </div>
+                  ))}
+
+                {tab === "pricing" ? <PricingBandsPanel /> : null}
+                {tab === "scripts" ? <ScriptsBlocksPanel /> : null}
+                {tab === "objections" ? <ObjectionsPanel /> : null}
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       <KnowledgeAddModal

@@ -57,7 +57,7 @@ export const VA_STATUS_LABELS: Record<VaApplicationStatus, string> = {
 
 /** Palette: white, pine-900, acid lime, ink — matches public site */
 export const VA_STATUS_COLORS: Record<VaApplicationStatus, string> = {
-  new: "bg-acid text-ink border border-acid",
+  new: "bg-acid/30 text-ink border border-acid/40",
   contacted: "bg-white text-pine-800 border border-pine-900/15",
   verified: "bg-white text-pine-900 border border-pine-900/20",
   approved: "bg-white text-pine-900 border border-pine-900/20",

@@ -159,7 +159,7 @@ export default function AdminShell({
           <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
             <Link
               href="/admin/posts/new"
-              className={`flex items-center gap-2 rounded-lg bg-acid px-3 py-2 text-sm font-semibold text-ink transition-colors hover:bg-acid/90 ${
+              className={`flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-paper transition-colors hover:bg-white/15 ${
                 !open ? "h-8 w-8 justify-center p-0" : "w-full"
               }`}
               title={!open ? "New post" : undefined}
@@ -258,8 +258,8 @@ export default function AdminShell({
         </div>
       </aside>
 
-      {/* Main */}
-      <main className="flex-1 overflow-y-auto bg-white">
+      {/* Main — calm workspace canvas */}
+      <main className="studio-main flex-1 overflow-y-auto bg-white">
         {/* Mobile top bar — always visible, shows hamburger + open sidebar button on desktop */}
         <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-[#111111]/10 bg-white px-4 py-2 md:hidden">
           <button
@@ -293,7 +293,7 @@ export default function AdminShell({
           <div className="sticky top-[41px] z-20 border-b border-pine-900/8 bg-white/95 px-4 py-2.5 backdrop-blur-sm md:top-0 md:px-8">
             <div className="flex flex-wrap items-center gap-3">
               <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-pine-700">Content Hub</span>
-              <div className="flex max-w-full gap-1 overflow-x-auto scrollbar-none rounded-xl border border-pine-900/10 bg-white p-1">
+              <div className="flex max-w-full gap-0.5 overflow-x-auto scrollbar-none rounded-lg border border-pine-900/[0.08] bg-white p-0.5">
                 {[
                   ["/admin/calendar", "Calendar", "Schedule posts & social"],
                   ["/admin/create-content", "Create", "Draft with AI"],
@@ -307,8 +307,10 @@ export default function AdminShell({
                       key={href}
                       href={href}
                       title={title}
-                      className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                        active ? "bg-pine-900 text-paper shadow-sm" : "text-muted hover:bg-pine-50 hover:text-pine-900"
+                      className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        active
+                          ? "bg-pine-50 text-pine-900 ring-1 ring-pine-900/12"
+                          : "text-muted hover:bg-pine-50/70 hover:text-pine-900"
                       }`}
                     >
                       {label}
