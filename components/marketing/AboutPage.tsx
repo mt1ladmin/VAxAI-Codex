@@ -112,6 +112,13 @@ export default function AboutPage() {
                 <h1 className="mt-5 max-w-xl text-[2.2rem] font-semibold leading-[1.1] tracking-[-0.025em] sm:text-[2.5rem] md:mt-6 md:text-[2.75rem]">
                   Built through experience, not theory.
                 </h1>
+                <p className="mt-6 max-w-xl text-sm leading-7 text-paper/70 md:text-base md:leading-8">
+                  VAxAI is a service by MT1L, home of the Value, Trust and Alignment (VTA) Framework and
+                  founded by Thesia Kouloungou. She and Rebecca Bradshaw, her virtual assistant turned
+                  business partner and VAxAI co-founder, shaped the service together, one building the
+                  business, one delivering the admin, so clients get support grounded in both sides of
+                  the work.
+                </p>
               </motion.div>
 
               <motion.div
