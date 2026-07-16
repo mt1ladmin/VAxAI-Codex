@@ -6,6 +6,7 @@ import TiptapImage from "@tiptap/extension-image";
 import TiptapLink from "@tiptap/extension-link";
 import {
   Bold,
+  ExternalLink,
   Image as ImageIcon,
   Italic,
   Link2,
@@ -15,9 +16,28 @@ import {
   Quote,
   Redo,
   Undo,
+  X,
 } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ImageUpload from "./ImageUpload";
+
+const FREE_IMAGE_SOURCES = [
+  {
+    name: "Pexels",
+    href: "https://www.pexels.com",
+    blurb: "Free stock photos and videos for commercial use.",
+  },
+  {
+    name: "Unsplash",
+    href: "https://unsplash.com",
+    blurb: "High-quality free photos from a global community.",
+  },
+  {
+    name: "Pixabay",
+    href: "https://pixabay.com",
+    blurb: "Free images, illustrations and vectors.",
+  },
+] as const;
 
 type Props = {
   title: string;
@@ -70,6 +90,8 @@ export default function PostEditor({
   initialHtml = "",
   onHtmlChange,
 }: Props) {
+  const [findImagesOpen, setFindImagesOpen] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -100,6 +122,9 @@ export default function PostEditor({
     const url = window.prompt("Image URL:");
     if (url && editor) editor.chain().focus().setImage({ src: url }).run();
   };
+
+  const coverBtnClass =
+    "rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow hover:bg-pine-50";
 
   const addLink = () => {
     const url = window.prompt("URL:");
@@ -157,8 +182,8 @@ export default function PostEditor({
       {coverImageUrl ? (
         <div className="relative">
           <img src={coverImageUrl} alt="Cover" className="max-h-80 w-full object-cover" />
-          <div className="absolute right-4 top-4 flex gap-2">
-            <label className="cursor-pointer rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow hover:bg-pine-50">
+          <div className="absolute right-4 top-4 flex flex-wrap justify-end gap-2">
+            <label className={`cursor-pointer ${coverBtnClass}`}>
               Change
               <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
                 const file = e.target.files?.[0];
@@ -170,27 +195,106 @@ export default function PostEditor({
                 e.target.value = "";
               }} />
             </label>
-            <button onClick={() => onCoverImageUrlChange("")} className="rounded-md bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 shadow hover:bg-pine-50">
+            <button type="button" onClick={() => onCoverImageUrlChange("")} className={coverBtnClass}>
               Remove
+            </button>
+            <button type="button" onClick={() => setFindImagesOpen(true)} className={coverBtnClass}>
+              Find free images
+            </button>
+            <button type="button" onClick={() => setFindImagesOpen(true)} className={coverBtnClass}>
+              Browse stock photos
             </button>
           </div>
         </div>
       ) : (
-        <label className="group flex cursor-pointer flex-col items-center justify-center gap-2 border-b border-dashed border-pine-900/15 bg-white py-12 text-sm text-muted transition-colors hover:bg-pine-50 hover:text-pine-900">
-          <ImageIcon className="h-8 w-8 opacity-50" />
-          <span className="font-semibold">Add cover image</span>
-          <span className="text-xs">PNG, JPG, WEBP — shown on the post and social previews</span>
-          <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const fd = new FormData(); fd.append("file", file);
-            const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-            const json = await res.json() as { url?: string };
-            if (json.url) onCoverImageUrlChange(json.url);
-            e.target.value = "";
-          }} />
-        </label>
+        <div className="border-b border-dashed border-pine-900/15 bg-white py-12">
+          <label className="group flex cursor-pointer flex-col items-center justify-center gap-2 text-sm text-muted transition-colors hover:text-pine-900">
+            <ImageIcon className="h-8 w-8 opacity-50" />
+            <span className="font-semibold">Add cover image</span>
+            <span className="text-xs">PNG, JPG, WEBP — shown on the post and social previews</span>
+            <input type="file" accept="image/*" className="sr-only" onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const fd = new FormData(); fd.append("file", file);
+              const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+              const json = await res.json() as { url?: string };
+              if (json.url) onCoverImageUrlChange(json.url);
+              e.target.value = "";
+            }} />
+          </label>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => setFindImagesOpen(true)}
+              className="rounded-md border border-pine-900/12 bg-white px-3 py-1.5 text-xs font-semibold text-pine-900 shadow-sm hover:bg-pine-50"
+            >
+              Find free images
+            </button>
+            <button
+              type="button"
+              onClick={() => setFindImagesOpen(true)}
+              className="rounded-md border border-pine-900/12 bg-white px-3 py-1.5 text-xs font-semibold text-pine-900 shadow-sm hover:bg-pine-50"
+            >
+              Browse stock photos
+            </button>
+          </div>
+        </div>
       )}
+
+      {findImagesOpen ? (
+        <div
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-ink/45 px-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="find-free-images-title"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setFindImagesOpen(false);
+          }}
+        >
+          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-pine-900/10 bg-white shadow-lift">
+            <div className="flex items-start justify-between gap-3 border-b border-pine-900/8 px-5 py-4">
+              <div>
+                <p id="find-free-images-title" className="text-sm font-semibold text-pine-900">
+                  Find free images
+                </p>
+                <p className="mt-1 text-xs leading-5 text-muted">
+                  Open a free stock library, download an image, then use Change or Add cover image to
+                  upload it here.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFindImagesOpen(false)}
+                className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted hover:bg-pine-50 hover:text-pine-900"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <ul className="divide-y divide-pine-900/8 p-2">
+              {FREE_IMAGE_SOURCES.map((source) => (
+                <li key={source.href}>
+                  <a
+                    href={source.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 rounded-xl px-3 py-3 transition-colors hover:bg-pine-50"
+                  >
+                    <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-pine-900 text-paper">
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-pine-900">{source.name}</span>
+                      <span className="mt-0.5 block text-xs leading-5 text-muted">{source.blurb}</span>
+                      <span className="mt-1 block truncate text-[11px] text-pine-700">{source.href}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      ) : null}
 
       {/* Content area */}
       <div className="mx-auto w-full max-w-2xl px-6 py-10 pb-40 md:px-10">
