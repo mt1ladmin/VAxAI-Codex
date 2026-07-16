@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
+import { getSiteUrl } from "@/lib/seo/site";
 
 const PostEditor = dynamic(() => import("@/components/admin/PostEditor"), { ssr: false });
 import {
@@ -385,7 +386,10 @@ export default function EditPostPage() {
 
   // Auto-save
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+  const [publishError, setPublishError] = useState("");
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveAbort = useRef<AbortController | null>(null);
+  const manualSaveLock = useRef(false);
   const isPublishedRef = useRef(false);
   const stateRef = useRef({ title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft });
 
@@ -394,7 +398,16 @@ export default function EditPostPage() {
     setToastAction(action);
     setToastIsError(!!isError);
     setToastVisible(true);
-    setTimeout(() => setToastVisible(false), isError ? 6000 : 4000);
+    setTimeout(() => setToastVisible(false), isError ? 8000 : 4000);
+  };
+
+  const cancelAutoSave = () => {
+    if (autoSaveTimer.current) {
+      clearTimeout(autoSaveTimer.current);
+      autoSaveTimer.current = null;
+    }
+    autoSaveAbort.current?.abort();
+    autoSaveAbort.current = null;
   };
 
   useEffect(() => {
@@ -416,7 +429,7 @@ export default function EditPostPage() {
         setAuthorId(p.author_id ?? "");
         setSlug(p.slug ?? "");
         setIsPublished(p.status === "published");
-        if (p.status === "published") setPostUrl(`${window.location.origin}/posts/${p.slug}`);
+        if (p.status === "published") setPostUrl(`${getSiteUrl()}/posts/${p.slug}`);
         if (p.published_at) {
           const dt = new Date(p.published_at);
           const pad = (n: number) => String(n).padStart(2, "0");
@@ -478,22 +491,31 @@ export default function EditPostPage() {
   // Auto-save: debounce 30s after any content change
   useEffect(() => {
     if (loading) return;
+    if (manualSaveLock.current) return;
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(async () => {
+      // Never let a stale auto-save overwrite a manual publish/draft change
+      if (manualSaveLock.current) return;
       const s = stateRef.current;
+      // Read published flag at write time (not when the timer was scheduled)
       const status = isPublishedRef.current ? "published" : "draft";
+      const hashtags = Array.isArray(s.socialDraft?.hashtags) ? s.socialDraft!.hashtags! : [];
       setAutoSaveStatus("saving");
+      autoSaveAbort.current?.abort();
+      const ac = new AbortController();
+      autoSaveAbort.current = ac;
       try {
         const res = await fetch(`/api/admin/posts/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
+          signal: ac.signal,
           body: JSON.stringify({
             title: s.title || "Untitled",
-            description: s.description,
-            body_html: s.bodyHtml,
+            description: s.description ?? "",
+            body_html: s.bodyHtml ?? "",
             cover_image_url: s.coverImageUrl || null,
             content_type: s.showCustomType && s.customType ? s.customType : s.contentType,
-            tags: s.tags,
+            tags: Array.isArray(s.tags) ? s.tags : [],
             author_id: s.authorId || null,
             slug: s.slug || slugify(s.title || "untitled"),
             status,
@@ -502,25 +524,31 @@ export default function EditPostPage() {
             linkedin_post: s.socialDraft?.linkedin_post ?? null,
             instagram_caption: s.socialDraft?.instagram_caption ?? null,
             facebook_post: s.socialDraft?.facebook_post ?? null,
-            social_hashtags: s.socialDraft?.hashtags ?? [],
+            social_hashtags: hashtags,
           }),
         });
+        if (manualSaveLock.current || ac.signal.aborted) return;
         if (res.ok) {
           setAutoSaveStatus("saved");
           setTimeout(() => setAutoSaveStatus("idle"), 3000);
         } else {
           setAutoSaveStatus("idle");
         }
-      } catch {
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
         setAutoSaveStatus("idle");
       }
     }, 30_000);
-    return () => { if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current); };
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, socialDraft, id]);
 
   const savePublishedAt = async () => {
     setSaving(true);
+    manualSaveLock.current = true;
+    cancelAutoSave();
     try {
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: "PUT",
@@ -534,68 +562,110 @@ export default function EditPostPage() {
         setTimeout(() => setPublishedAtSaved(false), 3000);
       }
     } finally {
+      manualSaveLock.current = false;
       setSaving(false);
     }
   };
 
   const save = useCallback(async (status: "draft" | "published" | "scheduled") => {
     setSaving(true);
-    // Cancel any pending auto-save
-    if (autoSaveTimer.current) { clearTimeout(autoSaveTimer.current); autoSaveTimer.current = null; }
+    setPublishError("");
+    // Cancel pending and in-flight auto-saves so they cannot overwrite publish with draft
+    manualSaveLock.current = true;
+    cancelAutoSave();
+    // Optimistic ref so any later auto-save keeps the intended status
+    if (status === "published") isPublishedRef.current = true;
+    if (status === "draft") isPublishedRef.current = false;
+
     const wasAlreadyPublished = isPublished;
-    let json: { data?: unknown; error?: string; hint?: string } = {};
+    let json: { data?: { slug?: string; status?: string; published_at?: string | null }; error?: string; hint?: string } = {};
     try {
       const publishedAtIso = toIsoOrNull(publishedAt);
+      const hashtags = Array.isArray(socialDraft?.hashtags) ? socialDraft!.hashtags! : [];
+      const liveSlug = slug || slugify(title || "untitled");
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title || "Untitled",
-          description,
-          body_html: bodyHtml,
+          description: description ?? "",
+          body_html: bodyHtml ?? "",
           cover_image_url: coverImageUrl || null,
           content_type: showCustomType && customType ? customType : contentType,
-          tags,
+          tags: Array.isArray(tags) ? tags : [],
           author_id: authorId || null,
-          slug: slug || slugify(title || "untitled"),
+          slug: liveSlug,
           status,
-          scheduled_at: toIsoOrNull(scheduledAt),
-          ...(publishedAtIso ? { published_at: publishedAtIso } : {}),
+          // Publishing now clears any leftover schedule
+          scheduled_at: status === "published" ? null : toIsoOrNull(scheduledAt),
+          ...(publishedAtIso
+            ? { published_at: publishedAtIso }
+            : status === "published"
+              ? { published_at: new Date().toISOString() }
+              : {}),
           sharing_caption: socialDraft?.sharing_caption ?? null,
           linkedin_post: socialDraft?.linkedin_post ?? null,
           instagram_caption: socialDraft?.instagram_caption ?? null,
           facebook_post: socialDraft?.facebook_post ?? null,
-          social_hashtags: socialDraft?.hashtags ?? [],
+          social_hashtags: hashtags,
         }),
       });
-      json = await res.json() as typeof json;
+      const text = await res.text();
+      try {
+        json = text ? (JSON.parse(text) as typeof json) : {};
+      } catch {
+        throw new Error(text?.slice(0, 200) || `Save failed (HTTP ${res.status})`);
+      }
       if (!res.ok || json.error) {
-        const msg = json.hint ? `${json.error} — ${json.hint}` : (json.error ?? "Save failed");
+        // Roll back optimistic published flag on failure
+        if (status === "published") isPublishedRef.current = wasAlreadyPublished;
+        if (status === "draft") isPublishedRef.current = isPublished;
+        const msg = json.hint ? `${json.error} — ${json.hint}` : (json.error ?? `Save failed (HTTP ${res.status})`);
+        setPublishError(msg);
         showToast(msg, undefined, true);
         setSaving(false);
+        manualSaveLock.current = false;
         return;
       }
     } catch (e) {
+      if (status === "published") isPublishedRef.current = wasAlreadyPublished;
+      if (status === "draft") isPublishedRef.current = isPublished;
       const msg = e instanceof Error ? e.message : "Save failed — check your connection";
+      setPublishError(msg);
       showToast(msg, undefined, true);
       setSaving(false);
+      manualSaveLock.current = false;
       return;
     }
+
+    const savedSlug = json.data?.slug || slug || slugify(title || "untitled");
+    if (json.data?.slug && json.data.slug !== slug) {
+      setSlug(json.data.slug);
+    }
+
     setSaving(false);
+    // Keep lock briefly so a debounced auto-save cannot race the status flip
+    setTimeout(() => {
+      manualSaveLock.current = false;
+    }, 1500);
+
     if (status === "published") {
-      const liveSlug = slug || slugify(title || "untitled");
-      const liveUrl = `${window.location.origin}/posts/${liveSlug}`;
+      const liveUrl = `${getSiteUrl()}/posts/${savedSlug}`;
       setIsPublished(true);
+      isPublishedRef.current = true;
       setPostUrl(liveUrl);
+      setScheduledAt("");
       setPanelOpen(true);
       setPublishedSuccessWasUpdate(wasAlreadyPublished);
       setShowPublishedSuccess(true);
+      setPublishError("");
       showToast(
         wasAlreadyPublished ? "Post updated" : "Post published",
         { label: "View post →", href: liveUrl },
       );
     } else if (status === "draft" && isPublished) {
       setIsPublished(false);
+      isPublishedRef.current = false;
       showToast("Moved to draft");
     } else if (status === "draft") {
       showToast("Draft saved");
@@ -941,20 +1011,38 @@ export default function EditPostPage() {
 
             {/* Sticky publish footer */}
             <div className="shrink-0 border-t border-[#111111]/10 px-5 py-4">
+              {publishError ? (
+                <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                  <p className="font-semibold">Could not publish</p>
+                  <p className="mt-0.5 break-words">{publishError}</p>
+                </div>
+              ) : null}
               {publishMode === "now" || isPublished ? (
-                <button onClick={() => void save("published")} disabled={saving}
-                  className="w-full rounded-md bg-[#122428] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
-                  {saving ? "Saving…" : isPublished ? "Update post" : "Publish post"}
+                <button
+                  type="button"
+                  onClick={() => void save("published")}
+                  disabled={saving}
+                  className="w-full rounded-md bg-[#122428] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                >
+                  {saving ? "Publishing…" : isPublished ? "Update post" : "Publish post"}
                 </button>
               ) : (
-                <button onClick={() => void save("scheduled")} disabled={saving || !scheduledAt}
-                  className="w-full rounded-md bg-pine-900 py-3 text-sm font-semibold text-paper hover:bg-pine-800 disabled:opacity-50">
+                <button
+                  type="button"
+                  onClick={() => void save("scheduled")}
+                  disabled={saving || !scheduledAt}
+                  className="w-full rounded-md bg-pine-900 py-3 text-sm font-semibold text-paper hover:bg-pine-800 disabled:opacity-50"
+                >
                   {saving ? "Scheduling…" : "Schedule post"}
                 </button>
               )}
               {isPublished && (
-                <button onClick={() => void save("draft")} disabled={saving}
-                  className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-gray-100 disabled:opacity-50">
+                <button
+                  type="button"
+                  onClick={() => void save("draft")}
+                  disabled={saving}
+                  className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-gray-100 disabled:opacity-50"
+                >
                   Move to draft
                 </button>
               )}
