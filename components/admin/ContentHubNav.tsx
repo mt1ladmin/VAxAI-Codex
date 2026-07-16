@@ -11,7 +11,10 @@ const TABS = [
   { href: "/admin/newsletter", label: "Newsletter", title: "Subscribers" },
 ] as const;
 
-/** Content Hub section tabs — public filing-tab style (grey / light green active). */
+/**
+ * Single Content Hub tab strip — side by side, filing-tab style:
+ * grey when idle, light green when selected.
+ */
 export function ContentHubNav({ className = "" }: { className?: string }) {
   const pathname = usePathname();
 
@@ -19,10 +22,13 @@ export function ContentHubNav({ className = "" }: { className?: string }) {
     <div
       role="tablist"
       aria-label="Content Hub sections"
-      className={`flex max-w-full flex-wrap gap-1.5 ${className}`}
+      className={`flex w-full max-w-full flex-nowrap items-end gap-1.5 overflow-x-auto scrollbar-none border-b border-[#d5d8d1] ${className}`}
     >
       {TABS.map(({ href, label, title }) => {
-        const active = pathname.startsWith(href);
+        const active =
+          href === "/admin/posts"
+            ? pathname === "/admin/posts" || pathname.startsWith("/admin/posts/")
+            : pathname === href || pathname.startsWith(`${href}/`);
         return (
           <Link
             key={href}

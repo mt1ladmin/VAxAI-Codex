@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Plus, Trash2, X } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
-import { ContentHubNav } from "@/components/admin/ContentHubNav";
 import FilingTab from "@/components/FilingTab";
 
 type Author = { id: string; name: string; bio: string; avatar_url: string | null; linkedin_url: string | null; created_at: string };
@@ -153,9 +152,6 @@ export default function AuthorsPage() {
       <div className="border-b border-pine-900/8 bg-white px-8 py-6">
         <FilingTab>Author profiles</FilingTab>
         <p className="mt-3 text-sm text-muted">Create author profiles to attribute posts. Each profile is shown on the published post.</p>
-        <div className="mt-4">
-          <ContentHubNav />
-        </div>
       </div>
 
       <div className="mx-auto max-w-2xl px-8 py-8">

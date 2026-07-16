@@ -13,7 +13,6 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { ContentHubNav } from "@/components/admin/ContentHubNav";
 import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { MultiSelect } from "@/components/ui/MultiSelect";
@@ -136,9 +135,6 @@ export default function PostsPage() {
             <p className="mt-3 text-sm text-muted">
               {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
             </p>
-            <div className="mt-4">
-              <ContentHubNav />
-            </div>
           </div>
           <Link
             href="/admin/posts/new"

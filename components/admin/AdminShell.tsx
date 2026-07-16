@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
+import { ContentHubNav } from "@/components/admin/ContentHubNav";
 import {
   PROSPECT_FINDER_LABEL,
   PROSPECT_FINDER_PATH,
@@ -286,6 +287,17 @@ export default function AdminShell({
               <PanelLeftOpen className="h-3.5 w-3.5" />
               Open sidebar
             </button>
+          </div>
+        )}
+
+        {(pathname === "/admin/calendar" ||
+          pathname === "/admin/posts" ||
+          pathname.startsWith("/admin/posts/") ||
+          pathname === "/admin/authors" ||
+          pathname === "/admin/create-content" ||
+          pathname === "/admin/newsletter") && (
+          <div className="sticky top-[41px] z-20 border-b border-pine-900/8 bg-white/95 px-4 py-2.5 backdrop-blur-sm md:top-0 md:px-8">
+            <ContentHubNav />
           </div>
         )}
 

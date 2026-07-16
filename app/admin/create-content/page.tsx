@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, ChevronDown, Loader2, Sparkles, Wand2 } from "lucide-react";
 import { ContentCreateModal } from "@/components/admin/ContentCreateModal";
-import { ContentHubNav } from "@/components/admin/ContentHubNav";
 import {
   InfoTip,
   StudioPageHeader,
@@ -126,12 +125,9 @@ export default function CreateContentPage() {
           description="Start with Create when you already know the angle. Open the topic library only if you want optional ideas — used topics are removed so you do not rework the same brief."
           info="Generate drafts with AI, then edit before saving to Posts or the calendar. Topics you generate from are archived so the library stays fresh. Refresh topics uses AI plus light public research signals."
         />
-        <div className="mt-4">
-          <ContentHubNav />
-        </div>
 
         {/* Always-visible create / library controls */}
-        <div className={`sticky top-0 z-20 mt-6 ${studio.card} ${studio.cardPad} border-pine-900/10 bg-white/95 shadow-sm backdrop-blur-md`}>
+        <div className={`sticky top-14 z-20 mt-6 ${studio.card} ${studio.cardPad} border-pine-900/10 bg-white/95 shadow-sm backdrop-blur-md md:top-12`}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className={studio.sectionTitle}>Create</p>
