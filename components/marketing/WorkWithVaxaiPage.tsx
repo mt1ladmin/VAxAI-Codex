@@ -80,19 +80,25 @@ const errorClass =
   "mt-4 rounded-xl border border-pine-900/15 bg-cream px-3.5 py-3 text-sm leading-6 text-pine-900";
 
 const essentials = [
-  "Based in the UK",
-  "Set up (or ready to set up) as self-employed with HMRC when required",
-  "Business insurance (Professional Indemnity as a minimum) arranged before client work begins",
-  "Reliable computer, stable internet, and a quiet professional workspace",
-  "Discretion, professionalism, attention to detail, and willingness to sign our standard NDA and Data Processing Agreement",
+  "To be based in the UK and have the right to work in the UK",
+  "To be correctly set up (or ready to set up) as self-employed with HMRC, or to operate through a limited company",
+  "Professional Indemnity insurance arranged before any client work begins",
+  "A reliable computer, stable high-speed internet, and a quiet professional workspace",
+  "Proven discretion, professionalism and attention to detail",
+  "Willingness to sign our standard Non-Disclosure Agreement and Data Processing Agreement",
+  "Experience handling confidential or sensitive information in a professional setting",
 ];
 
 const whyPartner = [
-  "We carefully match freelancers to projects and retainers so the fit is right for you and the organisation.",
-  "We provide clear briefs and structured onboarding so you can focus on delivering excellent work.",
-  "You can join free workshops and events on AI and automation skills for admin roles.",
-  "You choose the work that suits your skills and availability, with transparent terms throughout.",
+  "Work on well-matched projects and retainers that suit your skills and interests.",
+  "Receive clear briefs and structured onboarding so you can focus on delivering high-quality work.",
+  "Join free workshops and events to build practical AI and automation skills for admin roles.",
+  "Enjoy flexibility in choosing work that fits your availability, with transparent terms throughout.",
+  "We do not publish fixed rates because the work varies. Rates are discussed individually based on the scope of work, your experience, and the requirements of each engagement. Payment may be on a project, monthly or quarterly basis depending on the type of work. Exact terms are confirmed in writing before any work begins.",
 ];
+
+const CONVICTION_OPTIONS = ["No", "Yes", "I do not wish to say"] as const;
+const START_SOON_OPTIONS = ["Yes", "No"] as const;
 
 /** Ordered wizard steps (one focus per screen) */
 const STEPS = [
@@ -124,7 +130,7 @@ const STEP_TITLES: Record<StepId, string> = {
   experience: "Experience",
   ai: "AI and automation",
   availability: "Availability",
-  contracts: "Contracts and professionalism",
+  contracts: "Confidentiality, integrity and checks",
   cv: "Your CV",
   notes: "Anything else",
 };
@@ -195,6 +201,8 @@ export default function WorkWithVaxaiPage() {
   const [agreeNda, setAgreeNda] = useState(false);
   const [agreeReferences, setAgreeReferences] = useState(false);
   const [agreeBackgroundCheck, setAgreeBackgroundCheck] = useState(false);
+  const [convictionDisclosure, setConvictionDisclosure] = useState("");
+  const [availableStartSoon, setAvailableStartSoon] = useState("");
   const [coverNote, setCoverNote] = useState("");
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [linkedinUrl, setLinkedinUrl] = useState("");
@@ -263,6 +271,8 @@ export default function WorkWithVaxaiPage() {
     setAgreeNda(false);
     setAgreeReferences(false);
     setAgreeBackgroundCheck(false);
+    setConvictionDisclosure("");
+    setAvailableStartSoon("");
     setCoverNote("");
     setCvFile(null);
     setLinkedinUrl("");
@@ -321,12 +331,19 @@ export default function WorkWithVaxaiPage() {
           ? null
           : "Please select your current knowledge of AI tools and automations.";
       case "availability":
-        return availabilityHours.trim()
-          ? null
-          : "Please tell us your typical hours available per week.";
+        if (!availabilityHours.trim()) {
+          return "Please tell us your typical hours available per week.";
+        }
+        if (!availableStartSoon) {
+          return "Please tell us if you are available to start within the next 2–4 weeks.";
+        }
+        return null;
       case "contracts":
         if (!agreeNda || !agreeReferences || !agreeBackgroundCheck) {
-          return "Please confirm all three professionalism statements to continue.";
+          return "Please confirm all three confidentiality and integrity statements to continue.";
+        }
+        if (!convictionDisclosure) {
+          return "Please answer the disclosure question about criminal offences, fraud or financial misconduct.";
         }
         return null;
       case "cv":
@@ -399,6 +416,8 @@ export default function WorkWithVaxaiPage() {
       form.set("ai_knowledge", aiKnowledge);
       form.set("availability_hours_per_week", availabilityHours);
       form.set("availability_notes", availabilityNotes);
+      form.set("available_start_soon", availableStartSoon);
+      form.set("conviction_disclosure", convictionDisclosure);
       form.set("cover_note", coverNote);
       form.set("linkedin_url", linkedinUrl);
       form.set("has_computer", String(hasComputer));
@@ -445,10 +464,16 @@ export default function WorkWithVaxaiPage() {
             <div className="rounded-2xl border border-ink/10 bg-cream/40 px-5 py-5 text-sm leading-7 text-muted md:px-6 md:py-6 md:text-[15px] md:leading-8">
               <p className="font-semibold text-ink">What we collect</p>
               <p className="mt-3">
-                Your contact details, location, self-employment and insurance readiness, identity
-                confirmation, equipment and workspace status, specialisms, preferred client types,
-                availability, CV, and any notes you choose to share. We use this only to review your
-                application, contact you about partnership opportunities, and match you to suitable
+                Your contact details (name, email, phone if provided), location (town / region),
+                confirmation that you are based in the UK and can prove your identity,
+                self-employment and Professional Indemnity insurance readiness, equipment and
+                workspace status, specialisms, sectors and industries you have worked with,
+                years of experience and optional experience notes, AI and automation knowledge,
+                availability (hours, preferred days or times, and whether you can start within
+                2–4 weeks), confidentiality and integrity confirmations, optional disclosure about
+                criminal offences, fraud or financial misconduct, your CV, optional LinkedIn or
+                portfolio link, and any other notes you choose to share. We use this only to review
+                your interest, contact you about partnership opportunities, and match you to suitable
                 work with VAxAI.
               </p>
               <p className="mt-4">
@@ -566,7 +591,7 @@ export default function WorkWithVaxaiPage() {
                 onChange={(e) => setCanProveIdentity(e.target.checked)}
                 className="mt-1"
               />
-              I can prove my identity for client onboarding *
+              I can prove my identity *
             </label>
           </div>
         );
@@ -738,7 +763,7 @@ export default function WorkWithVaxaiPage() {
 
       case "availability":
         return (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
               <label className={labelClass} htmlFor="va-hours">
                 Typical hours available per week *
@@ -751,9 +776,22 @@ export default function WorkWithVaxaiPage() {
                 placeholder="e.g. 10–15 hours"
               />
             </div>
+            <div className="space-y-2">
+              <p className={labelClass}>Are you available to start within the next 2–4 weeks? *</p>
+              {START_SOON_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setAvailableStartSoon(opt)}
+                  className={choiceCard(availableStartSoon === opt)}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
             <div>
               <label className={labelClass} htmlFor="va-avail-notes">
-                Preferred working days / times (optional notes)
+                Preferred working days / times (optional)
               </label>
               <input
                 id="va-avail-notes"
@@ -768,7 +806,10 @@ export default function WorkWithVaxaiPage() {
 
       case "contracts":
         return (
-          <div className="space-y-3">
+          <div className="space-y-4">
+            <p className="text-sm leading-7 text-muted">
+              This work often involves access to confidential client information.
+            </p>
             <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm leading-6 text-muted">
               <input
                 type="checkbox"
@@ -776,8 +817,8 @@ export default function WorkWithVaxaiPage() {
                 onChange={(e) => setAgreeNda(e.target.checked)}
                 className="mt-1"
               />
-              I understand that successful applicants will be asked to sign a Non-Disclosure Agreement
-              and Data Processing Agreement before any client work begins *
+              I understand the confidential nature of the work and am willing to sign a Non-Disclosure
+              Agreement and Data Processing Agreement before any client work begins *
             </label>
             <label className="flex items-start gap-3 rounded-2xl border border-ink/10 bg-white px-4 py-4 text-sm leading-6 text-muted">
               <input
@@ -797,6 +838,21 @@ export default function WorkWithVaxaiPage() {
               />
               I am willing to complete a basic background check if required for certain client work *
             </label>
+            <div className="space-y-2 pt-1">
+              <p className={labelClass}>
+                Have you ever been convicted of a criminal offence, fraud, or financial misconduct? *
+              </p>
+              {CONVICTION_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setConvictionDisclosure(opt)}
+                  className={choiceCard(convictionDisclosure === opt)}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
           </div>
         );
 
@@ -924,8 +980,9 @@ export default function WorkWithVaxaiPage() {
                     Application received
                   </h3>
                   <p className="mt-3 max-w-md text-sm leading-7 text-muted sm:text-base sm:leading-8">
-                    Thank you for applying to partner with VAxAI. We will review fit, specialisms,
-                    setup readiness and availability, and get in touch if there is a good match.
+                    Thank you for registering your interest in the VAxAI VA partner network. We will
+                    review fit, specialisms, setup readiness and availability, and get in touch if
+                    there is a good match.
                   </p>
                   <button type="button" onClick={closeModal} className={`${btn.primary} mt-8`}>
                     Close
@@ -964,7 +1021,7 @@ export default function WorkWithVaxaiPage() {
                           </>
                         ) : (
                           <>
-                            Submit application
+                            Register your interest
                             <ArrowRight className="h-4 w-4" />
                           </>
                         )}
@@ -998,7 +1055,7 @@ export default function WorkWithVaxaiPage() {
               <motion.div initial="hidden" animate="show" variants={fadeUp} className="order-1">
                 <Eyebrow light>Partner with VAxAI</Eyebrow>
                 <h1 className="mt-5 max-w-3xl text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.025em] sm:mt-6 sm:text-[2.35rem] md:text-5xl">
-                  Become a VAxAI freelancer
+                  Join the VAxAI VA partner network
                 </h1>
                 <p className="mt-6 max-w-2xl text-base leading-8 text-paper/70 sm:mt-8 md:text-lg">
                   We work with skilled UK-based freelance virtual assistants who help organisations
@@ -1010,7 +1067,7 @@ export default function WorkWithVaxaiPage() {
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3 sm:mt-10">
                   <button type="button" onClick={openModal} className={btn.accent}>
-                    Start your application
+                    Register your interest
                     <ArrowRight className="h-4 w-4" />
                   </button>
                   <a href="#who" className={btn.ghostDark}>
@@ -1028,9 +1085,11 @@ export default function WorkWithVaxaiPage() {
               >
                 <div className="rounded-[28px] border border-ink/5 bg-white p-7 text-ink shadow-card md:p-8">
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                    Essential requirements
+                    What you&rsquo;ll need
                   </p>
-                  <p className="mt-2 text-sm text-muted">These are non-negotiable for client work:</p>
+                  <p className="mt-2 text-sm text-muted">
+                    To work with us on client projects, freelancers will normally need:
+                  </p>
                   <ul className="mt-5 space-y-3">
                     {essentials.map((item) => (
                       <li key={item} className="flex gap-3 text-sm leading-7 text-muted md:text-[15px]">
@@ -1041,6 +1100,11 @@ export default function WorkWithVaxaiPage() {
                       </li>
                     ))}
                   </ul>
+                  <p className="mt-5 border-t border-ink/8 pt-4 text-sm leading-7 text-muted">
+                    These standards help us maintain the quality, security and professionalism that our
+                    clients expect, particularly when work involves confidential information, systems
+                    access, or personal data.
+                  </p>
                 </div>
               </motion.div>
             </div>
@@ -1058,9 +1122,8 @@ export default function WorkWithVaxaiPage() {
                   AI and automation are reshaping many traditional entry-level and admin roles, reducing
                   some of the opportunities that young people have historically used to start their
                   careers. If you are interested in a career in freelance administrative work, get in
-                  touch or sign up to our newsletter. Stay up to date with VAxAI insights on admin, AI
-                  and automation, and be the first to know about opportunities for early-career
-                  professionals as they arise.
+                  touch or sign up to our newsletter, and be the first to know about opportunities for
+                  early-career professionals as they arise.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <button type="button" onClick={() => setContactOpen(true)} className={btn.primary}>
@@ -1081,7 +1144,7 @@ export default function WorkWithVaxaiPage() {
               <Reveal>
                 <Eyebrow light>Why partner with VAxAI</Eyebrow>
                 <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Focus on the work. We handle the rest.
+                  Focus on the work you enjoy.
                 </h2>
               </Reveal>
               <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -1110,11 +1173,11 @@ export default function WorkWithVaxaiPage() {
                     Ready to join our network?
                   </h2>
                   <p className="mt-5 max-w-xl text-base leading-8 text-muted">
-                    Start your application when ready. We guide you step by step through privacy,
+                    Register your interest when ready. We guide you step by step through privacy,
                     experience, specialisms, setup readiness, availability and CV.
                   </p>
                   <button type="button" onClick={openModal} className={`${btn.primary} mt-8`}>
-                    Start your application
+                    Register your interest
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>

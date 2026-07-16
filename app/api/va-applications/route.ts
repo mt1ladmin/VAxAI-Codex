@@ -128,6 +128,8 @@ export async function POST(req: NextRequest) {
   const agreeNda = asBoolean(form.get("agree_nda"));
   const agreeReferences = asBoolean(form.get("agree_references"));
   const agreeBackgroundCheck = asBoolean(form.get("agree_background_check"));
+  const convictionDisclosure = cleanOptionalText(form.get("conviction_disclosure"), 80);
+  const availableStartSoon = cleanOptionalText(form.get("available_start_soon"), 20);
   const policiesAccepted = asBoolean(form.get("policies_accepted"));
   const declarationAccepted = asBoolean(form.get("declaration_accepted"));
 
@@ -266,6 +268,8 @@ export async function POST(req: NextRequest) {
         references: agreeReferences,
         background_check: agreeBackgroundCheck,
       },
+      conviction_disclosure: convictionDisclosure || null,
+      available_start_soon: availableStartSoon || null,
       policies_accepted: true,
       declaration_accepted: true,
     },

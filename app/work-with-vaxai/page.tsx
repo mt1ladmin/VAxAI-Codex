@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import WorkWithVaxaiPage from "@/components/marketing/WorkWithVaxaiPage";
 
 export const metadata: Metadata = {
-  title: "Join VAxAI VA Network | Become a Freelance Virtual Assistant",
+  title: "Join the VAxAI VA Partner Network | Register Your Interest",
   description:
-    "Partner with VAxAI as a UK-based freelance virtual assistant. Clear admin backlogs, prepare for AI and automation, and deliver project work and monthly retainers.",
+    "Register your interest in the VAxAI VA partner network. Clear admin backlogs, prepare for AI and automation, and deliver project work and monthly retainers.",
   openGraph: {
-    title: "Join VAxAI VA Network | Become a Freelance Virtual Assistant",
+    title: "Join the VAxAI VA Partner Network | Register Your Interest",
     description:
-      "Apply to join the VAxAI freelance VA network. Project work, retainers, and practical AI skills for admin professionals.",
+      "Register your interest in joining the VAxAI VA partner network. Project work, retainers, and practical AI skills for admin professionals.",
   },
 };
 
