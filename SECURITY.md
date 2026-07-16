@@ -8,7 +8,7 @@ Last reviewed: 2026-07-15
 - **Public APIs:** Rate limiting, payload size limits, input allowlists/length caps on enquiry, newsletter and public posts.
 - **Least privilege (writes):** Public write paths prefer the Supabase **anon** key so RLS can constrain inserts; service role is not required for public forms.
 - **Cron/batch:** Bearer secrets required (`CRON_SECRET` / `AI_BATCH_SECRET`); constant-time compare; fail closed when missing.
-  - Scheduled blog publish: `GET/POST /api/cron/publish-scheduled` (Vercel Cron every minute via `vercel.json`).
+  - Scheduled blog publish: `GET/POST /api/cron/publish-scheduled` (Vercel Cron daily via `vercel.json`; due posts also go live on admin/public post reads).
 - **XSS:** HTML sanitisation before rendering CMS/post body content.
 - **Headers:** HSTS, CSP, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, COOP/CORP, `poweredByHeader` disabled.
 - **Cookies/privacy:** Explicit cookie consent before analytics; necessary/analytics/marketing categories.
