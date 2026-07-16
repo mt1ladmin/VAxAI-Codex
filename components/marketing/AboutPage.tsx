@@ -113,12 +113,34 @@ export default function AboutPage() {
                   Built through experience, not theory.
                 </h1>
                 <p className="mt-6 max-w-xl text-sm leading-7 text-paper/70 md:text-base md:leading-8">
-                  VAxAI is a service by MT1L, home of the Value, Trust and Alignment (VTA) Framework and
-                  founded by Thesia Kouloungou. She and Rebecca Bradshaw, her virtual assistant turned
-                  business partner and VAxAI co-founder, shaped the service together, one building the
-                  business, one delivering the admin, so clients get support grounded in both sides of
-                  the work.
+                  VAxAI was founded by <strong className="font-semibold text-paper">Thesia Kouloungou-Nkoula</strong>{" "}
+                  and <strong className="font-semibold text-paper">Rebecca Bradshaw</strong>. Thesia founded{" "}
+                  <strong className="font-semibold text-paper">MT1L</strong>, home of the{" "}
+                  <strong className="font-semibold text-paper">Value, Trust and Alignment (VTA) Framework</strong>,
+                  and brings experience in organisational change, inclusion, and helping organisations make
+                  better decisions about AI and emerging technology. Rebecca brings experience in virtual
+                  assistance, administration and operational support. Together, they combine their expertise
+                  to help organisations prepare, support and maintain the foundations behind modern ways of
+                  working.
                 </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <a
+                    href="https://www.mt1l.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-acid px-5 py-2.5 text-sm font-semibold text-ink transition-all duration-300 ease-premium hover:brightness-[1.04]"
+                  >
+                    Learn more about MT1L
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="/how-we-help"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-2.5 text-sm font-semibold text-paper/90 transition-colors duration-300 hover:border-white/45 hover:text-paper"
+                  >
+                    Learn more about our services
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
               </motion.div>
 
               <motion.div
@@ -156,8 +178,8 @@ export default function AboutPage() {
                   </p>
                   <p>
                     While building MT1L, Thesia explored how AI could support a range of tasks in different
-                    areas of the work. Like many organisations, she quickly discovered that AI worked best
-                    when the right foundations were already in place.
+                    areas of the business. Like many organisations, she quickly discovered that AI worked
+                    best when the right foundations were already in place.
                   </p>
                   <ul className="space-y-3 border-l-2 border-acid py-1 pl-5">
                     <li>The quality of the information going in mattered.</li>
@@ -170,8 +192,11 @@ export default function AboutPage() {
                     Once Rebecca joined as her virtual assistant, they began refining their ways of
                     working, testing different approaches that combined AI with practical administrative
                     support and learning what genuinely improved the way work got done. Every improvement
-                    taught them something new - not just about technology, but about the importance of
-                    preparation, organisation and human oversight.
+                    taught them something new: where technology created real value, where human oversight
+                    was still essential, and how to create systems that allow AI to work alongside people
+                    so it enhances and complements existing ways of working. That learning was never only
+                    about technology. It was also about preparation, organisation and keeping people in
+                    the loop.
                   </p>
                   <p>
                     Conversations with leaders across various industries, together with their own experience
