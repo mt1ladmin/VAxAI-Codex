@@ -55,27 +55,28 @@ const TAB_META: Record<
     label: "Sectors",
     title: "Sectors",
     description:
-      "How admin pressure shows up for founders, SMEs, charities and public sector, and where VAxAI helps.",
+      "Highest-demand markets for the four services: backlog recovery, AI readiness groundwork, ongoing operational admin, and monitoring and maintenance. Primary: founders, growing SMEs, charities, public sector; plus practices where admin pressure is strongest.",
     icon: Folder,
   },
   personas: {
     label: "Personas",
     title: "Personas",
-    description: "Who feels the admin load day to day, so outreach and matching stay human and specific.",
+    description:
+      "Decision-makers and day-to-day owners who feel those services most, from founders and ops managers to charity leaders, practice leads and board sponsors.",
     icon: Users,
   },
   pain_points: {
     label: "Pain points",
     title: "Pain points",
     description:
-      "Operational pressures: backlogs, AI-ready organisation, essential admin, and stopping problems returning.",
+      "Pressures mapped to the four services: clearing admin and reporting backlogs, readiness before AI, day-to-day operational capacity, and keeping improvements from slipping.",
     icon: Target,
   },
   vat_prompts: {
     label: "VAT prompts",
     title: "VAT prompts",
     description:
-      "Value, Alignment and Trust prompts for judging whether AI or process change genuinely helps.",
+      "Value, Alignment and Trust questions for service-led conversations: Free Admin Review first, which of the four services fits, and where people must stay accountable.",
     icon: Scale,
   },
   pricing: {
