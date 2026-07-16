@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const status = req.nextUrl.searchParams.get("status");
     const db = createServiceClient();
     const baseColumns =
-      "id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,body_html,sharing_caption,linkedin_post,instagram_caption,social_hashtags";
+      "id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,body_html,sharing_caption,linkedin_post,instagram_caption,facebook_post,social_hashtags";
 
     const runQuery = (select: string) => {
       let query = db.from("posts").select(select).order("updated_at", { ascending: false });
@@ -50,7 +50,8 @@ export async function POST(req: NextRequest) {
       content_type?: string; tags?: string[]; author_id?: string;
       cover_image_url?: string; status?: string; slug?: string;
       sharing_caption?: string; linkedin_post?: string;
-      instagram_caption?: string; social_hashtags?: string[];
+      instagram_caption?: string; facebook_post?: string;
+      social_hashtags?: string[];
     };
     const title = body.title ?? "Untitled";
     const rawSlug = body.slug || slugify(title);
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
       sharing_caption: body.sharing_caption ?? null,
       linkedin_post: body.linkedin_post ?? null,
       instagram_caption: body.instagram_caption ?? null,
+      facebook_post: body.facebook_post ?? null,
       social_hashtags: body.social_hashtags ?? [],
     }).select().single();
     if (error) throw error;

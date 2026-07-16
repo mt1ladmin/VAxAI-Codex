@@ -32,8 +32,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       scheduled_at?: string | null; published_at?: string | null;
       sharing_caption?: string | null;
       linkedin_post?: string | null; instagram_caption?: string | null;
+      facebook_post?: string | null;
       social_hashtags?: string[];
       linkedin_posted_at?: string | null; instagram_posted_at?: string | null;
+      facebook_posted_at?: string | null;
       sharing_posted_at?: string | null;
     };
     const now = new Date().toISOString();

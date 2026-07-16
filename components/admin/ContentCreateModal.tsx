@@ -341,6 +341,7 @@ export function ContentCreateModal({
           sharing_caption: all.sharing_caption,
           linkedin_post: all.linkedin_post,
           instagram_caption: all.instagram_caption,
+          facebook_post: all.facebook_post,
           social_hashtags: currentHashtags,
         }),
       });

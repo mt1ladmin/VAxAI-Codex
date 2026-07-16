@@ -9,32 +9,37 @@ import {
   Check,
   ChevronDown,
   Copy,
-  Facebook,
   Instagram,
   Linkedin,
   Loader2,
-  Plus,
   Settings,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
 import { AppSelect } from "@/components/ui/AppSelect";
 
-function XIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.261 5.636L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
-    </svg>
-  );
-}
-
 const PostEditor = dynamic(() => import("@/components/admin/PostEditor"), { ssr: false });
 import {
-  SocialPostPreviewModal as PlatformPreviewModal,
-  SocialPostSummaryCard,
-  type SocialPostPreview,
-} from "@/components/admin/SocialPostPreviewModal";
+  ConnectedPostsModal,
+  type LinkedSocialPost,
+  type PostedAts,
+  type SocialDraft,
+} from "@/components/admin/ConnectedPostsModal";
+
+const ZERNIO_URL = "https://app.zernio.com";
+
+function ZernioLogo({ className }: { className?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/zernio-logo.png"
+      alt=""
+      className={className ?? "h-4 w-4 rounded-sm object-contain"}
+      width={16}
+      height={16}
+    />
+  );
+}
 
 type Author = { id: string; name: string; avatar_url: string | null };
 type Post = {
@@ -43,17 +48,13 @@ type Post = {
   author_id: string | null; slug: string; status: string; scheduled_at: string | null;
   published_at: string | null;
   sharing_caption: string | null; linkedin_post: string | null;
-  instagram_caption: string | null; social_hashtags: string[];
+  instagram_caption: string | null; facebook_post: string | null;
+  social_hashtags: string[];
+  linkedin_posted_at?: string | null;
+  instagram_posted_at?: string | null;
+  facebook_posted_at?: string | null;
+  sharing_posted_at?: string | null;
 };
-
-type SocialDraft = {
-  sharing_caption?: string;
-  linkedin_post?: string;
-  instagram_caption?: string;
-  hashtags?: string[];
-};
-
-type LinkedSocialPost = Omit<SocialPostPreview, "scheduled_date"> & { scheduled_date: string };
 
 const PRESET_TYPES = ["Insight", "Research", "Article", "Guide", "Case Study", "Video", "Framework Comparison"];
 
@@ -103,16 +104,19 @@ function SocialPreviewModal({
 }) {
   const [copiedLi, setCopiedLi] = useState(false);
   const [copiedIg, setCopiedIg] = useState(false);
+  const [copiedFb, setCopiedFb] = useState(false);
   const hashtagStr = (social.hashtags ?? []).map((h) => `#${h}`).join(" ");
 
-  const copy = async (text: string, which: "li" | "ig") => {
+  const copy = async (text: string, which: "li" | "ig" | "fb") => {
     await navigator.clipboard.writeText(text);
     if (which === "li") { setCopiedLi(true); setTimeout(() => setCopiedLi(false), 2000); }
-    else { setCopiedIg(true); setTimeout(() => setCopiedIg(false), 2000); }
+    else if (which === "ig") { setCopiedIg(true); setTimeout(() => setCopiedIg(false), 2000); }
+    else { setCopiedFb(true); setTimeout(() => setCopiedFb(false), 2000); }
   };
 
   const liContent = [social.linkedin_post, postUrl || null, hashtagStr || null].filter(Boolean).join("\n\n");
   const igContent = [social.instagram_caption, postUrl || null, hashtagStr || null].filter(Boolean).join("\n\n");
+  const fbContent = [social.facebook_post, postUrl || null, hashtagStr || null].filter(Boolean).join("\n\n");
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4">
@@ -141,10 +145,6 @@ function SocialPreviewModal({
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">LinkedIn post</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <a href="https://www.linkedin.com/feed/" target="_blank" rel="noreferrer"
-                    className="inline-flex items-center gap-1 rounded-md border border-[#0077B5]/30 px-2.5 py-1 text-xs font-medium text-[#0077B5] hover:bg-[#0077B5]/5">
-                    <Linkedin className="h-3 w-3" /> Post
-                  </a>
                   <button type="button" onClick={() => void copy(liContent, "li")}
                     className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-pine-50">
                     {copiedLi ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
@@ -165,10 +165,6 @@ function SocialPreviewModal({
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Instagram caption</p>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <a href="https://www.instagram.com/" target="_blank" rel="noreferrer"
-                    className="inline-flex items-center gap-1 rounded-md border border-[#E1306C]/30 px-2.5 py-1 text-xs font-medium text-[#E1306C] hover:bg-[#E1306C]/5">
-                    <Instagram className="h-3 w-3" /> Post
-                  </a>
                   <button type="button" onClick={() => void copy(igContent, "ig")}
                     className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-pine-50">
                     {copiedIg ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
@@ -181,6 +177,30 @@ function SocialPreviewModal({
               {hashtagStr && <p className="mt-1 text-xs text-[#5F686A]">{hashtagStr}</p>}
             </div>
           )}
+          {social.facebook_post && (
+            <div className="rounded-xl border border-[#111111]/10 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">Facebook post</p>
+                <button type="button" onClick={() => void copy(fbContent, "fb")}
+                  className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-pine-50">
+                  {copiedFb ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
+                  {copiedFb ? "Copied!" : "Copy"}
+                </button>
+              </div>
+              <p className="text-sm text-[#111111] whitespace-pre-line">{social.facebook_post}</p>
+              {postUrl && <p className="mt-2 text-xs text-[#1877f2] break-all">{postUrl}</p>}
+              {hashtagStr && <p className="mt-1 text-xs text-[#5F686A]">{hashtagStr}</p>}
+            </div>
+          )}
+          <a
+            href={ZERNIO_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center gap-2 rounded-xl border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-pine-50"
+          >
+            <ZernioLogo />
+            Manage on Zernio
+          </a>
         </div>
         <div className="border-t border-[#111111]/10 px-5 py-4">
           <button
@@ -261,17 +281,12 @@ export default function EditPostPage() {
   // Tags collapsible
   const [tagsOpen, setTagsOpen] = useState(false);
 
-  // Add connected social post
-  const [showAddSocial, setShowAddSocial] = useState(false);
-  const [addSocialForm, setAddSocialForm] = useState<{ platform: string; title: string; content: string; scheduled_date: string }>({ platform: "linkedin", title: "", content: "", scheduled_date: "" });
-  const [addingSocial, setAddingSocial] = useState(false);
-  const [connectedGenerating, setConnectedGenerating] = useState(false);
-  const [connectedError, setConnectedError] = useState("");
+  const [postedAts, setPostedAts] = useState<PostedAts>({});
 
   // Modals
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [activeSocialPreview, setActiveSocialPreview] = useState<SocialPostPreview | null>(null);
+  const [showConnectedPosts, setShowConnectedPosts] = useState(false);
 
   // Auto-save
   const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
@@ -322,12 +337,22 @@ export default function EditPostPage() {
       setAuthors(authorsRes.data ?? []);
       setLinkedSocial((socialRes.data ?? []).filter((social) => social.link === `/admin/posts/${id}`));
 
+      if (p) {
+        setPostedAts({
+          linkedin_posted_at: p.linkedin_posted_at ?? null,
+          instagram_posted_at: p.instagram_posted_at ?? null,
+          facebook_posted_at: p.facebook_posted_at ?? null,
+          sharing_posted_at: p.sharing_posted_at ?? null,
+        });
+      }
+
       // Load social content from DB, fall back to localStorage for posts created before DB persistence
-      if (p && (p.sharing_caption || p.linkedin_post || p.instagram_caption)) {
+      if (p && (p.sharing_caption || p.linkedin_post || p.instagram_caption || p.facebook_post)) {
         const draft: SocialDraft = {
           sharing_caption: p.sharing_caption ?? undefined,
           linkedin_post: p.linkedin_post ?? undefined,
           instagram_caption: p.instagram_caption ?? undefined,
+          facebook_post: p.facebook_post ?? undefined,
           hashtags: p.social_hashtags ?? [],
         };
         setSocialDraft(draft);
@@ -338,7 +363,7 @@ export default function EditPostPage() {
           if (raw) {
             const draft = JSON.parse(raw) as SocialDraft;
             setSocialDraft(draft);
-            if (draft.linkedin_post || draft.instagram_caption || draft.sharing_caption) {
+            if (draft.linkedin_post || draft.instagram_caption || draft.facebook_post || draft.sharing_caption) {
               setPanelOpen(true);
             }
           }
@@ -381,6 +406,7 @@ export default function EditPostPage() {
             sharing_caption: s.socialDraft?.sharing_caption ?? null,
             linkedin_post: s.socialDraft?.linkedin_post ?? null,
             instagram_caption: s.socialDraft?.instagram_caption ?? null,
+            facebook_post: s.socialDraft?.facebook_post ?? null,
             social_hashtags: s.socialDraft?.hashtags ?? [],
           }),
         });
@@ -442,6 +468,7 @@ export default function EditPostPage() {
           sharing_caption: socialDraft?.sharing_caption ?? null,
           linkedin_post: socialDraft?.linkedin_post ?? null,
           instagram_caption: socialDraft?.instagram_caption ?? null,
+          facebook_post: socialDraft?.facebook_post ?? null,
           social_hashtags: socialDraft?.hashtags ?? [],
         }),
       });
@@ -465,7 +492,7 @@ export default function EditPostPage() {
       // Always show the confirmation toast immediately
       showToast(wasAlreadyPublished ? "Post updated" : "Post published");
       // Show social preview popup if social content exists (non-blocking)
-      if (socialDraft?.linkedin_post || socialDraft?.instagram_caption) {
+      if (socialDraft?.linkedin_post || socialDraft?.instagram_caption || socialDraft?.facebook_post) {
         setShowSocialPreview(true);
       }
     } else if (status === "draft" && isPublished) {
@@ -491,102 +518,11 @@ export default function EditPostPage() {
 
   const copyLink = () => { navigator.clipboard.writeText(postUrl); };
 
-  const generateConnected = async () => {
-    const bodyText = htmlToPlainText(bodyHtml);
-    if (!bodyText) {
-      setConnectedError("Write some post content first, then generate connected posts.");
-      return;
-    }
-    setConnectedError("");
-    setConnectedGenerating(true);
-    try {
-      const res = await fetch(`/api/admin/posts/${id}/generate-connected`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim() || undefined,
-          description: description.trim() || undefined,
-          body_text: bodyText,
-        }),
-      });
-      const json = await res.json() as {
-        data?: SocialDraft;
-        error?: string;
-      };
-      if (!res.ok || !json.data) {
-        throw new Error(json.error ?? "Generation failed");
-      }
-      setSocialDraft((prev) => ({
-        ...prev,
-        sharing_caption: json.data!.sharing_caption || prev?.sharing_caption,
-        linkedin_post: json.data!.linkedin_post || prev?.linkedin_post,
-        instagram_caption: json.data!.instagram_caption || prev?.instagram_caption,
-        hashtags: json.data!.hashtags?.length ? json.data!.hashtags : prev?.hashtags,
-      }));
-      setPanelOpen(true);
-      showToast("Connected social copy generated");
-    } catch (e) {
-      setConnectedError(e instanceof Error ? e.message : "Generation failed");
-    } finally {
-      setConnectedGenerating(false);
-    }
-  };
-
-  const addConnectedPost = async () => {
-    if (!addSocialForm.title || !addSocialForm.scheduled_date) return;
-    setAddingSocial(true);
-    await fetch("/api/admin/social-posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title: addSocialForm.title,
-        platform: addSocialForm.platform,
-        content: addSocialForm.content,
-        description: "",
-        scheduled_date: addSocialForm.scheduled_date,
-        tags: [],
-        link: `/admin/posts/${id}`,
-      }),
-    });
-    setAddingSocial(false);
-    setShowAddSocial(false);
-    setAddSocialForm({ platform: "linkedin", title: "", content: "", scheduled_date: "" });
-    // Reload linked social posts
-    const res = await fetch("/api/admin/social-posts");
-    const json = await res.json() as { data: LinkedSocialPost[] };
-    setLinkedSocial((json.data ?? []).filter((social) => social.link === `/admin/posts/${id}`));
-  };
-
-  const deleteLinkedSocial = async (socialId: string) => {
-    await fetch(`/api/admin/social-posts/${socialId}`, { method: "DELETE" });
-    setLinkedSocial((prev) => prev.filter((s) => s.id !== socialId));
-  };
-
-  const panelHashtagStr = (socialDraft?.hashtags ?? []).map((h) => `#${h}`).join(" ");
-  const panelLiContent = [socialDraft?.linkedin_post, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
-  const panelIgContent = [socialDraft?.instagram_caption, postUrl || null, panelHashtagStr || null].filter(Boolean).join("\n\n");
-  const linkedPlatforms = new Set(linkedSocial.map((social) => social.platform));
-  const socialPreviews: SocialPostPreview[] = [
-    ...(socialDraft?.sharing_caption ? [{
-      id: `share-${id}`,
-      title: "Share text",
-      platform: "share" as const,
-      content: socialDraft.sharing_caption,
-    }] : []),
-    ...linkedSocial,
-    ...(socialDraft?.linkedin_post && !linkedPlatforms.has("linkedin") ? [{
-      id: `linkedin-${id}`,
-      title: `${title || "Post"} — LinkedIn`,
-      platform: "linkedin" as const,
-      content: panelLiContent,
-    }] : []),
-    ...(socialDraft?.instagram_caption && !linkedPlatforms.has("instagram") ? [{
-      id: `instagram-${id}`,
-      title: `${title || "Post"} — Instagram`,
-      platform: "instagram" as const,
-      content: panelIgContent,
-    }] : []),
-  ];
+  const connectedCount =
+    (socialDraft?.linkedin_post?.trim() ? 1 : 0) +
+    (socialDraft?.instagram_caption?.trim() ? 1 : 0) +
+    (socialDraft?.facebook_post?.trim() ? 1 : 0) +
+    linkedSocial.length;
 
   const activeType = showCustomType && customType ? customType : contentType;
 
@@ -613,102 +549,21 @@ export default function EditPostPage() {
         />
       )}
 
-      {showAddSocial && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/50 p-4" onClick={() => setShowAddSocial(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
-              <h3 className="text-sm font-semibold text-[#111111]">Add connected post</h3>
-              <button type="button" onClick={() => setShowAddSocial(false)} className="grid h-8 w-8 place-items-center rounded-md hover:bg-gray-100">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="space-y-4 p-5">
-              {/* Platform */}
-              <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Platform</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { key: "linkedin", Icon: Linkedin, label: "LinkedIn", color: "#0077b5" },
-                    { key: "instagram", Icon: Instagram, label: "Instagram", color: "#E1306C" },
-                    { key: "facebook", Icon: Facebook, label: "Facebook", color: "#1877f2" },
-                    { key: "twitter", Icon: XIcon, label: "X", color: "#000" },
-                  ].map((p) => (
-                    <button
-                      key={p.key}
-                      type="button"
-                      onClick={() => setAddSocialForm((f) => ({ ...f, platform: p.key }))}
-                      className={`flex flex-col items-center gap-1 rounded-lg border py-2.5 text-[10px] font-semibold transition-colors ${addSocialForm.platform === p.key ? "border-current bg-gray-50" : "border-gray-200 text-gray-400 hover:border-gray-300"}`}
-                      style={addSocialForm.platform === p.key ? { color: p.color, borderColor: p.color } : {}}
-                    >
-                      <p.Icon className="h-4 w-4" />
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {/* Title */}
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Title <span className="text-red-500">*</span></label>
-                <input
-                  value={addSocialForm.title}
-                  onChange={(e) => setAddSocialForm((f) => ({ ...f, title: e.target.value }))}
-                  placeholder="A short label for this post"
-                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
-                />
-              </div>
-              {/* Date */}
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Publish date <span className="text-red-500">*</span></label>
-                <input
-                  type="date"
-                  value={addSocialForm.scheduled_date}
-                  onChange={(e) => setAddSocialForm((f) => ({ ...f, scheduled_date: e.target.value }))}
-                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
-                />
-              </div>
-              {/* Content */}
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Post content</label>
-                <textarea
-                  rows={4}
-                  value={addSocialForm.content}
-                  onChange={(e) => setAddSocialForm((f) => ({ ...f, content: e.target.value }))}
-                  placeholder="Paste the post copy here…"
-                  className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
-                />
-              </div>
-            </div>
-            <div className="border-t border-[#111111]/10 px-5 py-4">
-              <button
-                type="button"
-                disabled={addingSocial || !addSocialForm.title || !addSocialForm.scheduled_date}
-                onClick={() => void addConnectedPost()}
-                className="w-full rounded-lg bg-[#122428] py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {addingSocial ? <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Saving…</span> : "Save post"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {activeSocialPreview && (
-        <PlatformPreviewModal
-          social={activeSocialPreview}
-          onClose={() => setActiveSocialPreview(null)}
-          onDelete={() => { void deleteLinkedSocial(activeSocialPreview.id); setActiveSocialPreview(null); }}
-          onSaved={(updated) => {
-            setLinkedSocial((prev) =>
-              prev.map((s) =>
-                s.id === updated.id
-                  ? { ...s, ...updated, scheduled_date: updated.scheduled_date ?? s.scheduled_date }
-                  : s
-              )
-            );
-            setActiveSocialPreview(null);
-          }}
-        />
-      )}
+      <ConnectedPostsModal
+        open={showConnectedPosts}
+        onClose={() => setShowConnectedPosts(false)}
+        postId={id}
+        postTitle={title}
+        bodyText={htmlToPlainText(bodyHtml)}
+        description={description}
+        socialDraft={socialDraft}
+        onSocialDraftChange={setSocialDraft}
+        postedAts={postedAts}
+        onPostedAtsChange={setPostedAts}
+        linkedSocial={linkedSocial}
+        onLinkedSocialChange={setLinkedSocial}
+        onToast={(message, isError) => showToast(message, undefined, isError)}
+      />
 
       {/* Top bar */}
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#111111]/10 bg-white px-3 py-3 sm:gap-3 sm:px-4">
@@ -788,18 +643,18 @@ export default function EditPostPage() {
                 />
               </div>
 
-              {/* Share on LinkedIn + Copy link */}
+              {/* Manage on Zernio + Copy link */}
               {isPublished && (
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share</p>
                   <div className="space-y-2">
                     <a
-                      href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`}
+                      href={ZERNIO_URL}
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-[#0077B5]/5"
+                      className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-pine-50"
                     >
-                      <Linkedin className="h-4 w-4" /> Share on LinkedIn
+                      <ZernioLogo className="h-4 w-4 rounded-sm object-contain" /> Manage on Zernio
                     </a>
                     <button
                       onClick={copyLink}
@@ -811,71 +666,23 @@ export default function EditPostPage() {
                 </div>
               )}
 
-              {/* Connected posts */}
+              {/* Connected posts — open modal */}
               <div>
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Connected posts</p>
-                  <button
-                    type="button"
-                    onClick={() => void generateConnected()}
-                    disabled={connectedGenerating}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#122428]/20 px-2 py-1 text-[10px] font-semibold text-[#122428] hover:bg-[#122428]/5 disabled:opacity-50"
-                  >
-                    {connectedGenerating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                    {connectedGenerating ? "Generating…" : "Generate"}
-                  </button>
-                </div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Connected posts</p>
                 <p className="mb-2 text-[11px] leading-relaxed text-[#5F686A]/80">
-                  Creates LinkedIn and Instagram copy from your current article draft.
+                  LinkedIn, Instagram and Facebook copy for this article — edit, regenerate, or mark as published.
                 </p>
-                {connectedError && (
-                  <p className="mb-2 text-[11px] text-red-600">{connectedError}</p>
-                )}
-                {(socialDraft?.linkedin_post || socialDraft?.instagram_caption) && (
-                  <div className="mb-3 space-y-3">
-                    {socialDraft?.linkedin_post && (
-                      <div>
-                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">LinkedIn post</label>
-                        <textarea
-                          value={socialDraft.linkedin_post}
-                          onChange={(e) => setSocialDraft((d) => ({ ...d, linkedin_post: e.target.value || undefined }))}
-                          rows={5}
-                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#122428]"
-                        />
-                      </div>
-                    )}
-                    {socialDraft?.instagram_caption && (
-                      <div>
-                        <label className="mb-1 block text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Instagram caption</label>
-                        <textarea
-                          value={socialDraft.instagram_caption}
-                          onChange={(e) => setSocialDraft((d) => ({ ...d, instagram_caption: e.target.value || undefined }))}
-                          rows={4}
-                          className="w-full resize-y rounded-lg border border-[#111111]/15 bg-white px-3 py-2 text-xs outline-none focus:border-[#122428]"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-                {linkedSocial.length > 0 ? (
-                  <div className="space-y-2 mb-2">
-                    {linkedSocial.map((social) => (
-                      <SocialPostSummaryCard
-                        key={social.id}
-                        social={social}
-                        onOpen={() => setActiveSocialPreview(social)}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="mb-2 text-xs text-[#5F686A]/70">No connected social posts yet.</p>
-                )}
                 <button
                   type="button"
-                  onClick={() => setShowAddSocial(true)}
-                  className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-[#111111]/20 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:border-[#122428]/40 hover:text-[#122428]"
+                  onClick={() => setShowConnectedPosts(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-[#111111]/15 bg-white px-3 py-2.5 text-xs font-semibold text-[#122428] hover:border-[#122428]/40 hover:bg-pine-50"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add connected post
+                  See connected posts
+                  {connectedCount > 0 && (
+                    <span className="rounded-full bg-[#122428]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#122428]">
+                      {connectedCount}
+                    </span>
+                  )}
                 </button>
               </div>
 

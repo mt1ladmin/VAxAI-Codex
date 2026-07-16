@@ -10,7 +10,6 @@ import {
   ChevronDown,
   Copy,
   Instagram,
-  Linkedin,
   Plus,
   X,
 } from "lucide-react";
@@ -166,9 +165,11 @@ export default function NewPostPage() {
                 </div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share</p>
                 <div className="space-y-2">
-                  <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`} target="_blank" rel="noreferrer"
-                    className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#0077B5] hover:bg-pine-50">
-                    <Linkedin className="h-4 w-4" /> Share on LinkedIn
+                  <a href="https://app.zernio.com" target="_blank" rel="noreferrer"
+                    className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-pine-50">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/zernio-logo.png" alt="" className="h-4 w-4 rounded-sm object-contain" width={16} height={16} />
+                    Manage on Zernio
                   </a>
                   <div className="flex items-center gap-2 rounded-md border border-[#111111]/10 px-3 py-2.5">
                     <Instagram className="h-4 w-4 shrink-0 text-[#E1306C]" />

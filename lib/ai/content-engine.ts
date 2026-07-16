@@ -74,7 +74,7 @@ const ALL_BRIEF = `THIS PIECE
 A blog post for the Insights & Resources library on vaxai.co.uk (the knowledge library covering operational administration, backlog management, AI readiness and maintaining strong foundations), plus connected social copy. Adapt the core idea to each platform's purpose rather than reposting the same text: LinkedIn carries the strategic insight for leaders, Instagram teaches one practical lesson, Facebook offers relatable everyday support and conversation.`;
 
 const CONNECTED_BRIEF = `THIS PIECE
-You are turning an existing VAxAI article into connected social copy. Stay faithful to the article's substance; adapt the core idea to each platform's purpose rather than reposting the same text: LinkedIn carries the strategic insight for leaders, Instagram teaches one practical lesson. Do not introduce claims the article does not make.`;
+You are turning an existing VAxAI article into connected social copy. Stay faithful to the article's substance; adapt the core idea to each platform's purpose rather than reposting the same text: LinkedIn carries the strategic insight for leaders, Instagram teaches one practical lesson, Facebook offers warm, relatable everyday support and conversation (practical advice about day-to-day admin or organisation, ending with a light question or invitation that encourages replies). Do not introduce claims the article does not make.`;
 
 const PLATFORM_BRIEFS: Record<ContentType, string> = {
   blog: BLOG_BRIEF,
@@ -190,8 +190,33 @@ export const CONNECTED_SCHEMA = objectSchema({
   sharing_caption: sharingCaption,
   linkedin_post: linkedinPost,
   instagram_caption: instagramCaption,
+  facebook_post: facebookPost,
   hashtags: hashtags(8),
 });
+
+export type ConnectedPlatform = "linkedin" | "instagram" | "facebook" | "sharing";
+
+/** Single-platform schema when regenerating one connected post. */
+export const CONNECTED_PLATFORM_SCHEMAS: Record<
+  ConnectedPlatform,
+  Record<string, unknown>
+> = {
+  linkedin: objectSchema({
+    linkedin_post: linkedinPost,
+    hashtags: hashtags(8),
+  }),
+  instagram: objectSchema({
+    instagram_caption: instagramCaption,
+    hashtags: hashtags(8),
+  }),
+  facebook: objectSchema({
+    facebook_post: facebookPost,
+    hashtags: hashtags(6),
+  }),
+  sharing: objectSchema({
+    sharing_caption: sharingCaption,
+  }),
+};
 
 export const MAX_TOKENS: Record<ContentType, number> = {
   blog: 2800,
