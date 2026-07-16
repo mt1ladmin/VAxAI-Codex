@@ -37,7 +37,6 @@ import {
   ScriptsBlocksPanel,
 } from "@/components/admin/KnowledgeSalesTools";
 import { KnowledgeAddModal } from "@/components/admin/KnowledgeAddModal";
-import FilingTab from "@/components/FilingTab";
 import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
@@ -875,8 +874,7 @@ function KnowledgePageInner() {
       <div className="border-b border-pine-900/[0.07] px-4 py-5 md:px-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <FilingTab>Knowledge Hub</FilingTab>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
+            <p className="max-w-xl text-sm leading-6 text-muted">
               Organised playbooks for outreach, scoping and delivery.
             </p>
           </div>

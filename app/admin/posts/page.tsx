@@ -13,6 +13,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import { ContentHubNav } from "@/components/admin/ContentHubNav";
+import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { MultiSelect } from "@/components/ui/MultiSelect";
 
@@ -127,18 +129,20 @@ export default function PostsPage() {
 
   return (
     <div className="min-h-full bg-white">
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Content Hub</p>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Posts</h1>
-            <p className="mt-0.5 text-sm text-[#5F686A]">
+      <div className="border-b border-pine-900/8 bg-white px-8 py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <FilingTab>Posts</FilingTab>
+            <p className="mt-3 text-sm text-muted">
               {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
             </p>
+            <div className="mt-4">
+              <ContentHubNav />
+            </div>
           </div>
           <Link
             href="/admin/posts/new"
-            className="flex items-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
           >
             <Plus className="h-4 w-4" />
             New post

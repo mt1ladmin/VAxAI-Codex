@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, Mail, Search } from "lucide-react";
+import { ContentHubNav } from "@/components/admin/ContentHubNav";
+import FilingTab from "@/components/FilingTab";
 
 type Subscriber = {
   email: string;
@@ -63,22 +65,23 @@ export default function NewsletterPage() {
 
   return (
     <div className="px-4 py-6 md:px-8 md:py-8">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-[#111111]">Newsletter</h1>
-          <p className="mt-1 text-sm text-[#5F686A]">
-            Email addresses collected from the VAxAI site footer and sign-up popup.
-          </p>
-        </div>
-        <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search subscribers…"
-            className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#122428]"
-          />
+      <div className="mb-6">
+        <FilingTab>Newsletter</FilingTab>
+        <p className="mt-3 text-sm text-muted">
+          Email addresses collected from the VAxAI site footer and sign-up popup.
+        </p>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <ContentHubNav />
+          <div className="relative w-full max-w-xs shrink-0">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search subscribers…"
+              className="w-full rounded-lg border border-pine-900/12 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-pine-900"
+            />
+          </div>
         </div>
       </div>
 

@@ -23,7 +23,6 @@ import {
 } from "lucide-react";
 import { AIAssistantContextProvider } from "@/lib/ai-assistant-context";
 import { AIAssistantWidget } from "@/components/admin/AIAssistantWidget";
-import FilingTab from "@/components/FilingTab";
 import {
   PROSPECT_FINDER_LABEL,
   PROSPECT_FINDER_PATH,
@@ -287,43 +286,6 @@ export default function AdminShell({
               <PanelLeftOpen className="h-3.5 w-3.5" />
               Open sidebar
             </button>
-          </div>
-        )}
-
-        {(pathname === "/admin/calendar" || pathname === "/admin/posts" || pathname === "/admin/authors" || pathname === "/admin/create-content" || pathname === "/admin/newsletter") && (
-          <div className="sticky top-[41px] z-20 border-b border-pine-900/8 bg-white/95 px-4 py-3 backdrop-blur-sm md:top-0 md:px-8">
-            <div className="mb-3">
-              <FilingTab>Content Hub</FilingTab>
-            </div>
-            <div
-              role="tablist"
-              aria-label="Content Hub sections"
-              className="flex max-w-full gap-1.5 overflow-x-auto scrollbar-none border-b border-[#d5d8d1] pb-0"
-            >
-              {[
-                ["/admin/calendar", "Calendar", "Schedule posts & social"],
-                ["/admin/create-content", "Create", "Draft with AI"],
-                ["/admin/posts", "Posts", "All blog posts"],
-                ["/admin/authors", "Authors", "Byline profiles"],
-                ["/admin/newsletter", "Newsletter", "Subscribers"],
-              ].map(([href, label, title]) => {
-                const active = pathname.startsWith(href);
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    title={title}
-                    role="tab"
-                    aria-selected={active}
-                    className={`filing-tab-button shrink-0 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800 ${
-                      active ? "is-active" : ""
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-            </div>
           </div>
         )}
 
