@@ -1758,7 +1758,6 @@ export default function CalendarPage() {
             setPreviewPost(null);
             setPreviewCalendarDay(null);
           }}
-          onSaveAllDates={saveAllDatesFromPreview}
           onDeleteAll={deleteAllFromPreview}
           onMarkConnectedPosted={markConnectedFromPreview}
         />

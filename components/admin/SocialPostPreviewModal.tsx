@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Copy, Facebook, Instagram, Linkedin, Loader2, Pencil, Save, Share2, Trash2, X } from "lucide-react";
+import { Check, CheckCircle2, Copy, Facebook, Instagram, Linkedin, Loader2, Save, Share2, Trash2, X } from "lucide-react";
 import type React from "react";
 
 function XIcon({ className }: { className?: string }) {
@@ -23,6 +23,7 @@ export type SocialPostPreview = {
   description?: string | null;
   link?: string | null;
   tags?: string[];
+  posted_at?: string | null;
 };
 
 const PLATFORM_META = {
@@ -142,11 +143,18 @@ export function SocialPostPreviewModal({
   onClose,
   onSaved,
   onDelete,
+  onMarkPosted,
+  postedAt,
+  markingPosted,
 }: {
   social: SocialPostPreview;
   onClose: () => void;
   onSaved?: (updated: SocialPostPreview) => void;
   onDelete?: () => void;
+  /** Mark this connected/social post as posted (calendar + blog preview). */
+  onMarkPosted?: () => void | Promise<void>;
+  postedAt?: string | null;
+  markingPosted?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -161,7 +169,16 @@ export function SocialPostPreviewModal({
     tags: social.tags ?? [],
   });
   const [saving, setSaving] = useState(false);
+  const [localPostedAt, setLocalPostedAt] = useState<string | null | undefined>(
+    postedAt ?? social.posted_at,
+  );
   const meta = PLATFORM_META[localSocial.platform];
+  const isPosted = !!(localPostedAt ?? postedAt ?? localSocial.posted_at);
+
+  useEffect(() => {
+    setLocalSocial(social);
+    setLocalPostedAt(postedAt ?? social.posted_at);
+  }, [social, postedAt]);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -366,9 +383,9 @@ export function SocialPostPreviewModal({
           </div>
         )}
 
-        <div className="flex gap-2 border-t border-gray-100 px-6 py-4">
+        <div className="flex flex-col gap-2 border-t border-gray-100 px-6 py-4">
           {editing ? (
-            <>
+            <div className="flex gap-2">
               <button type="button" onClick={() => void saveEdit()} disabled={saving || !editForm.title || !editForm.scheduled_date}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-50">
                 {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
@@ -378,19 +395,42 @@ export function SocialPostPreviewModal({
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-pine-50">
                 Cancel
               </button>
-            </>
+            </div>
           ) : (
             <>
-              <button type="button" onClick={startEdit}
-                className="flex-1 rounded-md border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
-                Edit
-              </button>
-              {onDelete && (
-                <button type="button" onClick={onDelete}
-                  className="rounded-md border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50">
-                  <Trash2 className="h-4 w-4" />
+              {!isPosted && onMarkPosted ? (
+                <button
+                  type="button"
+                  disabled={markingPosted}
+                  onClick={() => {
+                    void Promise.resolve(onMarkPosted()).then(() => {
+                      setLocalPostedAt(new Date().toISOString());
+                    });
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-md border border-pine-900/15 bg-acid/40 py-2.5 text-sm font-semibold text-ink hover:bg-acid/60 disabled:opacity-50"
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  {markingPosted ? "Marking…" : "Mark as posted"}
                 </button>
-              )}
+              ) : isPosted ? (
+                <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 py-2.5 text-sm font-semibold text-gray-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Posted
+                </span>
+              ) : null}
+              <div className="flex gap-2">
+                <button type="button" onClick={startEdit}
+                  className="flex-1 rounded-md border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+                  Edit
+                </button>
+                {onDelete && (
+                  <button type="button" onClick={onDelete}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50">
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </button>
+                )}
+              </div>
             </>
           )}
         </div>

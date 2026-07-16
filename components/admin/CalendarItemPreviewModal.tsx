@@ -52,7 +52,6 @@ type Props = {
   calendarDay?: string;
   busy?: boolean;
   onClose: () => void;
-  onSaveAllDates?: (iso: string) => Promise<void>;
   onDeleteAll?: () => Promise<void>;
   onMarkConnectedPosted?: (target: ConnectedTarget) => Promise<void>;
 };
@@ -64,18 +63,6 @@ function formatDate(iso: string | null | undefined) {
     month: "long",
     year: "numeric",
   });
-}
-
-function defaultScheduleValue(calendarDay?: string, existingIso?: string | null) {
-  if (existingIso) {
-    const d = new Date(existingIso);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-  if (calendarDay) return `${calendarDay}T09:00`;
-  const now = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T09:00`;
 }
 
 const STATUS_STYLES: Record<CalendarBlogPreview["status"], string> = {
@@ -212,18 +199,16 @@ function ConnectedPostRow({
 export function CalendarItemPreviewModal({
   post,
   linkedSocial: linkedSocialProp,
-  calendarDay,
   busy,
   onClose,
-  onSaveAllDates,
   onDeleteAll,
   onMarkConnectedPosted,
 }: Props) {
   const [linkedSocial, setLinkedSocial] = useState<SocialPost[]>(linkedSocialProp ?? []);
-  const [activeSocial, setActiveSocial] = useState<SocialPost | null>(null);
+  const [activeRow, setActiveRow] = useState<ConnectedRow | null>(null);
   const [fullPost, setFullPost] = useState<CalendarBlogPreview | null>(null);
-  const [masterDate, setMasterDate] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [markingActive, setMarkingActive] = useState(false);
 
   useEffect(() => {
     if (linkedSocialProp) {
@@ -245,14 +230,6 @@ export function CalendarItemPreviewModal({
   }, [post.id]);
 
   const displayPost = fullPost ?? post;
-
-  useEffect(() => {
-    const existing =
-      displayPost.status === "published"
-        ? displayPost.published_at
-        : displayPost.scheduled_at;
-    setMasterDate(defaultScheduleValue(calendarDay, existing));
-  }, [displayPost, calendarDay]);
 
   const connectedRows = useMemo((): ConnectedRow[] => {
     const fromTable = linkedSocial;
@@ -278,6 +255,12 @@ export function CalendarItemPreviewModal({
     return [...tableRows, ...inlineRows];
   }, [linkedSocial, displayPost]);
 
+  // Keep the open connected-post modal in sync after mark-as-posted
+  const activeRowLive = useMemo(() => {
+    if (!activeRow) return null;
+    return connectedRows.find((r) => r.id === activeRow.id) ?? activeRow;
+  }, [activeRow, connectedRows]);
+
   const displayDate =
     displayPost.status === "published"
       ? formatDate(displayPost.published_at)
@@ -285,8 +268,35 @@ export function CalendarItemPreviewModal({
         ? formatDate(displayPost.scheduled_at)
         : formatDate(displayPost.updated_at);
 
-  const masterDateLabel =
-    displayPost.status === "published" ? "Published date" : "Scheduled publishing date";
+  const markRowPosted = async (target: ConnectedTarget) => {
+    if (!onMarkConnectedPosted) return;
+    setMarkingActive(true);
+    try {
+      await onMarkConnectedPosted(target);
+      // Reflect locally so list + open modal update immediately
+      if (target.type === "social") {
+        const now = new Date().toISOString();
+        setLinkedSocial((prev) =>
+          prev.map((s) => (s.id === target.socialId ? { ...s, posted_at: now } : s)),
+        );
+      } else {
+        const field =
+          target.platform === "linkedin"
+            ? "linkedin_posted_at"
+            : target.platform === "instagram"
+              ? "instagram_posted_at"
+              : target.platform === "share"
+                ? "sharing_posted_at"
+                : null;
+        if (field) {
+          const now = new Date().toISOString();
+          setFullPost((prev) => ({ ...(prev ?? post), [field]: now }));
+        }
+      }
+    } finally {
+      setMarkingActive(false);
+    }
+  };
 
   return (
     <div
@@ -367,9 +377,9 @@ export function CalendarItemPreviewModal({
                   <ConnectedPostRow
                     key={row.id}
                     row={row}
-                    busy={busy}
-                    onMarkPosted={onMarkConnectedPosted}
-                    onOpen={() => setActiveSocial(row)}
+                    busy={busy || markingActive}
+                    onMarkPosted={onMarkConnectedPosted ? markRowPosted : undefined}
+                    onOpen={() => setActiveRow(row)}
                   />
                 ))}
               </div>
@@ -407,7 +417,7 @@ export function CalendarItemPreviewModal({
             </div>
           )}
 
-          <div className="flex flex-wrap items-end gap-3 border-t border-[#111111]/8 pt-4">
+          <div className="flex flex-wrap items-center gap-2 border-t border-[#111111]/8 pt-4">
             <Link
               href={`/admin/posts/${displayPost.id}`}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1B343A]"
@@ -415,59 +425,41 @@ export function CalendarItemPreviewModal({
               Open full post
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
-            {onSaveAllDates && (
-              <div className="flex flex-wrap items-end gap-2">
-                <label className="flex flex-col gap-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#5F686A]">
-                    {masterDateLabel} (all)
-                  </span>
-                  <input
-                    type="datetime-local"
-                    value={masterDate}
-                    onChange={(e) => setMasterDate(e.target.value)}
-                    className="rounded-md border border-[#111111]/15 px-2.5 py-2 text-xs text-[#111111] outline-none focus:border-[#122428]/40"
-                  />
-                </label>
-                <button
-                  type="button"
-                  disabled={!masterDate || busy}
-                  onClick={() => void onSaveAllDates(masterDate)}
-                  className="rounded-lg bg-[#122428] px-3 py-2 text-xs font-semibold text-white hover:bg-[#1B343A] disabled:opacity-40"
-                >
-                  Save all dates
-                </button>
-                {onDeleteAll && (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="grid h-[34px] w-[34px] place-items-center rounded-lg border border-red-200 text-red-500 hover:bg-red-50 disabled:opacity-40"
-                    title="Delete all content"
-                    aria-label="Delete all content"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
+            {onDeleteAll && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setShowDeleteConfirm(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-40"
+                title="Delete blog post and connected content"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete
+              </button>
             )}
           </div>
         </div>
       </div>
-      {activeSocial && !activeSocial.id.startsWith("inline-") && (
+      {activeRowLive && (
         <SocialPostPreviewModal
-          social={activeSocial}
-          onClose={() => setActiveSocial(null)}
-          onDelete={async () => {
-            await fetch(`/api/admin/social-posts/${activeSocial.id}`, { method: "DELETE" });
-            setLinkedSocial((prev) => prev.filter((s) => s.id !== activeSocial.id));
-            setActiveSocial(null);
-          }}
-        />
-      )}
-      {activeSocial && activeSocial.id.startsWith("inline-") && (
-        <SocialPostPreviewModal
-          social={activeSocial}
-          onClose={() => setActiveSocial(null)}
+          social={activeRowLive}
+          postedAt={activeRowLive.isPosted ? (activeRowLive.posted_at ?? new Date().toISOString()) : null}
+          onClose={() => setActiveRow(null)}
+          onMarkPosted={
+            !activeRowLive.isPosted && onMarkConnectedPosted
+              ? () => markRowPosted(activeRowLive.target)
+              : undefined
+          }
+          markingPosted={markingActive}
+          onDelete={
+            !activeRowLive.isInline
+              ? async () => {
+                  await fetch(`/api/admin/social-posts/${activeRowLive.id}`, { method: "DELETE" });
+                  setLinkedSocial((prev) => prev.filter((s) => s.id !== activeRowLive.id));
+                  setActiveRow(null);
+                }
+              : undefined
+          }
         />
       )}
     </div>
