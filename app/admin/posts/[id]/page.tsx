@@ -63,6 +63,14 @@ function slugify(text: string) {
   return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
 }
 
+/** Safe ISO timestamp for API — never throws on bad datetime-local values. */
+function toIsoOrNull(value: string | null | undefined): string | null {
+  if (!value || !String(value).trim()) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
 function htmlToPlainText(html: string) {
   return html
     .replace(/<br\s*\/?>/gi, "\n")
@@ -489,7 +497,7 @@ export default function EditPostPage() {
             author_id: s.authorId || null,
             slug: s.slug || slugify(s.title || "untitled"),
             status,
-            scheduled_at: s.scheduledAt ? new Date(s.scheduledAt).toISOString() : null,
+            scheduled_at: toIsoOrNull(s.scheduledAt),
             sharing_caption: s.socialDraft?.sharing_caption ?? null,
             linkedin_post: s.socialDraft?.linkedin_post ?? null,
             instagram_caption: s.socialDraft?.instagram_caption ?? null,
@@ -518,7 +526,7 @@ export default function EditPostPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          published_at: publishedAt ? new Date(publishedAt).toISOString() : null,
+          published_at: toIsoOrNull(publishedAt),
         }),
       });
       if (res.ok) {
@@ -537,6 +545,7 @@ export default function EditPostPage() {
     const wasAlreadyPublished = isPublished;
     let json: { data?: unknown; error?: string; hint?: string } = {};
     try {
+      const publishedAtIso = toIsoOrNull(publishedAt);
       const res = await fetch(`/api/admin/posts/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -550,8 +559,8 @@ export default function EditPostPage() {
           author_id: authorId || null,
           slug: slug || slugify(title || "untitled"),
           status,
-          scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
-          ...(publishedAt ? { published_at: new Date(publishedAt).toISOString() } : {}),
+          scheduled_at: toIsoOrNull(scheduledAt),
+          ...(publishedAtIso ? { published_at: publishedAtIso } : {}),
           sharing_caption: socialDraft?.sharing_caption ?? null,
           linkedin_post: socialDraft?.linkedin_post ?? null,
           instagram_caption: socialDraft?.instagram_caption ?? null,
@@ -566,8 +575,9 @@ export default function EditPostPage() {
         setSaving(false);
         return;
       }
-    } catch {
-      showToast("Save failed — check your connection", undefined, true);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Save failed — check your connection";
+      showToast(msg, undefined, true);
       setSaving(false);
       return;
     }
