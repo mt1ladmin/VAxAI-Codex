@@ -126,11 +126,27 @@ function isSameDay(a: Date, b: Date) {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-// Parse an ISO date/datetime string into a LOCAL Date so timezone offsets never
-// shift the calendar day. "2025-07-15T09:00:00Z" → local July 15, not July 14.
+/**
+ * Map a stored date/datetime onto the user's local calendar day.
+ * - Date-only "YYYY-MM-DD" → that calendar day
+ * - Full ISO timestamps → local wall-clock day (not the UTC date prefix,
+ *   which can land a UK evening schedule on the previous day)
+ */
 function parseLocalDay(isoStr: string): Date {
-  const datePart = isoStr.slice(0, 10); // "YYYY-MM-DD"
-  const [y, m, d] = datePart.split("-").map(Number);
+  const trimmed = isoStr.trim();
+  if (!trimmed) return new Date(NaN);
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+    const [y, m, d] = trimmed.split("-").map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  const dt = new Date(trimmed);
+  if (!Number.isNaN(dt.getTime())) {
+    return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  }
+
+  const [y, m, d] = trimmed.slice(0, 10).split("-").map(Number);
   return new Date(y, m - 1, d);
 }
 
@@ -190,7 +206,10 @@ function postOnCalendarDay(post: Post, day: Date): boolean {
 }
 
 function socialOnCalendarDay(social: SocialPost, day: Date): boolean {
-  if (social.posted_at) return false;
+  // Posted socials sit on the day they were marked posted
+  if (social.posted_at) {
+    return isSameDay(parseLocalDay(social.posted_at), day);
+  }
   if (!social.scheduled_date?.trim()) return false;
   return isSameDay(parseLocalDay(social.scheduled_date), day);
 }
@@ -200,7 +219,10 @@ function buildDayCalendarGroups(
   posts: Post[],
   socialPosts: SocialPost[],
 ): { groups: DayCalendarGroup[]; standaloneSocial: SocialPost[] } {
+  // Blog posts only on their own publish / schedule day — never dragged onto
+  // a different day just because a connected social is due then.
   const dayPosts = posts.filter((p) => postOnCalendarDay(p, day));
+  const dayPostIds = new Set(dayPosts.map((p) => p.id));
   const allDaySocial = socialPosts.filter((s) => socialOnCalendarDay(s, day));
 
   const connectedByPostId = new Map<string, SocialPost[]>();
@@ -212,24 +234,22 @@ function buildDayCalendarGroups(
       standaloneSocial.push(s);
       continue;
     }
-    const list = connectedByPostId.get(postId) ?? [];
-    list.push(s);
-    connectedByPostId.set(postId, list);
+    // Nest under the blog only when the blog itself belongs on this day
+    if (dayPostIds.has(postId)) {
+      const list = connectedByPostId.get(postId) ?? [];
+      list.push(s);
+      connectedByPostId.set(postId, list);
+    } else {
+      // Social due today; parent blog lives on another day — show as social chip
+      standaloneSocial.push(s);
+    }
   }
 
-  const postIdsToShow = new Set<string>();
-  for (const p of dayPosts) postIdsToShow.add(p.id);
-  for (const postId of connectedByPostId.keys()) postIdsToShow.add(postId);
-
-  const groups: DayCalendarGroup[] = [];
-
-  for (const postId of postIdsToShow) {
-    const post = posts.find((p) => p.id === postId);
-    if (!post) continue;
-
-    const connectedSocial = connectedByPostId.get(postId) ?? [];
-    groups.push({ post, connectedSocial, inlineItems: [] });
-  }
+  const groups: DayCalendarGroup[] = dayPosts.map((post) => ({
+    post,
+    connectedSocial: connectedByPostId.get(post.id) ?? [],
+    inlineItems: [],
+  }));
 
   return { groups, standaloneSocial };
 }
@@ -1075,11 +1095,7 @@ export default function CalendarPage() {
   }
 
   function socialOnDay(day: Date) {
-    return socialPosts.filter((s) => {
-      if (s.posted_at) return false;
-      if (!s.scheduled_date?.trim()) return false;
-      return isSameDay(parseLocalDay(s.scheduled_date), day);
-    });
+    return socialPosts.filter((s) => socialOnCalendarDay(s, day));
   }
 
   const buildInlineSocialContent = (post: Post, platform: string) => {
