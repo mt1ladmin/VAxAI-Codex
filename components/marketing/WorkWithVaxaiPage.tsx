@@ -89,12 +89,16 @@ const essentials = [
   "Experience handling confidential or sensitive information in a professional setting",
 ];
 
-const whyPartner = [
-  "Work on well-matched projects and retainers that suit your skills and interests.",
-  "Receive clear briefs and structured onboarding so you can focus on delivering high-quality work.",
-  "Join free workshops and events to build practical AI and automation skills for admin roles.",
-  "Enjoy flexibility in choosing work that fits your availability, with transparent terms throughout.",
-  "We do not publish fixed rates because the nature of the work varies. Exact rates and payment terms are always confirmed in writing before any work begins.",
+/** Value of a freelance VA path for early-career professionals */
+const earlyCareerValueCards = [
+  {
+    title: "Real client experience, not just training",
+    copy: "Build practical admin experience on genuine projects and retainers, so you develop a track record that traditional entry-level routes are offering less of.",
+  },
+  {
+    title: "Skills that stay relevant as AI grows",
+    copy: "Learn how strong admin foundations and human oversight work alongside AI and automation — useful, future-facing skills for a career that can grow with you.",
+  },
 ];
 
 const CONVICTION_OPTIONS = ["No", "Yes", "I do not wish to say"] as const;
@@ -1062,9 +1066,6 @@ export default function WorkWithVaxaiPage() {
                   clear admin backlogs, prepare for practical AI and automation, keep systems running
                   smoothly, and prevent problems from returning.
                 </p>
-                <p className="mt-4 max-w-2xl text-base leading-8 text-paper/70 md:text-lg">
-                  Our freelancers deliver both project-based work and monthly retainers.
-                </p>
                 <div className="mt-8 flex flex-wrap gap-3 sm:mt-10">
                   <button type="button" onClick={openModal} className={btn.accent}>
                     Register your interest
@@ -1097,33 +1098,31 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* Supporting early careers + What you'll need */}
-          <section id="early-careers" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
+          {/* Why partner + What you'll need */}
+          <section id="who" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
             <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:gap-12 md:items-start">
               <Reveal>
-                <Eyebrow>Supporting early careers</Eyebrow>
-                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-3xl">
-                  Pathways into freelance admin work
-                </h2>
-                <p className="mt-5 text-base leading-8 text-muted">
-                  AI and automation are reshaping many traditional entry-level and admin roles, reducing
-                  some of the opportunities that young people have historically used to start their
-                  careers. If you are interested in a career in freelance administrative work, get in
-                  touch or sign up to our newsletter, and be the first to know about opportunities for
-                  early-career professionals as they arise.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <button type="button" onClick={() => setContactOpen(true)} className={btn.primary}>
-                    Get in touch
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                  <button type="button" onClick={openNewsletterPopup} className={btn.ghost}>
-                    Sign up to our newsletter
-                  </button>
+                <Eyebrow>Why partner with VAxAI</Eyebrow>
+                <div className="mt-5 space-y-5 text-base leading-8 text-muted">
+                  <p>
+                    Get involved in varied, well-matched work with founders, growing businesses,
+                    charities and public sector teams. You&rsquo;ll receive clear briefs and proper
+                    onboarding so you can focus on doing excellent work instead of chasing details.
+                  </p>
+                  <p>
+                    You&rsquo;ll also have access to free workshops and events that help you build
+                    practical AI and automation skills for admin roles, while keeping the flexibility
+                    to choose projects that suit your strengths and availability.
+                  </p>
+                  <p>
+                    We don&rsquo;t publish fixed rates because every engagement is different. Rates and
+                    payment terms are always discussed openly and confirmed in writing before any work
+                    begins.
+                  </p>
                 </div>
               </Reveal>
 
-              <Reveal id="who" className="scroll-mt-24">
+              <Reveal>
                 <div className="rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
                   <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
                     What you&rsquo;ll need
@@ -1151,25 +1150,39 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* Why partner */}
-          <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
+          {/* Supporting early careers */}
+          <section id="early-careers" className="scroll-mt-24 bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
             <div className="mx-auto max-w-6xl">
               <Reveal>
-                <Eyebrow light>Why partner with VAxAI</Eyebrow>
+                <Eyebrow light>Supporting early careers</Eyebrow>
                 <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Focus on the work you enjoy.
+                  Pathways into freelance admin work
                 </h2>
+                <p className="mt-6 max-w-3xl text-base leading-8 text-paper/70 md:text-lg">
+                  AI and automation are reshaping many traditional entry-level and admin roles, reducing
+                  some of the opportunities that young people have historically used to start their
+                  careers. If you are interested in a career in freelance administrative work, get in
+                  touch or sign up to our newsletter, and be the first to know about opportunities for
+                  early-career professionals as they arise.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <button type="button" onClick={() => setContactOpen(true)} className={btn.accent}>
+                    Get in touch
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <button type="button" onClick={openNewsletterPopup} className={btn.ghostDark}>
+                    Sign up to our newsletter
+                  </button>
+                </div>
               </Reveal>
               <div className="mt-10 grid gap-4 sm:grid-cols-2">
-                {whyPartner.map((item) => (
+                {earlyCareerValueCards.map((card) => (
                   <Reveal
-                    key={item}
-                    className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-5"
+                    key={card.title}
+                    className="rounded-2xl border border-white/10 bg-white/5 px-5 py-5"
                   >
-                    <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-                      ✓
-                    </span>
-                    <p className="text-sm leading-7 text-paper/80 md:text-[15px]">{item}</p>
+                    <h3 className="text-base font-semibold tracking-tight text-paper">{card.title}</h3>
+                    <p className="mt-3 text-sm leading-7 text-paper/80 md:text-[15px]">{card.copy}</p>
                   </Reveal>
                 ))}
               </div>
