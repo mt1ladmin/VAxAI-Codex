@@ -28,7 +28,7 @@ import {
   type SocialDraft,
 } from "@/components/admin/ConnectedPostsModal";
 
-const ZERNIO_URL = "https://app.zernio.com";
+const ZERNIO_URL = "https://zernio.com/";
 
 function ZernioLogo({ className }: { className?: string }) {
   return (

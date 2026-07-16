@@ -3,6 +3,7 @@
 import {
   Check,
   CheckCircle2,
+  ChevronDown,
   Facebook,
   Instagram,
   Linkedin,
@@ -11,7 +12,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -50,7 +51,7 @@ export type PostedAts = {
 
 type PlatformKey = "linkedin" | "instagram" | "facebook" | "twitter";
 
-const ZERNIO_URL = "https://app.zernio.com";
+const ZERNIO_URL = "https://zernio.com/";
 
 const PLATFORM_META: Record<
   PlatformKey,
@@ -163,6 +164,8 @@ export function ConnectedPostsModal({
   const [activeTab, setActiveTab] = useState<string>("");
   const [generatingAll, setGeneratingAll] = useState(false);
   const [generatingPlatform, setGeneratingPlatform] = useState<string | null>(null);
+  const [genMenuOpen, setGenMenuOpen] = useState(false);
+  const genMenuRef = useRef<HTMLDivElement | null>(null);
   const [error, setError] = useState("");
   const [savingPosted, setSavingPosted] = useState(false);
   const [selectedPublished, setSelectedPublished] = useState<Record<string, boolean>>({});
@@ -171,12 +174,22 @@ export function ConnectedPostsModal({
   const [adding, setAdding] = useState(false);
   const [addForm, setAddForm] = useState({
     platform: "linkedin" as PlatformKey,
-    title: "",
     content: "",
     scheduled_date: "",
   });
   const [editingLinked, setEditingLinked] = useState<Record<string, string>>({});
   const [savingLinkedId, setSavingLinkedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!genMenuOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (genMenuRef.current && !genMenuRef.current.contains(e.target as Node)) {
+        setGenMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [genMenuOpen]);
 
   const draftTabs = useMemo(() => {
     const tabs: { key: string; platform: PlatformKey; kind: "inline" }[] = [];
@@ -535,15 +548,17 @@ export function ConnectedPostsModal({
   };
 
   const addConnectedPost = async () => {
-    if (!addForm.title || !addForm.scheduled_date) return;
+    if (!addForm.scheduled_date) return;
     setAdding(true);
     setError("");
     try {
+      // Social posts don't need a user-facing title — store a platform label for calendar lists
+      const autoTitle = PLATFORM_META[addForm.platform].label;
       const res = await fetch("/api/admin/social-posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: addForm.title,
+          title: autoTitle,
           platform: addForm.platform,
           content: addForm.content,
           description: "",
@@ -566,7 +581,7 @@ export function ConnectedPostsModal({
         ...prev,
         [`social-${json.data!.id}`]: nowDatetimeLocal(),
       }));
-      setAddForm({ platform: "linkedin", title: "", content: "", scheduled_date: "" });
+      setAddForm({ platform: "linkedin", content: "", scheduled_date: "" });
       setShowAdd(false);
       setActiveTab(`social-${json.data.id}`);
       onToast("Connected post added");
@@ -577,8 +592,7 @@ export function ConnectedPostsModal({
     }
   };
 
-  const generateForAddForm = async () => {
-    const platform = addForm.platform;
+  const generateForAddFormPlatform = async (platform: PlatformKey) => {
     if (platform === "twitter") {
       setError("AI generation is available for LinkedIn, Instagram and Facebook.");
       return;
@@ -611,8 +625,8 @@ export function ConnectedPostsModal({
       });
       setAddForm((f) => ({
         ...f,
+        platform,
         content: text,
-        title: f.title || `${postTitle || "Post"} — ${PLATFORM_META[platform].label}`,
       }));
       onToast(`${PLATFORM_META[platform].label} copy generated`);
     } catch (e) {
@@ -716,19 +730,68 @@ export function ConnectedPostsModal({
 
         {/* Top actions */}
         <div className="flex flex-wrap items-center gap-2 border-b border-[#111111]/8 px-4 py-3 sm:px-5">
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void generate("all")}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#122428]/20 bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
-          >
-            {generatingAll ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="h-3.5 w-3.5" />
+          <div className="relative" ref={genMenuRef}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setGenMenuOpen((o) => !o)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            >
+              {generatingAll || generatingPlatform ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5" />
+              )}
+              {generatingAll || generatingPlatform ? "Generating…" : "Generate with AI"}
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${genMenuOpen ? "rotate-180" : ""}`} />
+            </button>
+            {genMenuOpen && (
+              <div className="absolute left-0 top-full z-20 mt-1.5 min-w-[12.5rem] overflow-hidden rounded-xl border border-pine-900/12 bg-white py-1 shadow-lg shadow-pine-900/10">
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => {
+                    setGenMenuOpen(false);
+                    void generate("all");
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-pine-900 hover:bg-pine-50 disabled:opacity-50"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-pine-900" />
+                  Generate all
+                </button>
+                <div className="my-1 border-t border-pine-900/8" />
+                <p className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted">
+                  One platform
+                </p>
+                {(["linkedin", "instagram", "facebook"] as const).map((p) => {
+                  const meta = PLATFORM_META[p];
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      disabled={busy}
+                      onClick={() => {
+                        setGenMenuOpen(false);
+                        // If adding a new post for this platform, fill the add form
+                        if (showAdd || activeTab === "add") {
+                          setAddForm((f) => ({ ...f, platform: p }));
+                          void generateForAddFormPlatform(p);
+                        } else {
+                          void generate(p);
+                        }
+                      }}
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-pine-900 hover:bg-pine-50 disabled:opacity-50"
+                    >
+                      <span className={meta.style.split(" ")[0]}>
+                        <meta.Icon className="h-3.5 w-3.5" />
+                      </span>
+                      {meta.label}
+                    </button>
+                  );
+                })}
+              </div>
             )}
-            {generatingAll ? "Generating…" : "Generate all with AI"}
-          </button>
+          </div>
           <button
             type="button"
             disabled={busy || (allTabs.length === 0 && extraLinked.length === 0)}
@@ -866,17 +929,6 @@ export function ConnectedPostsModal({
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
-                  Title <span className="text-red-500">*</span>
-                </label>
-                <input
-                  value={addForm.title}
-                  onChange={(e) => setAddForm((f) => ({ ...f, title: e.target.value }))}
-                  placeholder="A short label for this post"
-                  className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
                   Publish date <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -889,37 +941,23 @@ export function ConnectedPostsModal({
                 />
               </div>
               <div>
-                <div className="mb-1 flex items-center justify-between gap-2">
-                  <label className="block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
-                    Post content
-                  </label>
-                  {addForm.platform !== "twitter" && (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void generateForAddForm()}
-                      className="inline-flex items-center gap-1 rounded-md border border-[#122428]/20 px-2 py-1 text-[10px] font-semibold text-[#122428] hover:bg-[#122428]/5 disabled:opacity-50"
-                    >
-                      {generatingPlatform === addForm.platform ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Sparkles className="h-3 w-3" />
-                      )}
-                      Generate with AI
-                    </button>
-                  )}
-                </div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
+                  Post content
+                </label>
+                <p className="mb-1.5 text-[11px] text-[#5F686A]/80">
+                  Paste copy, or use <span className="font-semibold">Generate with AI</span> above to write for this platform.
+                </p>
                 <textarea
                   rows={6}
                   value={addForm.content}
                   onChange={(e) => setAddForm((f) => ({ ...f, content: e.target.value }))}
-                  placeholder="Paste the post copy here, or generate with AI…"
+                  placeholder="Paste the post copy here…"
                   className="w-full resize-y rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-[#122428]"
                 />
               </div>
               <button
                 type="button"
-                disabled={adding || !addForm.title || !addForm.scheduled_date}
+                disabled={adding || !addForm.scheduled_date}
                 onClick={() => void addConnectedPost()}
                 className="w-full rounded-lg bg-[#122428] py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
               >
@@ -1157,134 +1195,8 @@ export function ConnectedPostsModal({
             <div className="py-10 text-center">
               <p className="text-sm text-[#5F686A]">No connected posts yet.</p>
               <p className="mt-1 text-xs text-[#5F686A]/80">
-                Generate all with AI, or use + to add a platform.
+                Use Generate with AI above, or + to add a platform.
               </p>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void generate("all")}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#122428] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {generatingAll ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="h-4 w-4" />
-                )}
-                Generate with AI
-              </button>
-            </div>
-          )}
-
-          {/* Multi-select published for all posts */}
-          {(allTabs.length > 0 || extraLinked.length > 0) && !showAdd && activeTab !== "add" && (
-            <div className="rounded-xl border border-[#111111]/10 p-4">
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">
-                Select published posts
-              </p>
-              <p className="mb-3 text-[11px] leading-relaxed text-[#5F686A]/80">
-                Tick the platforms you have already published, set dates, then save selection.
-              </p>
-              <div className="space-y-2">
-                {allTabs.map((t) => {
-                  const meta = PLATFORM_META[t.platform];
-                  return (
-                    <div
-                      key={t.key}
-                      className="flex flex-wrap items-center gap-2 rounded-lg border border-[#111111]/8 bg-white px-3 py-2"
-                    >
-                      <label className="flex min-w-0 flex-1 items-center gap-2 text-xs font-semibold text-[#111111]">
-                        <input
-                          type="checkbox"
-                          checked={!!selectedPublished[t.key]}
-                          onChange={(e) =>
-                            setSelectedPublished((prev) => ({
-                              ...prev,
-                              [t.key]: e.target.checked,
-                            }))
-                          }
-                          className="h-3.5 w-3.5 rounded border-gray-300"
-                        />
-                        <meta.Icon className="h-3.5 w-3.5 shrink-0" />
-                        {meta.label}
-                      </label>
-                      {selectedPublished[t.key] && (
-                        <input
-                          type="datetime-local"
-                          value={publishedDates[t.key] || nowDatetimeLocal()}
-                          onChange={(e) =>
-                            setPublishedDates((prev) => ({
-                              ...prev,
-                              [t.key]: e.target.value,
-                            }))
-                          }
-                          className="rounded-md border border-gray-200 px-2 py-1 text-[11px] outline-none focus:border-[#122428]"
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-                {extraLinked.map((s) => {
-                  const key = `social-${s.id}`;
-                  const platform = (PLATFORM_META[s.platform as PlatformKey]
-                    ? s.platform
-                    : "linkedin") as PlatformKey;
-                  const meta = PLATFORM_META[platform];
-                  return (
-                    <div
-                      key={key}
-                      className="flex flex-wrap items-center gap-2 rounded-lg border border-[#111111]/8 bg-white px-3 py-2"
-                    >
-                      <label className="flex min-w-0 flex-1 items-center gap-2 text-xs font-semibold text-[#111111]">
-                        <input
-                          type="checkbox"
-                          checked={!!selectedPublished[key]}
-                          onChange={(e) =>
-                            setSelectedPublished((prev) => ({
-                              ...prev,
-                              [key]: e.target.checked,
-                            }))
-                          }
-                          className="h-3.5 w-3.5 rounded border-gray-300"
-                        />
-                        <meta.Icon className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate">{s.title}</span>
-                      </label>
-                      {selectedPublished[key] && (
-                        <input
-                          type="datetime-local"
-                          value={publishedDates[key] || nowDatetimeLocal()}
-                          onChange={(e) =>
-                            setPublishedDates((prev) => ({
-                              ...prev,
-                              [key]: e.target.value,
-                            }))
-                          }
-                          className="rounded-md border border-gray-200 px-2 py-1 text-[11px] outline-none focus:border-[#122428]"
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <button
-                type="button"
-                disabled={savingPosted}
-                onClick={() => {
-                  const keys = [
-                    ...allTabs.map((t) => t.key),
-                    ...extraLinked.map((s) => `social-${s.id}`),
-                  ];
-                  void persistPublished(keys);
-                }}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-[#122428] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50"
-              >
-                {savingPosted ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Check className="h-3.5 w-3.5" />
-                )}
-                Save selection
-              </button>
             </div>
           )}
         </div>
