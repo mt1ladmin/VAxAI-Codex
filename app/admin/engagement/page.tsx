@@ -37,6 +37,7 @@ type Stats = {
   newEnquiries: number;
   overdueTasks: number;
   openTasks: number;
+  newVaApplications: number;
   recentPosts: PostItem[];
   upcomingPosts: PostItem[];
   loading: boolean;
@@ -88,6 +89,7 @@ export default function EngagementOverview() {
     newEnquiries: 0,
     overdueTasks: 0,
     openTasks: 0,
+    newVaApplications: 0,
     recentPosts: [],
     upcomingPosts: [],
     loading: true,
@@ -101,10 +103,12 @@ export default function EngagementOverview() {
       fetch("/api/admin/engagement/tasks?limit=100").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/enquiries?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
       fetch("/api/admin/posts?limit=50").then((r) => r.json()).catch(() => ({ data: [] })),
-    ]).then(([taskRes, enqRes, postRes]) => {
+      fetch("/api/admin/va-applications?tab=applications").then((r) => r.json()).catch(() => ({ data: [] })),
+    ]).then(([taskRes, enqRes, postRes, vaRes]) => {
       const taskData = (taskRes.data || []) as Array<{ due_date: string | null; status: string }>;
       const enqData = (enqRes.data || []) as { status?: string }[];
       const postData = (postRes.data || []) as PostItem[];
+      const vaData = (vaRes.data || []) as { status?: string }[];
 
       const isUpcoming = (p: PostItem) =>
         !!p.scheduled_at && p.status !== "published" && p.scheduled_at > now;
@@ -113,6 +117,7 @@ export default function EngagementOverview() {
         newEnquiries: enqData.filter((e) => isUnreviewedEnquiry(e.status as string)).length,
         overdueTasks: taskData.filter((t) => t.due_date && t.due_date < today && t.status !== "done").length,
         openTasks: taskData.filter((t) => t.status !== "done").length,
+        newVaApplications: vaData.filter((v) => v.status === "new").length,
         recentPosts: postData.slice(0, 5),
         upcomingPosts: postData
           .filter(isUpcoming)
@@ -183,10 +188,10 @@ export default function EngagementOverview() {
                   hint: "Needs review",
                 },
                 {
-                  label: "VAs",
-                  value: "→",
+                  label: "New VA applications",
+                  value: stats.newVaApplications,
                   href: "/admin/va-applications",
-                  hint: "Freelance partners",
+                  hint: "Needs review",
                 },
               ].map(({ label, value, href, hint }) => (
                 <Link
