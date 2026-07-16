@@ -47,24 +47,28 @@ const helpCards = [
     copy: "Clear the work that has built up and restore control.",
     href: "/how-we-help#area-backlog",
     linkLabel: "Explore backlog support",
+    shape: "backlog" as const,
   },
   {
     title: "AI & automation readiness",
     copy: "Create the organised information technology needs to work.",
     href: "/how-we-help#area-ai",
     linkLabel: "Explore AI readiness",
+    shape: "readiness" as const,
   },
   {
     title: "Ongoing admin support",
     copy: "Keep essential work moving without stretching your team.",
     href: "/how-we-help#area-ongoing",
     linkLabel: "Explore support services",
+    shape: "ongoing" as const,
   },
   {
     title: "Maintain & improve",
     copy: "Stop problems returning after the hard work is done.",
     href: "/how-we-help#area-maintain",
     linkLabel: "Explore maintenance",
+    shape: "maintain" as const,
   },
 ];
 
@@ -339,18 +343,103 @@ function AudienceCard({
   );
 }
 
+/** Abstract geometry for each support area — soft pine/acid, sits inside white cards */
+function HelpCardShape({ shape }: { shape: (typeof helpCards)[number]["shape"] }) {
+  const common = "h-full w-full";
+  if (shape === "backlog") {
+    // Descending bars: the pile clearing down to control
+    return (
+      <svg viewBox="0 0 120 72" className={common} aria-hidden="true" fill="none">
+        <rect x="10" y="14" width="18" height="48" rx="4" fill="#122428" opacity="0.12" />
+        <rect x="34" y="26" width="18" height="36" rx="4" fill="#27464D" opacity="0.28" />
+        <rect x="58" y="36" width="18" height="26" rx="4" fill="#375A62" opacity="0.45" />
+        <rect x="82" y="46" width="18" height="16" rx="4" fill="#D8FC2E" opacity="0.9" />
+        <path d="M14 10h72" stroke="#122428" strokeOpacity="0.12" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (shape === "readiness") {
+    // Organised grid / foundation blocks — structure before tools
+    return (
+      <svg viewBox="0 0 120 72" className={common} aria-hidden="true" fill="none">
+        <rect x="18" y="16" width="28" height="20" rx="5" fill="#122428" opacity="0.1" />
+        <rect x="50" y="16" width="28" height="20" rx="5" fill="#27464D" opacity="0.22" />
+        <rect x="82" y="16" width="20" height="20" rx="5" fill="#D8FC2E" opacity="0.85" />
+        <rect x="18" y="42" width="20" height="18" rx="5" fill="#375A62" opacity="0.35" />
+        <rect x="42" y="42" width="36" height="18" rx="5" fill="#122428" opacity="0.14" />
+        <rect x="82" y="42" width="20" height="18" rx="5" fill="#27464D" opacity="0.28" />
+        <circle cx="92" cy="26" r="3" fill="#122428" opacity="0.35" />
+      </svg>
+    );
+  }
+  if (shape === "ongoing") {
+    // Steady orbit / continuous motion — capacity that keeps work moving
+    return (
+      <svg viewBox="0 0 120 72" className={common} aria-hidden="true" fill="none">
+        <circle cx="60" cy="36" r="26" stroke="#122428" strokeOpacity="0.1" strokeWidth="2" />
+        <circle cx="60" cy="36" r="16" stroke="#27464D" strokeOpacity="0.35" strokeWidth="2" />
+        <circle cx="60" cy="36" r="6" fill="#D8FC2E" />
+        <circle cx="60" cy="10" r="4.5" fill="#375A62" opacity="0.55" />
+        <circle cx="86" cy="48" r="4" fill="#122428" opacity="0.2" />
+        <circle cx="34" cy="48" r="3.5" fill="#27464D" opacity="0.4" />
+        <path
+          d="M78 18c8 6 12 14 10 24"
+          stroke="#122428"
+          strokeOpacity="0.18"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+  // Maintain: ring of stability with a rising step — improvements held in place
+  return (
+    <svg viewBox="0 0 120 72" className={common} aria-hidden="true" fill="none">
+      <path
+        d="M24 50h18v-10h18v-10h18v-10h18v30H24z"
+        fill="#122428"
+        opacity="0.08"
+      />
+      <path
+        d="M24 50h18v-10h18v-10h18v-10h18"
+        stroke="#27464D"
+        strokeOpacity="0.45"
+        strokeWidth="2"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx="96" cy="20" r="8" fill="#D8FC2E" opacity="0.95" />
+      <circle cx="96" cy="20" r="3.5" fill="#122428" opacity="0.35" />
+      <path
+        d="M20 56h80"
+        stroke="#122428"
+        strokeOpacity="0.12"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function HelpCard({ card }: { card: (typeof helpCards)[number] }) {
   return (
     <motion.div variants={fadeUp} whileHover={{ y: -4 }} transition={{ duration: 0.35, ease: EASE }} className="h-full">
       <Link
         href={card.href}
-        className="group flex h-full flex-col rounded-3xl border border-ink/8 bg-white p-6 shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift md:p-7"
+        className="group flex h-full min-h-[280px] flex-col rounded-3xl border border-ink/8 bg-white p-7 shadow-card transition-shadow duration-500 ease-premium hover:shadow-lift md:min-h-[320px] md:p-8"
       >
-        <h3 className="text-lg font-semibold leading-snug tracking-tight text-ink">{card.title}</h3>
-        <p className="mt-2 flex-1 text-sm leading-6 text-muted">{card.copy}</p>
-        <span className="mt-6 inline-flex w-fit items-center gap-1.5 text-xs font-semibold text-pine-800">
+        <div className="mb-6 flex h-[72px] w-full items-center justify-center overflow-hidden rounded-2xl bg-pine-50/80 ring-1 ring-inset ring-pine-100/80 md:h-[84px]">
+          <div className="h-full w-full max-w-[140px] px-2 py-1 transition-transform duration-500 ease-premium group-hover:scale-[1.04]">
+            <HelpCardShape shape={card.shape} />
+          </div>
+        </div>
+        <h3 className="text-xl font-semibold leading-snug tracking-tight text-ink md:text-[1.35rem]">
+          {card.title}
+        </h3>
+        <p className="mt-3 flex-1 text-[15px] leading-7 text-muted">{card.copy}</p>
+        <span className="mt-7 inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-pine-800">
           {card.linkLabel}
-          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-premium group-hover:translate-x-1" />
         </span>
       </Link>
     </motion.div>
@@ -547,7 +636,7 @@ export default function Home() {
               Practical support for the admin that slows organisations down
             </h2>
           </Reveal>
-          <Stagger className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             {helpCards.map((card) => (
               <HelpCard key={card.href} card={card} />
             ))}
