@@ -40,7 +40,7 @@ Write for whichever audience the brief implies, or a general organisational read
 Make AI readiness tangible with recognisable examples: organising a shared drive before rolling out Microsoft Copilot, cleaning CRM records before introducing an AI assistant, documenting a process before automating a workflow, removing duplicate files before deploying enterprise search, preparing grant documentation before AI-assisted reporting.
 
 EXAMPLES AND EVIDENCE
-Illustrative examples must read as clearly hypothetical: "For example...", "Imagine a charity that...", "A founder preparing an internal knowledge base might...". Never imply first-hand experience or results: no "we often see", "our clients typically", "from our experience", "we've helped organisations". Never invent statistics, case studies, client stories or research. Present something as fact only if the brief supplies it.
+Illustrative examples must read as clearly hypothetical: "For example...", "Imagine a charity that...", "A founder preparing an internal knowledge base might...". Never imply first-hand experience, conversations or results. Banned phrases include but are not limited to: "most teams we talk to", "we often see", "we often hear", "our clients typically", "from our experience", "we've helped organisations", "teams tell us", "what we hear from", "in our conversations with", "organisations we work with", "from what we see". Do not rephrase these to sneak them in; the rule is: VAxAI has no anecdotal evidence to cite. Never invent statistics, case studies, client stories, research or implied social proof ("many organisations find...", "time and again..."). Present something as fact only if the brief supplies it.
 
 VOICE
 UK English. No em dashes. Clear before clever. Lead with the reader's problem, not with VAxAI. Practical, calm, knowledgeable and human. Explain why something matters before how it works. Balanced and evidence-based about AI: never sensationalist, never anti-AI, never AI-first, never futuristic. Every sentence should earn its place, and the piece should be genuinely useful even if the reader never becomes a client.
@@ -52,7 +52,7 @@ TAGS
 The hashtags array serves both Google search and AI answer engines: mix keyword phrases people actually type with natural-language, question-style terms. Always include "VAxAI". Add genuinely relevant topic, sector and UK-context tags around operational administration, backlogs, AI readiness, productivity and the audience's sector. Return tags without the # symbol.
 
 FINAL CHECK
-Before returning, confirm the piece leads with the reader's problem, keeps foundations (not AI) as the hero, uses only hypothetical or brief-supplied examples, fits the platform it is written for, and reads naturally in UK English with no em dashes.`;
+Before returning, confirm the piece leads with the reader's problem, keeps foundations (not AI) as the hero, uses only hypothetical or brief-supplied examples with no fake comments or implied social proof (no "most teams we talk to", "we often see", "organisations tell us" or similar), fits the platform it is written for, and reads naturally in UK English with no em dashes.`;
 
 /* ------------------------------------------------------------------ */
 /* Platform briefs — one per surface, appended to the brand core       */
@@ -110,31 +110,31 @@ const seoDescription = {
 const bodyHtml = {
   type: "string",
   description:
-    "The full article as HTML using only <h2>, <p> and <ul><li> tags; 700 to 900 words; practical and specific throughout; ends with the topic-tailored VAxAI call to action, closing with a natural invitation to start a conversation by linking an enquiry to this post.",
+    "The full article as HTML using only <h2>, <p> and <ul><li> tags; 700 to 900 words; practical and specific throughout; ends with the topic-tailored VAxAI call to action, closing with a natural invitation to start a conversation by linking an enquiry to this post. Never include fake comments, testimonials or implied social proof. All examples must be clearly hypothetical.",
 };
 
 const sharingCaption = {
   type: "string",
   description:
-    "2 to 3 sentences for general social sharing, leading with how VAxAI helps with this topic and including vaxai.co.uk naturally in the call to action.",
+    "2 to 3 sentences for general social sharing, leading with how VAxAI helps with this topic and including vaxai.co.uk naturally in the call to action. Never include fake comments, testimonials or implied social proof. All examples must be clearly hypothetical.",
 };
 
 const linkedinPost = {
   type: "string",
   description:
-    "150 to 250 words, plain text with natural paragraph breaks, no emojis, strong first line, closing with a topic-tailored VAxAI call to action that invites a message here on LinkedIn or a visit to vaxai.co.uk.",
+    "150 to 250 words, plain text with natural paragraph breaks, no emojis, strong first line, closing with a topic-tailored VAxAI call to action that invites a message here on LinkedIn or a visit to vaxai.co.uk. Never include fake comments, testimonials or implied social proof such as 'most teams we talk to' or 'organisations we work with say'. All examples must be clearly hypothetical.",
 };
 
 const instagramCaption = {
   type: "string",
   description:
-    "60 to 100 words, plain text, one practical idea, closing with a topic-tailored VAxAI call to action that invites a message or a visit to vaxai.co.uk.",
+    "60 to 100 words, plain text, one practical idea, closing with a topic-tailored VAxAI call to action that invites a message or a visit to vaxai.co.uk. Never include fake comments, testimonials or implied social proof. All examples must be clearly hypothetical.",
 };
 
 const facebookPost = {
   type: "string",
   description:
-    "80 to 150 words, warm and conversational plain text, one piece of practical advice, closing with a question or an invitation to message the page or visit vaxai.co.uk.",
+    "80 to 150 words, warm and conversational plain text, one piece of practical advice, closing with a question or an invitation to message the page or visit vaxai.co.uk. Never include fake comments, testimonials or implied social proof such as 'most teams we talk to' or 'organisations we work with say'. All examples must be clearly hypothetical.",
 };
 
 function hashtags(minimum: number) {
