@@ -700,7 +700,7 @@ export default function EditPostPage() {
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col md:h-full md:min-h-0">
+    <div className="flex min-h-0 flex-col">
       <Toast message={toastMsg} visible={toastVisible} action={toastAction} isError={toastIsError} />
 
       {showPublishedSuccess && (
@@ -773,6 +773,7 @@ export default function EditPostPage() {
             <Trash2 className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() => void save("draft")}
             disabled={saving}
             className="rounded-md border border-[#111111]/15 px-3 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
@@ -782,18 +783,26 @@ export default function EditPostPage() {
           </button>
           <button
             type="button"
+            onClick={() => void save("published")}
+            disabled={saving}
+            className="rounded-md bg-[#122428] px-3 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+          >
+            {saving ? (isPublished ? "Updating…" : "Publishing…") : isPublished ? "Update" : "Publish"}
+          </button>
+          <button
+            type="button"
             onClick={() => setPanelOpen(true)}
             disabled={saving}
             className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
           >
             <Settings className="h-3.5 w-3.5" />
-            {isPublished ? "Settings" : "Publish"}
+            Settings
           </button>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-auto bg-white">
+      <div className="flex items-start">
+        <div className="min-w-0 flex-1 bg-white">
           <PostEditor
             title={title}
             onTitleChange={setTitle}
@@ -807,17 +816,17 @@ export default function EditPostPage() {
         </div>
 
         {panelOpen && (
-          <div className="fixed inset-0 z-50 flex flex-col bg-white max-md:pt-[env(safe-area-inset-top)] md:static md:inset-auto md:z-auto md:w-80 md:shrink-0 md:border-l md:border-[#111111]/10">
+          <div className="fixed inset-0 z-50 flex max-h-[100dvh] flex-col overflow-hidden bg-white max-md:pt-[env(safe-area-inset-top)] md:sticky md:inset-auto md:top-0 md:z-20 md:h-[100dvh] md:max-h-[100dvh] md:w-80 md:shrink-0 md:self-start md:border-l md:border-[#111111]/10">
             <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#5F686A]">
-                {isPublished ? "Post settings" : "Publish post"}
+                Post settings
               </p>
-              <button onClick={() => setPanelOpen(false)} className="grid h-10 w-10 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50" aria-label="Close">
+              <button type="button" onClick={() => setPanelOpen(false)} className="grid h-10 w-10 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50" aria-label="Close">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="flex-1 space-y-6 overflow-y-auto p-5">
+            <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain p-5">
               {/* Share caption */}
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share caption</label>
@@ -987,65 +996,74 @@ export default function EditPostPage() {
                 )}
               </div>
 
-              {/* Publish timing */}
+              {/* Publish timing — Publish now publishes immediately; Schedule uses the date below */}
               {!isPublished && (
                 <div>
                   <label className="mb-2 block text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">When to publish</label>
                   <div className="flex overflow-hidden rounded-md border border-[#111111]/15 text-xs font-semibold">
-                    <button type="button" onClick={() => setPublishMode("now")}
-                      className={`flex-1 py-2 transition-colors ${publishMode === "now" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}>
-                      Publish now
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPublishMode("now");
+                        void save("published");
+                      }}
+                      disabled={saving}
+                      className={`flex-1 py-2 transition-colors disabled:opacity-50 ${publishMode === "now" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}
+                    >
+                      {saving && publishMode === "now" ? "Publishing…" : "Publish now"}
                     </button>
-                    <button type="button" onClick={() => setPublishMode("schedule")}
-                      className={`flex-1 py-2 transition-colors ${publishMode === "schedule" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}>
+                    <button
+                      type="button"
+                      onClick={() => setPublishMode("schedule")}
+                      disabled={saving}
+                      className={`flex-1 py-2 transition-colors disabled:opacity-50 ${publishMode === "schedule" ? "bg-[#122428] text-white" : "bg-white text-[#5F686A] hover:bg-gray-50"}`}
+                    >
                       Schedule
                     </button>
                   </div>
                   {publishMode === "schedule" && (
-                    <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)}
-                      className="mt-2 w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]" />
+                    <div className="mt-2 space-y-2">
+                      <input
+                        type="datetime-local"
+                        value={scheduledAt}
+                        onChange={(e) => setScheduledAt(e.target.value)}
+                        className="w-full rounded-md border border-[#111111]/15 bg-white px-3 py-2 text-sm outline-none focus:border-[#122428]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void save("scheduled")}
+                        disabled={saving || !scheduledAt}
+                        className="w-full rounded-md bg-pine-900 py-2.5 text-sm font-semibold text-paper hover:bg-pine-800 disabled:opacity-50"
+                      >
+                        {saving ? "Scheduling…" : "Schedule post"}
+                      </button>
+                    </div>
                   )}
+                  <p className="mt-2 text-[10px] text-[#5F686A]/60">
+                    Or use <span className="font-semibold">Publish</span> in the top bar to publish quickly without opening settings.
+                  </p>
                 </div>
               )}
-            </div>
 
-            {/* Sticky publish footer */}
-            <div className="shrink-0 border-t border-[#111111]/10 px-5 py-4">
+              {isPublished && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => void save("draft")}
+                    disabled={saving}
+                    className="w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-gray-100 disabled:opacity-50"
+                  >
+                    Move to draft
+                  </button>
+                </div>
+              )}
+
               {publishError ? (
-                <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+                <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
                   <p className="font-semibold">Could not publish</p>
                   <p className="mt-0.5 break-words">{publishError}</p>
                 </div>
               ) : null}
-              {publishMode === "now" || isPublished ? (
-                <button
-                  type="button"
-                  onClick={() => void save("published")}
-                  disabled={saving}
-                  className="w-full rounded-md bg-[#122428] py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
-                >
-                  {saving ? "Publishing…" : isPublished ? "Update post" : "Publish post"}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => void save("scheduled")}
-                  disabled={saving || !scheduledAt}
-                  className="w-full rounded-md bg-pine-900 py-3 text-sm font-semibold text-paper hover:bg-pine-800 disabled:opacity-50"
-                >
-                  {saving ? "Scheduling…" : "Schedule post"}
-                </button>
-              )}
-              {isPublished && (
-                <button
-                  type="button"
-                  onClick={() => void save("draft")}
-                  disabled={saving}
-                  className="mt-2 w-full rounded-md border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-gray-100 disabled:opacity-50"
-                >
-                  Move to draft
-                </button>
-              )}
             </div>
           </div>
         )}
