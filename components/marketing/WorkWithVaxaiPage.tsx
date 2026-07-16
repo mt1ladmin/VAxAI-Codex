@@ -1176,8 +1176,8 @@ export default function WorkWithVaxaiPage() {
                     Ready to join our network?
                   </h2>
                   <p className="mt-5 max-w-xl text-base leading-8 text-muted">
-                    Register your interest when ready. We guide you step by step through privacy,
-                    experience, specialisms, setup readiness, availability and CV.
+                    Register your interest and we&rsquo;ll review your experience and strengths, then
+                    get in touch if there&rsquo;s a good fit for well-matched projects or retainers.
                   </p>
                   <button type="button" onClick={openModal} className={`${btn.primary} mt-8`}>
                     Register your interest
