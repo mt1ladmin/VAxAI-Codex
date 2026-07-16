@@ -94,7 +94,7 @@ const whyPartner = [
   "Receive clear briefs and structured onboarding so you can focus on delivering high-quality work.",
   "Join free workshops and events to build practical AI and automation skills for admin roles.",
   "Enjoy flexibility in choosing work that fits your availability, with transparent terms throughout.",
-  "We do not publish fixed rates because the work varies. Rates are discussed individually based on the scope of work, your experience, and the requirements of each engagement. Payment may be on a project, monthly or quarterly basis depending on the type of work. Exact terms are confirmed in writing before any work begins.",
+  "We do not publish fixed rates because the nature of the work varies. Exact rates and payment terms are always confirmed in writing before any work begins.",
 ];
 
 const CONVICTION_OPTIONS = ["No", "Yes", "I do not wish to say"] as const;
