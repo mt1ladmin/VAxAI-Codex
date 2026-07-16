@@ -137,7 +137,6 @@ export default function EngagementOverview() {
     <div className={`${studio.page} ${studio.pagePad}`}>
       <div className={studio.max}>
         <StudioPageHeader
-          eyebrow="Client engagement"
           title="Overview"
           description="What needs attention today: enquiries, tasks, prospects and content — without digging through every list."
           info="Start here each day. Overdue tasks and new enquiries surface first. Shortcuts open Prospect Finder, Knowledge Hub and Content Hub with the same data as before."

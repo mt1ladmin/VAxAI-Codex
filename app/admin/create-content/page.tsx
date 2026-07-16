@@ -121,25 +121,18 @@ export default function CreateContentPage() {
     <div className={`${studio.page} ${studio.pagePad}`}>
       <div className={studio.max}>
         <StudioPageHeader
-          eyebrow="Content Hub"
           title="Create content"
           description="Start with Create when you already know the angle. Open the topic library only if you want optional ideas — used topics are removed so you do not rework the same brief."
           info="Generate drafts with AI, then edit before saving to Posts or the calendar. Topics you generate from are archived so the library stays fresh. Refresh topics uses AI plus light public research signals."
-          actions={
-            <button type="button" onClick={() => setOpen(true)} className={studio.btnPrimary}>
-              <Sparkles className="h-4 w-4" />
-              Create content
-            </button>
-          }
         />
 
-        {/* Calm first screen: one clear path, library collapsed */}
-        <div className={`${studio.card} ${studio.cardPad} mt-6`}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {/* Always-visible create / library controls */}
+        <div className={`sticky top-14 z-20 mt-6 ${studio.card} ${studio.cardPad} border-pine-900/10 bg-white/95 shadow-sm backdrop-blur-md md:top-16`}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className={studio.sectionTitle}>Ready when you are</p>
+              <p className={studio.sectionTitle}>Create</p>
               <p className="mt-1 text-sm leading-6 text-muted">
-                Write your own brief in Create, or open the library for optional starting points.
+                Write your own brief, or open the library for optional starting points.
                 {selected.size > 0
                   ? ` ${selected.size} topic${selected.size === 1 ? "" : "s"} selected.`
                   : ""}
@@ -148,7 +141,7 @@ export default function CreateContentPage() {
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => setOpen(true)} className={studio.btnPrimary}>
                 <Sparkles className="h-4 w-4" />
-                {selected.size > 0 ? "Create from selection" : "Create content"}
+                {selected.size > 0 ? "Create from selection" : "Create"}
               </button>
               <button
                 type="button"

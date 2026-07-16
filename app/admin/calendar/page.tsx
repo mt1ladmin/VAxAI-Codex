@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { CalendarItemPreviewModal } from "@/components/admin/CalendarItemPreviewModal";
 import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
+import FilingTab from "@/components/FilingTab";
 import {
   CalendarClock,
   CheckCircle2,
@@ -1601,9 +1602,8 @@ export default function CalendarPage() {
         <div className="border-b border-pine-900/8 bg-white px-4 py-6 md:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Content Hub</p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">Calendar</h1>
-              <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted">
+              <FilingTab>Calendar</FilingTab>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
                 See when posts and social pieces go live. Drag to reschedule. The side panel lists connected social still to post.
               </p>
             </div>

@@ -37,6 +37,7 @@ import {
   ScriptsBlocksPanel,
 } from "@/components/admin/KnowledgeSalesTools";
 import { KnowledgeAddModal } from "@/components/admin/KnowledgeAddModal";
+import FilingTab from "@/components/FilingTab";
 import {
   PAIN_POINT_CATEGORIES,
   type PainPoint, type SectorProfile, type Persona, type VatPrompt,
@@ -46,9 +47,6 @@ import { useSetAIContext } from "@/lib/ai-assistant-context";
 type Tab = "sectors" | "personas" | "pain_points" | "vat_prompts" | "pricing" | "scripts" | "objections";
 
 const TAB_KEYS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts", "pricing", "scripts", "objections"];
-
-const LIBRARY_TABS: Tab[] = ["sectors", "personas", "pain_points", "vat_prompts"];
-const SALES_TABS: Tab[] = ["pricing", "scripts", "objections"];
 
 const TAB_META: Record<
   Tab,
@@ -871,36 +869,14 @@ function KnowledgePageInner() {
             ? vatPrompts.length
             : null;
 
-  const folderRow = (key: Tab) => {
-    const meta = TAB_META[key];
-    const Icon = meta.icon;
-    const active = tab === key;
-    return (
-      <button
-        key={key}
-        type="button"
-        onClick={() => switchTab(key)}
-        className={`flex w-full items-center gap-2.5 rounded-r-md px-3 py-2 text-left text-sm transition-colors ${
-          active
-            ? "border-l-2 border-l-pine-900 bg-pine-50 font-semibold text-pine-900"
-            : "border-l-2 border-l-transparent text-muted hover:bg-pine-50/60 hover:text-pine-900"
-        }`}
-      >
-        <Icon className={`h-3.5 w-3.5 shrink-0 ${active ? "text-pine-800" : "text-muted"}`} />
-        <span className="truncate">{meta.label}</span>
-      </button>
-    );
-  };
-
   return (
     <div className="min-h-full bg-white">
-      {/* Quiet page header */}
+      {/* Top header + library tabs (horizontal, public filing-tab style) */}
       <div className="border-b border-pine-900/[0.07] px-4 py-5 md:px-8">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Client engagement</p>
-            <h1 className="mt-0.5 text-xl font-semibold tracking-tight text-pine-900 md:text-2xl">Knowledge Hub</h1>
-            <p className="mt-1 max-w-xl text-sm leading-6 text-muted">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <FilingTab>Knowledge Hub</FilingTab>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
               Organised playbooks for outreach, scoping and delivery.
             </p>
           </div>
@@ -913,138 +889,126 @@ function KnowledgePageInner() {
             Add entry
           </button>
         </div>
+
+        <div
+          role="tablist"
+          aria-label="Knowledge Hub sections"
+          className="mt-5 flex max-w-full flex-wrap gap-1.5 border-b border-[#d5d8d1]"
+        >
+          {TAB_KEYS.map((key) => {
+            const active = tab === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => switchTab(key)}
+                className={`filing-tab-button shrink-0 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-800 ${
+                  active ? "is-active" : ""
+                }`}
+              >
+                {TAB_META[key].label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* File-browser layout: folder rail + content pane */}
-      <div className="flex min-h-[calc(100vh-8rem)] flex-col md:flex-row">
-        {/* Folder rail */}
-        <aside className="shrink-0 border-b border-pine-900/[0.07] md:w-56 md:border-b-0 md:border-r md:border-pine-900/[0.07]">
-          {/* Mobile: horizontal quiet tabs */}
-          <div className="flex gap-1 overflow-x-auto px-3 py-2 md:hidden">
-            {TAB_KEYS.map((key) => {
-              const active = tab === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => switchTab(key)}
-                  className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    active
-                      ? "bg-pine-50 text-pine-900 ring-1 ring-pine-900/15"
-                      : "text-muted hover:bg-pine-50/70 hover:text-pine-900"
-                  }`}
-                >
-                  {TAB_META[key].label}
-                </button>
-              );
-            })}
-          </div>
-          {/* Desktop: folder list */}
-          <nav className="hidden py-4 md:block">
-            <p className="mb-1.5 px-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Library</p>
-            <div className="space-y-0.5">{LIBRARY_TABS.map(folderRow)}</div>
-            <p className="mb-1.5 mt-5 px-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
-              Sales tools
-            </p>
-            <div className="space-y-0.5">{SALES_TABS.map(folderRow)}</div>
-          </nav>
-        </aside>
-
-        {/* Content pane */}
-        <div className="min-w-0 flex-1">
-          <div className="sticky top-0 z-20 border-b border-pine-900/[0.07] bg-white/95 px-4 py-3.5 backdrop-blur-md md:px-6">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex min-w-0 items-center gap-2.5">
-                <ActiveIcon className="h-4 w-4 shrink-0 text-pine-700" />
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-baseline gap-2">
-                    <h2 className="text-base font-semibold tracking-tight text-pine-900">{TAB_META[tab].title}</h2>
-                    {itemCount != null && !loading ? (
-                      <span className="text-xs tabular-nums text-muted">{itemCount} items</span>
-                    ) : null}
-                  </div>
-                  <p className="mt-0.5 line-clamp-1 text-xs text-muted md:line-clamp-2 md:text-sm md:leading-5">
-                    {TAB_META[tab].description}
-                  </p>
-                </div>
+      {/* Active section tools */}
+      <div className="sticky top-0 z-20 border-b border-pine-900/[0.07] bg-white/95 px-4 py-3.5 backdrop-blur-md md:px-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <ActiveIcon className="h-4 w-4 shrink-0 text-pine-700" />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <h2 className="text-base font-semibold tracking-tight text-pine-900">{TAB_META[tab].title}</h2>
+                {itemCount != null && !loading ? (
+                  <span className="text-xs tabular-nums text-muted">{itemCount} items</span>
+                ) : null}
               </div>
-
-              {!(["pricing", "scripts", "objections"] as Tab[]).includes(tab) ? (
-                <div className="flex flex-wrap items-center gap-2">
-                  {tab !== "vat_prompts" ? (
-                    <div className="relative min-w-[11rem] flex-1 sm:max-w-xs">
-                      <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
-                      <input
-                        ref={inputRef}
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder={
-                          tab === "pain_points"
-                            ? "Search…"
-                            : tab === "sectors"
-                              ? "Search sectors…"
-                              : "Search…"
-                        }
-                        className="w-full rounded-lg border border-pine-900/10 bg-white py-1.5 pl-8 pr-3 text-sm outline-none focus:border-pine-900/25 focus:ring-2 focus:ring-pine-900/[0.06]"
-                      />
-                    </div>
-                  ) : null}
-                  {tab === "pain_points" ? (
-                    <CustomSelect
-                      value={category}
-                      onChange={setCategory}
-                      placeholder="All categories"
-                      className="w-44"
-                      options={[
-                        { value: "", label: "All categories" },
-                        ...PAIN_POINT_CATEGORIES.map((c) => ({ value: c, label: c })),
-                      ]}
-                    />
-                  ) : null}
-                  {tab === "vat_prompts" ? (
-                    <div className="flex flex-wrap gap-1 rounded-lg border border-pine-900/10 bg-white p-0.5">
-                      {(["value", "alignment", "trust"] as const).map((dim) => {
-                        const on = dimension === dim;
-                        return (
-                          <button
-                            key={dim}
-                            type="button"
-                            onClick={() => setDimension(on ? "" : dim)}
-                            className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
-                              on
-                                ? "bg-pine-50 font-semibold text-pine-900 ring-1 ring-pine-900/12"
-                                : "text-muted hover:bg-pine-50/70 hover:text-pine-900"
-                            }`}
-                          >
-                            {dim}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                  {canSelect ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectMode((v) => !v);
-                        setSelectedIds(new Set());
-                        setConfirmBulkDelete(false);
-                      }}
-                      className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
-                        selectMode
-                          ? "border-pine-900/20 bg-pine-50 text-pine-900"
-                          : "border-pine-900/10 bg-white text-muted hover:border-pine-900/20 hover:text-pine-900"
-                      }`}
-                    >
-                      {selectMode ? "Cancel select" : "Select"}
-                    </button>
-                  ) : null}
-                </div>
-              ) : null}
+              <p className="mt-0.5 line-clamp-1 text-xs text-muted md:line-clamp-2 md:text-sm md:leading-5">
+                {TAB_META[tab].description}
+              </p>
             </div>
           </div>
 
-          <div className="px-4 py-5 md:px-6 md:py-6">
+          {!(["pricing", "scripts", "objections"] as Tab[]).includes(tab) ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {tab !== "vat_prompts" ? (
+                <div className="relative min-w-[11rem] flex-1 sm:max-w-xs">
+                  <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+                  <input
+                    ref={inputRef}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={
+                      tab === "pain_points"
+                        ? "Search…"
+                        : tab === "sectors"
+                          ? "Search sectors…"
+                          : "Search…"
+                    }
+                    className="w-full rounded-lg border border-pine-900/10 bg-white py-1.5 pl-8 pr-3 text-sm outline-none focus:border-pine-900/25 focus:ring-2 focus:ring-pine-900/[0.06]"
+                  />
+                </div>
+              ) : null}
+              {tab === "pain_points" ? (
+                <CustomSelect
+                  value={category}
+                  onChange={setCategory}
+                  placeholder="All categories"
+                  className="w-44"
+                  options={[
+                    { value: "", label: "All categories" },
+                    ...PAIN_POINT_CATEGORIES.map((c) => ({ value: c, label: c })),
+                  ]}
+                />
+              ) : null}
+              {tab === "vat_prompts" ? (
+                <div className="flex flex-wrap gap-1 rounded-lg border border-pine-900/10 bg-white p-0.5">
+                  {(["value", "alignment", "trust"] as const).map((dim) => {
+                    const on = dimension === dim;
+                    return (
+                      <button
+                        key={dim}
+                        type="button"
+                        onClick={() => setDimension(on ? "" : dim)}
+                        className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
+                          on
+                            ? "bg-pine-50 font-semibold text-pine-900 ring-1 ring-pine-900/12"
+                            : "text-muted hover:bg-pine-50/70 hover:text-pine-900"
+                        }`}
+                      >
+                        {dim}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+              {canSelect ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectMode((v) => !v);
+                    setSelectedIds(new Set());
+                    setConfirmBulkDelete(false);
+                  }}
+                  className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                    selectMode
+                      ? "border-pine-900/20 bg-pine-50 text-pine-900"
+                      : "border-pine-900/10 bg-white text-muted hover:border-pine-900/20 hover:text-pine-900"
+                  }`}
+                >
+                  {selectMode ? "Cancel select" : "Select"}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="px-4 py-5 md:px-8 md:py-6">
             {selectMode && selectedIds.size > 0 ? (
               <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-red-100 bg-red-50/80 px-3.5 py-2.5">
                 <span className="text-xs font-semibold text-red-700">{selectedIds.size} selected</span>
@@ -1224,8 +1188,6 @@ function KnowledgePageInner() {
                 {tab === "objections" ? <ObjectionsPanel /> : null}
               </>
             )}
-          </div>
-        </div>
       </div>
 
       <KnowledgeAddModal

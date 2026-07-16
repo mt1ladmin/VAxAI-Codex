@@ -20,6 +20,7 @@ import {
   type VaApplicationStatus,
 } from "@/lib/va-applications/constants";
 import { emailComposeUrl } from "@/lib/engagement/email-links";
+import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 
 type TabId = "applications" | "approved";
@@ -174,13 +175,8 @@ export default function VaApplicationsPage() {
       <div className="mx-auto max-w-7xl">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">
-            Client engagement
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">
-            VAs
-          </h1>
-          <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted">
+          <FilingTab>VAs</FilingTab>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
             Review freelance applications, move people into the active VA pool, and keep availability
             ready for matching. Multi-select to email opportunities when you need cover.
           </p>

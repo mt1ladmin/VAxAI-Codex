@@ -16,6 +16,7 @@ import {
   type SourceFilter,
 } from "@/lib/engagement/pipeline-filters";
 import type { EngagementTask } from "@/lib/engagement/types";
+import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 
 const PRIORITY_DOT: Record<string, string> = {
@@ -429,18 +430,11 @@ export function TasksListView({
       ) : (
         <>
       {showPageHeader && (
-        <div className="border-b border-[#111111]/10 px-8 py-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#122428]/10">
-              <CheckSquare className="h-5 w-5 text-[#122428]" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-[#111111]">Tasks Tracker</h1>
-              <p className="text-sm text-[#5F686A]">
-                Master task list across Prospect Finder and Enquiries
-              </p>
-            </div>
-          </div>
+        <div className="border-b border-pine-900/8 px-8 py-6">
+          <FilingTab>Task Tracker</FilingTab>
+          <p className="mt-3 text-sm text-muted">
+            Master task list across Prospect Finder and Enquiries
+          </p>
         </div>
       )}
       <div className={`${embedded ? "" : "border-b border-[#111111]/10"} px-8 ${embedded ? "pt-6" : "py-6"}`}>

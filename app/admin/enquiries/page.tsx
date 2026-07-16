@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { StudioTeamMember } from "@/lib/engagement/team-members";
 import { FilterSelect } from "@/components/admin/FilterSelect";
+import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 import {
   ENQUIRY_STATUS_COLORS,
@@ -309,9 +310,8 @@ export default function EnquiriesPage() {
       <div className="shrink-0 border-b border-pine-900/8 bg-white px-4 py-5 md:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Client engagement</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">Enquiries</h1>
-            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted">
+            <FilingTab>Enquiries</FilingTab>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
               Inbound interest from the website and direct contact. Review, assign a next step, and qualify for support.
             </p>
           </div>
