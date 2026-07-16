@@ -999,7 +999,7 @@ export default function CalendarPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [socialPosts, setSocialPosts] = useState<SocialPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"month" | "week">("month");
+  const [view, setView] = useState<"month" | "week">("week");
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -1714,8 +1714,8 @@ export default function CalendarPage() {
               Schedule content and see when it goes live. Published posts sit on their publish day; scheduled posts on their go-live day. Drag to reschedule.
             </p>
             <div className="flex shrink-0 overflow-hidden rounded-xl border border-pine-900/12 text-sm font-semibold">
-              <button type="button" onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Month</button>
               <button type="button" onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Week</button>
+              <button type="button" onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Month</button>
             </div>
           </div>
         </div>
