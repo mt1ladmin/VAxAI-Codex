@@ -102,7 +102,7 @@ const partnerFaqs: [string, string][] = [
   ],
   [
     "How does pay work?",
-    "We do not publish fixed rates because every engagement is different. Rates and payment terms are discussed openly and confirmed in writing before any work begins. Payment may be project-based, monthly or quarterly depending on the type of work.",
+    "We do not publish fixed rates because every engagement is different. Rates and payment terms are discussed openly and confirmed in writing before any work begins.",
   ],
   [
     "What kind of work will I do?",
@@ -118,7 +118,7 @@ const partnerFaqs: [string, string][] = [
   ],
   [
     "What about confidentiality?",
-    "This work often involves working with confidential information. Successful applicants are asked to sign a Non-Disclosure Agreement and Data Processing Agreement before client work begins, and may be asked for references or a basic background check for certain engagements.",
+    "This work often involves working with confidential information. Successful applicants are asked to sign a Non-Disclosure Agreement and Data Processing Agreement before client work begins, and will need to provide references to become a VAxAI VA partner.",
   ],
   [
     "How long until I hear back?",
@@ -1167,7 +1167,7 @@ export default function WorkWithVaxaiPage() {
                   <p>
                     Get involved in varied, well-matched work with founders, growing businesses,
                     charities and public sector teams. You&rsquo;ll receive clear briefs and proper
-                    onboarding so you can focus on doing excellent work instead of chasing details.
+                    onboarding so you can focus on doing excellent work.
                   </p>
                   <p>
                     You&rsquo;ll also have access to free workshops and events that help you build
