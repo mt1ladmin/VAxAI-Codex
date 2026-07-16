@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Edit2, Plus, Trash2, X } from "lucide-react";
 import ImageUpload from "@/components/admin/ImageUpload";
+import FilingTab from "@/components/FilingTab";
 
 type Author = { id: string; name: string; bio: string; avatar_url: string | null; linkedin_url: string | null; created_at: string };
 
@@ -148,10 +149,9 @@ export default function AuthorsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#122428]">VAxAI Studio</p>
-        <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Author profiles</h1>
-        <p className="mt-0.5 text-sm text-[#5F686A]">Create author profiles to attribute posts. Each profile is shown on the published post.</p>
+      <div className="border-b border-pine-900/8 bg-white px-8 py-6">
+        <FilingTab>Author profiles</FilingTab>
+        <p className="mt-3 text-sm text-muted">Create author profiles to attribute posts. Each profile is shown on the published post.</p>
       </div>
 
       <div className="mx-auto max-w-2xl px-8 py-8">
@@ -192,7 +192,7 @@ export default function AuthorsPage() {
                   <div className="flex shrink-0 gap-1">
                     <button
                       onClick={() => setEditingId(author.id)}
-                      className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8] hover:text-[#111111]"
+                      className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50 hover:text-[#111111]"
                     >
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>

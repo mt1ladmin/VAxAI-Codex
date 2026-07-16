@@ -79,7 +79,7 @@ function Toast({ message, visible, action, isError }: { message: string; visible
         visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
       }`}
     >
-      <div className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-xl ${isError ? "bg-red-600" : "bg-[#111111]"}`}>
+      <div className={`flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-xl ${isError ? "bg-red-600" : "bg-pine-900"}`}>
         <Check className={`h-4 w-4 ${isError ? "text-red-200" : "text-emerald-400"}`} />
         {message}
         {action && (
@@ -122,7 +122,7 @@ function SocialPreviewModal({
             <h3 className="text-sm font-semibold text-[#111111]">Social versions ready to copy</h3>
             <p className="mt-0.5 text-xs text-[#5F686A]">Post link is embedded — copy and go.</p>
           </div>
-          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-md hover:bg-[#F5F8F8]">
+          <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-md hover:bg-pine-50">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -146,7 +146,7 @@ function SocialPreviewModal({
                     <Linkedin className="h-3 w-3" /> Post
                   </a>
                   <button type="button" onClick={() => void copy(liContent, "li")}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-[#F5F8F8]">
+                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-pine-50">
                     {copiedLi ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
                     {copiedLi ? "Copied!" : "Copy"}
                   </button>
@@ -170,7 +170,7 @@ function SocialPreviewModal({
                     <Instagram className="h-3 w-3" /> Post
                   </a>
                   <button type="button" onClick={() => void copy(igContent, "ig")}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-[#F5F8F8]">
+                    className="inline-flex items-center gap-1 rounded-md border border-[#111111]/15 px-2.5 py-1 text-xs font-medium text-[#5F686A] hover:bg-pine-50">
                     {copiedIg ? <Check className="h-3 w-3 text-emerald-600" /> : <Copy className="h-3 w-3" />}
                     {copiedIg ? "Copied!" : "Copy"}
                   </button>
@@ -206,7 +206,7 @@ function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; on
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 rounded-lg border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+            className="flex-1 rounded-lg border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50"
           >
             Cancel
           </button>
@@ -712,7 +712,7 @@ export default function EditPostPage() {
 
       {/* Top bar */}
       <div className="flex shrink-0 items-center gap-3 border-b border-[#111111]/10 bg-white px-4 py-3">
-        <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
+        <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <span className="text-sm text-[#5F686A]">Edit post</span>
@@ -733,7 +733,7 @@ export default function EditPostPage() {
           <button
             onClick={() => void save("draft")}
             disabled={saving}
-            className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8] disabled:opacity-50"
+            className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
           >
             Save draft
           </button>
@@ -741,7 +741,7 @@ export default function EditPostPage() {
             type="button"
             onClick={() => setPanelOpen(true)}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
           >
             <Settings className="h-3.5 w-3.5" />
             {isPublished ? "Settings" : "Publish"}
@@ -769,7 +769,7 @@ export default function EditPostPage() {
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#5F686A]">
                 {isPublished ? "Post settings" : "Publish post"}
               </p>
-              <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
+              <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -968,7 +968,7 @@ export default function EditPostPage() {
                     type="button"
                     onClick={() => void savePublishedAt()}
                     disabled={saving || !publishedAt}
-                    className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 ${publishedAtSaved ? "bg-emerald-50 text-emerald-700" : "bg-[#122428] text-white hover:opacity-90"}`}
+                    className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-40 ${publishedAtSaved ? "bg-acid/50 text-ink" : "bg-[#122428] text-white hover:opacity-90"}`}
                   >
                     {publishedAtSaved ? "Saved" : "Save date"}
                   </button>
@@ -1023,7 +1023,7 @@ export default function EditPostPage() {
                 </button>
               ) : (
                 <button onClick={() => void save("scheduled")} disabled={saving || !scheduledAt}
-                  className="w-full rounded-md bg-amber-500 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                  className="w-full rounded-md bg-pine-900 py-3 text-sm font-semibold text-paper hover:bg-pine-800 disabled:opacity-50">
                   {saving ? "Scheduling…" : "Schedule post"}
                 </button>
               )}

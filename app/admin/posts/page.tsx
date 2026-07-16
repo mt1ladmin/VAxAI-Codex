@@ -13,6 +13,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 import { MultiSelect } from "@/components/ui/MultiSelect";
 
@@ -126,19 +127,18 @@ export default function PostsPage() {
   const scheduledCount = posts.filter((p) => p.status === "scheduled").length;
 
   return (
-    <div className="min-h-full bg-cream/40">
-      <div className="border-b border-[#111111]/10 bg-white px-8 py-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Content Hub</p>
-            <h1 className="mt-1 text-2xl font-semibold text-[#111111]">Posts</h1>
-            <p className="mt-0.5 text-sm text-[#5F686A]">
+    <div className="min-h-full bg-white">
+      <div className="border-b border-pine-900/8 bg-white px-8 py-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
+            <FilingTab>Posts</FilingTab>
+            <p className="mt-3 text-sm text-muted">
               {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
             </p>
           </div>
           <Link
             href="/admin/posts/new"
-            className="flex items-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            className="flex shrink-0 items-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
           >
             <Plus className="h-4 w-4" />
             New post
@@ -188,7 +188,7 @@ export default function PostsPage() {
               <>
                 <span className="text-sm text-[#5F686A]">{selected.size} selected</span>
                 <button onClick={() => bulkAction("publish")} className="rounded-md border border-[#122428]/30 bg-[#E3ECEE] px-3 py-1.5 text-xs font-semibold text-[#122428] hover:bg-[#122428]/10">Publish</button>
-                <button onClick={() => bulkAction("draft")} className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-cream">Move to draft</button>
+                <button onClick={() => bulkAction("draft")} className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50">Move to draft</button>
                 <button onClick={() => bulkAction("delete")} className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-100">Delete</button>
                 <button onClick={() => setSelected(new Set())} className="grid h-7 w-7 place-items-center rounded-md border border-[#111111]/15 bg-white text-[#5F686A]">
                   <X className="h-3.5 w-3.5" />
@@ -196,16 +196,16 @@ export default function PostsPage() {
               </>
             )}
             <div className="flex overflow-hidden rounded-md border border-[#111111]/15 bg-white">
-              <button onClick={() => setView("grid")} className={`grid h-8 w-8 place-items-center ${view === "grid" ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-cream"}`}>
+              <button onClick={() => setView("grid")} className={`grid h-8 w-8 place-items-center ${view === "grid" ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-pine-50"}`}>
                 <Grid3X3 className="h-3.5 w-3.5" />
               </button>
-              <button onClick={() => setView("list")} className={`grid h-8 w-8 place-items-center ${view === "list" ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-cream"}`}>
+              <button onClick={() => setView("list")} className={`grid h-8 w-8 place-items-center ${view === "list" ? "bg-[#122428] text-white" : "text-[#5F686A] hover:bg-pine-50"}`}>
                 <LayoutList className="h-3.5 w-3.5" />
               </button>
             </div>
             <button
               onClick={toggleAll}
-              className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-cream"
+              className="rounded-md border border-[#111111]/15 bg-white px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"
             >
               {selected.size === filtered.length && filtered.length > 0 ? "Deselect all" : "Select all"}
             </button>
@@ -270,14 +270,14 @@ export default function PostsPage() {
                 <div className="absolute right-2.5 top-2.5 z-10 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                   <Link
                     href={`/admin/posts/${post.id}`}
-                    className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-[#111111] shadow-sm hover:bg-white"
+                    className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-[#111111] shadow-sm hover:bg-pine-50"
                     title="Edit post"
                   >
                     <Edit2 className="h-3.5 w-3.5" />
                   </Link>
                   <button
                     onClick={(event) => { event.stopPropagation(); void deletePost(post.id); }}
-                    className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-white"
+                    className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-red-600 shadow-sm hover:bg-pine-50"
                     title="Delete post"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -287,7 +287,7 @@ export default function PostsPage() {
                 {/* Cover */}
                 <Link
                   href={`/admin/posts/${post.id}`}
-                  className="block w-full aspect-video overflow-hidden bg-[#F5F8F8]"
+                  className="block w-full aspect-video overflow-hidden bg-white"
                 >
                   {post.cover_image_url ? (
                     <img src={post.cover_image_url} alt={post.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
@@ -311,9 +311,9 @@ export default function PostsPage() {
                   </p>
                   <div className="mt-2 flex items-center justify-between">
                     <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                      post.status === "published" ? "bg-[#122428]/10 text-[#122428]" :
-                      post.status === "scheduled" ? "bg-amber-100 text-amber-700" :
-                      "bg-[#D8FC2E]/60 text-[#5F686A]"
+                      post.status === "published" ? "bg-pine-900 text-paper" :
+                      post.status === "scheduled" ? "bg-pine-100 text-pine-800" :
+                      "bg-acid text-ink"
                     }`}>
                       {post.status}
                     </span>
@@ -348,7 +348,7 @@ export default function PostsPage() {
                 {/* Thumbnail */}
                 <Link
                   href={`/admin/posts/${post.id}`}
-                  className="h-10 w-16 shrink-0 overflow-hidden rounded bg-[#F5F8F8]"
+                  className="h-10 w-16 shrink-0 overflow-hidden rounded bg-white"
                 >
                   {post.cover_image_url ? (
                     <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
@@ -366,12 +366,12 @@ export default function PostsPage() {
                   <p className="text-xs text-[#5F686A]">{post.content_type} · Edited {new Date(post.updated_at).toLocaleDateString("en-GB")}</p>
                 </div>
                 <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
-                  post.status === "published" ? "bg-[#122428]/10 text-[#122428]" :
-                  post.status === "scheduled" ? "bg-amber-100 text-amber-700" :
-                  "bg-[#D8FC2E]/60 text-[#5F686A]"
+                  post.status === "published" ? "bg-pine-900 text-paper" :
+                  post.status === "scheduled" ? "bg-pine-100 text-pine-800" :
+                  "bg-acid text-ink"
                 }`}>{post.status}</span>
                 <div className="flex shrink-0 gap-1 opacity-0 group-hover:opacity-100">
-                  <Link href={`/admin/posts/${post.id}`} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-cream" title="Edit">
+                  <Link href={`/admin/posts/${post.id}`} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50" title="Edit">
                     <Edit2 className="h-3.5 w-3.5" />
                   </Link>
                   <button onClick={(event) => { event.stopPropagation(); void deletePost(post.id); }} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-red-50 hover:text-red-600" title="Delete">

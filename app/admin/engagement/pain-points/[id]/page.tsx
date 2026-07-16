@@ -44,9 +44,9 @@ export default function PainPointDetailPage() {
 
   const dimLabel = { value: "Value", alignment: "Alignment", trust: "Trust" };
   const dimColor = {
-    value: "bg-emerald-50 border-emerald-200 text-emerald-700",
-    alignment: "bg-blue-50 border-blue-200 text-blue-700",
-    trust: "bg-amber-50 border-amber-200 text-amber-700",
+    value: "bg-acid/50 border-acid/60 text-ink",
+    alignment: "bg-pine-100 border-pine-200 text-pine-800",
+    trust: "bg-pine-50 border-pine-900/15 text-pine-900",
   };
 
   if (loading) return <div className="p-8 text-sm text-[#5F686A]">Loading…</div>;
@@ -60,7 +60,7 @@ export default function PainPointDetailPage() {
       <div className="rounded-xl border border-[#111111]/10 overflow-hidden">
         <button
           onClick={() => setExpandedSection(open ? null : sid)}
-          className="flex w-full items-center justify-between px-5 py-4 bg-white hover:bg-[#F5F8F8] transition-colors"
+          className="flex w-full items-center justify-between px-5 py-4 bg-white hover:bg-pine-50 transition-colors"
         >
           <div className="flex items-center gap-3">
             <span className="text-[#122428]">{icon}</span>
@@ -138,7 +138,7 @@ export default function PainPointDetailPage() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {pp.recommendation_pathways.map((path, i) => (
-                  <span key={i} className="rounded-full bg-[#F5F8F8] px-3 py-1 text-xs font-semibold text-[#5F686A]">
+                  <span key={i} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#5F686A]">
                     {path}
                   </span>
                 ))}
@@ -209,7 +209,7 @@ export default function PainPointDetailPage() {
             <Section title="Natural discovery questions" icon={<MessageSquare className="h-4 w-4" />} id="questions">
               <div className="space-y-2">
                 {pp.natural_questions.map((q, i) => (
-                  <div key={i} className="rounded-lg bg-[#F5F8F8] px-4 py-3">
+                  <div key={i} className="rounded-lg bg-white px-4 py-3">
                     <p className="text-sm text-[#111111]">&ldquo;{q}&rdquo;</p>
                   </div>
                 ))}
@@ -304,7 +304,7 @@ export default function PainPointDetailPage() {
                   <Link
                     key={rid}
                     href={`/admin/engagement/pain-points/${rid}`}
-                    className="flex items-center gap-1 rounded-full border border-[#111111]/10 px-3 py-1.5 text-sm text-[#111111] hover:border-[#122428]/30 hover:bg-[#F5F8F8]"
+                    className="flex items-center gap-1 rounded-full border border-[#111111]/10 px-3 py-1.5 text-sm text-[#111111] hover:border-[#122428]/30 hover:bg-pine-50"
                   >
                     <Zap className="h-3 w-3 text-amber-500" />
                     Related
@@ -323,7 +323,7 @@ export default function PainPointDetailPage() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {(pp as PainPointDetail).synonyms?.map((s) => (
-                  <span key={s.id} className="rounded-full bg-[#F5F8F8] px-2.5 py-1 text-xs text-[#5F686A]">
+                  <span key={s.id} className="rounded-full bg-white px-2.5 py-1 text-xs text-[#5F686A]">
                     {s.phrase}
                   </span>
                 ))}

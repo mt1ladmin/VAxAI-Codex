@@ -16,7 +16,7 @@ type StatusSelectProps = {
 };
 
 function statusDotClass(status: string) {
-  return PROSPECT_QUEUE_STATUS_COLORS[status]?.split(" ")[0] || "bg-gray-300";
+  return PROSPECT_QUEUE_STATUS_COLORS[status]?.split(" ")[0] || "bg-pine-200";
 }
 
 export function StatusSelect({
@@ -71,11 +71,11 @@ export function StatusSelect({
           <button
             type="button"
             onClick={() => handleSelect("")}
-            className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+            className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${
               !value ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"
             }`}
           >
-            <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
+            <span className="h-2 w-2 shrink-0 rounded-full bg-pine-200" />
             <span className="flex-1">Needs review</span>
             {!value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
           </button>
@@ -84,7 +84,7 @@ export function StatusSelect({
               key={status}
               type="button"
               onClick={() => handleSelect(status)}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${
                 value === status ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"
               }`}
             >

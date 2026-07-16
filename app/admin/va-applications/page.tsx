@@ -20,6 +20,7 @@ import {
   type VaApplicationStatus,
 } from "@/lib/va-applications/constants";
 import { emailComposeUrl } from "@/lib/engagement/email-links";
+import FilingTab from "@/components/FilingTab";
 import { AppSelect } from "@/components/ui/AppSelect";
 
 type TabId = "applications" | "approved";
@@ -170,17 +171,12 @@ export default function VaApplicationsPage() {
         ];
 
   return (
-    <div className="min-h-full bg-cream/40 px-4 py-6 md:px-6 md:py-8">
+    <div className="min-h-full bg-white px-4 py-6 md:px-6 md:py-8">
       <div className="mx-auto max-w-7xl">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">
-            Client engagement
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">
-            VAs
-          </h1>
-          <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted">
+          <FilingTab>VAs</FilingTab>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
             Review freelance applications, move people into the active VA pool, and keep availability
             ready for matching. Multi-select to email opportunities when you need cover.
           </p>
@@ -210,7 +206,7 @@ export default function VaApplicationsPage() {
             className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
               tab === t.id
                 ? "bg-pine-900 text-paper shadow-sm"
-                : "text-muted hover:bg-cream"
+                : "text-muted hover:bg-pine-50"
             }`}
           >
             {t.label}
@@ -266,7 +262,7 @@ export default function VaApplicationsPage() {
           <button
             type="button"
             onClick={toggleSelectAll}
-            className="rounded-lg border border-pine-900/15 bg-white px-3 py-2 text-xs font-semibold text-pine-900 hover:bg-[#F5F8F8]"
+            className="rounded-lg border border-pine-900/15 bg-white px-3 py-2 text-xs font-semibold text-pine-900 hover:bg-pine-50"
           >
             {selected.size === filtered.length && filtered.length > 0 ? "Clear selection" : "Select all"}
           </button>
@@ -370,7 +366,7 @@ export default function VaApplicationsPage() {
                     {app.specialisms.slice(0, 4).map((s) => (
                       <span
                         key={s}
-                        className="rounded-full bg-[#F5F8F8] px-2 py-0.5 text-[10px] font-semibold text-pine-900"
+                        className="rounded-full border border-pine-900/12 bg-white px-2 py-0.5 text-[10px] font-semibold text-pine-900"
                       >
                         {s}
                       </span>
@@ -383,7 +379,7 @@ export default function VaApplicationsPage() {
                   </div>
                 ) : null}
 
-                <div className="mt-3 rounded-xl bg-[#F5F8F8]/80 px-3 py-2 text-xs text-[#5F686A]">
+                <div className="mt-3 rounded-xl border border-pine-900/8 bg-pine-50/60 px-3 py-2 text-xs text-[#5F686A]">
                   <span className="font-semibold text-pine-900">Availability: </span>
                   {app.availability_hours_per_week || "—"}
                   {app.availability_notes ? ` · ${app.availability_notes}` : ""}
@@ -396,7 +392,7 @@ export default function VaApplicationsPage() {
                       type="button"
                       disabled={updatingId === app.id || app.status === action.status}
                       onClick={() => void setStatus(app.id, action.status)}
-                      className="rounded-md border border-pine-900/12 bg-white px-2 py-1 text-[10px] font-semibold text-pine-900 hover:bg-[#F5F8F8] disabled:opacity-40"
+                      className="rounded-md border border-pine-900/12 bg-white px-2 py-1 text-[10px] font-semibold text-pine-900 hover:bg-pine-50 disabled:opacity-40"
                     >
                       {action.label}
                     </button>

@@ -230,7 +230,7 @@ export function ProspectTagList({ data }: { data: ProspectOutreachRecord }) {
   return (
     <div className="flex flex-wrap gap-2">
       {sectorTags.map((t) => (
-        <span key={t} className="rounded-full bg-[#F5F8F8] px-3 py-1 text-xs text-[#122428]">{t}</span>
+        <span key={t} className="rounded-full bg-white px-3 py-1 text-xs text-[#122428]">{t}</span>
       ))}
       {painTags.map((t) => (
         <span key={t} className="rounded-full border border-[#111111]/15 px-3 py-1 text-xs text-[#5F686A]">{t}</span>

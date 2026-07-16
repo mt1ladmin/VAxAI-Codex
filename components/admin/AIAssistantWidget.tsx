@@ -50,17 +50,17 @@ type SearchResult = {
 
 
 const TYPE_BADGE: Record<string, string> = {
-  enquiry: "bg-[#F5F8F8] text-[#5F686A]",
-  client: "bg-[#F5F8F8] text-[#5F686A]",
-  prospect: "bg-[#F5F8F8] text-[#5F686A]",
-  outreach: "bg-[#F5F8F8] text-[#5F686A]",
+  enquiry: "bg-white text-[#5F686A]",
+  client: "bg-white text-[#5F686A]",
+  prospect: "bg-white text-[#5F686A]",
+  outreach: "bg-white text-[#5F686A]",
 };
 
 const TYPE_DOT: Record<string, string> = {
-  enquiry: "bg-violet-500",
-  client: "bg-[#122428]",
-  prospect: "bg-[#122428]",
-  outreach: "bg-[#122428]",
+  enquiry: "bg-acid",
+  client: "bg-pine-900",
+  prospect: "bg-pine-900",
+  outreach: "bg-pine-900",
 };
 
 type PanelSize = "large" | "xl";
@@ -151,7 +151,7 @@ function ChatMessage({
   if (msg.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-[#122428] px-3.5 py-2.5 text-[13px] leading-relaxed text-white shadow-sm whitespace-pre-wrap break-words">
+        <div className="max-w-[82%] rounded-2xl rounded-br-md bg-pine-900 px-3.5 py-2.5 text-[13px] leading-relaxed text-paper shadow-sm whitespace-pre-wrap break-words">
           {msg.content}
         </div>
       </div>
@@ -166,7 +166,7 @@ function ChatMessage({
         <Sparkles className="h-3 w-3 text-[#122428]" />
       </div>
       <div className="min-w-0 flex-1 space-y-2">
-        <div className="max-w-full overflow-hidden rounded-2xl rounded-bl-md border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-[13px] leading-[1.65] text-[#111111] break-words space-y-2.5">
+        <div className="max-w-full overflow-hidden rounded-2xl rounded-bl-md border border-[#111111]/8 bg-white px-3.5 py-2.5 text-[13px] leading-[1.65] text-[#111111] break-words space-y-2.5">
           {paragraphs.map((para, i) => (
             <p key={i} className="whitespace-pre-wrap">
               {para}
@@ -582,7 +582,7 @@ function ChatPanel({
             <button
               type="button"
               onClick={() => void loadSession()}
-              className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-[#F5F8F8]"
+              className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#111111] hover:bg-pine-50"
             >
               Retry
             </button>
@@ -606,7 +606,7 @@ function ChatPanel({
                   key={s}
                   type="button"
                   onClick={() => { setInput(s); inputRef.current?.focus(); }}
-                  className="w-full rounded-xl border border-[#111111]/8 bg-[#faf9f6] px-3.5 py-2.5 text-left text-xs text-[#5F686A] hover:border-[#122428]/20 hover:bg-white transition-colors"
+                  className="w-full rounded-xl border border-[#111111]/8 bg-white px-3.5 py-2.5 text-left text-xs text-[#5F686A] hover:border-[#122428]/20 hover:bg-pine-50 transition-colors"
                 >
                   {s}
                 </button>
@@ -633,7 +633,7 @@ function ChatPanel({
         )}
 
         {saveNotice && (
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
+          <div className="rounded-xl border border-pine-900/15 bg-acid/40 px-3 py-2 text-xs font-medium text-ink">
             {saveNotice}
           </div>
         )}
@@ -646,7 +646,7 @@ function ChatPanel({
       </div>
 
       {/* Input */}
-      <div className="shrink-0 border-t border-[#111111]/8 bg-[#faf9f6] px-4 py-3">
+      <div className="shrink-0 border-t border-[#111111]/8 bg-white px-4 py-3">
         <div className="flex items-end gap-2 rounded-2xl border border-[#111111]/12 bg-white px-3 py-2.5 shadow-sm focus-within:border-[#122428]/40 focus-within:ring-2 focus-within:ring-[#122428]/10 transition-all">
           <textarea
             ref={inputRef}
@@ -741,9 +741,9 @@ function ContextPicker({
               key={`${r.type}-${r.id}`}
               type="button"
               onClick={() => onSelect(r.type, r.id, r.label)}
-              className="flex w-full items-center gap-3 border-b border-[#111111]/8 px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-[#F5F8F8]/50"
+              className="flex w-full items-center gap-3 border-b border-[#111111]/8 px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-pine-50"
             >
-              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[10px] font-bold uppercase ${TYPE_BADGE[r.type] ?? "bg-[#F5F8F8] text-[#5F686A]"}`}>
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[10px] font-bold uppercase ${TYPE_BADGE[r.type] ?? "bg-white text-[#5F686A]"}`}>
                 {r.label.slice(0, 1)}
               </span>
               <div className="min-w-0 flex-1">
@@ -950,13 +950,13 @@ export function AIAssistantWidget() {
         type="button"
         onMouseDown={handleButtonMouseDown}
         style={{ bottom: position.bottom, right: position.right }}
-        className="fixed z-40 grid h-12 w-12 place-items-center rounded-full bg-[#122428] shadow-lg hover:bg-[#1B343A] transition-colors cursor-grab active:cursor-grabbing select-none"
+        className="fixed z-40 grid h-12 w-12 place-items-center rounded-full bg-pine-900 shadow-lg hover:bg-pine-800 transition-colors cursor-grab active:cursor-grabbing select-none"
         title="VAxAI Assistant (drag to move)"
       >
         {isOpen ? (
-          <ChevronDown className="h-5 w-5 text-[#D8FC2E]" />
+          <ChevronDown className="h-5 w-5 text-acid" />
         ) : (
-          <Sparkles className="h-5 w-5 text-[#D8FC2E]" />
+          <Sparkles className="h-5 w-5 text-acid" />
         )}
       </button>
 
@@ -977,11 +977,11 @@ export function AIAssistantWidget() {
           />
 
           {/* Header */}
-          <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#122428] px-4 py-3">
-            <div className="grid h-7 w-7 place-items-center rounded-full bg-[#D8FC2E]">
-              <Sparkles className="h-3.5 w-3.5 text-[#122428]" />
+          <div className="flex shrink-0 items-center gap-2 border-b border-pine-900/10 bg-pine-900 px-4 py-3">
+            <div className="grid h-7 w-7 place-items-center rounded-full bg-acid">
+              <Sparkles className="h-3.5 w-3.5 text-pine-900" />
             </div>
-            <span className="flex-1 text-sm font-semibold text-white">VAxAI Assistant</span>
+            <span className="flex-1 text-sm font-semibold text-paper">VAxAI Assistant</span>
             <button
               type="button"
               onClick={cyclePanelSize}
@@ -1006,7 +1006,7 @@ export function AIAssistantWidget() {
           {/* Body */}
           <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
             {viewingDifferentAccount && hasAccountContext && (
-              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#111111]/10 bg-[#F5F8F8]/60 px-3 py-2">
+              <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#111111]/10 bg-white px-3 py-2">
                 <p className="text-[11px] text-[#5F686A]">
                   Viewing another account
                 </p>
@@ -1064,11 +1064,11 @@ export function AIChatHistory({
 
   return (
     <div className="flex h-[min(600px,calc(100vh-14rem))] max-h-[70vh] flex-col overflow-hidden rounded-xl border border-[#111111]/10 shadow-sm">
-      <div className="flex shrink-0 items-center gap-2 border-b border-[#111111]/10 bg-[#122428] px-4 py-3">
-        <div className="grid h-7 w-7 place-items-center rounded-full bg-[#D8FC2E]">
-          <Sparkles className="h-3.5 w-3.5 text-[#122428]" />
+      <div className="flex shrink-0 items-center gap-2 border-b border-pine-900/10 bg-pine-900 px-4 py-3">
+        <div className="grid h-7 w-7 place-items-center rounded-full bg-acid">
+          <Sparkles className="h-3.5 w-3.5 text-pine-900" />
         </div>
-        <span className="flex-1 text-sm font-semibold text-white">VAxAI Assistant</span>
+        <span className="flex-1 text-sm font-semibold text-paper">VAxAI Assistant</span>
         <span className={`h-2 w-2 shrink-0 rounded-full ${typeDot}`} />
         <span className="truncate text-xs text-white/70">{contextLabel}</span>
       </div>

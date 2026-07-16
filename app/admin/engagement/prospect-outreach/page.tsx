@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { FINDER_ENGAGEMENT_STATUSES, type FinderEngagementStatus } from "@/lib/engagement/engagement-status";
 import { PROSPECT_FINDER_LABEL } from "@/lib/engagement/journey";
+import FilingTab from "@/components/FilingTab";
 import { useStudioAccessOptional } from "@/lib/studio-access-context";
 import type { ProspectFinderListItem } from "@/lib/engagement/prospect-finder/types";
 import type { ProspectOutreachMeta } from "@/lib/engagement/prospect-outreach/types";
@@ -55,7 +56,7 @@ function CustomSelect({
               key={opt.value || "__all"}
               type="button"
               onClick={() => { onChange(opt.value); setOpen(false); }}
-              className="w-full px-3 py-2 text-left text-sm hover:bg-[#F5F8F8]"
+              className="w-full px-3 py-2 text-left text-sm hover:bg-pine-50"
             >
               {opt.label}
             </button>
@@ -345,13 +346,12 @@ export default function ProspectFinderPage() {
   }, [meta]);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-cream/40">
+    <div className="flex h-full flex-col overflow-hidden bg-white">
       <div className="shrink-0 border-b border-pine-900/8 bg-white px-4 py-5 md:px-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Client engagement</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">{PROSPECT_FINDER_LABEL}</h1>
-            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted">
+            <FilingTab>{PROSPECT_FINDER_LABEL}</FilingTab>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
               Research organisations, assign owners, and qualify fit before outreach. Same data and actions as before — clearer place to start.
             </p>
           </div>
@@ -403,7 +403,7 @@ export default function ProspectFinderPage() {
 
         {meta && (meta.is_client_count ?? 0) > 0 ? (
           <div className="mt-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-pine-900/15 bg-cream px-4 py-1.5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-pine-900/15 bg-white px-4 py-1.5">
               <span className="text-xs font-semibold text-pine-900">Clients logged</span>
               <span className="text-sm font-semibold tabular-nums text-pine-900">{(meta.is_client_count ?? 0)}</span>
             </div>
@@ -473,7 +473,7 @@ export default function ProspectFinderPage() {
               <button
                 type="button"
                 onClick={() => setSelectedIds(new Set())}
-                className="grid h-7 w-7 place-items-center rounded-full border border-[#111111]/15 bg-white text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="grid h-7 w-7 place-items-center rounded-full border border-[#111111]/15 bg-white text-[#5F686A] hover:bg-pine-50"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -489,7 +489,7 @@ export default function ProspectFinderPage() {
           </div>
         ) : (
           <table className="w-full min-w-[900px] border-collapse text-sm">
-            <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-[#F5F8F8]/90 backdrop-blur-sm">
+            <thead className="sticky top-0 z-10 border-b border-[#111111]/10 bg-white backdrop-blur-sm">
               <tr className="text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-[#5F686A]">
                 {isPlatformAdmin && (
                   <th className="w-10 px-3 py-3">
@@ -522,7 +522,7 @@ export default function ProspectFinderPage() {
                 const backQs = searchParams.toString();
                 const href = `/admin/engagement/prospect-outreach/${p.id}${backQs ? `?back=${encodeURIComponent(backQs)}` : ""}`;
                 return (
-                  <tr key={p.id} className="group hover:bg-[#F5F8F8]/40">
+                  <tr key={p.id} className="group hover:bg-pine-50">
                     {isPlatformAdmin && (
                       <td className="px-3 py-3.5">
                         <button
@@ -577,7 +577,7 @@ export default function ProspectFinderPage() {
                             <button
                               type="button"
                               onClick={() => { void patchProspect(p.id, { assigned_team_member_id: null }); setAssigneeMenuId(null); }}
-                              className="w-full px-3 py-2 text-left text-xs text-[#5F686A] hover:bg-[#F5F8F8]"
+                              className="w-full px-3 py-2 text-left text-xs text-[#5F686A] hover:bg-pine-50"
                             >
                               Unassigned
                             </button>
@@ -586,7 +586,7 @@ export default function ProspectFinderPage() {
                                 key={m.id}
                                 type="button"
                                 onClick={() => { void patchProspect(p.id, { assigned_team_member_id: m.id }); setAssigneeMenuId(null); }}
-                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-[#F5F8F8]"
+                                className="w-full px-3 py-2 text-left text-xs text-[#111111] hover:bg-pine-50"
                               >
                                 {m.display_name}
                               </button>
@@ -610,7 +610,7 @@ export default function ProspectFinderPage() {
                             <button
                               type="button"
                               onClick={() => { void patchProspect(p.id, { engagement_status: null }); setStatusMenuId(null); }}
-                              className={`w-full px-3 py-2 text-left text-xs hover:bg-[#F5F8F8] ${!p.engagement_status ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
+                              className={`w-full px-3 py-2 text-left text-xs hover:bg-pine-50 ${!p.engagement_status ? "font-semibold text-[#122428]" : "text-[#5F686A]"}`}
                             >
                               Not assigned
                             </button>
@@ -619,7 +619,7 @@ export default function ProspectFinderPage() {
                                 key={s}
                                 type="button"
                                 onClick={() => { void patchProspect(p.id, { engagement_status: s }); setStatusMenuId(null); }}
-                                className={`w-full px-3 py-2 text-left text-xs hover:bg-[#F5F8F8] ${statusTone(s)}`}
+                                className={`w-full px-3 py-2 text-left text-xs hover:bg-pine-50 ${statusTone(s)}`}
                               >
                                 {s}
                               </button>
@@ -692,7 +692,7 @@ export default function ProspectFinderPage() {
           <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="mb-3 flex items-center justify-between">
               <h3 className="font-semibold text-[#111111]">Next action</h3>
-              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded p-1 hover:bg-[#F5F8F8]">
+              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded p-1 hover:bg-pine-50">
                 <X className="h-4 w-4 text-[#5F686A]" />
               </button>
             </div>
@@ -705,7 +705,7 @@ export default function ProspectFinderPage() {
               autoFocus
             />
             <div className="mt-3 flex justify-end gap-2">
-              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#5F686A] hover:bg-[#F5F8F8]">
+              <button type="button" onClick={() => setNextActionPopupId(null)} className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-sm text-[#5F686A] hover:bg-pine-50">
                 Cancel
               </button>
               <button
@@ -733,7 +733,7 @@ export default function ProspectFinderPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-5 flex items-center justify-between">
               <h2 className="font-serif text-xl text-[#111111]">Add prospect</h2>
-              <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg p-1 hover:bg-[#F5F8F8]">
+              <button type="button" onClick={() => setShowAddModal(false)} className="rounded-lg p-1 hover:bg-pine-50">
                 <X className="h-5 w-5 text-[#5F686A]" />
               </button>
             </div>
@@ -834,7 +834,7 @@ export default function ProspectFinderPage() {
               <button
                 type="button"
                 onClick={() => setShowAddModal(false)}
-                className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="rounded-xl border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-pine-50"
               >
                 Cancel
               </button>

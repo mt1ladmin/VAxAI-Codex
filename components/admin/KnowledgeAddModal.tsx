@@ -42,7 +42,7 @@ function TagsInput({ value, onChange, placeholder }: { value: string[]; onChange
     <div className="rounded-lg border border-[#111111]/15 p-2 focus-within:border-[#122428]">
       <div className="flex flex-wrap gap-1.5 mb-2">
         {value.map((tag) => (
-          <span key={tag} className="flex items-center gap-1 rounded-full bg-[#F5F8F8] px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
+          <span key={tag} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-[#5F686A]">
             {tag}
             <button type="button" onClick={() => onChange(value.filter((t) => t !== tag))} className="hover:text-red-500">×</button>
           </span>
@@ -207,7 +207,7 @@ function VatPromptForm({ onSave, onClose }: { onSave: () => void; onClose: () =>
             <button key={dim} type="button" onClick={() => setD({ ...d, dimension: dim })}
               className={`rounded-full px-4 py-1.5 text-sm font-semibold capitalize transition-colors ${
                 d.dimension === dim
-                  ? dim === "value" ? "bg-[#122428] text-white" : dim === "alignment" ? "bg-blue-600 text-white" : "bg-amber-500 text-white"
+                  ? dim === "value" ? "bg-pine-900 text-paper" : dim === "alignment" ? "bg-pine-700 text-paper" : "bg-acid text-ink"
                   : "border border-[#111111]/15 text-[#5F686A] hover:text-[#111111]"
               }`}>{dim}</button>
           ))}
@@ -285,12 +285,12 @@ function ObjectionForm({ onSave, onClose }: { onSave: () => void; onClose: () =>
         <Field label="Tone"><input value={d.tone} onChange={(e) => setD({ ...d, tone: e.target.value })} className={INPUT} placeholder="e.g. empathetic" /></Field>
       </div>
       <Field label="Objection *">
-        <div className="rounded-lg border border-amber-100 bg-amber-50 p-3">
+        <div className="rounded-lg border border-pine-900/12 bg-pine-50 p-3">
           <textarea rows={2} value={d.objection} onChange={(e) => setD({ ...d, objection: e.target.value })} className="w-full bg-transparent text-sm italic text-[#111111] outline-none resize-none placeholder:text-amber-400" placeholder="What the prospect says…" />
         </div>
       </Field>
       <Field label="Response *">
-        <div className="rounded-lg border border-[#122428]/15 bg-[#122428]/5 p-3">
+        <div className="rounded-lg border border-pine-900/15 bg-pine-900/5 p-3">
           <textarea rows={3} value={d.response} onChange={(e) => setD({ ...d, response: e.target.value })} className="w-full bg-transparent text-sm text-[#111111] outline-none resize-none placeholder:text-[#122428]/40" placeholder="Approved response…" />
         </div>
       </Field>
@@ -343,8 +343,8 @@ function PricingForm({ onSave, onClose }: { onSave: () => void; onClose: () => v
 function Footer({ saving, onSave, onClose, disabled }: { saving: boolean; onSave: () => void; onClose: () => void; disabled?: boolean }) {
   return (
     <div className="flex justify-end gap-2 border-t border-[#111111]/10 pt-4">
-      <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">Cancel</button>
-      <button type="button" onClick={onSave} disabled={saving || disabled} className="flex items-center gap-2 rounded-lg bg-[#122428] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
+      <button type="button" onClick={onClose} className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-pine-50">Cancel</button>
+      <button type="button" onClick={onSave} disabled={saving || disabled} className="flex items-center gap-2 rounded-lg bg-pine-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
         <Plus className="h-3.5 w-3.5" /> {saving ? "Saving…" : "Add"}
       </button>
     </div>
@@ -397,7 +397,7 @@ export function KnowledgeAddModal({ open, defaultSection, onClose, onSaved }: {
               {section ? `Add ${SECTION_LABELS[section]}` : "What would you like to add?"}
             </h2>
           </div>
-          <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:bg-[#F5F8F8]">
+          <button type="button" onClick={handleClose} className="grid h-8 w-8 place-items-center rounded-lg border border-[#111111]/15 text-[#5F686A] hover:bg-pine-50">
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -411,7 +411,7 @@ export function KnowledgeAddModal({ open, defaultSection, onClose, onSaved }: {
                   key={key}
                   type="button"
                   onClick={() => setSection(key)}
-                  className="rounded-xl border border-[#111111]/10 p-4 text-left transition-all hover:border-[#122428]/40 hover:bg-[#F5F8F8]"
+                  className="rounded-xl border border-[#111111]/10 p-4 text-left transition-all hover:border-[#122428]/40 hover:bg-pine-50"
                 >
                   <p className="font-semibold text-[#111111] text-sm">{label}</p>
                 </button>

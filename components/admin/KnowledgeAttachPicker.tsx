@@ -191,7 +191,7 @@ function PickerGroup({
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 bg-white px-3 py-2.5 text-left transition-colors hover:bg-[#F5F8F8]/25"
+        className="flex w-full items-center justify-between gap-2 bg-white px-3 py-2.5 text-left transition-colors hover:bg-white/25"
       >
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -211,7 +211,7 @@ function PickerGroup({
         />
       </button>
       {expanded && (
-        <div className="flex max-h-28 flex-wrap gap-1 overflow-y-auto border-t border-[#111111]/10 bg-[#faf9f5] px-3 py-2">
+        <div className="flex max-h-28 flex-wrap gap-1 overflow-y-auto border-t border-[#111111]/10 bg-white px-3 py-2">
           {options.map((o) => (
             <button
               key={o.id}

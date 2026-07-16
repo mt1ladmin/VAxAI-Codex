@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2, Mail, Search } from "lucide-react";
+import FilingTab from "@/components/FilingTab";
 
 type Subscriber = {
   email: string;
@@ -65,19 +66,19 @@ export default function NewsletterPage() {
     <div className="px-4 py-6 md:px-8 md:py-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-[#111111]">Newsletter</h1>
-          <p className="mt-1 text-sm text-[#5F686A]">
+          <FilingTab>Newsletter</FilingTab>
+          <p className="mt-3 text-sm text-muted">
             Email addresses collected from the VAxAI site footer and sign-up popup.
           </p>
         </div>
-        <div className="relative w-full max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F686A]" />
+        <div className="relative w-full max-w-xs shrink-0">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search subscribers…"
-            className="w-full rounded-lg border border-[#111111]/15 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-[#122428]"
+            className="w-full rounded-lg border border-pine-900/12 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-pine-900"
           />
         </div>
       </div>
@@ -92,7 +93,7 @@ export default function NewsletterPage() {
           {error}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#111111]/15 bg-[#F5F8F8]/50 px-6 py-16 text-center">
+        <div className="rounded-xl border border-dashed border-[#111111]/15 bg-white px-6 py-16 text-center">
           <Mail className="mx-auto h-8 w-8 text-[#5F686A]/50" />
           <p className="mt-3 text-sm font-medium text-[#111111]">
             {search ? "No subscribers match your search" : "No subscribers yet"}
@@ -104,7 +105,7 @@ export default function NewsletterPage() {
       ) : (
         <div className="overflow-hidden rounded-xl border border-[#111111]/10">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-[#111111]/10 bg-[#F5F8F8] text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">
+            <thead className="border-b border-[#111111]/10 bg-white text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">
               <tr>
                 <th className="px-4 py-3">Email</th>
                 <th className="hidden px-4 py-3 sm:table-cell">Name</th>
@@ -114,7 +115,7 @@ export default function NewsletterPage() {
             </thead>
             <tbody className="divide-y divide-[#111111]/8 bg-white">
               {filtered.map((s) => (
-                <tr key={s.email} className="hover:bg-[#F5F8F8]/40">
+                <tr key={s.email} className="hover:bg-pine-50">
                   <td className="px-4 py-3 font-medium text-[#111111]">{s.email}</td>
                   <td className="hidden px-4 py-3 text-[#5F686A] sm:table-cell">{s.name ?? "—"}</td>
                   <td className="px-4 py-3">
@@ -127,7 +128,7 @@ export default function NewsletterPage() {
               ))}
             </tbody>
           </table>
-          <div className="border-t border-[#111111]/10 bg-[#F5F8F8]/50 px-4 py-2.5 text-xs text-[#5F686A]">
+          <div className="border-t border-[#111111]/10 bg-white px-4 py-2.5 text-xs text-[#5F686A]">
             {filtered.length} subscriber{filtered.length === 1 ? "" : "s"}
             {search && subscribers.length !== filtered.length ? ` (of ${subscribers.length} total)` : ""}
           </div>

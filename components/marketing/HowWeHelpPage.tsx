@@ -257,7 +257,7 @@ export default function HowWeHelpPage() {
               <Reveal>
                 <Eyebrow>In-house or external?</Eyebrow>
                 <h2 className="mt-4 max-w-2xl text-3xl font-semibold leading-[1.08] tracking-[-0.02em] md:text-4xl">
-                  Why teams bring this work to us
+                  Why work with VAxAI
                 </h2>
                 <p className="mt-6 max-w-2xl text-base leading-8 text-muted">
                   In-house can make sense for small, simple backlogs where staff genuinely have spare

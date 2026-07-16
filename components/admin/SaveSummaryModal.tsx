@@ -58,7 +58,7 @@ export function SaveSummaryModal({
           <button
             type="button"
             onClick={onClose}
-            className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]"
+            className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50"
           >
             <X className="h-4 w-4" />
           </button>
@@ -91,7 +91,7 @@ export function SaveSummaryModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+            className="rounded-lg border border-[#111111]/15 px-4 py-2 text-sm font-semibold text-[#5F686A] hover:bg-pine-50"
           >
             Cancel
           </button>

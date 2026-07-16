@@ -215,7 +215,7 @@ function AssignmentDropdown({
               key={opt.value}
               type="button"
               onClick={() => { setOpen(false); if (opt.value !== value) onChange(opt.value); }}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${value === opt.value ? "bg-[#122428]/5 font-semibold text-[#122428]" : "text-[#111111]"}`}
             >
               <span className="flex-1">{opt.label}</span>
               {value === opt.value && <Check className="h-3.5 w-3.5 shrink-0 text-[#122428]" />}
@@ -616,7 +616,7 @@ function EnquiryDetailContent() {
             </div>
             <div className="flex gap-3">
               <button type="button" onClick={() => { setShowClientModal(false); setClientService(""); setClientServiceOther(""); setClientNote(""); }}
-                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-[#F5F8F8]">
+                className="flex-1 rounded-xl border border-[#111111]/15 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50">
                 Cancel
               </button>
               <button type="button" onClick={() => void logAsClient()} disabled={savingClient || !clientService || (clientService === "Other" && !clientServiceOther.trim())}
@@ -664,7 +664,7 @@ function EnquiryDetailContent() {
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#5F686A]">Contact details</p>
               {enquiry.source && (
-                <span className="rounded-full bg-[#F5F8F8] px-2 py-0.5 text-[10px] font-medium text-[#5F686A]">{enquiry.source}</span>
+                <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-[#5F686A]">{enquiry.source}</span>
               )}
             </div>
             {enquiry.source === "Website enquiry" ? (
@@ -889,7 +889,7 @@ function EnquiryDetailContent() {
                       <button
                         type="button"
                         onClick={() => { setEditingServiceFit(false); setServiceFitError(null); }}
-                        className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+                        className="rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"
                       >
                         Cancel
                       </button>

@@ -48,7 +48,7 @@ function CollapsibleSection({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between bg-white px-4 py-3 text-left transition-colors hover:bg-[#F5F8F8]/25"
+        className="flex w-full items-center justify-between bg-white px-4 py-3 text-left transition-colors hover:bg-white/25"
       >
         <span className="text-[10px] font-semibold uppercase tracking-wider text-[#5F686A]">{title}</span>
         {open ? <ChevronDown className="h-4 w-4 text-[#5F686A]" /> : <ChevronRight className="h-4 w-4 text-[#5F686A]" />}
@@ -152,7 +152,7 @@ function SectionEditButtons({
       <button
         type="button"
         onClick={onCancel}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"
       >
         <X className="h-3.5 w-3.5" /> Cancel
       </button>

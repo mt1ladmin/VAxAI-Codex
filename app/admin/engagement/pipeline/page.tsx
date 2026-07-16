@@ -4,7 +4,7 @@ import { TasksListView } from "@/components/admin/TasksListView";
 
 export default function TasksTrackerPage() {
   return (
-    <div className="min-h-full bg-cream/40">
+    <div className="min-h-full bg-white">
       <TasksListView embedded showPageHeader />
     </div>
   );

@@ -189,7 +189,7 @@ export default function VaApplicationDetailPage() {
                   type="button"
                   disabled={saving || app.status === s}
                   onClick={() => void patch({ status: s })}
-                  className="rounded-md border border-pine-900/12 px-2 py-1 text-[10px] font-semibold text-pine-900 hover:bg-[#F5F8F8] disabled:opacity-40"
+                  className="rounded-md border border-pine-900/12 px-2 py-1 text-[10px] font-semibold text-pine-900 hover:bg-pine-50 disabled:opacity-40"
                 >
                   {VA_STATUS_LABELS[s]}
                 </button>
@@ -243,7 +243,7 @@ export default function VaApplicationDetailPage() {
                     {app.specialisms.map((s) => (
                       <span
                         key={s}
-                        className="rounded-full bg-[#F5F8F8] px-2.5 py-1 text-xs font-semibold text-pine-900"
+                        className="rounded-full border border-pine-900/12 bg-white px-2.5 py-1 text-xs font-semibold text-pine-900"
                       >
                         {s}
                       </span>
@@ -267,7 +267,7 @@ export default function VaApplicationDetailPage() {
               </Field>
             </div>
 
-            <div className="mt-6 rounded-xl border border-pine-900/10 bg-[#F5F8F8]/60 p-4">
+            <div className="mt-6 rounded-xl border border-pine-900/10 bg-white p-4">
               <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#5F686A]">CV</p>
               {app.cv_url ? (
                 <a

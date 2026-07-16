@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { CalendarItemPreviewModal } from "@/components/admin/CalendarItemPreviewModal";
 import type { SocialPostPreview } from "@/components/admin/SocialPostPreviewModal";
+import FilingTab from "@/components/FilingTab";
 import {
   CalendarClock,
   CheckCircle2,
@@ -73,8 +74,8 @@ function platformInfo(key: string) {
 
 /** Calm, high-contrast chips — platform colour only on the icon, not the whole pill. */
 function platformChipClasses(_platform: string, opts?: { posted?: boolean }) {
-  if (opts?.posted) return "bg-cream text-muted hover:bg-cream";
-  return "bg-white text-pine-900 border border-pine-900/10 hover:bg-cream/80";
+  if (opts?.posted) return "bg-white text-muted hover:bg-pine-50";
+  return "bg-white text-pine-900 border border-pine-900/10 hover:bg-pine-50";
 }
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -275,11 +276,11 @@ function CalendarBlogGroupCard({
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
       className={`block w-full cursor-grab overflow-hidden rounded-lg border text-left transition-colors hover:border-pine-900/25 active:cursor-grabbing ${
-        isScheduled ? "border-pine-900/15 bg-cream/60" : "border-pine-900/10 bg-white"
+        isScheduled ? "border-pine-900/15 bg-white" : "border-pine-900/10 bg-white"
       } ${isDragging ? "opacity-50" : ""}`}
     >
       {post.cover_image_url && !minimal ? (
-        <div className="h-10 w-full overflow-hidden bg-cream">
+        <div className="h-10 w-full overflow-hidden bg-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={post.cover_image_url} alt="" className="h-full w-full object-cover" />
         </div>
@@ -684,7 +685,7 @@ function SocialPostDetail({
                 </span>
               )}
               {isPosted && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-700">
+                <span className="inline-flex items-center gap-0.5 rounded-full bg-acid/50 px-1.5 py-0.5 text-[9px] font-semibold text-ink">
                   <CheckCircle2 className="h-2.5 w-2.5" /> Posted
                 </span>
               )}
@@ -728,7 +729,7 @@ function SocialPostDetail({
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-gray-400">Connected blog post</p>
             <a
               href={post.link!}
-              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-[#122428] hover:bg-[#F5F8F8]"
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-[#122428] hover:bg-pine-50"
             >
               <ExternalLink className="h-3.5 w-3.5" /> Open post editor
             </a>
@@ -794,7 +795,7 @@ function SocialPostDetail({
             type="button"
             onClick={onMarkPosted}
             disabled={markingPosted}
-            className="flex w-full items-center justify-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-md border border-pine-900/15 bg-acid/40 py-2.5 text-sm font-semibold text-ink hover:bg-acid/60 disabled:opacity-50"
           >
             <CheckCircle2 className="h-4 w-4" />
             {markingPosted ? "Marking…" : "Mark as posted"}
@@ -861,7 +862,7 @@ function ConnectedPostCard({
             {statusLabel}
           </span>
           {pendingCount > 0 && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-semibold text-amber-700">
+            <span className="inline-flex items-center gap-1 rounded-full bg-pine-100 px-2 py-0.5 text-[9px] font-semibold text-pine-800">
               <Link2 className="h-2.5 w-2.5" />
               {pendingCount} to post
             </span>
@@ -1544,7 +1545,7 @@ export default function CalendarPage() {
         }}
       >
         <div className="flex items-center justify-between">
-          <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-gray-900 text-white" : "text-gray-500"}`}>
+          <span className={`inline-grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${isToday ? "bg-pine-900 text-white" : "text-gray-500"}`}>
             {day.getDate()}
           </span>
           <button
@@ -1595,23 +1596,20 @@ export default function CalendarPage() {
   const closePanel = () => setPanelMode("none");
 
   return (
-    <div className="min-h-full bg-cream/40">
+    <div className="min-h-full bg-white">
       <div className="overflow-x-auto">
         {/* Header */}
         <div className="border-b border-pine-900/8 bg-white px-4 py-6 md:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-pine-700">Content Hub</p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-pine-900">Calendar</h1>
-              <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted">
+              <FilingTab>Calendar</FilingTab>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
                 See when posts and social pieces go live. Drag to reschedule. The side panel lists connected social still to post.
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex overflow-hidden rounded-xl border border-pine-900/12 text-sm font-semibold">
-                <button type="button" onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-cream"}`}>Month</button>
-                <button type="button" onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-cream"}`}>Week</button>
-              </div>
+            <div className="flex shrink-0 overflow-hidden rounded-xl border border-pine-900/12 text-sm font-semibold">
+              <button type="button" onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Month</button>
+              <button type="button" onClick={() => setView("week")} className={`px-4 py-2 ${view === "week" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Week</button>
             </div>
           </div>
         </div>
@@ -1633,7 +1631,7 @@ export default function CalendarPage() {
             <div className="order-1 min-w-0 lg:order-2">
           {/* Nav */}
           <div className="mb-5 flex flex-wrap items-center gap-2">
-            <button type="button" onClick={view === "month" ? prevMonth : prevWeek} className="grid h-9 w-9 place-items-center rounded-xl border border-pine-900/12 bg-white text-muted hover:bg-cream">
+            <button type="button" onClick={view === "month" ? prevMonth : prevWeek} className="grid h-9 w-9 place-items-center rounded-xl border border-pine-900/12 bg-white text-muted hover:bg-pine-50">
               <ChevronLeft className="h-4 w-4" />
             </button>
             <h2 className="min-w-[11rem] text-center text-base font-semibold text-pine-900">
@@ -1641,33 +1639,33 @@ export default function CalendarPage() {
                 ? `${MONTHS[month]} ${year}`
                 : `${weekDays[0].getDate()} ${MONTHS[weekDays[0].getMonth()]} – ${weekDays[6].getDate()} ${MONTHS[weekDays[6].getMonth()]} ${weekDays[6].getFullYear()}`}
             </h2>
-            <button type="button" onClick={view === "month" ? nextMonth : nextWeek} className="grid h-9 w-9 place-items-center rounded-xl border border-pine-900/12 bg-white text-muted hover:bg-cream">
+            <button type="button" onClick={view === "month" ? nextMonth : nextWeek} className="grid h-9 w-9 place-items-center rounded-xl border border-pine-900/12 bg-white text-muted hover:bg-pine-50">
               <ChevronRight className="h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()); setWeekAnchor(today); }}
-              className="ml-1 rounded-xl border border-pine-900/12 bg-white px-3 py-2 text-sm font-semibold text-pine-900 hover:bg-cream">
+              className="ml-1 rounded-xl border border-pine-900/12 bg-white px-3 py-2 text-sm font-semibold text-pine-900 hover:bg-pine-50">
               Today
             </button>
           </div>
 
           {loadError ? (
-            <div className="rounded-2xl border border-pine-900/15 bg-cream px-4 py-6 text-center text-sm text-pine-900">
+            <div className="rounded-2xl border border-pine-900/15 bg-white px-4 py-6 text-center text-sm text-pine-900">
               Could not load posts: {loadError}
             </div>
           ) : loading ? (
             <div className="py-20 text-center text-sm text-muted">Loading…</div>
           ) : view === "month" ? (
             <div className="overflow-hidden rounded-2xl border border-pine-900/10 bg-white shadow-sm">
-              <div className="grid grid-cols-7 border-b border-pine-900/8 bg-cream/40">
+              <div className="grid grid-cols-7 border-b border-pine-900/8 bg-white">
                 {DAYS.map((d) => (
                   <div key={d} className="px-2 py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.1em] text-muted md:px-3">{d}</div>
                 ))}
               </div>
               <div className="grid grid-cols-7 divide-x divide-y divide-pine-900/8">
                 {monthDays.map((day, i) => (
-                  <div key={i} className={`overflow-hidden${!day ? " min-h-[100px] bg-cream/30" : ""}`}>
+                  <div key={i} className={`overflow-hidden${!day ? " min-h-[100px] bg-white" : ""}`}>
                     {day && <DayCell day={day} />}
                   </div>
                 ))}
@@ -1680,7 +1678,7 @@ export default function CalendarPage() {
                   const isToday = isSameDay(day, today);
                   return (
                     <div key={day.toISOString()} className="min-h-[360px] overflow-hidden">
-                      <div className={`border-b border-pine-900/8 px-2 py-3 text-center md:px-3 ${isToday ? "bg-pine-900" : "bg-cream/40"}`}>
+                      <div className={`border-b border-pine-900/8 px-2 py-3 text-center md:px-3 ${isToday ? "bg-pine-900" : "bg-white"}`}>
                         <p className={`text-[10px] font-semibold uppercase tracking-[0.1em] ${isToday ? "text-paper/70" : "text-muted"}`}>
                           {DAYS[(day.getDay() + 6) % 7]}
                         </p>

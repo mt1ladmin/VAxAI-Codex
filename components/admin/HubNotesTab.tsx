@@ -121,7 +121,7 @@ export function HubNotesTab({
           >
             <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <p className="text-sm font-semibold text-[#111111]">New note</p>
-              <button type="button" onClick={onHideAddNote} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-[#F5F8F8]">
+              <button type="button" onClick={onHideAddNote} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -148,7 +148,7 @@ export function HubNotesTab({
               <button
                 type="button"
                 onClick={onHideAddNote}
-                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-2 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"
               >
                 Cancel
               </button>
@@ -164,7 +164,7 @@ export function HubNotesTab({
               <button
                 type="button"
                 onClick={() => openNote(index)}
-                className="w-full rounded-xl border border-[#111111]/10 bg-white p-4 text-left transition-colors hover:border-[#122428]/25 hover:bg-[#F5F8F8]/20"
+                className="w-full rounded-xl border border-[#111111]/10 bg-white p-4 text-left transition-colors hover:border-[#122428]/25 hover:bg-white/20"
               >
                 <p className="text-xs font-semibold text-[#5F686A]">{entry.header || "Note"}</p>
                 <p
@@ -204,7 +204,7 @@ export function HubNotesTab({
               <button
                 type="button"
                 onClick={closeModal}
-                className="shrink-0 rounded-lg p-1 text-[#5F686A] hover:bg-[#F5F8F8]"
+                className="shrink-0 rounded-lg p-1 text-[#5F686A] hover:bg-pine-50"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -241,7 +241,7 @@ export function HubNotesTab({
                           setEditingInModal(false);
                           setEditDraft(viewingEntry.body);
                         }}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-[#F5F8F8]"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#111111]/15 px-3 py-1.5 text-xs font-semibold text-[#5F686A] hover:bg-pine-50"
                       >
                         Cancel
                       </button>

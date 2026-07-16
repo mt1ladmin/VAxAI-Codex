@@ -12,8 +12,8 @@ export const ENQUIRY_STATUS_OPTIONS = PROSPECT_QUEUE_STATUSES.map((s) => ({ key:
 
 export const ENQUIRY_STATUS_COLORS: Record<string, string> = {
   ...PROSPECT_QUEUE_STATUS_COLORS,
-  "": "bg-slate-100 text-slate-600",
-  needs_review: "bg-slate-100 text-slate-600",
+  "": "bg-white text-muted border border-pine-900/12",
+  needs_review: "bg-white text-muted border border-pine-900/12",
 };
 
 const KNOWN_STATUSES = new Set<string>(PROSPECT_QUEUE_STATUSES);

@@ -66,7 +66,7 @@ export function OpportunityStageSelect({
               key={stage}
               type="button"
               onClick={() => handleSelect(stage)}
-              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-[#F5F8F8] ${
+              className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-pine-50 ${
                 value === stage ? "bg-[#122428]/8 font-semibold text-[#122428]" : "text-[#111111]"
               }`}
             >
