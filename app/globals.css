@@ -212,32 +212,6 @@ a {
   box-shadow: 0 1px 2px rgba(18, 36, 40, 0.06);
 }
 
-/* Hand-drawn style accent ring for highlighted hero words */
-.hero-word-circle {
-  position: relative;
-  display: inline-block;
-  padding: 0 0.12em;
-  white-space: nowrap;
-}
-
-.hero-word-circle__ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 118%;
-  height: 132%;
-  transform: translate(-50%, -52%);
-  pointer-events: none;
-  overflow: visible;
-}
-
-.hero-word-circle__ring ellipse {
-  fill: none;
-  stroke: #d8fc2e;
-  stroke-width: 3.25;
-  vector-effect: non-scaling-stroke;
-}
-
 /* Policy page body styles */
 .policy-body h2 { font-size: 1.2rem; font-weight: 700; margin: 2.5rem 0 0.6rem; color: #111; }
 .policy-body h3 { font-size: 1rem; font-weight: 700; margin: 1.75rem 0 0.4rem; color: #1f2937; }

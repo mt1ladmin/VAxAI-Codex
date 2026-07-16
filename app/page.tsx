@@ -520,19 +520,7 @@ export default function Home() {
               variants={fadeUp}
               className="mt-6 max-w-2xl text-[2.75rem] font-semibold leading-[1.02] tracking-[-0.025em] md:text-7xl"
             >
-              Reduce admin. Keep{" "}
-              <span className="hero-word-circle">
-                people
-                <svg
-                  className="hero-word-circle__ring"
-                  viewBox="0 0 100 48"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
-                >
-                  <ellipse cx="50" cy="24" rx="46" ry="20" />
-                </svg>
-              </span>{" "}
-              in the loop.
+              Reduce admin. Keep people in the loop.
             </motion.h1>
             <motion.p
               variants={fadeUp}

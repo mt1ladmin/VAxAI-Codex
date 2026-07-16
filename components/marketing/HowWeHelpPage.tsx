@@ -216,7 +216,7 @@ export default function HowWeHelpPage() {
                 >
                   <div>
                     <Eyebrow>{area.number}</Eyebrow>
-                    <h2 className="mt-4 text-2xl font-semibold leading-[1.1] tracking-[-0.02em] md:text-3xl">
+                    <h2 className="mt-3 text-xl font-medium leading-snug tracking-[-0.015em] text-ink md:text-[1.65rem] md:leading-[1.25]">
                       {area.title}
                     </h2>
                     <div className="mt-5 space-y-4 text-base leading-8 text-muted">
