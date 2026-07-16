@@ -1020,8 +1020,10 @@ export default function CalendarPage() {
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  /** silent: refresh data without blanking the calendar (used after delete/edit). */
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    const silent = !!opts?.silent;
+    if (!silent) setLoading(true);
     setLoadError(null);
     try {
       const [postsRes, socialRes] = await Promise.all([
@@ -1030,26 +1032,28 @@ export default function CalendarPage() {
       ]);
       if (postsRes.error) {
         setLoadError(postsRes.error);
-        setPosts([]);
+        if (!silent) setPosts([]);
       } else {
         setPosts(postsRes.data ?? []);
       }
       if (socialRes.error) {
         setLoadError((prev) => prev ?? socialRes.error ?? null);
-        setSocialPosts([]);
+        if (!silent) setSocialPosts([]);
       } else {
         setSocialPosts(socialRes.data ?? []);
       }
     } catch {
       setLoadError("Could not load calendar data");
-      setPosts([]);
-      setSocialPosts([]);
+      if (!silent) {
+        setPosts([]);
+        setSocialPosts([]);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
   const pendingConnectedGroups = useMemo(
     () => buildPendingConnectedPostGroups(posts, socialPosts),
@@ -1108,7 +1112,7 @@ export default function CalendarPage() {
           }),
         });
       }
-      await load();
+      await load({ silent: true });
     } finally {
       setConnectedBusy(false);
     }
@@ -1133,7 +1137,7 @@ export default function CalendarPage() {
           body: JSON.stringify({ [field]: now }),
         });
       }
-      await load();
+      await load({ silent: true });
     } finally {
       setConnectedBusy(false);
     }
@@ -1149,7 +1153,7 @@ export default function CalendarPage() {
         body: JSON.stringify({ posted_at: new Date().toISOString() }),
       });
       setPanelMode("none");
-      await load();
+      await load({ silent: true });
     } finally {
       setMarkingSocialPosted(false);
     }
@@ -1184,14 +1188,17 @@ export default function CalendarPage() {
       });
     }
     setPanelMode("none");
-    load();
+    void load({ silent: true });
   };
 
   const deleteSocialById = async (id: string) => {
     if (!confirm("Delete this social post?")) return;
-    await fetch(`/api/admin/social-posts/${id}`, { method: "DELETE" });
+    // Optimistic remove so the UI never blanks while refetching
+    setSocialPosts((prev) => prev.filter((s) => s.id !== id));
     setPanelMode("none");
-    await load();
+    setActiveSocial(null);
+    await fetch(`/api/admin/social-posts/${id}`, { method: "DELETE" });
+    await load({ silent: true });
   };
 
   const deleteSocial = async (id: string) => deleteSocialById(id);
@@ -1254,7 +1261,7 @@ export default function CalendarPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      await load();
+      await load({ silent: true });
       const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
         (r) => r.json() as Promise<{ data?: Post }>,
       );
@@ -1328,7 +1335,7 @@ export default function CalendarPage() {
         });
       }
 
-      await load();
+      await load({ silent: true });
       const res = await fetch(`/api/admin/posts/${previewPost.id}`).then(
         (r) => r.json() as Promise<{ data?: Post }>,
       );
@@ -1340,16 +1347,20 @@ export default function CalendarPage() {
 
   const deleteAllFromPreview = async () => {
     if (!previewPost) return;
+    const postId = previewPost.id;
     setConnectedBusy(true);
     try {
-      const linked = socialPosts.filter((s) => socialLinksToPost(s.link, previewPost.id));
+      const linked = socialPosts.filter((s) => socialLinksToPost(s.link, postId));
+      // Optimistic UI: remove immediately, close modal, keep calendar visible
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      setSocialPosts((prev) => prev.filter((s) => !socialLinksToPost(s.link, postId)));
+      setPreviewPost(null);
+      setPreviewCalendarDay(null);
       for (const social of linked) {
         await fetch(`/api/admin/social-posts/${social.id}`, { method: "DELETE" });
       }
-      await fetch(`/api/admin/posts/${previewPost.id}`, { method: "DELETE" });
-      setPreviewPost(null);
-      setPreviewCalendarDay(null);
-      await load();
+      await fetch(`/api/admin/posts/${postId}`, { method: "DELETE" });
+      await load({ silent: true });
     } finally {
       setConnectedBusy(false);
     }
@@ -1449,7 +1460,7 @@ export default function CalendarPage() {
       }
     } finally {
       setRescheduling(false);
-      await load();
+      await load({ silent: true });
     }
   };
 
