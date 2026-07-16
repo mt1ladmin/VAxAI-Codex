@@ -55,15 +55,27 @@ export async function GET(req: NextRequest) {
           fallback: true,
         });
       }
+      // No persisted used/archived topics without the table
+      if (status === "inactive" || status === "used" || status === "archived") {
+        return NextResponse.json({ data: [], fallback: true });
+      }
     }
 
-    let query = db
-      .from("studio_content_topics")
-      .select("*")
-      .order("created_at", { ascending: false });
+    // inactive = used + archived (archive library view)
+    // active keeps newest-created first; inactive prefers recently used
+    let query = db.from("studio_content_topics").select("*");
 
-    if (status !== "all") {
-      query = query.eq("status", status);
+    if (status === "inactive") {
+      query = query
+        .in("status", ["used", "archived"])
+        .order("used_at", { ascending: false, nullsFirst: false })
+        .order("updated_at", { ascending: false });
+    } else if (status === "active") {
+      query = query.eq("status", "active").order("created_at", { ascending: false });
+    } else if (status !== "all") {
+      query = query.eq("status", status).order("updated_at", { ascending: false });
+    } else {
+      query = query.order("created_at", { ascending: false });
     }
 
     const { data, error } = await query;
@@ -75,29 +87,43 @@ export async function GET(req: NextRequest) {
   }
 }
 
-/** Mark topics as used after content is successfully generated from them. */
+/** Mark topics as used/archived after content is generated, or restore to active. */
 export async function PATCH(req: NextRequest) {
   try {
     await assertAuth();
-    const body = (await req.json()) as { ids?: string[]; action?: "use" | "archive" };
+    const body = (await req.json()) as {
+      ids?: string[];
+      action?: "use" | "archive" | "restore";
+    };
     const ids = body.ids?.filter(Boolean) ?? [];
     if (!ids.length) {
       return NextResponse.json({ error: "ids required" }, { status: 400 });
     }
 
     const db = createServiceClient();
-    const status = body.action === "archive" ? "archived" : "used";
+    const action = body.action ?? "use";
+    const now = new Date().toISOString();
+
+    const update =
+      action === "restore"
+        ? { status: "active", used_at: null, updated_at: now }
+        : {
+            status: action === "archive" ? "archived" : "used",
+            used_at: now,
+            updated_at: now,
+          };
+
     const { error } = await db
       .from("studio_content_topics")
-      .update({
-        status,
-        used_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
+      .update(update)
       .in("id", ids);
 
     if (error) throw error;
-    return NextResponse.json({ success: true, status, ids });
+    return NextResponse.json({
+      success: true,
+      status: update.status,
+      ids,
+    });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error";
     return NextResponse.json({ error: msg }, { status: msg === "Unauthorized" ? 401 : 500 });
