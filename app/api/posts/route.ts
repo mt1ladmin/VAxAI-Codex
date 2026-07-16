@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { publishDueScheduledPosts } from "@/lib/posts/publish-due";
 import { createServiceClient } from "@/lib/supabase";
 import { clientIp, rateLimit, rateLimitHeaders } from "@/lib/security/rate-limit";
 
@@ -21,6 +22,14 @@ export async function GET(req: NextRequest) {
   const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(Math.floor(rawLimit), 1), 12) : 3;
 
   const supabase = createServiceClient();
+
+  // Best-effort: go live any posts whose schedule has passed (backup if cron is late)
+  try {
+    await publishDueScheduledPosts(supabase, { limit: 20 });
+  } catch {
+    /* non-fatal */
+  }
+
   const { data, error } = await supabase
     .from("posts")
     .select("id,title,slug,description,cover_image_url,content_type,tags,published_at")
