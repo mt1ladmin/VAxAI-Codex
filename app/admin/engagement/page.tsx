@@ -201,60 +201,6 @@ export default function EngagementOverview() {
               ))}
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <SectionCard
-            title="Overdue tasks"
-            hint="From the task tracker — open one to continue"
-            action={
-              <Link href="/admin/engagement/pipeline" className="text-xs font-semibold text-pine-900 hover:underline">
-                All tasks
-              </Link>
-            }
-          >
-            {workLoading ? (
-              <p className="px-5 py-4 text-sm text-muted">Loading…</p>
-            ) : !workToday?.overdueTasks.length ? (
-              <p className="px-5 py-6 text-sm text-muted">None overdue.</p>
-            ) : (
-              <div className="divide-y divide-pine-900/8">
-                {workToday.overdueTasks.map((t) => (
-                  <Link key={t.id} href={t.href} className="block px-5 py-3 transition-colors hover:bg-pine-50">
-                    <p className="truncate text-sm font-semibold text-pine-900">{t.title}</p>
-                    {t.contact_name ? (
-                      <p className="mt-0.5 truncate text-xs text-muted">{t.contact_name}</p>
-                    ) : null}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-
-          <SectionCard
-            title="New enquiries"
-            hint="Inbound interest waiting for a first look"
-            action={
-              <Link href="/admin/enquiries" className="text-xs font-semibold text-pine-900 hover:underline">
-                All enquiries
-              </Link>
-            }
-          >
-            {workLoading ? (
-              <p className="px-5 py-4 text-sm text-muted">Loading…</p>
-            ) : !workToday?.newEnquiries.length ? (
-              <p className="px-5 py-6 text-sm text-muted">Inbox clear.</p>
-            ) : (
-              <div className="divide-y divide-pine-900/8">
-                {workToday.newEnquiries.map((e) => (
-                  <Link key={e.id} href={e.href} className="block px-5 py-3 transition-colors hover:bg-pine-50">
-                    <p className="truncate text-sm font-semibold text-pine-900">{e.name}</p>
-                    <p className="mt-0.5 truncate text-xs text-muted">{e.status || "Needs review"}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-        </div>
-
         <div className="mt-8">
           <div className="mb-3 flex items-center gap-2">
             <h2 className="text-sm font-semibold text-pine-900">Where to work next</h2>
