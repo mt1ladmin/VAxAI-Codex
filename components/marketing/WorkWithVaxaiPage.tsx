@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, type Variants } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, FileUp, Loader2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronDown, FileUp, Loader2, X } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import SimplifiedModeToggle from "@/components/SimplifiedModeToggle";
@@ -91,6 +91,41 @@ const essentials = [
 const CONVICTION_OPTIONS = ["No", "Yes", "I do not wish to say"] as const;
 const START_SOON_OPTIONS = ["Yes", "No"] as const;
 
+const partnerFaqs: [string, string][] = [
+  [
+    "Who can join the VAxAI VA partner network?",
+    "We work with experienced UK-based freelance virtual assistants who want to deliver high-quality admin support on a flexible basis. You should meet our essentials for client work (including UK right to work, self-employment readiness and Professional Indemnity insurance before client work begins).",
+  ],
+  [
+    "Do I need to be fully set up as self-employed first?",
+    "You can register interest if you are already registered with HMRC as self-employed, or ready to register when required. Professional Indemnity insurance must be in place before any client work begins.",
+  ],
+  [
+    "How does pay work?",
+    "We do not publish fixed rates because every engagement is different. Rates and payment terms are discussed openly and confirmed in writing before any work begins. Payment may be project-based, monthly or quarterly depending on the type of work.",
+  ],
+  [
+    "What kind of work will I do?",
+    "Work is matched to your skills and interests. It may include backlog recovery, organising information, day-to-day operational admin, process documentation, and human review of AI-assisted work for founders, growing businesses, charities and public sector teams.",
+  ],
+  [
+    "Do I need strong AI experience?",
+    "No. Curiosity and a willingness to learn help. We offer free workshops and events on practical AI and automation skills for admin roles. What matters most is reliable admin craft, discretion and clear communication.",
+  ],
+  [
+    "How does matching work?",
+    "We carefully match freelancers to projects and retainers so the fit is right for you and the organisation. You receive clear briefs and structured onboarding, and you can choose work that suits your strengths and availability.",
+  ],
+  [
+    "What about confidentiality?",
+    "This work often involves working with confidential information. Successful applicants are asked to sign a Non-Disclosure Agreement and Data Processing Agreement before client work begins, and may be asked for references or a basic background check for certain engagements.",
+  ],
+  [
+    "How long until I hear back?",
+    "After you register your interest and submit your CV, we review fit, specialisms, setup readiness and availability. We contact you if there is a good match and invite you to the next stage. Timing depends on current demand and how well your profile fits live work.",
+  ],
+];
+
 /** Ordered wizard steps (one focus per screen) */
 const STEPS = [
   "privacy",
@@ -162,9 +197,46 @@ function ChipSelect({
   );
 }
 
+function PartnerFaqItem({
+  question,
+  answer,
+  open,
+  onToggle,
+}: {
+  question: string;
+  answer: string;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="px-5 py-1 md:px-6">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-4 py-5 text-left"
+        aria-expanded={open}
+      >
+        <span className="text-sm font-semibold leading-snug text-ink md:text-[15px]">{question}</span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-pine-800 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 ease-premium ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+      >
+        <div className="overflow-hidden">
+          <p className="pb-5 text-sm leading-7 text-muted">{answer}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function WorkWithVaxaiPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [stepIndex, setStepIndex] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -1162,6 +1234,37 @@ export default function WorkWithVaxaiPage() {
                     Sign up to our newsletter
                   </button>
                 </div>
+              </Reveal>
+            </div>
+          </section>
+
+          {/* FAQ for freelancers */}
+          <section id="faq" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
+            <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[0.85fr_1.15fr] md:gap-16">
+              <Reveal>
+                <Eyebrow>FAQ</Eyebrow>
+                <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                  Questions about joining the network?
+                </h2>
+                <p className="mt-6 max-w-prose text-sm leading-7 text-muted md:text-base md:leading-8">
+                  Practical answers on eligibility, pay, matching, confidentiality and what happens after
+                  you register your interest.
+                </p>
+                <button type="button" onClick={openModal} className={`${btn.primary} mt-8`}>
+                  Register your interest
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </Reveal>
+              <Reveal className="divide-y divide-ink/5 self-start rounded-[28px] border border-ink/5 bg-white shadow-card">
+                {partnerFaqs.map(([question, answer], index) => (
+                  <PartnerFaqItem
+                    key={question}
+                    question={question}
+                    answer={answer}
+                    open={openFaq === index}
+                    onToggle={() => setOpenFaq(openFaq === index ? null : index)}
+                  />
+                ))}
               </Reveal>
             </div>
           </section>

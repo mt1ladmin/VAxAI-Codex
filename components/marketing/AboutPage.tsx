@@ -100,15 +100,49 @@ export default function AboutPage() {
         </header>
 
         <main className="overflow-x-hidden">
-          {/* About + people images */}
-          <section className="px-4 pb-20 pt-14 md:px-8 md:pb-28 md:pt-20">
-            <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] lg:items-start lg:gap-16 xl:gap-20">
-              <motion.div initial="hidden" animate="show" variants={fadeUp} className="min-w-0">
-                <Eyebrow>About VAxAI</Eyebrow>
+          {/* Hero — geometric mark, no photo */}
+          <section className="relative overflow-hidden bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-24">
+            <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
+              <div className="absolute -top-32 right-[-10%] h-[420px] w-[420px] rounded-full bg-pine-700/45 blur-3xl" />
+              <div className="absolute bottom-[-20%] left-[-8%] h-80 w-80 rounded-full bg-acid/[0.06] blur-3xl" />
+            </div>
+            <div className="relative mx-auto grid max-w-6xl items-center gap-12 md:grid-cols-[1.15fr_0.85fr] md:gap-16">
+              <motion.div initial="hidden" animate="show" variants={fadeUp}>
+                <Eyebrow light>About VAxAI</Eyebrow>
                 <h1 className="mt-5 max-w-xl text-[2.2rem] font-semibold leading-[1.1] tracking-[-0.025em] sm:text-[2.5rem] md:mt-6 md:text-[2.75rem]">
                   Built through experience, not theory.
                 </h1>
-                <div className="mt-8 max-w-xl space-y-6 text-base leading-8 text-muted md:mt-10 md:space-y-7 md:text-[1.0625rem] md:leading-8">
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.15, ease: EASE }}
+                className="relative mx-auto flex w-full max-w-sm items-center justify-center md:max-w-none"
+                aria-hidden="true"
+              >
+                <div className="relative aspect-square w-full max-w-[320px]">
+                  <div className="absolute inset-[8%] rotate-6 rounded-[32px] border border-white/10 bg-white/[0.04]" />
+                  <div className="absolute inset-[16%] -rotate-3 rounded-[28px] border border-white/12 bg-pine-800/80" />
+                  <div className="absolute inset-[22%] flex items-center justify-center rounded-[24px] bg-pine-950/60 ring-1 ring-acid/30">
+                    <img
+                      src="/vaxai-logo.png"
+                      alt=""
+                      className="h-14 w-auto opacity-95 sm:h-16"
+                    />
+                  </div>
+                  <div className="absolute -right-2 top-1/4 h-16 w-16 rounded-full bg-acid/90 blur-[1px]" />
+                  <div className="absolute bottom-[18%] left-0 h-10 w-10 rounded-full border-2 border-acid/50" />
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Story */}
+          <section className="px-4 py-16 md:px-8 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <Reveal className="mx-auto max-w-3xl">
+                <div className="space-y-6 text-base leading-8 text-muted md:space-y-7 md:text-[1.0625rem] md:leading-8">
                   <p>
                     VAxAI wasn&apos;t created from a business plan. It grew from the way we were already
                     working.
@@ -157,23 +191,28 @@ export default function AboutPage() {
                     Always with experienced people in the loop.
                   </p>
                 </div>
-              </motion.div>
+              </Reveal>
+            </div>
+          </section>
 
-              <motion.div
-                initial="hidden"
-                animate="show"
-                variants={fadeUp}
-                className="mx-auto grid w-full max-w-sm gap-8 sm:max-w-md lg:sticky lg:top-28 lg:mx-0 lg:max-w-none lg:gap-10"
-              >
+          {/* People — after the story */}
+          <section className="bg-cream/40 px-4 py-16 md:px-8 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <Reveal>
+                <Eyebrow>The people behind VAxAI</Eyebrow>
+              </Reveal>
+              <div className="mt-8 grid gap-8 sm:grid-cols-2 sm:gap-10">
                 {experts.map((expert) => (
-                  <ExpertProfileCard key={expert.name} expert={expert} />
+                  <Reveal key={expert.name}>
+                    <ExpertProfileCard expert={expert} />
+                  </Reveal>
                 ))}
-              </motion.div>
+              </div>
             </div>
           </section>
 
           {/* Closing CTA */}
-          <section className="px-4 pb-20 md:px-8 md:pb-28">
+          <section className="px-4 pb-20 pt-4 md:px-8 md:pb-28 md:pt-8">
             <Reveal className="relative mx-auto max-w-6xl overflow-hidden rounded-[40px] bg-pine-900 px-6 py-14 text-center text-paper md:px-12 md:py-16">
               <div className="simplified-hide pointer-events-none absolute inset-0" aria-hidden="true">
                 <div className="absolute -top-24 left-[-8%] h-80 w-80 rounded-full bg-pine-700/40 blur-3xl" />
