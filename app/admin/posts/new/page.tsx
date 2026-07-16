@@ -26,6 +26,13 @@ function slugify(text: string) {
   return text.toLowerCase().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
 }
 
+function toIsoOrNull(value: string | null | undefined): string | null {
+  if (!value || !String(value).trim()) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
 function PublishedSuccessModal({
   postUrl,
   postTitle,
@@ -154,21 +161,24 @@ export default function NewPostPage() {
         author_id: authorId || null,
         slug: slug || slugify(title || "untitled"),
         status,
-        scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
+        scheduled_at: toIsoOrNull(scheduledAt),
         sharing_caption: sharingCaption.trim() || null,
       }),
     });
-    const json = await res.json() as { data: { id: string; slug: string } };
+    const json = await res.json() as { data?: { id: string; slug: string }; error?: string; hint?: string };
     setSaving(false);
-    if (json.data) {
-      if (status === "published") {
-        const liveUrl = `${window.location.origin}/posts/${json.data.slug}`;
-        setPublished(true);
-        setPostUrl(liveUrl);
-        setShowPublishedSuccess(true);
-      } else {
-        router.push(`/admin/posts/${json.data.id}`);
-      }
+    if (!res.ok || !json.data) {
+      // Stay on page so the error is visible; avoid silent failure
+      window.alert(json.hint ? `${json.error ?? "Save failed"} — ${json.hint}` : (json.error ?? "Save failed"));
+      return;
+    }
+    if (status === "published") {
+      const liveUrl = `${window.location.origin}/posts/${json.data.slug}`;
+      setPublished(true);
+      setPostUrl(liveUrl);
+      setShowPublishedSuccess(true);
+    } else {
+      router.push(`/admin/posts/${json.data.id}`);
     }
   }, [title, description, bodyHtml, coverImageUrl, contentType, customType, showCustomType, tags, authorId, slug, scheduledAt, sharingCaption, router]);
 

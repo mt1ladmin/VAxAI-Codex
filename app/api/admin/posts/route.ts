@@ -16,13 +16,49 @@ function slugify(text: string) {
     .slice(0, 80);
 }
 
+function missingColumnName(message: string): string | null {
+  const patterns = [
+    /Could not find the '([a-z_]+)' column/i,
+    /column ["'`]?([a-z_]+)["'`]? of relation/i,
+    /column ["'`]?([a-z_]+)["'`]? does not exist/i,
+  ];
+  for (const re of patterns) {
+    const m = message.match(re);
+    if (m?.[1]) return m[1];
+  }
+  return null;
+}
+
+/** Insert, dropping columns the live DB schema does not have yet. */
+async function insertPostWithSchemaFallback(
+  db: ReturnType<typeof createServiceClient>,
+  row: Record<string, unknown>,
+) {
+  let payload = { ...row };
+  let lastError: { message: string } | null = null;
+
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const { data, error } = await db.from("posts").insert(payload).select().single();
+    if (!error) return { data, error: null as null };
+    lastError = error;
+    const col = missingColumnName(error.message);
+    if (!col || !(col in payload)) return { data: null, error };
+    const next = { ...payload };
+    delete next[col];
+    payload = next;
+  }
+
+  return { data: null, error: lastError };
+}
+
 export async function GET(req: NextRequest) {
   try {
     await assertAuth();
     const status = req.nextUrl.searchParams.get("status");
     const db = createServiceClient();
+    // Fallback must not reference columns that may not exist yet
     const baseColumns =
-      "id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,body_html,sharing_caption,linkedin_post,instagram_caption,facebook_post,social_hashtags";
+      "id,title,slug,description,content_type,tags,status,cover_image_url,created_at,updated_at,published_at,scheduled_at,author_id,body_html,sharing_caption,linkedin_post,instagram_caption,social_hashtags";
 
     const runQuery = (select: string) => {
       let query = db.from("posts").select(select).order("updated_at", { ascending: false });
@@ -52,6 +88,7 @@ export async function POST(req: NextRequest) {
       sharing_caption?: string; linkedin_post?: string;
       instagram_caption?: string; facebook_post?: string;
       social_hashtags?: string[];
+      scheduled_at?: string | null;
     };
     const title = body.title ?? "Untitled";
     const rawSlug = body.slug || slugify(title);
@@ -66,7 +103,7 @@ export async function POST(req: NextRequest) {
       slug = `${rawSlug}-${attempt}`;
     }
     const now = new Date().toISOString();
-    const { data, error } = await db.from("posts").insert({
+    const row: Record<string, unknown> = {
       title,
       slug,
       description: body.description ?? "",
@@ -77,15 +114,22 @@ export async function POST(req: NextRequest) {
       cover_image_url: body.cover_image_url ?? null,
       status: body.status ?? "draft",
       published_at: body.status === "published" ? now : null,
-      scheduled_at: (body as { scheduled_at?: string }).scheduled_at ?? null,
+      scheduled_at: body.scheduled_at ?? null,
       updated_at: now,
       sharing_caption: body.sharing_caption ?? null,
       linkedin_post: body.linkedin_post ?? null,
       instagram_caption: body.instagram_caption ?? null,
       facebook_post: body.facebook_post ?? null,
       social_hashtags: body.social_hashtags ?? [],
-    }).select().single();
-    if (error) throw error;
+    };
+
+    const { data, error } = await insertPostWithSchemaFallback(db, row);
+    if (error) {
+      const hint = /column|schema/i.test(error.message)
+        ? "A posts column may be missing in Supabase — run pending migrations (e.g. facebook_post)."
+        : undefined;
+      return NextResponse.json({ error: error.message, hint }, { status: 500 });
+    }
     return NextResponse.json({ data });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "Error";
