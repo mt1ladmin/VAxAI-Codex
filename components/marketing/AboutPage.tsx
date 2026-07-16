@@ -100,21 +100,49 @@ export default function AboutPage() {
         </header>
 
         <main className="overflow-x-hidden">
-          {/* Opening statement */}
+          {/* About + people images */}
           <section className="px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.1fr_0.9fr] md:items-start md:gap-14">
               <motion.div initial="hidden" animate="show" variants={fadeUp}>
                 <Eyebrow>About VAxAI</Eyebrow>
                 <h1 className="mt-6 max-w-2xl text-[2.35rem] font-semibold leading-[1.08] tracking-[-0.025em] md:text-5xl">
-                  AI changes admin. It doesn&apos;t remove the need for it.
+                  Built through experience, not theory.
                 </h1>
-                <div className="mt-8 max-w-2xl space-y-4 text-base leading-8 text-muted md:text-lg">
+                <div className="mt-8 max-w-2xl space-y-5 text-base leading-8 text-muted md:text-lg">
                   <p>
-                    VAxAI helps founders, SMEs, charities and public sector organisations regain control of
-                    the everyday administration that keeps their work moving. It is a service by MT1L that
-                    helps leaders make more informed decisions about AI through the lens of value, trust
-                    and alignment. That same standard shapes every VAxAI recommendation: real value, an
-                    outcome you can trust, and a genuine fit with how you work.
+                    VAxAI wasn&apos;t created from a business plan. It grew from the way we were already
+                    working.
+                  </p>
+                  <p>
+                    While building MT1L, we explored how AI could support research, administration, content
+                    creation and day-to-day operations. Like many organisations, we quickly discovered that
+                    AI worked best when the right foundations were already in place.
+                  </p>
+                  <ul className="space-y-2 border-l-2 border-acid pl-5">
+                    <li>The quality of the information going in mattered.</li>
+                    <li>Processes needed to be organised.</li>
+                    <li>Documents needed to be consistent.</li>
+                    <li>Systems needed to make sense.</li>
+                  </ul>
+                  <p>Without that foundation, AI could only do so much.</p>
+                  <p>
+                    As we refined our own ways of working, we began testing different approaches, combining
+                    AI with practical administrative support and continually learning what genuinely
+                    improved the way work got done. Every improvement taught us something new - not just
+                    about technology, but about the importance of preparation, organisation and human
+                    oversight.
+                  </p>
+                  <p>
+                    Conversations with leaders across various industries, together with our own experience
+                    and professional backgrounds, made us realise this wasn&apos;t just a challenge we were
+                    solving for ourselves. It reflected a much broader need, particularly as organisations
+                    across every sector began exploring AI.
+                  </p>
+                  <p>
+                    Today, we help founders, SMEs, charities and public sector organisations build the
+                    foundations that allow AI and automation to create real value. We prepare
+                    administration, provide ongoing operational support and help maintain the systems that
+                    keep work running smoothly.
                   </p>
                 </div>
                 <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 text-xl font-semibold tracking-tight md:text-2xl">
@@ -128,22 +156,17 @@ export default function AboutPage() {
                   Always with experienced people in the loop.
                 </p>
               </motion.div>
-            </div>
-          </section>
 
-          {/* The people behind VAxAI */}
-          <section className="px-4 pb-16 pt-2 md:px-8 md:pb-24">
-            <div className="mx-auto max-w-6xl">
-              <Reveal>
-                <Eyebrow>The people behind VAxAI</Eyebrow>
-              </Reveal>
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
+              <motion.div
+                initial="hidden"
+                animate="show"
+                variants={fadeUp}
+                className="grid gap-6"
+              >
                 {experts.map((expert) => (
-                  <Reveal key={expert.name}>
-                    <ExpertProfileCard expert={expert} />
-                  </Reveal>
+                  <ExpertProfileCard key={expert.name} expert={expert} />
                 ))}
-              </div>
+              </motion.div>
             </div>
           </section>
 
