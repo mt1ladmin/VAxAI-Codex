@@ -278,7 +278,7 @@ export default function NewPostPage() {
                 </div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#5F686A]">Share</p>
                 <div className="space-y-2">
-                  <a href="https://app.zernio.com" target="_blank" rel="noreferrer"
+                  <a href="https://zernio.com/" target="_blank" rel="noreferrer"
                     className="flex items-center gap-3 rounded-md border border-[#111111]/10 px-3 py-2.5 text-sm font-semibold text-[#111111] hover:bg-pine-50">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/zernio-logo.png" alt="" className="h-4 w-4 rounded-sm object-contain" width={16} height={16} />

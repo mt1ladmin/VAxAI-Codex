@@ -71,10 +71,30 @@ function platformInfo(key: string) {
   return PLATFORMS.find((p) => p.key === key) ?? PLATFORMS[0];
 }
 
-/** Calm, high-contrast chips — platform colour only on the icon, not the whole pill. */
-function platformChipClasses(_platform: string, opts?: { posted?: boolean }) {
-  if (opts?.posted) return "bg-white text-muted hover:bg-pine-50";
-  return "bg-white text-pine-900 border border-pine-900/10 hover:bg-pine-50";
+/** Platform chips use the legend colours so social items are easy to scan. */
+function platformChipClasses(platform: string, opts?: { posted?: boolean }) {
+  if (opts?.posted) return "border border-pine-900/10 bg-white text-muted";
+  const info = platformInfo(platform);
+  return `border border-transparent ${info.bg} ${info.text}`;
+}
+
+/** Blog posts: published on published_at day; scheduled on scheduled_at day. */
+function postCalendarDate(post: Post): string | null {
+  if (post.status === "published") {
+    return post.published_at ?? post.updated_at ?? null;
+  }
+  if (post.status === "scheduled") {
+    return post.scheduled_at ?? null;
+  }
+  // Drafts only appear if they already have a schedule date (treat as scheduled)
+  if (post.status === "draft" && post.scheduled_at) {
+    return post.scheduled_at;
+  }
+  return null;
+}
+
+function postIsScheduledOnCalendar(post: Post): boolean {
+  return post.status === "scheduled" || (post.status === "draft" && !!post.scheduled_at);
 }
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -163,13 +183,10 @@ type DayCalendarGroup = {
 };
 
 function postOnCalendarDay(post: Post, day: Date): boolean {
-  if (post.status === "draft" && !post.scheduled_at) return false;
-  const dateStr =
-    post.status === "published"
-      ? (post.published_at ?? post.updated_at)
-      : post.scheduled_at ?? null;
+  const dateStr = postCalendarDate(post);
   if (!dateStr) return false;
-  return isSameDay(new Date(dateStr), day);
+  // Use local calendar day so timezone offsets never shift the cell
+  return isSameDay(parseLocalDay(dateStr), day);
 }
 
 function socialOnCalendarDay(social: SocialPost, day: Date): boolean {
@@ -243,7 +260,8 @@ function CalendarBlogGroupCard({
 }) {
   const { post, connectedSocial, inlineItems } = group;
   const hasConnected = connectedSocial.length > 0 || inlineItems.length > 0;
-  const isScheduled = post.status === "scheduled";
+  const isScheduled = postIsScheduledOnCalendar(post);
+  const isPublished = post.status === "published";
   const postOnSourceDay = postOnCalendarDay(post, parseLocalDay(sourceDay));
   const didDragRef = useRef(false);
 
@@ -275,7 +293,11 @@ function CalendarBlogGroupCard({
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(); }}
       className={`block w-full cursor-grab overflow-hidden rounded-lg border text-left transition-colors hover:border-pine-900/25 active:cursor-grabbing ${
-        isScheduled ? "border-pine-900/15 bg-white" : "border-pine-900/10 bg-white"
+        isScheduled
+          ? "border-pine-900/10 border-l-[3px] border-l-amber-500 bg-amber-50/50"
+          : isPublished
+            ? "border-pine-900/15 border-l-[3px] border-l-pine-900 bg-white"
+            : "border-pine-900/10 bg-white"
       } ${isDragging ? "opacity-50" : ""}`}
     >
       {post.cover_image_url && !minimal ? (
@@ -285,8 +307,20 @@ function CalendarBlogGroupCard({
         </div>
       ) : null}
       <div className="px-2 py-1.5">
+        <div className="mb-1 flex items-center gap-1">
+          {isScheduled ? (
+            <span className="inline-flex items-center gap-0.5 rounded bg-amber-100 px-1 py-px text-[8px] font-bold uppercase tracking-wide text-amber-800">
+              <CalendarClock className="h-2 w-2" />
+              Scheduled
+            </span>
+          ) : isPublished ? (
+            <span className="inline-flex items-center gap-0.5 rounded bg-pine-900 px-1 py-px text-[8px] font-bold uppercase tracking-wide text-paper">
+              <CheckCircle2 className="h-2 w-2" />
+              Published
+            </span>
+          ) : null}
+        </div>
         <div className="flex items-start gap-1">
-          {isScheduled && <CalendarClock className="mt-0.5 h-2.5 w-2.5 shrink-0 text-muted" />}
           <p className="line-clamp-2 text-[11px] font-semibold leading-snug text-pine-900">
             {post.title || "Untitled"}
           </p>
@@ -1037,17 +1071,7 @@ export default function CalendarPage() {
   );
 
   function postsOnDay(day: Date) {
-    return posts.filter((p) => {
-      // Pure drafts with no scheduled date are work-in-progress — skip them.
-      if (p.status === "draft" && !p.scheduled_at) return false;
-      // scheduled_at is a full UTC ISO timestamp — use new Date() so local
-      // getters (.getDate etc.) return the correct local calendar day.
-      const dateStr = p.status === "published"
-        ? (p.published_at ?? p.updated_at)
-        : p.scheduled_at ?? null;
-      if (!dateStr) return false;
-      return isSameDay(new Date(dateStr), day);
-    });
+    return posts.filter((p) => postOnCalendarDay(p, day));
   }
 
   function socialOnDay(day: Date) {
@@ -1438,7 +1462,8 @@ export default function CalendarPage() {
   };
 
   function PostChip({ post }: { post: Post }) {
-    const isScheduled = post.status === "scheduled";
+    const isScheduled = postIsScheduledOnCalendar(post);
+    const isPublished = post.status === "published";
     const linked = linkedSocialForPost(post.id);
     const connStatus = connectedContentStatus(post, linked);
     return (
@@ -1450,11 +1475,17 @@ export default function CalendarPage() {
         }}
         className={`flex w-full items-center gap-1 truncate rounded border px-1.5 py-0.5 text-left text-[10px] font-semibold leading-tight ${
           isScheduled
-            ? "border-gray-300 bg-gray-100 text-gray-800 hover:bg-gray-200"
-            : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
+            ? "border-amber-300 bg-amber-50 text-amber-950 hover:bg-amber-100"
+            : isPublished
+              ? "border-pine-900/20 bg-white text-pine-900 hover:bg-pine-50"
+              : "border-gray-200 bg-white text-gray-900 hover:bg-gray-50"
         }`}
       >
-        {isScheduled && <CalendarClock className="h-2.5 w-2.5 shrink-0 text-gray-500" />}
+        {isScheduled ? (
+          <CalendarClock className="h-2.5 w-2.5 shrink-0 text-amber-700" />
+        ) : isPublished ? (
+          <CheckCircle2 className="h-2.5 w-2.5 shrink-0 text-pine-900" />
+        ) : null}
         <span className="truncate">{post.title || "Untitled"}</span>
         {post.status === "published" && connStatus === "pending" && (
           <span title="Connected content pending" className="shrink-0">
@@ -1463,7 +1494,7 @@ export default function CalendarPage() {
         )}
         {post.status === "published" && connStatus === "done" && (
           <span title="All connected content posted" className="shrink-0">
-            <CheckCircle2 className="h-2.5 w-2.5 text-gray-500" />
+            <CheckCircle2 className="h-2.5 w-2.5 text-emerald-600" />
           </span>
         )}
       </button>
@@ -1601,7 +1632,7 @@ export default function CalendarPage() {
         <div className="border-b border-pine-900/8 bg-white px-4 py-5 md:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <p className="max-w-xl text-sm leading-6 text-muted">
-              See when posts and social pieces go live. Drag to reschedule. The side panel lists connected social still to post.
+              Schedule content and see when it goes live. Published posts sit on their publish day; scheduled posts on their go-live day. Drag to reschedule.
             </p>
             <div className="flex shrink-0 overflow-hidden rounded-xl border border-pine-900/12 text-sm font-semibold">
               <button type="button" onClick={() => setView("month")} className={`px-4 py-2 ${view === "month" ? "bg-pine-900 text-white" : "bg-white text-muted hover:bg-pine-50"}`}>Month</button>
@@ -1688,14 +1719,28 @@ export default function CalendarPage() {
             </div>
           )}
 
-          {/* Legend */}
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-gray-500">
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm border border-gray-300 bg-white" /> Blog post</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-gray-200" /> Blog — scheduled</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[#0077b5]/15" /> LinkedIn</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-pink-100" /> Instagram</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-blue-100" /> Facebook</span>
-            <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-gray-200" /> X</span>
+          {/* Legend — matches chips on the grid */}
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600">
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-3 w-3 rounded-sm border border-pine-900/15 border-l-[3px] border-l-pine-900 bg-white" />
+              Published blog
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block h-3 w-3 rounded-sm border border-pine-900/10 border-l-[3px] border-l-amber-500 bg-amber-50" />
+              Scheduled blog
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-[#0077b5]/15" /> LinkedIn
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-pink-100" /> Instagram
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-blue-100" /> Facebook
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-sm bg-gray-200" /> X
+            </span>
             <div className="ml-auto flex items-center gap-2">
               <a
                 href="/admin/posts/new"
