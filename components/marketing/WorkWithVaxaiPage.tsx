@@ -595,7 +595,7 @@ export default function WorkWithVaxaiPage() {
                 onChange={(e) => setCanProveIdentity(e.target.checked)}
                 className="mt-1"
               />
-              I can prove my identity *
+              I can prove I am human *
             </label>
           </div>
         );
