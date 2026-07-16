@@ -942,24 +942,24 @@ function SchedulingPanel({
   return (
     <aside className="flex max-h-[calc(100vh-7rem)] min-h-0 flex-col rounded-2xl border border-pine-900/10 bg-white shadow-sm">
       <div className="shrink-0 border-b border-gray-100 px-4 py-3.5">
-        <div className="flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
+        <div className="flex w-full items-stretch gap-1 rounded-full border border-gray-200 bg-gray-50 p-0.5">
           <button
             type="button"
             onClick={() => setTab("pending")}
-            className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
+            className={`min-w-0 flex-1 rounded-full px-2 py-1.5 text-center text-[11.5px] font-semibold leading-tight transition-colors ${
               tab === "pending" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
             }`}
           >
-            Connected to post
+            Linked posts
           </button>
           <button
             type="button"
             onClick={() => setTab("none")}
-            className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors ${
+            className={`min-w-0 flex-1 rounded-full px-2 py-1.5 text-center text-[11.5px] font-semibold leading-tight transition-colors ${
               tab === "none" ? "bg-white text-[#111111] shadow-sm" : "text-gray-500 hover:text-[#111111]"
             }`}
           >
-            No connected content
+            No linked posts
           </button>
         </div>
         <h3 className="mt-3 text-sm font-semibold text-gray-900">Connected content</h3>
