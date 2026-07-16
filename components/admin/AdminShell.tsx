@@ -97,11 +97,31 @@ export default function AdminShell({
     setOpen(window.innerWidth >= 768);
   }, []);
 
+  // Close mobile drawer after navigation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.innerWidth < 768) setOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll behind open mobile menu
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.innerWidth >= 768) return;
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   if (pathname === "/admin/login" || pathname === "/admin/forbidden") return <>{children}</>;
 
   const platformAdmin = studioRole ? isPlatformAdmin(studioRole) : true;
   const sections = platformAdmin ? navSections : memberNavSections;
   const homeHref = "/admin/engagement";
+
+  const closeMobileNav = () => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) setOpen(false);
+  };
 
   const isActive = (href: string) =>
     exactMatchRoutes.has(href) ? pathname === href : pathname.startsWith(href);
@@ -110,10 +130,11 @@ export default function AdminShell({
     pathname.startsWith("/admin/posts") ||
     pathname.startsWith("/admin/calendar") ||
     pathname.startsWith("/admin/authors") ||
-    pathname.startsWith("/admin/newsletter");
+    pathname.startsWith("/admin/newsletter") ||
+    pathname.startsWith("/admin/create-content");
 
   const shell = (
-    <div className="studio-shell flex h-screen overflow-hidden bg-white font-sans">
+    <div className="studio-shell flex h-[100dvh] max-h-[100dvh] overflow-hidden bg-white font-sans">
       {/* Mobile backdrop */}
       {open && (
         <div
@@ -125,10 +146,10 @@ export default function AdminShell({
 
       {/* Sidebar — drawer on mobile, inline on desktop */}
       <aside
-        className={`flex h-full flex-col bg-pine-900 text-paper transition-all duration-200
-          fixed inset-y-0 left-0 z-50
-          md:relative md:z-auto md:shrink-0
-          ${open ? "w-60 translate-x-0" : "-translate-x-full md:translate-x-0 md:w-14"}
+        className={`flex h-full max-h-[100dvh] flex-col bg-pine-900 text-paper transition-all duration-200
+          fixed inset-y-0 left-0 z-50 w-[min(16.5rem,88vw)]
+          md:relative md:z-auto md:w-auto md:shrink-0
+          ${open ? "translate-x-0 md:w-60" : "-translate-x-full md:translate-x-0 md:w-14"}
         `}
       >
         {/* Logo — same asset and treatment as public dark nav (pine + wordmark) */}
@@ -160,19 +181,30 @@ export default function AdminShell({
           <div className={`space-y-1 px-3 pt-3 pb-1 ${!open ? "flex flex-col items-center" : ""}`}>
             <Link
               href="/admin/posts/new"
-              className={`flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-paper transition-colors hover:bg-white/15 ${
-                !open ? "h-8 w-8 justify-center p-0" : "w-full"
+              onClick={closeMobileNav}
+              className={`flex items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-3 py-2.5 text-sm font-semibold text-paper transition-colors hover:bg-white/15 ${
+                !open ? "h-9 w-9 justify-center p-0" : "w-full"
               }`}
               title={!open ? "New post" : undefined}
             >
               <Plus className="h-4 w-4 shrink-0" />
               {open && "New post"}
             </Link>
+            {open && (
+              <Link
+                href="/admin/create-content"
+                onClick={closeMobileNav}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/70 transition-colors hover:bg-white/8 hover:text-white md:hidden"
+              >
+                <CalendarDays className="h-4 w-4 shrink-0" />
+                Create with AI
+              </Link>
+            )}
           </div>
         )}
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto px-2 py-2">
+        <nav className="flex-1 overflow-y-auto overscroll-contain px-2 py-2 [-webkit-overflow-scrolling:touch]">
           {sections.map((section) => (
             <div key={section.section} className="mb-4">
               {open && (
@@ -186,7 +218,7 @@ export default function AdminShell({
                   return (
                     <div
                       key={item.href}
-                      className={`mb-0.5 flex items-center gap-3 rounded-md px-2 py-2 ${!open ? "justify-center" : ""}`}
+                      className={`mb-0.5 flex items-center gap-3 rounded-md px-2 py-2.5 ${!open ? "justify-center" : ""}`}
                       aria-hidden
                     >
                       <div className="h-4 w-4 shrink-0 rounded bg-white/10" />
@@ -198,8 +230,9 @@ export default function AdminShell({
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={closeMobileNav}
                     title={!open ? item.label : undefined}
-                    className={`mb-0.5 flex items-center gap-3 rounded-lg px-2 py-2 text-sm transition-colors ${
+                    className={`mb-0.5 flex min-h-11 items-center gap-3 rounded-lg px-2 py-2.5 text-sm transition-colors ${
                       active
                         ? "bg-white/12 font-semibold text-white"
                         : "text-white/60 hover:bg-white/8 hover:text-white"
@@ -260,28 +293,49 @@ export default function AdminShell({
       </aside>
 
       {/* Main — calm workspace canvas */}
-      <main className="studio-main flex-1 overflow-y-auto bg-white">
-        {/* Mobile top bar — always visible, shows hamburger + open sidebar button on desktop */}
-        <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-[#111111]/10 bg-white px-4 py-2 md:hidden">
+      <main className="studio-main min-w-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain bg-white [-webkit-overflow-scrolling:touch]">
+        {/* Mobile top bar — menu + quick create actions */}
+        <div className="sticky top-0 z-30 flex items-center gap-2 border-b border-pine-900/10 bg-white px-3 py-2.5 pt-[max(0.5rem,env(safe-area-inset-top))] md:hidden">
           <button
+            type="button"
             onClick={() => setOpen(true)}
-            className="grid h-8 w-8 place-items-center rounded-md border border-[#111111]/15 text-[#122428]"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-pine-900/15 text-pine-900"
             aria-label="Open menu"
           >
-            <Menu className="h-4 w-4" />
+            <Menu className="h-5 w-5" />
           </button>
-          <Link href={homeHref} className="flex items-center gap-2 rounded-md bg-pine-900 px-2 py-1">
-            <img src="/vaxai-logo.png" alt="VAxAI" className="h-7 w-auto" />
+          <Link href={homeHref} className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="grid h-9 place-items-center rounded-md bg-pine-900 px-2">
+              <img src="/vaxai-logo.png" alt="VAxAI" className="h-6 w-auto" />
+            </span>
+            <span className="truncate text-sm font-semibold text-pine-900">Studio</span>
           </Link>
-          <span className="text-sm font-semibold text-pine-900">Studio</span>
+          {platformAdmin && (
+            <div className="flex shrink-0 items-center gap-1.5">
+              <Link
+                href="/admin/create-content"
+                className="rounded-lg border border-pine-900/12 bg-white px-2.5 py-2 text-xs font-semibold text-pine-900"
+              >
+                Create
+              </Link>
+              <Link
+                href="/admin/posts/new"
+                className="grid h-10 w-10 place-items-center rounded-lg bg-pine-900 text-paper"
+                aria-label="New post"
+              >
+                <Plus className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Desktop open sidebar button */}
         {!open && (
           <div className="hidden px-4 pt-2 md:block">
             <button
+              type="button"
               onClick={() => setOpen(true)}
-              className="flex items-center gap-1.5 rounded-md border border-[#111111]/15 bg-white px-2.5 py-1 text-xs font-medium text-[#122428] hover:bg-pine-50"
+              className="flex items-center gap-1.5 rounded-md border border-pine-900/15 bg-white px-2.5 py-1 text-xs font-medium text-pine-900 hover:bg-pine-50"
               title="Open sidebar"
             >
               <PanelLeftOpen className="h-3.5 w-3.5" />
@@ -296,12 +350,12 @@ export default function AdminShell({
           pathname === "/admin/authors" ||
           pathname === "/admin/create-content" ||
           pathname === "/admin/newsletter") && (
-          <div className="sticky top-[41px] z-20 bg-white/95 px-4 pt-4 pb-0 backdrop-blur-sm md:top-0 md:px-8">
+          <div className="sticky top-[52px] z-20 bg-white/95 px-3 pt-3 pb-0 backdrop-blur-sm md:top-0 md:px-8 md:pt-4">
             <ContentHubNav />
           </div>
         )}
 
-        {children}
+        <div className="pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
       </main>
       <AIAssistantWidget />
     </div>

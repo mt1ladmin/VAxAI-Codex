@@ -427,10 +427,10 @@ export function ContentCreateModal({
     contentType === "linkedin" || contentType === "instagram" || contentType === "facebook";
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl">
+    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4">
+      <div className="flex max-h-[min(92dvh,100%)] w-full max-w-2xl flex-col rounded-t-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#111111]/10 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-[#111111]/10 px-4 py-3.5 sm:px-5 sm:py-4">
           <div>
             <h2 className="text-base font-semibold text-[#111111]">
               {step === "form"

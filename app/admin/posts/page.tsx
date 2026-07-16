@@ -127,14 +127,14 @@ export default function PostsPage() {
 
   return (
     <div className="min-h-full bg-white">
-      <div className="border-b border-pine-900/8 bg-white px-8 py-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="border-b border-pine-900/8 bg-white px-4 py-5 md:px-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <p className="min-w-0 flex-1 text-sm text-muted">
             {posts.length} items · {publishedCount} published · {scheduledCount > 0 ? `${scheduledCount} scheduled · ` : ""}{draftCount} drafts
           </p>
           <Link
             href="/admin/posts/new"
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-pine-900 px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
           >
             <Plus className="h-4 w-4" />
             New post
@@ -142,7 +142,7 @@ export default function PostsPage() {
         </div>
       </div>
 
-      <div className="px-8 py-6">
+      <div className="px-4 py-5 md:px-8 md:py-6">
         {/* Filters */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <div className="relative">

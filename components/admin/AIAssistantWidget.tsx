@@ -812,6 +812,7 @@ export function AIAssistantWidget() {
   const [showPicker, setShowPicker] = useState(false);
   const [chatNonce, setChatNonce] = useState(0);
   const [position, setPosition] = useState<{ right: number; bottom: number }>(readWidgetPosition);
+  const [isNarrow, setIsNarrow] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const resizeDrag = useRef<{ startX: number; startY: number; startW: number; startH: number } | null>(null);
   const posDrag = useRef<{ startX: number; startY: number; startRight: number; startBottom: number; moved: boolean } | null>(null);
@@ -819,6 +820,14 @@ export function AIAssistantWidget() {
 
   usePersistWidgetOpen(isOpen);
   isOpenRef.current = isOpen;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setIsNarrow(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     try {
@@ -949,8 +958,11 @@ export function AIAssistantWidget() {
       <button
         type="button"
         onMouseDown={handleButtonMouseDown}
-        style={{ bottom: position.bottom, right: position.right }}
-        className="fixed z-40 grid h-12 w-12 place-items-center rounded-full bg-pine-900 shadow-lg hover:bg-pine-800 transition-colors cursor-grab active:cursor-grabbing select-none"
+        style={{
+          bottom: isNarrow ? Math.max(position.bottom, 16) : position.bottom,
+          right: isNarrow ? Math.max(position.right, 12) : position.right,
+        }}
+        className="fixed z-40 grid h-12 w-12 place-items-center rounded-full bg-pine-900 shadow-lg hover:bg-pine-800 transition-colors cursor-grab active:cursor-grabbing select-none touch-manipulation"
         title="VAxAI Assistant (drag to move)"
       >
         {isOpen ? (
@@ -965,14 +977,29 @@ export function AIAssistantWidget() {
         <div
           ref={panelRef}
           className="fixed z-40 flex flex-col rounded-2xl border border-[#111111]/10 bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.25)] overflow-hidden transition-[width,height] duration-150 ease-out"
-          style={{ width: panelDimensions.width, height: panelDimensions.height, bottom: position.bottom + 56, right: position.right }}
+          style={
+            isNarrow
+              ? {
+                  width: "calc(100vw - 1rem)",
+                  height: "min(70dvh, 560px)",
+                  left: 8,
+                  right: 8,
+                  bottom: Math.max(position.bottom + 56, 72),
+                }
+              : {
+                  width: panelDimensions.width,
+                  height: panelDimensions.height,
+                  bottom: position.bottom + 56,
+                  right: position.right,
+                }
+          }
         >
           {/* Manual resize — drag top-left corner */}
           <button
             type="button"
             aria-label="Resize panel"
             onMouseDown={startResize}
-            className="absolute left-0 top-0 z-50 h-4 w-4 cursor-nwse-resize rounded-tl-2xl hover:bg-[#111111]/5"
+            className="absolute left-0 top-0 z-50 h-4 w-4 cursor-nwse-resize rounded-tl-2xl hover:bg-[#111111]/5 max-md:hidden"
             title="Drag to resize"
           />
 

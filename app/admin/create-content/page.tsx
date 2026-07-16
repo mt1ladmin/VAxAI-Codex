@@ -127,7 +127,7 @@ export default function CreateContentPage() {
         </div>
 
         {/* Always-visible create / library controls */}
-        <div className={`sticky top-14 z-20 mt-5 ${studio.card} ${studio.cardPad} border-pine-900/10 bg-white/95 shadow-sm backdrop-blur-md md:top-12`}>
+        <div className={`sticky top-[7.5rem] z-20 mt-5 ${studio.card} ${studio.cardPad} border-pine-900/10 bg-white/95 shadow-sm backdrop-blur-md max-md:p-3.5 md:top-12`}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-sm leading-6 text-muted">
@@ -137,15 +137,15 @@ export default function CreateContentPage() {
                   : ""}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={() => setOpen(true)} className={studio.btnPrimary}>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+              <button type="button" onClick={() => setOpen(true)} className={`${studio.btnPrimary} max-md:w-full max-md:min-h-11`}>
                 <Sparkles className="h-4 w-4" />
                 {selected.size > 0 ? "Create from selection" : "Create"}
               </button>
               <button
                 type="button"
                 onClick={() => setLibraryOpen((v) => !v)}
-                className={studio.btnSecondary}
+                className={`${studio.btnSecondary} max-md:w-full max-md:min-h-11`}
               >
                 {libraryOpen ? "Hide topic library" : "Browse topic library"}
                 <ChevronDown

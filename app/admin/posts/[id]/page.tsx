@@ -595,7 +595,7 @@ export default function EditPostPage() {
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col md:h-full md:min-h-0">
       <Toast message={toastMsg} visible={toastVisible} action={toastAction} isError={toastIsError} />
 
       {showSocialPreview && socialDraft && (
@@ -711,37 +711,38 @@ export default function EditPostPage() {
       )}
 
       {/* Top bar */}
-      <div className="flex shrink-0 items-center gap-3 border-b border-[#111111]/10 bg-white px-4 py-3">
-        <Link href="/admin/posts" className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50">
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-[#111111]/10 bg-white px-3 py-3 sm:gap-3 sm:px-4">
+        <Link href="/admin/posts" className="grid h-10 w-10 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50">
           <ArrowLeft className="h-4 w-4" />
         </Link>
-        <span className="text-sm text-[#5F686A]">Edit post</span>
+        <span className="min-w-0 flex-1 truncate text-sm text-[#5F686A]">Edit post</span>
         {autoSaveStatus === "saving" && (
-          <span className="ml-3 flex items-center gap-1 text-xs text-[#5F686A]">
-            <Loader2 className="h-3 w-3 animate-spin" /> Auto-saving…
+          <span className="flex items-center gap-1 text-xs text-[#5F686A]">
+            <Loader2 className="h-3 w-3 animate-spin" /> Saving…
           </span>
         )}
         {autoSaveStatus === "saved" && (
-          <span className="ml-3 flex items-center gap-1 text-xs text-emerald-600">
+          <span className="hidden items-center gap-1 text-xs text-emerald-600 sm:flex">
             <Check className="h-3 w-3" /> Auto-saved
           </span>
         )}
-        <div className="ml-auto flex items-center gap-2">
-          <button onClick={() => setShowDeleteConfirm(true)} className="grid h-8 w-8 place-items-center rounded-md text-[#5F686A] hover:bg-red-50 hover:text-red-600">
+        <div className="flex items-center gap-2">
+          <button onClick={() => setShowDeleteConfirm(true)} className="grid h-10 w-10 place-items-center rounded-md text-[#5F686A] hover:bg-red-50 hover:text-red-600" aria-label="Delete">
             <Trash2 className="h-4 w-4" />
           </button>
           <button
             onClick={() => void save("draft")}
             disabled={saving}
-            className="rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
+            className="rounded-md border border-[#111111]/15 px-3 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
           >
-            Save draft
+            <span className="sm:hidden">Draft</span>
+            <span className="hidden sm:inline">Save draft</span>
           </button>
           <button
             type="button"
             onClick={() => setPanelOpen(true)}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-1.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md border border-[#111111]/15 px-3 py-2.5 text-sm font-semibold text-[#5F686A] hover:bg-pine-50 disabled:opacity-50"
           >
             <Settings className="h-3.5 w-3.5" />
             {isPublished ? "Settings" : "Publish"}
@@ -764,12 +765,12 @@ export default function EditPostPage() {
         </div>
 
         {panelOpen && (
-          <div className="flex w-80 shrink-0 flex-col border-l border-[#111111]/10 bg-white">
+          <div className="fixed inset-0 z-50 flex flex-col bg-white max-md:pt-[env(safe-area-inset-top)] md:static md:inset-auto md:z-auto md:w-80 md:shrink-0 md:border-l md:border-[#111111]/10">
             <div className="flex shrink-0 items-center justify-between border-b border-[#111111]/10 px-5 py-4">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#5F686A]">
                 {isPublished ? "Post settings" : "Publish post"}
               </p>
-              <button onClick={() => setPanelOpen(false)} className="grid h-7 w-7 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50">
+              <button onClick={() => setPanelOpen(false)} className="grid h-10 w-10 place-items-center rounded-md text-[#5F686A] hover:bg-pine-50" aria-label="Close">
                 <X className="h-4 w-4" />
               </button>
             </div>

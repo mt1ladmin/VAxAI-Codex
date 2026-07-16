@@ -149,11 +149,11 @@ export default function AuthorsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="border-b border-pine-900/8 bg-white px-8 py-5">
+      <div className="border-b border-pine-900/8 bg-white px-4 py-5 md:px-8">
         <p className="text-sm text-muted">Create author profiles to attribute posts. Each profile is shown on the published post.</p>
       </div>
 
-      <div className="mx-auto max-w-2xl px-8 py-8">
+      <div className="mx-auto max-w-2xl px-4 py-6 md:px-8 md:py-8">
         <div className="space-y-4">
           {loading ? (
             <div className="py-12 text-center text-sm text-[#5F686A]">Loading…</div>
