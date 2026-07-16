@@ -1040,90 +1040,46 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
-          {/* Who we partner with */}
+          {/* Who we partner with + Specialisms — side by side */}
           <section id="who" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2 md:gap-12 md:items-start">
               <Reveal>
                 <Eyebrow>Who we partner with</Eyebrow>
-                <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Experienced freelancers, flexible quality support
-                </h2>
-                <p className="mt-6 max-w-2xl text-base leading-8 text-muted md:text-lg">
-                  We work with experienced UK-based freelance virtual assistants who want to deliver
-                  high-quality admin support on a flexible basis.
-                </p>
+                <div className="mt-6 rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
+                    Essential requirements
+                  </p>
+                  <p className="mt-2 text-sm text-muted">These are non-negotiable for client work:</p>
+                  <ul className="mt-5 space-y-3">
+                    {essentials.map((item) => (
+                      <li key={item} className="flex gap-3 text-sm leading-7 text-muted md:text-[15px]">
+                        <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                          ✓
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </Reveal>
 
-              <Reveal className="mt-10 max-w-2xl rounded-[28px] border border-ink/5 bg-white p-7 shadow-card md:p-8">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-pine-800">
-                  Essential requirements
-                </p>
-                <p className="mt-2 text-sm text-muted">These are non-negotiable for client work:</p>
-                <ul className="mt-5 space-y-3">
-                  {essentials.map((item) => (
-                    <li key={item} className="flex gap-3 text-sm leading-7 text-muted md:text-[15px]">
-                      <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-                        ✓
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </Reveal>
-            </div>
-          </section>
-
-          {/* Specialisms */}
-          <section className="bg-cream/40 px-4 py-16 md:px-8 md:py-20">
-            <div className="mx-auto max-w-6xl">
               <Reveal>
                 <Eyebrow>Specialisms we value</Eyebrow>
-                <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Useful strengths, not hard gates
-                </h2>
-                <p className="mt-6 max-w-2xl text-base leading-8 text-muted md:text-lg">
-                  Apply if you can contribute in one or more areas:
-                </p>
-              </Reveal>
-              <div className="mt-8 flex flex-wrap gap-2">
-                {VA_SPECIALISMS.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-full border border-ink/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-ink/80 md:text-sm"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Why partner */}
-          <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
-            <div className="mx-auto max-w-6xl">
-              <Reveal>
-                <Eyebrow light>Why partner with VAxAI</Eyebrow>
-                <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                  Focus on the work. We handle the rest.
-                </h2>
-              </Reveal>
-              <div className="mt-10 grid gap-4 sm:grid-cols-2">
-                {whyPartner.map((item) => (
-                  <Reveal
-                    key={item}
-                    className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-5"
-                  >
-                    <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
-                      ✓
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {VA_SPECIALISMS.map((s) => (
+                    <span
+                      key={s}
+                      className="rounded-full border border-ink/10 bg-white px-3.5 py-1.5 text-xs font-semibold text-ink/80 md:text-sm"
+                    >
+                      {s}
                     </span>
-                    <p className="text-sm leading-7 text-paper/80 md:text-[15px]">{item}</p>
-                  </Reveal>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </Reveal>
             </div>
           </section>
 
-          {/* Supporting early careers — new section */}
+          {/* Supporting early careers */}
           <section id="early-careers" className="scroll-mt-24 bg-cream/50 px-4 py-16 md:px-8 md:py-20">
             <div className="mx-auto max-w-6xl">
               <Reveal className="max-w-3xl">
@@ -1152,14 +1108,39 @@ export default function WorkWithVaxaiPage() {
             </div>
           </section>
 
+          {/* Why partner */}
+          <section className="bg-pine-900 px-4 py-16 text-paper md:px-8 md:py-20">
+            <div className="mx-auto max-w-6xl">
+              <Reveal>
+                <Eyebrow light>Why partner with VAxAI</Eyebrow>
+                <h2 className="mt-4 max-w-2xl text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
+                  Focus on the work. We handle the rest.
+                </h2>
+              </Reveal>
+              <div className="mt-10 grid gap-4 sm:grid-cols-2">
+                {whyPartner.map((item) => (
+                  <Reveal
+                    key={item}
+                    className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-5"
+                  >
+                    <span className="mt-0.5 grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-acid text-[10px] font-black text-ink">
+                      ✓
+                    </span>
+                    <p className="text-sm leading-7 text-paper/80 md:text-[15px]">{item}</p>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </section>
+
           {/* Apply CTA */}
           <section id="apply" className="scroll-mt-24 px-4 py-16 md:px-8 md:py-24">
             <div className="mx-auto max-w-6xl">
               <Reveal className="overflow-hidden rounded-[28px] border border-ink/8 bg-white shadow-lift md:grid md:grid-cols-[1.15fr_0.85fr]">
                 <div className="p-8 md:p-10 lg:p-12">
-                  <Eyebrow>Partner with VAxAI</Eyebrow>
+                  <Eyebrow>Join our network</Eyebrow>
                   <h2 className="mt-4 text-2xl font-semibold leading-snug tracking-[-0.02em] md:text-4xl">
-                    Ready to partner with us?
+                    Ready to join our network?
                   </h2>
                   <p className="mt-5 max-w-xl text-base leading-8 text-muted">
                     Start your application when ready. We guide you step by step through privacy,
