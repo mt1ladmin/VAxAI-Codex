@@ -49,7 +49,7 @@ export default function SiteFooter() {
                 <p className="mb-5 text-[11px] font-bold uppercase tracking-[0.16em] text-acid/80">Support</p>
                 <div className="grid gap-3.5 text-paper/62">
                   <a href="/#faq" className="transition-colors duration-200 hover:text-paper">FAQ</a>
-                  <a href="/founders-entrepreneurs#access-to-work" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
+                  <a href="https://www.gov.uk/access-to-work" target="_blank" rel="noopener noreferrer" className="transition-colors duration-200 hover:text-paper">Access to Work</a>
                   <a href="https://www.mt1l.com" target="_blank" rel="noreferrer" className="transition-colors duration-200 hover:text-paper">VTA Framework</a>
                 </div>
               </div>

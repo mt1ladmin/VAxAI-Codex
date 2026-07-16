@@ -1131,8 +1131,8 @@ export default function WorkWithVaxaiPage() {
                     Register your interest
                     <ArrowRight className="h-4 w-4" />
                   </button>
-                  <a href="#who" className={btn.ghostDark}>
-                    Who we partner with
+                  <a href="/about" className={btn.ghostDark}>
+                    Learn about VAxAI
                   </a>
                 </div>
               </motion.div>
