@@ -120,6 +120,65 @@ type GenTopic = {
   conversation_hook?: string;
 };
 
+/**
+ * Models often wrap JSON in fences or add trailing prose.
+ * Extract the first complete top-level JSON object and parse it.
+ */
+function parseJsonObjectFromAiText(raw: string): { topics?: GenTopic[] } {
+  let text = raw.trim();
+  // Strip ```json ... ``` or ``` ... ```
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence?.[1]) text = fence[1].trim();
+
+  const start = text.indexOf("{");
+  if (start === -1) throw new Error("AI returned no JSON");
+
+  let inString = false;
+  let escape = false;
+  let depth = 0;
+  let end = -1;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (ch === "\\") {
+      if (inString) escape = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "{") depth += 1;
+    else if (ch === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        end = i;
+        break;
+      }
+    }
+  }
+
+  const candidate = end >= start ? text.slice(start, end + 1) : text.slice(start);
+  try {
+    return JSON.parse(candidate) as { topics?: GenTopic[] };
+  } catch (first) {
+    // Last resort: trim trailing junk after last closing brace if any
+    const lastBrace = text.lastIndexOf("}");
+    if (lastBrace > start) {
+      try {
+        return JSON.parse(text.slice(start, lastBrace + 1)) as { topics?: GenTopic[] };
+      } catch {
+        /* fall through */
+      }
+    }
+    throw first instanceof Error ? first : new Error("Could not parse AI JSON");
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     await assertAuth();
@@ -163,7 +222,8 @@ BALANCE
 - Keep persistent problems (backlogs, messy drives, unowned admin, maintenance) but phrase them so they meet searches and discussions current as of today.
 - SEO: titles and angles should match language people search and discuss now (${year}), not outdated hype.
 
-Return ONLY valid JSON:
+Return ONLY a single JSON object. No markdown fences, no commentary before or after.
+Shape:
 {"topics":[{"category":"...","title":"...","angle":"...","formats":["blog","linkedin"],"research_note":"...","conversation_hook":"..."}]}
 
 category must be one of: ${categories}
@@ -195,11 +255,16 @@ Every topic must still be useful if read months later, but relevant if published
       .map((b) => b.text)
       .join("");
 
-    const start = text.indexOf("{");
-    if (start === -1) {
-      return NextResponse.json({ error: "AI returned no JSON" }, { status: 500 });
+    let parsed: { topics?: GenTopic[] };
+    try {
+      parsed = parseJsonObjectFromAiText(text);
+    } catch (e) {
+      const detail = e instanceof Error ? e.message : "parse failed";
+      return NextResponse.json(
+        { error: `Could not read AI topics (${detail}). Try Refresh topics again.` },
+        { status: 500 },
+      );
     }
-    const parsed = JSON.parse(text.slice(start)) as { topics?: GenTopic[] };
     const raw = Array.isArray(parsed.topics) ? parsed.topics : [];
 
     const validCats = new Set(TOPIC_CATEGORIES.map((c) => c.id));
