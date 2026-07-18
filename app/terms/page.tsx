@@ -63,7 +63,7 @@ export default function TermsPage() {
         4.1 We will carry out our services with reasonable care and skill, and in accordance with the agreed Proposal.
       </p>
       <p>
-        4.2 We apply the VTA Framework to all our work — ensuring that what we recommend creates genuine Value, can be Trusted by the people it affects, and fits your organisation (Alignment). This means we may advise against a course of action you have requested if we believe it does not meet those standards.
+        4.2 We apply the VTA Framework to all our work — ensuring that what we recommend creates genuine Value, can be Trusted by the people it affects, and fits your organisation (Alignment).
       </p>
       <p>
         4.3 We will keep you reasonably informed of progress and flag any issues that may affect delivery as soon as we are aware of them.
@@ -74,20 +74,50 @@ export default function TermsPage() {
 
       <h2>5. Your obligations</h2>
       <p>
-        5.1 You agree to provide us, in a timely manner, with all information, access and materials we reasonably need to carry out our services. Delays caused by late provision of these may affect delivery timelines, and we accept no liability for such delays.
+        <strong>5.1 General obligations</strong>
       </p>
+      <p>These apply to anyone using the website or contacting us:</p>
+      <ul>
+        <li>
+          You are responsible for ensuring that information you provide is accurate and that you have
+          the right to share it with us.
+        </li>
+        <li>
+          You agree to use our Deliverables only for lawful purposes and in accordance with these
+          terms.
+        </li>
+      </ul>
       <p>
-        5.1A If you register interest in the VAxAI VA partner network, you confirm that the information and documents you submit (including your CV) are true and accurate to the best of your knowledge; that you are based in the UK and entitled to work in the UK for the work described; that you will keep your setup (including tax registration when required and appropriate Professional Indemnity insurance) in order before any client work begins; and that you understand the work often involves working with confidential information and may require you to sign a Non-Disclosure Agreement and Data Processing Agreement, provide references, and complete a basic background check if required for certain client work.
+        <strong>5.2 Obligations if you engage our services as a client</strong>
       </p>
+      <ul>
+        <li>
+          You agree to provide us, in a timely manner, with all information, access and materials we
+          reasonably need to carry out our services. Delays caused by late provision of these may
+          affect delivery timelines, and we accept no liability for such delays.
+        </li>
+        <li>You agree to pay our fees in accordance with clause 6.</li>
+      </ul>
       <p>
-        5.2 You are responsible for ensuring that information you provide is accurate and that you have the right to share it with us.
+        <strong>5.3 Obligations if you register interest in the VAxAI VA partner network</strong>
       </p>
-      <p>
-        5.3 You agree to use our Deliverables only for lawful purposes and in accordance with these terms.
-      </p>
-      <p>
-        5.4 You agree to pay our fees in accordance with clause 6.
-      </p>
+      <p>If you register interest in the VAxAI VA partner network, you confirm that:</p>
+      <ul>
+        <li>
+          the information and documents you submit (including your CV) are true and accurate to the
+          best of your knowledge;
+        </li>
+        <li>you are based in the UK and entitled to work in the UK for the work described;</li>
+        <li>
+          you will keep your setup (including tax registration when required and appropriate
+          Professional Indemnity insurance) in order before any client work begins; and
+        </li>
+        <li>
+          you understand the work often involves working with confidential information and may require
+          you to sign a Non-Disclosure Agreement and Data Processing Agreement, provide references,
+          and complete a basic background check if required for certain client work.
+        </li>
+      </ul>
 
       <h2>6. Fees and payment</h2>
       <p>
@@ -172,7 +202,7 @@ export default function TermsPage() {
 
       <h2>12. Force majeure</h2>
       <p>
-        12.1 Neither party is in breach of these terms, or liable for delay or failure to perform, where this is caused by circumstances beyond their reasonable control, including acts of God, pandemic, governmental action, failure of third-party services or internet infrastructure failure.
+        12.1 Neither party is in breach of these terms, or liable for delay or failure to perform, where this is caused by circumstances beyond their reasonable control (including, without limitation, natural disasters, pandemic, governmental action, failure of third-party services or internet infrastructure failure).
       </p>
       <p>
         12.2 The affected party will notify the other as soon as reasonably practicable, and both parties will use reasonable efforts to mitigate the impact.

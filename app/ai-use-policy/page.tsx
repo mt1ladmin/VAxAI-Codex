@@ -25,7 +25,7 @@ export default function AiUsePolicyPage() {
       <p>We use AI in a small number of clearly defined ways:</p>
       <ul>
         <li>
-          <strong>Service delivery and readiness work.</strong> AI helps us analyse information, organise material, surface considerations across Value, Trust and Alignment, and sense-check thinking we have already developed during Admin Reviews, project work and ongoing support. A person always reviews, adjusts and takes responsibility for the final output.
+          <strong>Service delivery and readiness work.</strong> AI helps us analyse information, organise material, surface considerations across Value, Trust and Alignment, and sense-check thinking we have already developed. A person always reviews, adjusts and takes responsibility for the final output.
         </li>
         <li>
           <strong>Drafting and editing.</strong> We use AI to help draft, edit and structure text — for example, tidying wording, checking for clarity, or shaping a first draft that we then review and own. We do not use AI to generate ideas we have not worked through ourselves first. A person always reviews and owns what goes out.
@@ -37,7 +37,7 @@ export default function AiUsePolicyPage() {
           <strong>Internal tools and this website.</strong> We may use AI to help design internal workflows and digital tools that support delivery, always alongside, not instead of, human decision-making. We do not build complex or enterprise AI systems for clients ourselves; where that is needed, we can work with trusted external partners on your behalf.
         </li>
         <li>
-          <strong>Freelance partner coordination.</strong> Where people register interest in the VAxAI VA partner network, we may use AI tools inside VAxAI Studio to help our team organise applications, draft internal notes or suggest possible matches to client work. A person always decides who to contact and who is engaged. We do not use automated decision-making alone to accept or reject applications, including where applications include confidentiality confirmations or optional disclosure answers.
+          <strong>Freelance partner coordination.</strong> Where people register interest in the VAxAI VA partner network, we may use AI tools inside VAxAI Studio to help our team organise applications or suggest possible matches to client work. A person always decides who to contact and who is engaged. We do not use automated decision-making alone to accept or reject applications, including where applications include confidentiality confirmations or optional disclosure answers.
         </li>
       </ul>
 

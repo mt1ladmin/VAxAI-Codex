@@ -2,40 +2,36 @@ import { Metadata } from "next";
 import PolicyPage from "@/components/PolicyPage";
 
 export const metadata: Metadata = {
-  title: "JEF Policy | VAxAI",
+  title: "Justice, Equity and Fairness | VAxAI",
   description:
     "Justice, Equity and Fairness (JEF) are embedded in the VTA Framework that guides MT1L and VAxAI.",
 };
 
 export default function JefPolicyPage() {
   return (
-    <PolicyPage title="JEF Policy" lastUpdated="July 2026">
+    <PolicyPage title="Justice, Equity and Fairness" lastUpdated="18 July 2026">
       <p>
-        Justice, Equity and Fairness (JEF) are embedded in the VTA Framework&trade; that guides MT1L
-        and VAxAI. This policy explains what that means in practice, including how we understand
-        social mobility and how these principles shape the way VAxAI supports founders, SMEs,
-        charities, non-profits and public sector organisations.
+        Justice, Equity and Fairness (JEF) are embedded in the VTA Framework that guides MT1L and
+        VAxAI. This policy explains what that means in practice.
       </p>
 
       <h2>More than one label</h2>
       <p>
-        VAxAI is a service provided by MT1L, More Than 1 Label. The name is a deliberate recognition
-        that people, and the organisations they belong to, are not defined by a single label. They
-        are complex, layered and shaped by many experiences at once, and we work within that
-        complexity.
+        VAxAI is a service provided by MT1L, short for More Than 1 Label. The name reflects our belief
+        that people, and the organisations they belong to, are not defined by a single label. They are
+        complex, layered and shaped by many experiences, and we work within that complexity.
       </p>
       <p>
-        This is why our commitment to Justice, Equity and Fairness reaches beyond any fixed set of
-        characteristics. We are committed to treating everyone with dignity and respect, and to
-        meeting our responsibilities under the Equality Act 2010. Our commitment goes further than
-        compliance: it is about understanding people, organisations and the pressures they face as
-        they really are.
+        We are committed to treating everyone with dignity and respect, meeting our responsibilities
+        under the Equality Act 2010 and going beyond compliance.
       </p>
 
       <h2>Justice, Equity and Fairness</h2>
       <p>
-        Justice, Equity and Fairness (JEF) is the language we use to describe the principles that sit
-        within our work.
+        Everything we do is guided by JEF (Justice, Equity and Fairness). Rather than sitting
+        alongside the VTA Framework, JEF is embedded within it. It shapes the questions we ask about
+        Value, Trust and Alignment, ensuring decisions are considered not only in terms of
+        organisational outcomes, but also their impact on people.
       </p>
       <p>For VAxAI, this means asking:</p>
       <ul>
@@ -47,51 +43,9 @@ export default function JefPolicyPage() {
       </ul>
       <p>
         JEF is not limited to representation or participation. It is about how support is designed,
-        who it affects and whether the outcome can be justified in practice.
-      </p>
-
-      <h2>Embedded, not separate</h2>
-      <p>
-        We do not treat Justice, Equity, Fairness or social mobility as isolated workstreams or
-        one-off exercises. They are part of how we think, how we work and what we help clients
-        achieve.
-      </p>
-      <p>
-        Rather than adding inclusion or fairness at the end, we build these questions into the way
-        VAxAI support is designed from the start, including how we review administrative pressure,
-        clear backlogs, prepare organisations for AI and automation, design workflows, provide
-        ongoing admin support and work with collaborators.
-      </p>
-
-      <h2>Embedded in the VTA Framework&trade;</h2>
-      <p>The VTA Framework&trade; guides VAxAI&rsquo;s approach, and JEF is embedded within it.</p>
-      <p>
-        The framework asks not only whether something creates value, but value for whom. It asks
-        whether an approach fits the client&rsquo;s reality, including their capacity, tools,
-        processes, confidence and ways of working. It also asks whether the people affected can
-        understand, trust and work with what is being introduced.
-      </p>
-      <p>
-        By making these questions explicit, the framework helps avoid assuming that AI, automation
-        or additional admin support is always the answer. It helps us consider what would genuinely
-        help, what could create new pressure and where human support may be more appropriate than
-        technology.
-      </p>
-      <p>
-        When we assess whether an AI, automation or workflow change is worth pursuing, Justice,
-        Equity and Fairness are part of that assessment, not an afterthought.
-      </p>
-
-      <h2>Rooted in our founder&rsquo;s practice</h2>
-      <p>
-        This policy is grounded in lived professional experience. MT1L&rsquo;s founder has a background
-        in inclusion, safeguarding, governance and co-production, alongside wider work on fairness,
-        participation and social mobility.
-      </p>
-      <p>
-        That experience helped shape the VTA Framework&trade; and the way VAxAI works with clients.
-        It is why Justice, Equity and Fairness are embedded in our approach rather than treated as a
-        separate piece of work.
+        who it affects and whether the outcomes can be justified in practice. This thinking underpins
+        how we deliver admin support, clear backlogs, prepare organisations for AI and automation, and
+        work with collaborators.
       </p>
 
       <h2>Social mobility</h2>
@@ -101,15 +55,32 @@ export default function JefPolicyPage() {
       </p>
       <div className="callout">
         The process by which individuals receive genuine, fair opportunities to improve their
-        socio-economic status, regardless of their starting point in life and the characteristics
-        and experiences that shape their identity.
+        socio-economic status, regardless of their starting point in life and the characteristics and
+        experiences that shape their identity.
       </div>
       <p>
-        VAxAI is designed to support people and organisations that may not have large teams,
-        specialist infrastructure or extensive operational capacity. By helping clients build stronger
-        administrative foundations first, reduce backlogs, improve workflows and prepare for AI or
-        automation only where it is appropriate, we aim to make support more accessible, practical
-        and proportionate.
+        We recognise that AI and automation are changing the future of work, and that these changes do
+        not affect everyone equally. Administrative roles are often among the areas most discussed when
+        organisations consider automation. At the same time, these roles provide valuable
+        opportunities for people to gain experience, develop transferable skills and begin their
+        careers.
+      </p>
+      <p>
+        Through MT1L, we support organisations to apply the VTA Framework so they can use technology
+        responsibly while recognising the continued value of human administrative support. VAxAI puts
+        this thinking into practice by helping organisations strengthen their administrative
+        foundations, improve processes and access practical human support alongside technology.
+      </p>
+      <p>
+        We are also committed to creating accessible pathways into freelance virtual assistance. By
+        supporting people to develop skills, gain experience and contribute to real projects, we aim to
+        open flexible work opportunities while helping organisations access the practical support they
+        need.
+      </p>
+      <p>
+        For us, social mobility is not only about creating new opportunities. It is also about ensuring
+        that decisions about technology and the future of work consider who is affected, whose
+        opportunities may change and what can be done to create fairer pathways forward.
       </p>
 
       <h2>How this shows up in our work</h2>
@@ -117,24 +88,34 @@ export default function JefPolicyPage() {
       <ul>
         <li>
           keep asking &ldquo;for whom?&rdquo; throughout our work, so that value and fairness are
-          considered together;
+          considered together
         </li>
         <li>
-          understand the client&rsquo;s real working conditions before recommending tools, AI,
-          automation or admin support;
-        </li>
-        <li>avoid assuming that technology is always the best answer, and start with foundations rather than tools;</li>
-        <li>
-          consider where human judgement, reassurance, accessibility or personal support may be more
-          valuable than automation;
+          understand the client&rsquo;s real working conditions, capacity and challenges before
+          recommending changes to processes or introducing technology
         </li>
         <li>
-          help clients build organised information, clearer workflows and services that are fairer,
-          more inclusive and more trusted; and
+          recognise that smaller organisations, charities and founders may face different barriers due
+          to limited resources, capacity or budgets
         </li>
         <li>
-          challenge AI or automation proposals that risk embedding, amplifying or obscuring existing
-          inequalities.
+          consider accessibility and different ways of working, including the needs of neurodivergent
+          professionals and teams
+        </li>
+        <li>
+          avoid assuming that technology is always the best answer, and start with understanding the
+          work itself
+        </li>
+        <li>
+          identify where AI and automation can create value while recognising where human
+          administrative support remains essential
+        </li>
+        <li>
+          help clients build organised information, clearer workflows and stronger foundations for
+          responsible AI and automation
+        </li>
+        <li>
+          challenge approaches that risk embedding, amplifying or obscuring existing inequalities
         </li>
       </ul>
 
@@ -143,26 +124,28 @@ export default function JefPolicyPage() {
       <ul>
         <li>
           price our services in a way that does not systematically exclude smaller organisations or
-          those with limited budgets;
+          those with limited budgets
         </li>
-        <li>be transparent about how we work and who we are;</li>
+        <li>be transparent about how we work and who we are</li>
         <li>
-          engage collaborators on the basis of their skills, values and fit, not background,
-          characteristics or connections; and
+          engage collaborators on the basis of their skills, values and fit for the work, not
+          background, characteristics or connections
         </li>
         <li>
           keep our own use of AI fair, transparent and subject to human oversight. See our{" "}
-          <a href="/ai-use-policy">AI Use Policy</a>.
+          <a href="/ai-use-policy">AI Use Policy</a>
         </li>
       </ul>
 
       <h2>Accessibility</h2>
       <p>
         Inclusion includes how you experience this website. We aim to write in plain language and to
-        design for accessibility. Every page offers an Accessibility panel, allowing you to switch
-        to a high-contrast simplified view, increase text size, reduce motion and apply
-        dyslexia-friendly spacing. These options are available via the Accessibility button in the
-        bottom corner of every page.
+        design for accessibility. Every page offers an Accessibility panel, allowing you to switch to
+        a high-contrast simplified view, increase text size, reduce motion and apply dyslexia-friendly
+        spacing.
+      </p>
+      <p>
+        These options are available via the Accessibility button in the bottom corner of every page.
       </p>
       <p>
         If you find anything difficult to use, please tell us so we can improve it:{" "}
@@ -180,10 +163,10 @@ export default function JefPolicyPage() {
         <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>.
       </p>
 
-      <h2>How this reflects the VTA Framework&trade;</h2>
+      <h2>How this reflects the VTA Framework</h2>
       <p>
-        The VTA Framework&trade; asks whether something creates meaningful Value, can be Trusted
-        by the people it affects, and fits the client&rsquo;s reality through Alignment.
+        The VTA Framework asks whether something creates meaningful Value, can be Trusted by the
+        people it affects, and fits the client&rsquo;s reality through Alignment.
       </p>
       <p>
         Justice, Equity, Fairness and social mobility are not separate from that test. They are
@@ -191,13 +174,19 @@ export default function JefPolicyPage() {
       </p>
       <p>
         Value requires asking who benefits and who may be left behind. Trust requires people to
-        understand what is being introduced, how it affects them and where human oversight remains
-        in place. Alignment requires understanding whether the support fits the client&rsquo;s
+        understand what is being introduced, how it affects them and where human support remains
+        available. Alignment requires understanding whether the support fits the client&rsquo;s
         capacity, tools, confidence and ways of working.
       </p>
       <p>
         That is why JEF sits within VAxAI&rsquo;s approach: because better support depends not only on
         what is possible, but on what is fair, practical and trusted.
+      </p>
+
+      <p>
+        Questions about this policy? Email <a href="mailto:hello@mt1l.com">hello@mt1l.com</a>. You can
+        also read our <a href="/privacy">Privacy Policy</a>, <a href="/terms">Terms of Use</a> and{" "}
+        <a href="/ai-use-policy">AI Use Policy</a>.
       </p>
     </PolicyPage>
   );
